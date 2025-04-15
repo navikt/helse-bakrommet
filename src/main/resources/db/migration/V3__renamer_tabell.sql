@@ -1,0 +1,1 @@
+ALTER TABLE IF EXISTS kommandokjede_ikke_ferdigstilt RENAME TO suspenderte_kommandokjeder;
