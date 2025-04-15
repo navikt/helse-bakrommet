@@ -1,4 +1,4 @@
-name: Bygg og deploy Spotlight
+name: Bygg og deploy Bakrommet
 
 on:
   push:
@@ -37,7 +37,7 @@ jobs:
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
-          team: tbd
+          team: speilvendt
           cache_from: type=gha
           cache_to: type=gha,mode=min
     outputs:
@@ -57,16 +57,3 @@ jobs:
           RESOURCE: deploy/dev.yml
           IMAGE: ${{ needs.build.outputs.image }}
 
-  deploy-prod:
-    name: Deploy til prod
-    needs: [build, deploy-dev]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Sjekk ut kode
-        uses: actions/checkout@v4
-      - name: Deploy til NAIS
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: prod-gcp
-          RESOURCE: deploy/prod.yml
-          IMAGE: ${{ needs.build.outputs.image }}

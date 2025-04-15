@@ -1,1 +1,1 @@
-rootProject.name = "helse-spotlight"
+rootProject.name = "helse-bakrommet"

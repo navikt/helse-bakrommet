@@ -1,1 +1,0 @@
-ALTER TABLE suspenderte_kommandokjeder ADD COLUMN tilstand VARCHAR(64) DEFAULT 'SUSPENDERT' NOT NULL;

@@ -1,3 +1,4 @@
+private val flywayVersion = "11.4.0"
 plugins {
     kotlin("jvm") version "2.1.10"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
@@ -17,7 +18,6 @@ repositories {
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
-private val flywayVersion = "11.4.0"
 dependencies {
     implementation("com.github.navikt:rapids-and-rivers:2025030709111741335066.dc4411f7bc29")
 
@@ -34,10 +34,8 @@ dependencies {
         exclude("com.fasterxml.jackson.dataformat")
     }
 
-    testImplementation("org.wiremock:wiremock-jetty12:3.12.1")
     testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.03.10-19.50-d556269c")
     testImplementation("org.testcontainers:postgresql:1.20.6")
-    testImplementation("io.mockk:mockk:1.13.17")
     testImplementation(platform("org.junit:junit-bom:5.12.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(kotlin("test"))
@@ -69,7 +67,7 @@ tasks {
     withType<Jar> {
         archiveBaseName.set("app")
         manifest {
-            attributes["Main-Class"] = "no.nav.helse.spotlight.AppKt"
+            attributes["Main-Class"] = "no.nav.helse.bakrommet.AppKt"
             attributes["Class-Path"] =
                 configurations.runtimeClasspath.get().joinToString(separator = " ") {
                     it.name
