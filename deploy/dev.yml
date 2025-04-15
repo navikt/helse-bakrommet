@@ -1,7 +1,6 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  creationTimestamp: null
   labels:
     team: speilvendt
   name: bakrommet
@@ -28,7 +27,7 @@ spec:
     enabled: true
   gcp:
     sqlInstances:
-      - type: POSTGRES_15
+      - type: POSTGRES_17
         diskAutoresize: true
         tier: db-f1-micro
         databases:
