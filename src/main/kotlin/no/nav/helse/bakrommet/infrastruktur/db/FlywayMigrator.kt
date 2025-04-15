@@ -18,6 +18,7 @@ class FlywayMigrator(configuration: DBModule.Configuration) {
     fun migrate() {
         HikariDataSource(hikariConfig).use { dataSource ->
             Flyway.configure()
+                .validateMigrationNaming(true)
                 .dataSource(dataSource)
                 .lockRetryCount(-1)
                 .load()
