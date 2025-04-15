@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.navikt:rapids-and-rivers:2025030709111741335066.dc4411f7bc29")
+    implementation("com.github.navikt:rapids-and-rivers:2025033013171743333452.914c05d38d42")
 
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("com.zaxxer:HikariCP:6.2.1")
