@@ -14,8 +14,6 @@ class DataSourceBuilder(configuration: DBModule.Configuration) {
     private val hikariConfig =
         HikariConfig().apply {
             jdbcUrl = configuration.jdbcUrl
-            username = configuration.username
-            password = configuration.password
             maximumPoolSize = 20
             minimumIdle = 2
             idleTimeout = 1.minutes.inWholeMilliseconds

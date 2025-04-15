@@ -18,14 +18,7 @@ fun main() {
     appLogger.info("Hello, world!")
 
     val env = System.getenv()
-    val dbConfiguration =
-        DBModule.Configuration(
-            jdbcUrl = "jdbc:postgresql://${env.getValue(
-                "DATABASE_HOST",
-            )}:${env.getValue("DATABASE_PORT")}/${env.getValue("DATABASE_DATABASE")}",
-            username = env.getValue("DATABASE_USERNAME"),
-            password = env.getValue("DATABASE_PASSWORD"),
-        )
+    val dbConfiguration = DBModule.Configuration(env.getValue("DATABASE_JDBC_URL"))
 
     startApp(dbConfiguration)
 }

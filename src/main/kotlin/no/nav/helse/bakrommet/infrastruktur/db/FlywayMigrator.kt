@@ -10,8 +10,6 @@ class FlywayMigrator(configuration: DBModule.Configuration) {
     private val hikariConfig =
         HikariConfig().apply {
             jdbcUrl = configuration.jdbcUrl
-            username = configuration.username
-            password = configuration.password
             connectionTimeout = 5.seconds.inWholeMilliseconds
             initializationFailTimeout = 1.minutes.inWholeMilliseconds
             maximumPoolSize = 2

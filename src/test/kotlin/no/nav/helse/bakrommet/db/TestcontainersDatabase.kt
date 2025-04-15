@@ -16,8 +16,6 @@ class TestcontainersDatabase {
 
     val dbModuleConfiguration =
         DBModule.Configuration(
-            jdbcUrl = postgres.jdbcUrl,
-            username = postgres.username,
-            password = postgres.password,
+            jdbcUrl = postgres.jdbcUrl + "&user=" + postgres.username + "&password=" + postgres.password,
         )
 }
