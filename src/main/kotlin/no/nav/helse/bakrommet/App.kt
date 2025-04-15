@@ -1,23 +1,63 @@
 package no.nav.helse.bakrommet
 
+import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotliquery.queryOf
+import kotliquery.sessionOf
+import no.nav.helse.bakrommet.infrastruktur.db.DBModule
+import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import javax.sql.DataSource
 
 val appLogger = LoggerFactory.getLogger("bakrommet")
 
 fun main() {
     appLogger.info("Hello, world!")
+
+    val env = System.getenv()
+    val dbConfiguration =
+        DBModule.Configuration(
+            jdbcUrl = "jdbc:postgresql://${env.getValue(
+                "DATABASE_HOST",
+            )}:${env.getValue("DATABASE_PORT")}/${env.getValue("DATABASE_DATABASE")}",
+            username = env.getValue("DATABASE_USERNAME"),
+            password = env.getValue("DATABASE_PASSWORD"),
+        )
+
+    startApp(dbConfiguration)
+}
+
+internal fun startApp(dbModule: DBModule.Configuration) {
+    val dataSource = instansierDatabase(dbModule)
+
     embeddedServer(CIO, port = 8080) {
-        routing {
-            get("/isready") {
-                call.respondText("I'm ready")
-            }
-            get("/isalive") {
-                call.respondText("I'm alive")
-            }
-        }
+        settOppKtor(dataSource)
     }.start(true)
 }
+
+internal fun instansierDatabase(configuration: DBModule.Configuration) =
+    DBModule(configuration = configuration).also { it.migrate() }.dataSource
+
+internal fun Application.settOppKtor(dataSource: DataSource) {
+    routing {
+        get("/isready") {
+            call.respondText("I'm ready")
+        }
+        get("/isalive") {
+            call.respondText("I'm alive")
+        }
+        get("/antallBehandlinger") {
+            call.respondText { dataSource.query("select count(*) from behandling")!! }
+        }
+    }
+}
+
+private fun DataSource.query(
+    @Language("postgresql") sql: String,
+) = sessionOf(this, strict = true)
+    .use { session ->
+        session.run(queryOf(sql).map { it.string(1) }.asSingle)
+    }

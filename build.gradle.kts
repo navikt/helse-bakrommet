@@ -1,4 +1,6 @@
-private val flywayVersion = "11.4.0"
+private val flywayVersion = "11.5.0"
+private val ktorVersion = "3.1.2"
+
 plugins {
     kotlin("jvm") version "2.1.10"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
@@ -28,6 +30,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.github.seratch:kotliquery:1.9.1")
     implementation("io.micrometer:micrometer-registry-prometheus:1.14.5")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:1.5.17")
     implementation("net.logstash.logback:logstash-logback-encoder:8.0") {
@@ -40,6 +43,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.12.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(kotlin("test"))
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 }
 
 tasks {
