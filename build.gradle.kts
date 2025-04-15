@@ -81,5 +81,6 @@ tasks {
                 ),
             )
         }
+        mergeServiceFiles()
     }
 }
