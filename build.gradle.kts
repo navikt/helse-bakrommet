@@ -2,6 +2,7 @@ private val flywayVersion = "11.4.0"
 plugins {
     kotlin("jvm") version "2.1.10"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
+    id("com.gradleup.shadow") version "8.3.6"
 }
 
 repositories {
@@ -64,20 +65,17 @@ tasks {
     test {
         useJUnitPlatform()
     }
-    withType<Jar> {
+
+    shadowJar {
         archiveBaseName.set("app")
+        archiveClassifier.set("")
+        isZip64 = true
         manifest {
-            attributes["Main-Class"] = "no.nav.helse.bakrommet.AppKt"
-            attributes["Class-Path"] =
-                configurations.runtimeClasspath.get().joinToString(separator = " ") {
-                    it.name
-                }
-        }
-        doLast {
-            configurations.runtimeClasspath.get().forEach {
-                val file = File("${layout.buildDirectory.get()}/libs/${it.name}")
-                if (!file.exists()) it.copyTo(file)
-            }
+            attributes(
+                mapOf(
+                    "Main-Class" to "no.nav.helse.bakrommet.AppKt",
+                ),
+            )
         }
     }
 }

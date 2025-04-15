@@ -1,3 +1,5 @@
+package no.nav.helse.bakrommet
+
 import org.slf4j.LoggerFactory
 
 val appLogger = LoggerFactory.getLogger("bakrommet")
