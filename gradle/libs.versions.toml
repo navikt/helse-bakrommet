@@ -21,7 +21,7 @@ logback-classic = "ch.qos.logback:logback-classic:1.5.18"
 logback-logstashEncoder = "net.logstash.logback:logstash-logback-encoder:8.0"
 slf4jApi = "org.slf4j:slf4j-api:2.0.17"
 
-micrometerPrometheus = "io.micrometer:micrometer-registry-prometheus:1.14.5"
+micrometerPrometheus = "io.micrometer:micrometer-registry-prometheus:1.14.6"
 
 [bundles]
 flywayPostgres = [
