@@ -1,0 +1,43 @@
+[versions]
+flyway = "11.5.0"
+ktor = "3.1.2"
+testcontainers = "1.20.6"
+
+[libraries]
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-postgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+hikari = "com.zaxxer:HikariCP:6.3.0"
+postgresJdbcDriver = "org.postgresql:postgresql:42.7.5"
+testcontainers-postgres = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+kotliquery = "com.github.seratch:kotliquery:1.9.1"
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+ktor-server-testHost = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+
+logback-classic = "ch.qos.logback:logback-classic:1.5.18"
+logback-logstashEncoder = "net.logstash.logback:logstash-logback-encoder:8.0"
+slf4jApi = "org.slf4j:slf4j-api:2.0.17"
+
+micrometerPrometheus = "io.micrometer:micrometer-registry-prometheus:1.14.5"
+
+[bundles]
+flywayPostgres = [
+    "flyway-core",
+    "flyway-postgres"
+]
+ktorServer = [
+    "ktor-micrometer",
+    "ktor-server-core",
+    "ktor-server-cio",
+]
+ktorServerTest = [
+    "ktor-server-testHost"
+]
+logback = [
+    "logback-classic",
+    "logback-logstashEncoder",
+    "slf4jApi"
+]

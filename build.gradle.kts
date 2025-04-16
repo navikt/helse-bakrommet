@@ -22,28 +22,22 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.navikt:rapids-and-rivers:2025030709111741335066.dc4411f7bc29")
+    implementation(libs.bundles.logback)
+    implementation(libs.postgresJdbcDriver)
+    implementation(libs.hikari)
+    implementation(libs.bundles.flywayPostgres)
+    implementation(libs.kotliquery)
+    implementation(libs.ktor.client.core)
+    implementation(libs.bundles.ktorServer)
+    implementation(libs.bundles.logback)
+    implementation(libs.micrometerPrometheus)
 
-    implementation("org.postgresql:postgresql:42.7.5")
-    implementation("com.zaxxer:HikariCP:6.2.1")
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
-    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
-    implementation("com.github.seratch:kotliquery:1.9.1")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.14.5")
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    testImplementation(libs.bundles.ktorServerTest)
+    testImplementation(libs.testcontainers.postgres)
 
-    implementation("ch.qos.logback:logback-classic:1.5.17")
-    implementation("net.logstash.logback:logstash-logback-encoder:8.0") {
-        exclude("com.fasterxml.jackson.core")
-        exclude("com.fasterxml.jackson.dataformat")
-    }
-
-    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.03.10-19.50-d556269c")
-    testImplementation("org.testcontainers:postgresql:1.20.6")
     testImplementation(platform("org.junit:junit-bom:5.12.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation(kotlin("test"))
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks {
