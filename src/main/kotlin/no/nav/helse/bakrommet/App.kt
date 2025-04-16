@@ -35,6 +35,11 @@ internal fun instansierDatabase(configuration: DBModule.Configuration) =
     DBModule(configuration = configuration).also { it.migrate() }.dataSource
 
 internal fun Application.settOppKtor(dataSource: DataSource) {
+    helsesjekker()
+    appModul(dataSource)
+}
+
+internal fun Application.helsesjekker() {
     routing {
         get("/isready") {
             call.respondText("I'm ready")
@@ -42,6 +47,11 @@ internal fun Application.settOppKtor(dataSource: DataSource) {
         get("/isalive") {
             call.respondText("I'm alive")
         }
+    }
+}
+
+internal fun Application.appModul(dataSource: DataSource) {
+    routing {
         get("/antallBehandlinger") {
             call.respondText { dataSource.query("select count(*) from behandling")!! }
         }

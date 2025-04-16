@@ -4,8 +4,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 class AppTest {
     @Test
