@@ -1,5 +1,5 @@
 [versions]
-flyway = "11.5.0"
+flyway = "11.7.1"
 ktor = "3.1.2"
 testcontainers = "1.20.6"
 
