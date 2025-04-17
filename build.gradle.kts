@@ -35,7 +35,7 @@ dependencies {
     testImplementation(libs.bundles.ktorServerTest)
     testImplementation(libs.testcontainers.postgres)
 
-    testImplementation(platform("org.junit:junit-bom:5.12.0"))
+    testImplementation(platform("org.junit:junit-bom:5.12.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
