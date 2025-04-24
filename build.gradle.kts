@@ -22,6 +22,12 @@ repositories {
 }
 
 dependencies {
+    constraints {
+        implementation("org.apache.commons:commons-compress:1.27.1") {
+            because("org.testcontainers:postgresql:1.21.0 -> 1.24.0 har en sårbarhet")
+        }
+    }
+
     implementation(libs.bundles.logback)
     implementation(libs.postgresJdbcDriver)
     implementation(libs.hikari)
@@ -35,7 +41,7 @@ dependencies {
     testImplementation(libs.bundles.ktorServerTest)
     testImplementation(libs.testcontainers.postgres)
 
-    testImplementation(platform("org.junit:junit-bom:5.12.0"))
+    testImplementation(platform("org.junit:junit-bom:5.12.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
