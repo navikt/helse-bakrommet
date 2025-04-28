@@ -16,8 +16,6 @@ import javax.sql.DataSource
 val appLogger = LoggerFactory.getLogger("bakrommet")
 
 fun main() {
-    appLogger.info("Hello, world!")
-
     val env = System.getenv()
     val dbConfiguration = DBModule.Configuration(env.getValue("DATABASE_JDBC_URL"))
     val authConfiguration = authConfig()
@@ -25,18 +23,27 @@ fun main() {
     startApp(dbConfiguration, authConfiguration)
 }
 
-internal fun startApp(dbModule: DBModule.Configuration, authConfiguration: AuthConfiguration) {
+internal fun startApp(
+    dbModule: DBModule.Configuration,
+    authConfiguration: AuthConfiguration,
+) {
+    appLogger.info("Setter opp data source")
     val dataSource = instansierDatabase(dbModule)
 
     embeddedServer(CIO, port = 8080) {
+        appLogger.info("Setter opp ktor")
         settOppKtor(dataSource, authConfiguration)
+        appLogger.info("Starter bakrommet")
     }.start(true)
 }
 
 internal fun instansierDatabase(configuration: DBModule.Configuration) =
     DBModule(configuration = configuration).also { it.migrate() }.dataSource
 
-internal fun Application.settOppKtor(dataSource: DataSource, authConfiguration: AuthConfiguration) {
+internal fun Application.settOppKtor(
+    dataSource: DataSource,
+    authConfiguration: AuthConfiguration,
+) {
     azureAdAppAuthentication(authConfiguration)
     helsesjekker()
     appModul(dataSource)
