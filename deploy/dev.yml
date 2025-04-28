@@ -43,3 +43,7 @@ spec:
         databases:
           - name: bakrommet
             envVarPrefix: DATABASE
+  accessPolicy:
+    inbound:
+      rules:
+        - application: spillerom
