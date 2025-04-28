@@ -15,6 +15,8 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
 ktor-server-testHost = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 
 logback-classic = "ch.qos.logback:logback-classic:1.5.18"
@@ -32,6 +34,8 @@ ktorServer = [
     "ktor-micrometer",
     "ktor-server-core",
     "ktor-server-cio",
+    "ktor-server-auth",
+    "ktor-server-auth-jwt",
 ]
 ktorServerTest = [
     "ktor-server-testHost"
