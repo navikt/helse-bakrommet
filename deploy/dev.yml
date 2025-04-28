@@ -5,6 +5,8 @@ metadata:
     team: speilvendt
   name: bakrommet
   namespace: speilvendt
+  annotations:
+    texas.nais.io/enabled: "true"
 spec:
   image: {{image}}
   port: 8080
@@ -47,3 +49,9 @@ spec:
     inbound:
       rules:
         - application: spillerom
+    outbound:
+      external:
+        - host: pdl-api.dev-fss-pub.nais.io
+  env:
+    - name: PDL_SCOPE
+      value: dev-fss.pdl.pdl-api
