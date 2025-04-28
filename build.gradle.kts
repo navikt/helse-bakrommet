@@ -40,6 +40,7 @@ dependencies {
 
     testImplementation(libs.bundles.ktorServerTest)
     testImplementation(libs.testcontainers.postgres)
+    testImplementation(libs.mock.oauth2.server)
 
     testImplementation(platform("org.junit:junit-bom:5.12.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")

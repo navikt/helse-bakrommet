@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet
 
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.response.*
@@ -19,22 +20,24 @@ fun main() {
 
     val env = System.getenv()
     val dbConfiguration = DBModule.Configuration(env.getValue("DATABASE_JDBC_URL"))
+    val authConfiguration = authConfig()
 
-    startApp(dbConfiguration)
+    startApp(dbConfiguration, authConfiguration)
 }
 
-internal fun startApp(dbModule: DBModule.Configuration) {
+internal fun startApp(dbModule: DBModule.Configuration, authConfiguration: AuthConfiguration) {
     val dataSource = instansierDatabase(dbModule)
 
     embeddedServer(CIO, port = 8080) {
-        settOppKtor(dataSource)
+        settOppKtor(dataSource, authConfiguration)
     }.start(true)
 }
 
 internal fun instansierDatabase(configuration: DBModule.Configuration) =
     DBModule(configuration = configuration).also { it.migrate() }.dataSource
 
-internal fun Application.settOppKtor(dataSource: DataSource) {
+internal fun Application.settOppKtor(dataSource: DataSource, authConfiguration: AuthConfiguration) {
+    azureAdAppAuthentication(authConfiguration)
     helsesjekker()
     appModul(dataSource)
 }
@@ -52,27 +55,29 @@ internal fun Application.helsesjekker() {
 
 internal fun Application.appModul(dataSource: DataSource) {
     routing {
-        get("/antallBehandlinger") {
-            call.respondText { dataSource.query("select count(*) from behandling")!! }
-        }
-        post("/v1/personsok") {
-            call.response.headers.append("Content-Type", "application/json")
-            call.respondText("""{ "personId": "abc12" }""")
-        }
-        get("/v1/{personId}/personinfo") {
-            call.response.headers.append("Content-Type", "application/json")
-            call.respondText(
-                """{
+        authenticate("oidc") {
+            get("/antallBehandlinger") {
+                call.respondText { dataSource.query("select count(*) from behandling")!! }
+            }
+            post("/v1/personsok") {
+                call.response.headers.append("Content-Type", "application/json")
+                call.respondText("""{ "personId": "abc12" }""")
+            }
+            get("/v1/{personId}/personinfo") {
+                call.response.headers.append("Content-Type", "application/json")
+                call.respondText(
+                    """{
         "fødselsnummer": "62345678906",
         "aktørId": "1234567891011",
         "navn": "Kalle Bakrommet Kranfører",
         "alder": 47
     }""",
-            )
-        }
-        get("/v1/{personId}/soknader") {
-            call.response.headers.append("Content-Type", "application/json")
-            call.respondText("[]")
+                )
+            }
+            get("/v1/{personId}/soknader") {
+                call.response.headers.append("Content-Type", "application/json")
+                call.respondText("[]")
+            }
         }
     }
 }
