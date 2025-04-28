@@ -57,15 +57,15 @@ internal fun Application.appModul(dataSource: DataSource) {
         }
         post("/v1/personsok") {
             call.response.headers.append("Content-Type", "application/json")
-            call.respondText("{ personId: '1234567891011' }")
+            call.respondText("""{ personId: "abc12" }""")
         }
         get("/v1/{personId}/personinfo") {
             call.response.headers.append("Content-Type", "application/json")
             call.respondText(
                 """{
-        fødselsnummer: '62345678906',
-        aktørId: '1234567891011',
-        navn: 'Kalle Kranfører',
+        fødselsnummer: "62345678906",
+        aktørId: "1234567891011",
+        navn: "Kalle Kranfører",
         alder: 47,
     }""",
             )
