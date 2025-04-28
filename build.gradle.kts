@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.contentNegotiation)
     implementation(libs.ktor.serialization.jackson)
+    implementation(libs.ktor.client.apache)
     implementation(libs.bundles.ktorServer)
     implementation(libs.bundles.logback)
     implementation(libs.micrometerPrometheus)
