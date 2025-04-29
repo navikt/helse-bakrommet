@@ -1,5 +1,7 @@
 package no.nav.helse.bakrommet
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -16,3 +18,5 @@ fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestDa
             addHandler(requestHandler)
         }
     }
+
+suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)

@@ -1,12 +1,11 @@
 package no.nav.helse.bakrommet.pdl
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.bodyToJson
 import no.nav.helse.bakrommet.mockHttpClient
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -68,7 +67,7 @@ class PdlClientTest {
             if (auth != token.somBearerHeader()) {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
-                val json = jacksonObjectMapper().readValue(request.body.toByteArray(), JsonNode::class.java)
+                val json = request.bodyToJson()
                 val ident = json["variables"]["ident"].asText()
                 if (ident == "1234") {
                     respond(

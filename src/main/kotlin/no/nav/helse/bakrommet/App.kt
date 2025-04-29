@@ -86,7 +86,11 @@ internal fun Application.appModul(
             post("/v1/personsok") {
                 val fnr = call.receive<JsonNode>()["fødselsnummer"].asText()
 
-                val oboToken = oboClient.exchangeToken(configuration.pdl.scope, call.request.bearerToken())
+                val oboToken =
+                    oboClient.exchangeToken(
+                        bearerToken = call.request.bearerToken(),
+                        scope = configuration.pdl.scope,
+                    )
 
                 val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
 

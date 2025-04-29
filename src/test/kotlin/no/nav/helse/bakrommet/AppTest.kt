@@ -41,8 +41,8 @@ class AppTest {
     private val configuration =
         Configuration(
             TestcontainersDatabase.configuration,
-            Configuration.OBO("OBO-url"),
-            Configuration.PDL("PDL-hostname", "PDL-scope"),
+            Configuration.OBO(url = "OBO-url"),
+            Configuration.PDL(hostname = "PDL-hostname", scope = "PDL-scope"),
             oAuthMock.authConfig,
         )
 

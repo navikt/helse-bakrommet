@@ -1,7 +1,5 @@
 package no.nav.helse.bakrommet
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -19,23 +17,29 @@ class PersonsokTest {
     private val configuration =
         Configuration(
             TestcontainersDatabase.configuration,
-            Configuration.OBO("OBO-url"),
-            Configuration.PDL("PDL-hostname", "PDL-scope"),
+            Configuration.OBO(url = "OBO-url"),
+            Configuration.PDL(hostname = "PDL-hostname", scope = "PDL-scope"),
             oAuthMock.authConfig,
         )
 
     val oboToken = "OBO-TOKEN"
 
+    private val userToken = oAuthMock.token()
+
     val mockTexas =
         mockHttpClient { request ->
-            respond(
-                status = HttpStatusCode.OK,
-                content =
-                    """
-                    {"access_token": "$oboToken"}
-                    """.trimIndent(),
-                headers = headersOf("Content-Type" to listOf("application/json")),
-            )
+            if (request.bodyToJson()["user_token"].asText() != userToken) {
+                respondError(HttpStatusCode.Unauthorized)
+            } else {
+                respond(
+                    status = HttpStatusCode.OK,
+                    content =
+                        """
+                        {"access_token": "$oboToken"}
+                        """.trimIndent(),
+                    headers = headersOf("Content-Type" to listOf("application/json")),
+                )
+            }
         }
 
     val mockPdl =
@@ -44,7 +48,7 @@ class PersonsokTest {
             if (auth != "Bearer $oboToken") {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
-                val json = jacksonObjectMapper().readValue(request.body.toByteArray(), JsonNode::class.java)
+                val json = request.bodyToJson()
                 val ident = json["variables"]["ident"].asText()
                 assertEquals("01010199999", ident)
 
@@ -104,7 +108,7 @@ class PersonsokTest {
                         { "fødselsnummer": "01010199999" }
                         """.trimIndent(),
                     )
-                    bearerAuth(oAuthMock.token())
+                    bearerAuth(userToken)
                 }
             assertEquals(200, response.status.value)
             assertEquals("""[12345678910, 10987654321]""", response.headers["identer"])

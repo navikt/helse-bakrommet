@@ -29,8 +29,8 @@ data class Configuration(
     companion object {
         fun fromEnv(env: Map<String, String> = System.getenv()): Configuration {
             return Configuration(
-                db = DB(env.getValue("DATABASE_JDBC_URL")),
-                obo = OBO(env.getValue("NAIS_TOKEN_EXCHANGE_ENDPOINT")),
+                db = DB(jdbcUrl = env.getValue("DATABASE_JDBC_URL")),
+                obo = OBO(url = env.getValue("NAIS_TOKEN_EXCHANGE_ENDPOINT")),
                 pdl =
                     PDL(
                         scope = env.getValue("PDL_SCOPE"),
