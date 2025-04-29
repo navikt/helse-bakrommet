@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -98,13 +99,11 @@ internal fun Application.appModul(
                     httpClient.post(texasUrl) {
                         contentType(ContentType.Application.Json)
                         setBody(
-                            """
-                            {
-                                "identity_provider": "azuread",
-                                "target": "api://$pdlScope/.default",
-                                "user_token": "$token"
-                            }
-                            """.trimIndent(),
+                            jacksonObjectMapper().createObjectNode().apply {
+                                put("identity_provider", "azuread")
+                                put("target", "api://$pdlScope/.default")
+                                put("user_token", token)
+                            }.toString()
                         )
                     }
                 if (!oboTokenResponse.status.isSuccess()) {
