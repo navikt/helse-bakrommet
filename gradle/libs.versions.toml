@@ -21,6 +21,8 @@ ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
 ktor-server-testHost = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-callLogging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
 
 mock-oauth2-server = "no.nav.security:mock-oauth2-server:2.1.10"
 logback-classic = "ch.qos.logback:logback-classic:1.5.18"
@@ -40,6 +42,8 @@ ktorServer = [
     "ktor-server-cio",
     "ktor-server-auth",
     "ktor-server-auth-jwt",
+    "ktor-server-contentNegotiation",
+    "ktor-server-callLogging",
 ]
 ktorServerTest = [
     "ktor-server-testHost"

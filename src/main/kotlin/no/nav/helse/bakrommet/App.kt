@@ -13,6 +13,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -22,6 +23,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
 import javax.sql.DataSource
 
 val appLogger = LoggerFactory.getLogger("bakrommet")
@@ -79,6 +81,11 @@ internal fun Application.appModul(
     install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
     }
+    install(CallLogging) {
+        disableDefaultColors()
+        logger = sikkerLogger
+        level = Level.INFO
+    }
 
     routing {
         authenticate("oidc") {
@@ -86,12 +93,7 @@ internal fun Application.appModul(
                 call.respondText { dataSource.query("select count(*) from behandling")!! }
             }
             post("/v1/personsok") {
-                sikkerLogger.info("Henter FNR:")
-                //sikkerLogger.info("TEKST: --{}--", call.receive<String>())
-                val fnr = try { call.receive<JsonNode>()["fødselsnummer"].asText() } catch (ex:Exception) {
-                    log.error("ERROR", ex)
-                    throw ex
-                }
+                val fnr = call.receive<JsonNode>()["fødselsnummer"].asText()
 
                 val authHeader = call.request.headers["Authorization"]!!
                 val token = authHeader.removePrefix("Bearer ").trim()
@@ -103,7 +105,7 @@ internal fun Application.appModul(
                                 put("identity_provider", "azuread")
                                 put("target", "api://${configuration.pdl.scope}/.default")
                                 put("user_token", token)
-                            }.toString()
+                            }.toString(),
                         )
                     }
                 if (!oboTokenResponse.status.isSuccess()) {
