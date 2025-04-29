@@ -10,6 +10,7 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.auth.OboToken
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -72,11 +73,12 @@ class PdlClientTest {
         }        
         """.trimIndent()
 
-    val token = "PDL-TOKEN"
+    val token = OboToken("PDL-TOKEN")
+
     val mockPdl =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer $token") {
+            if (auth != token.somBearerHeader()) {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
                 val json = jacksonObjectMapper().readValue(request.body.toByteArray(), JsonNode::class.java)

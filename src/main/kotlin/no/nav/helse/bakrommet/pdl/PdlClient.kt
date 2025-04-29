@@ -12,6 +12,7 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.appLogger
+import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.sikkerLogger
 
 class PdlClient(
@@ -49,12 +50,12 @@ class PdlClient(
     }
 
     suspend fun hentIdenterFor(
-        pdlToken: String,
+        pdlToken: OboToken,
         ident: String,
     ): Set<String> {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
-                headers[HttpHeaders.Authorization] = "Bearer $pdlToken"
+                headers[HttpHeaders.Authorization] = pdlToken.somBearerHeader()
                 contentType(ContentType.Application.Json)
                 setBody(hentIdenterRequest(ident = ident))
             }

@@ -1,12 +1,6 @@
 package no.nav.helse.bakrommet
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
@@ -19,6 +13,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotliquery.queryOf
 import kotliquery.sessionOf
+import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
 import org.intellij.lang.annotations.Language
@@ -50,12 +45,7 @@ internal fun Application.settOppKtor(
     dataSource: DataSource,
     configuration: Configuration,
     pdlClient: PdlClient = PdlClient(configuration.pdl),
-    oboClient: HttpClient =
-        HttpClient(Apache) {
-            install(ContentNegotiation) {
-                register(ContentType.Application.Json, JacksonConverter())
-            }
-        },
+    oboClient: OboClient = OboClient(configuration.obo),
 ) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
@@ -75,7 +65,7 @@ internal fun Application.helsesjekker() {
 
 internal fun Application.appModul(
     dataSource: DataSource,
-    oboClient: HttpClient,
+    oboClient: OboClient,
     pdlClient: PdlClient,
     configuration: Configuration,
 ) {
@@ -96,30 +86,12 @@ internal fun Application.appModul(
             post("/v1/personsok") {
                 val fnr = call.receive<JsonNode>()["fødselsnummer"].asText()
 
-                val authHeader = call.request.headers["Authorization"]!!
-                val token = authHeader.removePrefix("Bearer ").trim()
-                val oboTokenResponse =
-                    oboClient.post(configuration.obo.url) {
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            jacksonObjectMapper().createObjectNode().apply {
-                                put("identity_provider", "azuread")
-                                put("target", "api://${configuration.pdl.scope}/.default")
-                                put("user_token", token)
-                            }.toString(),
-                        )
-                    }
-                if (!oboTokenResponse.status.isSuccess()) {
-                    sikkerLogger.warn(oboTokenResponse.bodyAsText())
-                }
-                call.response.headers.append("Content-Type", "application/json")
-
-                val jsonResponse = jacksonObjectMapper().readTree(oboTokenResponse.bodyAsText())
-                val oboToken = jsonResponse["access_token"].asText()
+                val oboToken = oboClient.exchangeToken(configuration.pdl.scope, call.request.bearerToken())
 
                 val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
-                call.response.headers.append("identer", identer.toString())
 
+                call.response.headers.append("identer", identer.toString())
+                call.response.headers.append("Content-Type", "application/json")
                 call.respondText("""{ "personId": "abc12" }""")
             }
             get("/v1/{personId}/personinfo") {
@@ -141,6 +113,12 @@ internal fun Application.appModul(
             }
         }
     }
+}
+
+private fun RoutingRequest.bearerToken(): String {
+    val authHeader = headers["Authorization"]!!
+    val token = authHeader.removePrefix("Bearer ").trim()
+    return token
 }
 
 private fun DataSource.query(

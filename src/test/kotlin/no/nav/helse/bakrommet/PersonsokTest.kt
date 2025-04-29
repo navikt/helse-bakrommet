@@ -7,6 +7,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.mockHttpClient
@@ -82,6 +83,8 @@ class PersonsokTest {
             httpClient = mockPdl,
         )
 
+    private val oboClient = OboClient(configuration.obo, mockTexas)
+
     @Test
     fun `henter identer fra PDL`() =
         testApplication {
@@ -90,7 +93,7 @@ class PersonsokTest {
                     instansierDatabase(configuration.db),
                     configuration,
                     pdlClient = pdl,
-                    oboClient = mockTexas,
+                    oboClient = oboClient,
                 )
             }
 
@@ -117,7 +120,7 @@ class PersonsokTest {
                     instansierDatabase(configuration.db),
                     configuration,
                     pdlClient = pdl,
-                    oboClient = mockTexas,
+                    oboClient = oboClient,
                 )
             }
 
