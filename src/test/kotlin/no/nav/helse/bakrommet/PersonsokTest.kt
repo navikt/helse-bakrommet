@@ -10,7 +10,6 @@ import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
 import no.nav.helse.bakrommet.pdl.PdlClient
-import no.nav.helse.bakrommet.pdl.mockHttpClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
