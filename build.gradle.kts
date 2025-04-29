@@ -41,6 +41,8 @@ dependencies {
     implementation(libs.bundles.logback)
     implementation(libs.micrometerPrometheus)
 
+    implementation("io.ktor:ktor-server-content-negotiation:3.1.2")
+
     testImplementation(libs.bundles.ktorServerTest)
     testImplementation(libs.testcontainers.postgres)
     testImplementation(libs.mock.oauth2.server)

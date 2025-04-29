@@ -55,3 +55,5 @@ spec:
   env:
     - name: PDL_SCOPE
       value: dev-fss.pdl.pdl-api
+    - name: PDL_HOSTNAME
+      value: pdl-api.dev-fss-pub.nais.io

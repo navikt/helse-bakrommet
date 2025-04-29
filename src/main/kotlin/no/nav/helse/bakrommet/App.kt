@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
@@ -12,11 +13,13 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
+import no.nav.helse.bakrommet.pdl.PdlClient
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import javax.sql.DataSource
@@ -30,8 +33,9 @@ fun main() {
     val authConfiguration = authConfig()
     val texasUrl = env.getValue("NAIS_TOKEN_EXCHANGE_ENDPOINT")
     val pdlScope = env.getValue("PDL_SCOPE")
+    val pdlHostname = env.getValue("PDL_HOSTNAME")
 
-    startApp(dbConfiguration, authConfiguration, texasUrl, pdlScope)
+    startApp(dbConfiguration, authConfiguration, texasUrl, pdlScope, pdlHostname)
 }
 
 internal fun startApp(
@@ -39,13 +43,14 @@ internal fun startApp(
     authConfiguration: AuthConfiguration,
     texasUrl: String,
     pdlScope: String,
+    pdlHostname: String,
 ) {
     appLogger.info("Setter opp data source")
     val dataSource = instansierDatabase(dbModule)
 
     embeddedServer(CIO, port = 8080) {
         appLogger.info("Setter opp ktor")
-        settOppKtor(dataSource, authConfiguration, texasUrl, pdlScope)
+        settOppKtor(dataSource, authConfiguration, texasUrl, pdlScope, pdlHostname)
         appLogger.info("Starter bakrommet")
     }.start(true)
 }
@@ -58,6 +63,7 @@ internal fun Application.settOppKtor(
     authConfiguration: AuthConfiguration,
     texasUrl: String,
     pdlScope: String,
+    pdlHostname: String,
 ) {
     val httpClient =
         HttpClient(Apache) {
@@ -67,7 +73,7 @@ internal fun Application.settOppKtor(
         }
     azureAdAppAuthentication(authConfiguration)
     helsesjekker()
-    appModul(dataSource, httpClient, texasUrl, pdlScope)
+    appModul(dataSource, httpClient, texasUrl, pdlScope, PdlClient(pdlHostname = pdlHostname))
 }
 
 internal fun Application.helsesjekker() {
@@ -86,13 +92,25 @@ internal fun Application.appModul(
     httpClient: HttpClient,
     texasUrl: String,
     pdlScope: String,
+    pdlClient: PdlClient
 ) {
+    install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
+        register(ContentType.Application.Json, JacksonConverter())
+    }
+
     routing {
         authenticate("oidc") {
             get("/antallBehandlinger") {
                 call.respondText { dataSource.query("select count(*) from behandling")!! }
             }
             post("/v1/personsok") {
+                sikkerLogger.info("Henter FNR:")
+                //sikkerLogger.info("TEKST: --{}--", call.receive<String>())
+                val fnr = try { call.receive<JsonNode>()["fødselsnummer"].asText() } catch (ex:Exception) {
+                    log.error("ERROR", ex)
+                    throw ex
+                }
+
                 val authHeader = call.request.headers["Authorization"]!!
                 val token = authHeader.removePrefix("Bearer ").trim()
                 val oboTokenResponse =
@@ -111,6 +129,12 @@ internal fun Application.appModul(
                 }
                 call.response.headers.append("Content-Type", "application/json")
                 call.response.headers.append("Obo", oboTokenResponse.bodyAsText())
+
+                val jsonResponse = jacksonObjectMapper().readTree(oboTokenResponse.bodyAsText())
+                val oboToken = jsonResponse["access_token"].asText()
+
+                pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
+
                 call.respondText("""{ "personId": "abc12" }""")
             }
             get("/v1/{personId}/personinfo") {

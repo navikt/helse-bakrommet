@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet
 
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -44,6 +45,7 @@ class AppTest {
                     configuration,
                     "texasUrl",
                     "pdlScope",
+                    "pdl.host"
                 )
             }
             val response =
