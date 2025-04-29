@@ -9,17 +9,16 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.pdl.mockHttpClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import no.nav.helse.bakrommet.pdl.mockHttpClient
 
 class PersonsokTest {
-    private val database = TestcontainersDatabase()
     private val oAuthMock = OAuthMock()
 
     private val configuration =
         Configuration(
-            database.configuration,
+            TestcontainersDatabase.configuration,
             Configuration.OBO("OBO-url"),
             Configuration.PDL("PDL-hostname", "PDL-scope"),
             oAuthMock.authConfig,
@@ -27,55 +26,61 @@ class PersonsokTest {
 
     val oboToken = "OBO-TOKEN"
 
-    val mockTexas = mockHttpClient {request ->
-        respond(
-            status = HttpStatusCode.OK, content = """
-                {"access_token" : "$oboToken"}
-            """.trimIndent(),
-            headers = headersOf("Content-Type" to listOf("application/json"))
-        )
-
-    }
-
-    val mockPdl = mockHttpClient { request ->
-        val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer $oboToken") {
-            respondError(HttpStatusCode.Unauthorized)
-        } else {
-            val json = jacksonObjectMapper().readValue(request.body.toByteArray(), JsonNode::class.java)
-            val ident = json["variables"]["ident"].asText()
-            assertEquals("01010199999", ident)
-
-            val pdlReply = """
-                  {
-                    "data": {
-                      "hentIdenter": {
-                        "identer": [
-                          {
-                            "ident": "12345678910",
-                            "gruppe": "FOLKEREGISTERIDENT"
-                          },
-                          {
-                            "ident": "10987654321",
-                            "gruppe": "AKTORID"
-                          }
-                        ]
-                      }
-                    }
-                  }        
-                """.trimIndent()
-
+    val mockTexas =
+        mockHttpClient { request ->
             respond(
-                status = HttpStatusCode.OK, content = pdlReply,
-                headers = headersOf("Content-Type" to listOf("application/json"))
+                status = HttpStatusCode.OK,
+                content =
+                    """
+                    {"access_token": "$oboToken"}
+                    """.trimIndent(),
+                headers = headersOf("Content-Type" to listOf("application/json")),
             )
         }
-    }
 
-    val pdl = PdlClient(
-        configuration = Configuration.PDL(hostname = "host", scope = "scope"),
-        httpClient = mockPdl
-    )
+    val mockPdl =
+        mockHttpClient { request ->
+            val auth = request.headers[HttpHeaders.Authorization]!!
+            if (auth != "Bearer $oboToken") {
+                respondError(HttpStatusCode.Unauthorized)
+            } else {
+                val json = jacksonObjectMapper().readValue(request.body.toByteArray(), JsonNode::class.java)
+                val ident = json["variables"]["ident"].asText()
+                assertEquals("01010199999", ident)
+
+                val pdlReply =
+                    """
+                    {
+                      "data": {
+                        "hentIdenter": {
+                          "identer": [
+                            {
+                              "ident": "12345678910",
+                              "gruppe": "FOLKEREGISTERIDENT"
+                            },
+                            {
+                              "ident": "10987654321",
+                              "gruppe": "AKTORID"
+                            }
+                          ]
+                        }
+                      }
+                    }        
+                    """.trimIndent()
+
+                respond(
+                    status = HttpStatusCode.OK,
+                    content = pdlReply,
+                    headers = headersOf("Content-Type" to listOf("application/json")),
+                )
+            }
+        }
+
+    val pdl =
+        PdlClient(
+            configuration = Configuration.PDL(hostname = "host", scope = "scope"),
+            httpClient = mockPdl,
+        )
 
     @Test
     fun `henter identer fra PDL`() =
@@ -85,16 +90,18 @@ class PersonsokTest {
                     instansierDatabase(configuration.db),
                     configuration,
                     pdlClient = pdl,
-                    oboClient = mockTexas
+                    oboClient = mockTexas,
                 )
             }
 
             val response =
                 client.post("/v1/personsok") {
                     contentType(ContentType.Application.Json)
-                    setBody("""
-                        {"fødselsnummer" : "01010199999" }
-                    """.trimIndent())
+                    setBody(
+                        """
+                        { "fødselsnummer": "01010199999" }
+                        """.trimIndent(),
+                    )
                     bearerAuth(oAuthMock.token())
                 }
             assertEquals(200, response.status.value)
@@ -110,19 +117,20 @@ class PersonsokTest {
                     instansierDatabase(configuration.db),
                     configuration,
                     pdlClient = pdl,
-                    oboClient = mockTexas
+                    oboClient = mockTexas,
                 )
             }
 
             val response =
                 client.post("/v1/personsok") {
                     contentType(ContentType.Application.Json)
-                    setBody("""
-                        {"fødselsnummer" : "01010199999" }
-                    """.trimIndent())
+                    setBody(
+                        """
+                        { "fødselsnummer": "01010199999" }
+                        """.trimIndent(),
+                    )
                     bearerAuth(oAuthMock.token("FEIL-AUDIENCE"))
                 }
             assertEquals(401, response.status.value)
         }
-
 }

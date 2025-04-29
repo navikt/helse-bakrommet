@@ -16,12 +16,12 @@ class OAuthMock {
     private val clientId = "bakrommet-dev"
 
     val authConfig =
-            Configuration.Auth(
-                clientId = clientId,
-                issuerUrl = mockOAuth2Server.issuerUrl(issuerId).toString(),
-                jwkProviderUri = mockOAuth2Server.jwksUrl(issuerId).toString(),
-                tokenEndpoint = mockOAuth2Server.tokenEndpointUrl(issuerId).toString(),
-            )
+        Configuration.Auth(
+            clientId = clientId,
+            issuerUrl = mockOAuth2Server.issuerUrl(issuerId).toString(),
+            jwkProviderUri = mockOAuth2Server.jwksUrl(issuerId).toString(),
+            tokenEndpoint = mockOAuth2Server.tokenEndpointUrl(issuerId).toString(),
+        )
 
     fun token(audience: String = clientId): String =
         mockOAuth2Server.issueToken(
@@ -29,19 +29,18 @@ class OAuthMock {
             audience = audience,
             subject = "tullesubjekt",
             claims =
-            mapOf(
-                "NAVident" to "tullebruker",
-            ),
+                mapOf(
+                    "NAVident" to "tullebruker",
+                ),
         ).serialize()
 }
 
 class AppTest {
-    private val database = TestcontainersDatabase()
     private val oAuthMock = OAuthMock()
 
     private val configuration =
         Configuration(
-            database.configuration,
+            TestcontainersDatabase.configuration,
             Configuration.OBO("OBO-url"),
             Configuration.PDL("PDL-hostname", "PDL-scope"),
             oAuthMock.authConfig,
