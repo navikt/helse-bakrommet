@@ -45,27 +45,31 @@ class PdlClientTest {
       }        
     """.trimIndent()
 
-    val pdlErrorReply = """
-      {
-        "errors": [
+    val pdlUgyldigIdentReply = """
+        {
+          "errors": [
             {
-              "message": "Ukjent problem oppsto, feilen har blitt logget og følges opp",
+              "message": "Ugyldig ident",
               "locations": [
                 {
                   "line": 2,
-                  "column": 5
+                  "column": 3
                 }
               ],
               "path": [
-                "hentIdenter", "identer"
+                "hentIdenter"
               ],
               "extensions": {
-                "code": "server_error",
-                "classification": "ExecutionAborted"
+                "id": "ugyldig_ident",
+                "code": "bad_request",
+                "classification": "ValidationError"
               }
-            }        
-        ] 
-      }        
+            }
+          ],
+          "data": {
+            "hentIdenter": null
+          }
+        }        
     """.trimIndent()
 
     val token = "PDL-TOKEN"
@@ -83,7 +87,7 @@ class PdlClientTest {
                 )
             } else if (ident == "error") {
                 respond(
-                    status = HttpStatusCode.OK, content = pdlErrorReply,
+                    status = HttpStatusCode.OK, content = pdlUgyldigIdentReply,
                     headers = headersOf("Content-Type" to listOf("application/json"))
                 )
             } else {
