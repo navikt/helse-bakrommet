@@ -49,16 +49,16 @@ internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(conf
 internal fun Application.settOppKtor(
     dataSource: DataSource,
     configuration: Configuration,
-) {
-    val httpClient =
-        HttpClient(Apache) {
-            install(ContentNegotiation) {
-                register(ContentType.Application.Json, JacksonConverter())
-            }
+    pdlClient: PdlClient = PdlClient(configuration.pdl),
+    oboClient: HttpClient = HttpClient(Apache) {
+        install(ContentNegotiation) {
+            register(ContentType.Application.Json, JacksonConverter())
         }
+    }
+) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
-    appModul(dataSource, httpClient, PdlClient(configuration.pdl), configuration)
+    appModul(dataSource, oboClient, pdlClient, configuration)
 }
 
 internal fun Application.helsesjekker() {
@@ -74,7 +74,7 @@ internal fun Application.helsesjekker() {
 
 internal fun Application.appModul(
     dataSource: DataSource,
-    httpClient: HttpClient,
+    oboClient: HttpClient,
     pdlClient: PdlClient,
     configuration: Configuration,
 ) {
@@ -98,7 +98,7 @@ internal fun Application.appModul(
                 val authHeader = call.request.headers["Authorization"]!!
                 val token = authHeader.removePrefix("Bearer ").trim()
                 val oboTokenResponse =
-                    httpClient.post(configuration.obo.url) {
+                    oboClient.post(configuration.obo.url) {
                         contentType(ContentType.Application.Json)
                         setBody(
                             jacksonObjectMapper().createObjectNode().apply {

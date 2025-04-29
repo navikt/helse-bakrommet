@@ -1,14 +1,13 @@
 package no.nav.helse.bakrommet
 
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class AppTest {
+class OAuthMock {
     private val mockOAuth2Server: MockOAuth2Server =
         MockOAuth2Server().also {
             it.start()
@@ -16,31 +15,37 @@ class AppTest {
     private val issuerId = "EntraID"
     private val clientId = "bakrommet-dev"
 
+    val authConfig =
+            Configuration.Auth(
+                clientId = clientId,
+                issuerUrl = mockOAuth2Server.issuerUrl(issuerId).toString(),
+                jwkProviderUri = mockOAuth2Server.jwksUrl(issuerId).toString(),
+                tokenEndpoint = mockOAuth2Server.tokenEndpointUrl(issuerId).toString(),
+            )
+
+    fun token(audience: String = clientId): String =
+        mockOAuth2Server.issueToken(
+            issuerId = issuerId,
+            audience = audience,
+            subject = "tullesubjekt",
+            claims =
+            mapOf(
+                "NAVident" to "tullebruker",
+            ),
+        ).serialize()
+}
+
+class AppTest {
     private val database = TestcontainersDatabase()
+    private val oAuthMock = OAuthMock()
 
     private val configuration =
         Configuration(
             database.configuration,
             Configuration.OBO("OBO-url"),
             Configuration.PDL("PDL-hostname", "PDL-scope"),
-            Configuration.Auth(
-                clientId = clientId,
-                issuerUrl = mockOAuth2Server.issuerUrl(issuerId).toString(),
-                jwkProviderUri = mockOAuth2Server.jwksUrl(issuerId).toString(),
-                tokenEndpoint = mockOAuth2Server.tokenEndpointUrl(issuerId).toString(),
-            ),
+            oAuthMock.authConfig,
         )
-
-    private fun token(audience: String = clientId): String =
-        mockOAuth2Server.issueToken(
-            issuerId = issuerId,
-            audience = audience,
-            subject = "tullesubjekt",
-            claims =
-                mapOf(
-                    "NAVident" to "tullebruker",
-                ),
-        ).serialize()
 
     @Test
     fun `starter appen`() =
@@ -51,17 +56,7 @@ class AppTest {
                     configuration,
                 )
             }
-            val response =
-                client.get("/antallBehandlinger") {
-                    bearerAuth(token())
-                }
-            assertEquals(200, response.status.value)
-            assertEquals("0", response.bodyAsText())
-
-            val response401 =
-                client.get("/antallBehandlinger") {
-                    bearerAuth(token("FEIL-AUDIENCE"))
-                }
-            assertEquals(401, response401.status.value)
+            assertEquals(200, client.get("/isalive").status.value)
+            assertEquals(200, client.get("/isready").status.value)
         }
 }

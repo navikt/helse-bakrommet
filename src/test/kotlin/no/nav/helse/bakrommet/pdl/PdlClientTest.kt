@@ -13,18 +13,18 @@ import no.nav.helse.bakrommet.Configuration
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class PdlClientTest {
-
-
-    private fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
-        HttpClient(MockEngine) {
-            install(ContentNegotiation) {
-                register(ContentType.Application.Json, JacksonConverter())
-            }
-            engine {
-                addHandler(requestHandler)
-            }
+fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
+    HttpClient(MockEngine) {
+        install(ContentNegotiation) {
+            register(ContentType.Application.Json, JacksonConverter())
         }
+        engine {
+            addHandler(requestHandler)
+        }
+    }
+
+
+class PdlClientTest {
 
     val pdlReply = """
       {
@@ -118,7 +118,6 @@ class PdlClientTest {
         assertEquals(emptySet(),
             runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "error") })
     }
-
 
 
 }
