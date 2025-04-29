@@ -14,6 +14,7 @@ import io.ktor.server.routing.*
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
 import org.intellij.lang.annotations.Language
