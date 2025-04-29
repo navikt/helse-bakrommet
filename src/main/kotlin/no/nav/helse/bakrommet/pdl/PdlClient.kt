@@ -16,11 +16,12 @@ import no.nav.helse.bakrommet.sikkerLogger
 
 class PdlClient(
     private val configuration: Configuration.PDL,
-    private val httpClient: HttpClient = HttpClient(Apache) {
-        install(ContentNegotiation) {
-            register(ContentType.Application.Json, JacksonConverter())
-        }
-    }
+    private val httpClient: HttpClient =
+        HttpClient(Apache) {
+            install(ContentNegotiation) {
+                register(ContentType.Application.Json, JacksonConverter())
+            }
+        },
 ) {
     private val hentIdenterMedHistorikkQuery =
         """
@@ -51,11 +52,12 @@ class PdlClient(
         pdlToken: String,
         ident: String,
     ): Set<String> {
-        val response = httpClient.post("https://${configuration.hostname}/graphql") {
-            headers[HttpHeaders.Authorization] = "Bearer $pdlToken"
-            contentType(ContentType.Application.Json)
-            setBody(hentIdenterRequest(ident = ident))
-        }
+        val response =
+            httpClient.post("https://${configuration.hostname}/graphql") {
+                headers[HttpHeaders.Authorization] = "Bearer $pdlToken"
+                contentType(ContentType.Application.Json)
+                setBody(hentIdenterRequest(ident = ident))
+            }
         if (response.status == HttpStatusCode.OK) {
             val json = response.body<JsonNode>()
             if (json.has("errors")) {

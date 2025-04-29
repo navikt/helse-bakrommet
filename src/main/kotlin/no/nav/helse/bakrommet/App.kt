@@ -50,11 +50,12 @@ internal fun Application.settOppKtor(
     dataSource: DataSource,
     configuration: Configuration,
     pdlClient: PdlClient = PdlClient(configuration.pdl),
-    oboClient: HttpClient = HttpClient(Apache) {
-        install(ContentNegotiation) {
-            register(ContentType.Application.Json, JacksonConverter())
-        }
-    }
+    oboClient: HttpClient =
+        HttpClient(Apache) {
+            install(ContentNegotiation) {
+                register(ContentType.Application.Json, JacksonConverter())
+            }
+        },
 ) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
@@ -124,12 +125,14 @@ internal fun Application.appModul(
             get("/v1/{personId}/personinfo") {
                 call.response.headers.append("Content-Type", "application/json")
                 call.respondText(
-                    """{
-        "fødselsnummer": "62345678906",
-        "aktørId": "1234567891011",
-        "navn": "Kalle Bakrommet Kranfører",
-        "alder": 47
-    }""",
+                    """
+                    {
+                        "fødselsnummer": "62345678906",
+                        "aktørId": "1234567891011",
+                        "navn": "Kalle Bakrommet Kranfører",
+                        "alder": 47
+                    }
+                    """.trimIndent(),
                 )
             }
             get("/v1/{personId}/soknader") {

@@ -23,29 +23,29 @@ fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestDa
         }
     }
 
-
 class PdlClientTest {
-
-    val pdlReply = """
-      {
-        "data": {
-          "hentIdenter": {
-            "identer": [
-              {
-                "ident": "12345678910",
-                "gruppe": "FOLKEREGISTERIDENT"
-              },
-              {
-                "ident": "10987654321",
-                "gruppe": "AKTORID"
-              }
-            ]
+    val pdlReply =
+        """
+        {
+          "data": {
+            "hentIdenter": {
+              "identer": [
+                {
+                  "ident": "12345678910",
+                  "gruppe": "FOLKEREGISTERIDENT"
+                },
+                {
+                  "ident": "10987654321",
+                  "gruppe": "AKTORID"
+                }
+              ]
+            }
           }
-        }
-      }        
-    """.trimIndent()
+        }        
+        """.trimIndent()
 
-    val pdlUgyldigIdentReply = """
+    val pdlUgyldigIdentReply =
+        """
         {
           "errors": [
             {
@@ -70,36 +70,40 @@ class PdlClientTest {
             "hentIdenter": null
           }
         }        
-    """.trimIndent()
+        """.trimIndent()
 
     val token = "PDL-TOKEN"
-    val mockPdl = mockHttpClient { request ->
-        val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer $token") {
-            respondError(HttpStatusCode.Unauthorized)
-        } else {
-            val json = jacksonObjectMapper().readValue(request.body.toByteArray(), JsonNode::class.java)
-            val ident = json["variables"]["ident"].asText()
-            if (ident == "1234") {
-                respond(
-                    status = HttpStatusCode.OK, content = pdlReply,
-                    headers = headersOf("Content-Type" to listOf("application/json"))
-                )
-            } else if (ident == "error") {
-                respond(
-                    status = HttpStatusCode.OK, content = pdlUgyldigIdentReply,
-                    headers = headersOf("Content-Type" to listOf("application/json"))
-                )
+    val mockPdl =
+        mockHttpClient { request ->
+            val auth = request.headers[HttpHeaders.Authorization]!!
+            if (auth != "Bearer $token") {
+                respondError(HttpStatusCode.Unauthorized)
             } else {
-                respondError(HttpStatusCode.NotFound)
+                val json = jacksonObjectMapper().readValue(request.body.toByteArray(), JsonNode::class.java)
+                val ident = json["variables"]["ident"].asText()
+                if (ident == "1234") {
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = pdlReply,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                } else if (ident == "error") {
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = pdlUgyldigIdentReply,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                } else {
+                    respondError(HttpStatusCode.NotFound)
+                }
             }
         }
-    }
 
-    val pdl = PdlClient(
-        configuration = Configuration.PDL(hostname = "host", scope = "scope"),
-        httpClient = mockPdl
-    )
+    val pdl =
+        PdlClient(
+            configuration = Configuration.PDL(hostname = "host", scope = "scope"),
+            httpClient = mockPdl,
+        )
 
     @Test
     fun `returnerer identer`() {
@@ -109,18 +113,17 @@ class PdlClientTest {
 
     @Test
     fun `returnerer tom liste ved ukjent ident (404)`() {
-        assertEquals(emptySet(),
-            runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "5555") })
+        assertEquals(
+            emptySet(),
+            runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "5555") },
+        )
     }
 
     @Test
     fun `returnerer tom liste ved errors`() {
-        assertEquals(emptySet(),
-            runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "error") })
+        assertEquals(
+            emptySet(),
+            runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "error") },
+        )
     }
-
-
 }
-
-
-
