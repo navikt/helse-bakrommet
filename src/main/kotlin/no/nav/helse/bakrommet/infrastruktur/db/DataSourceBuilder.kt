@@ -6,11 +6,12 @@ import io.micrometer.core.instrument.Clock
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.metrics.model.registry.PrometheusRegistry
+import no.nav.helse.bakrommet.Configuration
 import javax.sql.DataSource
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class DataSourceBuilder(configuration: DBModule.Configuration) {
+class DataSourceBuilder(configuration: Configuration.DB) {
     private val hikariConfig =
         HikariConfig().apply {
             jdbcUrl = configuration.jdbcUrl

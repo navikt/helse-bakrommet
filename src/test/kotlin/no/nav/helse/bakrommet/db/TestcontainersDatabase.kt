@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.db
 
-import no.nav.helse.bakrommet.infrastruktur.db.DBModule
+import no.nav.helse.bakrommet.Configuration
 import org.testcontainers.containers.PostgreSQLContainer
 
 class TestcontainersDatabase {
@@ -14,8 +14,8 @@ class TestcontainersDatabase {
                 println("Database startet opp.\nUrl: $jdbcUrl\nBrukernavn: $username\nPassord: $password")
             }
 
-    val dbModuleConfiguration =
-        DBModule.Configuration(
+    val configuration =
+        Configuration.DB(
             jdbcUrl = postgres.jdbcUrl + "&user=" + postgres.username + "&password=" + postgres.password,
         )
 }

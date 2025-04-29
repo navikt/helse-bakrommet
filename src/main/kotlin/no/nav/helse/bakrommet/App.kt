@@ -28,42 +28,25 @@ val appLogger = LoggerFactory.getLogger("bakrommet")
 val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
 fun main() {
-    val env = System.getenv()
-    val dbConfiguration = DBModule.Configuration(env.getValue("DATABASE_JDBC_URL"))
-    val authConfiguration = authConfig()
-    val texasUrl = env.getValue("NAIS_TOKEN_EXCHANGE_ENDPOINT")
-    val pdlScope = env.getValue("PDL_SCOPE")
-    val pdlHostname = env.getValue("PDL_HOSTNAME")
-
-    startApp(dbConfiguration, authConfiguration, texasUrl, pdlScope, pdlHostname)
+    startApp(Configuration.fromEnv())
 }
 
-internal fun startApp(
-    dbModule: DBModule.Configuration,
-    authConfiguration: AuthConfiguration,
-    texasUrl: String,
-    pdlScope: String,
-    pdlHostname: String,
-) {
+internal fun startApp(configuration: Configuration) {
     appLogger.info("Setter opp data source")
-    val dataSource = instansierDatabase(dbModule)
+    val dataSource = instansierDatabase(configuration.db)
 
     embeddedServer(CIO, port = 8080) {
         appLogger.info("Setter opp ktor")
-        settOppKtor(dataSource, authConfiguration, texasUrl, pdlScope, pdlHostname)
+        settOppKtor(dataSource, configuration)
         appLogger.info("Starter bakrommet")
     }.start(true)
 }
 
-internal fun instansierDatabase(configuration: DBModule.Configuration) =
-    DBModule(configuration = configuration).also { it.migrate() }.dataSource
+internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
 
 internal fun Application.settOppKtor(
     dataSource: DataSource,
-    authConfiguration: AuthConfiguration,
-    texasUrl: String,
-    pdlScope: String,
-    pdlHostname: String,
+    configuration: Configuration,
 ) {
     val httpClient =
         HttpClient(Apache) {
@@ -71,9 +54,9 @@ internal fun Application.settOppKtor(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         }
-    azureAdAppAuthentication(authConfiguration)
+    azureAdAppAuthentication(configuration.auth)
     helsesjekker()
-    appModul(dataSource, httpClient, texasUrl, pdlScope, PdlClient(pdlHostname = pdlHostname))
+    appModul(dataSource, httpClient, PdlClient(configuration.pdl), configuration)
 }
 
 internal fun Application.helsesjekker() {
@@ -90,9 +73,8 @@ internal fun Application.helsesjekker() {
 internal fun Application.appModul(
     dataSource: DataSource,
     httpClient: HttpClient,
-    texasUrl: String,
-    pdlScope: String,
-    pdlClient: PdlClient
+    pdlClient: PdlClient,
+    configuration: Configuration,
 ) {
     install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
@@ -114,12 +96,12 @@ internal fun Application.appModul(
                 val authHeader = call.request.headers["Authorization"]!!
                 val token = authHeader.removePrefix("Bearer ").trim()
                 val oboTokenResponse =
-                    httpClient.post(texasUrl) {
+                    httpClient.post(configuration.obo.url) {
                         contentType(ContentType.Application.Json)
                         setBody(
                             jacksonObjectMapper().createObjectNode().apply {
                                 put("identity_provider", "azuread")
-                                put("target", "api://$pdlScope/.default")
+                                put("target", "api://${configuration.pdl.scope}/.default")
                                 put("user_token", token)
                             }.toString()
                         )

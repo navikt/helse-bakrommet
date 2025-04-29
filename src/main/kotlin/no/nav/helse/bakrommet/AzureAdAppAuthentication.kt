@@ -8,14 +8,7 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import java.net.URI
 
-data class AuthConfiguration(
-    val clientId: String,
-    val issuerUrl: String,
-    val jwkProviderUri: String,
-    val tokenEndpoint: String,
-)
-
-fun Application.azureAdAppAuthentication(config: AuthConfiguration) {
+fun Application.azureAdAppAuthentication(config: Configuration.Auth) {
     azureAdAppAuthentication(
         jwkProvider = JwkProviderBuilder(URI(config.jwkProviderUri).toURL()).build(),
         issuerUrl = config.issuerUrl,

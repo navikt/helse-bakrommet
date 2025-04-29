@@ -2,11 +2,12 @@ package no.nav.helse.bakrommet.infrastruktur.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.helse.bakrommet.Configuration
 import org.flywaydb.core.Flyway
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class FlywayMigrator(configuration: DBModule.Configuration) {
+class FlywayMigrator(configuration: Configuration.DB) {
     private val hikariConfig =
         HikariConfig().apply {
             jdbcUrl = configuration.jdbcUrl

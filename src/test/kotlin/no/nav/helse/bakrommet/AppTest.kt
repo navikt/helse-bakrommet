@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet
 
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -17,12 +16,19 @@ class AppTest {
     private val issuerId = "EntraID"
     private val clientId = "bakrommet-dev"
 
+    private val database = TestcontainersDatabase()
+
     private val configuration =
-        AuthConfiguration(
-            clientId = clientId,
-            issuerUrl = mockOAuth2Server.issuerUrl(issuerId).toString(),
-            jwkProviderUri = mockOAuth2Server.jwksUrl(issuerId).toString(),
-            tokenEndpoint = mockOAuth2Server.tokenEndpointUrl(issuerId).toString(),
+        Configuration(
+            database.configuration,
+            Configuration.OBO("OBO-url"),
+            Configuration.PDL("PDL-hostname", "PDL-scope"),
+            Configuration.Auth(
+                clientId = clientId,
+                issuerUrl = mockOAuth2Server.issuerUrl(issuerId).toString(),
+                jwkProviderUri = mockOAuth2Server.jwksUrl(issuerId).toString(),
+                tokenEndpoint = mockOAuth2Server.tokenEndpointUrl(issuerId).toString(),
+            ),
         )
 
     private fun token(audience: String = clientId): String =
@@ -41,11 +47,8 @@ class AppTest {
         testApplication {
             application {
                 settOppKtor(
-                    instansierDatabase(TestcontainersDatabase().dbModuleConfiguration),
+                    instansierDatabase(configuration.db),
                     configuration,
-                    "texasUrl",
-                    "pdlScope",
-                    "pdl.host"
                 )
             }
             val response =
