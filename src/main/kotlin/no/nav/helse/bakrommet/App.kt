@@ -112,12 +112,12 @@ internal fun Application.appModul(
                     sikkerLogger.warn(oboTokenResponse.bodyAsText())
                 }
                 call.response.headers.append("Content-Type", "application/json")
-                call.response.headers.append("Obo", oboTokenResponse.bodyAsText())
 
                 val jsonResponse = jacksonObjectMapper().readTree(oboTokenResponse.bodyAsText())
                 val oboToken = jsonResponse["access_token"].asText()
 
-                pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
+                val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
+                call.response.headers.append("identer", identer.toString())
 
                 call.respondText("""{ "personId": "abc12" }""")
             }
