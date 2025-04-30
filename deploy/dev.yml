@@ -50,6 +50,9 @@ spec:
       rules:
         - application: spillerom
     outbound:
+      rules:
+          - application: sykepengesoknad-backend
+            namespace: flex
       external:
         - host: pdl-api.dev-fss-pub.nais.io
   env:
@@ -57,3 +60,7 @@ spec:
       value: dev-fss.pdl.pdl-api
     - name: PDL_HOSTNAME
       value: pdl-api.dev-fss-pub.nais.io
+    - name: SYKEPENGESOKNAD_BACKEND_SCOPE
+      value: dev-gcp.flex.sykepengesoknad-backend
+    - name: SYKEPENGESOKNAD_BACKEND_HOSTNAME
+      value: http://sykepengesoknad-backend.flex

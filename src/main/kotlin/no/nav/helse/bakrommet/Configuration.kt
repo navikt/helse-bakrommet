@@ -5,6 +5,7 @@ data class Configuration(
     val obo: OBO,
     val pdl: PDL,
     val auth: Auth,
+    val sykepengesoknadBackend: SykepengesoknadBackend,
 ) {
     data class DB(
         val jdbcUrl: String,
@@ -15,6 +16,11 @@ data class Configuration(
     )
 
     data class PDL(
+        val hostname: String,
+        val scope: String,
+    )
+
+    data class SykepengesoknadBackend(
         val hostname: String,
         val scope: String,
     )
@@ -42,6 +48,11 @@ data class Configuration(
                         issuerUrl = env.getValue("AZURE_OPENID_CONFIG_ISSUER"),
                         jwkProviderUri = env.getValue("AZURE_OPENID_CONFIG_JWKS_URI"),
                         tokenEndpoint = env.getValue("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+                    ),
+                sykepengesoknadBackend =
+                    SykepengesoknadBackend(
+                        scope = env.getValue("SYKEPENGESOKNAD_BACKEND_SCOPE"),
+                        hostname = env.getValue("SYKEPENGESOKNAD_BACKEND_HOSTNAME"),
                     ),
             )
         }

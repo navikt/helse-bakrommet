@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.bundles.ktorServer)
     implementation(libs.bundles.logback)
     implementation(libs.micrometerPrometheus)
+    implementation(libs.sykepengesoknad)
 
     testImplementation(libs.bundles.ktorServerTest)
     testImplementation(libs.testcontainers.postgres)

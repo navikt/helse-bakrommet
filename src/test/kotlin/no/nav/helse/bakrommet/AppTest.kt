@@ -44,6 +44,7 @@ class AppTest {
             Configuration.OBO(url = "OBO-url"),
             Configuration.PDL(hostname = "PDL-hostname", scope = "PDL-scope"),
             oAuthMock.authConfig,
+            Configuration.SykepengesoknadBackend(hostname = "sykepengesoknad-backend", scope = "sykepengesoknad-backend-scope"),
         )
 
     @Test
