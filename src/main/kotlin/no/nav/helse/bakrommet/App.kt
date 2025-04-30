@@ -159,6 +159,10 @@ internal fun Application.appModul(
                     )
                 call.respondText(soknader.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }
+
+            get("/v1/{personId}/dokumenter") {
+                call.respondText("[]", ContentType.Application.Json, HttpStatusCode.OK)
+            }
         }
     }
 }
