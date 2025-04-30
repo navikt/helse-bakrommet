@@ -8,8 +8,8 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.appLogger
 import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
@@ -52,7 +52,7 @@ class SykepengesoknadBackendClient(
         if (response.status == HttpStatusCode.OK) {
             return response.body<List<SykepengesoknadDTO>>()
         } else {
-            appLogger.warn("hentSoknader statusCode={}", response.status.value)
+            logg.warn("hentSoknader statusCode={}", response.status.value)
         }
         throw RuntimeException(
             "Feil ved henting av sykepengesoknader, status=${response.status.value}}",

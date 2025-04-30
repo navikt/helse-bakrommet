@@ -9,7 +9,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.sikkerLogger
+import no.nav.helse.bakrommet.util.sikkerLogger
 
 class OboClient(
     private val configuration: Configuration.OBO,

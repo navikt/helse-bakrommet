@@ -11,9 +11,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.appLogger
 import no.nav.helse.bakrommet.auth.OboToken
-import no.nav.helse.bakrommet.sikkerLogger
+import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.util.sikkerLogger
 
 class PdlClient(
     private val configuration: Configuration.PDL,
@@ -62,13 +62,13 @@ class PdlClient(
         if (response.status == HttpStatusCode.OK) {
             val json = response.body<JsonNode>()
             if (json.has("errors")) {
-                appLogger.warn("hentIdenterFor har errors")
+                logg.warn("hentIdenterFor har errors")
                 sikkerLogger.warn("hentIdenterFor har errors: {}", json)
                 return emptySet()
             }
             return json["data"]["hentIdenter"]["identer"].map { it["ident"].asText() }.toSet()
         } else {
-            appLogger.warn("hentIdenterFor statusCode={}", response.status.value)
+            logg.warn("hentIdenterFor statusCode={}", response.status.value)
         }
         return emptySet()
     }

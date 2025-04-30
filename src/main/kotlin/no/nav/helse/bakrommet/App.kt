@@ -17,13 +17,15 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.util.sikkerLogger
 import org.intellij.lang.annotations.Language
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import javax.sql.DataSource
 
-val appLogger = LoggerFactory.getLogger("bakrommet")
-val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
+// App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
+val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 fun main() {
     startApp(Configuration.fromEnv())
