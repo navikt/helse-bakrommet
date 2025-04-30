@@ -10,6 +10,7 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
@@ -19,7 +20,7 @@ class SykepengesoknadBackendClient(
     private val httpClient: HttpClient =
         HttpClient(Apache) {
             install(ContentNegotiation) {
-                register(ContentType.Application.Json, JacksonConverter())
+                register(ContentType.Application.Json, JacksonConverter(objectMapper))
             }
         },
 ) {
