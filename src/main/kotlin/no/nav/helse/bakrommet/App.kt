@@ -122,7 +122,7 @@ internal fun Application.appModul(
                 val oboToken =
                     oboClient.exchangeToken(
                         bearerToken = call.request.bearerToken(),
-                        scope = configuration.pdl.scope,
+                        scope = configuration.sykepengesoknadBackend.scope,
                     )
                 val soknader: List<SykepengesoknadDTO> =
                     sykepengesoknadBackendClient.hentSoknader(
