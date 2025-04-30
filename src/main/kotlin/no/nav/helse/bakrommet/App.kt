@@ -17,7 +17,9 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -49,10 +51,11 @@ internal fun Application.settOppKtor(
     configuration: Configuration,
     pdlClient: PdlClient = PdlClient(configuration.pdl),
     oboClient: OboClient = OboClient(configuration.obo),
+    sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadBackendClient(configuration.sykepengesoknadBackend),
 ) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
-    appModul(dataSource, oboClient, pdlClient, configuration)
+    appModul(dataSource, oboClient, pdlClient, configuration, sykepengesoknadBackendClient)
 }
 
 internal fun Application.helsesjekker() {
@@ -71,6 +74,7 @@ internal fun Application.appModul(
     oboClient: OboClient,
     pdlClient: PdlClient,
     configuration: Configuration,
+    sykepengesoknadBackendClient: SykepengesoknadBackendClient,
 ) {
     install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
@@ -115,8 +119,17 @@ internal fun Application.appModul(
                 )
             }
             get("/v1/{personId}/soknader") {
-                call.response.headers.append("Content-Type", "application/json")
-                call.respondText("[]")
+                val oboToken =
+                    oboClient.exchangeToken(
+                        bearerToken = call.request.bearerToken(),
+                        scope = configuration.pdl.scope,
+                    )
+                val soknader: List<SykepengesoknadDTO> =
+                    sykepengesoknadBackendClient.hentSoknader(
+                        sykepengesoknadToken = oboToken,
+                        fnr = "45929800579",
+                    )
+                call.respond(soknader)
             }
         }
     }
