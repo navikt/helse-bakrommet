@@ -106,7 +106,7 @@ class PersonsokTest {
                     contentType(ContentType.Application.Json)
                     setBody(
                         """
-                        { "fødselsnummer": "01010199999" }
+                        { "ident": "01010199999" }
                         """.trimIndent(),
                     )
                     bearerAuth(userToken)
@@ -133,7 +133,7 @@ class PersonsokTest {
                     contentType(ContentType.Application.Json)
                     setBody(
                         """
-                        { "fødselsnummer": "01010199999" }
+                        { "ident": "01010199999" }
                         """.trimIndent(),
                     )
                     bearerAuth(oAuthMock.token("FEIL-AUDIENCE"))

@@ -93,7 +93,7 @@ internal fun Application.appModul(
                 call.respondText { dataSource.query("select count(*) from behandling")!! }
             }
             post("/v1/personsok") {
-                val fnr = call.receive<JsonNode>()["fødselsnummer"].asText()
+                val fnr = call.receive<JsonNode>()["ident"].asText()
 
                 val oboToken =
                     oboClient.exchangeToken(
