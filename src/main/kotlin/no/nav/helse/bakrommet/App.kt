@@ -18,6 +18,7 @@ import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
+import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.intellij.lang.annotations.Language
@@ -129,7 +130,7 @@ internal fun Application.appModul(
                         sykepengesoknadToken = oboToken,
                         fnr = "45929800579",
                     )
-                call.respond(soknader)
+                call.respondText(soknader.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }
         }
     }
