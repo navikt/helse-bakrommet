@@ -25,6 +25,8 @@ import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import javax.sql.DataSource
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
@@ -86,6 +88,7 @@ internal fun Application.appModul(
         level = Level.INFO
         filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
     }
+    val cache = ConcurrentHashMap<String, String>()
 
     routing {
         authenticate("oidc") {
@@ -93,7 +96,12 @@ internal fun Application.appModul(
                 call.respondText { dataSource.query("select count(*) from behandling")!! }
             }
             post("/v1/personsok") {
-                val fnr = call.receive<JsonNode>()["ident"].asText()
+                val ident = call.receive<JsonNode>()["ident"].asText()
+                // Ident må være 11 eller 13 siffer lang
+                if (ident.length != 11 && ident.length != 13) {
+                    call.respond(HttpStatusCode.BadRequest, "Ident må være 11 eller 13 siffer lang")
+                    return@post
+                }
 
                 val oboToken =
                     oboClient.exchangeToken(
@@ -101,11 +109,21 @@ internal fun Application.appModul(
                         scope = configuration.pdl.scope,
                     )
 
-                val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
+                val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = ident)
+
+                fun hentEllerOpprettPersonid(naturligIdent: String): String {
+                    val personId = cache[naturligIdent]
+                    if (personId != null) {
+                        return personId
+                    }
+                    val newPersonId = UUID.randomUUID().toString().replace("-", "").substring(0, 5)
+                    cache[naturligIdent] = newPersonId
+                    return newPersonId
+                }
 
                 call.response.headers.append("identer", identer.toString())
                 call.response.headers.append("Content-Type", "application/json")
-                call.respondText("""{ "personId": "abc12" }""")
+                call.respondText("""{ "personId": "${hentEllerOpprettPersonid(ident)}" }""")
             }
             get("/v1/{personId}/personinfo") {
                 call.response.headers.append("Content-Type", "application/json")
@@ -121,6 +139,14 @@ internal fun Application.appModul(
                 )
             }
             get("/v1/{personId}/soknader") {
+                // Hent naturlig ident fra cache
+                val personId = call.parameters["personId"]!!
+                val fnr = cache.entries.firstOrNull { it.value == personId }?.key
+                // returner 404 hvis fnr ikke finnes
+                if (fnr == null) {
+                    call.respond(HttpStatusCode.NotFound, "Fant ikke fnr for personId $personId")
+                    return@get
+                }
                 val oboToken =
                     oboClient.exchangeToken(
                         bearerToken = call.request.bearerToken(),
@@ -129,7 +155,7 @@ internal fun Application.appModul(
                 val soknader: List<SykepengesoknadDTO> =
                     sykepengesoknadBackendClient.hentSoknader(
                         sykepengesoknadToken = oboToken,
-                        fnr = "45929800579",
+                        fnr = fnr,
                     )
                 call.respondText(soknader.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }

@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
 import no.nav.helse.bakrommet.pdl.PdlClient
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class PersonsokTest {
@@ -113,7 +114,8 @@ class PersonsokTest {
                 }
             assertEquals(200, response.status.value)
             assertEquals("""[12345678910, 10987654321]""", response.headers["identer"])
-            assertEquals("""{ "personId": "abc12" }""", response.bodyAsText())
+            val regex = Regex("""\{ "personId": "[a-z0-9]{5}" }""")
+            assertTrue(response.bodyAsText().matches(regex))
         }
 
     @Test
