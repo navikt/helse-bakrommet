@@ -84,6 +84,7 @@ internal fun Application.appModul(
         disableDefaultColors()
         logger = sikkerLogger
         level = Level.INFO
+        filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
     }
 
     routing {
