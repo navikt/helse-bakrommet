@@ -119,6 +119,8 @@ internal fun Application.appModul(
                 )
             }
             get("/v1/{personId}/soknader") {
+                try {
+
                 val oboToken =
                     oboClient.exchangeToken(
                         bearerToken = call.request.bearerToken(),
@@ -130,6 +132,10 @@ internal fun Application.appModul(
                         fnr = "45929800579",
                     )
                 call.respond(soknader)
+                } catch (e: Exception) {
+                    appLogger.error("Feil ved henting av sykepengesoknader", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykepengesoknader")
+                }
             }
         }
     }
