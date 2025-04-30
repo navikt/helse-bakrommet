@@ -11,8 +11,6 @@ import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotliquery.queryOf
-import kotliquery.sessionOf
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
@@ -20,8 +18,8 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.bakrommet.util.single
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
@@ -93,7 +91,7 @@ internal fun Application.appModul(
     routing {
         authenticate("oidc") {
             get("/antallBehandlinger") {
-                call.respondText { dataSource.query("select count(*) from behandling")!! }
+                call.respondText { dataSource.single("select count(*) from behandling") { it.string(1) }!! }
             }
             post("/v1/personsok") {
                 val ident = call.receive<JsonNode>()["ident"].asText()
@@ -172,10 +170,3 @@ private fun RoutingRequest.bearerToken(): String {
     val token = authHeader.removePrefix("Bearer ").trim()
     return token
 }
-
-private fun DataSource.query(
-    @Language("postgresql") sql: String,
-) = sessionOf(this, strict = true)
-    .use { session ->
-        session.run(queryOf(sql).map { it.string(1) }.asSingle)
-    }

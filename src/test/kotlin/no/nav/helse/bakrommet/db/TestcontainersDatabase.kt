@@ -8,10 +8,8 @@ object TestcontainersDatabase {
         PostgreSQLContainer("postgres:17")
             .withReuse(true)
             .withLabel("app", "bakrommet")
-            .withLabel("code-location", javaClass.canonicalName)
             .apply {
                 start()
-                println("Database startet opp.\nUrl: $jdbcUrl\nBrukernavn: $username\nPassord: $password")
             }
 
     val configuration =
