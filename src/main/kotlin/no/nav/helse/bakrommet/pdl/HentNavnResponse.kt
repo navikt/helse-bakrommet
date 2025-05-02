@@ -1,11 +1,18 @@
 package no.nav.helse.bakrommet.pdl
 
-data class HentNavnResponseData(
-    val hentPerson: HentNavn? = null,
+import java.time.LocalDate
+
+data class HentPersonResponseData(
+    val hentPerson: HentPerson? = null,
 )
 
-data class HentNavn(
+data class HentPerson(
     val navn: List<Navn>? = null,
+    val foedselsdato: List<Foedselsdato>? = null,
+)
+
+data class Foedselsdato(
+    val foedselsdato: LocalDate,
 )
 
 data class Navn(
@@ -19,4 +26,21 @@ fun Navn.formattert(): String {
         mellomnavn.isNullOrBlank() -> "$fornavn $etternavn"
         else -> "$fornavn $mellomnavn $etternavn"
     }
+}
+
+data class PersonInfo(
+    val navn: Navn,
+    val fodselsdato: LocalDate?,
+)
+
+fun PersonInfo.alder(): Int? {
+    val today = LocalDate.now()
+    if (fodselsdato == null) {
+        return null
+    }
+    val age = today.year - fodselsdato.year
+    if (today.monthValue < fodselsdato.monthValue || (today.monthValue == fodselsdato.monthValue && today.dayOfMonth < fodselsdato.dayOfMonth)) {
+        return age - 1
+    }
+    return age
 }

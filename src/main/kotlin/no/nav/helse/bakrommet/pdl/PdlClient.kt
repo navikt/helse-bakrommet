@@ -104,11 +104,6 @@ class PdlClient(
         return emptySet()
     }
 
-    data class PersonInfo(
-        val navn: Navn,
-        val json: String,
-    )
-
     suspend fun hentPersonInfo(
         pdlToken: OboToken,
         ident: String,
@@ -125,7 +120,7 @@ class PdlClient(
         if (response.status == HttpStatusCode.OK) {
             val json = response.body<String>()
 
-            val parsedResponse = json.let { objectMapper.readValue<GraphQLResponse<HentNavnResponseData>>(it) }
+            val parsedResponse = json.let { objectMapper.readValue<GraphQLResponse<HentPersonResponseData>>(it) }
 
             if ((parsedResponse.errors?.size ?: 0) > 0) {
                 logg.warn("hentPersonInfo har errors")
@@ -142,7 +137,7 @@ class PdlClient(
             }
             return PersonInfo(
                 navn = parsedResponse.data.hentPerson.navn.first(),
-                json = json,
+                fodselsdato = parsedResponse.data.hentPerson.foedselsdato?.firstOrNull()?.foedselsdato,
             )
         } else {
             logg.warn("hentPersonInfo statusCode={}", response.status.value)

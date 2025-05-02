@@ -15,6 +15,7 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.pdl.alder
 import no.nav.helse.bakrommet.pdl.formattert
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -145,19 +146,23 @@ internal fun Application.appModul(
                         ident = fnr,
                     )
                 val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
-                call.response.headers.append("PDL", hentPersonInfo.json)
 
-                call.response.headers.append("Content-Type", "application/json")
-                call.respondText(
-                    """
-                    {
-                        "fødselsnummer": "$fnr",
-                        "aktørId": "${identer.first { it.length == 13 }}",
-                        "navn": "${hentPersonInfo.navn.formattert()}",
-                        "alder": 47
-                    }
-                    """.trimIndent(),
+                data class PersonInfo(
+                    val fnr: String,
+                    val aktorId: String,
+                    val navn: String,
+                    val alder: Int?,
                 )
+
+                val personInfo =
+                    PersonInfo(
+                        fnr = fnr,
+                        aktorId = identer.first { it.length == 13 },
+                        navn = hentPersonInfo.navn.formattert(),
+                        alder = hentPersonInfo.alder(),
+                    )
+                call.response.headers.append("Content-Type", "application/json")
+                call.respondText(personInfo.serialisertTilString())
             }
             get("/v1/{personId}/soknader") {
                 // Hent naturlig ident fra cache
