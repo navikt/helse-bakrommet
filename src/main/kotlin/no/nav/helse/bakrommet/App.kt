@@ -18,10 +18,10 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.alder
 import no.nav.helse.bakrommet.pdl.formattert
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
-import no.nav.helse.bakrommet.util.single
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -92,9 +92,6 @@ internal fun Application.appModul(
 
     routing {
         authenticate("entraid") {
-            get("/antallBehandlinger") {
-                call.respondText { dataSource.single("select count(*) from behandling") { it.string(1) }!! }
-            }
             post("/v1/personsok") {
                 val ident = call.receive<JsonNode>()["ident"].asText()
                 // Ident må være 11 eller 13 siffer lang
@@ -125,65 +122,52 @@ internal fun Application.appModul(
                 call.respondText("""{ "personId": "${hentEllerOpprettPersonid(ident)}" }""")
             }
             get("/v1/{personId}/personinfo") {
-                // Hent naturlig ident fra cache
-                val personId = call.parameters["personId"]!!
-                val fnr = personDao.finnNaturligIdent(personId)
+                call.medIdent(personDao) { fnr, personId ->
+                    val oboToken =
+                        oboClient.exchangeToken(
+                            bearerToken = call.request.bearerToken(),
+                            scope = configuration.pdl.scope,
+                        )
 
-                // returner 404 hvis fnr ikke finnes
-                if (fnr == null) {
-                    call.respond(HttpStatusCode.NotFound, "Fant ikke fnr for personId $personId")
-                    return@get
+                    val hentPersonInfo =
+                        pdlClient.hentPersonInfo(
+                            pdlToken = oboToken,
+                            ident = fnr,
+                        )
+                    val identer = pdlClient.hentIdenterFor(oboToken, fnr)
+
+                    data class PersonInfo(
+                        val fødselsnummer: String,
+                        val aktørId: String,
+                        val navn: String,
+                        val alder: Int?,
+                    )
+
+                    val personInfo =
+                        PersonInfo(
+                            fødselsnummer = fnr,
+                            aktørId = identer.first { it.length == 13 },
+                            navn = hentPersonInfo.navn.formattert(),
+                            alder = hentPersonInfo.alder(),
+                        )
+
+                    call.respondText(personInfo.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
                 }
-                val oboToken =
-                    oboClient.exchangeToken(
-                        bearerToken = call.request.bearerToken(),
-                        scope = configuration.pdl.scope,
-                    )
-
-                val hentPersonInfo =
-                    pdlClient.hentPersonInfo(
-                        pdlToken = oboToken,
-                        ident = fnr,
-                    )
-                val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
-
-                data class PersonInfo(
-                    val fødselsnummer: String,
-                    val aktørId: String,
-                    val navn: String,
-                    val alder: Int?,
-                )
-
-                val personInfo =
-                    PersonInfo(
-                        fødselsnummer = fnr,
-                        aktørId = identer.first { it.length == 13 },
-                        navn = hentPersonInfo.navn.formattert(),
-                        alder = hentPersonInfo.alder(),
-                    )
-                call.response.headers.append("Content-Type", "application/json")
-                call.respondText(personInfo.serialisertTilString())
             }
             get("/v1/{personId}/soknader") {
-                // Hent naturlig ident fra cache
-                val personId = call.parameters["personId"]!!
-                val fnr = personDao.finnNaturligIdent(personId)
-                // returner 404 hvis fnr ikke finnes
-                if (fnr == null) {
-                    call.respond(HttpStatusCode.NotFound, "Fant ikke fnr for personId $personId")
-                    return@get
+                call.medIdent(personDao) { fnr, personId ->
+                    val oboToken =
+                        oboClient.exchangeToken(
+                            bearerToken = call.request.bearerToken(),
+                            scope = configuration.sykepengesoknadBackend.scope,
+                        )
+                    val soknader: List<SykepengesoknadDTO> =
+                        sykepengesoknadBackendClient.hentSoknader(
+                            sykepengesoknadToken = oboToken,
+                            fnr = fnr,
+                        )
+                    call.respondText(soknader.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
                 }
-                val oboToken =
-                    oboClient.exchangeToken(
-                        bearerToken = call.request.bearerToken(),
-                        scope = configuration.sykepengesoknadBackend.scope,
-                    )
-                val soknader: List<SykepengesoknadDTO> =
-                    sykepengesoknadBackendClient.hentSoknader(
-                        sykepengesoknadToken = oboToken,
-                        fnr = fnr,
-                    )
-                call.respondText(soknader.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }
 
             get("/v1/{personId}/dokumenter") {
