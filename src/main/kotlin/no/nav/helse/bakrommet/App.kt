@@ -124,6 +124,31 @@ internal fun Application.appModul(
                 call.respondText("""{ "personId": "${hentEllerOpprettPersonid(ident)}" }""")
             }
             get("/v1/{personId}/personinfo") {
+                // Hent naturlig ident fra cache
+                val personId = call.parameters["personId"]!!
+                val fnr = cache.entries.firstOrNull { it.value == personId }?.key
+                // returner 404 hvis fnr ikke finnes
+                if (fnr == null) {
+                    call.respond(HttpStatusCode.NotFound, "Fant ikke fnr for personId $personId")
+                    return@get
+                }
+                val oboToken =
+                    oboClient.exchangeToken(
+                        bearerToken = call.request.bearerToken(),
+                        scope = configuration.pdl.scope,
+                    )
+
+                try {
+                    val hentPersonInfo =
+                        pdlClient.hentPersonInfo(
+                            pdlToken = oboToken,
+                            ident = fnr,
+                        )
+                    call.response.headers.append("hentPersonInfo", hentPersonInfo.toString())
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av personinfo")
+                }
+
                 call.response.headers.append("Content-Type", "application/json")
                 call.respondText(
                     """
