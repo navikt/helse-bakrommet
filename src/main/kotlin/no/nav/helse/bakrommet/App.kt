@@ -148,16 +148,16 @@ internal fun Application.appModul(
                 val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
 
                 data class PersonInfo(
-                    val fnr: String,
-                    val aktorId: String,
+                    val fødselsnummer: String,
+                    val aktørId: String,
                     val navn: String,
                     val alder: Int?,
                 )
 
                 val personInfo =
                     PersonInfo(
-                        fnr = fnr,
-                        aktorId = identer.first { it.length == 13 },
+                        fødselsnummer = fnr,
+                        aktørId = identer.first { it.length == 13 },
                         navn = hentPersonInfo.navn.formattert(),
                         alder = hentPersonInfo.alder(),
                     )
