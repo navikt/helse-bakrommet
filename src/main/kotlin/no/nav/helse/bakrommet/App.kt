@@ -138,24 +138,20 @@ internal fun Application.appModul(
                         scope = configuration.pdl.scope,
                     )
 
-                try {
-                    val hentPersonInfo =
-                        pdlClient.hentPersonInfo(
-                            pdlToken = oboToken,
-                            ident = fnr,
-                        )
-                    call.response.headers.append("hentPersonInfo", hentPersonInfo.toString())
-                } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av personinfo")
-                }
+                val hentPersonInfo =
+                    pdlClient.hentPersonInfo(
+                        pdlToken = oboToken,
+                        ident = fnr,
+                    )
+                val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
 
                 call.response.headers.append("Content-Type", "application/json")
                 call.respondText(
                     """
                     {
-                        "fødselsnummer": "62345678906",
-                        "aktørId": "1234567891011",
-                        "navn": "Kalle Bakrommet Kranfører",
+                        "fødselsnummer": "$fnr",
+                        "aktørId": "${identer.first { it.length == 13 }}",
+                        "navn": "${hentPersonInfo.navn}",
                         "alder": 47
                     }
                     """.trimIndent(),
