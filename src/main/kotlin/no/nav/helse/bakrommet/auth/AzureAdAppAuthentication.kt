@@ -11,7 +11,7 @@ import java.net.URI
 fun Application.azureAdAppAuthentication(config: Configuration.Auth) {
     val jwkProvider = JwkProviderBuilder(URI(config.jwkProviderUri).toURL()).build()
     authentication {
-        jwt("oidc") {
+        jwt("entraid") {
             verifier(jwkProvider, config.issuerUrl) {
                 withAudience(config.clientId)
             }

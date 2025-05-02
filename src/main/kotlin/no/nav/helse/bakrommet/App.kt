@@ -91,7 +91,7 @@ internal fun Application.appModul(
     val cache = ConcurrentHashMap<String, String>()
 
     routing {
-        authenticate("oidc") {
+        authenticate("entraid") {
             get("/antallBehandlinger") {
                 call.respondText { dataSource.single("select count(*) from behandling") { it.string(1) }!! }
             }
