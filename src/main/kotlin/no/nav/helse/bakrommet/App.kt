@@ -145,6 +145,7 @@ internal fun Application.appModul(
                         ident = fnr,
                     )
                 val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = fnr)
+                call.response.headers.append("PDL", hentPersonInfo.json)
 
                 call.response.headers.append("Content-Type", "application/json")
                 call.respondText(

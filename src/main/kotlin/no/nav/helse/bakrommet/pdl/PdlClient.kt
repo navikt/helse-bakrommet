@@ -35,6 +35,9 @@ class PdlClient(
           	  mellomnavn
           	  etternavn
             }
+            foedselsdato {
+                foedselsdato
+            }
           }
         }
         """.trimIndent()
@@ -103,6 +106,7 @@ class PdlClient(
 
     data class PersonInfo(
         val navn: Navn,
+        val json: String,
     )
 
     suspend fun hentPersonInfo(
@@ -138,6 +142,7 @@ class PdlClient(
             }
             return PersonInfo(
                 navn = parsedResponse.data.hentPerson.navn.first(),
+                json = json,
             )
         } else {
             logg.warn("hentPersonInfo statusCode={}", response.status.value)
