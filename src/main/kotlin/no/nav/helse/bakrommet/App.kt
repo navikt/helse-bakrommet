@@ -15,6 +15,7 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.pdl.formattert
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
@@ -151,7 +152,7 @@ internal fun Application.appModul(
                     {
                         "fødselsnummer": "$fnr",
                         "aktørId": "${identer.first { it.length == 13 }}",
-                        "navn": "${hentPersonInfo.navn}",
+                        "navn": "${hentPersonInfo.navn.formattert()}",
                         "alder": 47
                     }
                     """.trimIndent(),

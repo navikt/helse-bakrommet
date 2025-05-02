@@ -13,3 +13,10 @@ data class Navn(
     val mellomnavn: String?,
     val etternavn: String,
 )
+
+fun Navn.formattert(): String {
+    return when {
+        mellomnavn.isNullOrBlank() -> "$fornavn $etternavn"
+        else -> "$fornavn $mellomnavn $etternavn"
+    }
+}

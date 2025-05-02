@@ -102,7 +102,7 @@ class PdlClient(
     }
 
     data class PersonInfo(
-        val navn: String,
+        val navn: Navn,
     )
 
     suspend fun hentPersonInfo(
@@ -137,10 +137,7 @@ class PdlClient(
                 throw RuntimeException("hentPersonInfo har ingen navn")
             }
             return PersonInfo(
-                navn =
-                    parsedResponse.data.hentPerson.navn.first().let {
-                        "${it.fornavn} ${it.mellomnavn} ${it.etternavn}"
-                    },
+                navn = parsedResponse.data.hentPerson.navn.first(),
             )
         } else {
             logg.warn("hentPersonInfo statusCode={}", response.status.value)
