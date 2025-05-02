@@ -17,6 +17,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.alder
 import no.nav.helse.bakrommet.pdl.formattert
+import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
@@ -26,7 +27,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import javax.sql.DataSource
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
@@ -78,6 +78,7 @@ internal fun Application.appModul(
     pdlClient: PdlClient,
     configuration: Configuration,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
+    personDao: PersonDao = PersonDao(dataSource),
 ) {
     install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
@@ -88,7 +89,6 @@ internal fun Application.appModul(
         level = Level.INFO
         filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
     }
-    val cache = ConcurrentHashMap<String, String>()
 
     routing {
         authenticate("entraid") {
@@ -112,12 +112,11 @@ internal fun Application.appModul(
                 val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = ident)
 
                 fun hentEllerOpprettPersonid(naturligIdent: String): String {
-                    val personId = cache[naturligIdent]
-                    if (personId != null) {
-                        return personId
-                    }
+                    personDao.finnPersonId(*identer.toTypedArray())?.let { return it }
                     val newPersonId = UUID.randomUUID().toString().replace("-", "").substring(0, 5)
-                    cache[naturligIdent] = newPersonId
+
+                    // TODO naturlig ident her må være gjeldende fnr fra hentIdenter
+                    personDao.opprettPerson(naturligIdent, newPersonId)
                     return newPersonId
                 }
 
@@ -128,7 +127,8 @@ internal fun Application.appModul(
             get("/v1/{personId}/personinfo") {
                 // Hent naturlig ident fra cache
                 val personId = call.parameters["personId"]!!
-                val fnr = cache.entries.firstOrNull { it.value == personId }?.key
+                val fnr = personDao.finnNaturligIdent(personId)
+
                 // returner 404 hvis fnr ikke finnes
                 if (fnr == null) {
                     call.respond(HttpStatusCode.NotFound, "Fant ikke fnr for personId $personId")
@@ -167,7 +167,7 @@ internal fun Application.appModul(
             get("/v1/{personId}/soknader") {
                 // Hent naturlig ident fra cache
                 val personId = call.parameters["personId"]!!
-                val fnr = cache.entries.firstOrNull { it.value == personId }?.key
+                val fnr = personDao.finnNaturligIdent(personId)
                 // returner 404 hvis fnr ikke finnes
                 if (fnr == null) {
                     call.respond(HttpStatusCode.NotFound, "Fant ikke fnr for personId $personId")

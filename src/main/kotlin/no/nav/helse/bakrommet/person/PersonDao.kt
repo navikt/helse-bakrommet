@@ -26,4 +26,11 @@ internal class PersonDao(private val dataSource: DataSource) {
             "spillerom_id" to spilleromId,
         )
     }
+
+    fun finnNaturligIdent(spilleromId: String): String? {
+        return dataSource.single(
+            "select naturlig_ident from ident where spillerom_id = :spillerom_id",
+            "spillerom_id" to spilleromId,
+        ) { it.string(1) }
+    }
 }

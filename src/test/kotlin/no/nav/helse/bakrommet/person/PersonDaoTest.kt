@@ -45,6 +45,20 @@ internal class PersonDaoTest {
         assertEquals(spilleromId, spilleromIdFraDb)
     }
 
+    @Test
+    fun `kan finne naturlig ident fra spillerom id`() {
+        val fnr = "12121255888"
+        val spilleromId = "987tr"
+        personDao.opprettPerson(naturligIdent = fnr, spilleromId = spilleromId)
+        val naturligIdent = personDao.finnNaturligIdent(spilleromId = spilleromId)
+        assertEquals(naturligIdent, fnr)
+    }
+
+    @Test
+    fun `ukjent spilleromid returnerer null`() {
+        assertNull(personDao.finnNaturligIdent("fgj75"))
+    }
+
     private fun opprettTestdata(
         fnr: String,
         spilleromId: String,
