@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet
 
-import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
@@ -8,13 +7,11 @@ import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
-import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
@@ -22,6 +19,7 @@ import no.nav.helse.bakrommet.pdl.alder
 import no.nav.helse.bakrommet.pdl.formattert
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
+import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
@@ -29,7 +27,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
-import java.util.*
 import javax.sql.DataSource
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
@@ -98,33 +95,7 @@ internal fun Application.appModul(
 
     routing {
         authenticate("entraid") {
-            post("/v1/personsok") {
-                val ident = call.receive<JsonNode>()["ident"].asText()
-                // Ident må være 11 eller 13 siffer lang
-                if (ident.length != 11 && ident.length != 13) {
-                    throw InputValideringException("Ident må være 11 eller 13 siffer lang")
-                }
-
-                val oboToken =
-                    oboClient.exchangeToken(
-                        bearerToken = call.request.bearerToken(),
-                        scope = configuration.pdl.scope,
-                    )
-
-                val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = ident)
-
-                fun hentEllerOpprettPersonid(naturligIdent: String): String {
-                    personDao.finnPersonId(*identer.toTypedArray())?.let { return it }
-                    val newPersonId = UUID.randomUUID().toString().replace("-", "").substring(0, 5)
-
-                    // TODO naturlig ident her må være gjeldende fnr fra hentIdenter
-                    personDao.opprettPerson(naturligIdent, newPersonId)
-                    return newPersonId
-                }
-
-                call.response.headers.append("Content-Type", "application/json")
-                call.respondText("""{ "personId": "${hentEllerOpprettPersonid(ident)}" }""")
-            }
+            personsøkRoute(oboClient, configuration, pdlClient, personDao)
             get("/v1/{personId}/personinfo") {
                 call.medIdent(personDao) { fnr, personId ->
                     val oboToken =
@@ -181,7 +152,7 @@ internal fun Application.appModul(
     }
 }
 
-private fun RoutingRequest.bearerToken(): String {
+fun RoutingRequest.bearerToken(): String {
     val authHeader = headers["Authorization"]!!
     val token = authHeader.removePrefix("Bearer ").trim()
     return token
