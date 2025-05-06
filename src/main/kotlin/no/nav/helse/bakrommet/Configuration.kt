@@ -6,6 +6,7 @@ data class Configuration(
     val pdl: PDL,
     val auth: Auth,
     val sykepengesoknadBackend: SykepengesoknadBackend,
+    val naisClusterName: String,
 ) {
     data class DB(
         val jdbcUrl: String,
@@ -54,6 +55,7 @@ data class Configuration(
                         scope = env.getValue("SYKEPENGESOKNAD_BACKEND_SCOPE"),
                         hostname = env.getValue("SYKEPENGESOKNAD_BACKEND_HOSTNAME"),
                     ),
+                naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
             )
         }
     }

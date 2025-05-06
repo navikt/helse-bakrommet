@@ -8,11 +8,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.plugins.calllogging.*
+import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
+import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.alder
@@ -83,12 +85,15 @@ internal fun Application.appModul(
     install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
     }
+
     install(CallLogging) {
         disableDefaultColors()
         logger = sikkerLogger
         level = Level.INFO
         filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
     }
+
+    installErrorHandling(configuration)
 
     routing {
         authenticate("entraid") {
