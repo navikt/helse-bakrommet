@@ -6,9 +6,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
-import no.nav.helse.bakrommet.bearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.util.bearerToken
 import java.util.*
 
 internal fun Route.personsøkRoute(

@@ -15,15 +15,12 @@ import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
-import no.nav.helse.bakrommet.pdl.alder
-import no.nav.helse.bakrommet.pdl.formattert
 import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.person.medIdent
+import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
 import no.nav.helse.bakrommet.util.sikkerLogger
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
@@ -96,64 +93,12 @@ internal fun Application.appModul(
     routing {
         authenticate("entraid") {
             personsøkRoute(oboClient, configuration, pdlClient, personDao)
-            get("/v1/{personId}/personinfo") {
-                call.medIdent(personDao) { fnr, personId ->
-                    val oboToken =
-                        oboClient.exchangeToken(
-                            bearerToken = call.request.bearerToken(),
-                            scope = configuration.pdl.scope,
-                        )
-
-                    val hentPersonInfo =
-                        pdlClient.hentPersonInfo(
-                            pdlToken = oboToken,
-                            ident = fnr,
-                        )
-                    val identer = pdlClient.hentIdenterFor(oboToken, fnr)
-
-                    data class PersonInfo(
-                        val fødselsnummer: String,
-                        val aktørId: String,
-                        val navn: String,
-                        val alder: Int?,
-                    )
-
-                    val personInfo =
-                        PersonInfo(
-                            fødselsnummer = fnr,
-                            aktørId = identer.first { it.length == 13 },
-                            navn = hentPersonInfo.navn.formattert(),
-                            alder = hentPersonInfo.alder(),
-                        )
-
-                    call.respondText(personInfo.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
-                }
-            }
-            get("/v1/{personId}/soknader") {
-                call.medIdent(personDao) { fnr, personId ->
-                    val oboToken =
-                        oboClient.exchangeToken(
-                            bearerToken = call.request.bearerToken(),
-                            scope = configuration.sykepengesoknadBackend.scope,
-                        )
-                    val soknader: List<SykepengesoknadDTO> =
-                        sykepengesoknadBackendClient.hentSoknader(
-                            sykepengesoknadToken = oboToken,
-                            fnr = fnr,
-                        )
-                    call.respondText(soknader.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
-                }
-            }
+            personinfoRoute(oboClient, configuration, pdlClient, personDao)
+            soknaderRoute(oboClient, configuration, sykepengesoknadBackendClient, personDao)
 
             get("/v1/{personId}/dokumenter") {
                 call.respondText("[]", ContentType.Application.Json, HttpStatusCode.OK)
             }
         }
     }
-}
-
-fun RoutingRequest.bearerToken(): String {
-    val authHeader = headers["Authorization"]!!
-    val token = authHeader.removePrefix("Bearer ").trim()
-    return token
 }
