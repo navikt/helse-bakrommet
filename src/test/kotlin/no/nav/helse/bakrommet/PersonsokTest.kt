@@ -1,10 +1,8 @@
 package no.nav.helse.bakrommet
 
-import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.server.testing.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -24,9 +22,29 @@ class PersonsokTest {
                     bearerAuth(TestOppsett.userToken)
                 }
             assertEquals(200, response.status.value)
-            assertEquals("""[12345678910, 10987654321]""", response.headers["identer"])
             val regex = Regex("""\{ "personId": "[a-z0-9]{5}" }""")
             assertTrue(response.bodyAsText().matches(regex))
+        }
+
+    @Test
+    fun `får 400 problem details ved for kort input`() =
+        runApplicationTest {
+            val response =
+                client.post("/v1/personsok") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "ident": "123" }
+                        """.trimIndent(),
+                    )
+                    bearerAuth(TestOppsett.userToken)
+                }
+            assertEquals(400, response.status.value)
+            val problemdetails = response.tilProblemDetails()
+            assertEquals(400, problemdetails.status)
+            assertEquals("https://spillerom.ansatt.nav.no/validation/input", problemdetails.type)
+            assertEquals("Bad Request", problemdetails.title)
+            assertEquals("Ident må være 11 eller 13 siffer lang", problemdetails.detail)
         }
 
     @Test

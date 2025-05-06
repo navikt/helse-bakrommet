@@ -14,6 +14,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.pdl.PdlClient
@@ -101,8 +102,7 @@ internal fun Application.appModul(
                 val ident = call.receive<JsonNode>()["ident"].asText()
                 // Ident må være 11 eller 13 siffer lang
                 if (ident.length != 11 && ident.length != 13) {
-                    call.respond(HttpStatusCode.BadRequest, "Ident må være 11 eller 13 siffer lang")
-                    return@post
+                    throw InputValideringException("Ident må være 11 eller 13 siffer lang")
                 }
 
                 val oboToken =
@@ -122,7 +122,6 @@ internal fun Application.appModul(
                     return newPersonId
                 }
 
-                call.response.headers.append("identer", identer.toString())
                 call.response.headers.append("Content-Type", "application/json")
                 call.respondText("""{ "personId": "${hentEllerOpprettPersonid(ident)}" }""")
             }

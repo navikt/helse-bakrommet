@@ -9,7 +9,19 @@ import no.nav.helse.bakrommet.util.logg
 
 fun Application.installErrorHandling(configuration: Configuration) {
     install(StatusPages) {
-        // Catch-all
+        exception<InputValideringException> { call, cause ->
+            val status = HttpStatusCode.BadRequest
+
+            val problem =
+                buildProblem(
+                    status = status,
+                    detail = cause.message,
+                    typePath = "validation/input",
+                    instance = call.request.uri,
+                )
+
+            call.respondProblem(status, problem)
+        }
         exception<Throwable> { call, cause ->
             val status = HttpStatusCode.InternalServerError
             call.respondProblem(
