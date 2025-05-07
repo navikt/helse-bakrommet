@@ -25,3 +25,16 @@ fun DataSource.execute(
 
 fun <T> Iterable<T>?.somDbArray(transform: (T) -> CharSequence = { it.toString() }) =
     this?.joinToString(prefix = "{", postfix = "}", transform = transform) ?: "{}"
+
+fun <T> DataSource.list(
+    @Language("postgresql") sql: String,
+    vararg params: Pair<String, Any>,
+    mapper: (Row) -> T,
+): List<T> =
+    sessionOf(this, strict = true).use { session ->
+        session.run(
+            queryOf(sql, params.toMap())
+                .map(mapper)
+                .asList,
+        )
+    }
