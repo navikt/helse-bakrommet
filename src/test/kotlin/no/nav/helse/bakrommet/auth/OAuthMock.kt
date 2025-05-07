@@ -27,6 +27,7 @@ class OAuthMock {
             claims =
                 mapOf(
                     "NAVident" to "tullebruker",
+                    "name" to "Tulla Bruker",
                 ),
         ).serialize()
 }

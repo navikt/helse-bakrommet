@@ -18,6 +18,8 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.person.personsøkRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
 import no.nav.helse.bakrommet.util.sikkerLogger
@@ -76,6 +78,7 @@ internal fun Application.appModul(
     configuration: Configuration,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
     personDao: PersonDao = PersonDao(dataSource),
+    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
 ) {
     install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
@@ -95,6 +98,7 @@ internal fun Application.appModul(
             personsøkRoute(oboClient, configuration, pdlClient, personDao)
             personinfoRoute(oboClient, configuration, pdlClient, personDao)
             soknaderRoute(oboClient, configuration, sykepengesoknadBackendClient, personDao)
+            saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao)
 
             get("/v1/{personId}/dokumenter") {
                 call.respondText("[]", ContentType.Application.Json, HttpStatusCode.OK)

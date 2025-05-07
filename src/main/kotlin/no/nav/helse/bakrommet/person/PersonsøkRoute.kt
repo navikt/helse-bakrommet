@@ -1,6 +1,8 @@
 package no.nav.helse.bakrommet.person
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
