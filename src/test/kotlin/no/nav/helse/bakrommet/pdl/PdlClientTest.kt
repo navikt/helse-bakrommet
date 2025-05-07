@@ -6,8 +6,11 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.bodyToJson
+import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.mockHttpClient
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.lang.RuntimeException
 import kotlin.test.assertEquals
 
 class PdlClientTest {
@@ -59,6 +62,11 @@ class PdlClientTest {
         }        
         """.trimIndent()
 
+    val personIkkeFunnetReply =
+        """
+        {"errors":[{"message":"Fant ikke person","locations":[{"line":2,"column":3}],"path":["hentIdenter"],"extensions":{"code":"not_found","classification":"ExecutionAborted"}}],"data":{"hentIdenter":null}}
+        """.trimIndent()
+
     val token = OboToken("PDL-TOKEN")
 
     val mockPdl =
@@ -82,7 +90,11 @@ class PdlClientTest {
                         headers = headersOf("Content-Type" to listOf("application/json")),
                     )
                 } else {
-                    respondError(HttpStatusCode.NotFound)
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = personIkkeFunnetReply,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
                 }
             }
         }
@@ -100,18 +112,16 @@ class PdlClientTest {
     }
 
     @Test
-    fun `returnerer tom liste ved ukjent ident (404)`() {
-        assertEquals(
-            emptySet(),
-            runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "5555") },
-        )
+    fun `kaster PersonIkkeFunnetException ved ukjent ident (404)`() {
+        assertThrows<PersonIkkeFunnetException> {
+            runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "5555") }
+        }
     }
 
     @Test
-    fun `returnerer tom liste ved errors`() {
-        assertEquals(
-            emptySet(),
-            runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "error") },
-        )
+    fun `kaster exception ved errors`() {
+        assertThrows<RuntimeException> {
+            runBlocking { pdl.hentIdenterFor(pdlToken = token, ident = "error") }
+        }
     }
 }

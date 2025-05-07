@@ -13,6 +13,7 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
@@ -90,13 +91,27 @@ class PdlClient(
                 contentType(ContentType.Application.Json)
                 setBody(hentIdenterRequest(ident = ident))
             }
-        logg.info("PDL hentIdenterFor response: {}", response.body<String>())
         if (response.status == HttpStatusCode.OK) {
             val json = response.body<JsonNode>()
             if (json.has("errors")) {
-                logg.warn("hentIdenterFor har errors")
-                sikkerLogger.warn("hentIdenterFor har errors: {}", json)
-                return emptySet()
+                val errors = json["errors"]
+                // Finn første error med extensions.code == "not_found"
+                val notFoundError =
+                    errors.firstOrNull { errorNode ->
+                        errorNode["extensions"]?.get("code")?.asText() == "not_found"
+                    }
+
+                if (notFoundError != null) {
+                    // Kast spesifikk exception for "person ikke funnet"
+                    val msg = notFoundError["message"].asText()
+                    logg.warn("Person ikke funnet: {}", msg)
+                    sikkerLogger.warn("hentIdenterFor not_found: {}", json)
+                    throw PersonIkkeFunnetException()
+                } else {
+                    logg.warn("hentIdenterFor har andre errors")
+                    sikkerLogger.warn("hentIdenterFor errors: {}", json)
+                    throw RuntimeException("hentIdenterFor har errors: $json")
+                }
             }
             return json["data"]["hentIdenter"]["identer"].map { it["ident"].asText() }.toSet()
         } else {
