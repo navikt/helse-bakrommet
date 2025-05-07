@@ -90,6 +90,7 @@ class PdlClient(
                 contentType(ContentType.Application.Json)
                 setBody(hentIdenterRequest(ident = ident))
             }
+        logg.info("PDL hentIdenterFor response: {}", response.body<String>())
         if (response.status == HttpStatusCode.OK) {
             val json = response.body<JsonNode>()
             if (json.has("errors")) {
