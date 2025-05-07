@@ -22,6 +22,12 @@ fun Application.installErrorHandling(configuration: Configuration) {
 
             call.respondProblem(status, problem)
         }
+        exception<ProblemDetailsException> { call, cause ->
+            val problem = cause.toProblemDetails(call)
+            val status = HttpStatusCode.fromValue(problem.status)
+            call.respondProblem(status, problem)
+        }
+
         exception<Throwable> { call, cause ->
             val status = HttpStatusCode.InternalServerError
             call.respondProblem(
