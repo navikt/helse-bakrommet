@@ -15,7 +15,7 @@ import no.nav.helse.bakrommet.util.objectMapper
 fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
     HttpClient(MockEngine) {
         install(ContentNegotiation) {
-            register(ContentType.Application.Json, JacksonConverter())
+            register(ContentType.Application.Json, JacksonConverter(objectMapper))
         }
         engine {
             addHandler(requestHandler)
