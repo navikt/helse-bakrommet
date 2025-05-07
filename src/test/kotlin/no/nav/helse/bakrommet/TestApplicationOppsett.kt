@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestcontainersDatabase
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import org.junit.jupiter.api.Assertions.assertEquals
 
 object TestOppsett {
@@ -94,9 +95,13 @@ fun runApplicationTest(
     config: Configuration = TestOppsett.configuration,
     pdlClient: PdlClient = TestOppsett.pdl,
     oboClient: OboClient = TestOppsett.oboClient,
+    sykepengesoknadBackendClient: SykepengesoknadBackendClient =
+        SykepengesoknadBackendClient(
+            configuration = Configuration.SykepengesoknadBackend("soknadHost", "soknadScope"),
+        ),
     testBlock: suspend ApplicationTestBuilder.() -> Unit,
 ) = testApplication {
-    personsokModule(config, pdlClient, oboClient)
+    personsokModule(config, pdlClient, oboClient, sykepengesoknadBackendClient)
     testBlock()
 }
 
@@ -104,6 +109,7 @@ fun ApplicationTestBuilder.personsokModule(
     config: Configuration,
     pdlClient: PdlClient,
     oboClient: OboClient,
+    sykepengesoknadBackendClient: SykepengesoknadBackendClient,
 ) {
     application {
         settOppKtor(
@@ -111,6 +117,7 @@ fun ApplicationTestBuilder.personsokModule(
             config,
             pdlClient = pdlClient,
             oboClient = oboClient,
+            sykepengesoknadBackendClient = sykepengesoknadBackendClient,
         )
     }
 }
