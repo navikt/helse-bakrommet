@@ -2,10 +2,6 @@ name: Bygg og deploy Bakrommet
 
 on:
   push:
-    paths-ignore:
-      - '.idea'
-    branches:
-      - main
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -17,6 +13,7 @@ permissions:
 
 jobs:
   build:
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
     name: Bygg, test og lag docker image
     runs-on: ubuntu-latest
     steps:
@@ -44,6 +41,7 @@ jobs:
       image: ${{ steps.docker-build-push.outputs.image }}
 
   deploy-dev:
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
     name: Deploy til dev
     needs: [build]
     runs-on: ubuntu-latest
