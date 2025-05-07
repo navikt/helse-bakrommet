@@ -50,5 +50,21 @@ class SaksbehandlingsperiodeTest {
             saksbehandlingsperiode.spilleromPersonId `should equal` personId
             saksbehandlingsperiode.opprettetAvNavIdent `should equal` "tullebruker"
             saksbehandlingsperiode.opprettetAvNavn `should equal` "Tulla Bruker"
+
+            val allePerioder =
+                client.get("/v1/$personId/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                }
+            assertEquals(200, allePerioder.status.value)
+            val perioder: List<Saksbehandlingsperiode> =
+                objectMapper.readValue(
+                    allePerioder.bodyAsText(),
+                    objectMapper.typeFactory.constructCollectionType(
+                        List::class.java,
+                        Saksbehandlingsperiode::class.java,
+                    ),
+                )
+            perioder.size `should equal` 1
+            perioder `should equal` listOf(saksbehandlingsperiode)
         }
 }
