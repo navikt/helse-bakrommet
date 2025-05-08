@@ -6,12 +6,12 @@ CREATE TABLE IF NOT EXISTS ident
 
 CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
 (
-    id                     UUID                     NOT NULL PRIMARY KEY,
-    spillerom_personid     TEXT                     NOT NULL
+    id                     UUID                        NOT NULL PRIMARY KEY,
+    spillerom_personid     TEXT                        NOT NULL
         REFERENCES ident (spillerom_id),
-    opprettet              TIMESTAMP WITH TIME ZONE NOT NULL,
-    opprettet_av_nav_ident TEXT                     NOT NULL,
-    opprettet_av_navn      TEXT                     NOT NULL,
-    fom                    DATE                     NOT NULL,
-    tom                    DATE                     NOT NULL
+    opprettet              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    opprettet_av_nav_ident TEXT                        NOT NULL,
+    opprettet_av_navn      TEXT                        NOT NULL,
+    fom                    DATE                        NOT NULL,
+    tom                    DATE                        NOT NULL
 );
