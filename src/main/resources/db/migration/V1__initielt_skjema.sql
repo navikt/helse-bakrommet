@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
     id                     UUID                        NOT NULL PRIMARY KEY,
     spillerom_personid     TEXT                        NOT NULL
         REFERENCES ident (spillerom_id),
-    opprettet              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    opprettet              TIMESTAMP(9) WITH TIME ZONE NOT NULL,
     opprettet_av_nav_ident TEXT                        NOT NULL,
     opprettet_av_navn      TEXT                        NOT NULL,
     fom                    DATE                        NOT NULL,
