@@ -30,14 +30,16 @@ jobs:
         run: ./gradlew shadowjar -x test
         env:
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
-      - name: Test uten testcontainers (h2)
+      - name: Test med testcontainers
         run: ./gradlew test
         env:
-          TESTCONTAINERS: false
-      - name: Test med testcontainers
+          TESTCONTAINERS: true
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test uten testcontainers (h2)
         run: ./gradlew test --rerun
         env:
-          TESTCONTAINERS: true
+          TESTCONTAINERS: false
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
       - name: Bygg docker image
         uses: nais/docker-build-push@v0
         id: docker-build-push
