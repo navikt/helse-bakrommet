@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.person
 
-import no.nav.helse.bakrommet.db.TestDataSource.dataSource
+import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.single
 import org.junit.jupiter.api.Test
@@ -8,6 +8,7 @@ import org.junit.jupiter.api.assertNull
 import kotlin.test.assertEquals
 
 internal class PersonDaoTest {
+    val dataSource = TestDataSource.dbModule.dataSource
     private val personDao = PersonDao(dataSource)
 
     @Test

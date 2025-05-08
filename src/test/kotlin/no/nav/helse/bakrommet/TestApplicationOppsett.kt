@@ -5,17 +5,20 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OboClient
-import no.nav.helse.bakrommet.db.TestcontainersDatabase
+import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
+import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
+import javax.sql.DataSource
 
 object TestOppsett {
     val oAuthMock = OAuthMock()
 
     val configuration =
         Configuration(
-            TestcontainersDatabase.configuration,
+            Configuration.DB(jdbcUrl = TestDataSource.dbModule.jdbcUrl),
             Configuration.OBO(url = "OBO-url"),
             Configuration.PDL(hostname = "PDL-hostname", scope = "PDL-scope"),
             oAuthMock.authConfig,
@@ -47,33 +50,43 @@ object TestOppsett {
     val oboClient = OboClient(configuration.obo, mockTexas)
 }
 
+class Daoer(
+    val personDao: PersonDao,
+    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
+) {
+    companion object {
+        fun instansier(dataSource: DataSource): Daoer {
+            return Daoer(
+                PersonDao(dataSource),
+                SaksbehandlingsperiodeDao(dataSource),
+            )
+        }
+    }
+}
+
 fun runApplicationTest(
     config: Configuration = TestOppsett.configuration,
+    dataSource: DataSource = instansierDatabase(config.db),
     pdlClient: PdlClient = PdlMock.pdlClient,
     oboClient: OboClient = TestOppsett.oboClient,
+    resetDatabase: Boolean = true,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient =
         SykepengesoknadBackendClient(
             configuration = Configuration.SykepengesoknadBackend("soknadHost", "soknadScope"),
         ),
-    testBlock: suspend ApplicationTestBuilder.() -> Unit,
+    testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
 ) = testApplication {
-    personsokModule(config, pdlClient, oboClient, sykepengesoknadBackendClient)
-    testBlock()
-}
-
-fun ApplicationTestBuilder.personsokModule(
-    config: Configuration,
-    pdlClient: PdlClient,
-    oboClient: OboClient,
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient,
-) {
+    if (resetDatabase) {
+        TestDataSource.resetDatasource()
+    }
     application {
         settOppKtor(
-            instansierDatabase(config.db),
+            dataSource,
             config,
             pdlClient = pdlClient,
             oboClient = oboClient,
             sykepengesoknadBackendClient = sykepengesoknadBackendClient,
         )
     }
+    testBlock(Daoer.instansier(dataSource))
 }

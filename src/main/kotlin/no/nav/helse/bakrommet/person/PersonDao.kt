@@ -2,15 +2,22 @@ package no.nav.helse.bakrommet.person
 
 import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.single
-import no.nav.helse.bakrommet.util.somDbArray
 import javax.sql.DataSource
 
-internal class PersonDao(private val dataSource: DataSource) {
-    fun finnPersonId(vararg ident: String): String? {
-        return dataSource.single(
-            "select spillerom_id from ident where naturlig_ident = ANY (:ident::varchar[])",
-            "ident" to ident.toSet().somDbArray(),
-        ) { it.string(1) }
+class PersonDao(private val dataSource: DataSource) {
+    fun finnPersonId(vararg identer: String): String? {
+        val params = identer.mapIndexed { i, id -> "p$i" to id }
+        val placeholderList = params.joinToString(",") { ":${it.first}" }
+
+        val sql = """
+      SELECT spillerom_id
+      FROM ident
+      WHERE naturlig_ident IN ($placeholderList)
+    """
+
+        return dataSource.single(sql, *params.toTypedArray()) { rs ->
+            rs.string("spillerom_id")
+        }
     }
 
     fun opprettPerson(

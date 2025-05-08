@@ -1,23 +1,53 @@
 package no.nav.helse.bakrommet.db
 
+import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.util.execute
+import org.testcontainers.containers.PostgreSQLContainer
 
 object TestDataSource {
-    val dataSource = DBModule(configuration = TestcontainersDatabase.configuration).also { it.migrate() }.dataSource
+    val testcontainers = System.getenv("TESTCONTAINERS") == "true"
+    val dbModule =
+        if (testcontainers) {
+            val postgres =
+                PostgreSQLContainer("postgres:17")
+                    .withReuse(true)
+                    .withLabel("app", "bakrommet")
+                    .apply {
+                        start()
+                    }
 
-    init {
-        dataSource.execute(
-            """
-            DO $$
-            DECLARE
-                r RECORD;
-            BEGIN
-                FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename not in ('flyway_schema_history')) LOOP
-                    EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
-                END LOOP;
-            END $$;
-            """.trimIndent(),
-        )
+            val configuration =
+                Configuration.DB(
+                    jdbcUrl = postgres.jdbcUrl + "&user=" + postgres.username + "&password=" + postgres.password,
+                )
+
+            DBModule(configuration = configuration)
+        } else {
+            DBModule(
+                configuration =
+                    Configuration.DB(
+                        jdbcUrl = "jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE",
+                    ),
+            )
+        }.also { it.migrate() }
+
+    fun resetDatasource() {
+        val cascade =
+            if (testcontainers) {
+                " cascade"
+            } else {
+                ""
+            }
+        if (!testcontainers) {
+            dbModule.dataSource.execute("SET REFERENTIAL_INTEGRITY TO FALSE")
+        }
+
+        dbModule.dataSource.execute("truncate table saksbehandlingsperiode$cascade")
+        dbModule.dataSource.execute("truncate table ident$cascade")
+
+        if (!testcontainers) {
+            dbModule.dataSource.execute("SET REFERENTIAL_INTEGRITY TO TRUE")
+        }
     }
 }

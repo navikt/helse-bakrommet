@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
-import no.nav.helse.bakrommet.db.TestDataSource.dataSource
+import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDao
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -11,6 +11,8 @@ import java.util.*
 import kotlin.test.assertEquals
 
 internal class SaksbehandlingsperiodeDaoTest {
+    val dataSource = TestDataSource.dbModule.dataSource
+
     private val dao = SaksbehandlingsperiodeDao(dataSource)
 
     companion object {
@@ -20,7 +22,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         @JvmStatic
         @BeforeAll
         fun setOpp() {
-            val dao = PersonDao(dataSource)
+            val dao = PersonDao(TestDataSource.dbModule.dataSource)
             dao.opprettPerson(fnr, personId)
         }
     }

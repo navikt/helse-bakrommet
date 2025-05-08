@@ -22,6 +22,7 @@ class DataSourceBuilder(configuration: Configuration.DB) {
             initializationFailTimeout = 1.minutes.inWholeMilliseconds
             connectionTimeout = 5.seconds.inWholeMilliseconds
             leakDetectionThreshold = 30.seconds.inWholeMilliseconds
+
             metricRegistry =
                 PrometheusMeterRegistry(
                     PrometheusConfig.DEFAULT,

@@ -4,11 +4,11 @@ import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.helse.bakrommet.*
-import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.mockHttpClient
+import no.nav.helse.bakrommet.runApplicationTest
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class SoknaderTest {
@@ -31,13 +31,6 @@ class SoknaderTest {
     companion object {
         val fnr = "01019012322"
         val personId = "abcde"
-
-        @JvmStatic
-        @BeforeAll
-        fun setOpp() {
-            val dao = PersonDao(TestDataSource.dataSource)
-            dao.opprettPerson(fnr, personId)
-        }
     }
 
     @Test
@@ -49,6 +42,8 @@ class SoknaderTest {
                     httpClient = mockSoknaderClient,
                 ),
         ) {
+            it.personDao.opprettPerson(fnr, personId)
+
             val response =
                 client.get("/v1/$personId/soknader") {
                     bearerAuth(TestOppsett.userToken)

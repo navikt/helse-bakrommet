@@ -19,7 +19,7 @@ data class Saksbehandlingsperiode(
     val tom: LocalDate,
 )
 
-internal class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
+class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
     fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
         dataSource.single(
             """

@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.infrastruktur.db
 import no.nav.helse.bakrommet.Configuration
 
 class DBModule(configuration: Configuration.DB) {
+    val jdbcUrl = configuration.jdbcUrl
     val dataSource = DataSourceBuilder(configuration).build()
     private val flywayMigrator = FlywayMigrator(configuration)
 
