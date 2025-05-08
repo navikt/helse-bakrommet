@@ -5,6 +5,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.testutils.`should equal`
+import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -35,7 +36,7 @@ class SaksbehandlingsperiodeTest {
                 objectMapper.readValue(
                     response.bodyAsText(),
                     Saksbehandlingsperiode::class.java,
-                )
+                ).truncateTidspunkt()
             saksbehandlingsperiode.fom.toString() `should equal` "2023-01-01"
             saksbehandlingsperiode.tom.toString() `should equal` "2023-01-31"
             saksbehandlingsperiode.spilleromPersonId `should equal` personId
@@ -56,6 +57,6 @@ class SaksbehandlingsperiodeTest {
                     ),
                 )
             perioder.size `should equal` 1
-            perioder `should equal` listOf(saksbehandlingsperiode)
+            perioder.map { it.truncateTidspunkt() } `should equal` listOf(saksbehandlingsperiode)
         }
 }

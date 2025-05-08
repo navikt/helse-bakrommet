@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
@@ -61,10 +62,4 @@ internal class SaksbehandlingsperiodeDaoTest {
         assertEquals(1, perioder.size)
         assertEquals(periode, perioder[0])
     }
-}
-
-private fun Saksbehandlingsperiode.truncateTidspunkt(): Saksbehandlingsperiode {
-    return this.copy(
-        opprettet = this.opprettet.truncatedTo(java.time.temporal.ChronoUnit.SECONDS),
-    )
 }
