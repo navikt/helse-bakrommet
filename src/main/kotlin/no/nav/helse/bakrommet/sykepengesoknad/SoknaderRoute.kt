@@ -5,6 +5,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.util.bearerToken
@@ -20,7 +21,16 @@ internal fun Route.soknaderRoute(
 ) {
     get("/v1/{personId}/soknader") {
         call.medIdent(personDao) { fnr, personId ->
-            val fom = LocalDate.now().minusDays(200)
+            val fomParam = call.request.queryParameters["fom"]
+            val fom =
+                fomParam?.let {
+                    try {
+                        LocalDate.parse(it)
+                    } catch (e: Exception) {
+                        throw InputValideringException("Ugyldig 'fom'-parameter. Forventet format: yyyy-MM-dd")
+                    }
+                } ?: LocalDate.now().minusYears(1)
+
             val oboToken =
                 oboClient.exchangeToken(
                     bearerToken = call.request.bearerToken(),
