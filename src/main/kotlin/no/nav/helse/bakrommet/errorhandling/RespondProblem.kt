@@ -16,13 +16,14 @@ suspend fun ApplicationCall.respondProblem(
 
 fun buildProblem(
     status: HttpStatusCode,
+    title: String?,
     detail: String?,
     typePath: String,
     host: String = "https://spillerom.ansatt.nav.no",
     instance: String?,
 ) = ProblemDetails(
     type = "$host/$typePath",
-    title = status.description,
+    title = title,
     status = status.value,
     detail = detail,
     instance = instance,

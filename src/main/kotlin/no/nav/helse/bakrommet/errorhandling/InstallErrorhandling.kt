@@ -15,7 +15,8 @@ fun Application.installErrorHandling(configuration: Configuration) {
             val problem =
                 buildProblem(
                     status = status,
-                    detail = cause.message,
+                    title = cause.message,
+                    detail = null,
                     typePath = "validation/input",
                     instance = call.request.uri,
                 )
@@ -41,6 +42,7 @@ fun Application.installErrorHandling(configuration: Configuration) {
                             "Uventet serverfeil"
                         },
                     typePath = "errors/internal",
+                    title = "Ukjent feil",
                     instance = call.request.uri,
                 ),
             )

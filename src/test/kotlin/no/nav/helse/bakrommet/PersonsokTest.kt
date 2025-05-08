@@ -43,8 +43,27 @@ class PersonsokTest {
             val problemdetails = response.tilProblemDetails()
             assertEquals(400, problemdetails.status)
             assertEquals("https://spillerom.ansatt.nav.no/validation/input", problemdetails.type)
-            assertEquals("Bad Request", problemdetails.title)
-            assertEquals("Ident må være 11 eller 13 siffer lang", problemdetails.detail)
+            assertEquals("Ident må være 11 eller 13 siffer lang", problemdetails.title)
+        }
+
+    @Test
+    fun `får 404 problem details ved ikke funnet`() =
+        runApplicationTest {
+            val response =
+                client.post("/v1/personsok") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "ident": "123" }
+                        """.trimIndent(),
+                    )
+                    bearerAuth(TestOppsett.userToken)
+                }
+            assertEquals(400, response.status.value)
+            val problemdetails = response.tilProblemDetails()
+            assertEquals(400, problemdetails.status)
+            assertEquals("https://spillerom.ansatt.nav.no/validation/input", problemdetails.type)
+            assertEquals("Ident må være 11 eller 13 siffer lang", problemdetails.title)
         }
 
     @Test
