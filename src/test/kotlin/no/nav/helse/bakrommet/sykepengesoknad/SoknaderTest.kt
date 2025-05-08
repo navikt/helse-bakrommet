@@ -29,7 +29,7 @@ class SoknaderTest {
         }
 
     companion object {
-        val fnr = "01019012345"
+        val fnr = "01019012322"
         val personId = "abcde"
 
         @JvmStatic

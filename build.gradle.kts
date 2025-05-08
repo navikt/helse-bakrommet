@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+
 private val flywayVersion = "11.5.0"
 private val ktorVersion = "3.1.2"
 
@@ -74,6 +76,10 @@ tasks {
     }
     test {
         useJUnitPlatform()
+        testLogging {
+            events("PASSED", "FAILED", "SKIPPED")
+            exceptionFormat = FULL
+        }
     }
 
     shadowJar {

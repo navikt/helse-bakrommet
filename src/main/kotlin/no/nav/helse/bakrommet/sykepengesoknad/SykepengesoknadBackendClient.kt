@@ -24,7 +24,10 @@ class SykepengesoknadBackendClient(
             }
         },
 ) {
-    private fun hentSoknaderRequest(fnr: String): String {
+    private fun hentSoknaderRequest(
+        fnr: String,
+        fom: LocalDate,
+    ): String {
         data class HentSoknaderRequest(
             val fnr: String,
             val medSporsmal: Boolean = false,
@@ -34,7 +37,7 @@ class SykepengesoknadBackendClient(
 
         return HentSoknaderRequest(
             fnr = fnr,
-            fom = LocalDate.now().minusDays(200),
+            fom = fom,
             tom = LocalDate.now().plusDays(100),
             medSporsmal = false,
         ).serialisertTilString()
@@ -43,12 +46,13 @@ class SykepengesoknadBackendClient(
     suspend fun hentSoknader(
         sykepengesoknadToken: OboToken,
         fnr: String,
+        fom: LocalDate,
     ): List<SykepengesoknadDTO> {
         val response =
             httpClient.post("${configuration.hostname}/api/v3/soknader") {
                 headers[HttpHeaders.Authorization] = sykepengesoknadToken.somBearerHeader()
                 contentType(ContentType.Application.Json)
-                setBody(hentSoknaderRequest(fnr = fnr))
+                setBody(hentSoknaderRequest(fnr = fnr, fom = fom))
             }
         if (response.status == HttpStatusCode.OK) {
             return response.body<List<SykepengesoknadDTO>>()
