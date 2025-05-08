@@ -114,10 +114,9 @@ class PdlClient(
                 }
             }
             return json["data"]["hentIdenter"]["identer"].map { it["ident"].asText() }.toSet()
-        } else {
-            logg.warn("hentIdenterFor statusCode={}", response.status.value)
         }
-        return emptySet()
+        logg.warn("hentIdenterFor statusCode={}", response.status.value)
+        throw RuntimeException("hentIdenterFor har statusCode ${response.status.value}")
     }
 
     suspend fun hentPersonInfo(

@@ -3,21 +3,19 @@ package no.nav.helse.bakrommet.pdl
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.bodyToJson
 import no.nav.helse.bakrommet.mockHttpClient
 
 object PdlMock {
-    val token = OboToken("PDL-TOKEN")
     val mockPdl =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != token.somBearerHeader()) {
+            if (auth != "Bearer OBO-TOKEN") {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
                 val json = request.bodyToJson()
                 val ident = json["variables"]["ident"].asText()
-                if (ident == "1234") {
+                if (ident == "1234" || ident == "01010199999") {
                     respond(
                         status = HttpStatusCode.OK,
                         content = pdlReply,

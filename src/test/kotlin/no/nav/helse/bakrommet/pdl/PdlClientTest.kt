@@ -9,7 +9,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class PdlClientTest {
-    val token = OboToken("PDL-TOKEN")
+    val token = OboToken("OBO-TOKEN")
 
     @Test
     fun `returnerer identer`() {

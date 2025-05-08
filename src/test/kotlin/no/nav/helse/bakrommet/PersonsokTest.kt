@@ -54,16 +54,16 @@ class PersonsokTest {
                     contentType(ContentType.Application.Json)
                     setBody(
                         """
-                        { "ident": "123" }
+                        { "ident": "99999999999" }
                         """.trimIndent(),
                     )
                     bearerAuth(TestOppsett.userToken)
                 }
-            assertEquals(400, response.status.value)
+            assertEquals(404, response.status.value)
             val problemdetails = response.tilProblemDetails()
-            assertEquals(400, problemdetails.status)
-            assertEquals("https://spillerom.ansatt.nav.no/validation/input", problemdetails.type)
-            assertEquals("Ident må være 11 eller 13 siffer lang", problemdetails.title)
+            assertEquals(404, problemdetails.status)
+            assertEquals("about:blank", problemdetails.type)
+            assertEquals("Person ikke funnet", problemdetails.title)
         }
 
     @Test
