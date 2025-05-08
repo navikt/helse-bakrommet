@@ -21,8 +21,9 @@ class FlywayMigrator(configuration: Configuration.DB) {
             Flyway.configure()
                 .validateMigrationNaming(true)
                 .dataSource(dataSource)
+                .cleanDisabled(false)
                 .lockRetryCount(-1)
-                .load()
+                .load().also { it.clean() }
                 .migrate()
         }
     }
