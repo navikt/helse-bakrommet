@@ -51,7 +51,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                 opprettetAvNavn = navNavn,
                 fom = fom,
                 tom = tom,
-            )
+            ).truncateTidspunkt()
         dao.opprettPeriode(periode)
 
         val hentet = dao.finnSaksbehandlingsperiode(id)!!
@@ -61,4 +61,10 @@ internal class SaksbehandlingsperiodeDaoTest {
         assertEquals(1, perioder.size)
         assertEquals(periode, perioder[0])
     }
+}
+
+private fun Saksbehandlingsperiode.truncateTidspunkt(): Saksbehandlingsperiode {
+    return this.copy(
+        opprettet = this.opprettet.truncatedTo(java.time.temporal.ChronoUnit.SECONDS),
+    )
 }
