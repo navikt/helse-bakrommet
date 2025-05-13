@@ -34,8 +34,8 @@ class AARegClient(
                 header("Nav-Call-Id", callId)
                 header("Nav-Personident", fnr)
                 parameter("arbeidsforholdstatus", "AKTIV,AVSLUTTET,FREMTIDIG") // Default i V2 er: AKTIV,FREMTIDIG
-                parameter("historikk", "true")
-                parameter("regelverk", "ALLE")
+                // parameter("historikk", "true")
+                // parameter("regelverk", "ALLE")
             }
         if (response.status == HttpStatusCode.OK) {
             return response.body<JsonNode>()
