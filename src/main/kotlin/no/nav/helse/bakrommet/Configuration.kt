@@ -6,6 +6,7 @@ data class Configuration(
     val pdl: PDL,
     val auth: Auth,
     val sykepengesoknadBackend: SykepengesoknadBackend,
+    val aareg: AAReg,
     val naisClusterName: String,
 ) {
     data class DB(
@@ -17,6 +18,11 @@ data class Configuration(
     )
 
     data class PDL(
+        val hostname: String,
+        val scope: String,
+    )
+
+    data class AAReg(
         val hostname: String,
         val scope: String,
     )
@@ -54,6 +60,11 @@ data class Configuration(
                     SykepengesoknadBackend(
                         scope = env.getValue("SYKEPENGESOKNAD_BACKEND_SCOPE"),
                         hostname = env.getValue("SYKEPENGESOKNAD_BACKEND_HOSTNAME"),
+                    ),
+                aareg =
+                    AAReg(
+                        scope = env.getValue("AAREG_SCOPE"),
+                        hostname = env.getValue("AAREG_HOSTNAME"),
                     ),
                 naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
             )

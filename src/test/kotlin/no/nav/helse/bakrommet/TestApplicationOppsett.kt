@@ -26,6 +26,10 @@ object TestOppsett {
                 hostname = "sykepengesoknad-backend",
                 scope = "sykepengesoknad-backend-scope",
             ),
+            Configuration.AAReg(
+                hostname = "aareg-host",
+                scope = "aareg-scope",
+            ),
             "test",
         )
     val oboToken = "OBO-TOKEN"

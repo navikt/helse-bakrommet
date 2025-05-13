@@ -10,6 +10,8 @@ import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.aareg.AARegClient
+import no.nav.helse.bakrommet.aareg.arbeidsforholdRoute
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
@@ -54,10 +56,11 @@ internal fun Application.settOppKtor(
     pdlClient: PdlClient = PdlClient(configuration.pdl),
     oboClient: OboClient = OboClient(configuration.obo),
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadBackendClient(configuration.sykepengesoknadBackend),
+    aaRegClient: AARegClient = AARegClient(configuration.aareg),
 ) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
-    appModul(dataSource, oboClient, pdlClient, configuration, sykepengesoknadBackendClient)
+    appModul(dataSource, oboClient, pdlClient, configuration, sykepengesoknadBackendClient, aaRegClient)
 }
 
 internal fun Application.helsesjekker() {
@@ -77,6 +80,7 @@ internal fun Application.appModul(
     pdlClient: PdlClient,
     configuration: Configuration,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
+    aaRegClient: AARegClient,
     personDao: PersonDao = PersonDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
 ) {
@@ -99,6 +103,7 @@ internal fun Application.appModul(
             personinfoRoute(oboClient, configuration, pdlClient, personDao)
             soknaderRoute(oboClient, configuration, sykepengesoknadBackendClient, personDao)
             saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao)
+            arbeidsforholdRoute(oboClient, configuration, aaRegClient, personDao)
 
             get("/v1/{personId}/dokumenter") {
                 call.respondText("[]", ContentType.Application.Json, HttpStatusCode.OK)

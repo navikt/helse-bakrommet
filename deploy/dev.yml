@@ -55,6 +55,7 @@ spec:
             namespace: flex
       external:
         - host: pdl-api.dev-fss-pub.nais.io
+        - host: aareg-services.dev-fss-pub.nais.io
   env:
     - name: PDL_SCOPE
       value: dev-fss.pdl.pdl-api
@@ -64,3 +65,7 @@ spec:
       value: dev-gcp.flex.sykepengesoknad-backend
     - name: SYKEPENGESOKNAD_BACKEND_HOSTNAME
       value: http://sykepengesoknad-backend.flex
+    - name: AAREG_HOSTNAME
+      value: aareg-services.dev-fss-pub.nais.io
+    - name: AAREG_SCOPE
+      value: dev-fss.arbeidsforhold.aareg-services-nais
