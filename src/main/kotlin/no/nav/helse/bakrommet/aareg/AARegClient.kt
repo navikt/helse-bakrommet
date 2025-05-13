@@ -40,10 +40,10 @@ class AARegClient(
         if (response.status == HttpStatusCode.OK) {
             return response.body<JsonNode>()
         } else {
-            logg.warn("hentArbeidsforholdFor statusCode={}", response.status.value)
+            logg.warn("hentArbeidsforholdFor statusCode={} callId={}", response.status.value, callId)
         }
         throw RuntimeException(
-            "Feil ved henting av arbeidsforhold, status=${response.status.value}}",
+            "Feil ved henting av arbeidsforhold, status=${response.status.value}, callId=$callId",
         )
     }
 }
