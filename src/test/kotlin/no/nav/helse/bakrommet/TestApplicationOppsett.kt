@@ -3,6 +3,8 @@ package no.nav.helse.bakrommet
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import no.nav.helse.bakrommet.aareg.AARegClient
+import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestDataSource
@@ -78,6 +80,7 @@ fun runApplicationTest(
         SykepengesoknadBackendClient(
             configuration = Configuration.SykepengesoknadBackend("soknadHost", "soknadScope"),
         ),
+    aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
 ) = testApplication {
     if (resetDatabase) {
@@ -90,6 +93,7 @@ fun runApplicationTest(
             pdlClient = pdlClient,
             oboClient = oboClient,
             sykepengesoknadBackendClient = sykepengesoknadBackendClient,
+            aaRegClient = aaRegClient,
         )
     }
     testBlock(Daoer.instansier(dataSource))
