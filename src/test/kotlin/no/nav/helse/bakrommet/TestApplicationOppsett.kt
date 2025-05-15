@@ -5,6 +5,8 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
+import no.nav.helse.bakrommet.ainntekt.AInntektClient
+import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestDataSource
@@ -31,6 +33,10 @@ object TestOppsett {
             Configuration.AAReg(
                 hostname = "aareg-host",
                 scope = "aareg-scope",
+            ),
+            Configuration.AInntekt(
+                hostname = "inntektskomponenten-host",
+                scope = "inntektskomponenten-scope",
             ),
             "test",
         )
@@ -81,6 +87,7 @@ fun runApplicationTest(
             configuration = Configuration.SykepengesoknadBackend("soknadHost", "soknadScope"),
         ),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
+    aInntektClient: AInntektClient = AInntektMock.aInntektClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
 ) = testApplication {
     if (resetDatabase) {
@@ -94,6 +101,7 @@ fun runApplicationTest(
             oboClient = oboClient,
             sykepengesoknadBackendClient = sykepengesoknadBackendClient,
             aaRegClient = aaRegClient,
+            aInntektClient = aInntektClient,
         )
     }
     testBlock(Daoer.instansier(dataSource))

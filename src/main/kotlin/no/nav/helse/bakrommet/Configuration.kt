@@ -7,6 +7,7 @@ data class Configuration(
     val auth: Auth,
     val sykepengesoknadBackend: SykepengesoknadBackend,
     val aareg: AAReg,
+    val ainntekt: AInntekt,
     val naisClusterName: String,
 ) {
     data class DB(
@@ -23,6 +24,11 @@ data class Configuration(
     )
 
     data class AAReg(
+        val hostname: String,
+        val scope: String,
+    )
+
+    data class AInntekt(
         val hostname: String,
         val scope: String,
     )
@@ -65,6 +71,11 @@ data class Configuration(
                     AAReg(
                         scope = env.getValue("AAREG_SCOPE"),
                         hostname = env.getValue("AAREG_HOSTNAME"),
+                    ),
+                ainntekt =
+                    AInntekt(
+                        scope = env.getValue("INNTEKTSKOMPONENTEN_SCOPE"),
+                        hostname = env.getValue("INNTEKTSKOMPONENTEN_HOSTNAME"),
                     ),
                 naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
             )

@@ -69,3 +69,7 @@ spec:
       value: aareg-services.dev-fss-pub.nais.io
     - name: AAREG_SCOPE
       value: dev-fss.arbeidsforhold.aareg-services-nais
+    - name: INNTEKTSKOMPONENTEN_HOSTNAME
+      value: ikomp-q2.dev-fss-pub.nais.io
+    - name: INNTEKTSKOMPONENTEN_SCOPE
+      value: dev-fss.team-inntekt.ikomp-q2

@@ -12,6 +12,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.arbeidsforholdRoute
+import no.nav.helse.bakrommet.ainntekt.AInntektClient
+import no.nav.helse.bakrommet.ainntekt.ainntektRoute
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
@@ -57,10 +59,11 @@ internal fun Application.settOppKtor(
     oboClient: OboClient = OboClient(configuration.obo),
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadBackendClient(configuration.sykepengesoknadBackend),
     aaRegClient: AARegClient = AARegClient(configuration.aareg),
+    aInntektClient: AInntektClient = AInntektClient(configuration.ainntekt),
 ) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
-    appModul(dataSource, oboClient, pdlClient, configuration, sykepengesoknadBackendClient, aaRegClient)
+    appModul(dataSource, oboClient, pdlClient, configuration, sykepengesoknadBackendClient, aaRegClient, aInntektClient)
 }
 
 internal fun Application.helsesjekker() {
@@ -81,6 +84,7 @@ internal fun Application.appModul(
     configuration: Configuration,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
     aaRegClient: AARegClient,
+    aInntektClient: AInntektClient,
     personDao: PersonDao = PersonDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
 ) {
@@ -104,6 +108,7 @@ internal fun Application.appModul(
             soknaderRoute(oboClient, configuration, sykepengesoknadBackendClient, personDao)
             saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao)
             arbeidsforholdRoute(oboClient, configuration, aaRegClient, personDao)
+            ainntektRoute(oboClient, configuration, aInntektClient, personDao)
 
             get("/v1/{personId}/dokumenter") {
                 call.respondText("[]", ContentType.Application.Json, HttpStatusCode.OK)
