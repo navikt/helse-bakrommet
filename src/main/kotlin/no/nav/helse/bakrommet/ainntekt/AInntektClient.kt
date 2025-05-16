@@ -41,7 +41,7 @@ class AInntektClient(
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
         val response =
-            httpClient.post("https://${configuration.hostname}/inntektskomponenten-ws/rs/api/v1/hentinntektliste") {
+            httpClient.post("https://${configuration.hostname}/rs/api/v1/hentinntektliste") {
                 headers[HttpHeaders.Authorization] = ainntektToken.somBearerHeader()
                 header("Nav-Consumer-Id", "bakrommet-speilvendt")
                 header("Nav-Call-Id", callId)
