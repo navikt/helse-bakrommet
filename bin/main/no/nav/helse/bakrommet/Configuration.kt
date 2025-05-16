@@ -1,0 +1,84 @@
+package no.nav.helse.bakrommet
+
+data class Configuration(
+    val db: DB,
+    val obo: OBO,
+    val pdl: PDL,
+    val auth: Auth,
+    val sykepengesoknadBackend: SykepengesoknadBackend,
+    val aareg: AAReg,
+    val ainntekt: AInntekt,
+    val naisClusterName: String,
+) {
+    data class DB(
+        val jdbcUrl: String,
+    )
+
+    data class OBO(
+        val url: String,
+    )
+
+    data class PDL(
+        val hostname: String,
+        val scope: String,
+    )
+
+    data class AAReg(
+        val hostname: String,
+        val scope: String,
+    )
+
+    data class AInntekt(
+        val hostname: String,
+        val scope: String,
+    )
+
+    data class SykepengesoknadBackend(
+        val hostname: String,
+        val scope: String,
+    )
+
+    data class Auth(
+        val clientId: String,
+        val issuerUrl: String,
+        val jwkProviderUri: String,
+        val tokenEndpoint: String,
+    )
+
+    companion object {
+        fun fromEnv(env: Map<String, String> = System.getenv()): Configuration {
+            return Configuration(
+                db = DB(jdbcUrl = env.getValue("DATABASE_JDBC_URL")),
+                obo = OBO(url = env.getValue("NAIS_TOKEN_EXCHANGE_ENDPOINT")),
+                pdl =
+                    PDL(
+                        scope = env.getValue("PDL_SCOPE"),
+                        hostname = env.getValue("PDL_HOSTNAME"),
+                    ),
+                auth =
+                    Auth(
+                        clientId = env.getValue("AZURE_APP_CLIENT_ID"),
+                        issuerUrl = env.getValue("AZURE_OPENID_CONFIG_ISSUER"),
+                        jwkProviderUri = env.getValue("AZURE_OPENID_CONFIG_JWKS_URI"),
+                        tokenEndpoint = env.getValue("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+                    ),
+                sykepengesoknadBackend =
+                    SykepengesoknadBackend(
+                        scope = env.getValue("SYKEPENGESOKNAD_BACKEND_SCOPE"),
+                        hostname = env.getValue("SYKEPENGESOKNAD_BACKEND_HOSTNAME"),
+                    ),
+                aareg =
+                    AAReg(
+                        scope = env.getValue("AAREG_SCOPE"),
+                        hostname = env.getValue("AAREG_HOSTNAME"),
+                    ),
+                ainntekt =
+                    AInntekt(
+                        scope = env.getValue("INNTEKTSKOMPONENTEN_SCOPE"),
+                        hostname = env.getValue("INNTEKTSKOMPONENTEN_HOSTNAME"),
+                    ),
+                naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
+            )
+        }
+    }
+}
