@@ -20,9 +20,6 @@ spec:
   readiness:
     path: isready
     initialDelay: 5
-  prometheus:
-    enabled: true
-    path: /metrics
   kafka:
     pool: nav-dev
   azure:
