@@ -4,3 +4,6 @@ build
 out
 !/.idea/codeStyles/*.xml
 .DS_Store
+bin
+kotlin
+.vscode
