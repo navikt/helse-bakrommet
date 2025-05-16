@@ -24,4 +24,25 @@ class AInntektRouteTest {
                 assertEquals(AInntektMock.Person1.resp.toJson(), bodyAsText().toJson())
             }
         }
+
+    @Test
+    fun `403 fra Inntektskomponenten gir 403 videre med feilbeskrivelse`() =
+        runApplicationTest(
+            aInntektClient = AInntektMock.aInntektClientMock(),
+        ) {
+            val personIdForbidden = "ab403"
+            it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
+
+            client.get("/v1/$personIdForbidden/ainntekt?fom=2024-01&tom=2025-02") {
+                bearerAuth(TestOppsett.userToken)
+            }.apply {
+                assertEquals(403, status.value)
+                assertEquals(
+                    """
+                    {"type":"about:blank","title":"Ingen tilgang","status":403,"detail":"Ikke tilstrekkelig tilgang i A-Inntekt","instance":null}
+                """.toJson(),
+                    bodyAsText().toJson(),
+                )
+            }
+        }
 }

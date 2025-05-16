@@ -33,12 +33,19 @@ object AInntektMock {
 
                 val fnr = payload["ident"]["identifikator"].asText()
 
-                val svar = fnrTilSvar[fnr] ?: "{}"
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = svar,
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
+                if (fnr.endsWith("403")) {
+                    respond(
+                        status = HttpStatusCode.Forbidden,
+                        content = "403",
+                    )
+                } else {
+                    val svar = fnrTilSvar[fnr] ?: "{}"
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = svar,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                }
             }
         }
 

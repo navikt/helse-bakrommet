@@ -13,6 +13,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.YearMonth
@@ -68,6 +69,9 @@ class AInntektClient(
         } else {
             logg.error("Feil under henting av inntekter: ${response.status}, Se secureLog for detaljer $callIdDesc")
             sikkerLogger.error("Feil under henting av inntekter: ${response.status} - ${response.bodyAsText()} $callIdDesc")
+            if (response.status == HttpStatusCode.Forbidden) {
+                throw ForbiddenException("Ikke tilstrekkelig tilgang i A-Inntekt")
+            }
             throw RuntimeException(
                 "Feil ved henting av arbeidsforhold, status=${response.status.value}, callId=$callId",
             )
