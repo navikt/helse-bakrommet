@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.auth
 
-import com.auth0.jwt.impl.JWTParser
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
@@ -41,16 +40,7 @@ class OboClient(
         }
 
         val jsonResponse = jacksonObjectMapper().readTree(oboTokenResponse.bodyAsText())
-        val accessToken = jsonResponse["access_token"].asText()
-
-        try {
-            val claims = JWTParser().parsePayload(accessToken).claims
-            sikkerLogger.info("OboClient: Utstedte token med claims={}", claims)
-        } catch (ex: Exception) {
-            sikkerLogger.warn("OboClient: Error parsing accessToken")
-        }
-
-        return OboToken(accessToken)
+        return OboToken(jsonResponse["access_token"].asText())
     }
 }
 
