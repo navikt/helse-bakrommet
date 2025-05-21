@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.inntektsmelding
 
+import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,6 +10,7 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.util.bearerToken
+import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.LocalDate
 
 internal fun Route.inntektsmeldingerRoute(
@@ -36,16 +38,14 @@ internal fun Route.inntektsmeldingerRoute(
                     bearerToken = call.request.bearerToken(),
                     scope = configuration.inntektsmelding.scope,
                 )
-            /*val inntekter: JsonNode =
+            val inntektsmeldinger: JsonNode =
                 inntektsmeldingClient.hentInntektsmeldinger(
                     fnr = fnr,
                     fom = fom,
                     tom = tom,
                     inntektsmeldingToken = oboToken,
                 )
-            call.respondText(inntekter.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)*/
-            call.response.header("obotoken", oboToken.somBearerHeader())
-            call.respondText("{}", ContentType.Application.Json, HttpStatusCode.OK)
+            call.respondText(inntektsmeldinger.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
         }
     }
 }
