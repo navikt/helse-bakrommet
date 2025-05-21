@@ -55,8 +55,11 @@ class InntektsmeldingClient(
             }
         if (response.status == HttpStatusCode.OK) {
             logg.info("Got response from inntektsmelding-API $callIdDesc")
+            // TODO: Benytt https://github.com/navikt/inntektsmelding-kontrakt ?
             return response.body<JsonNode>()
         } else {
+            // TODO: Håndter: 400="Ugyldig fødselsnummer", 404="Ingen inntektsmeldinger funnet" ref: https://spinosaurus.intern.dev.nav.no/swagger
+
             logg.error("Feil under henting av inntektsmelding: ${response.status}, Se secureLog for detaljer $callIdDesc")
             sikkerLogger.error("Feil under henting av inntektsmelding: ${response.status} - ${response.bodyAsText()} $callIdDesc")
             if (response.status == HttpStatusCode.Forbidden) {
