@@ -18,6 +18,8 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.inntektsmelding.inntektsmeldingerRoute
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.personinfoRoute
@@ -60,10 +62,20 @@ internal fun Application.settOppKtor(
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadBackendClient(configuration.sykepengesoknadBackend),
     aaRegClient: AARegClient = AARegClient(configuration.aareg),
     aInntektClient: AInntektClient = AInntektClient(configuration.ainntekt),
+    inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding),
 ) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
-    appModul(dataSource, oboClient, pdlClient, configuration, sykepengesoknadBackendClient, aaRegClient, aInntektClient)
+    appModul(
+        dataSource,
+        oboClient,
+        pdlClient,
+        configuration,
+        sykepengesoknadBackendClient,
+        aaRegClient,
+        aInntektClient,
+        inntektsmeldingClient,
+    )
 }
 
 internal fun Application.helsesjekker() {
@@ -85,6 +97,7 @@ internal fun Application.appModul(
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
     aaRegClient: AARegClient,
     aInntektClient: AInntektClient,
+    inntektsmeldingClient: InntektsmeldingClient,
     personDao: PersonDao = PersonDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
 ) {
@@ -109,6 +122,7 @@ internal fun Application.appModul(
             saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao)
             arbeidsforholdRoute(oboClient, configuration, aaRegClient, personDao)
             ainntektRoute(oboClient, configuration, aInntektClient, personDao)
+            inntektsmeldingerRoute(oboClient, configuration, inntektsmeldingClient, personDao)
 
             get("/v1/{personId}/dokumenter") {
                 call.respondText("[]", ContentType.Application.Json, HttpStatusCode.OK)

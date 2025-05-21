@@ -70,3 +70,7 @@ spec:
       value: ikomp-q2.dev-fss-pub.nais.io
     - name: INNTEKTSKOMPONENTEN_SCOPE
       value: dev-fss.team-inntekt.ikomp-q2
+    - name: INNTEKTSMELDING_BASE_URL
+      value: http://spinosaurus.helsearbeidsgiver
+    - name: INNTEKTSMELDING_SCOPE
+      value: dev-gcp.helsearbeidsgiver.spinosaurus

@@ -8,6 +8,7 @@ data class Configuration(
     val sykepengesoknadBackend: SykepengesoknadBackend,
     val aareg: AAReg,
     val ainntekt: AInntekt,
+    val inntektsmelding: Inntektsmelding,
     val naisClusterName: String,
 ) {
     data class DB(
@@ -35,6 +36,11 @@ data class Configuration(
 
     data class SykepengesoknadBackend(
         val hostname: String,
+        val scope: String,
+    )
+
+    data class Inntektsmelding(
+        val baseUrl: String,
         val scope: String,
     )
 
@@ -76,6 +82,11 @@ data class Configuration(
                     AInntekt(
                         scope = env.getValue("INNTEKTSKOMPONENTEN_SCOPE"),
                         hostname = env.getValue("INNTEKTSKOMPONENTEN_HOSTNAME"),
+                    ),
+                inntektsmelding =
+                    Inntektsmelding(
+                        scope = env.getValue("INNTEKTSMELDING_SCOPE"),
+                        baseUrl = env.getValue("INNTEKTSMELDING_BASE_URL"),
                     ),
                 naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
             )

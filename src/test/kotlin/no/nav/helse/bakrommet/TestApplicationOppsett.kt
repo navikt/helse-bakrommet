@@ -38,6 +38,10 @@ object TestOppsett {
                 hostname = "inntektskomponenten-host",
                 scope = "inntektskomponenten-scope",
             ),
+            Configuration.Inntektsmelding(
+                baseUrl = "http://localhost",
+                scope = "im-scope",
+            ),
             "test",
         )
     val oboToken = "OBO-TOKEN"
