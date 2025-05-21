@@ -50,6 +50,8 @@ spec:
             namespace: flex
           - application: logging
             namespace: nais-system
+          - application: spinosaurus
+            namespace: helsearbeidsgiver
       external:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: aareg-services.dev-fss-pub.nais.io
