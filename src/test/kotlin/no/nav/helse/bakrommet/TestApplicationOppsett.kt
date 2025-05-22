@@ -10,6 +10,8 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonDao
@@ -92,6 +94,7 @@ fun runApplicationTest(
         ),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient = AInntektMock.aInntektClientMock(),
+    inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
 ) = testApplication {
     if (resetDatabase) {
@@ -106,6 +109,7 @@ fun runApplicationTest(
             sykepengesoknadBackendClient = sykepengesoknadBackendClient,
             aaRegClient = aaRegClient,
             aInntektClient = aInntektClient,
+            inntektsmeldingClient = inntektsmeldingClient,
         )
     }
     testBlock(Daoer.instansier(dataSource))

@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.inntektsmelding
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
@@ -57,8 +58,11 @@ class InntektsmeldingClient(
             logg.info("Got response from inntektsmelding-API $callIdDesc")
             // TODO: Benytt https://github.com/navikt/inntektsmelding-kontrakt ?
             return response.body<JsonNode>()
+        } else if (response.status == HttpStatusCode.NotFound) {
+            logg.info("Got 404-response from  inntektsmelding-API $callIdDesc. Returning empty list.")
+            return jacksonObjectMapper().createArrayNode() // TODO: Eller faktisk 404 ? (404="Ingen inntektsmeldinger funnet") ref: https://spinosaurus.intern.dev.nav.no/swagger
         } else {
-            // TODO: Håndter: 400="Ugyldig fødselsnummer", 404="Ingen inntektsmeldinger funnet" ref: https://spinosaurus.intern.dev.nav.no/swagger
+            // TODO: Håndter: 400="Ugyldig fødselsnummer", (404="Ingen inntektsmeldinger funnet") ref: https://spinosaurus.intern.dev.nav.no/swagger
 
             logg.error("Feil under henting av inntektsmelding: ${response.status}, Se secureLog for detaljer $callIdDesc")
             sikkerLogger.error("Feil under henting av inntektsmelding: ${response.status} - ${response.bodyAsText()} $callIdDesc")
