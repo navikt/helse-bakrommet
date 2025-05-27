@@ -1,8 +1,11 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import kotliquery.Row
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårStatus
 import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.list
+import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.single
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -20,6 +23,15 @@ data class Saksbehandlingsperiode(
 )
 
 class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
+    fun lagreVilkårsvurdering(
+        periode: Saksbehandlingsperiode,
+        vilkårsKode: Kode,
+        status: VilkårStatus,
+        fordi: String,
+    ) {
+        logg.info("'lagrer' status=$status for kode=$vilkårsKode med fordi=$fordi for periode=${periode.id}")
+    }
+
     fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
         dataSource.single(
             """

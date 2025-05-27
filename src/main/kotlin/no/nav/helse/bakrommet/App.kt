@@ -27,6 +27,7 @@ import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
 import no.nav.helse.bakrommet.util.objectMapper
@@ -122,6 +123,7 @@ internal fun Application.appModul(
             personinfoRoute(oboClient, configuration, pdlClient, personDao)
             soknaderRoute(oboClient, configuration, sykepengesoknadBackendClient, personDao)
             saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao)
+            saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
             arbeidsforholdRoute(oboClient, configuration, aaRegClient, personDao)
             ainntektRoute(oboClient, configuration, aInntektClient, personDao)
             inntektsmeldingerRoute(oboClient, configuration, inntektsmeldingClient, personDao)
