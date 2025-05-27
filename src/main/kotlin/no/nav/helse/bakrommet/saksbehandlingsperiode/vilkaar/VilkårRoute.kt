@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import no.nav.helse.bakrommet.errorhandling.medInputvalidering
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -57,7 +58,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
             call.medIdent(personDao) { fnr, spilleromPersonId ->
                 val periodeId = call.parameters["periodeUUID"]!!.somGyldigUUID()
 
-                val vilkår = call.receive<List<VurdertVilkår>>()
+                val vilkår = medInputvalidering { call.receive<List<VurdertVilkår>>() }
 
                 val periode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)!!
                 require(periode.spilleromPersonId == spilleromPersonId)
