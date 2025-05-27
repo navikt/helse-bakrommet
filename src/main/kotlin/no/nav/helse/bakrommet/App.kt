@@ -7,6 +7,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.plugins.calllogging.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -28,6 +29,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -101,8 +103,8 @@ internal fun Application.appModul(
     personDao: PersonDao = PersonDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
 ) {
-    install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
-        register(ContentType.Application.Json, JacksonConverter())
+    install(ContentNegotiation) {
+        register(ContentType.Application.Json, JacksonConverter(objectMapper))
     }
 
     install(CallLogging) {
