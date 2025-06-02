@@ -1,11 +1,12 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Row
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårStatus
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.OpprettetEllerEndret
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.list
-import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.single
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -23,14 +24,25 @@ data class Saksbehandlingsperiode(
 )
 
 class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
+    private val vurdertVilkårDao = VurdertVilkårDao(dataSource)
+
     fun lagreVilkårsvurdering(
         periode: Saksbehandlingsperiode,
         vilkårsKode: Kode,
-        status: VilkårStatus,
-        fordi: String,
-    ) {
-        logg.info("'lagrer' status=$status for kode=$vilkårsKode med fordi=$fordi for periode=${periode.id}")
-    }
+        vurdering: JsonNode,
+    ): OpprettetEllerEndret =
+        vurdertVilkårDao.lagreVilkårsvurdering(
+            behandling = periode,
+            kode = vilkårsKode,
+            vurdering = vurdering,
+        )
+
+    fun hentVurderteVilkårFor(saksbehandlingsperiodeId: UUID) = vurdertVilkårDao.hentVilkårsvurderinger(saksbehandlingsperiodeId)
+
+    fun hentVurdertVilkårFor(
+        saksbehandlingsperiodeId: UUID,
+        medKode: String,
+    ) = vurdertVilkårDao.hentVilkårsvurdering(saksbehandlingsperiodeId, medKode)
 
     fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
         dataSource.single(

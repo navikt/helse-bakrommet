@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar
 
 import com.fasterxml.jackson.annotation.JsonValue
+import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -10,6 +11,7 @@ import no.nav.helse.bakrommet.errorhandling.medInputvalidering
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.util.serialisertTilString
 import java.util.*
 
 fun String.erGyldigSomKode(): Boolean {
@@ -18,7 +20,7 @@ fun String.erGyldigSomKode(): Boolean {
 }
 
 class Kode(
-    @JsonValue private val kode: String,
+    @JsonValue val kode: String,
 ) {
     init {
         if (!kode.erGyldigSomKode()) {
@@ -43,10 +45,8 @@ enum class VilkårStatus {
     IKKE_VURDERT,
 }
 
-data class VurdertVilkår(
-    val vilkårKode: Kode,
-    val status: VilkårStatus,
-    val fordi: String,
+data class VurdertVilkårBody(
+    val vurdering: JsonNode,
 )
 
 internal fun Route.saksbehandlingsperiodeVilkårRoute(
@@ -54,26 +54,41 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
     personDao: PersonDao,
 ) {
     route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkår") {
-        post {
+        get {
+            val periodeId = call.parameters["periodeUUID"]!!.somGyldigUUID()
+            val vurderteVilkår = saksbehandlingsperiodeDao.hentVurderteVilkårFor(periodeId)
+            call.respondText(vurderteVilkår.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+        }
+    }
+
+    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkår/{kode}") {
+        put {
             call.medIdent(personDao) { fnr, spilleromPersonId ->
                 val periodeId = call.parameters["periodeUUID"]!!.somGyldigUUID()
-
-                val vilkår = medInputvalidering { call.receive<List<VurdertVilkår>>() }
+                val vilkårsKode = Kode(call.parameters["kode"]!!)
+                val vurdertVilkår = medInputvalidering { call.receive<VurdertVilkårBody>() }
 
                 val periode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)!!
                 require(periode.spilleromPersonId == spilleromPersonId)
 
-                vilkår.forEach {
+                val opprettetEllerEndret =
                     saksbehandlingsperiodeDao.lagreVilkårsvurdering(
                         periode = periode,
-                        vilkårsKode = it.vilkårKode,
-                        status = it.status,
-                        fordi = it.fordi,
+                        vilkårsKode = vilkårsKode,
+                        vurdering = vurdertVilkår.vurdering,
                     )
-                }
-
-                call.respond(HttpStatusCode.OK)
+                val lagretVurdering = saksbehandlingsperiodeDao.hentVurdertVilkårFor(periode.id, vilkårsKode.kode)
+                call.respondText(
+                    lagretVurdering!!.serialisertTilString(),
+                    ContentType.Application.Json,
+                    if (opprettetEllerEndret == OpprettetEllerEndret.OPPRETTET) HttpStatusCode.Created else HttpStatusCode.OK,
+                )
             }
+        }
+
+        delete {
+            // DELETE
+            call.respond(HttpStatusCode.MethodNotAllowed) // TODO
         }
     }
 }

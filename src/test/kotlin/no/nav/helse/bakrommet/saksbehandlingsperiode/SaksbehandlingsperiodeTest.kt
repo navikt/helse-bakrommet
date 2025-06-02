@@ -58,5 +58,6 @@ class SaksbehandlingsperiodeTest {
                 )
             perioder.size `should equal` 1
             perioder.map { it.truncateTidspunkt() } `should equal` listOf(saksbehandlingsperiode)
+            println(perioder)
         }
 }
