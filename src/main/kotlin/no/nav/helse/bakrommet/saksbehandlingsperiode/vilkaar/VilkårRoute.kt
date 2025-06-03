@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -10,6 +11,7 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.medInputvalidering
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
+import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.util.*
@@ -42,27 +44,39 @@ data class VurdertVilkårBody(
     val vurdering: JsonNode,
 )
 
+private suspend inline fun ApplicationCall.medBehandlingsperiode(
+    personDao: PersonDao,
+    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
+    crossinline block: suspend (saksbehandlingsperiode: Saksbehandlingsperiode) -> Unit,
+) {
+    this.medIdent(personDao) { fnr, spilleromPersonId ->
+        val periodeId = parameters["periodeUUID"]!!.somGyldigUUID()
+        val periode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)!!
+        if (periode.spilleromPersonId != spilleromPersonId) {
+            throw InputValideringException("Ugyldig saksbehandlingsperiode")
+        }
+        block(periode)
+    }
+}
+
 internal fun Route.saksbehandlingsperiodeVilkårRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
 ) {
     route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkår") {
         get {
-            val periodeId = call.parameters["periodeUUID"]!!.somGyldigUUID()
-            val vurderteVilkår = saksbehandlingsperiodeDao.hentVurderteVilkårFor(periodeId)
-            call.respondText(vurderteVilkår.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
+                val vurderteVilkår = saksbehandlingsperiodeDao.hentVurderteVilkårFor(periode.id)
+                call.respondText(vurderteVilkår.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            }
         }
     }
 
     route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkår/{kode}") {
         put {
-            call.medIdent(personDao) { fnr, spilleromPersonId ->
-                val periodeId = call.parameters["periodeUUID"]!!.somGyldigUUID()
+            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vilkårsKode = Kode(call.parameters["kode"]!!)
                 val vurdertVilkår = medInputvalidering { call.receive<VurdertVilkårBody>() }
-
-                val periode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)!!
-                require(periode.spilleromPersonId == spilleromPersonId)
 
                 val opprettetEllerEndret =
                     saksbehandlingsperiodeDao.lagreVilkårsvurdering(
@@ -80,13 +94,14 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
         }
 
         delete {
-            val periodeId = call.parameters["periodeUUID"]!!.somGyldigUUID()
-            val vilkårsKode = Kode(call.parameters["kode"]!!)
-            val numAffectedRows = saksbehandlingsperiodeDao.slettVilkårsvurdering(periodeId, vilkårsKode.kode)
-            if (numAffectedRows == 0) {
-                call.respond(HttpStatusCode.NotFound)
-            } else {
-                call.respond(HttpStatusCode.NoContent)
+            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
+                val vilkårsKode = Kode(call.parameters["kode"]!!)
+                val numAffectedRows = saksbehandlingsperiodeDao.slettVilkårsvurdering(periode.id, vilkårsKode.kode)
+                if (numAffectedRows == 0) {
+                    call.respond(HttpStatusCode.NotFound)
+                } else {
+                    call.respond(HttpStatusCode.NoContent)
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar
 
-import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -254,5 +253,87 @@ class VilkårRouteTest {
                 """.trimIndent(),
                 vilkårPostResponse.bodyAsText(),
             )
+        }
+
+    @Test
+    fun `Feil person+periode-kombo gir 400 for både GET,PUT og DELETE`() =
+        vilkårAppTest { (daoer, saksbehandlingsperiode) ->
+            val dennePersonId = SaksbehandlingsperiodeTest.personId
+            val dennePeriodeId = saksbehandlingsperiode.id
+            val annenPersonId = "pers2"
+
+            val someBody =
+                """
+                {
+                    "vurdering": {
+                        "status": "IKKE_OPPFYLT",
+                        "fordi": "BOR_IKKE_I_NORGE"
+                    }
+                }
+                """.trimIndent()
+
+            daoer.personDao.opprettPerson("0101018888", annenPersonId)
+
+            client.put(
+                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+            ) {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(someBody)
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
+            }
+
+            client.put(
+                "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+            ) {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(someBody)
+            }.apply {
+                assertEquals(HttpStatusCode.Created, status)
+            }
+
+            client.put(
+                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+            ) {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(someBody)
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
+            }
+
+            client.get("/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår") {
+                bearerAuth(TestOppsett.userToken)
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+            }
+
+            client.delete(
+                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+            ) {
+                bearerAuth(TestOppsett.userToken)
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
+            }
+
+            client.get("/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår") {
+                bearerAuth(TestOppsett.userToken)
+            }.apply {
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals(
+                    """[{"kode":"BOR_I_NORGE","vurdering":{"status":"IKKE_OPPFYLT","fordi":"BOR_IKKE_I_NORGE"}}]""",
+                    bodyAsText(),
+                )
+            }
+
+            client.delete(
+                "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+            ) {
+                bearerAuth(TestOppsett.userToken)
+            }.apply {
+                assertEquals(HttpStatusCode.NoContent, status)
+            }
         }
 }
