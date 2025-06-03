@@ -47,7 +47,7 @@ class VilkårRouteTest {
             saksbehandlingsperiode.id
             val vilkårPutResponse =
                 client.put(
-                    "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår/BOR_I_NORGE",
+                    "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -75,7 +75,7 @@ class VilkårRouteTest {
         vilkårAppTest { (daoer, saksbehandlingsperiode) ->
             saksbehandlingsperiode.id
             client.put(
-                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår/BOR_I_NORGE",
+                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -97,7 +97,7 @@ class VilkårRouteTest {
                 )
             }
 
-            client.get("/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår") {
+            client.get("/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar") {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
@@ -108,7 +108,7 @@ class VilkårRouteTest {
             }
 
             client.put(
-                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår/BOR_I_NORGE",
+                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -130,7 +130,7 @@ class VilkårRouteTest {
                 )
             }
 
-            client.get("/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår") {
+            client.get("/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar") {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
@@ -141,7 +141,7 @@ class VilkårRouteTest {
             }
 
             client.put(
-                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår/ET_VILKÅR_TIL",
+                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar/ET_VILKÅR_TIL",
             ) {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -162,7 +162,7 @@ class VilkårRouteTest {
                 )
             }
 
-            client.get("/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår") {
+            client.get("/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar") {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
@@ -189,7 +189,7 @@ class VilkårRouteTest {
             }
 
             client.delete(
-                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår/BOR_I_NORGE",
+                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
@@ -197,14 +197,14 @@ class VilkårRouteTest {
             }
 
             client.delete(
-                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår/BOR_I_NORGE",
+                "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(HttpStatusCode.NotFound, status, "skal gi 404 når koden ikke fantes")
             }
 
-            client.get("/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår") {
+            client.get("/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar") {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
@@ -229,7 +229,7 @@ class VilkårRouteTest {
             saksbehandlingsperiode.id
             val vilkårPostResponse =
                 client.put(
-                    "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår/ugyldig-KODE",
+                    "/v1/${SaksbehandlingsperiodeTest.personId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar/ugyldig-KODE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -249,7 +249,7 @@ class VilkårRouteTest {
             val pers = SaksbehandlingsperiodeTest.personId
             assertEquals(
                 """
-                {"type":"https://spillerom.ansatt.nav.no/validation/input","title":"Ugyldig format på Kode","status":400,"detail":null,"instance":"/v1/$pers/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkår/ugyldig-KODE"}
+                {"type":"https://spillerom.ansatt.nav.no/validation/input","title":"Ugyldig format på Kode","status":400,"detail":null,"instance":"/v1/$pers/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaar/ugyldig-KODE"}
                 """.trimIndent(),
                 vilkårPostResponse.bodyAsText(),
             )
@@ -275,7 +275,7 @@ class VilkårRouteTest {
             daoer.personDao.opprettPerson("0101018888", annenPersonId)
 
             client.put(
-                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -285,7 +285,7 @@ class VilkårRouteTest {
             }
 
             client.put(
-                "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+                "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -295,7 +295,7 @@ class VilkårRouteTest {
             }
 
             client.put(
-                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -304,21 +304,21 @@ class VilkårRouteTest {
                 assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
             }
 
-            client.get("/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår") {
+            client.get("/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaar") {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, status)
             }
 
             client.delete(
-                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
             }
 
-            client.get("/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår") {
+            client.get("/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaar") {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
@@ -329,7 +329,7 @@ class VilkårRouteTest {
             }
 
             client.delete(
-                "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkår/BOR_I_NORGE",
+                "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaar/BOR_I_NORGE",
             ) {
                 bearerAuth(TestOppsett.userToken)
             }.apply {

@@ -63,7 +63,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
 ) {
-    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkår") {
+    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vurderteVilkår = saksbehandlingsperiodeDao.hentVurderteVilkårFor(periode.id)
@@ -72,7 +72,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
         }
     }
 
-    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkår/{kode}") {
+    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/{kode}") {
         put {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vilkårsKode = Kode(call.parameters["kode"]!!)
