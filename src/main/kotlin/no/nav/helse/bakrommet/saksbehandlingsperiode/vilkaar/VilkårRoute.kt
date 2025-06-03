@@ -66,7 +66,10 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
     route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                val vurderteVilkår = saksbehandlingsperiodeDao.hentVurderteVilkårFor(periode.id)
+                val vurderteVilkår =
+                    saksbehandlingsperiodeDao.hentVurderteVilkårFor(periode.id).map {
+                        it.tilApiSvar()
+                    }
                 call.respondText(vurderteVilkår.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }
         }
@@ -76,17 +79,17 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
         put {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vilkårsKode = Kode(call.parameters["kode"]!!)
-                val vurdertVilkår = medInputvalidering { call.receive<VurdertVilkårBody>() }
+                val vurdertVilkår = medInputvalidering { call.receive<JsonNode>() }
 
                 val opprettetEllerEndret =
                     saksbehandlingsperiodeDao.lagreVilkårsvurdering(
                         periode = periode,
                         vilkårsKode = vilkårsKode,
-                        vurdering = vurdertVilkår.vurdering,
+                        vurdering = vurdertVilkår,
                     )
                 val lagretVurdering = saksbehandlingsperiodeDao.hentVurdertVilkårFor(periode.id, vilkårsKode.kode)
                 call.respondText(
-                    lagretVurdering!!.serialisertTilString(),
+                    lagretVurdering!!.tilApiSvar().serialisertTilString(),
                     ContentType.Application.Json,
                     if (opprettetEllerEndret == OpprettetEllerEndret.OPPRETTET) HttpStatusCode.Created else HttpStatusCode.OK,
                 )

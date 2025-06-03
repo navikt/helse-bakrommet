@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
@@ -13,6 +14,12 @@ data class VurdertVilkår(
     val kode: String,
     val vurdering: JsonNode,
 )
+
+fun VurdertVilkår.tilApiSvar(): JsonNode {
+    val kopiert = vurdering.deepCopy<ObjectNode>()
+    kopiert.put("kode", kode)
+    return kopiert
+}
 
 enum class OpprettetEllerEndret {
     OPPRETTET,

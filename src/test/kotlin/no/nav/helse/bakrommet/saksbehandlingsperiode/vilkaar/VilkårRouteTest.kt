@@ -13,8 +13,8 @@ import no.nav.helse.bakrommet.testutils.somListe
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 class VilkårRouteTest {
     fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(Pair<Daoer, Saksbehandlingsperiode>) -> Unit) =
@@ -54,10 +54,10 @@ class VilkårRouteTest {
                     setBody(
                         """
                         {
-                            "vurdering": {
+                        
                                 "status": "OPPFYLT",
-                                "fordi": "derfor"
-                            }
+                                "årsak": "derfor"
+                            
                         }
                         """.trimIndent(),
                     )
@@ -65,7 +65,7 @@ class VilkårRouteTest {
 
             assertEquals(HttpStatusCode.Created, vilkårPutResponse.status)
             assertEquals(
-                """{"kode":"BOR_I_NORGE","vurdering":{"status":"OPPFYLT","fordi":"derfor"}}""",
+                """{"status":"OPPFYLT","årsak":"derfor","kode":"BOR_I_NORGE"}""",
                 vilkårPutResponse.bodyAsText(),
             )
         }
@@ -82,17 +82,17 @@ class VilkårRouteTest {
                 setBody(
                     """
                     {
-                        "vurdering": {
+                        
                             "status": "OPPFYLT",
-                            "fordi": "derfor"
-                        }
+                            "årsak": "derfor"
+                        
                     }
                     """.trimIndent(),
                 )
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 assertEquals(
-                    """{"kode":"BOR_I_NORGE","vurdering":{"status":"OPPFYLT","fordi":"derfor"}}""",
+                    """{"status":"OPPFYLT","årsak":"derfor","kode":"BOR_I_NORGE"}""",
                     bodyAsText(),
                 )
             }
@@ -102,7 +102,7 @@ class VilkårRouteTest {
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 assertEquals(
-                    """[{"kode":"BOR_I_NORGE","vurdering":{"status":"OPPFYLT","fordi":"derfor"}}]""",
+                    """[{"status":"OPPFYLT","årsak":"derfor","kode":"BOR_I_NORGE"}]""",
                     bodyAsText(),
                 )
             }
@@ -115,17 +115,17 @@ class VilkårRouteTest {
                 setBody(
                     """
                     {
-                        "vurdering": {
+                      
                             "status": "IKKE_OPPFYLT",
-                            "fordi": "BOR_IKKE_I_NORGE"
-                        }
+                            "årsak": "BOR_IKKE_I_NORGE"
+                        
                     }
                     """.trimIndent(),
                 )
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 assertEquals(
-                    """{"kode":"BOR_I_NORGE","vurdering":{"status":"IKKE_OPPFYLT","fordi":"BOR_IKKE_I_NORGE"}}""",
+                    """{"status":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","kode":"BOR_I_NORGE"}""",
                     bodyAsText(),
                 )
             }
@@ -135,7 +135,7 @@ class VilkårRouteTest {
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 assertEquals(
-                    """[{"kode":"BOR_I_NORGE","vurdering":{"status":"IKKE_OPPFYLT","fordi":"BOR_IKKE_I_NORGE"}}]""",
+                    """[{"status":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","kode":"BOR_I_NORGE"}]""",
                     bodyAsText(),
                 )
             }
@@ -148,16 +148,16 @@ class VilkårRouteTest {
                 setBody(
                     """
                     {
-                        "vurdering": {
+                    
                             "status": "IKKE_AKTUELT"
-                        }
+                        
                     }
                     """.trimIndent(),
                 )
             }.apply {
                 assertEquals(HttpStatusCode.Created, status)
                 assertEquals(
-                    """{"kode":"ET_VILKÅR_TIL","vurdering":{"status":"IKKE_AKTUELT"}}""",
+                    """{"status":"IKKE_AKTUELT","kode":"ET_VILKÅR_TIL"}""",
                     bodyAsText(),
                 )
             }
@@ -168,23 +168,17 @@ class VilkårRouteTest {
                 assertEquals(HttpStatusCode.OK, status)
                 assertEquals(
                     setOf(
-                        VurdertVilkår(
-                            kode = "BOR_I_NORGE",
-                            vurdering =
-                                objectMapper.createObjectNode().apply {
-                                    put("status", "IKKE_OPPFYLT")
-                                    put("fordi", "BOR_IKKE_I_NORGE")
-                                },
+                        mapOf(
+                            "status" to "IKKE_OPPFYLT",
+                            "årsak" to "BOR_IKKE_I_NORGE",
+                            "kode" to "BOR_I_NORGE",
                         ),
-                        VurdertVilkår(
-                            kode = "ET_VILKÅR_TIL",
-                            vurdering =
-                                objectMapper.createObjectNode().apply {
-                                    put("status", "IKKE_AKTUELT")
-                                },
+                        mapOf(
+                            "status" to "IKKE_AKTUELT",
+                            "kode" to "ET_VILKÅR_TIL",
                         ),
                     ),
-                    bodyAsText().somListe<VurdertVilkår>().toSet(),
+                    bodyAsText().somListe<Map<String, String>>().toSet(),
                 )
             }
 
@@ -210,15 +204,12 @@ class VilkårRouteTest {
                 assertEquals(HttpStatusCode.OK, status)
                 assertEquals(
                     setOf(
-                        VurdertVilkår(
-                            kode = "ET_VILKÅR_TIL",
-                            vurdering =
-                                objectMapper.createObjectNode().apply {
-                                    put("status", "IKKE_AKTUELT")
-                                },
+                        mapOf(
+                            "kode" to "ET_VILKÅR_TIL",
+                            "status" to "IKKE_AKTUELT",
                         ),
                     ),
-                    bodyAsText().somListe<VurdertVilkår>().toSet(),
+                    bodyAsText().somListe<Map<String, String>>().toSet(),
                 )
             }
         }
@@ -238,7 +229,7 @@ class VilkårRouteTest {
                         {
                             "vurdering": {
                                 "status": "OPPFYLT",
-                                "fordi": "derfor"
+                                "årsak": "derfor"
                             }
                         }
                         """.trimIndent(),
@@ -265,10 +256,10 @@ class VilkårRouteTest {
             val someBody =
                 """
                 {
-                    "vurdering": {
-                        "status": "IKKE_OPPFYLT",
-                        "fordi": "BOR_IKKE_I_NORGE"
-                    }
+                   
+                    "status": "IKKE_OPPFYLT",
+                    "årsak": "BOR_IKKE_I_NORGE"
+                    
                 }
                 """.trimIndent()
 
@@ -323,7 +314,7 @@ class VilkårRouteTest {
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
                 assertEquals(
-                    """[{"kode":"BOR_I_NORGE","vurdering":{"status":"IKKE_OPPFYLT","fordi":"BOR_IKKE_I_NORGE"}}]""",
+                    """[{"status":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","kode":"BOR_I_NORGE"}]""",
                     bodyAsText(),
                 )
             }
