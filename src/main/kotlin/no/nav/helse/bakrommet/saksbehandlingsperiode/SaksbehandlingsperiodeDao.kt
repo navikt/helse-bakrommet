@@ -44,6 +44,11 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
         medKode: String,
     ) = vurdertVilkårDao.hentVilkårsvurdering(saksbehandlingsperiodeId, medKode)
 
+    fun slettVilkårsvurdering(
+        saksbehandlingsperiodeId: UUID,
+        kode: String,
+    ) = vurdertVilkårDao.slettVilkårsvurdering(saksbehandlingsperiodeId, kode)
+
     fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
         dataSource.single(
             """

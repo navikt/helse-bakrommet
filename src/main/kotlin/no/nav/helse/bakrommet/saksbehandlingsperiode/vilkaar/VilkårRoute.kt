@@ -38,13 +38,6 @@ fun String.somGyldigUUID(): UUID =
         throw InputValideringException("Ugyldig periodeUUID. Forventet UUID-format")
     }
 
-enum class VilkårStatus {
-    OPPFYLT,
-    IKKE_OPPFYLT,
-    IKKE_RELEVANT,
-    IKKE_VURDERT,
-}
-
 data class VurdertVilkårBody(
     val vurdering: JsonNode,
 )
@@ -87,8 +80,14 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
         }
 
         delete {
-            // DELETE
-            call.respond(HttpStatusCode.MethodNotAllowed) // TODO
+            val periodeId = call.parameters["periodeUUID"]!!.somGyldigUUID()
+            val vilkårsKode = Kode(call.parameters["kode"]!!)
+            val numAffectedRows = saksbehandlingsperiodeDao.slettVilkårsvurdering(periodeId, vilkårsKode.kode)
+            if (numAffectedRows == 0) {
+                call.respond(HttpStatusCode.NotFound)
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
         }
     }
 }

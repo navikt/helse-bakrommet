@@ -49,14 +49,32 @@ class VurdertVilkårDao(private val dataSource: DataSource) {
             "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
             "kode" to kode,
         ) {
-            val data = it.string("vurdering")
-            val somjson = data.asJsonNode()
-
             VurdertVilkår(
                 kode = it.string("kode"),
                 vurdering = it.string("vurdering").asJsonNode(),
             )
         }
+
+    fun slettVilkårsvurdering(
+        saksbehandlingsperiodeId: UUID,
+        kode: String,
+    ): Int {
+        return sessionOf(dataSource, strict = true).use { session ->
+            session.run(
+                queryOf(
+                    """
+                    DELETE FROM vurdert_vilkaar
+                    where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                    and kode = :kode
+                    """.trimIndent(),
+                    mapOf(
+                        "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+                        "kode" to kode,
+                    ),
+                ).asUpdate,
+            )
+        }
+    }
 
     fun lagreVilkårsvurdering(
         behandling: Saksbehandlingsperiode,
@@ -85,7 +103,7 @@ class VurdertVilkårDao(private val dataSource: DataSource) {
                         queryOf(
                             """
                             update vurdert_vilkaar 
-                            set vurdering = :vurdering::json,
+                            set vurdering = :vurdering,
                             vurdering_tidspunkt = :vurdering_tidspunkt
                             where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
                             and kode = :kode 
@@ -105,7 +123,7 @@ class VurdertVilkårDao(private val dataSource: DataSource) {
                             """
                             insert into vurdert_vilkaar
                              (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
-                            values (:vurdering::json, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
+                            values (:vurdering, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
                             """.trimIndent(),
                             mapOf(
                                 "vurdering" to vurdering.serialisertTilString(),
