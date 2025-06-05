@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.nav.Saksbehandler
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.testutils.tidsstuttet
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -51,6 +52,6 @@ class DokumentDaoTest {
             )
         dao.opprettDokument(dok)
         val dokumenter = dao.hentDokumenterFor(periode.id)
-        assertEquals(listOf(dok), dokumenter)
+        assertEquals(listOf(dok).tidsstuttet(), dokumenter.tidsstuttet())
     }
 }
