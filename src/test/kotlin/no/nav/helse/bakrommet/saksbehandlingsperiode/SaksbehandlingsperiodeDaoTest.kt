@@ -23,6 +23,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         @JvmStatic
         @BeforeAll
         fun setOpp() {
+            TestDataSource.resetDatasource()
             val dao = PersonDao(TestDataSource.dbModule.dataSource)
             dao.opprettPerson(fnr, personId)
         }

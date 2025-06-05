@@ -80,6 +80,7 @@ tasks {
         testLogging {
             events("PASSED", "FAILED", "SKIPPED")
             exceptionFormat = FULL
+            showStackTraces = true
         }
     }
 

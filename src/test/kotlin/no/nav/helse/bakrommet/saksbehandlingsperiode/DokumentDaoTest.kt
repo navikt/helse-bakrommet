@@ -1,0 +1,54 @@
+package no.nav.helse.bakrommet.saksbehandlingsperiode
+
+import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.person.PersonDao
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.time.Instant
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.util.*
+import kotlin.test.assertEquals
+
+class DokumentDaoTest {
+    val dataSource = TestDataSource.dbModule.dataSource
+    val fnr = "01019012345"
+    val personId = "0h0a1"
+    val periode =
+        Saksbehandlingsperiode(
+            id = UUID.randomUUID(),
+            spilleromPersonId = personId,
+            opprettet = OffsetDateTime.now(),
+            opprettetAvNavIdent = "ABC",
+            opprettetAvNavn = "A.B.C",
+            fom = LocalDate.now().minusMonths(1),
+            tom = LocalDate.now().minusDays(1),
+        )
+
+    @BeforeEach
+    fun setOpp() {
+        TestDataSource.resetDatasource()
+        val dao = PersonDao(dataSource)
+        dao.opprettPerson(fnr, personId)
+        val behandlingDao = SaksbehandlingsperiodeDao(dataSource)
+        behandlingDao.opprettPeriode(periode)
+    }
+
+    @Test
+    fun `oppretter og henter et dokument tilknyttet en behandling`() {
+        val dao = DokumentDao(dataSource)
+        val dok =
+            Dokument(
+                id = UUID.randomUUID(),
+                dokumentType = "ainntekt_828",
+                eksternId = null,
+                innhold = """{ "inntekter" : [] "}""",
+                opprettet = Instant.now(),
+                request = "GET inntekt",
+                opprettetForBehandling = periode.id,
+            )
+        dao.opprettDokument(dok)
+        val dokumenter = dao.hentDokumenterFor(periode.id)
+        assertEquals(listOf(dok), dokumenter)
+    }
+}

@@ -20,6 +20,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
     data class CreatePeriodeRequest(
         val fom: String,
         val tom: String,
+        val søknader: List<UUID>? = null,
     )
 
     /** Opprett en ny periode */
