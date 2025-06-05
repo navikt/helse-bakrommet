@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.nav.Saksbehandler
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import org.junit.jupiter.api.BeforeAll
@@ -39,8 +40,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val id = UUID.randomUUID()
         val personId = "6512a"
         val now = OffsetDateTime.now()
-        val navIdent = "Z12345"
-        val navNavn = "Ola Nordmann"
+        val saksbehandler = Saksbehandler("Z12345", "Ola Nordmann")
         val fom = LocalDate.of(2021, 1, 1)
         val tom = LocalDate.of(2021, 1, 31)
 
@@ -49,8 +49,8 @@ internal class SaksbehandlingsperiodeDaoTest {
                 id = id,
                 spilleromPersonId = personId,
                 opprettet = now,
-                opprettetAvNavIdent = navIdent,
-                opprettetAvNavn = navNavn,
+                opprettetAvNavIdent = saksbehandler.navIdent,
+                opprettetAvNavn = saksbehandler.navn,
                 fom = fom,
                 tom = tom,
             ).truncateTidspunkt()

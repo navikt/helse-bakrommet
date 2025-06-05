@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.nav.Saksbehandler
 import no.nav.helse.bakrommet.person.PersonDao
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,13 +15,14 @@ class DokumentDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
     val fnr = "01019012345"
     val personId = "0h0a1"
+    val saksbehandler = Saksbehandler("ABC", "A. B. C")
     val periode =
         Saksbehandlingsperiode(
             id = UUID.randomUUID(),
             spilleromPersonId = personId,
             opprettet = OffsetDateTime.now(),
-            opprettetAvNavIdent = "ABC",
-            opprettetAvNavn = "A.B.C",
+            opprettetAvNavIdent = saksbehandler.navIdent,
+            opprettetAvNavn = saksbehandler.navn,
             fom = LocalDate.now().minusMonths(1),
             tom = LocalDate.now().minusDays(1),
         )

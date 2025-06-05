@@ -1,13 +1,12 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import io.ktor.http.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
+import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -27,15 +26,14 @@ internal fun Route.saksbehandlingsperiodeRoute(
     post {
         call.medIdent(personDao) { fnr, spilleromPersonId ->
             val body = call.receive<CreatePeriodeRequest>()
-            val principal = call.principal<JWTPrincipal>()
+            val saksbehandler = call.saksbehandler()
             val nyPeriode =
                 Saksbehandlingsperiode(
                     id = UUID.randomUUID(),
                     spilleromPersonId = spilleromPersonId,
                     opprettet = OffsetDateTime.now(),
-                    // Dersom du trekker NAV-ident og -navn fra token/principal, bytt disse:
-                    opprettetAvNavIdent = principal!!.get("NAVident")!!,
-                    opprettetAvNavn = principal!!.get("name")!!,
+                    opprettetAvNavIdent = saksbehandler.navIdent,
+                    opprettetAvNavn = saksbehandler.navn,
                     fom = LocalDate.parse(body.fom),
                     tom = LocalDate.parse(body.tom),
                 )
