@@ -49,9 +49,9 @@ object TestOppsett {
         )
     val userToken = oAuthMock.token()
 
-    fun OAuthScope.oboTokenFor() = "OBO-TOKEN_FOR_api://$this/.default"
+    fun OAuthScope.oboTokenFor() = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
-    private fun oboTokenForCreate(scope: String) = "OBO-TOKEN_FOR_$scope"
+    private fun oboTokenFraMockTexas(scope: String) = "OBO-TOKEN_FOR_$scope"
 
     val mockTexas =
         mockHttpClient { request ->
@@ -63,7 +63,7 @@ object TestOppsett {
                     status = HttpStatusCode.OK,
                     content =
                         """
-                        {"access_token": "${oboTokenForCreate(scope)}"}
+                        {"access_token": "${oboTokenFraMockTexas(scope)}"}
                         """.trimIndent(),
                     headers = headersOf("Content-Type" to listOf("application/json")),
                 )

@@ -30,7 +30,7 @@ class OboClient(
                 setBody(
                     jacksonObjectMapper().createObjectNode().apply {
                         put("identity_provider", "azuread")
-                        put("target", "api://$scope/.default")
+                        put("target", scope.asDefaultScope())
                         put("user_token", bearerToken)
                     }.toString(),
                 )

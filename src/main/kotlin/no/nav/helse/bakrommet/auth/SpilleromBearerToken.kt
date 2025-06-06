@@ -12,9 +12,15 @@ class SpilleromBearerToken(private val token: String) {
     }
 }
 
-class OAuthScope(private val scope: String) {
-    override fun toString(): String {
-        return scope
+class OAuthScope(val baseValue: String) {
+    init {
+        require(!baseValue.contains("api://") && !baseValue.contains("/.default")) {
+            "Vennligst oppgi scope uten 'api://' og '/.default'"
+        }
+    }
+
+    fun asDefaultScope(): String {
+        return "api://$baseValue/.default"
     }
 }
 
