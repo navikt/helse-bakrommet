@@ -19,7 +19,7 @@ object AARegMock {
     fun aaregMockHttpClient(fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.respV2)) =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer ${TestOppsett.oboToken}") {
+            if (auth != "Bearer ${TestOppsett.oboTokenFor("aareg-scope")}") {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
                 log.info("URL: " + request.url)

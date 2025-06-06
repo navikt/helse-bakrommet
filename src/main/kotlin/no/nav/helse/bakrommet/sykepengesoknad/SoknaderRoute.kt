@@ -3,8 +3,6 @@ package no.nav.helse.bakrommet.sykepengesoknad
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
@@ -14,8 +12,6 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
 
 internal fun Route.soknaderRoute(
-    oboClient: OboClient,
-    configuration: Configuration,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
     personDao: PersonDao,
 ) {
@@ -31,10 +27,9 @@ internal fun Route.soknaderRoute(
                     }
                 } ?: LocalDate.now().minusYears(1)
 
-            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.sykepengesoknadBackend.scope)
             val soknader: List<SykepengesoknadDTO> =
                 sykepengesoknadBackendClient.hentSoknader(
-                    sykepengesoknadToken = oboToken,
+                    saksbehandlerToken = call.request.bearerToken(),
                     fnr = fnr,
                     fom,
                 )
@@ -46,10 +41,9 @@ internal fun Route.soknaderRoute(
         call.medIdent(personDao) { fnr, personId ->
             val soknadId = call.parameters["soknadId"] ?: throw InputValideringException("Mangler søknadId")
 
-            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.sykepengesoknadBackend.scope)
             val soknad: SykepengesoknadDTO =
                 sykepengesoknadBackendClient.hentSoknad(
-                    sykepengesoknadToken = oboToken,
+                    saksbehandlerToken = call.request.bearerToken(),
                     id = soknadId,
                 )
             call.respondText(soknad.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)

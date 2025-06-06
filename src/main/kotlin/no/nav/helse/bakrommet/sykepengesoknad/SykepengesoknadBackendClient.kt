@@ -8,8 +8,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
+import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -18,6 +19,7 @@ import java.time.LocalDate
 
 class SykepengesoknadBackendClient(
     private val configuration: Configuration.SykepengesoknadBackend,
+    private val oboClient: OboClient,
     private val httpClient: HttpClient =
         HttpClient(Apache) {
             install(ContentNegotiation) {
@@ -44,14 +46,17 @@ class SykepengesoknadBackendClient(
         ).serialisertTilString()
     }
 
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
+        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+
     suspend fun hentSoknader(
-        sykepengesoknadToken: OboToken,
+        saksbehandlerToken: SpilleromBearerToken,
         fnr: String,
         fom: LocalDate,
     ): List<SykepengesoknadDTO> {
         val response =
             httpClient.post("${configuration.hostname}/api/v3/soknader") {
-                headers[HttpHeaders.Authorization] = sykepengesoknadToken.somBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 contentType(ContentType.Application.Json)
                 setBody(hentSoknaderRequest(fnr = fnr, fom = fom))
             }
@@ -66,12 +71,12 @@ class SykepengesoknadBackendClient(
     }
 
     suspend fun hentSoknad(
-        sykepengesoknadToken: OboToken,
+        saksbehandlerToken: SpilleromBearerToken,
         id: String,
     ): SykepengesoknadDTO {
         val response =
             httpClient.get("${configuration.hostname}/api/v3/soknader/$id") {
-                headers[HttpHeaders.Authorization] = sykepengesoknadToken.somBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 contentType(ContentType.Application.Json)
             }
         if (response.status == HttpStatusCode.OK) {

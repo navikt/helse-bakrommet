@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
+import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -14,7 +15,8 @@ class SoknaderTest {
     val mockSoknaderClient =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer ${TestOppsett.oboToken}") {
+            if (auth != "Bearer " + TestOppsett.oboTokenFor(TestOppsett.configuration.sykepengesoknadBackend.scope)) {
+                logg.error("feil header: $auth")
                 respondError(HttpStatusCode.Unauthorized)
             } else {
                 if (request.url.toString().contains("/api/v3/soknader/") && !request.url.toString().endsWith("/api/v3/soknader")) {
@@ -59,8 +61,9 @@ class SoknaderTest {
         runApplicationTest(
             sykepengesoknadBackendClient =
                 SykepengesoknadBackendClient(
-                    configuration = Configuration.SykepengesoknadBackend("soknadHost", "soknadScope"),
+                    configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,
+                    oboClient = TestOppsett.oboClient,
                 ),
         ) {
             it.personDao.opprettPerson(fnr, personId)
@@ -85,8 +88,9 @@ class SoknaderTest {
         runApplicationTest(
             sykepengesoknadBackendClient =
                 SykepengesoknadBackendClient(
-                    configuration = Configuration.SykepengesoknadBackend("soknadHost", "soknadScope"),
+                    configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,
+                    oboClient = TestOppsett.oboClient,
                 ),
         ) {
             it.personDao.opprettPerson(fnr, personId)
@@ -104,8 +108,9 @@ class SoknaderTest {
         runApplicationTest(
             sykepengesoknadBackendClient =
                 SykepengesoknadBackendClient(
-                    configuration = Configuration.SykepengesoknadBackend("soknadHost", "soknadScope"),
+                    configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,
+                    oboClient = TestOppsett.oboClient,
                 ),
         ) {
             it.personDao.opprettPerson(fnr, personId)

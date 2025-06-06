@@ -9,6 +9,7 @@ class SpilleromBearerToken(private val token: String) {
         oboClient: OboClient,
         scope: String,
     ): OboToken {
+        // her kan ev. caching ev this.token+scope -> oboToken være.
         return oboClient.exchangeToken(token, scope)
     }
 }

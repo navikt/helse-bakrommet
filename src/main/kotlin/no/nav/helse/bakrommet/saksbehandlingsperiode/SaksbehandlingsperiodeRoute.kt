@@ -6,6 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
+import no.nav.helse.bakrommet.util.bearerToken
 import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.LocalDate
@@ -40,7 +41,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
                 )
             saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
             if (body.søknader != null && body.søknader.isNotEmpty()) {
-                dokumentHenter.hentOgLagreSøknaderOgInntekter(nyPeriode.id, body.søknader)
+                dokumentHenter.hentOgLagreSøknaderOgInntekter(nyPeriode.id, body.søknader, call.request.bearerToken())
             }
             call.respondText(nyPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.Created)
         }

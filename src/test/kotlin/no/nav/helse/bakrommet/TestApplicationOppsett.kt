@@ -46,19 +46,23 @@ object TestOppsett {
             ),
             "test",
         )
-    val oboToken = "OBO-TOKEN"
     val userToken = oAuthMock.token()
+
+    fun oboTokenFor(scope: String) = "OBO-TOKEN_FOR_api://$scope/.default"
+
+    private fun oboTokenForCreate(scope: String) = "OBO-TOKEN_FOR_$scope"
 
     val mockTexas =
         mockHttpClient { request ->
             if (request.bodyToJson()["user_token"].asText() != userToken) {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
+                val scope = request.bodyToJson()["target"].asText()
                 respond(
                     status = HttpStatusCode.OK,
                     content =
                         """
-                        {"access_token": "$oboToken"}
+                        {"access_token": "${oboTokenForCreate(scope)}"}
                         """.trimIndent(),
                     headers = headersOf("Content-Type" to listOf("application/json")),
                 )
@@ -90,7 +94,8 @@ fun runApplicationTest(
     resetDatabase: Boolean = true,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient =
         SykepengesoknadBackendClient(
-            configuration = Configuration.SykepengesoknadBackend("soknadHost", "soknadScope"),
+            configuration = TestOppsett.configuration.sykepengesoknadBackend,
+            oboClient = oboClient,
         ),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient = AInntektMock.aInntektClientMock(),

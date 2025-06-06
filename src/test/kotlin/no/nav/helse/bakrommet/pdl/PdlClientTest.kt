@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.pdl
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.pdl.PdlMock.pdlClient
@@ -9,7 +10,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class PdlClientTest {
-    val token = OboToken("OBO-TOKEN")
+    val token = OboToken(TestOppsett.oboTokenFor("PDL-scope"))
 
     @Test
     fun `returnerer identer`() {

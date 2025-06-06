@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
+import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import java.util.*
 
 class DokumentHenter(
@@ -10,9 +11,10 @@ class DokumentHenter(
     private val dokumentDao: DokumentDao,
     private val soknadClient: SykepengesoknadBackendClient,
 ) {
-    fun hentOgLagreSøknaderOgInntekter(
+    suspend fun hentOgLagreSøknaderOgInntekter(
         saksbehandlingsperiodeId: UUID,
         søknadsIder: List<UUID>,
+        spilleromBearerToken: SpilleromBearerToken,
     ) {
         if (søknadsIder.isEmpty()) return
         val periode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(saksbehandlingsperiodeId)
@@ -20,7 +22,10 @@ class DokumentHenter(
 
         val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)
         søknadsIder.forEach { søknadId ->
-            // soknadClient.hentSoknad()
+            soknadClient.hentSoknad(
+                saksbehandlerToken = spilleromBearerToken,
+                id = søknadId.toString(),
+            )
         }
     }
 }

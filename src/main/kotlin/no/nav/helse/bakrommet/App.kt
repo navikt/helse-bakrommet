@@ -64,7 +64,11 @@ internal fun Application.settOppKtor(
     configuration: Configuration,
     pdlClient: PdlClient = PdlClient(configuration.pdl),
     oboClient: OboClient = OboClient(configuration.obo),
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadBackendClient(configuration.sykepengesoknadBackend),
+    sykepengesoknadBackendClient: SykepengesoknadBackendClient =
+        SykepengesoknadBackendClient(
+            configuration.sykepengesoknadBackend,
+            oboClient,
+        ),
     aaRegClient: AARegClient = AARegClient(configuration.aareg),
     aInntektClient: AInntektClient = AInntektClient(configuration.ainntekt),
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding),
@@ -131,7 +135,7 @@ internal fun Application.appModul(
         authenticate("entraid") {
             personsøkRoute(oboClient, configuration, pdlClient, personDao)
             personinfoRoute(oboClient, configuration, pdlClient, personDao)
-            soknaderRoute(oboClient, configuration, sykepengesoknadBackendClient, personDao)
+            soknaderRoute(sykepengesoknadBackendClient, personDao)
             saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao, dokumentHenter)
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
             arbeidsforholdRoute(oboClient, configuration, aaRegClient, personDao)
