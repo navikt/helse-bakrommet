@@ -2,9 +2,9 @@ package no.nav.helse.bakrommet.pdl
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.pdl.PdlMock.pdlClient
-import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals

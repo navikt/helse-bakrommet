@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.ainntekt
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
 import no.nav.helse.bakrommet.bodyToJson
 import no.nav.helse.bakrommet.mockHttpClient
 import org.junit.jupiter.api.assertNotNull
@@ -19,7 +20,7 @@ object AInntektMock {
     fun ainntektMockHttpClient(fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.resp)) =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer ${TestOppsett.oboTokenFor(TestOppsett.configuration.ainntekt.scope)}") {
+            if (auth != "Bearer ${TestOppsett.configuration.ainntekt.scope.oboTokenFor()}") {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
                 log.info("URL: " + request.url)

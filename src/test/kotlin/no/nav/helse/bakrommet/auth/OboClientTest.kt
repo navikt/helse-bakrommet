@@ -22,7 +22,7 @@ class OboClientTest {
             }
         val response =
             runBlocking {
-                OboClient(Configuration.OBO("url"), mockTexas).exchangeToken("et-token", "et-scope")
+                OboClient(Configuration.OBO("url"), mockTexas).exchangeToken("et-token", OAuthScope("et-scope"))
             }
 
         assertIs<OboToken>(response)

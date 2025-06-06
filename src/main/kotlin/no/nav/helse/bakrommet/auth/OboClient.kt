@@ -22,7 +22,7 @@ class OboClient(
 ) {
     suspend fun exchangeToken(
         bearerToken: String,
-        scope: String,
+        scope: OAuthScope,
     ): OboToken {
         val oboTokenResponse =
             oboClient.post(configuration.url) {

@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
+import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -15,7 +16,7 @@ class SoknaderTest {
     val mockSoknaderClient =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer " + TestOppsett.oboTokenFor(TestOppsett.configuration.sykepengesoknadBackend.scope)) {
+            if (auth != "Bearer " + TestOppsett.configuration.sykepengesoknadBackend.scope.oboTokenFor()) {
                 logg.error("feil header: $auth")
                 respondError(HttpStatusCode.Unauthorized)
             } else {

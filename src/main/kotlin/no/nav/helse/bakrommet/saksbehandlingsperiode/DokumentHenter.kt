@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
-import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import java.util.*
 
 class DokumentHenter(

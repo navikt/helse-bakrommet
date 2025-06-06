@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.pdl
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
 import no.nav.helse.bakrommet.bodyToJson
 import no.nav.helse.bakrommet.mockHttpClient
 
@@ -10,7 +11,7 @@ object PdlMock {
     val mockPdl =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer ${TestOppsett.oboTokenFor(TestOppsett.configuration.pdl.scope)}") {
+            if (auth != "Bearer ${TestOppsett.configuration.pdl.scope.oboTokenFor()}") {
 
                 respondError(HttpStatusCode.Unauthorized)
             } else {

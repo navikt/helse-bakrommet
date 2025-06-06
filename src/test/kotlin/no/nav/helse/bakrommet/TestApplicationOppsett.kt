@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.auth.OAuthMock
+import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
@@ -26,29 +27,29 @@ object TestOppsett {
         Configuration(
             Configuration.DB(jdbcUrl = TestDataSource.dbModule.jdbcUrl),
             Configuration.OBO(url = "OBO-url"),
-            Configuration.PDL(hostname = "PDL-hostname", scope = "PDL-scope"),
+            Configuration.PDL(hostname = "PDL-hostname", scope = OAuthScope("PDL-scope")),
             oAuthMock.authConfig,
             Configuration.SykepengesoknadBackend(
                 hostname = "sykepengesoknad-backend",
-                scope = "sykepengesoknad-backend-scope",
+                scope = OAuthScope("sykepengesoknad-backend-scope"),
             ),
             Configuration.AAReg(
                 hostname = "aareg-host",
-                scope = "aareg-scope",
+                scope = OAuthScope("aareg-scope"),
             ),
             Configuration.AInntekt(
                 hostname = "inntektskomponenten-host",
-                scope = "inntektskomponenten-scope",
+                scope = OAuthScope("inntektskomponenten-scope"),
             ),
             Configuration.Inntektsmelding(
                 baseUrl = "http://localhost",
-                scope = "im-scope",
+                scope = OAuthScope("im-scope"),
             ),
             "test",
         )
     val userToken = oAuthMock.token()
 
-    fun oboTokenFor(scope: String) = "OBO-TOKEN_FOR_api://$scope/.default"
+    fun OAuthScope.oboTokenFor() = "OBO-TOKEN_FOR_api://$this/.default"
 
     private fun oboTokenForCreate(scope: String) = "OBO-TOKEN_FOR_$scope"
 

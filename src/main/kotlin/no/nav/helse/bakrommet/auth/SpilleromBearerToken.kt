@@ -1,16 +1,20 @@
-package no.nav.helse.bakrommet.util
+package no.nav.helse.bakrommet.auth
 
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.auth.OboClient
-import no.nav.helse.bakrommet.auth.OboToken
 
 class SpilleromBearerToken(private val token: String) {
     suspend fun exchangeWithObo(
         oboClient: OboClient,
-        scope: String,
+        scope: OAuthScope,
     ): OboToken {
         // her kan ev. caching ev this.token+scope -> oboToken være.
         return oboClient.exchangeToken(token, scope)
+    }
+}
+
+class OAuthScope(private val scope: String) {
+    override fun toString(): String {
+        return scope
     }
 }
 

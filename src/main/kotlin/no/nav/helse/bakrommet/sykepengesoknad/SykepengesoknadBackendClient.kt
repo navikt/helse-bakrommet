@@ -9,8 +9,8 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
-import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString

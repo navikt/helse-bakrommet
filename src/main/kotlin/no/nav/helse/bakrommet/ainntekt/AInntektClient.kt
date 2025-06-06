@@ -13,8 +13,8 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
-import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.YearMonth

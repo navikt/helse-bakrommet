@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.aareg
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
 import no.nav.helse.bakrommet.mockHttpClient
 import org.junit.jupiter.api.assertNotNull
 import org.slf4j.LoggerFactory
@@ -18,7 +19,7 @@ object AARegMock {
     fun aaregMockHttpClient(fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.respV2)) =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer ${TestOppsett.oboTokenFor("aareg-scope")}") {
+            if (auth != "Bearer ${TestOppsett.configuration.aareg.scope.oboTokenFor()}") {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
                 log.info("URL: " + request.url)

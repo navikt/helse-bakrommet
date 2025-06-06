@@ -1,5 +1,7 @@
 package no.nav.helse.bakrommet
 
+import no.nav.helse.bakrommet.auth.OAuthScope
+
 data class Configuration(
     val db: DB,
     val obo: OBO,
@@ -21,27 +23,27 @@ data class Configuration(
 
     data class PDL(
         val hostname: String,
-        val scope: String,
+        val scope: OAuthScope,
     )
 
     data class AAReg(
         val hostname: String,
-        val scope: String,
+        val scope: OAuthScope,
     )
 
     data class AInntekt(
         val hostname: String,
-        val scope: String,
+        val scope: OAuthScope,
     )
 
     data class SykepengesoknadBackend(
         val hostname: String,
-        val scope: String,
+        val scope: OAuthScope,
     )
 
     data class Inntektsmelding(
         val baseUrl: String,
-        val scope: String,
+        val scope: OAuthScope,
     )
 
     data class Auth(
@@ -58,7 +60,7 @@ data class Configuration(
                 obo = OBO(url = env.getValue("NAIS_TOKEN_EXCHANGE_ENDPOINT")),
                 pdl =
                     PDL(
-                        scope = env.getValue("PDL_SCOPE"),
+                        scope = OAuthScope(env.getValue("PDL_SCOPE")),
                         hostname = env.getValue("PDL_HOSTNAME"),
                     ),
                 auth =
@@ -70,22 +72,22 @@ data class Configuration(
                     ),
                 sykepengesoknadBackend =
                     SykepengesoknadBackend(
-                        scope = env.getValue("SYKEPENGESOKNAD_BACKEND_SCOPE"),
+                        scope = OAuthScope(env.getValue("SYKEPENGESOKNAD_BACKEND_SCOPE")),
                         hostname = env.getValue("SYKEPENGESOKNAD_BACKEND_HOSTNAME"),
                     ),
                 aareg =
                     AAReg(
-                        scope = env.getValue("AAREG_SCOPE"),
+                        scope = OAuthScope(env.getValue("AAREG_SCOPE")),
                         hostname = env.getValue("AAREG_HOSTNAME"),
                     ),
                 ainntekt =
                     AInntekt(
-                        scope = env.getValue("INNTEKTSKOMPONENTEN_SCOPE"),
+                        scope = OAuthScope(env.getValue("INNTEKTSKOMPONENTEN_SCOPE")),
                         hostname = env.getValue("INNTEKTSKOMPONENTEN_HOSTNAME"),
                     ),
                 inntektsmelding =
                     Inntektsmelding(
-                        scope = env.getValue("INNTEKTSMELDING_SCOPE"),
+                        scope = OAuthScope(env.getValue("INNTEKTSMELDING_SCOPE")),
                         baseUrl = env.getValue("INNTEKTSMELDING_BASE_URL"),
                     ),
                 naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
