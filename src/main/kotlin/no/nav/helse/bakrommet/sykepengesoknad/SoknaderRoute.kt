@@ -31,11 +31,7 @@ internal fun Route.soknaderRoute(
                     }
                 } ?: LocalDate.now().minusYears(1)
 
-            val oboToken =
-                oboClient.exchangeToken(
-                    bearerToken = call.request.bearerToken(),
-                    scope = configuration.sykepengesoknadBackend.scope,
-                )
+            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.sykepengesoknadBackend.scope)
             val soknader: List<SykepengesoknadDTO> =
                 sykepengesoknadBackendClient.hentSoknader(
                     sykepengesoknadToken = oboToken,
@@ -50,11 +46,7 @@ internal fun Route.soknaderRoute(
         call.medIdent(personDao) { fnr, personId ->
             val soknadId = call.parameters["soknadId"] ?: throw InputValideringException("Mangler søknadId")
 
-            val oboToken =
-                oboClient.exchangeToken(
-                    bearerToken = call.request.bearerToken(),
-                    scope = configuration.sykepengesoknadBackend.scope,
-                )
+            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.sykepengesoknadBackend.scope)
             val soknad: SykepengesoknadDTO =
                 sykepengesoknadBackendClient.hentSoknad(
                     sykepengesoknadToken = oboToken,

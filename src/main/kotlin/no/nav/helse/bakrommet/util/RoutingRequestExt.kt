@@ -1,9 +1,20 @@
 package no.nav.helse.bakrommet.util
 
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.OboToken
 
-fun RoutingRequest.bearerToken(): String {
+class SpilleromBearerToken(private val token: String) {
+    suspend fun exchangeWithObo(
+        oboClient: OboClient,
+        scope: String,
+    ): OboToken {
+        return oboClient.exchangeToken(token, scope)
+    }
+}
+
+fun RoutingRequest.bearerToken(): SpilleromBearerToken {
     val authHeader = headers["Authorization"]!!
     val token = authHeader.removePrefix("Bearer ").trim()
-    return token
+    return SpilleromBearerToken(token)
 }

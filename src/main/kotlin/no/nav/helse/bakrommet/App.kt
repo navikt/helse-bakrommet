@@ -25,6 +25,8 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.person.personsøkRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
@@ -103,6 +105,14 @@ internal fun Application.appModul(
     inntektsmeldingClient: InntektsmeldingClient,
     personDao: PersonDao = PersonDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
+    dokumentDao: DokumentDao = DokumentDao(dataSource),
+    dokumentHenter: DokumentHenter =
+        DokumentHenter(
+            personDao,
+            saksbehandlingsperiodeDao,
+            dokumentDao,
+            sykepengesoknadBackendClient,
+        ),
 ) {
     install(ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter(objectMapper))
@@ -122,7 +132,7 @@ internal fun Application.appModul(
             personsøkRoute(oboClient, configuration, pdlClient, personDao)
             personinfoRoute(oboClient, configuration, pdlClient, personDao)
             soknaderRoute(oboClient, configuration, sykepengesoknadBackendClient, personDao)
-            saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao)
+            saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao, dokumentHenter)
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
             arbeidsforholdRoute(oboClient, configuration, aaRegClient, personDao)
             ainntektRoute(oboClient, configuration, aInntektClient, personDao)

@@ -15,6 +15,7 @@ import java.util.*
 internal fun Route.saksbehandlingsperiodeRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
+    dokumentHenter: DokumentHenter,
 ) = route("/v1/{personId}/saksbehandlingsperioder") {
     data class CreatePeriodeRequest(
         val fom: String,
@@ -38,6 +39,9 @@ internal fun Route.saksbehandlingsperiodeRoute(
                     tom = LocalDate.parse(body.tom),
                 )
             saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+            if (body.søknader != null && body.søknader.isNotEmpty()) {
+                dokumentHenter.hentOgLagreSøknaderOgInntekter(nyPeriode.id, body.søknader)
+            }
             call.respondText(nyPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.Created)
         }
     }

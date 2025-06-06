@@ -33,11 +33,7 @@ internal fun Route.inntektsmeldingerRoute(
             val fom = parseLocalDateParam("fom")
             val tom = parseLocalDateParam("tom")
 
-            val oboToken =
-                oboClient.exchangeToken(
-                    bearerToken = call.request.bearerToken(),
-                    scope = configuration.inntektsmelding.scope,
-                )
+            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.inntektsmelding.scope)
             val inntektsmeldinger: JsonNode =
                 inntektsmeldingClient.hentInntektsmeldinger(
                     fnr = fnr,

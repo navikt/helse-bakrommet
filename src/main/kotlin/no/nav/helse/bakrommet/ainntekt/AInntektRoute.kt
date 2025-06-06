@@ -33,11 +33,7 @@ internal fun Route.ainntektRoute(
             val fom = parseYearMonthParam("fom")
             val tom = parseYearMonthParam("tom")
 
-            val oboToken =
-                oboClient.exchangeToken(
-                    bearerToken = call.request.bearerToken(),
-                    scope = configuration.ainntekt.scope,
-                )
+            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.ainntekt.scope)
             val inntekter: JsonNode =
                 aInntektClient.hentInntekterFor(
                     fnr = fnr,

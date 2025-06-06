@@ -26,11 +26,7 @@ internal fun Route.personsøkRoute(
             throw InputValideringException("Ident må være 11 eller 13 siffer lang")
         }
 
-        val oboToken =
-            oboClient.exchangeToken(
-                bearerToken = call.request.bearerToken(),
-                scope = configuration.pdl.scope,
-            )
+        val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.pdl.scope)
 
         val identer = pdlClient.hentIdenterFor(pdlToken = oboToken, ident = ident)
 

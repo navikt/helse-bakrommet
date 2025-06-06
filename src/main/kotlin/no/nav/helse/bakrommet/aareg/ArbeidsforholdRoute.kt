@@ -19,11 +19,7 @@ internal fun Route.arbeidsforholdRoute(
 ) {
     get("/v1/{personId}/arbeidsforhold") {
         call.medIdent(personDao) { fnr, personId ->
-            val oboToken =
-                oboClient.exchangeToken(
-                    bearerToken = call.request.bearerToken(),
-                    scope = configuration.aareg.scope,
-                )
+            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.aareg.scope)
             val arbeidsforhold: JsonNode =
                 aaRegClient.hentArbeidsforholdFor(
                     fnr = fnr,

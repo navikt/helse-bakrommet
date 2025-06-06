@@ -23,11 +23,7 @@ internal fun Route.personinfoRoute(
 ) {
     get("/v1/{personId}/personinfo") {
         call.medIdent(personDao) { fnr, personId ->
-            val oboToken =
-                oboClient.exchangeToken(
-                    bearerToken = call.request.bearerToken(),
-                    scope = configuration.pdl.scope,
-                )
+            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.pdl.scope)
 
             val hentPersonInfo =
                 pdlClient.hentPersonInfo(
