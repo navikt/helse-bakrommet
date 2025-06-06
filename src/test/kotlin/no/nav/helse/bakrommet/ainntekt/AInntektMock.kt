@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.ainntekt
 
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.bodyToJson
 import no.nav.helse.bakrommet.mockHttpClient
@@ -51,7 +50,8 @@ object AInntektMock {
 
     fun aInntektClientMock() =
         AInntektClient(
-            configuration = Configuration.AInntekt(hostname = "aareg-host", scope = "aareg-scope"),
+            configuration = TestOppsett.configuration.ainntekt,
+            oboClient = TestOppsett.oboClient,
             httpClient = ainntektMockHttpClient(),
         )
 }

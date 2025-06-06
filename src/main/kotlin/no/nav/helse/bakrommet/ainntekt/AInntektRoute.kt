@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
@@ -14,8 +12,6 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.YearMonth
 
 internal fun Route.ainntektRoute(
-    oboClient: OboClient,
-    configuration: Configuration,
     aInntektClient: AInntektClient,
     personDao: PersonDao,
 ) {
@@ -33,13 +29,12 @@ internal fun Route.ainntektRoute(
             val fom = parseYearMonthParam("fom")
             val tom = parseYearMonthParam("tom")
 
-            val oboToken = call.request.bearerToken().exchangeWithObo(oboClient, configuration.ainntekt.scope)
             val inntekter: JsonNode =
                 aInntektClient.hentInntekterFor(
                     fnr = fnr,
                     maanedFom = fom,
                     maanedTom = tom,
-                    ainntektToken = oboToken,
+                    saksbehandlerToken = call.request.bearerToken(),
                 )
             call.respondText(inntekter.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
         }

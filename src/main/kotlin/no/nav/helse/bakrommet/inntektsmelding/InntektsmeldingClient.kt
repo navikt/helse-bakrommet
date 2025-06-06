@@ -13,8 +13,9 @@ import io.ktor.serialization.jackson.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.LocalDate
@@ -22,6 +23,7 @@ import java.util.*
 
 class InntektsmeldingClient(
     private val configuration: Configuration.Inntektsmelding,
+    private val oboClient: OboClient,
     private val httpClient: HttpClient =
         HttpClient(Apache) {
             install(ContentNegotiation) {
@@ -29,17 +31,20 @@ class InntektsmeldingClient(
             }
         },
 ) {
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
+        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+
     suspend fun hentInntektsmeldinger(
         fnr: String,
         fom: LocalDate,
         tom: LocalDate,
-        inntektsmeldingToken: OboToken,
+        saksbehandlerToken: SpilleromBearerToken,
     ): JsonNode {
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
         val response =
             httpClient.post("${configuration.baseUrl}/api/v1/inntektsmelding/soek") {
-                headers[HttpHeaders.Authorization] = inntektsmeldingToken.somBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 header("Nav-Consumer-Id", "bakrommet-speilvendt")
                 header("no.nav.consumer.id", "bakrommet-speilvendt")
                 header("Nav-Call-Id", callId)

@@ -12,14 +12,16 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
+import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 
 class PdlClient(
     private val configuration: Configuration.PDL,
+    private val oboClient: OboClient,
     private val httpClient: HttpClient =
         HttpClient(Apache) {
             install(ContentNegotiation) {
@@ -27,6 +29,9 @@ class PdlClient(
             }
         },
 ) {
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
+        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+
     private val hentPersonQuery =
         """
         query(${"$"}ident: ID!){
@@ -82,12 +87,12 @@ class PdlClient(
     }
 
     suspend fun hentIdenterFor(
-        pdlToken: OboToken,
+        saksbehandlerToken: SpilleromBearerToken,
         ident: String,
     ): Set<String> {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
-                headers[HttpHeaders.Authorization] = pdlToken.somBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 contentType(ContentType.Application.Json)
                 setBody(hentIdenterRequest(ident = ident))
             }
@@ -120,12 +125,12 @@ class PdlClient(
     }
 
     suspend fun hentPersonInfo(
-        pdlToken: OboToken,
+        saksbehandlerToken: SpilleromBearerToken,
         ident: String,
     ): PersonInfo {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
-                headers[HttpHeaders.Authorization] = pdlToken.somBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 contentType(ContentType.Application.Json)
                 setBody(hentPersonRequest(ident = ident))
                 header("behandlingsnummer", "B139")

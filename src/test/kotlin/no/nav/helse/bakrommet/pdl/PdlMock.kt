@@ -41,6 +41,7 @@ object PdlMock {
     val pdlClient =
         PdlClient(
             configuration = TestOppsett.configuration.pdl,
+            oboClient = TestOppsett.oboClient,
             httpClient = mockPdl,
         )
 

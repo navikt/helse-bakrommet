@@ -40,10 +40,6 @@ fun String.somGyldigUUID(): UUID =
         throw InputValideringException("Ugyldig periodeUUID. Forventet UUID-format")
     }
 
-data class VurdertVilkårBody(
-    val vurdering: JsonNode,
-)
-
 private suspend inline fun ApplicationCall.medBehandlingsperiode(
     personDao: PersonDao,
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,

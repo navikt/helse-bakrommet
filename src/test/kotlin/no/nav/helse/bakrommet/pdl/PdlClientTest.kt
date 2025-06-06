@@ -2,33 +2,33 @@ package no.nav.helse.bakrommet.pdl
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.pdl.PdlMock.pdlClient
+import no.nav.helse.bakrommet.util.SpilleromBearerToken
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class PdlClientTest {
-    val token = OboToken(TestOppsett.oboTokenFor("PDL-scope"))
+    val token = SpilleromBearerToken(TestOppsett.userToken)
 
     @Test
     fun `returnerer identer`() {
-        val resp = runBlocking { pdlClient.hentIdenterFor(pdlToken = token, ident = "1234") }
+        val resp = runBlocking { pdlClient.hentIdenterFor(saksbehandlerToken = token, ident = "1234") }
         assertEquals(setOf("12345678910", "10987654321"), resp.toSet())
     }
 
     @Test
     fun `kaster PersonIkkeFunnetException ved ukjent ident (404)`() {
         assertThrows<PersonIkkeFunnetException> {
-            runBlocking { pdlClient.hentIdenterFor(pdlToken = token, ident = "5555") }
+            runBlocking { pdlClient.hentIdenterFor(saksbehandlerToken = token, ident = "5555") }
         }
     }
 
     @Test
     fun `kaster exception ved errors`() {
         assertThrows<RuntimeException> {
-            runBlocking { pdlClient.hentIdenterFor(pdlToken = token, ident = "error") }
+            runBlocking { pdlClient.hentIdenterFor(saksbehandlerToken = token, ident = "error") }
         }
     }
 }

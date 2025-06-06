@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.aareg
 
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.mockHttpClient
 import org.junit.jupiter.api.assertNotNull
@@ -48,7 +47,8 @@ object AARegMock {
 
     fun aaRegClientMock() =
         AARegClient(
-            configuration = Configuration.AAReg(hostname = "aareg-host", scope = "aareg-scope"),
+            configuration = TestOppsett.configuration.aareg,
+            oboClient = TestOppsett.oboClient,
             httpClient = aaregMockHttpClient(),
         )
 }

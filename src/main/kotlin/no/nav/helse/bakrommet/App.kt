@@ -62,16 +62,16 @@ internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(conf
 internal fun Application.settOppKtor(
     dataSource: DataSource,
     configuration: Configuration,
-    pdlClient: PdlClient = PdlClient(configuration.pdl),
     oboClient: OboClient = OboClient(configuration.obo),
+    pdlClient: PdlClient = PdlClient(configuration.pdl, oboClient),
     sykepengesoknadBackendClient: SykepengesoknadBackendClient =
         SykepengesoknadBackendClient(
             configuration.sykepengesoknadBackend,
             oboClient,
         ),
-    aaRegClient: AARegClient = AARegClient(configuration.aareg),
-    aInntektClient: AInntektClient = AInntektClient(configuration.ainntekt),
-    inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding),
+    aaRegClient: AARegClient = AARegClient(configuration.aareg, oboClient),
+    aInntektClient: AInntektClient = AInntektClient(configuration.ainntekt, oboClient),
+    inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient),
 ) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
@@ -133,14 +133,14 @@ internal fun Application.appModul(
 
     routing {
         authenticate("entraid") {
-            personsøkRoute(oboClient, configuration, pdlClient, personDao)
-            personinfoRoute(oboClient, configuration, pdlClient, personDao)
+            personsøkRoute(pdlClient, personDao)
+            personinfoRoute(pdlClient, personDao)
             soknaderRoute(sykepengesoknadBackendClient, personDao)
             saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao, dokumentHenter)
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
-            arbeidsforholdRoute(oboClient, configuration, aaRegClient, personDao)
-            ainntektRoute(oboClient, configuration, aInntektClient, personDao)
-            inntektsmeldingerRoute(oboClient, configuration, inntektsmeldingClient, personDao)
+            arbeidsforholdRoute(aaRegClient, personDao)
+            ainntektRoute(aInntektClient, personDao)
+            inntektsmeldingerRoute(inntektsmeldingClient, personDao)
 
             get("/v1/{personId}/dokumenter") {
                 call.respondText("[]", ContentType.Application.Json, HttpStatusCode.OK)

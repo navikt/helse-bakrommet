@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.inntektsmelding
 
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.bodyToJson
 import no.nav.helse.bakrommet.mockHttpClient
@@ -58,7 +57,8 @@ object InntektsmeldingApiMock {
 
     fun inntektsmeldingClientMock() =
         InntektsmeldingClient(
-            configuration = Configuration.Inntektsmelding(baseUrl = "http://localhost", scope = "im-scope"),
+            configuration = TestOppsett.configuration.inntektsmelding,
+            oboClient = TestOppsett.oboClient,
             httpClient = inntektsmeldingMockHttpClient(),
         )
 
