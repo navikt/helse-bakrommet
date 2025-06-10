@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.list
 import java.time.Instant
@@ -7,12 +8,12 @@ import java.util.*
 import javax.sql.DataSource
 
 data class Dokument(
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     val dokumentType: String,
     val eksternId: String?,
     val innhold: String,
-    val opprettet: Instant,
-    val request: String,
+    val opprettet: Instant = Instant.now(),
+    val request: Kildespor,
     val opprettetForBehandling: UUID,
 )
 
@@ -30,7 +31,7 @@ class DokumentDao(private val dataSource: DataSource) {
             "ekstern_id" to dokument.eksternId,
             "innhold" to dokument.innhold,
             "opprettet" to dokument.opprettet,
-            "request" to dokument.request,
+            "request" to dokument.request.kilde,
             "opprettet_for_behandling" to dokument.opprettetForBehandling,
         )
     }
@@ -48,7 +49,7 @@ class DokumentDao(private val dataSource: DataSource) {
                 eksternId = row.stringOrNull("ekstern_id"),
                 innhold = row.string("innhold"),
                 opprettet = row.instant("opprettet"),
-                request = row.string("request"),
+                request = Kildespor(kilde = row.string("request")),
                 opprettetForBehandling = row.uuid("opprettet_for_behandling"),
             )
         }

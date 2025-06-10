@@ -4,13 +4,14 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.nav.Saksbehandler
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.testutils.tidsstuttet
+import no.nav.helse.bakrommet.util.Kildespor
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
-import kotlin.test.assertEquals
 
 class DokumentDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
@@ -44,10 +45,10 @@ class DokumentDaoTest {
             Dokument(
                 id = UUID.randomUUID(),
                 dokumentType = "ainntekt_828",
-                eksternId = null,
+                eksternId = "søknad-1",
                 innhold = """{ "inntekter" : [] "}""",
                 opprettet = Instant.now(),
-                request = "GET inntekt",
+                request = Kildespor("GET /søknader/søknad-1"),
                 opprettetForBehandling = periode.id,
             )
         dao.opprettDokument(dok)
