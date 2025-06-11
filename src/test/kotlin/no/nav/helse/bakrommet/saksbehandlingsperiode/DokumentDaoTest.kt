@@ -52,7 +52,9 @@ class DokumentDaoTest {
                 opprettetForBehandling = periode.id,
             )
         dao.opprettDokument(dok)
-        val dokumenter = dao.hentDokumenterFor(periode.id)
-        assertEquals(listOf(dok).tidsstuttet(), dokumenter.tidsstuttet())
+
+        assertEquals(listOf(dok).tidsstuttet(), dao.hentDokumenterFor(periode.id).tidsstuttet())
+
+        assertEquals(dok.tidsstuttet(), dao.hentDokument(dok.id)?.tidsstuttet())
     }
 }

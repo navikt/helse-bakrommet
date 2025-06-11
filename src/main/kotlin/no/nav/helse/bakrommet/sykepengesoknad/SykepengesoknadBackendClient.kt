@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
+import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -74,13 +75,22 @@ class SykepengesoknadBackendClient(
         saksbehandlerToken: SpilleromBearerToken,
         id: String,
     ): SykepengesoknadDTO {
+        return hentSoknadMedSporing(saksbehandlerToken, id).first
+    }
+
+    suspend fun hentSoknadMedSporing(
+        saksbehandlerToken: SpilleromBearerToken,
+        id: String,
+    ): Pair<SykepengesoknadDTO, Kildespor> {
+        val url = "${configuration.hostname}/api/v3/soknader/$id"
+        val kildespor = Kildespor.fraHer(Throwable(), id, url) // Inkluder saksbehandlerident?
         val response =
-            httpClient.get("${configuration.hostname}/api/v3/soknader/$id") {
+            httpClient.get(url) {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 contentType(ContentType.Application.Json)
             }
         if (response.status == HttpStatusCode.OK) {
-            return response.body<SykepengesoknadDTO>()
+            return response.body<SykepengesoknadDTO>() to kildespor
         }
         if (response.status == HttpStatusCode.NotFound) {
             throw SoknadIkkeFunnetException("Søknad med id=$id ble ikke funnet")

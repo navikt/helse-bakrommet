@@ -40,9 +40,15 @@ internal fun Route.saksbehandlingsperiodeRoute(
                     tom = LocalDate.parse(body.tom),
                 )
             saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
-            if (body.søknader != null && body.søknader.isNotEmpty()) {
-                dokumentHenter.hentOgLagreSøknaderOgInntekter(nyPeriode.id, body.søknader, call.request.bearerToken())
-            }
+            val innhentedeDokumenter =
+                if (body.søknader != null && body.søknader.isNotEmpty()) {
+                    dokumentHenter.hentOgLagreSøknaderOgInntekter(nyPeriode.id, body.søknader, call.request.bearerToken())
+                } else {
+                    emptyList()
+                }
+
+            // TODO: Returner også innhentede dokumenter?
+
             call.respondText(nyPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.Created)
         }
     }

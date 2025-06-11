@@ -15,10 +15,13 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.YearMonth
 import java.util.*
+
+typealias Inntektoppslag = JsonNode
 
 class AInntektClient(
     private val configuration: Configuration.AInntekt,
@@ -42,11 +45,37 @@ class AInntektClient(
         maanedFom: YearMonth,
         maanedTom: YearMonth,
         saksbehandlerToken: SpilleromBearerToken,
-    ): JsonNode {
+    ): Inntektoppslag {
+        return hentInntekterForMedSporing(
+            fnr = fnr,
+            maanedFom = maanedFom,
+            maanedTom = maanedTom,
+            saksbehandlerToken = saksbehandlerToken,
+        ).first
+    }
+
+    suspend fun hentInntekterForMedSporing(
+        fnr: String,
+        maanedFom: YearMonth,
+        maanedTom: YearMonth,
+        saksbehandlerToken: SpilleromBearerToken,
+    ): Pair<Inntektoppslag, Kildespor> {
+        val ainntektsfilter = "8-28"
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
+        val url = "https://${configuration.hostname}/rs/api/v1/hentinntektliste"
+        val kildespor =
+            Kildespor.fraHer(
+                Throwable(),
+                fnr,
+                maanedFom,
+                maanedTom,
+                ainntektsfilter,
+                url,
+                callId,
+            ) // Inkluder saksbehandlerident?
         val response =
-            httpClient.post("https://${configuration.hostname}/rs/api/v1/hentinntektliste") {
+            httpClient.post(url) {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 header("Nav-Consumer-Id", "bakrommet-speilvendt")
                 header("Nav-Call-Id", callId)
@@ -61,7 +90,7 @@ class AInntektClient(
                                 put("aktoerType", "NATURLIG_IDENT")
                             },
                         )
-                        put("ainntektsfilter", "8-28") // TODO: Ev. 8-30 eller annet ?
+                        put("ainntektsfilter", ainntektsfilter) // TODO: Ev. 8-30 eller annet ?
                         put("formaal", "Sykepenger")
                         put("maanedFom", maanedFom.toString())
                         put("maanedTom", maanedTom.toString())
@@ -70,7 +99,7 @@ class AInntektClient(
             }
         if (response.status == HttpStatusCode.OK) {
             logg.info("Got response from inntektskomponenten $callIdDesc")
-            return response.body<JsonNode>()
+            return response.body<JsonNode>() to kildespor
         } else {
             logg.error("Feil under henting av inntekter: ${response.status}, Se secureLog for detaljer $callIdDesc")
             sikkerLogger.error("Feil under henting av inntekter: ${response.status} - ${response.bodyAsText()} $callIdDesc")
