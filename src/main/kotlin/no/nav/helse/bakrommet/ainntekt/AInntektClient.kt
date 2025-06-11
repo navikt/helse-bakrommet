@@ -74,6 +74,7 @@ class AInntektClient(
                 url,
                 callId,
             ) // Inkluder saksbehandlerident?
+        val timer = Timer()
         val response =
             httpClient.post(url) {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
@@ -98,17 +99,25 @@ class AInntektClient(
                 )
             }
         if (response.status == HttpStatusCode.OK) {
-            logg.info("Got response from inntektskomponenten $callIdDesc")
+            logg.info("Got response from inntektskomponenten $callIdDesc etter ${timer.millisekunder} ms")
             return response.body<JsonNode>() to kildespor
         } else {
-            logg.error("Feil under henting av inntekter: ${response.status}, Se secureLog for detaljer $callIdDesc")
+            logg.error(
+                "Feil under henting av inntekter etter ${timer.millisekunder} ms: ${response.status}, Se secureLog for detaljer $callIdDesc",
+            )
             sikkerLogger.error("Feil under henting av inntekter: ${response.status} - ${response.bodyAsText()} $callIdDesc")
             if (response.status == HttpStatusCode.Forbidden) {
                 throw ForbiddenException("Ikke tilstrekkelig tilgang i A-Inntekt")
             }
             throw RuntimeException(
-                "Feil ved henting av arbeidsforhold, status=${response.status.value}, callId=$callId",
+                "Feil ved henting av inntekter, status=${response.status.value}, callId=$callId",
             )
         }
     }
+}
+
+private class Timer {
+    val startMS: Long = System.currentTimeMillis()
+    val millisekunder: Long
+        get() = System.currentTimeMillis() - startMS
 }

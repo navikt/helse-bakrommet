@@ -49,10 +49,153 @@ object AInntektMock {
             }
         }
 
-    fun aInntektClientMock() =
+    fun aInntektClientMock(fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.resp)) =
         AInntektClient(
             configuration = TestOppsett.configuration.ainntekt,
             oboClient = TestOppsett.oboClient,
-            httpClient = ainntektMockHttpClient(),
+            httpClient = ainntektMockHttpClient(fnrTilSvar),
         )
 }
+
+fun etInntektSvar(
+    fnr: String = AInntektMock.Person1.fnr,
+    virksomhet: String = "999999999",
+    opplysningspliktig: String = "888888888",
+) = """
+    {
+      "arbeidsInntektMaaned": [
+        {
+          "aarMaaned": "2022-09",
+          "arbeidsInntektInformasjon": {
+            "inntektListe": [
+              {
+                "inntektType": "LOENNSINNTEKT",
+                "beloep": 12000.0,
+                "fordel": "kontantytelse",
+                "inntektskilde": "A-ordningen",
+                "inntektsperiodetype": "Maaned",
+                "inntektsstatus": "LoependeInnrapportert",
+                "utbetaltIMaaned": "2022-09",
+                "opplysningspliktig": {
+                  "identifikator": "$opplysningspliktig",
+                  "aktoerType": "ORGANISASJON"
+                },
+                "virksomhet": {
+                  "identifikator": "$virksomhet",
+                  "aktoerType": "ORGANISASJON"
+                },
+                "inntektsmottaker": {
+                  "identifikator": "$fnr",
+                  "aktoerType": "NATURLIG_IDENT"
+                },
+                "inngaarIGrunnlagForTrekk": true,
+                "utloeserArbeidsgiveravgift": true,
+                "informasjonsstatus": "InngaarAlltid",
+                "beskrivelse": "fastloenn"
+              }
+            ]
+          }
+        },
+        {
+          "aarMaaned": "2022-10",
+          "arbeidsInntektInformasjon": {
+            "inntektListe": [
+              {
+                "inntektType": "LOENNSINNTEKT",
+                "beloep": 12000.0,
+                "fordel": "kontantytelse",
+                "inntektskilde": "A-ordningen",
+                "inntektsperiodetype": "Maaned",
+                "inntektsstatus": "LoependeInnrapportert",
+                "utbetaltIMaaned": "2022-10",
+                "opplysningspliktig": {
+                  "identifikator": "$opplysningspliktig",
+                  "aktoerType": "ORGANISASJON"
+                },
+                "virksomhet": {
+                  "identifikator": "$virksomhet",
+                  "aktoerType": "ORGANISASJON"
+                },
+                "inntektsmottaker": {
+                  "identifikator": "$fnr",
+                  "aktoerType": "NATURLIG_IDENT"
+                },
+                "inngaarIGrunnlagForTrekk": true,
+                "utloeserArbeidsgiveravgift": true,
+                "informasjonsstatus": "InngaarAlltid",
+                "beskrivelse": "fastloenn"
+              }
+            ]
+          }
+        },
+        {
+          "aarMaaned": "2022-08",
+          "arbeidsInntektInformasjon": {
+            "inntektListe": [
+              {
+                "inntektType": "LOENNSINNTEKT",
+                "beloep": 12000.0,
+                "fordel": "kontantytelse",
+                "inntektskilde": "A-ordningen",
+                "inntektsperiodetype": "Maaned",
+                "inntektsstatus": "LoependeInnrapportert",
+                "utbetaltIMaaned": "2022-08",
+                "opplysningspliktig": {
+                  "identifikator": "$opplysningspliktig",
+                  "aktoerType": "ORGANISASJON"
+                },
+                "virksomhet": {
+                  "identifikator": "$virksomhet",
+                  "aktoerType": "ORGANISASJON"
+                },
+                "inntektsmottaker": {
+                  "identifikator": "$fnr",
+                  "aktoerType": "NATURLIG_IDENT"
+                },
+                "inngaarIGrunnlagForTrekk": true,
+                "utloeserArbeidsgiveravgift": true,
+                "informasjonsstatus": "InngaarAlltid",
+                "beskrivelse": "fastloenn"
+              }
+            ]
+          }
+        },
+        {
+          "aarMaaned": "2022-11",
+          "arbeidsInntektInformasjon": {
+            "inntektListe": [
+              {
+                "inntektType": "LOENNSINNTEKT",
+                "beloep": 12000.0,
+                "fordel": "kontantytelse",
+                "inntektskilde": "A-ordningen",
+                "inntektsperiodetype": "Maaned",
+                "inntektsstatus": "LoependeInnrapportert",
+                "utbetaltIMaaned": "2022-11",
+                "opplysningspliktig": {
+                  "identifikator": "$opplysningspliktig",
+                  "aktoerType": "ORGANISASJON"
+                },
+                "virksomhet": {
+                  "identifikator": "$virksomhet",
+                  "aktoerType": "ORGANISASJON"
+                },
+                "inntektsmottaker": {
+                  "identifikator": "$fnr",
+                  "aktoerType": "NATURLIG_IDENT"
+                },
+                "inngaarIGrunnlagForTrekk": true,
+                "utloeserArbeidsgiveravgift": true,
+                "informasjonsstatus": "InngaarAlltid",
+                "beskrivelse": "fastloenn"
+              }
+            ]
+          }
+        }
+      ],
+      "ident": {
+        "identifikator": "$fnr",
+        "aktoerType": "NATURLIG_IDENT"
+      }
+    }    
+    """.trimIndent()

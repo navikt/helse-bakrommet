@@ -16,7 +16,17 @@ object AppEnvironment {
             "imagename" to imagename(),
         )
 
-    fun callsiteInfo(t: Throwable) = appInstanceInfo() + Pair("callsite", t.stackTrace[0].toString())
+    fun callsiteInfo(t: Throwable) =
+        appInstanceInfo() +
+            Pair(
+                "callsite",
+                t.stackTrace
+                    .filter {
+                        it.toString().let { str ->
+                            str.contains(".kt:") && str.contains("no.nav.helse.bakrommet")
+                        }
+                    }.take(3).toString(),
+            )
 }
 
 data class Kildespor(val kilde: String) {

@@ -38,7 +38,7 @@ class DokumentHenter(
 
         val søknader: List<Dokument> =
             søknadsIder.map { søknadId ->
-                logg.info("Henter søknad med id={}", søknadId)
+                logg.info("Henter søknad med id={} for periode={}", søknadId, periode.id)
                 soknadClient.hentSoknadMedSporing(
                     saksbehandlerToken = spilleromBearerToken,
                     id = søknadId.toString(),
@@ -55,6 +55,7 @@ class DokumentHenter(
                 }
             }
 
+        logg.info("Henter inntekter for periode={}", periode.id)
         val inntekt: Dokument =
             aInntektClient.hentInntekterForMedSporing(
                 fnr = fnr,

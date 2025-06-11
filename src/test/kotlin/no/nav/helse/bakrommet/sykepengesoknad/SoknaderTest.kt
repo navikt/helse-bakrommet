@@ -134,10 +134,12 @@ class SoknaderTest {
 
 fun String.toJson() = objectMapper.readTree(this)
 
-fun enSøknad(fnr: String = SoknaderTest.fnr) =
-    """
+fun enSøknad(
+    fnr: String = SoknaderTest.fnr,
+    id: String = "b8079801-ff72-3e31-ad48-118df088343b",
+) = """
     {
-        "id": "b8079801-ff72-3e31-ad48-118df088343b",
+        "id": "$id",
         "type": "FRISKMELDT_TIL_ARBEIDSFORMIDLING",
         "status": "NY",
         "fnr": "$fnr",

@@ -28,17 +28,19 @@ class SykepengesoknadBackendClient(
             }
         },
 ) {
-    private fun hentSoknaderRequest(
-        fnr: String,
-        fom: LocalDate,
-    ): String {
+    companion object {
         data class HentSoknaderRequest(
             val fnr: String,
             val medSporsmal: Boolean = false,
             val fom: LocalDate,
             val tom: LocalDate,
         )
+    }
 
+    private fun hentSoknaderRequest(
+        fnr: String,
+        fom: LocalDate,
+    ): String {
         return HentSoknaderRequest(
             fnr = fnr,
             fom = fom,

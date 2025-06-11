@@ -16,8 +16,10 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
+import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import javax.sql.DataSource
 
 object TestOppsett {
@@ -76,12 +78,14 @@ object TestOppsett {
 class Daoer(
     val personDao: PersonDao,
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
+    val dokumentDao: DokumentDao,
 ) {
     companion object {
         fun instansier(dataSource: DataSource): Daoer {
             return Daoer(
                 PersonDao(dataSource),
                 SaksbehandlingsperiodeDao(dataSource),
+                DokumentDao(dataSource),
             )
         }
     }
@@ -93,11 +97,7 @@ fun runApplicationTest(
     pdlClient: PdlClient = PdlMock.pdlClient,
     oboClient: OboClient = TestOppsett.oboClient,
     resetDatabase: Boolean = true,
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient =
-        SykepengesoknadBackendClient(
-            configuration = TestOppsett.configuration.sykepengesoknadBackend,
-            oboClient = oboClient,
-        ),
+    sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient = AInntektMock.aInntektClientMock(),
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(),
