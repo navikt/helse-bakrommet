@@ -109,13 +109,13 @@ class SaksbehandlingsperiodeTest {
 
             perioder.size `should equal` 1
             val periode = perioder.first()
-            val dokumenter = it.dokumentDao.hentDokumenterFor(periode.id)
+            val dokumenterFraDB = it.dokumentDao.hentDokumenterFor(periode.id)
 
-            assertEquals(3, dokumenter.size)
-            dokumenter.find { it.eksternId == søknad1.first }!!.also {
+            assertEquals(3, dokumenterFraDB.size)
+            dokumenterFraDB.find { it.eksternId == søknad1.first }!!.also {
                 assertEquals(søknad1.second.asJsonNode(), it.innhold.asJsonNode())
             }
-            dokumenter.find { it.eksternId == søknad2.first }!!.also { dok ->
+            dokumenterFraDB.find { it.eksternId == søknad2.first }!!.also { dok ->
                 assertEquals(søknad2.second.asJsonNode(), dok.innhold.asJsonNode())
                 assertTrue(
                     listOf(
@@ -129,7 +129,7 @@ class SaksbehandlingsperiodeTest {
                     "Fant ikke alt som var forventet i ${dok.request.kilde}",
                 ) // TODO: Outsource til egen dedikert test?
             }
-            dokumenter.find { it.dokumentType == "ainntekt828" }!!.also { dok ->
+            dokumenterFraDB.find { it.dokumentType == "ainntekt828" }!!.also { dok ->
                 assertEquals(inntekter.second.asJsonNode(), dok.innhold.asJsonNode())
                 assertTrue(
                     listOf(
@@ -146,6 +146,13 @@ class SaksbehandlingsperiodeTest {
                     "Fant ikke alt som var forventet i ${dok.request.kilde}",
                 ) // TODO: Outsource til egen dedikert test?
             }
+
+            val dokumenter: List<Dokument> =
+                client.get("/v1/$personId/saksbehandlingsperioder/${periode.id}/dokumenter") {
+                    bearerAuth(TestOppsett.userToken)
+                }.bodyAsText().somListe()
+
+            assertEquals(dokumenterFraDB.toSet(), dokumenter.toSet())
         }
     }
 }

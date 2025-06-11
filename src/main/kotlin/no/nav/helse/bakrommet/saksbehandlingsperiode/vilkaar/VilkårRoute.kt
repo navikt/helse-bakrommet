@@ -3,16 +3,14 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.medInputvalidering
 import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.person.medIdent
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.util.*
 
@@ -39,21 +37,6 @@ fun String.somGyldigUUID(): UUID =
     } catch (ex: IllegalArgumentException) {
         throw InputValideringException("Ugyldig periodeUUID. Forventet UUID-format")
     }
-
-private suspend inline fun ApplicationCall.medBehandlingsperiode(
-    personDao: PersonDao,
-    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    crossinline block: suspend (saksbehandlingsperiode: Saksbehandlingsperiode) -> Unit,
-) {
-    this.medIdent(personDao) { fnr, spilleromPersonId ->
-        val periodeId = parameters["periodeUUID"]!!.somGyldigUUID()
-        val periode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)!!
-        if (periode.spilleromPersonId != spilleromPersonId) {
-            throw InputValideringException("Ugyldig saksbehandlingsperiode")
-        }
-        block(periode)
-    }
-}
 
 internal fun Route.saksbehandlingsperiodeVilkårRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
