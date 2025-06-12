@@ -13,7 +13,6 @@ data class DokumentDto(
     val innhold: JsonNode,
     val opprettet: Instant,
     val request: Kildespor,
-    val opprettetForBehandling: UUID,
 )
 
 fun Dokument.tilDto(): DokumentDto =
@@ -24,5 +23,4 @@ fun Dokument.tilDto(): DokumentDto =
         innhold = innhold.asJsonNode(),
         opprettet = opprettet,
         request = request,
-        opprettetForBehandling = opprettetForBehandling,
     )
