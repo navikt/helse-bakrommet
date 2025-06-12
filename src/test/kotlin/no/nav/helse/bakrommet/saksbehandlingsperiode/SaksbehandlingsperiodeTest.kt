@@ -147,12 +147,12 @@ class SaksbehandlingsperiodeTest {
                 ) // TODO: Outsource til egen dedikert test?
             }
 
-            val dokumenter: List<Dokument> =
+            val dokumenter: List<DokumentDto> =
                 client.get("/v1/$personId/saksbehandlingsperioder/${periode.id}/dokumenter") {
                     bearerAuth(TestOppsett.userToken)
                 }.bodyAsText().somListe()
 
-            assertEquals(dokumenterFraDB.toSet(), dokumenter.toSet())
+            assertEquals(dokumenterFraDB.map { it.tilDto() }.toSet(), dokumenter.toSet())
         }
     }
 }

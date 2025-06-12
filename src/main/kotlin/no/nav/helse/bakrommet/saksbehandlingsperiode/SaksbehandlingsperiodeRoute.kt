@@ -101,7 +101,8 @@ internal fun Route.saksbehandlingsperiodeRoute(
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val dokumenter = dokumentDao.hentDokumenterFor(periode.id)
-                call.respondText(dokumenter.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+                val dokumenterDto = dokumenter.map { it.tilDto() }
+                call.respondText(dokumenterDto.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }
         }
     }
