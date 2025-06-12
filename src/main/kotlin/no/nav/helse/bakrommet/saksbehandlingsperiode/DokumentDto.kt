@@ -25,4 +25,4 @@ fun Dokument.tilDto(): DokumentDto =
         opprettet = opprettet,
         request = request,
         opprettetForBehandling = opprettetForBehandling,
-    ) 
+    )

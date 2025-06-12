@@ -142,10 +142,6 @@ internal fun Application.appModul(
             arbeidsforholdRoute(aaRegClient, personDao)
             ainntektRoute(aInntektClient, personDao)
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
-
-            get("/v1/{personId}/dokumenter") {
-                call.respondText("[]", ContentType.Application.Json, HttpStatusCode.OK)
-            }
         }
     }
 }
