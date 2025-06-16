@@ -27,11 +27,14 @@ internal fun Route.soknaderRoute(
                     }
                 } ?: LocalDate.now().minusYears(1)
 
+            val medSporsmal = call.request.queryParameters["medSporsmal"]?.toBoolean() ?: false
+
             val soknader: List<SykepengesoknadDTO> =
                 sykepengesoknadBackendClient.hentSoknader(
                     saksbehandlerToken = call.request.bearerToken(),
                     fnr = fnr,
                     fom,
+                    medSporsmal = medSporsmal,
                 )
             call.respondText(soknader.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
         }
