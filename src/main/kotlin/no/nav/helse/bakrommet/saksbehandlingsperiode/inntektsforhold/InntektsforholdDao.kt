@@ -1,13 +1,34 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
 
+import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Row
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.list
 import no.nav.helse.bakrommet.util.single
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
+
+data class InntektsforholdDTO(
+    val id: UUID,
+    val inntektsforholdType: String,
+    val sykmeldtFraForholdet: Boolean,
+    val orgnummer: String?,
+    val orgnavn: String?,
+    val dagoversikt: JsonNode,
+)
+
+fun Inntektsforhold.tilDto() =
+    InntektsforholdDTO(
+        id = id,
+        inntektsforholdType = inntektsforholdType,
+        sykmeldtFraForholdet = sykmeldtFraForholdet,
+        orgnummer = orgnummer,
+        orgnavn = orgnavn,
+        dagoversikt = dagoversikt.asJsonNode(),
+    )
 
 data class Inntektsforhold(
     val id: UUID,
