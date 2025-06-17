@@ -28,6 +28,8 @@ import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
@@ -77,7 +79,6 @@ internal fun Application.settOppKtor(
     helsesjekker()
     appModul(
         dataSource,
-        oboClient,
         pdlClient,
         configuration,
         sykepengesoknadBackendClient,
@@ -100,7 +101,6 @@ internal fun Application.helsesjekker() {
 
 internal fun Application.appModul(
     dataSource: DataSource,
-    oboClient: OboClient,
     pdlClient: PdlClient,
     configuration: Configuration,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
@@ -108,6 +108,7 @@ internal fun Application.appModul(
     aInntektClient: AInntektClient,
     inntektsmeldingClient: InntektsmeldingClient,
     personDao: PersonDao = PersonDao(dataSource),
+    inntektsforholdDao: InntektsforholdDao = InntektsforholdDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
     dokumentDao: DokumentDao = DokumentDao(dataSource),
     dokumentHenter: DokumentHenter =
@@ -142,6 +143,7 @@ internal fun Application.appModul(
             arbeidsforholdRoute(aaRegClient, personDao)
             ainntektRoute(aInntektClient, personDao)
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
+            saksbehandlingsperiodeInntektsforholdRoute(saksbehandlingsperiodeDao, personDao, inntektsforholdDao)
         }
     }
 }
