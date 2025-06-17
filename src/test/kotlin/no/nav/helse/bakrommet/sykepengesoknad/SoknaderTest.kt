@@ -8,6 +8,9 @@ import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -134,46 +137,63 @@ class SoknaderTest {
 
 fun String.toJson() = objectMapper.readTree(this)
 
+@Language("JSON")
 fun enSøknad(
     fnr: String = SoknaderTest.fnr,
     id: String = "b8079801-ff72-3e31-ad48-118df088343b",
+    type: SoknadstypeDTO = SoknadstypeDTO.ARBEIDSTAKERE,
+    arbeidssituasjon: ArbeidssituasjonDTO = ArbeidssituasjonDTO.ARBEIDSTAKER,
 ) = """
     {
         "id": "$id",
-        "type": "FRISKMELDT_TIL_ARBEIDSFORMIDLING",
-        "status": "NY",
+        "type": "$type",
+        "status": "SENDT",
         "fnr": "$fnr",
-        "sykmeldingId": null,
-        "arbeidsgiver": null,
-        "arbeidssituasjon": null,
+        "sykmeldingId": "03482797-aed5-40db-afe3-48508bc088b0",
+        "arbeidsgiver": {
+            "navn": "Stolt Handlende Fjellrev",
+            "orgnummer": "315149363"
+        },
+        "arbeidssituasjon": "$arbeidssituasjon",
         "korrigerer": null,
         "korrigertAv": null,
         "soktUtenlandsopphold": false,
         "arbeidsgiverForskutterer": null,
-        "fom": "2025-03-17",
-        "tom": "2025-03-30",
+        "fom": "2025-05-28",
+        "tom": "2025-06-19",
         "dodsdato": null,
-        "startSyketilfelle": "2025-03-17",
+        "startSyketilfelle": "2025-05-28",
         "arbeidGjenopptatt": null,
         "friskmeldt": null,
-        "sykmeldingSkrevet": null,
-        "opprettet": "2025-04-09T09:49:31.037206",
+        "sykmeldingSkrevet": "2025-05-28T02:00:00",
+        "opprettet": "2025-06-04T14:35:57.036992",
         "opprinneligSendt": null,
         "sendtNav": null,
-        "sendtArbeidsgiver": null,
+        "sendtArbeidsgiver": "2025-06-20T10:05:01.775524021",
         "egenmeldinger": null,
         "fravarForSykmeldingen": [],
         "papirsykmeldinger": [],
         "fravar": [],
         "andreInntektskilder": [],
-        "soknadsperioder": [],
+        "soknadsperioder": [
+            {
+                "fom": "2025-05-28",
+                "tom": "2025-06-19",
+                "sykmeldingsgrad": 100,
+                "faktiskGrad": null,
+                "avtaltTimer": null,
+                "faktiskTimer": null,
+                "sykmeldingstype": "AKTIVITET_IKKE_MULIG",
+                "grad": 100
+            }
+        ],
         "sporsmal": [],
-        "avsendertype": null,
+        "avsendertype": "BRUKER",
         "ettersending": false,
-        "mottaker": null,
-        "egenmeldtSykmelding": null,
+        "mottaker": "ARBEIDSGIVER_OG_NAV",
+        "egenmeldtSykmelding": false,
         "yrkesskade": null,
-        "arbeidUtenforNorge": null,
+        "arbeidUtenforNorge": false,
         "harRedusertVenteperiode": null,
         "behandlingsdager": [],
         "permitteringer": [],
@@ -183,15 +203,15 @@ fun enSøknad(
         "sendTilGosys": null,
         "utenlandskSykmelding": false,
         "medlemskapVurdering": null,
-        "forstegangssoknad": false,
+        "forstegangssoknad": true,
         "tidligereArbeidsgiverOrgnummer": null,
         "fiskerBlad": null,
         "inntektFraNyttArbeidsforhold": [],
         "selvstendigNaringsdrivende": null,
-        "friskTilArbeidVedtakId": "fc8ea85d-6ff2-4c50-965b-5fbfe6e4c320",
-        "friskTilArbeidVedtakPeriode": "{\"fom\":\"2025-03-17\",\"tom\":\"2025-04-30\"}",
-        "fortsattArbeidssoker": false,
-        "inntektUnderveis": false,
-        "ignorerArbeidssokerregister": true
-    }    
+        "friskTilArbeidVedtakId": null,
+        "friskTilArbeidVedtakPeriode": null,
+        "fortsattArbeidssoker": null,
+        "inntektUnderveis": null,
+        "ignorerArbeidssokerregister": null
+    }
     """.trimIndent()
