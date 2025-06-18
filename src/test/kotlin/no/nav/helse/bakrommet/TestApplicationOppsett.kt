@@ -1,7 +1,9 @@
 package no.nav.helse.bakrommet
 
 import io.ktor.client.engine.mock.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
@@ -21,6 +23,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
+import no.nav.helse.bakrommet.util.objectMapper
 import javax.sql.DataSource
 
 object TestOppsett {
@@ -121,5 +124,12 @@ fun runApplicationTest(
             inntektsmeldingClient = inntektsmeldingClient,
         )
     }
+    client =
+        createClient {
+            install(ContentNegotiation) {
+                register(ContentType.Application.Json, JacksonConverter(objectMapper))
+            }
+        }
+
     testBlock(Daoer.instansier(dataSource))
 }

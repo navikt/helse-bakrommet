@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.*
+import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.etInntektSvar
+import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDTO
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -19,7 +17,6 @@ import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.somListe
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import org.intellij.lang.annotations.Language
@@ -87,8 +84,8 @@ class SaksbehandlingFlytTest {
                 AInntektMock.aInntektClientMock(
                     fnrTilSvar = mapOf(inntekter),
                 ),
-        ) {
-            it.personDao.opprettPerson(fnr, personId)
+        ) { daoer ->
+            daoer.personDao.opprettPerson(fnr, personId)
             client.post("/v1/$personId/saksbehandlingsperioder") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -106,11 +103,11 @@ class SaksbehandlingFlytTest {
                     bearerAuth(TestOppsett.userToken)
                 }
             assertEquals(200, allePerioder.status.value)
-            val perioder: List<Saksbehandlingsperiode> = allePerioder.bodyAsText().somListe()
+            val perioder: List<Saksbehandlingsperiode> = allePerioder.body()
 
             perioder.size `should equal` 1
             val periode = perioder.first()
-            val dokumenterFraDB = it.dokumentDao.hentDokumenterFor(periode.id)
+            val dokumenterFraDB = daoer.dokumentDao.hentDokumenterFor(periode.id)
 
             assertEquals(5, dokumenterFraDB.size)
             dokumenterFraDB.find { it.eksternId == søknad1.first }!!.also {
@@ -155,7 +152,7 @@ class SaksbehandlingFlytTest {
             val dokumenter: List<DokumentDto> =
                 client.get("/v1/$personId/saksbehandlingsperioder/${periode.id}/dokumenter") {
                     bearerAuth(TestOppsett.userToken)
-                }.bodyAsText().somListe()
+                }.body()
 
             assertEquals(dokumenterFraDB.map { it.tilDto() }.toSet(), dokumenter.toSet())
 
@@ -170,7 +167,7 @@ class SaksbehandlingFlytTest {
 
             client.get("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
                 bearerAuth(TestOppsett.userToken)
-            }.bodyAsText().somListe<InntektsforholdDTO>().also { inntektsforhold ->
+            }.body<List<InntektsforholdDTO>>().also { inntektsforhold ->
                 assertEquals(3, inntektsforhold.size)
                 assertEquals(
                     setOf("123321123", null, "654321123"),
@@ -187,7 +184,7 @@ class SaksbehandlingFlytTest {
                     }
             }
 
-            it.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
+            daoer.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
                 inntektsforholdFraDB.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!
                     .apply {
                         assertEquals(arbgiver1ForventetKategorisering, kategorisering)
@@ -235,12 +232,6 @@ class SaksbehandlingFlytTest {
                     }
                 }
                 """.trimIndent()
-            val client =
-                createClient {
-                    install(ContentNegotiation) {
-                        register(ContentType.Application.Json, JacksonConverter(objectMapper))
-                    }
-                }
 
             client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
                 bearerAuth(TestOppsett.userToken)
