@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.testutils.tidsstuttet
+import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -46,13 +47,14 @@ class InntektsforholdDaoTest {
         val inntektsforhold =
             Inntektsforhold(
                 id = UUID.randomUUID(),
-                inntektsforholdType = "ARBEIDSTAKER",
+                kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
+                kategoriseringGenerert = null,
                 sykmeldtFraForholdet = true,
-                orgnummer = "999777444",
-                orgnavn = "NiSjuFire",
-                dagoversikt = "[]",
+                dagoversikt = """[]""".asJsonNode(),
+                dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = periode.id,
                 opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
             )
         val ekko = dao.opprettInntektsforhold(inntektsforhold)
         assertEquals(inntektsforhold.tidsstuttet(), ekko.tidsstuttet())
@@ -69,13 +71,14 @@ class InntektsforholdDaoTest {
         val inntektsforhold =
             Inntektsforhold(
                 id = UUID.randomUUID(),
-                inntektsforholdType = "ARBEIDSTAKER",
+                kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
+                kategoriseringGenerert = null,
                 sykmeldtFraForholdet = true,
-                orgnummer = "999777444",
-                orgnavn = "NiSjuFire",
-                dagoversikt = "[]",
+                dagoversikt = """[]""".asJsonNode(),
+                dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = ugyldigPeriodeId,
                 opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
             )
 
         assertThrows<SQLException> {

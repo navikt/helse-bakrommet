@@ -1,13 +1,17 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Row
-import no.nav.helse.bakrommet.util.Kildespor
-import no.nav.helse.bakrommet.util.insert
-import no.nav.helse.bakrommet.util.list
-import no.nav.helse.bakrommet.util.single
+import no.nav.helse.bakrommet.util.*
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.Instant
 import java.util.*
 import javax.sql.DataSource
+
+object DokumentType {
+    val søknad = "søknad"
+    val aInntekt828 = "ainntekt828"
+}
 
 data class Dokument(
     val id: UUID = UUID.randomUUID(),
@@ -17,7 +21,12 @@ data class Dokument(
     val opprettet: Instant = Instant.now(),
     val request: Kildespor,
     val opprettetForBehandling: UUID,
-)
+) {
+    fun somSøknad(): SykepengesoknadDTO {
+        check(dokumentType == DokumentType.søknad)
+        return objectMapper.readValue<SykepengesoknadDTO>(innhold)
+    }
+}
 
 class DokumentDao(private val dataSource: DataSource) {
     fun opprettDokument(dokument: Dokument): Dokument {

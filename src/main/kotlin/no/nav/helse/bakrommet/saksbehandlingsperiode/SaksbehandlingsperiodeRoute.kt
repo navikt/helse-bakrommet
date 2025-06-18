@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -11,9 +10,9 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
-import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentHenter.Companion.DokumentType
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.somGyldigUUID
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
@@ -84,7 +83,6 @@ internal fun Route.saksbehandlingsperiodeRoute(
                     }
                 val søknader =
                     innhentedeDokumenter.filter { it.dokumentType == DokumentType.søknad }
-                        .map { objectMapper.readValue<SykepengesoknadDTO>(it.innhold) }
                 lagInntektsforholdFraSøknader(søknader, nyPeriode).forEach(inntektsforholdDao::opprettInntektsforhold)
 
                 // TODO: Returner også innhentede dokumenter?
@@ -121,39 +119,54 @@ internal fun Route.saksbehandlingsperiodeRoute(
     }
 }
 
-fun lagInntektsforholdFraSøknader(
-    sykepengesoknader: Iterable<SykepengesoknadDTO>,
-    saksbehandlingsperiode: Saksbehandlingsperiode,
-): MutableList<Inntektsforhold> {
-    return sykepengesoknader.map { soknad ->
-        Inntektsforhold(
-            id = UUID.randomUUID(),
-            inntektsforholdType = soknad.finnInntektsforholdType(),
-            sykmeldtFraForholdet = false,
-            orgnummer = soknad.arbeidsgiver?.orgnummer,
-            orgnavn = soknad.arbeidsgiver?.navn,
-            dagoversikt = "[]",
-            saksbehandlingsperiodeId = saksbehandlingsperiode.id,
-            opprettet = OffsetDateTime.now(),
-        )
-    }.fold(mutableListOf()) { alle, inntektsforhold ->
-        alle.find { it.orgnummer == inntektsforhold.orgnummer }?.let {
-            alle.remove(it)
-            alle.add(it.slåSammenDager(inntektsforhold.dagoversikt))
-        } ?: alle.add(inntektsforhold)
-        alle
+fun SykepengesoknadDTO.kategorisering(): Kategorisering {
+    return objectMapper.createObjectNode().apply {
+        val soknad = this@kategorisering
+        put("INNTEKTSKATEGORI", soknad.bestemInntektskategori())
+        val orgnummer = soknad.arbeidsgiver?.orgnummer
+        val orgnavn = soknad.arbeidsgiver?.navn
+        if (orgnummer != null) {
+            put("ORGNUMMER", orgnummer)
+            if (orgnavn != null) {
+                put("ORGNAVN", orgnavn)
+            }
+        }
     }
 }
 
-private fun SykepengesoknadDTO.finnInntektsforholdType() =
+fun lagInntektsforholdFraSøknader(
+    sykepengesoknader: Iterable<Dokument>,
+    saksbehandlingsperiode: Saksbehandlingsperiode,
+): List<Inntektsforhold> {
+    val kategorierOgSøknader =
+        sykepengesoknader
+            .groupBy { dokument -> dokument.somSøknad().kategorisering() }
+
+    return kategorierOgSøknader.map { (kategorisering, dok) ->
+        val dagoversikt = objectMapper.createArrayNode()
+        Inntektsforhold(
+            id = UUID.randomUUID(),
+            kategorisering = kategorisering,
+            kategoriseringGenerert = kategorisering,
+            sykmeldtFraForholdet = true,
+            dagoversikt = dagoversikt,
+            dagoversiktGenerert = dagoversikt,
+            saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+            opprettet = OffsetDateTime.now(),
+            generertFraDokumenter = dok.map { it.id },
+        )
+    }
+}
+
+private fun SykepengesoknadDTO.bestemInntektskategori() =
     when (arbeidssituasjon) {
         ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
         ArbeidssituasjonDTO.FISKER -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
         ArbeidssituasjonDTO.JORDBRUKER -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
         ArbeidssituasjonDTO.FRILANSER -> InntektsforholdType.FRILANSER
-        ArbeidssituasjonDTO.ARBEIDSTAKER -> InntektsforholdType.ORDINÆRT_ARBEIDSFORHOLD
-        ArbeidssituasjonDTO.ARBEIDSLEDIG -> InntektsforholdType.ARBEIDSLEDIG
-        ArbeidssituasjonDTO.ANNET -> "ANNET"
+        ArbeidssituasjonDTO.ARBEIDSTAKER -> InntektsforholdType.ARBEIDSTAKER
+        ArbeidssituasjonDTO.ARBEIDSLEDIG -> InntektsforholdType.INAKTIV
+        ArbeidssituasjonDTO.ANNET -> InntektsforholdType.ANNET
         null -> {
             logg.warn("'null'-verdi for arbeidssituasjon for søknad med id={}", id)
             "IKKE SATT"
@@ -162,8 +175,9 @@ private fun SykepengesoknadDTO.finnInntektsforholdType() =
 
 // kopiert fra frontend:
 private enum class InntektsforholdType {
-    ORDINÆRT_ARBEIDSFORHOLD,
+    ARBEIDSTAKER,
     FRILANSER,
     SELVSTENDIG_NÆRINGSDRIVENDE,
-    ARBEIDSLEDIG,
+    INAKTIV,
+    ANNET,
 }

@@ -16,13 +16,6 @@ class DokumentHenter(
     private val soknadClient: SykepengesoknadBackendClient,
     private val aInntektClient: AInntektClient,
 ) {
-    companion object {
-        object DokumentType {
-            val søknad = "søknad"
-            val aInntekt828 = "ainntekt828"
-        }
-    }
-
     suspend fun hentOgLagreSøknaderOgInntekter(
         saksbehandlingsperiodeId: UUID,
         søknadsIder: List<UUID>,

@@ -24,3 +24,13 @@ fun String.asJsonNode(): JsonNode {
 fun Any.toJsonNode(): JsonNode {
     return objectMapper.readTree(objectMapper.writeValueAsString(this))
 }
+
+inline fun <reified T> String.somListe(): List<T> {
+    return objectMapper.readValue(
+        this,
+        objectMapper.typeFactory.constructCollectionType(
+            List::class.java,
+            T::class.java,
+        ),
+    )
+}

@@ -5,9 +5,9 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.bakrommet.testutils.somListe
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

@@ -11,8 +11,8 @@ import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.bakrommet.testutils.somListe
 import no.nav.helse.bakrommet.util.asJsonNode
+import no.nav.helse.bakrommet.util.somListe
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -156,7 +156,20 @@ class SaksbehandlingFlytTest {
                 }.bodyAsText().somListe()
 
             assertEquals(3, inntektsforhold.size)
-            assertEquals(setOf("123321123", null, "654321123"), inntektsforhold.map { it.orgnummer }.toSet())
+            assertEquals(setOf("123321123", null, "654321123"), inntektsforhold.map { it.kategorisering["ORGNUMMER"]?.asText() }.toSet())
+
+            inntektsforhold.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!.apply {
+                assertEquals(
+                    """
+                    {
+                         "INNTEKTSKATEGORI": "ARBEIDSTAKER",
+                         "ORGNUMMER":"123321123",
+                         "ORGNAVN":"navn for AG 1"
+                    }
+                    """.trimIndent().asJsonNode(),
+                    kategorisering,
+                )
+            }
         }
     }
 }
