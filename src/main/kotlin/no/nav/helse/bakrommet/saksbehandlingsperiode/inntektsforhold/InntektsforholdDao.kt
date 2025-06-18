@@ -13,6 +13,7 @@ data class InntektsforholdDTO(
     val kategorisering: JsonNode,
     val sykmeldtFraForholdet: Boolean,
     val dagoversikt: JsonNode,
+    val generertFraDokumenter: List<UUID>,
 )
 
 fun Inntektsforhold.tilDto() =
@@ -21,6 +22,7 @@ fun Inntektsforhold.tilDto() =
         kategorisering = kategorisering,
         sykmeldtFraForholdet = sykmeldtFraForholdet,
         dagoversikt = dagoversikt,
+        generertFraDokumenter = generertFraDokumenter,
     )
 
 typealias Kategorisering = JsonNode

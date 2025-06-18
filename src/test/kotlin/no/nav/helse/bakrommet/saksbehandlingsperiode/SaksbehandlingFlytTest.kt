@@ -150,25 +150,68 @@ class SaksbehandlingFlytTest {
 
             assertEquals(dokumenterFraDB.map { it.tilDto() }.toSet(), dokumenter.toSet())
 
-            val inntektsforhold: List<InntektsforholdDTO> =
-                client.get("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
-                    bearerAuth(TestOppsett.userToken)
-                }.bodyAsText().somListe()
+            val arbgiver1ForventetKategorisering =
+                """
+                {
+                     "INNTEKTSKATEGORI": "ARBEIDSTAKER",
+                     "ORGNUMMER":"123321123",
+                     "ORGNAVN":"navn for AG 1"
+                }
+                """.trimIndent().asJsonNode()
 
-            assertEquals(3, inntektsforhold.size)
-            assertEquals(setOf("123321123", null, "654321123"), inntektsforhold.map { it.kategorisering["ORGNUMMER"]?.asText() }.toSet())
-
-            inntektsforhold.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!.apply {
+            client.get("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                bearerAuth(TestOppsett.userToken)
+            }.bodyAsText().somListe<InntektsforholdDTO>().also { inntektsforhold ->
+                assertEquals(3, inntektsforhold.size)
                 assertEquals(
+                    setOf("123321123", null, "654321123"),
+                    inntektsforhold.map { it.kategorisering["ORGNUMMER"]?.asText() }.toSet(),
+                )
+
+                inntektsforhold.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!
+                    .apply {
+                        assertEquals(arbgiver1ForventetKategorisering, kategorisering)
+                        assertEquals(
+                            listOf(dokumenterFraDB.find { it.eksternId == søknad1.first }!!.id),
+                            this.generertFraDokumenter,
+                        )
+                    }
+            }
+
+            it.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
+                inntektsforholdFraDB.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!
+                    .apply {
+                        assertEquals(arbgiver1ForventetKategorisering, kategorisering)
+                        assertEquals(
+                            listOf(dokumenterFraDB.find { it.eksternId == søknad1.first }!!.id),
+                            this.generertFraDokumenter,
+                        )
+                    }
+
+                val arbgiver2ForventetKategorisering =
                     """
                     {
                          "INNTEKTSKATEGORI": "ARBEIDSTAKER",
-                         "ORGNUMMER":"123321123",
-                         "ORGNAVN":"navn for AG 1"
+                         "ORGNUMMER":"${arbeidsgiver2.identifikator}",
+                         "ORGNAVN":"${arbeidsgiver2.navn}"
                     }
-                    """.trimIndent().asJsonNode(),
-                    kategorisering,
-                )
+                    """.trimIndent().asJsonNode()
+
+                inntektsforholdFraDB.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver2.identifikator }!!
+                    .apply {
+                        assertEquals(arbgiver2ForventetKategorisering, kategorisering)
+                        val dokIder =
+                            dokumenterFraDB.filter { it.eksternId in listOf(søknad3.first, søknad3b.first) }
+                                .map { it.id }
+                        assertEquals(2, dokIder.size)
+                        assertEquals(
+                            dokIder.toSet(),
+                            this.generertFraDokumenter.toSet(),
+                        )
+                        assertEquals(kategorisering, kategoriseringGenerert)
+                        assertEquals(dagoversikt, dagoversiktGenerert)
+                        assertTrue(sykmeldtFraForholdet)
+                    }
             }
         }
     }
