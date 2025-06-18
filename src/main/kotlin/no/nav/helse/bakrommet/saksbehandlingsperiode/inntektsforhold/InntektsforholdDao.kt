@@ -39,7 +39,9 @@ data class Inntektsforhold(
     val dagoversikt: String,
     val saksbehandlingsperiodeId: UUID,
     val opprettet: OffsetDateTime,
-)
+) {
+    fun slåSammenDager(dager: String) = copy(dagoversikt = dagoversikt + dager)
+}
 
 class InntektsforholdDao(private val dataSource: DataSource) {
     fun opprettInntektsforhold(inntektsforhold: Inntektsforhold): Inntektsforhold {

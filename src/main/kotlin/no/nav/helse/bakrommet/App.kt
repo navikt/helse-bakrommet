@@ -138,7 +138,7 @@ internal fun Application.appModul(
             personsøkRoute(pdlClient, personDao)
             personinfoRoute(pdlClient, personDao)
             soknaderRoute(sykepengesoknadBackendClient, personDao)
-            saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao, dokumentHenter, dokumentDao)
+            saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao, dokumentHenter, dokumentDao, inntektsforholdDao)
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
             arbeidsforholdRoute(aaRegClient, personDao)
             ainntektRoute(aInntektClient, personDao)

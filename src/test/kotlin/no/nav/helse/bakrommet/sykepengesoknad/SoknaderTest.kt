@@ -6,6 +6,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
+import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo.Companion.tilJson
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
@@ -23,7 +24,10 @@ class SoknaderTest {
                 logg.error("feil header: $auth")
                 respondError(HttpStatusCode.Unauthorized)
             } else {
-                if (request.url.toString().contains("/api/v3/soknader/") && !request.url.toString().endsWith("/api/v3/soknader")) {
+                if (request.url.toString().contains("/api/v3/soknader/") &&
+                    !request.url.toString()
+                        .endsWith("/api/v3/soknader")
+                ) {
                     // Single søknad request
                     val soknadId = request.url.toString().split("/").last()
                     if (soknadId == "b8079801-ff72-3e31-ad48-118df088343b") {
@@ -137,12 +141,34 @@ class SoknaderTest {
 
 fun String.toJson() = objectMapper.readTree(this)
 
+data class Arbeidsgiverinfo(val identifikator: String, val navn: String) {
+    companion object {
+        fun Arbeidsgiverinfo?.tilJson(): String {
+            return if (this == null) {
+                "null"
+            } else {
+                """
+                {
+                    "navn": "$navn",
+                    "orgnummer": "$identifikator"
+                }
+                """.trimIndent()
+            }
+        }
+    }
+}
+
 @Language("JSON")
 fun enSøknad(
     fnr: String = SoknaderTest.fnr,
     id: String = "b8079801-ff72-3e31-ad48-118df088343b",
     type: SoknadstypeDTO = SoknadstypeDTO.ARBEIDSTAKERE,
     arbeidssituasjon: ArbeidssituasjonDTO = ArbeidssituasjonDTO.ARBEIDSTAKER,
+    arbeidsgiverinfo: Arbeidsgiverinfo? =
+        Arbeidsgiverinfo(
+            identifikator = "315149363",
+            navn = "Stolt Handlende Fjellrev",
+        ),
 ) = """
     {
         "id": "$id",
@@ -150,10 +176,7 @@ fun enSøknad(
         "status": "SENDT",
         "fnr": "$fnr",
         "sykmeldingId": "03482797-aed5-40db-afe3-48508bc088b0",
-        "arbeidsgiver": {
-            "navn": "Stolt Handlende Fjellrev",
-            "orgnummer": "315149363"
-        },
+        "arbeidsgiver": ${arbeidsgiverinfo.tilJson()},
         "arbeidssituasjon": "$arbeidssituasjon",
         "korrigerer": null,
         "korrigertAv": null,
