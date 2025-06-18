@@ -1,8 +1,14 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.module.kotlin.readValue
+import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.etInntektSvar
@@ -12,12 +18,15 @@ import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.somListe
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import java.util.*
 
 class SaksbehandlingFlytTest {
@@ -80,17 +89,17 @@ class SaksbehandlingFlytTest {
                 ),
         ) {
             it.personDao.opprettPerson(fnr, personId)
-            val response =
-                client.post("/v1/$personId/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.first}", "${søknad2.first}", "${søknad3.first}", "${søknad3b.first}"] }
-                        """.trimIndent(),
-                    )
-                }
-            assertEquals(201, response.status.value)
+            client.post("/v1/$personId/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """
+                    { "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.first}", "${søknad2.first}", "${søknad3.first}", "${søknad3b.first}"] }
+                    """.trimIndent(),
+                )
+            }.let { response ->
+                assertEquals(201, response.status.value)
+            }
 
             val allePerioder =
                 client.get("/v1/$personId/saksbehandlingsperioder") {
@@ -192,8 +201,8 @@ class SaksbehandlingFlytTest {
                     """
                     {
                          "INNTEKTSKATEGORI": "ARBEIDSTAKER",
-                         "ORGNUMMER":"${arbeidsgiver2.identifikator}",
-                         "ORGNAVN":"${arbeidsgiver2.navn}"
+                         "ORGNUMMER": "${arbeidsgiver2.identifikator}",
+                         "ORGNAVN": "${arbeidsgiver2.navn}"
                     }
                     """.trimIndent().asJsonNode()
 
@@ -212,6 +221,39 @@ class SaksbehandlingFlytTest {
                         assertEquals(dagoversikt, dagoversiktGenerert)
                         assertTrue(sykmeldtFraForholdet)
                     }
+            }
+
+            @Language("json")
+            val kategorisering =
+                """
+                {
+                    "kategorisering": {
+                        "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
+                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER",
+                        "FISKER_BLAD": "FISKER_BLAD_B",
+                        "ER_SYKMELDT": "ER_SYKMELDT_JA"
+                    }
+                }
+                """.trimIndent()
+            val client =
+                createClient {
+                    install(ContentNegotiation) {
+                        register(ContentType.Application.Json, JacksonConverter(objectMapper))
+                    }
+                }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(kategorisering)
+            }.let { response ->
+                assertEquals(201, response.status.value)
+                val body = response.body<JsonNode>()
+                assertEquals(
+                    (objectMapper.readValue(kategorisering) as ObjectNode)["kategorisering"],
+                    body["kategorisering"],
+                )
+                assertDoesNotThrow { UUID.fromString(body["id"].asText()) }
             }
         }
     }
