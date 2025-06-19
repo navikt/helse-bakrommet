@@ -78,10 +78,23 @@ tasks {
     test {
         useJUnitPlatform()
         testLogging {
-            events("PASSED", "FAILED", "SKIPPED")
+            events("FAILED", "SKIPPED")
             exceptionFormat = FULL
             showStackTraces = true
         }
+        afterSuite(
+            KotlinClosure2<TestDescriptor, TestResult, Any>(
+                { desc, result ->
+                    if (desc.parent == null) {
+                        println(
+                            result.run {
+                                "Testresultat: $resultType ($testCount tests, $successfulTestCount successes, $failedTestCount failures, $skippedTestCount skipped)"
+                            },
+                        )
+                    }
+                },
+            ),
+        )
     }
 
     shadowJar {
