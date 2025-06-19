@@ -94,7 +94,7 @@ data class InntektsforholdCreateRequest(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,
             kategoriseringGenerert = null,
-            sykmeldtFraForholdet = kategorisering["ER_SYKMELDT"].asText() == "ER_SYKMELDT_JA",
+            sykmeldtFraForholdet = kategorisering["ER_SYKMELDT"]?.asText() == "ER_SYKMELDT_JA" ?: true,
             dagoversikt = "[]".asJsonNode(),
             dagoversiktGenerert = null,
             saksbehandlingsperiodeId = behandlingsperiodeId,
