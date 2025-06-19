@@ -34,3 +34,5 @@ inline fun <reified T> String.somListe(): List<T> {
         ),
     )
 }
+
+inline fun <reified T> JsonNode.deserialize(): T = objectMapper.convertValue(this, T::class.java)

@@ -42,7 +42,7 @@ data class Inntektsforhold(
 
 class InntektsforholdDao(private val dataSource: DataSource) {
     fun opprettInntektsforhold(inntektsforhold: Inntektsforhold): Inntektsforhold {
-        dataSource.insert(
+        dataSource.update(
             """
             insert into inntektsforhold
                 (id, kategorisering, kategorisering_generert, sykmeldt_fra_forholdet, 
@@ -98,4 +98,18 @@ class InntektsforholdDao(private val dataSource: DataSource) {
                 row
                     .stringOrNull("generert_fra_dokumenter")?.somListe<UUID>() ?: emptyList(),
         )
+
+    fun oppdaterKategorisering(
+        inntektsforhold: Inntektsforhold,
+        kategorisering: JsonNode,
+    ): Inntektsforhold {
+        dataSource.update(
+            """
+            update inntektsforhold set kategorisering = :kategorisering where id = :id
+            """.trimIndent(),
+            "id" to inntektsforhold.id,
+            "kategorisering" to kategorisering.serialisertTilString(),
+        )
+        return hentInntektsforhold(inntektsforhold.id)!!
+    }
 }

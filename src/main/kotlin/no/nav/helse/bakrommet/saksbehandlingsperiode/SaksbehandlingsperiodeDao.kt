@@ -5,9 +5,9 @@ import kotliquery.Row
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.OpprettetEllerEndret
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
-import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.list
 import no.nav.helse.bakrommet.util.single
+import no.nav.helse.bakrommet.util.update
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -82,7 +82,7 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
         )
 
     fun opprettPeriode(periode: Saksbehandlingsperiode) {
-        dataSource.insert(
+        dataSource.update(
             """
             insert into saksbehandlingsperiode
                 (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom)

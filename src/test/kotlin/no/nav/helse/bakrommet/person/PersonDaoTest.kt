@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.person
 
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.single
+import no.nav.helse.bakrommet.util.update
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import kotlin.test.assertEquals
@@ -64,7 +64,7 @@ internal class PersonDaoTest {
         fnr: String,
         spilleromId: String,
     ) {
-        dataSource.insert(
+        dataSource.update(
             """
             insert into ident (spillerom_id, naturlig_ident)
             values (:spilleromId, :fnr)

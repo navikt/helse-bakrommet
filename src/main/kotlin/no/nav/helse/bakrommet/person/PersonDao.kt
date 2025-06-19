@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.person
 
-import no.nav.helse.bakrommet.util.insert
 import no.nav.helse.bakrommet.util.single
+import no.nav.helse.bakrommet.util.update
 import javax.sql.DataSource
 
 class PersonDao(private val dataSource: DataSource) {
@@ -24,7 +24,7 @@ class PersonDao(private val dataSource: DataSource) {
         naturligIdent: String,
         spilleromId: String,
     ) {
-        dataSource.insert(
+        dataSource.update(
             """
             insert into ident (spillerom_id, naturlig_ident)
             values (:spillerom_id, :naturlig_ident)

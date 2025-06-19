@@ -14,7 +14,7 @@ fun <T> DataSource.single(
     session.run(queryOf(sql, params.toMap()).map(mapper).asSingle)
 }
 
-fun DataSource.insert(
+fun DataSource.update(
     @Language("postgresql") sql: String,
     vararg params: Pair<String, Any?>,
 ) = sessionOf(this, strict = true).use { session -> session.run(queryOf(sql, params.toMap()).asUpdate) }

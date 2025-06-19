@@ -2,18 +2,37 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.somGyldigUUID
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.OffsetDateTime
 import java.util.*
+
+internal suspend inline fun ApplicationCall.medInntektsforhold(
+    personDao: PersonDao,
+    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
+    inntektsforholdDao: InntektsforholdDao,
+    crossinline block: suspend (inntektsforhold: Inntektsforhold) -> Unit,
+) {
+    this.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
+        val inntektsforholdId = parameters["inntektsforholdUUID"]!!.somGyldigUUID()
+        val inntektsforhold =
+            inntektsforholdDao.hentInntektsforhold(inntektsforholdId)
+                ?: throw IkkeFunnetException("Inntektsforhold ikke funnet")
+        check(inntektsforhold.saksbehandlingsperiodeId == periode.id)
+        block(inntektsforhold)
+    }
+}
 
 internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
@@ -53,8 +72,15 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
             }
         }
 
-        put("/{inntektsforhold}") {
+        route("/{inntektsforholdUUID}") {
             put("/dagoversikt") {
+            }
+            put("/kategorisering") {
+                val kategorisering = call.receive<JsonNode>()
+                call.medInntektsforhold(personDao, saksbehandlingsperiodeDao, inntektsforholdDao) { inntektsforhold ->
+                    inntektsforholdDao.oppdaterKategorisering(inntektsforhold, kategorisering)
+                }
+                call.respond(HttpStatusCode.NoContent)
             }
         }
     }

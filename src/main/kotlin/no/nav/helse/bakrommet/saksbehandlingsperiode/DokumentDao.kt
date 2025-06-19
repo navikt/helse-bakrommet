@@ -30,7 +30,7 @@ data class Dokument(
 
 class DokumentDao(private val dataSource: DataSource) {
     fun opprettDokument(dokument: Dokument): Dokument {
-        dataSource.insert(
+        dataSource.update(
             """
             insert into dokument
                 (id, dokument_type, ekstern_id, innhold, opprettet, request, opprettet_for_behandling)

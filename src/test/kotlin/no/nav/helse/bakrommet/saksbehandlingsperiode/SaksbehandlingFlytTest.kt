@@ -1,8 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -16,7 +14,7 @@ import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.deserialize
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import org.intellij.lang.annotations.Language
@@ -225,18 +223,49 @@ class SaksbehandlingFlytTest {
                 }
                 """.trimIndent()
 
-            client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+            val opprettetInntektsforholdId =
+                client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(kategorisering)
+                }.let { response ->
+                    assertEquals(201, response.status.value)
+                    val body = response.body<JsonNode>()
+                    assertEquals(
+                        kategorisering.asJsonNode()["kategorisering"],
+                        body["kategorisering"],
+                    )
+                    val id = body["id"].asText()
+                    assertDoesNotThrow { UUID.fromString(id) }
+                    assertDoesNotThrow { val dto = body.deserialize<InntektsforholdDTO>() }
+                    UUID.fromString(id)
+                }
+
+            @Language("json")
+            val nyKategorisering =
+                """
+                {
+                    "INNTEKTSKATEGORI": "ARBEIDSTAKER_ELLER_NOE_SÅNT",
+                    "ER_SYKMELDT": "ER_SYKMELDT_NEI"
+                }
+                """.trimIndent()
+
+            client.put("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold/$opprettetInntektsforholdId/kategorisering") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody(kategorisering)
+                setBody(nyKategorisering)
             }.let { response ->
-                assertEquals(201, response.status.value)
-                val body = response.body<JsonNode>()
-                assertEquals(
-                    (objectMapper.readValue(kategorisering) as ObjectNode)["kategorisering"],
-                    body["kategorisering"],
-                )
-                assertDoesNotThrow { UUID.fromString(body["id"].asText()) }
+                assertEquals(204, response.status.value)
+            }
+
+            daoer.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
+                inntektsforholdFraDB.filter { it.id == opprettetInntektsforholdId }.also {
+                    assertEquals(1, it.size)
+                    assertEquals(
+                        nyKategorisering.asJsonNode(),
+                        it.first().kategorisering,
+                    )
+                }
             }
         }
     }

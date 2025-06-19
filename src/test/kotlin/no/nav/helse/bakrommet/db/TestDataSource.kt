@@ -45,6 +45,7 @@ object TestDataSource {
 
         dbModule.dataSource.execute("truncate table saksbehandlingsperiode$cascade")
         dbModule.dataSource.execute("truncate table ident$cascade")
+        dbModule.dataSource.execute("truncate table inntektsforhold$cascade")
 
         if (!testcontainers) {
             dbModule.dataSource.execute("SET REFERENTIAL_INTEGRITY TO TRUE")
