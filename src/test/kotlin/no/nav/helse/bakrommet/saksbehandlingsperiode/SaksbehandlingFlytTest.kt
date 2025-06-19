@@ -237,7 +237,7 @@ class SaksbehandlingFlytTest {
                     )
                     val id = body["id"].asText()
                     assertDoesNotThrow { UUID.fromString(id) }
-                    assertDoesNotThrow { val dto = body.deserialize<InntektsforholdDTO>() }
+                    assertDoesNotThrow { body.deserialize<InntektsforholdDTO>() }
                     UUID.fromString(id)
                 }
 

@@ -25,11 +25,13 @@ internal suspend inline fun ApplicationCall.medInntektsforhold(
     crossinline block: suspend (inntektsforhold: Inntektsforhold) -> Unit,
 ) {
     this.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-        val inntektsforholdId = parameters["inntektsforholdUUID"]!!.somGyldigUUID()
+        val inntektsforholdId = parameters["inntektsforholdUUID"].somGyldigUUID()
         val inntektsforhold =
             inntektsforholdDao.hentInntektsforhold(inntektsforholdId)
                 ?: throw IkkeFunnetException("Inntektsforhold ikke funnet")
-        check(inntektsforhold.saksbehandlingsperiodeId == periode.id)
+        require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
+            "Inntektsforhold (id=$inntektsforholdId) tilhører ikke behandlingsperiode (id=${periode.id})"
+        }
         block(inntektsforhold)
     }
 }
@@ -94,7 +96,7 @@ data class InntektsforholdCreateRequest(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,
             kategoriseringGenerert = null,
-            sykmeldtFraForholdet = kategorisering["ER_SYKMELDT"]?.asText() == "ER_SYKMELDT_JA" ?: true,
+            sykmeldtFraForholdet = kategorisering["ER_SYKMELDT"].run { !isMissingNode && asText() == "ER_SYKMELDT_JA" },
             dagoversikt = "[]".asJsonNode(),
             dagoversiktGenerert = null,
             saksbehandlingsperiodeId = behandlingsperiodeId,
