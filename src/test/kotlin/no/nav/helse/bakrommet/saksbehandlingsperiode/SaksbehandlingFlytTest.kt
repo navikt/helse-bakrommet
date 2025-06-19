@@ -45,40 +45,32 @@ class SaksbehandlingFlytTest {
                 navn = "navn for AG 2",
             )
         val søknad1 =
-            UUID.randomUUID().toString().let {
-                it to enSøknad(fnr = fnr, id = it, arbeidsgiverinfo = arbeidsgiver1)
-            }
+            enSøknad(fnr = fnr, id = UUID.randomUUID().toString(), arbeidsgiverinfo = arbeidsgiver1).asJsonNode()
         val søknad2 =
-            UUID.randomUUID().toString().let {
-                it to
-                    enSøknad(
-                        fnr = fnr,
-                        id = it,
-                        type = SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE,
-                        arbeidssituasjon = ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE,
-                        arbeidsgiverinfo = null,
-                    )
-            }
+            enSøknad(
+                fnr = fnr,
+                id = UUID.randomUUID().toString(),
+                type = SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE,
+                arbeidssituasjon = ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE,
+                arbeidsgiverinfo = null,
+            ).asJsonNode()
+
         val søknad3 =
-            UUID.randomUUID().toString().let {
-                it to enSøknad(fnr = fnr, id = it, arbeidsgiverinfo = arbeidsgiver2)
-            }
+            enSøknad(fnr = fnr, id = UUID.randomUUID().toString(), arbeidsgiverinfo = arbeidsgiver2).asJsonNode()
         val søknad3b =
-            UUID.randomUUID().toString().let {
-                it to enSøknad(fnr = fnr, id = it, arbeidsgiverinfo = arbeidsgiver2)
-            }
+            enSøknad(fnr = fnr, id = UUID.randomUUID().toString(), arbeidsgiverinfo = arbeidsgiver2).asJsonNode()
 
         val inntekter = fnr to etInntektSvar(fnr = fnr)
         runApplicationTest(
             sykepengesoknadBackendClient =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
                     søknadIdTilSvar =
-                        mapOf(
+                        setOf(
                             søknad1,
                             søknad2,
                             søknad3,
                             søknad3b,
-                        ),
+                        ).associateBy { it.søknadId },
                 ),
             aInntektClient =
                 AInntektMock.aInntektClientMock(
@@ -91,7 +83,7 @@ class SaksbehandlingFlytTest {
                 contentType(ContentType.Application.Json)
                 setBody(
                     """
-                    { "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.first}", "${søknad2.first}", "${søknad3.first}", "${søknad3b.first}"] }
+                    { "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.søknadId}", "${søknad2.søknadId}", "${søknad3.søknadId}", "${søknad3b.søknadId}"] }
                     """.trimIndent(),
                 )
             }.let { response ->
@@ -110,27 +102,27 @@ class SaksbehandlingFlytTest {
             val dokumenterFraDB = daoer.dokumentDao.hentDokumenterFor(periode.id)
 
             assertEquals(5, dokumenterFraDB.size)
-            dokumenterFraDB.find { it.eksternId == søknad1.first }!!.also {
-                assertEquals(søknad1.second.asJsonNode(), it.innhold.asJsonNode())
+            dokumenterFraDB.find { it.eksternId == søknad1.søknadId }!!.also {
+                assertEquals(søknad1, it.innhold.asJsonNode())
             }
-            dokumenterFraDB.find { it.eksternId == søknad2.first }!!.also { dok ->
-                assertEquals(søknad2.second.asJsonNode(), dok.innhold.asJsonNode())
+            dokumenterFraDB.find { it.eksternId == søknad2.søknadId }!!.also { dok ->
+                assertEquals(søknad2, dok.innhold.asJsonNode())
                 assertTrue(
                     listOf(
                         "SykepengesoknadBackendClient.kt",
                         "DokumentHenter.kt",
-                        "sykepengesoknad-backend/api/v3/soknader/${søknad2.first}",
+                        "sykepengesoknad-backend/api/v3/soknader/${søknad2.søknadId}",
                     ).all { spor ->
                         dok.request.kilde.contains(spor)
                     },
                     "Fant ikke alt som var forventet i ${dok.request.kilde}",
                 ) // TODO: Outsource til egen dedikert test?
             }
-            dokumenterFraDB.find { it.eksternId == søknad3.first }!!.also {
-                assertEquals(søknad3.second.asJsonNode(), it.innhold.asJsonNode())
+            dokumenterFraDB.find { it.eksternId == søknad3.søknadId }!!.also {
+                assertEquals(søknad3, it.innhold.asJsonNode())
             }
-            dokumenterFraDB.find { it.eksternId == søknad3b.first }!!.also {
-                assertEquals(søknad3b.second.asJsonNode(), it.innhold.asJsonNode())
+            dokumenterFraDB.find { it.eksternId == søknad3b.søknadId }!!.also {
+                assertEquals(søknad3b, it.innhold.asJsonNode())
             }
             dokumenterFraDB.find { it.dokumentType == "ainntekt828" }!!.also { dok ->
                 assertEquals(inntekter.second.asJsonNode(), dok.innhold.asJsonNode())
@@ -178,7 +170,7 @@ class SaksbehandlingFlytTest {
                     .apply {
                         assertEquals(arbgiver1ForventetKategorisering, kategorisering)
                         assertEquals(
-                            listOf(dokumenterFraDB.find { it.eksternId == søknad1.first }!!.id),
+                            listOf(dokumenterFraDB.find { it.eksternId == søknad1.søknadId }!!.id),
                             this.generertFraDokumenter,
                         )
                     }
@@ -189,7 +181,7 @@ class SaksbehandlingFlytTest {
                     .apply {
                         assertEquals(arbgiver1ForventetKategorisering, kategorisering)
                         assertEquals(
-                            listOf(dokumenterFraDB.find { it.eksternId == søknad1.first }!!.id),
+                            listOf(dokumenterFraDB.find { it.eksternId == søknad1.søknadId }!!.id),
                             this.generertFraDokumenter,
                         )
                     }
@@ -207,7 +199,7 @@ class SaksbehandlingFlytTest {
                     .apply {
                         assertEquals(arbgiver2ForventetKategorisering, kategorisering)
                         val dokIder =
-                            dokumenterFraDB.filter { it.eksternId in listOf(søknad3.first, søknad3b.first) }
+                            dokumenterFraDB.filter { it.eksternId in listOf(søknad3.søknadId, søknad3b.søknadId) }
                                 .map { it.id }
                         assertEquals(2, dokIder.size)
                         assertEquals(
@@ -248,4 +240,6 @@ class SaksbehandlingFlytTest {
             }
         }
     }
+
+    private val JsonNode.søknadId: String get() = this["id"].asText()
 }
