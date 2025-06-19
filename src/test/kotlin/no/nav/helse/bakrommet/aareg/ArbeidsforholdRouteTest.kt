@@ -4,7 +4,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.sykepengesoknad.toJson
+import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -24,8 +24,8 @@ class ArbeidsforholdRouteTest {
                 assertEquals(
                     """
                     {"type":"about:blank","title":"Ingen tilgang","status":403,"detail":"Ikke tilstrekkelig tilgang i AA-REG","instance":null}
-                """.toJson(),
-                    bodyAsText().toJson(),
+                """.asJsonNode(),
+                    bodyAsText().asJsonNode(),
                 )
             }
         }
@@ -42,7 +42,7 @@ class ArbeidsforholdRouteTest {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(200, status.value)
-                assertEquals(AARegMock.Person1.respV2.toJson(), bodyAsText().toJson())
+                assertEquals(AARegMock.Person1.respV2.asJsonNode(), bodyAsText().asJsonNode())
             }
         }
 }

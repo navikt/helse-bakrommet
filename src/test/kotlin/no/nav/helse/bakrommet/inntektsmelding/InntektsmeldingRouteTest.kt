@@ -5,8 +5,8 @@ import io.ktor.client.statement.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.sykepengesoknad.toJson
-import org.junit.jupiter.api.Assertions
+import no.nav.helse.bakrommet.util.asJsonNode
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class InntektsmeldingRouteTest {
@@ -21,8 +21,8 @@ class InntektsmeldingRouteTest {
             client.get("/v1/$personId/inntektsmeldinger?fom=2020-01-01&tom=2025-06-01") {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
-                Assertions.assertEquals(200, status.value)
-                Assertions.assertEquals(InntektsmeldingApiMock.Person1.resp.toJson(), bodyAsText().toJson())
+                assertEquals(200, status.value)
+                assertEquals(InntektsmeldingApiMock.Person1.resp.asJsonNode(), bodyAsText().asJsonNode())
             }
         }
 
@@ -37,8 +37,8 @@ class InntektsmeldingRouteTest {
             client.get("/v1/$personIdUnknown/inntektsmeldinger?fom=2020-01-01&tom=2025-06-01") {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
-                Assertions.assertEquals(200, status.value)
-                Assertions.assertEquals("[]".toJson(), bodyAsText().toJson())
+                assertEquals(200, status.value)
+                assertEquals("[]".asJsonNode(), bodyAsText().asJsonNode())
             }
         }
 }

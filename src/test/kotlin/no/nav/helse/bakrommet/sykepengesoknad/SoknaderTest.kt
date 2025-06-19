@@ -4,11 +4,14 @@ import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.helse.bakrommet.*
+import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
+import no.nav.helse.bakrommet.bodyToJson
+import no.nav.helse.bakrommet.mockHttpClient
+import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo.Companion.tilJson
+import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.logg
-import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import org.intellij.lang.annotations.Language
@@ -80,7 +83,7 @@ class SoknaderTest {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(200, status.value)
-                assertEquals(enSøknad().toJson(), bodyAsText().toJson())
+                assertEquals(enSøknad().asJsonNode(), bodyAsText().asJsonNode())
             }
 
             // Test not found case
@@ -107,7 +110,7 @@ class SoknaderTest {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(200, status.value)
-                assertEquals("[${enSøknad()}]".toJson(), bodyAsText().toJson())
+                assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
             }
         }
 
@@ -134,12 +137,10 @@ class SoknaderTest {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(200, status.value)
-                assertEquals("[${enSøknad()}]".toJson(), bodyAsText().toJson())
+                assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
             }
         }
 }
-
-fun String.toJson() = objectMapper.readTree(this)
 
 data class Arbeidsgiverinfo(val identifikator: String, val navn: String) {
     companion object {

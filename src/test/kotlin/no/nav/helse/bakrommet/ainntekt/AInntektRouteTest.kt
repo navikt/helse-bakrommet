@@ -4,7 +4,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.sykepengesoknad.toJson
+import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -21,7 +21,7 @@ class AInntektRouteTest {
                 bearerAuth(TestOppsett.userToken)
             }.apply {
                 assertEquals(200, status.value)
-                assertEquals(AInntektMock.Person1.resp.toJson(), bodyAsText().toJson())
+                assertEquals(AInntektMock.Person1.resp.asJsonNode(), bodyAsText().asJsonNode())
             }
         }
 
@@ -40,8 +40,8 @@ class AInntektRouteTest {
                 assertEquals(
                     """
                     {"type":"about:blank","title":"Ingen tilgang","status":403,"detail":"Ikke tilstrekkelig tilgang i A-Inntekt","instance":null}
-                """.toJson(),
-                    bodyAsText().toJson(),
+                """.asJsonNode(),
+                    bodyAsText().asJsonNode(),
                 )
             }
         }
