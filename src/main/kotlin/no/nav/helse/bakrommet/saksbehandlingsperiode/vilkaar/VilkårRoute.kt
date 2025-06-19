@@ -31,13 +31,6 @@ class Kode(
     override fun toString(): String = kode
 }
 
-fun String.somGyldigUUID(): UUID =
-    try {
-        UUID.fromString(this)
-    } catch (ex: IllegalArgumentException) {
-        throw InputValideringException("Ugyldig periodeUUID. Forventet UUID-format")
-    }
-
 internal fun Route.saksbehandlingsperiodeVilkårRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,

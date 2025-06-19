@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import java.util.*
 
 val objectMapper: ObjectMapper =
     ObjectMapper()
@@ -36,3 +38,12 @@ inline fun <reified T> String.somListe(): List<T> {
 }
 
 inline fun <reified T> JsonNode.deserialize(): T = objectMapper.convertValue(this, T::class.java)
+
+fun String?.somGyldigUUID(): UUID {
+    if (this == null) throw InputValideringException("Ugyldig UUID. Forventet UUID-format")
+    return try {
+        UUID.fromString(this)
+    } catch (ex: IllegalArgumentException) {
+        throw InputValideringException("Ugyldig UUID. Forventet UUID-format")
+    }
+}

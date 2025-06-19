@@ -10,11 +10,11 @@ import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.somGyldigUUID
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.time.OffsetDateTime
 import java.util.*
 

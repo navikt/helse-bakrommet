@@ -13,11 +13,11 @@ import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.somGyldigUUID
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.util.somGyldigUUID
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
@@ -30,7 +30,7 @@ internal suspend inline fun ApplicationCall.medBehandlingsperiode(
     crossinline block: suspend (saksbehandlingsperiode: Saksbehandlingsperiode) -> Unit,
 ) {
     this.medIdent(personDao) { fnr, spilleromPersonId ->
-        val periodeId = parameters["periodeUUID"]!!.somGyldigUUID()
+        val periodeId = parameters["periodeUUID"].somGyldigUUID()
         val periode =
             saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)
                 ?: throw SaksbehandlingsperiodeIkkeFunnetException()
