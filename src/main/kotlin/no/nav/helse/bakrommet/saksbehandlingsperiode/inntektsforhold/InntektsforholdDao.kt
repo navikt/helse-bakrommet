@@ -112,4 +112,18 @@ class InntektsforholdDao(private val dataSource: DataSource) {
         )
         return hentInntektsforhold(inntektsforhold.id)!!
     }
+
+    fun oppdaterDagoversikt(
+        inntektsforhold: Inntektsforhold,
+        dagoversikt: JsonNode,
+    ): Inntektsforhold {
+        dataSource.update(
+            """
+            update inntektsforhold set dagoversikt = :dagoversikt where id = :id
+            """.trimIndent(),
+            "id" to inntektsforhold.id,
+            "dagoversikt" to dagoversikt.serialisertTilString(),
+        )
+        return hentInntektsforhold(inntektsforhold.id)!!
+    }
 }

@@ -267,6 +267,46 @@ class SaksbehandlingFlytTest {
                     )
                 }
             }
+
+            @Language("json")
+            val dagoversikt =
+                """
+                [
+                    {
+                        "id": "dag-1",
+                        "type": "SYKEDAG",
+                        "dato": "2023-01-01"
+                    },
+                    {
+                        "id": "dag-2",
+                        "type": "HELGEDAG",
+                        "dato": "2023-01-02"
+                    },
+                    {
+                        "id": "dag-3",
+                        "type": "SYKEDAG",
+                        "dato": "2023-01-03"
+                    }
+                ]
+                """.trimIndent()
+
+            client.put("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold/$opprettetInntektsforholdId/dagoversikt") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(dagoversikt)
+            }.let { response ->
+                assertEquals(204, response.status.value)
+            }
+
+            daoer.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
+                inntektsforholdFraDB.filter { it.id == opprettetInntektsforholdId }.also {
+                    assertEquals(1, it.size)
+                    assertEquals(
+                        dagoversikt.asJsonNode(),
+                        it.first().dagoversikt,
+                    )
+                }
+            }
         }
     }
 
