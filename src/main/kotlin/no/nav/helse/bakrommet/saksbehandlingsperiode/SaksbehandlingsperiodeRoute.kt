@@ -147,7 +147,7 @@ fun lagInntektsforholdFraSøknader(
         sykepengesoknader
             .groupBy { dokument -> dokument.somSøknad().kategorisering() }
     return kategorierOgSøknader.map { (kategorisering, dok) ->
-        val dagoversikt = skapDagoversiktFraSoknader(dok.map { it.somSøknad() }, saksbehandlingsperiode)
+        val dagoversikt = skapDagoversiktFraSoknader(dok.map { it.somSøknad() }, saksbehandlingsperiode.fom, saksbehandlingsperiode.tom)
         Inntektsforhold(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,

@@ -5,6 +5,7 @@ import java.time.LocalDate
 data class Dag(
     val dato: LocalDate,
     val dagtype: Dagtype,
+    val grad: Int?,
     val avvistBegrunnelse: List<AvvistBegrunnelse>,
     val kilde: Kilde,
 )
