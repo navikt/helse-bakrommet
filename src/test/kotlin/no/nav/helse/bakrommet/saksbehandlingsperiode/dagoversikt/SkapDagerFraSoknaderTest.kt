@@ -1,5 +1,10 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt
 
+import no.nav.helse.flex.sykepengesoknad.kafka.FravarDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -91,4 +96,171 @@ class SkapDagerFraSoknaderTest {
             assertEquals(Kilde.Saksbehandler, dag.kilde)
         }
     }
+
+    @Test
+    fun `skal sette sykedager fra søknadsperioder`() {
+        val fom = LocalDate.of(2024, 1, 1)
+        val tom = LocalDate.of(2024, 1, 10)
+        val søknadFom = LocalDate.of(2024, 1, 2)
+        val søknadTom = LocalDate.of(2024, 1, 5)
+        val grad = 80
+
+        val søknad =
+            lagSøknad(
+                fom = søknadFom,
+                tom = søknadTom,
+                grad = grad,
+            )
+
+        val resultat = skapDagoversiktFraSoknader(listOf(søknad), fom, tom)
+
+        // Verifiser at dagene i søknadsperioden er sykedager
+        (2..5).forEach { dag ->
+            val dagen = resultat.find { it.dato == LocalDate.of(2024, 1, dag) }!!
+            assertEquals(Dagtype.Syk, dagen.dagtype)
+            assertEquals(grad, dagen.grad)
+            assertEquals(Kilde.Søknad, dagen.kilde)
+        }
+
+        // Verifiser at dager utenfor er arbeidsdager
+        assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 1) }!!.dagtype)
+        assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 8) }!!.dagtype)
+
+        // Verifiser at helgen forblir helg
+        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 6) }!!.dagtype)
+        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype)
+    }
+
+    @Test
+    fun `skal håndtere ferie fra søknad`() {
+        val fom = LocalDate.of(2024, 1, 1)
+        val tom = LocalDate.of(2024, 1, 10)
+        val ferieFom = LocalDate.of(2024, 1, 3)
+        val ferieTom = LocalDate.of(2024, 1, 5)
+
+        val søknad =
+            lagSøknad(
+                fom = fom,
+                tom = tom,
+                ferie = listOf(Pair(ferieFom, ferieTom)),
+            )
+
+        val resultat = skapDagoversiktFraSoknader(listOf(søknad), fom, tom)
+
+        // Verifiser at feriedagene er korrekte
+        (3..5).forEach { dag ->
+            val dagen = resultat.find { it.dato == LocalDate.of(2024, 1, dag) }!!
+            assertEquals(Dagtype.Ferie, dagen.dagtype)
+            assertEquals(Kilde.Søknad, dagen.kilde)
+        }
+
+        // Verifiser at andre dager ikke er ferie
+        assertEquals(Dagtype.Syk, resultat.find { it.dato == LocalDate.of(2024, 1, 2) }!!.dagtype)
+    }
+
+    @Test
+    fun `skal håndtere permisjon fra søknad`() {
+        val fom = LocalDate.of(2024, 1, 1)
+        val tom = LocalDate.of(2024, 1, 10)
+        val permisjonFom = LocalDate.of(2024, 1, 4)
+        val permisjonTom = LocalDate.of(2024, 1, 5)
+
+        val søknad =
+            lagSøknad(
+                fom = fom,
+                tom = tom,
+                permisjon = listOf(Pair(permisjonFom, permisjonTom)),
+            )
+
+        val resultat = skapDagoversiktFraSoknader(listOf(søknad), fom, tom)
+
+        // Verifiser at permisjonsdagene er korrekte
+        (4..5).forEach { dag ->
+            val dagen = resultat.find { it.dato == LocalDate.of(2024, 1, dag) }!!
+            assertEquals(Dagtype.Permisjon, dagen.dagtype)
+            assertEquals(Kilde.Søknad, dagen.kilde)
+        }
+
+        // Verifiser at andre dager ikke er permisjon
+        assertEquals(Dagtype.Syk, resultat.find { it.dato == LocalDate.of(2024, 1, 3) }!!.dagtype)
+    }
+
+    @Test
+    fun `ferie skal ha presedens over permisjon`() {
+        val fom = LocalDate.of(2024, 1, 8)
+        val tom = LocalDate.of(2024, 1, 14)
+        val permisjonFom = LocalDate.of(2024, 1, 9)
+        val permisjonTom = LocalDate.of(2024, 1, 12)
+        val ferieFom = LocalDate.of(2024, 1, 11)
+        val ferieTom = LocalDate.of(2024, 1, 12)
+
+        val søknad =
+            lagSøknad(
+                fom = fom,
+                tom = tom,
+                permisjon = listOf(Pair(permisjonFom, permisjonTom)),
+                ferie = listOf(Pair(ferieFom, ferieTom)),
+            )
+
+        val resultat = skapDagoversiktFraSoknader(listOf(søknad), fom, tom)
+
+        // Dag før permisjon er sykedag
+        assertEquals(Dagtype.Syk, resultat.find { it.dato == LocalDate.of(2024, 1, 8) }!!.dagtype)
+        // Permisjonsdager som ikke overlapper med ferie
+        assertEquals(Dagtype.Permisjon, resultat.find { it.dato == LocalDate.of(2024, 1, 9) }!!.dagtype)
+        assertEquals(Dagtype.Permisjon, resultat.find { it.dato == LocalDate.of(2024, 1, 10) }!!.dagtype)
+
+        // Feriedagene skal overskrive permisjonsdagene
+        assertEquals(Dagtype.Ferie, resultat.find { it.dato == LocalDate.of(2024, 1, 11) }!!.dagtype)
+        assertEquals(Dagtype.Ferie, resultat.find { it.dato == LocalDate.of(2024, 1, 12) }!!.dagtype)
+
+        // Helgedagene skal forbli helg
+        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 13) }!!.dagtype)
+        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 14) }!!.dagtype)
+    }
+}
+
+private fun lagSøknad(
+    fom: LocalDate,
+    tom: LocalDate,
+    grad: Int = 100,
+    ferie: List<Pair<LocalDate, LocalDate>> = emptyList(),
+    permisjon: List<Pair<LocalDate, LocalDate>> = emptyList(),
+): SykepengesoknadDTO {
+    return SykepengesoknadDTO(
+        id = "test-soknad",
+        fnr = "12345678910",
+        fom = fom,
+        tom = tom,
+        type = SoknadstypeDTO.ARBEIDSTAKERE,
+        status = SoknadsstatusDTO.SENDT,
+        soknadsperioder =
+            listOf(
+                SoknadsperiodeDTO(
+                    fom = fom,
+                    tom = tom,
+                    grad = grad,
+                    sykmeldingsgrad = grad,
+                    faktiskGrad = null,
+                    sykmeldingstype = null,
+                    avtaltTimer = null,
+                    faktiskTimer = null,
+                ),
+            ),
+        fravar =
+            ferie.map { (fom, tom) ->
+                FravarDTO(
+                    fom = fom,
+                    tom = tom,
+                    type = FravarstypeDTO.FERIE,
+                )
+            } +
+                permisjon.map { (fom, tom) ->
+                    FravarDTO(
+                        fom = fom,
+                        tom = tom,
+                        type = FravarstypeDTO.PERMISJON,
+                    )
+                },
+    )
 }
