@@ -61,6 +61,9 @@ internal fun Route.saksbehandlingsperiodeRoute(
         post {
             call.medIdent(personDao) { fnr, spilleromPersonId ->
                 val body = call.receive<CreatePeriodeRequest>()
+                val fom = LocalDate.parse(body.fom)
+                val tom = LocalDate.parse(body.tom)
+                if (fom.isAfter(tom)) throw InputValideringException("Fom-dato kan ikke være etter tom-dato")
                 val saksbehandler = call.saksbehandler()
                 val nyPeriode =
                     Saksbehandlingsperiode(
@@ -69,8 +72,8 @@ internal fun Route.saksbehandlingsperiodeRoute(
                         opprettet = OffsetDateTime.now(),
                         opprettetAvNavIdent = saksbehandler.navIdent,
                         opprettetAvNavn = saksbehandler.navn,
-                        fom = LocalDate.parse(body.fom),
-                        tom = LocalDate.parse(body.tom),
+                        fom = fom,
+                        tom = tom,
                     )
                 saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
                 val innhentedeDokumenter =
