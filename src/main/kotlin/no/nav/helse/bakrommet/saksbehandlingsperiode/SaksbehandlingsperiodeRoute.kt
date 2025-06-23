@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering
@@ -18,6 +19,7 @@ import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
+import no.nav.helse.bakrommet.util.tilJsonNode
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
@@ -141,16 +143,15 @@ fun lagInntektsforholdFraSøknader(
     val kategorierOgSøknader =
         sykepengesoknader
             .groupBy { dokument -> dokument.somSøknad().kategorisering() }
-
     return kategorierOgSøknader.map { (kategorisering, dok) ->
-        val dagoversikt = objectMapper.createArrayNode()
+        val dagoversikt = skapDagoversiktFraSoknader(dok.map { it.somSøknad() }, saksbehandlingsperiode)
         Inntektsforhold(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,
             kategoriseringGenerert = kategorisering,
             sykmeldtFraForholdet = true,
-            dagoversikt = dagoversikt,
-            dagoversiktGenerert = dagoversikt,
+            dagoversikt = dagoversikt.tilJsonNode(),
+            dagoversiktGenerert = dagoversikt.tilJsonNode(),
             saksbehandlingsperiodeId = saksbehandlingsperiode.id,
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = dok.map { it.id },

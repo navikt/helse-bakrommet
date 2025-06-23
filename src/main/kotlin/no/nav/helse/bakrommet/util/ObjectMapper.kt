@@ -19,12 +19,14 @@ val objectMapper: ObjectMapper =
 
 fun Any.serialisertTilString(): String = objectMapper.writeValueAsString(this)
 
+fun <T> T.tilJsonNode(): JsonNode = objectMapper.valueToTree(this)
+
 fun String.asJsonNode(): JsonNode {
     return objectMapper.readTree(this)
 }
 
 fun Any.toJsonNode(): JsonNode {
-    return objectMapper.readTree(objectMapper.writeValueAsString(this))
+    return objectMapper.valueToTree(this)
 }
 
 inline fun <reified T> String.somListe(): List<T> {
