@@ -11,6 +11,7 @@ data class Configuration(
     val aareg: AAReg,
     val ainntekt: AInntekt,
     val inntektsmelding: Inntektsmelding,
+    val sigrun: Sigrun,
     val naisClusterName: String,
 ) {
     data class DB(
@@ -33,6 +34,11 @@ data class Configuration(
 
     data class AInntekt(
         val hostname: String,
+        val scope: OAuthScope,
+    )
+
+    data class Sigrun(
+        val baseUrl: String,
         val scope: OAuthScope,
     )
 
@@ -89,6 +95,11 @@ data class Configuration(
                     Inntektsmelding(
                         scope = OAuthScope(env.getValue("INNTEKTSMELDING_SCOPE")),
                         baseUrl = env.getValue("INNTEKTSMELDING_BASE_URL"),
+                    ),
+                sigrun =
+                    Sigrun(
+                        scope = OAuthScope(env.getValue("SIGRUN_SCOPE")),
+                        baseUrl = env.getValue("SIGRUN_URL"),
                     ),
                 naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
             )

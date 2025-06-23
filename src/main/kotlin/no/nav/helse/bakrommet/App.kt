@@ -32,6 +32,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsfor
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
+import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.sigrun.pensjonsgivendeInntektRoute
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
 import no.nav.helse.bakrommet.util.objectMapper
@@ -74,6 +76,7 @@ internal fun Application.settOppKtor(
     aaRegClient: AARegClient = AARegClient(configuration.aareg, oboClient),
     aInntektClient: AInntektClient = AInntektClient(configuration.ainntekt, oboClient),
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient),
+    sigrunClient: SigrunClient = SigrunClient(configuration.sigrun, oboClient),
 ) {
     azureAdAppAuthentication(configuration.auth)
     helsesjekker()
@@ -85,6 +88,7 @@ internal fun Application.settOppKtor(
         aaRegClient,
         aInntektClient,
         inntektsmeldingClient,
+        sigrunClient,
     )
 }
 
@@ -107,6 +111,7 @@ internal fun Application.appModul(
     aaRegClient: AARegClient,
     aInntektClient: AInntektClient,
     inntektsmeldingClient: InntektsmeldingClient,
+    sigrunClient: SigrunClient,
     personDao: PersonDao = PersonDao(dataSource),
     inntektsforholdDao: InntektsforholdDao = InntektsforholdDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
@@ -144,6 +149,7 @@ internal fun Application.appModul(
             ainntektRoute(aInntektClient, personDao)
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
             saksbehandlingsperiodeInntektsforholdRoute(saksbehandlingsperiodeDao, personDao, inntektsforholdDao)
+            pensjonsgivendeInntektRoute(sigrunClient, personDao)
         }
     }
 }

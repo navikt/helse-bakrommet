@@ -55,6 +55,7 @@ spec:
       external:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: aareg-services.dev-fss-pub.nais.io
+        - host: team-inntekt-proxy.dev-fss-pub.nais.io
   env:
     - name: PDL_SCOPE
       value: dev-fss.pdl.pdl-api
@@ -76,3 +77,7 @@ spec:
       value: http://spinosaurus.helsearbeidsgiver
     - name: INNTEKTSMELDING_SCOPE
       value: dev-gcp.helsearbeidsgiver.spinosaurus
+    - name: SIGRUN_URL
+      value: https://team-inntekt-proxy.dev-fss-pub.nais.io/proxy/sigrun-q2
+    - name: SIGRUN_SCOPE
+      value: dev-fss.team-inntekt.sigrun-q2

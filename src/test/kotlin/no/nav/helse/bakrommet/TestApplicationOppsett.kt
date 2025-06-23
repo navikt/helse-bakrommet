@@ -51,6 +51,10 @@ object TestOppsett {
                 baseUrl = "http://localhost",
                 scope = OAuthScope("im-scope"),
             ),
+            Configuration.Sigrun(
+                baseUrl = "http://localhost",
+                scope = OAuthScope("sigrun-scope"),
+            ),
             "test",
         )
     val userToken = oAuthMock.token()
