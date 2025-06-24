@@ -218,6 +218,81 @@ class SkapDagerFraSoknaderTest {
         assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 13) }!!.dagtype)
         assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 14) }!!.dagtype)
     }
+
+    @Test
+    fun `skal håndtere arbeidGjenopptatt fra søknad`() {
+        val fom = LocalDate.of(2024, 1, 1)
+        val tom = LocalDate.of(2024, 1, 10)
+        val arbeidGjenopptatt = LocalDate.of(2024, 1, 5)
+
+        val søknad =
+            lagSøknad(
+                fom = fom,
+                tom = tom,
+                arbeidGjenopptatt = arbeidGjenopptatt,
+            )
+
+        val resultat = skapDagoversiktFraSoknader(listOf(søknad), fom, tom)
+
+        // Dager før arbeidGjenopptatt skal forbli sykedager
+        (1..4).forEach { dag ->
+            val dagen = resultat.find { it.dato == LocalDate.of(2024, 1, dag) }!!
+            assertEquals(Dagtype.Syk, dagen.dagtype)
+            assertEquals(Kilde.Søknad, dagen.kilde)
+        }
+
+        // Dager fra og med arbeidGjenopptatt skal være arbeidsdager (unntatt helg)
+        (5..10).forEach { dag ->
+            val dagen = resultat.find { it.dato == LocalDate.of(2024, 1, dag) }!!
+            if (dagen.dato.dayOfWeek.value in 6..7) {
+                // Helgedager skal forbli helg
+                assertEquals(Dagtype.Helg, dagen.dagtype)
+                assertEquals(Kilde.Saksbehandler, dagen.kilde)
+            } else {
+                // Arbeidsdager skal være arbeidsdager
+                assertEquals(Dagtype.Arbeidsdag, dagen.dagtype)
+                assertEquals(Kilde.Søknad, dagen.kilde)
+                assertEquals(null, dagen.grad)
+            }
+        }
+    }
+
+    @Test
+    fun `arbeidGjenopptatt skal overskrive andre dagtyper unntatt helg`() {
+        val fom = LocalDate.of(2024, 1, 1)
+        val tom = LocalDate.of(2024, 1, 10)
+        val arbeidGjenopptatt = LocalDate.of(2024, 1, 6)
+        val ferieFom = LocalDate.of(2024, 1, 7)
+        val ferieTom = LocalDate.of(2024, 1, 8)
+
+        val søknad =
+            lagSøknad(
+                fom = fom,
+                tom = tom,
+                ferie = listOf(Pair(ferieFom, ferieTom)),
+                arbeidGjenopptatt = arbeidGjenopptatt,
+            )
+
+        val resultat = skapDagoversiktFraSoknader(listOf(søknad), fom, tom)
+
+        // Dager før arbeidGjenopptatt skal forbli sykedager
+        (1..5).forEach { dag ->
+            val dagen = resultat.find { it.dato == LocalDate.of(2024, 1, dag) }!!
+            assertEquals(Dagtype.Syk, dagen.dagtype)
+        }
+
+        // Fra arbeidGjenopptatt skal alle dager være arbeidsdager (unntatt helg)
+        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 6) }!!.dagtype) // Lørdag
+        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype) // Søndag
+        assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 8) }!!.dagtype) // Mandag
+        assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 9) }!!.dagtype) // Tirsdag
+        assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 10) }!!.dagtype) // Onsdag
+
+        // Verifiser at ferie ikke har presedens over arbeidGjenopptatt på arbeidsdager
+        // Men helgedager skal forbli helg uansett
+        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 6) }!!.dagtype) // Lørdag - skal være helg
+        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype) // Søndag - skal være helg
+    }
 }
 
 private fun lagSøknad(
@@ -226,6 +301,7 @@ private fun lagSøknad(
     grad: Int = 100,
     ferie: List<Pair<LocalDate, LocalDate>> = emptyList(),
     permisjon: List<Pair<LocalDate, LocalDate>> = emptyList(),
+    arbeidGjenopptatt: LocalDate? = null,
 ): SykepengesoknadDTO {
     return SykepengesoknadDTO(
         id = "test-soknad",
@@ -234,6 +310,7 @@ private fun lagSøknad(
         tom = tom,
         type = SoknadstypeDTO.ARBEIDSTAKERE,
         status = SoknadsstatusDTO.SENDT,
+        arbeidGjenopptatt = arbeidGjenopptatt,
         soknadsperioder =
             listOf(
                 SoknadsperiodeDTO(

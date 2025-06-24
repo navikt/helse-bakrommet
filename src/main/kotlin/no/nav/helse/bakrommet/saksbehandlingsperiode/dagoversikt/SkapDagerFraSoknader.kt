@@ -64,6 +64,11 @@ private fun oppdaterDagerMedSøknadsdata(
         oppdaterDagerMedFravær(dagerMap, fravær, fom, tom, Dagtype.Ferie)
     }
 
+    // Håndter arbeidGjenopptatt - sett alle dager fra og med denne til arbeidsdager (med mindre det er helg)
+    søknad.arbeidGjenopptatt?.let { arbeidGjenopptattDato ->
+        oppdaterDagerIIntervall(dagerMap, maxOf(fom, arbeidGjenopptattDato), tom, Dagtype.Arbeidsdag)
+    }
+
     return dagerMap.values.toList()
 }
 
@@ -110,7 +115,7 @@ private fun oppdaterDagerIIntervall(
     fom: LocalDate,
     tom: LocalDate,
     dagtype: Dagtype,
-    grad: Int?,
+    grad: Int? = null,
 ) {
     generateSequence(fom) { it.plusDays(1) }
         .takeWhile { !it.isAfter(tom) }
