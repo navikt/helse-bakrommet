@@ -101,7 +101,6 @@ data class InntektsforholdCreateRequest(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,
             kategoriseringGenerert = null,
-            sykmeldtFraForholdet = kategorisering["ER_SYKMELDT"].run { !isMissingNode && asText() == "ER_SYKMELDT_JA" },
             dagoversikt = "[]".asJsonNode(),
             dagoversiktGenerert = null,
             saksbehandlingsperiodeId = behandlingsperiodeId,

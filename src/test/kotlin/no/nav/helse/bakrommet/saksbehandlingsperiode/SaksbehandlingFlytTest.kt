@@ -232,7 +232,6 @@ class SaksbehandlingFlytTest {
                         )
                         assertEquals(kategorisering, kategoriseringGenerert)
                         assertEquals(dagoversikt, dagoversiktGenerert)
-                        assertTrue(sykmeldtFraForholdet)
                     }
             }
 

@@ -152,7 +152,6 @@ fun lagInntektsforholdFraSøknader(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,
             kategoriseringGenerert = kategorisering,
-            sykmeldtFraForholdet = true,
             dagoversikt = dagoversikt.tilJsonNode(),
             dagoversiktGenerert = dagoversikt.tilJsonNode(),
             saksbehandlingsperiodeId = saksbehandlingsperiode.id,

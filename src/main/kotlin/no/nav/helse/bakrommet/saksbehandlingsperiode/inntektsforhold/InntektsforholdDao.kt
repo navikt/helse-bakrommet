@@ -11,7 +11,6 @@ import javax.sql.DataSource
 data class InntektsforholdDTO(
     val id: UUID,
     val kategorisering: JsonNode,
-    val sykmeldtFraForholdet: Boolean,
     val dagoversikt: JsonNode,
     val generertFraDokumenter: List<UUID>,
 )
@@ -20,7 +19,6 @@ fun Inntektsforhold.tilDto() =
     InntektsforholdDTO(
         id = id,
         kategorisering = kategorisering,
-        sykmeldtFraForholdet = sykmeldtFraForholdet,
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
     )
@@ -32,7 +30,6 @@ data class Inntektsforhold(
     val id: UUID,
     val kategorisering: Kategorisering,
     val kategoriseringGenerert: Kategorisering?,
-    val sykmeldtFraForholdet: Boolean,
     val dagoversikt: Dagoversikt,
     val dagoversiktGenerert: Dagoversikt?,
     val saksbehandlingsperiodeId: UUID,
@@ -45,18 +42,17 @@ class InntektsforholdDao(private val dataSource: DataSource) {
         dataSource.update(
             """
             insert into inntektsforhold
-                (id, kategorisering, kategorisering_generert, sykmeldt_fra_forholdet, 
-                dagoversikt, dagoversikt_generert, 
+                (id, kategorisering, kategorisering_generert,
+                dagoversikt, dagoversikt_generert,
                 saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter)
             values
-                (:id, :kategorisering, :kategorisering_generert, :sykmeldt_fra_forholdet, 
+                (:id, :kategorisering, :kategorisering_generert,
                 :dagoversikt, :dagoversikt_generert,
                 :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter)
             """.trimIndent(),
             "id" to inntektsforhold.id,
             "kategorisering" to inntektsforhold.kategorisering.serialisertTilString(),
             "kategorisering_generert" to inntektsforhold.kategoriseringGenerert?.serialisertTilString(),
-            "sykmeldt_fra_forholdet" to inntektsforhold.sykmeldtFraForholdet,
             "dagoversikt" to inntektsforhold.dagoversikt.serialisertTilString(),
             "dagoversikt_generert" to inntektsforhold.dagoversiktGenerert?.serialisertTilString(),
             "saksbehandlingsperiode_id" to inntektsforhold.saksbehandlingsperiodeId,
@@ -89,7 +85,6 @@ class InntektsforholdDao(private val dataSource: DataSource) {
             id = row.uuid("id"),
             kategorisering = row.string("kategorisering").asJsonNode(),
             kategoriseringGenerert = row.stringOrNull("kategorisering_generert")?.asJsonNode(),
-            sykmeldtFraForholdet = row.boolean("sykmeldt_fra_forholdet"),
             dagoversikt = row.string("dagoversikt").asJsonNode(),
             dagoversiktGenerert = row.stringOrNull("dagoversikt_generert")?.asJsonNode(),
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
