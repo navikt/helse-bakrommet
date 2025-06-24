@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS inntektsforhold
     kategorisering          TEXT                        NOT NULL,
     kategorisering_generert TEXT                        NULL,
     orgnummer               TEXT                        NULL,
-    orgnavn                 TEXT                        NULL,
     dagoversikt             TEXT                        NULL,
     dagoversikt_generert    TEXT                        NULL,
     saksbehandlingsperiode_id UUID                      NOT NULL REFERENCES saksbehandlingsperiode (id),

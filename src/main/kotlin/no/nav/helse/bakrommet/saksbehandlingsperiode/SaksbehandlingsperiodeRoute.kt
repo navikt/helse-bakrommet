@@ -129,12 +129,8 @@ fun SykepengesoknadDTO.kategorisering(): Kategorisering {
         val soknad = this@kategorisering
         put("INNTEKTSKATEGORI", soknad.bestemInntektskategori())
         val orgnummer = soknad.arbeidsgiver?.orgnummer
-        val orgnavn = soknad.arbeidsgiver?.navn
         if (orgnummer != null) {
             put("ORGNUMMER", orgnummer)
-            if (orgnavn != null) {
-                put("ORGNAVN", orgnavn)
-            }
         }
     }
 }

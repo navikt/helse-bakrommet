@@ -176,8 +176,7 @@ class SaksbehandlingFlytTest {
                 """
                 {
                      "INNTEKTSKATEGORI": "ARBEIDSTAKER",
-                     "ORGNUMMER":"123321123",
-                     "ORGNAVN":"navn for AG 1"
+                     "ORGNUMMER":"123321123"
                 }
                 """.trimIndent().asJsonNode()
 
@@ -214,8 +213,7 @@ class SaksbehandlingFlytTest {
                     """
                     {
                          "INNTEKTSKATEGORI": "ARBEIDSTAKER",
-                         "ORGNUMMER": "${arbeidsgiver2.identifikator}",
-                         "ORGNAVN": "${arbeidsgiver2.navn}"
+                         "ORGNUMMER": "${arbeidsgiver2.identifikator}"
                     }
                     """.trimIndent().asJsonNode()
 
