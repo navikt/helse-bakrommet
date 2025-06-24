@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS inntektsforhold
     id                      UUID                        NOT NULL PRIMARY KEY,
     kategorisering          TEXT                        NOT NULL,
     kategorisering_generert TEXT                        NULL,
-    sykmeldt_fra_forholdet  BOOL                        NOT NULL,
     orgnummer               TEXT                        NULL,
     orgnavn                 TEXT                        NULL,
     dagoversikt             TEXT                        NULL,
