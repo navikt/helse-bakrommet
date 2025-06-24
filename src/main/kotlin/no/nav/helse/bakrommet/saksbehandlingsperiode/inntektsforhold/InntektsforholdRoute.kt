@@ -9,12 +9,14 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
-import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
 import no.nav.helse.bakrommet.util.somGyldigUUID
+import no.nav.helse.bakrommet.util.toJsonNode
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -63,8 +65,15 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
                     periode,
                 )
 
+                val dagoversikt =
+                    if (inntektsforhold.kategorisering.skalHaDagoversikt()) {
+                        initialiserDager(periode.fom, periode.tom)
+                    } else {
+                        null
+                    }
+
                 val fraDatabasen =
-                    inntektsforholdDao.opprettInntektsforhold(inntektsforhold.tilDatabaseType(periode.id))
+                    inntektsforholdDao.opprettInntektsforhold(inntektsforhold.tilDatabaseType(periode.id, dagoversikt))
 
                 call.respondText(
                     fraDatabasen.tilDto().serialisertTilString(),
@@ -96,15 +105,22 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
 data class InntektsforholdCreateRequest(
     val kategorisering: JsonNode,
 ) {
-    fun tilDatabaseType(behandlingsperiodeId: UUID) =
-        Inntektsforhold(
-            id = UUID.randomUUID(),
-            kategorisering = kategorisering,
-            kategoriseringGenerert = null,
-            dagoversikt = "[]".asJsonNode(),
-            dagoversiktGenerert = null,
-            saksbehandlingsperiodeId = behandlingsperiodeId,
-            opprettet = OffsetDateTime.now(),
-            generertFraDokumenter = emptyList(),
-        )
+    fun tilDatabaseType(
+        behandlingsperiodeId: UUID,
+        dagoversikt: List<Dag>?,
+    ) = Inntektsforhold(
+        id = UUID.randomUUID(),
+        kategorisering = kategorisering,
+        kategoriseringGenerert = null,
+        dagoversikt = dagoversikt?.toJsonNode(),
+        dagoversiktGenerert = null,
+        saksbehandlingsperiodeId = behandlingsperiodeId,
+        opprettet = OffsetDateTime.now(),
+        generertFraDokumenter = emptyList(),
+    )
+}
+
+fun JsonNode.skalHaDagoversikt(): Boolean {
+    val erSykmeldt = this.get("ER_SYKMELDT")?.asText()
+    return erSykmeldt == "ER_SYKMELDT_JA" || erSykmeldt == null
 }

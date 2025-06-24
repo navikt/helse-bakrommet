@@ -11,7 +11,7 @@ import javax.sql.DataSource
 data class InntektsforholdDTO(
     val id: UUID,
     val kategorisering: JsonNode,
-    val dagoversikt: JsonNode,
+    val dagoversikt: JsonNode?,
     val generertFraDokumenter: List<UUID>,
 )
 
@@ -30,7 +30,7 @@ data class Inntektsforhold(
     val id: UUID,
     val kategorisering: Kategorisering,
     val kategoriseringGenerert: Kategorisering?,
-    val dagoversikt: Dagoversikt,
+    val dagoversikt: Dagoversikt?,
     val dagoversiktGenerert: Dagoversikt?,
     val saksbehandlingsperiodeId: UUID,
     val opprettet: OffsetDateTime,
@@ -53,7 +53,7 @@ class InntektsforholdDao(private val dataSource: DataSource) {
             "id" to inntektsforhold.id,
             "kategorisering" to inntektsforhold.kategorisering.serialisertTilString(),
             "kategorisering_generert" to inntektsforhold.kategoriseringGenerert?.serialisertTilString(),
-            "dagoversikt" to inntektsforhold.dagoversikt.serialisertTilString(),
+            "dagoversikt" to inntektsforhold.dagoversikt?.serialisertTilString(),
             "dagoversikt_generert" to inntektsforhold.dagoversiktGenerert?.serialisertTilString(),
             "saksbehandlingsperiode_id" to inntektsforhold.saksbehandlingsperiodeId,
             "opprettet" to inntektsforhold.opprettet,
@@ -85,7 +85,7 @@ class InntektsforholdDao(private val dataSource: DataSource) {
             id = row.uuid("id"),
             kategorisering = row.string("kategorisering").asJsonNode(),
             kategoriseringGenerert = row.stringOrNull("kategorisering_generert")?.asJsonNode(),
-            dagoversikt = row.string("dagoversikt").asJsonNode(),
+            dagoversikt = row.stringOrNull("dagoversikt")?.asJsonNode(),
             dagoversiktGenerert = row.stringOrNull("dagoversikt_generert")?.asJsonNode(),
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
             opprettet = row.offsetDateTime("opprettet"),

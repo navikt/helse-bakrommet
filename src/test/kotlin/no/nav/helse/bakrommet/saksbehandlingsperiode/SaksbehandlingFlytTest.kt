@@ -335,5 +335,116 @@ class SaksbehandlingFlytTest {
         }
     }
 
+    @Test
+    fun `oppretter dagoversikt automatisk når ER_SYKMELDT er ER_SYKMELDT_JA eller mangler`() {
+        runApplicationTest { daoer ->
+            daoer.personDao.opprettPerson(fnr, personId)
+
+            // Opprett en saksbehandlingsperiode først
+            val periodeResponse =
+                client.post("/v1/$personId/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
+                }
+            assertEquals(201, periodeResponse.status.value)
+
+            val allePerioder =
+                client.get("/v1/$personId/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                }
+            val perioder: List<Saksbehandlingsperiode> = allePerioder.body()
+            val periode = perioder.first()
+
+            // Test 1: ER_SYKMELDT er "ER_SYKMELDT_JA" - skal opprette dagoversikt
+            @Language("json")
+            val kategoriseringMedSykmeldt =
+                """
+                {
+                    "kategorisering": {
+                        "INNTEKTSKATEGORI": "ARBEIDSTAKER",
+                        "ER_SYKMELDT": "ER_SYKMELDT_JA",
+                        "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"
+                    }
+                }
+                """.trimIndent()
+
+            val inntektsforholdMedSykmeldtId =
+                client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(kategoriseringMedSykmeldt)
+                }.let { response ->
+                    assertEquals(201, response.status.value)
+                    val body = response.body<JsonNode>()
+                    UUID.fromString(body["id"].asText())
+                }
+
+            // Test 2: ER_SYKMELDT mangler - skal opprette dagoversikt
+            @Language("json")
+            val kategoriseringUtenSykmeldt =
+                """
+                {
+                    "kategorisering": {
+                        "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
+                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER"
+                    }
+                }
+                """.trimIndent()
+
+            val inntektsforholdUtenSykmeldtId =
+                client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(kategoriseringUtenSykmeldt)
+                }.let { response ->
+                    assertEquals(201, response.status.value)
+                    val body = response.body<JsonNode>()
+                    UUID.fromString(body["id"].asText())
+                }
+
+            // Test 3: ER_SYKMELDT er "ER_SYKMELDT_NEI" - skal IKKE opprette dagoversikt
+            @Language("json")
+            val kategoriseringIkkeSykmeldt =
+                """
+                {
+                    "kategorisering": {
+                        "INNTEKTSKATEGORI": "ARBEIDSTAKER",
+                        "ER_SYKMELDT": "ER_SYKMELDT_NEI",
+                        "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"
+                    }
+                }
+                """.trimIndent()
+
+            val inntektsforholdIkkeSykmeldtId =
+                client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(kategoriseringIkkeSykmeldt)
+                }.let { response ->
+                    assertEquals(201, response.status.value)
+                    val body = response.body<JsonNode>()
+                    UUID.fromString(body["id"].asText())
+                }
+
+            // Verifiser at dagoversikt ble opprettet for de to første, men ikke den siste
+            daoer.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
+                val medSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdMedSykmeldtId }!!
+                val utenSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdUtenSykmeldtId }!!
+                val ikkeSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdIkkeSykmeldtId }!!
+
+                // Disse skal ha dagoversikt (31 dager for januar 2023)
+                assertEquals(31, medSykmeldt.dagoversikt?.size() ?: 0, "Inntektsforhold med ER_SYKMELDT_JA skal ha dagoversikt")
+                assertEquals(31, utenSykmeldt.dagoversikt?.size() ?: 0, "Inntektsforhold uten ER_SYKMELDT skal ha dagoversikt")
+
+                // Denne skal IKKE ha dagoversikt
+                assertTrue(
+                    ikkeSykmeldt.dagoversikt == null || ikkeSykmeldt.dagoversikt?.size() == 0,
+                    "Inntektsforhold med ER_SYKMELDT_NEI skal ikke ha dagoversikt",
+                )
+            }
+        }
+    }
+
     private val JsonNode.søknadId: String get() = this["id"].asText()
 }

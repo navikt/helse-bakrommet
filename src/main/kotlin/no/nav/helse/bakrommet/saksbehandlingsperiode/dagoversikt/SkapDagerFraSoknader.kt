@@ -18,7 +18,7 @@ fun skapDagoversiktFraSoknader(
     }
 }
 
-private fun initialiserDager(
+fun initialiserDager(
     fom: LocalDate,
     tom: LocalDate,
 ): List<Dag> {
