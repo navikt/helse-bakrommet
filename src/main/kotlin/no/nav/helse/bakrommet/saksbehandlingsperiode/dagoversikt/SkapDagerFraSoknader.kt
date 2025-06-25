@@ -50,7 +50,7 @@ private fun oppdaterDagerMedSøknadsdata(
     // Legg til sykedager fra søknadsperioder
     søknad.soknadsperioder?.forEach { periode ->
         oppdaterDagerMedPeriode(dagerMap, periode, fom, tom, Dagtype.Syk) {
-            periode.faktiskGrad ?: periode.grad ?: periode.sykmeldingsgrad
+            periode.faktiskGrad?.let { 100 - it } ?: periode.grad ?: periode.sykmeldingsgrad
         }
     }
 
