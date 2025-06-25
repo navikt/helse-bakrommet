@@ -34,6 +34,16 @@ class SigrunClientTest {
             assertEquals(LocalDate.now().year, alleÅrIRespons.max(), "henter ikke år senere enn inneværende år")
         }
     }
+
+    @Test
+    fun `Henter år fom 2020, tom 2024`() {
+        runBlocking {
+            client2010to2050
+                .hentPensjonsgivendeInntektForPeriode(fnr, 2020, 2024, token)
+        }.also { liste ->
+            assertEquals(setOf(2020, 2021, 2022, 2023, 2024), liste.map { it.inntektsaar() }.toSet())
+        }
+    }
 }
 
 private fun PensjonsgivendeInntektÅr.inntektsaar() = this["inntektsaar"]!!.asText().toInt()
