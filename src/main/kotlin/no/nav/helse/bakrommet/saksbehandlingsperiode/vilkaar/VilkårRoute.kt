@@ -7,12 +7,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.errorhandling.medInputvalidering
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
 import no.nav.helse.bakrommet.util.serialisertTilString
-import java.util.*
 
 fun String.erGyldigSomKode(): Boolean {
     val regex = "^[A-ZÆØÅ0-9_]*$".toRegex()
@@ -51,7 +49,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
         put {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vilkårsKode = Kode(call.parameters["kode"]!!)
-                val vurdertVilkår = medInputvalidering { call.receive<JsonNode>() }
+                val vurdertVilkår = call.receive<JsonNode>()
 
                 val opprettetEllerEndret =
                     saksbehandlingsperiodeDao.lagreVilkårsvurdering(
