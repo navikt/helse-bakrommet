@@ -42,6 +42,10 @@ data class Kildespor(val kilde: String) {
             ).toString(),
         )
     }
+
+    fun medTillegg(data: Map<String, String>): Kildespor {
+        return Kildespor(this.kilde + "," + data.toString())
+    }
 }
 
 private fun systemEnvOrDefault(

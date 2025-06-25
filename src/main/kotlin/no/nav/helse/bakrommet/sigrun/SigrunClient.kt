@@ -10,14 +10,19 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.ainntekt.Inntektoppslag
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
+import java.lang.Integer.max
+import java.lang.Integer.min
+import java.time.LocalDate
 import java.util.*
+
+typealias PensjonsgivendeInntektÅr = JsonNode
 
 class SigrunClient(
     private val configuration: Configuration.Sigrun,
@@ -32,11 +37,36 @@ class SigrunClient(
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
         this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
+    companion object {
+        val INNTEKTSAAR_MIN = 2017
+        val INNTEKTSAAR_MAX: Int
+            get() = LocalDate.now().year
+        val INNTEKTSAAR_MAX_COUNT = 10
+    }
+
+    suspend fun hentPensjonsgivendeInntektForPeriode(
+        fnr: String,
+        inntektsAarFom: Int,
+        inntektsAarTom: Int,
+        saksbehandlerToken: SpilleromBearerToken,
+    ): List<PensjonsgivendeInntektÅr> {
+        val årFom = max(inntektsAarFom, INNTEKTSAAR_MIN)
+        val årTom = min(inntektsAarTom, INNTEKTSAAR_MAX)
+        val årListe = (årFom..årTom).toList()
+        if (årListe.size > INNTEKTSAAR_MAX_COUNT) {
+            throw InputValideringException("Kan ikke spørre på med enn $INNTEKTSAAR_MAX_COUNT år av gangen")
+        }
+        return (årFom..årTom).map {
+            // TODO: Feilhåndter:
+            hentPensjonsgivendeInntekt(fnr = fnr, inntektsAar = it, saksbehandlerToken = saksbehandlerToken)
+        }
+    }
+
     suspend fun hentPensjonsgivendeInntekt(
         fnr: String,
         inntektsAar: Int,
         saksbehandlerToken: SpilleromBearerToken,
-    ): Inntektoppslag {
+    ): PensjonsgivendeInntektÅr {
         return hentPensjonsgivendeInntektMedSporing(
             fnr = fnr,
             inntektsAar = inntektsAar,
@@ -48,7 +78,7 @@ class SigrunClient(
         fnr: String,
         inntektsAar: Int,
         saksbehandlerToken: SpilleromBearerToken,
-    ): Pair<Inntektoppslag, Kildespor> {
+    ): Pair<PensjonsgivendeInntektÅr, Kildespor> {
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
         val rettighetspakke = "navSykepenger"
@@ -80,6 +110,11 @@ class SigrunClient(
             logg.info("Got response from sigrun $callIdDesc etter ${timer.millisekunder} ms")
             return response.body<JsonNode>() to kildespor
         } else {
+            if (response.status == HttpStatusCode.NotFound) {
+                // TODO: throw/handle? legg på ekstra-info i kildespor.medTillegg?
+            }
+            // TODO / NB: Gir 404 når ikke funnet noe på angitt FNR for angitt år
+            // https://skatteetaten.github.io/api-dokumentasjon/api/pgi_folketrygden?tab=Feilkoder
             logg.error(
                 "Feil under henting av PensjonsgivendeInntekt etter ${timer.millisekunder} ms: ${response.status}, Se secureLog for detaljer $callIdDesc",
             )
