@@ -15,6 +15,7 @@ import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.util.Kildespor
+import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.lang.Integer.max
@@ -57,7 +58,7 @@ class SigrunClient(
             throw InputValideringException("Kan ikke spørre på med enn $INNTEKTSAAR_MAX_COUNT år av gangen")
         }
         return (årFom..årTom).map {
-            // TODO: Feilhåndter:
+            // TODO: Feilhåndter: Hvis uhåndtert->Fail hele greie ...
             hentPensjonsgivendeInntekt(fnr = fnr, inntektsAar = it, saksbehandlerToken = saksbehandlerToken)
         }
     }
@@ -108,13 +109,16 @@ class SigrunClient(
             }
         if (response.status == HttpStatusCode.OK) {
             logg.info("Got response from sigrun $callIdDesc etter ${timer.millisekunder} ms")
-            return response.body<JsonNode>() to kildespor
+            return response.body<PensjonsgivendeInntektÅr>() to kildespor
         } else {
             if (response.status == HttpStatusCode.NotFound) {
-                // TODO: throw/handle? legg på ekstra-info i kildespor.medTillegg?
+                if (response.betyrIngenPensjonsgivendeInntektFunnet()) {
+                    return tomResponsFor(fnr = fnr, år = inntektsAar) to
+                        kildespor.medTillegg(
+                            mapOf("reponse" to response.bodyAsText()),
+                        )
+                }
             }
-            // TODO / NB: Gir 404 når ikke funnet noe på angitt FNR for angitt år
-            // https://skatteetaten.github.io/api-dokumentasjon/api/pgi_folketrygden?tab=Feilkoder
             logg.error(
                 "Feil under henting av PensjonsgivendeInntekt etter ${timer.millisekunder} ms: ${response.status}, Se secureLog for detaljer $callIdDesc",
             )
@@ -128,6 +132,23 @@ class SigrunClient(
         }
     }
 }
+
+private fun tomResponsFor(
+    fnr: String,
+    år: Int,
+): PensjonsgivendeInntektÅr =
+    """
+    {"norskPersonidentifikator":"$fnr","inntektsaar":"$år",
+    "pensjonsgivendeInntekt": null
+    }        
+    """.trimIndent().asJsonNode()
+
+/**
+ * Avgjør om repons betyr Ingen Pensjonsgivende Inntekt Funnet...
+ * Ref: https://skatteetaten.github.io/api-dokumentasjon/api/pgi_folketrygden?tab=Feilkoder
+ */
+private suspend fun HttpResponse.betyrIngenPensjonsgivendeInntektFunnet() =
+    (this.status == HttpStatusCode.NotFound) && (this.bodyAsText().contains("PGIF-008"))
 
 private class Timer {
     val startMS: Long = System.currentTimeMillis()

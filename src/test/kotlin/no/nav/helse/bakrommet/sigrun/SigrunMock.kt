@@ -6,7 +6,7 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oboClient
 import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
 import no.nav.helse.bakrommet.mockHttpClient
-import no.nav.helse.bakrommet.util.toJsonNode
+import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.assertNotNull
 
 object SigrunMock {
@@ -48,7 +48,7 @@ object SigrunMock {
 
     private fun statusFromResp(resp: String): Int? {
         return try {
-            resp.toJsonNode()["status"]?.asInt()
+            resp.asJsonNode()["status"]?.asInt()
         } catch (ex: Exception) {
             return null
         }
