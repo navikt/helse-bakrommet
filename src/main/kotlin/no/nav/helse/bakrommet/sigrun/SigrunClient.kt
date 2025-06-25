@@ -50,7 +50,20 @@ class SigrunClient(
         inntektsAarFom: Int,
         inntektsAarTom: Int,
         saksbehandlerToken: SpilleromBearerToken,
-    ): List<PensjonsgivendeInntektÅr> {
+    ): List<PensjonsgivendeInntektÅr> =
+        hentPensjonsgivendeInntektForPeriodeMedSporing(
+            fnr = fnr,
+            inntektsAarFom = inntektsAarFom,
+            inntektsAarTom = inntektsAarTom,
+            saksbehandlerToken = saksbehandlerToken,
+        ).map { it.first }
+
+    suspend fun hentPensjonsgivendeInntektForPeriodeMedSporing(
+        fnr: String,
+        inntektsAarFom: Int,
+        inntektsAarTom: Int,
+        saksbehandlerToken: SpilleromBearerToken,
+    ): List<Pair<PensjonsgivendeInntektÅr, Kildespor>> {
         val årFom = max(inntektsAarFom, INNTEKTSAAR_MIN)
         val årTom = min(inntektsAarTom, INNTEKTSAAR_MAX)
         val årListe = (årFom..årTom).toList()
@@ -59,7 +72,7 @@ class SigrunClient(
         }
         return (årFom..årTom).map {
             // TODO: Feilhåndter: Hvis uhåndtert->Fail hele greie ...
-            hentPensjonsgivendeInntekt(fnr = fnr, inntektsAar = it, saksbehandlerToken = saksbehandlerToken)
+            hentPensjonsgivendeInntektMedSporing(fnr = fnr, inntektsAar = it, saksbehandlerToken = saksbehandlerToken)
         }
     }
 
