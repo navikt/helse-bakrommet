@@ -77,9 +77,9 @@ internal fun Route.saksbehandlingsperiodeRoute(
                         tom = tom,
                     )
                 saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
-                val innhentedeDokumenter =
+                val søknader =
                     if (body.søknader != null && body.søknader.isNotEmpty()) {
-                        dokumentHenter.hentOgLagreSøknaderOgInntekter(
+                        dokumentHenter.hentOgLagreSøknader(
                             nyPeriode.id,
                             body.søknader,
                             call.request.bearerToken(),
@@ -87,8 +87,6 @@ internal fun Route.saksbehandlingsperiodeRoute(
                     } else {
                         emptyList()
                     }
-                val søknader =
-                    innhentedeDokumenter.filter { it.dokumentType == DokumentType.søknad }
                 lagInntektsforholdFraSøknader(søknader, nyPeriode).forEach(inntektsforholdDao::opprettInntektsforhold)
 
                 // TODO: Returner også innhentede dokumenter?

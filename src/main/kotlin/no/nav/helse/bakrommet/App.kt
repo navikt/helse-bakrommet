@@ -123,7 +123,6 @@ internal fun Application.appModul(
             saksbehandlingsperiodeDao,
             dokumentDao,
             sykepengesoknadBackendClient,
-            aInntektClient,
         ),
 ) {
     install(ContentNegotiation) {

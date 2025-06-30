@@ -1,12 +1,9 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.*
-import java.time.LocalDate
-import java.time.YearMonth
 import java.util.*
 
 class DokumentHenter(
@@ -14,9 +11,8 @@ class DokumentHenter(
     private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     private val dokumentDao: DokumentDao,
     private val soknadClient: SykepengesoknadBackendClient,
-    private val aInntektClient: AInntektClient,
 ) {
-    suspend fun hentOgLagreSøknaderOgInntekter(
+    suspend fun hentOgLagreSøknader(
         saksbehandlingsperiodeId: UUID,
         søknadsIder: List<UUID>,
         spilleromBearerToken: SpilleromBearerToken,
@@ -24,8 +20,6 @@ class DokumentHenter(
         if (søknadsIder.isEmpty()) return emptyList()
         val periode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(saksbehandlingsperiodeId)
         requireNotNull(periode) { "Fant ikke saksbehandlingsperiode med id=$saksbehandlingsperiodeId" }
-
-        val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
 
         // TODO: Transaksjon ? / Tilrettelegg for å kunne fullføre innhenting som feiler halvveis inni løpet ?
 
@@ -48,25 +42,6 @@ class DokumentHenter(
                 }
             }
 
-        logg.info("Henter inntekter for periode={}", periode.id)
-        val inntekt: Dokument =
-            aInntektClient.hentInntekterForMedSporing(
-                fnr = fnr,
-                maanedFom = YearMonth.from(periode.fom.minusMonths(13)),
-                maanedTom = YearMonth.from(LocalDate.now()),
-                saksbehandlerToken = spilleromBearerToken,
-            ).let { (inntekter, kildespor) ->
-                dokumentDao.opprettDokument(
-                    Dokument(
-                        dokumentType = DokumentType.aInntekt828,
-                        eksternId = null,
-                        innhold = inntekter.serialisertTilString(),
-                        request = kildespor,
-                        opprettetForBehandling = saksbehandlingsperiodeId,
-                    ),
-                )
-            }
-
-        return søknader + inntekt
+        return søknader
     }
 }

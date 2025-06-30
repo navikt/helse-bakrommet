@@ -7,8 +7,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.ainntekt.AInntektMock
-import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDTO
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
@@ -57,7 +55,7 @@ class SaksbehandlingFlytTest {
     }
 
     @Test
-    fun `oppretter saksbehandlingsperiode, henter dokumenter og oppretter inntektsforhold`() {
+    fun `oppretter saksbehandlingsperiode, henter søknader og oppretter inntektsforhold`() {
         val arbeidsgiver1 =
             Arbeidsgiverinfo(
                 identifikator = "123321123",
@@ -84,7 +82,6 @@ class SaksbehandlingFlytTest {
         val søknad3b =
             enSøknad(fnr = fnr, id = UUID.randomUUID().toString(), arbeidsgiverinfo = arbeidsgiver2).asJsonNode()
 
-        val inntekter = fnr to etInntektSvar(fnr = fnr)
         runApplicationTest(
             sykepengesoknadBackendClient =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
@@ -95,10 +92,6 @@ class SaksbehandlingFlytTest {
                             søknad3,
                             søknad3b,
                         ).associateBy { it.søknadId },
-                ),
-            aInntektClient =
-                AInntektMock.aInntektClientMock(
-                    fnrTilSvar = mapOf(inntekter),
                 ),
         ) { daoer ->
             daoer.personDao.opprettPerson(fnr, personId)
@@ -125,7 +118,7 @@ class SaksbehandlingFlytTest {
             val periode = perioder.first()
             val dokumenterFraDB = daoer.dokumentDao.hentDokumenterFor(periode.id)
 
-            assertEquals(5, dokumenterFraDB.size)
+            assertEquals(4, dokumenterFraDB.size)
             dokumenterFraDB.find { it.eksternId == søknad1.søknadId }!!.also {
                 assertEquals(søknad1, it.innhold.asJsonNode())
             }
@@ -147,22 +140,6 @@ class SaksbehandlingFlytTest {
             }
             dokumenterFraDB.find { it.eksternId == søknad3b.søknadId }!!.also {
                 assertEquals(søknad3b, it.innhold.asJsonNode())
-            }
-            dokumenterFraDB.find { it.dokumentType == "ainntekt828" }!!.also { dok ->
-                assertEquals(inntekter.second.asJsonNode(), dok.innhold.asJsonNode())
-                assertTrue(
-                    listOf(
-                        "AInntektClient.kt",
-                        "DokumentHenter.kt",
-                        "/rs/api/v1/hentinntektliste",
-                        "8-28",
-                        fnr,
-                        "imagename",
-                    ).all { spor ->
-                        dok.request.kilde.contains(spor)
-                    },
-                    "Fant ikke alt som var forventet i ${dok.request.kilde}",
-                ) // TODO: Outsource til egen dedikert test?
             }
 
             val dokumenter: List<DokumentDto> =
