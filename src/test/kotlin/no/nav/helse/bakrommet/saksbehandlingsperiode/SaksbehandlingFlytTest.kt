@@ -330,6 +330,23 @@ class SaksbehandlingFlytTest {
                     )
                 }
             }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom" : "2024-05", "tom" : "2025-06" }""")
+            }.let { postResponse ->
+                val location = postResponse.headers["Location"]!!
+                val jsonPostResponse = postResponse.body<JsonNode>()
+                assertEquals(201, postResponse.status.value)
+
+                client.get(location) {
+                    bearerAuth(TestOppsett.userToken)
+                }.let { getResponse ->
+                    val jsonGetResponse = getResponse.body<JsonNode>()
+                    assertEquals(jsonPostResponse, jsonGetResponse)
+                }
+            }
         }
     }
 

@@ -28,6 +28,7 @@ import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.ainntekt.ainntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
@@ -143,7 +144,22 @@ internal fun Application.appModul(
             personsøkRoute(pdlClient, personDao)
             personinfoRoute(pdlClient, personDao)
             soknaderRoute(sykepengesoknadBackendClient, personDao)
-            saksbehandlingsperiodeRoute(saksbehandlingsperiodeDao, personDao, dokumentHenter, dokumentDao, inntektsforholdDao)
+            saksbehandlingsperiodeRoute(
+                saksbehandlingsperiodeDao,
+                personDao,
+                dokumentHenter,
+                dokumentDao,
+                inntektsforholdDao,
+                dokumentRoutes =
+                    listOf {
+                        ainntektRelativeRoute(
+                            aInntektClient,
+                            personDao,
+                            saksbehandlingsperiodeDao,
+                            dokumentDao,
+                        )
+                    },
+            )
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
             arbeidsforholdRoute(aaRegClient, personDao)
             ainntektRoute(aInntektClient, personDao)

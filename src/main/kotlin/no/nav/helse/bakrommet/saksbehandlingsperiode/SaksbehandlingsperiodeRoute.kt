@@ -49,6 +49,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
     dokumentHenter: DokumentHenter,
     dokumentDao: DokumentDao,
     inntektsforholdDao: InntektsforholdDao,
+    dokumentRoutes: List<Route.() -> Unit> = emptyList(),
 ) {
     route("/v1/{personId}/saksbehandlingsperioder") {
         data class CreatePeriodeRequest(
@@ -120,6 +121,24 @@ internal fun Route.saksbehandlingsperiodeRoute(
                 val dokumenterDto = dokumenter.map { it.tilDto() }
                 call.respondText(dokumenterDto.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }
+        }
+
+        route("/{dokumentUUID}") {
+            get {
+                call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
+                    val dokumentId = call.parameters["dokumentUUID"].somGyldigUUID()
+                    val dok = dokumentDao.hentDokument(dokumentId)
+                    if (dok == null || (dok.opprettetForBehandling != periode.id)) {
+                        call.respond(HttpStatusCode.NotFound)
+                    } else {
+                        call.respondText(dok.tilDto().serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+                    }
+                }
+            }
+        }
+
+        dokumentRoutes.forEach { dokRoute ->
+            dokRoute(this)
         }
     }
 }
