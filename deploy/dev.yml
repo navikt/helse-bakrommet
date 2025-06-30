@@ -5,8 +5,6 @@ metadata:
     team: speilvendt
   name: bakrommet
   namespace: speilvendt
-  annotations:
-    texas.nais.io/enabled: "true"
 spec:
   image: {{image}}
   port: 8080
