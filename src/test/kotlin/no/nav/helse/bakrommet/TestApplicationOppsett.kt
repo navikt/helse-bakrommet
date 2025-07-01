@@ -21,6 +21,8 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.util.objectMapper
@@ -110,6 +112,7 @@ fun runApplicationTest(
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient = AInntektMock.aInntektClientMock(),
+    sigrunClient: SigrunClient = SigrunMock.sigrunMockClient(),
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
 ) = testApplication {
@@ -126,6 +129,7 @@ fun runApplicationTest(
             aaRegClient = aaRegClient,
             aInntektClient = aInntektClient,
             inntektsmeldingClient = inntektsmeldingClient,
+            sigrunClient = sigrunClient,
         )
     }
     client =

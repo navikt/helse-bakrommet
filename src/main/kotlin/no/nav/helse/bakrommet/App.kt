@@ -32,6 +32,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.aareg.arbeidsforholdRelativ
 import no.nav.helse.bakrommet.saksbehandlingsperiode.ainntekt.ainntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.pensjonsgivendeinntekt.pensjonsgivendeInntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
@@ -163,6 +164,14 @@ internal fun Application.appModul(
                         {
                             arbeidsforholdRelativeRoute(
                                 aaRegClient,
+                                personDao,
+                                saksbehandlingsperiodeDao,
+                                dokumentDao,
+                            )
+                        },
+                        {
+                            pensjonsgivendeInntektRelativeRoute(
+                                sigrunClient,
                                 personDao,
                                 saksbehandlingsperiodeDao,
                                 dokumentDao,

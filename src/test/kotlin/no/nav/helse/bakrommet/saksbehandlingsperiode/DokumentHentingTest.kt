@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.sigrun.SigrunClientTest
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -47,6 +48,7 @@ class DokumentHentingTest {
             }.let { postResponse ->
                 val location = postResponse.headers["Location"]!!
                 val jsonPostResponse = postResponse.body<DokumentDto>()
+                assertEquals("ainntekt828", jsonPostResponse.dokumentType)
 
                 assertEquals(201, postResponse.status.value)
                 assertEquals(fakeInntektForFnrRespons.asJsonNode(), jsonPostResponse.innhold)
@@ -89,9 +91,55 @@ class DokumentHentingTest {
             }.let { postResponse ->
                 val location = postResponse.headers["Location"]!!
                 val jsonPostResponse = postResponse.body<DokumentDto>()
+                assertEquals("arbeidsforhold", jsonPostResponse.dokumentType)
 
                 assertEquals(201, postResponse.status.value)
                 assertEquals(fakeAARegForFnrRespons.asJsonNode(), jsonPostResponse.innhold)
+
+                // Verifiser at dokumentet kan hentes via location-header
+                client.get(location) {
+                    bearerAuth(TestOppsett.userToken)
+                }.let { getResponse ->
+                    assertEquals(200, getResponse.status.value)
+                    val jsonGetResponse = getResponse.body<DokumentDto>()
+                    assertEquals(jsonPostResponse, jsonGetResponse)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `henter pensjonsgivende inntekt dokument`() {
+        runApplicationTest(
+            sigrunClient = SigrunClientTest.client2010to2050(FNR),
+        ) { daoer ->
+            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
+            }
+
+            val periode =
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                }.body<List<Saksbehandlingsperiode>>().first()
+
+            // Hent pensjonsgivendeinntekt dokument
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter/pensjonsgivendeinntekt/hent") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "senesteÅrTom": 2025, "antallÅrBakover": 3 }""")
+            }.let { postResponse ->
+                val location = postResponse.headers["Location"]!!
+                val jsonPostResponse = postResponse.body<DokumentDto>()
+                assertEquals("pensjonsgivendeinntekt", jsonPostResponse.dokumentType)
+
+                assertEquals(201, postResponse.status.value)
+
+                val data = jsonPostResponse.innhold
+                assertEquals(setOf(2023, 2024, 2025), data.map { it["inntektsaar"].asInt() }.toSet())
 
                 // Verifiser at dokumentet kan hentes via location-header
                 client.get(location) {

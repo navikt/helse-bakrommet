@@ -154,6 +154,8 @@ class SigrunClient(
 
 private fun PensjonsgivendeInntektÅr.pensjonsgivendeInntekt(): JsonNode? = this["pensjonsgivendeInntekt"]
 
+fun PensjonsgivendeInntektÅr.inntektsaar() = this["inntektsaar"]!!.asText().toInt()
+
 private fun PensjonsgivendeInntektÅr.harFastsattPensjonsgivendeInntekt(): Boolean =
     this.pensjonsgivendeInntekt().let {
         (it != null) && (!it.isNull)

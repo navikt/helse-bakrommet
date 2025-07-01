@@ -11,32 +11,42 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class SigrunClientTest {
-    val token = SpilleromBearerToken(TestOppsett.userToken)
+    companion object {
+        fun client2010to2050(fnr: String) = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSvar2010to2050(fnr))
 
+        fun fnrÅrTilSvar2010to2050(fnr: String) =
+            mapOf(
+                *(2010..2100).map { år ->
+                    (fnr to år.toString()) to sigrunÅr(fnr, år, næring = år * 100)
+                }.toTypedArray(),
+            )
+
+        fun clientMedManglendeÅr(
+            fnr: String,
+            vararg manglendeÅr: Int,
+        ): SigrunClient {
+            val manglendeÅrStr: List<String> = manglendeÅr.map { it.toString() }
+
+            val dataSomManglerNoenÅr =
+                fnrÅrTilSvar2010to2050(fnr).mapValues { (fnrÅr, data) ->
+                    if (fnrÅr.second in manglendeÅrStr) {
+                        sigrunErrorResponse(status = 404, kode = "PGIF-008")
+                    } else {
+                        data
+                    }
+                }
+            return SigrunMock.sigrunMockClient(fnrÅrTilSvar = dataSomManglerNoenÅr)
+        }
+    }
+
+    val token = SpilleromBearerToken(TestOppsett.userToken)
     val fnr = "01017099999"
 
-    val fnrÅrTilSvar2010to2050 =
-        mapOf(
-            *(2010..2100).map { år ->
-                (fnr to år.toString()) to sigrunÅr(fnr, år, næring = år * 100)
-            }.toTypedArray(),
+    private fun clientMedManglendeÅr(vararg manglendeÅr: Int) =
+        Companion.clientMedManglendeÅr(
+            fnr = fnr,
+            manglendeÅr = manglendeÅr,
         )
-
-    val client2010to2050 = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSvar2010to2050)
-
-    private fun clientMedManglendeÅr(vararg manglendeÅr: Int): SigrunClient {
-        val manglendeÅrStr: List<String> = manglendeÅr.map { it.toString() }
-
-        val dataSomManglerNoenÅr =
-            fnrÅrTilSvar2010to2050.mapValues { (fnrÅr, data) ->
-                if (fnrÅr.second in manglendeÅrStr) {
-                    sigrunErrorResponse(status = 404, kode = "PGIF-008")
-                } else {
-                    data
-                }
-            }
-        return SigrunMock.sigrunMockClient(fnrÅrTilSvar = dataSomManglerNoenÅr)
-    }
 
     private fun List<PensjonsgivendeInntektÅrMedSporing>.tommeOgEksisterndeÅr(): Pair<Set<Int>, Set<Int>> {
         val tomme = mutableSetOf<Int>()

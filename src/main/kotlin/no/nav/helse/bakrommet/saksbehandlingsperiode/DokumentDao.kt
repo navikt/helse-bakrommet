@@ -12,6 +12,7 @@ object DokumentType {
     val søknad = "søknad"
     val aInntekt828 = "ainntekt828"
     val arbeidsforhold = "arbeidsforhold"
+    val pensjonsgivendeinntekt = "pensjonsgivendeinntekt"
 }
 
 data class Dokument(
