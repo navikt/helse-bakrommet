@@ -50,16 +50,17 @@ class SigrunClient(
 
     suspend fun hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
         fnr: String,
-        senesteAarTom: Int,
+        senesteÅrTom: Int,
         antallÅrBakover: Int,
         saksbehandlerToken: SpilleromBearerToken,
     ): List<PensjonsgivendeInntektÅrMedSporing> {
         check(antallÅrBakover <= INNTEKTSAAR_MAX_COUNT)
+        check(senesteÅrTom <= INNTEKTSAAR_MAX)
 
-        val absoluttEldsteMulige = max(INNTEKTSAAR_MIN, senesteAarTom - (2 * antallÅrBakover))
+        val absoluttEldsteMulige = max(INNTEKTSAAR_MIN, senesteÅrTom - (2 * antallÅrBakover))
 
         val hentedeÅr = mutableListOf<PensjonsgivendeInntektÅrMedSporing>()
-        for (år in senesteAarTom downTo absoluttEldsteMulige) {
+        for (år in senesteÅrTom downTo absoluttEldsteMulige) {
             val res =
                 hentPensjonsgivendeInntektMedSporing(
                     fnr = fnr,
