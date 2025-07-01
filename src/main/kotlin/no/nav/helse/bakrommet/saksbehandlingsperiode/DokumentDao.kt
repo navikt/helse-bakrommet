@@ -11,6 +11,7 @@ import javax.sql.DataSource
 object DokumentType {
     val søknad = "søknad"
     val aInntekt828 = "ainntekt828"
+    val arbeidsforhold = "arbeidsforhold"
 }
 
 data class Dokument(

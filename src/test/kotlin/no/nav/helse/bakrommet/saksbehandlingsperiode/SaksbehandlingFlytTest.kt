@@ -7,6 +7,9 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.aareg.AARegMock
+import no.nav.helse.bakrommet.ainntekt.AInntektMock
+import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDTO
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
@@ -82,6 +85,9 @@ class SaksbehandlingFlytTest {
         val søknad3b =
             enSøknad(fnr = fnr, id = UUID.randomUUID().toString(), arbeidsgiverinfo = arbeidsgiver2).asJsonNode()
 
+        val fakeInntektForFnrRespons = etInntektSvar(fnr = fnr)
+        val fakeAARegForFnrRespons = AARegMock.Person1.respV2
+
         runApplicationTest(
             sykepengesoknadBackendClient =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
@@ -93,6 +99,8 @@ class SaksbehandlingFlytTest {
                             søknad3b,
                         ).associateBy { it.søknadId },
                 ),
+            aaRegClient = AARegMock.aaRegClientMock(mapOf(fnr to fakeAARegForFnrRespons)),
+            aInntektClient = AInntektMock.aInntektClientMock(mapOf(fnr to fakeInntektForFnrRespons)),
         ) { daoer ->
             daoer.personDao.opprettPerson(fnr, personId)
             client.post("/v1/$personId/saksbehandlingsperioder") {
@@ -308,19 +316,50 @@ class SaksbehandlingFlytTest {
                 }
             }
 
+            // //////////////
+            // //////////////
+
             client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("""{ "fom" : "2024-05", "tom" : "2025-06" }""")
             }.let { postResponse ->
                 val location = postResponse.headers["Location"]!!
-                val jsonPostResponse = postResponse.body<JsonNode>()
+                val jsonPostResponse = postResponse.body<DokumentDto>()
+
                 assertEquals(201, postResponse.status.value)
+                assertEquals(fakeInntektForFnrRespons.asJsonNode(), jsonPostResponse.innhold)
 
                 client.get(location) {
                     bearerAuth(TestOppsett.userToken)
                 }.let { getResponse ->
-                    val jsonGetResponse = getResponse.body<JsonNode>()
+                    assertEquals(200, getResponse.status.value)
+                    val jsonGetResponse = getResponse.body<DokumentDto>()
+                    println("********* AINNTEKT-DOKUMENT **********")
+                    println(jsonGetResponse)
+                    assertEquals(jsonPostResponse, jsonGetResponse)
+                }
+            }
+
+            // //////////////
+            // //////////////
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periode.id}/dokumenter/arbeidsforhold/hent") {
+                bearerAuth(TestOppsett.userToken)
+            }.let { postResponse ->
+                val location = postResponse.headers["Location"]!!
+                val jsonPostResponse = postResponse.body<DokumentDto>()
+
+                assertEquals(201, postResponse.status.value)
+                assertEquals(fakeAARegForFnrRespons.asJsonNode(), jsonPostResponse.innhold)
+
+                client.get(location) {
+                    bearerAuth(TestOppsett.userToken)
+                }.let { getResponse ->
+                    assertEquals(200, getResponse.status.value)
+                    val jsonGetResponse = getResponse.body<DokumentDto>()
+                    println("********* ARBEIDSFORHOLD-DOKUMENT **********")
+                    println(jsonGetResponse)
                     assertEquals(jsonPostResponse, jsonGetResponse)
                 }
             }

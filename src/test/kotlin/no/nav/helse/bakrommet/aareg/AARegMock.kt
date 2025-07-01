@@ -46,10 +46,10 @@ object AARegMock {
             }
         }
 
-    fun aaRegClientMock() =
+    fun aaRegClientMock(fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.respV2)) =
         AARegClient(
             configuration = TestOppsett.configuration.aareg,
             oboClient = TestOppsett.oboClient,
-            httpClient = aaregMockHttpClient(),
+            httpClient = aaregMockHttpClient(fnrTilSvar = fnrTilSvar),
         )
 }

@@ -13,9 +13,12 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.util.*
+
+typealias Arbeidsforholdoppslag = JsonNode
 
 class AARegClient(
     private val configuration: Configuration.AAReg,
@@ -33,20 +36,42 @@ class AARegClient(
     suspend fun hentArbeidsforholdFor(
         fnr: String,
         saksbehandlerToken: SpilleromBearerToken,
-    ): JsonNode {
+    ): Arbeidsforholdoppslag {
+        return hentArbeidsforholdForMedSporing(
+            fnr = fnr,
+            saksbehandlerToken = saksbehandlerToken,
+        ).first
+    }
+
+    suspend fun hentArbeidsforholdForMedSporing(
+        fnr: String,
+        saksbehandlerToken: SpilleromBearerToken,
+    ): Pair<Arbeidsforholdoppslag, Kildespor> {
         val callId: String = UUID.randomUUID().toString()
+        val arbeidsforholdstatusFilter = "AKTIV,AVSLUTTET,FREMTIDIG"
+        val url = "https://${configuration.hostname}/api/v2/arbeidstaker/arbeidsforhold"
+
+        val kildespor =
+            Kildespor.fraHer(
+                Throwable(),
+                fnr,
+                arbeidsforholdstatusFilter,
+                url,
+                callId,
+            ) // Inkluder saksbehandlerident?
+
         val response =
-            httpClient.get("https://${configuration.hostname}/api/v2/arbeidstaker/arbeidsforhold") {
+            httpClient.get(url) {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 header(HttpHeaders.Accept, ContentType.Application.Json)
                 header("Nav-Call-Id", callId)
                 header("Nav-Personident", fnr)
-                parameter("arbeidsforholdstatus", "AKTIV,AVSLUTTET,FREMTIDIG") // Default i V2 er: AKTIV,FREMTIDIG
+                parameter("arbeidsforholdstatus", arbeidsforholdstatusFilter) // Default i V2 er: AKTIV,FREMTIDIG
                 // parameter("historikk", "true") // TODO
                 // parameter("regelverk", "ALLE") // TODO
             }
         if (response.status == HttpStatusCode.OK) {
-            return response.body<JsonNode>()
+            return response.body<JsonNode>() to kildespor
         } else {
             logg.warn("hentArbeidsforholdFor statusCode={} callId={}", response.status.value, callId)
             sikkerLogger.warn("hentArbeidsforholdFor statusCode={} callId={} body={}", response.status.value, callId, response.bodyAsText())

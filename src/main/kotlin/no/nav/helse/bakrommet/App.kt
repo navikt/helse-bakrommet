@@ -28,6 +28,7 @@ import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.aareg.arbeidsforholdRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.ainntekt.ainntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
@@ -150,14 +151,24 @@ internal fun Application.appModul(
                 dokumentDao,
                 inntektsforholdDao,
                 dokumentRoutes =
-                    listOf {
-                        ainntektRelativeRoute(
-                            aInntektClient,
-                            personDao,
-                            saksbehandlingsperiodeDao,
-                            dokumentDao,
-                        )
-                    },
+                    listOf(
+                        {
+                            ainntektRelativeRoute(
+                                aInntektClient,
+                                personDao,
+                                saksbehandlingsperiodeDao,
+                                dokumentDao,
+                            )
+                        },
+                        {
+                            arbeidsforholdRelativeRoute(
+                                aaRegClient,
+                                personDao,
+                                saksbehandlingsperiodeDao,
+                                dokumentDao,
+                            )
+                        },
+                    ),
             )
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
             arbeidsforholdRoute(aaRegClient, personDao)
