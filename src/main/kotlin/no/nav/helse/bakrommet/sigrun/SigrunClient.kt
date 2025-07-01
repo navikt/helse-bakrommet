@@ -13,17 +13,20 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
-import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.lang.Integer.max
-import java.lang.Integer.min
 import java.time.LocalDate
 import java.util.*
 
 typealias PensjonsgivendeInntektÅr = JsonNode
+typealias PensjonsgivendeInntektÅrMedSporing = Pair<PensjonsgivendeInntektÅr, Kildespor>
+
+fun PensjonsgivendeInntektÅrMedSporing.data() = this.first
+
+fun PensjonsgivendeInntektÅrMedSporing.sporing() = this.second
 
 class SigrunClient(
     private val configuration: Configuration.Sigrun,
@@ -45,35 +48,37 @@ class SigrunClient(
         val INNTEKTSAAR_MAX_COUNT = 10
     }
 
-    suspend fun hentPensjonsgivendeInntektForPeriode(
+    suspend fun hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
         fnr: String,
-        inntektsAarFom: Int,
-        inntektsAarTom: Int,
+        senesteAarTom: Int,
+        antallÅrBakover: Int,
         saksbehandlerToken: SpilleromBearerToken,
-    ): List<PensjonsgivendeInntektÅr> =
-        hentPensjonsgivendeInntektForPeriodeMedSporing(
-            fnr = fnr,
-            inntektsAarFom = inntektsAarFom,
-            inntektsAarTom = inntektsAarTom,
-            saksbehandlerToken = saksbehandlerToken,
-        ).map { it.first }
+    ): List<PensjonsgivendeInntektÅrMedSporing> {
+        check(antallÅrBakover <= INNTEKTSAAR_MAX_COUNT)
 
-    suspend fun hentPensjonsgivendeInntektForPeriodeMedSporing(
-        fnr: String,
-        inntektsAarFom: Int,
-        inntektsAarTom: Int,
-        saksbehandlerToken: SpilleromBearerToken,
-    ): List<Pair<PensjonsgivendeInntektÅr, Kildespor>> {
-        val årFom = max(inntektsAarFom, INNTEKTSAAR_MIN)
-        val årTom = min(inntektsAarTom, INNTEKTSAAR_MAX)
-        val årListe = (årFom..årTom).toList()
-        if (årListe.size > INNTEKTSAAR_MAX_COUNT) {
-            throw InputValideringException("Kan ikke spørre på med enn $INNTEKTSAAR_MAX_COUNT år av gangen")
+        val absoluttEldsteMulige = max(INNTEKTSAAR_MIN, senesteAarTom - (2 * antallÅrBakover))
+
+        val hentedeÅr = mutableListOf<PensjonsgivendeInntektÅrMedSporing>()
+        for (år in senesteAarTom downTo absoluttEldsteMulige) {
+            val res =
+                hentPensjonsgivendeInntektMedSporing(
+                    fnr = fnr,
+                    inntektsAar = år,
+                    saksbehandlerToken = saksbehandlerToken,
+                )
+            hentedeÅr += res
+
+            val antallTommeIStarten = hentedeÅr.takeWhile { !it.data().harFastsattPensjonsgivendeInntekt() }.size
+            val antallÅrTilOgMedSisteFastsatte = hentedeÅr.size - antallTommeIStarten
+
+            if (antallTommeIStarten > antallÅrBakover) {
+                break // Gir opp (max 4 tomme hvis 3 etc.. TODO: Revurderer dette ?)
+            }
+            if (antallÅrTilOgMedSisteFastsatte >= antallÅrBakover) {
+                break
+            }
         }
-        return (årFom..årTom).map {
-            // TODO: Feilhåndter: Hvis uhåndtert->Fail hele greie ...
-            hentPensjonsgivendeInntektMedSporing(fnr = fnr, inntektsAar = it, saksbehandlerToken = saksbehandlerToken)
-        }
+        return hentedeÅr
     }
 
     suspend fun hentPensjonsgivendeInntekt(
@@ -145,6 +150,13 @@ class SigrunClient(
         }
     }
 }
+
+private fun PensjonsgivendeInntektÅr.pensjonsgivendeInntekt(): JsonNode? = this["pensjonsgivendeInntekt"]
+
+private fun PensjonsgivendeInntektÅr.harFastsattPensjonsgivendeInntekt(): Boolean =
+    this.pensjonsgivendeInntekt().let {
+        (it != null) && (!it.isNull)
+    }
 
 private fun tomResponsFor(
     fnr: String,

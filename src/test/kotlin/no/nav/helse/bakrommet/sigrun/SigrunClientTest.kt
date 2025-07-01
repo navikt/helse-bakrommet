@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
+import org.junit.jupiter.api.assertThrows
 
 class SigrunClientTest {
     val token = SpilleromBearerToken(TestOppsett.userToken)
@@ -24,32 +24,53 @@ class SigrunClientTest {
 
     val client2010to2050 = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSvar2010to2050)
 
-    @Test
-    fun `manglende pensjonsgivende inntekt for et år skal mappe til en respons med pensjonsgivendeInntekt=null`() {
-        val dataSomMangler2020 =
-            fnrÅrTilSvar2010to2050.mapValues {
-                if (it.key == (fnr to "2020")) {
+    private fun clientMedManglendeÅr(vararg manglendeÅr: Int): SigrunClient {
+        val manglendeÅrStr: List<String> = manglendeÅr.map { it.toString() }
+
+        val dataSomManglerNoenÅr =
+            fnrÅrTilSvar2010to2050.mapValues { (fnrÅr, data) ->
+                if (fnrÅr.second in manglendeÅrStr) {
                     sigrunErrorResponse(status = 404, kode = "PGIF-008")
                 } else {
-                    it.value
+                    data
                 }
             }
-        val client = SigrunMock.sigrunMockClient(fnrÅrTilSvar = dataSomMangler2020)
+        return SigrunMock.sigrunMockClient(fnrÅrTilSvar = dataSomManglerNoenÅr)
+    }
+
+    private fun List<PensjonsgivendeInntektÅrMedSporing>.tommeOgEksisterndeÅr(): Pair<Set<Int>, Set<Int>> {
+        val tomme = mutableSetOf<Int>()
+        val eksisterende = mutableSetOf<Int>()
+        this.forEach {
+            val år = it.data().inntektsaar()
+            if (it.data()["pensjonsgivendeInntekt"].isNull) {
+                tomme += år
+            } else {
+                assertEquals(1, it.data()["pensjonsgivendeInntekt"]!!.size())
+                eksisterende += år
+            }
+        }
+        return tomme to eksisterende
+    }
+
+    @Test
+    fun `Hent 2024 og 3 tilbake, men 2024 mangler, gir 2023, 2022, 2021`() {
+        val client = clientMedManglendeÅr(2024)
         runBlocking {
             client
-                .hentPensjonsgivendeInntektForPeriodeMedSporing(fnr, 2019, 2022, token)
+                .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2024, 3, token)
         }.also { listeMedSporing ->
             val årTilResMap = listeMedSporing.associate { it.data().inntektsaar() to it }
 
-            val tom2020 =
+            val tom2024 =
                 """{
-                "norskPersonidentifikator":"$fnr","inntektsaar":"2020",
+                "norskPersonidentifikator":"$fnr","inntektsaar":"2024",
                 "pensjonsgivendeInntekt": null
             }""".asJsonNode()
-            val resultat2020 = årTilResMap[2020]!!
-            assertEquals(tom2020, resultat2020.data())
+            val resultat2024 = årTilResMap[2024]!!
+            assertEquals(tom2024, resultat2024.data())
             assertTrue(
-                resultat2020.sporing().kilde.contains(
+                resultat2024.sporing().kilde.contains(
                     """
                     "ske-message":{"kode":"PGIF-008","melding":"Fant ikke pensjonsgivende inntekt for oppgitt personidentifikator og inntektsår."
                     """.trimIndent(),
@@ -57,9 +78,8 @@ class SigrunClientTest {
                 "manglende inntekt skal ha med responsen fra skatt i sporingen",
             )
 
-            årTilResMap.filter { it.key != 2020 }.also { deAndre ->
-                assertEquals(3, deAndre.size)
-                assertEquals(setOf(2019, 2021, 2022), deAndre.keys)
+            årTilResMap.filter { it.key != 2024 }.also { deAndre ->
+                assertEquals(setOf(2021, 2022, 2023), deAndre.keys)
                 deAndre.values.forEach { resp ->
                     assertEquals(
                         1,
@@ -68,38 +88,56 @@ class SigrunClientTest {
                     )
                 }
             }
+        }
+    }
+
+    @Test
+    fun `diverse caser med manglende år`() {
+        runBlocking {
+            clientMedManglendeÅr(2024)
+                .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2024, 3, token)
+        }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
+            assertEquals(setOf(2024), tomme)
+            assertEquals(setOf(2021, 2022, 2023), eksisterende)
+        }
+
+        runBlocking {
+            clientMedManglendeÅr(2023, 2024, 2025)
+                .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2025, 3, token)
+        }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
+            assertEquals(setOf(2023, 2024, 2025), tomme)
+            assertEquals(setOf(2020, 2021, 2022), eksisterende)
+        }
+
+        runBlocking {
+            clientMedManglendeÅr(2022, 2023, 2024, 2025)
+                .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2025, 3, token)
+        }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
+            assertEquals(setOf(2022, 2023, 2024, 2025), tomme)
+            assertEquals(emptySet<Int>(), eksisterende)
+        }
+
+        runBlocking {
+            clientMedManglendeÅr(2022, 2024, 2025)
+                .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2025, 3, token)
+        }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
+            assertEquals(setOf(2022, 2024, 2025), tomme)
+            assertEquals(setOf(2021, 2023), eksisterende)
+        }
+
+        assertThrows<IllegalStateException>("tillater ikke mer enn 10") {
             runBlocking {
-                client
-                    .hentPensjonsgivendeInntektForPeriode(fnr, 2019, 2022, token)
-            }.also { listeUtenSporing ->
-                assertEquals(
-                    listeMedSporing.map { it.data() }.sortedBy { it.inntektsaar() },
-                    listeUtenSporing.sortedBy { it.inntektsaar() },
-                )
+                clientMedManglendeÅr()
+                    .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2025, 11, token)
             }
         }
-    }
 
-    @Test
-    fun `Henter ikke år tidligere enn 2017 eller senere enn inneværende år`() {
-        // NB: Vil kunne feile på antall > SigrunClient.INNTEKTSAAR_MAX_COUNT i 2027 hvis INNTEKTSAAR_MAX_COUNT=10
         runBlocking {
-            client2010to2050
-                .hentPensjonsgivendeInntektForPeriode(fnr, 2015, 2080, token)
-        }.also { liste ->
-            val alleÅrIRespons = liste.map { it.inntektsaar() }
-            assertEquals(2017, alleÅrIRespons.min(), "henter ikke år tidligere enn 2017")
-            assertEquals(LocalDate.now().year, alleÅrIRespons.max(), "henter ikke år senere enn inneværende år")
-        }
-    }
-
-    @Test
-    fun `Henter år fom 2020, tom 2024`() {
-        runBlocking {
-            client2010to2050
-                .hentPensjonsgivendeInntektForPeriode(fnr, 2020, 2024, token)
-        }.also { liste ->
-            assertEquals(setOf(2020, 2021, 2022, 2023, 2024), liste.map { it.inntektsaar() }.toSet())
+            clientMedManglendeÅr()
+                .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2025, 10, token)
+        }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
+            assertEquals(emptySet<Int>(), tomme)
+            assertEquals((2017..2025).toList().toSet(), eksisterende, "uansett tidligst 2017")
         }
     }
 }
