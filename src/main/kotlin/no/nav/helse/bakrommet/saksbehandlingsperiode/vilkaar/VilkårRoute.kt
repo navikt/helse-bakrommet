@@ -6,6 +6,8 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.PARAM_PERIODEUUID
+import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -33,7 +35,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
 ) {
-    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaar") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vurderteVilkår =
@@ -45,7 +47,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
         }
     }
 
-    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/{kode}") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaar/{kode}") {
         put {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vilkårsKode = Kode(call.parameters["kode"]!!)

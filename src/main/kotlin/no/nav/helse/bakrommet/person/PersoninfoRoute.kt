@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.person
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.alder
@@ -13,7 +14,7 @@ internal fun Route.personinfoRoute(
     pdlClient: PdlClient,
     personDao: PersonDao,
 ) {
-    get("/v1/{personId}/personinfo") {
+    get("/v1/{$PARAM_PERSONID}/personinfo") {
         call.medIdent(personDao) { fnr, personId ->
             val token = call.request.bearerToken()
             val hentPersonInfo =

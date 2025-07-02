@@ -7,6 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
+import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -44,7 +45,7 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
     personDao: PersonDao,
     inntektsforholdDao: InntektsforholdDao,
 ) {
-    route("/v1/{personId}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/inntektsforhold") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/inntektsforhold") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val inntektsforholdFraDB = inntektsforholdDao.hentInntektsforholdFor(periode)

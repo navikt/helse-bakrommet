@@ -53,7 +53,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
     inntektsforholdDao: InntektsforholdDao,
     dokumentRoutes: List<Route.() -> Unit> = emptyList(),
 ) {
-    route("/v1/{personId}/saksbehandlingsperioder") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder") {
         data class CreatePeriodeRequest(
             val fom: String,
             val tom: String,
@@ -106,7 +106,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
         }
     }
 
-    route("/v1/{personId}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 call.respondText(periode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
@@ -114,7 +114,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
         }
     }
 
-    route("/v1/{personId}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val dokumenter = dokumentDao.hentDokumenterFor(periode.id)

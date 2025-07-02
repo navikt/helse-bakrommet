@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.sykepengesoknad
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
@@ -15,7 +16,7 @@ internal fun Route.soknaderRoute(
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
     personDao: PersonDao,
 ) {
-    get("/v1/{personId}/soknader") {
+    get("/v1/{$PARAM_PERSONID}/soknader") {
         call.medIdent(personDao) { fnr, personId ->
             val fomParam = call.request.queryParameters["fom"]
             val fom =
@@ -40,7 +41,7 @@ internal fun Route.soknaderRoute(
         }
     }
 
-    get("/v1/{personId}/soknader/{soknadId}") {
+    get("/v1/{$PARAM_PERSONID}/soknader/{soknadId}") {
         call.medIdent(personDao) { fnr, personId ->
             val soknadId = call.parameters["soknadId"] ?: throw InputValideringException("Mangler søknadId")
 
