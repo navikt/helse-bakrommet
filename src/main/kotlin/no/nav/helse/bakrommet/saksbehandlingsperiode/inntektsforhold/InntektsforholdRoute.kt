@@ -87,9 +87,9 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
 
         route("/{inntektsforholdUUID}") {
             put("/dagoversikt") {
-                val dagoversikt = call.receive<JsonNode>()
+                val dagerSomSkalOppdateres = call.receive<JsonNode>()
                 call.medInntektsforhold(personDao, saksbehandlingsperiodeDao, inntektsforholdDao) { inntektsforhold ->
-                    inntektsforholdDao.oppdaterDagoversikt(inntektsforhold, dagoversikt)
+                    inntektsforholdDao.oppdaterDagoversiktDager(inntektsforhold, dagerSomSkalOppdateres)
                 }
                 call.respond(HttpStatusCode.NoContent)
             }

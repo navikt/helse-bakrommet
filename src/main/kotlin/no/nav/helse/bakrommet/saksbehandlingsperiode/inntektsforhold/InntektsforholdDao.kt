@@ -108,16 +108,59 @@ class InntektsforholdDao(private val dataSource: DataSource) {
         return hentInntektsforhold(inntektsforhold.id)!!
     }
 
-    fun oppdaterDagoversikt(
+    fun oppdaterDagoversiktDager(
         inntektsforhold: Inntektsforhold,
-        dagoversikt: JsonNode,
+        dagerSomSkalOppdateresJson: JsonNode,
     ): Inntektsforhold {
+        // Hent eksisterende dagoversikt
+        val eksisterendeDagoversikt =
+            inntektsforhold.dagoversikt?.let { dagoversiktJson ->
+                if (dagoversiktJson.isArray) {
+                    dagoversiktJson.toList()
+                } else {
+                    emptyList()
+                }
+            } ?: emptyList()
+
+        // Opprett map for enkel oppslag basert på dato
+        val eksisterendeDagerMap =
+            eksisterendeDagoversikt.associateBy {
+                it["dato"].asText()
+            }.toMutableMap()
+
+        // Oppdater kun dagene som finnes i input, ignorer helgedager
+        if (dagerSomSkalOppdateresJson.isArray) {
+            dagerSomSkalOppdateresJson.forEach { oppdatertDagJson ->
+                val dato = oppdatertDagJson["dato"].asText()
+                val eksisterendeDag = eksisterendeDagerMap[dato]
+
+                if (eksisterendeDag != null && eksisterendeDag["dagtype"].asText() != "Helg") {
+                    // Oppdater dagen og sett kilde til Saksbehandler
+                    val oppdatertDag =
+                        objectMapper.createObjectNode().apply {
+                            set<JsonNode>("dato", oppdatertDagJson["dato"])
+                            set<JsonNode>("dagtype", oppdatertDagJson["dagtype"])
+                            set<JsonNode>("grad", oppdatertDagJson["grad"])
+                            set<JsonNode>("avvistBegrunnelse", oppdatertDagJson["avvistBegrunnelse"])
+                            put("kilde", "Saksbehandler")
+                        }
+                    eksisterendeDagerMap[dato] = oppdatertDag
+                }
+            }
+        }
+
+        // Konverter tilbake til JsonNode array og lagre
+        val oppdatertDagoversikt =
+            objectMapper.createArrayNode().apply {
+                eksisterendeDagerMap.values.forEach { add(it) }
+            }
+
         dataSource.update(
             """
             update inntektsforhold set dagoversikt = :dagoversikt where id = :id
             """.trimIndent(),
             "id" to inntektsforhold.id,
-            "dagoversikt" to dagoversikt.serialisertTilString(),
+            "dagoversikt" to oppdatertDagoversikt.serialisertTilString(),
         )
         return hentInntektsforhold(inntektsforhold.id)!!
     }

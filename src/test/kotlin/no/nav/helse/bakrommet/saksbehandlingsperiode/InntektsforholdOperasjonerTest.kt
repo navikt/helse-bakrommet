@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.deserialize
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.util.*
@@ -103,7 +104,7 @@ class InntektsforholdOperasjonerTest {
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
+                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-10" }""")
             }
 
             val periode =
@@ -111,53 +112,88 @@ class InntektsforholdOperasjonerTest {
                     bearerAuth(TestOppsett.userToken)
                 }.body<List<Saksbehandlingsperiode>>().first()
 
-            // Opprett inntektsforhold
-            val inntektsforholdId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER"}}""")
-                }.let { response ->
-                    UUID.fromString(response.body<JsonNode>()["id"].asText())
-                }
-
-            @Language("json")
-            val dagoversikt =
-                """
-                [
-                    {
-                        "id": "dag-1",
-                        "type": "SYKEDAG",
-                        "dato": "2023-01-01"
-                    },
-                    {
-                        "id": "dag-2",
-                        "type": "HELGEDAG",
-                        "dato": "2023-01-02"
-                    },
-                    {
-                        "id": "dag-3",
-                        "type": "SYKEDAG",
-                        "dato": "2023-01-03"
-                    }
-                ]
-                """.trimIndent()
-
-            // Oppdater dagoversikt
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold/$inntektsforholdId/dagoversikt") {
+            // Opprett inntektsforhold med dagoversikt
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody(dagoversikt)
-            }.let { response ->
-                assertEquals(204, response.status.value)
+                setBody("""{"kategorisering": {"ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
             }
 
-            // Verifiser at dagoversikt ble oppdatert
-            daoer.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
-                inntektsforholdFraDB.filter { it.id == inntektsforholdId }.also {
-                    assertEquals(1, it.size)
-                    assertEquals(dagoversikt.asJsonNode(), it.first().dagoversikt)
+            val inntektsforholdId =
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                    bearerAuth(TestOppsett.userToken)
+                }.body<List<InntektsforholdDTO>>().first().id
+
+            // Oppdater dagoversikt med array av spesifikke dager
+            val oppdateringer = """[
+                {
+                    "dato": "2023-01-02",
+                    "dagtype": "Syk",
+                    "grad": 100,
+                    "avvistBegrunnelse": []
+                },
+                {
+                    "dato": "2023-01-03",
+                    "dagtype": "Arbeidsdag", 
+                    "grad": 0,
+                    "avvistBegrunnelse": []
+                },
+                {
+                    "dato": "2023-01-07",
+                    "dagtype": "Syk",
+                    "grad": 50,
+                    "avvistBegrunnelse": []
                 }
+            ]"""
+
+            val response =
+                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold/$inntektsforholdId/dagoversikt") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(oppdateringer)
+                }
+            assertEquals(HttpStatusCode.NoContent, response.status)
+
+            // Verifiser at dagoversikten er oppdatert korrekt
+            val oppdatertInntektsforhold = daoer.inntektsforholdDao.hentInntektsforhold(inntektsforholdId)!!
+            val dagoversikt = oppdatertInntektsforhold.dagoversikt!!
+            assertTrue(dagoversikt.isArray)
+
+            val dager =
+                dagoversikt.map { dag ->
+                    Triple(
+                        dag["dato"].asText(),
+                        dag["dagtype"].asText(),
+                        if (dag["kilde"].isNull) null else dag["kilde"].asText(),
+                    )
+                }
+
+            // Verifiser at spesifiserte arbeidsdager er oppdatert med kilde Saksbehandler
+            assertTrue(
+                dager.any { (dato, dagtype, kilde) ->
+                    dato == "2023-01-02" && dagtype == "Syk" && kilde == "Saksbehandler"
+                },
+            )
+            assertTrue(
+                dager.any { (dato, dagtype, kilde) ->
+                    dato == "2023-01-03" && dagtype == "Arbeidsdag" && kilde == "Saksbehandler"
+                },
+            )
+
+            // Verifiser at helgedager ikke er oppdatert (bevarer opprinnelig kilde null)
+            val helgedager =
+                dager.filter { (dato, dagtype, _) ->
+                    dagtype == "Helg"
+                }
+            helgedager.forEach { (_, _, kilde) ->
+                assertEquals(null, kilde, "Helgedager skal fortsatt ha kilde null")
+            }
+
+            // Verifiser at dag 2023-01-07 (lørdag/helg) ikke ble oppdatert selv om den var i oppdateringslisten
+            val dag7 = dager.find { (dato, _, _) -> dato == "2023-01-07" }
+            if (dag7 != null) {
+                assertEquals("Helg", dag7.second, "2023-01-07 skal fortsatt være helg")
+                assertEquals(null, dag7.third, "2023-01-07 skal fortsatt ha kilde null")
             }
         }
     }
