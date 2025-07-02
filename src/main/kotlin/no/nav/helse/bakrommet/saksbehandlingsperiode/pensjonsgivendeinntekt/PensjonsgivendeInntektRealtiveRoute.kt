@@ -8,13 +8,11 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.*
-import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
 import no.nav.helse.bakrommet.sigrun.*
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.toJsonNode
-import java.util.*
 
 private data class PensjonsgivendeInntektHentRequest(
     val senesteÅrTom: Int,
@@ -30,15 +28,6 @@ internal fun Route.pensjonsgivendeInntektRelativeRoute(
     route("/pensjonsgivendeinntekt") {
         route("/hent") {
             post {
-                fun dokumentUri(dokId: UUID): String {
-                    // TODO: Er det en mer elegant måte å gjøre dette på? :
-                    return call.request.uri.split("/pensjonsgivendeinntekt/hent")[0].also {
-                        require(it.endsWith("/dokumenter"))
-                    }.let { dokUri ->
-                        "$dokUri/$dokId"
-                    }
-                }
-
                 call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                     val request = call.receive<PensjonsgivendeInntektHentRequest>()
                     val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
@@ -64,7 +53,7 @@ internal fun Route.pensjonsgivendeInntektRelativeRoute(
                             }
                         }
 
-                    call.response.headers.append(HttpHeaders.Location, dokumentUri(pensjonsgivendeinntektDokument.id))
+                    call.response.headers.append(HttpHeaders.Location, dokumentUriFor(pensjonsgivendeinntektDokument))
                     call.respondText(
                         pensjonsgivendeinntektDokument.tilDto().serialisertTilString(),
                         ContentType.Application.Json,

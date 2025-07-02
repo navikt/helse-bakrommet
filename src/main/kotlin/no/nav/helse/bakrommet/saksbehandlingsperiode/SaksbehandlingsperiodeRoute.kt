@@ -5,6 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.PARAM_PERIODEUUID
+import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
@@ -32,7 +34,7 @@ internal suspend inline fun ApplicationCall.medBehandlingsperiode(
     crossinline block: suspend (saksbehandlingsperiode: Saksbehandlingsperiode) -> Unit,
 ) {
     this.medIdent(personDao) { fnr, spilleromPersonId ->
-        val periodeId = parameters["periodeUUID"].somGyldigUUID()
+        val periodeId = parameters[PARAM_PERIODEUUID].somGyldigUUID()
         val periode =
             saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)
                 ?: throw SaksbehandlingsperiodeIkkeFunnetException()
@@ -104,7 +106,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
         }
     }
 
-    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}") {
+    route("/v1/{personId}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 call.respondText(periode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
@@ -112,7 +114,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
         }
     }
 
-    route("/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter") {
+    route("/v1/{personId}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val dokumenter = dokumentDao.hentDokumenterFor(periode.id)
@@ -196,4 +198,14 @@ private enum class InntektsforholdType {
     SELVSTENDIG_NÆRINGSDRIVENDE,
     INAKTIV,
     ANNET,
+}
+
+fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
+    val periodeId = call.parameters[PARAM_PERIODEUUID].somGyldigUUID()
+    val personId = call.parameters[PARAM_PERSONID]!!
+    val dokUri = "/v1/$personId/saksbehandlingsperioder/$periodeId/dokumenter"
+    if (!call.request.uri.startsWith(dokUri)) {
+        throw IllegalStateException("Forventet å være i kontekst av /dokumenter for å kunne resolve dokument-uri")
+    }
+    return "$dokUri/${dokument.id}"
 }

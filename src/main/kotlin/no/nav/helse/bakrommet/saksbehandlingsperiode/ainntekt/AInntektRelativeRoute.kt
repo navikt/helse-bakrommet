@@ -8,11 +8,9 @@ import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.*
-import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.YearMonth
-import java.util.UUID
 
 data class AInntektHentRequest(
     val fom: YearMonth,
@@ -28,15 +26,6 @@ internal fun Route.ainntektRelativeRoute(
     route("/ainntekt") {
         route("/hent") {
             post {
-                fun dokumentUri(dokId: UUID): String {
-                    // TODO: Er det en mer elegant måte å gjøre dette på? :
-                    return call.request.uri.split("/ainntekt/hent")[0].also {
-                        require(it.endsWith("/dokumenter"))
-                    }.let { dokUri ->
-                        "$dokUri/$dokId"
-                    }
-                }
-
                 call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                     val request = call.receive<AInntektHentRequest>()
                     val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
@@ -60,7 +49,7 @@ internal fun Route.ainntektRelativeRoute(
                             )
                         }
 
-                    call.response.headers.append(HttpHeaders.Location, dokumentUri(inntektDokument.id))
+                    call.response.headers.append(HttpHeaders.Location, dokumentUriFor(inntektDokument))
                     call.respondText(inntektDokument.tilDto().serialisertTilString(), ContentType.Application.Json, HttpStatusCode.Created)
                 }
             }
