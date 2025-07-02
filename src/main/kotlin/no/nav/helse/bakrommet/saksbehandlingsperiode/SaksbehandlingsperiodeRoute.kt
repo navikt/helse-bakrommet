@@ -204,8 +204,8 @@ fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
     val periodeId = call.parameters[PARAM_PERIODEUUID].somGyldigUUID()
     val personId = call.parameters[PARAM_PERSONID]!!
     val dokUri = "/v1/$personId/saksbehandlingsperioder/$periodeId/dokumenter"
-    if (!call.request.uri.startsWith(dokUri)) {
-        throw IllegalStateException("Forventet å være i kontekst av /dokumenter for å kunne resolve dokument-uri")
+    check(call.request.uri.startsWith(dokUri)) {
+        "Forventet å være i kontekst av /dokumenter for å kunne resolve dokument-uri"
     }
     return "$dokUri/${dokument.id}"
 }
