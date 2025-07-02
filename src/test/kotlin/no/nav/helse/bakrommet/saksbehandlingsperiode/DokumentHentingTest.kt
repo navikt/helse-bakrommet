@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.aareg.AARegMock
@@ -66,6 +67,42 @@ class DokumentHentingTest {
     }
 
     @Test
+    fun `403 fra Inntektskomponenten gir 403 videre med feilbeskrivelse`() =
+        runApplicationTest(
+            aInntektClient = AInntektMock.aInntektClientMock(),
+        ) {
+            val personIdForbidden = "ab403"
+            it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
+
+            // Opprett saksbehandlingsperiode
+            client.post("/v1/$personIdForbidden/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
+            }
+
+            val periode =
+                client.get("/v1/$personIdForbidden/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                }.body<List<Saksbehandlingsperiode>>().first()
+
+            // Hent ainntekt dokument
+            client.post("/v1/$personIdForbidden/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom" : "2024-05", "tom" : "2025-06" }""")
+            }.apply {
+                assertEquals(403, status.value)
+                assertEquals(
+                    """
+                    {"type":"about:blank","title":"Ingen tilgang","status":403,"detail":"Ikke tilstrekkelig tilgang i A-Inntekt","instance":null}
+                """.asJsonNode(),
+                    bodyAsText().asJsonNode(),
+                )
+            }
+        }
+
+    @Test
     fun `henter arbeidsforhold dokument`() {
         val fakeAARegForFnrRespons = AARegMock.Person1.respV2
 
@@ -107,6 +144,40 @@ class DokumentHentingTest {
             }
         }
     }
+
+    @Test
+    fun `403 fra AA-reg gir 403 videre med feilbeskrivelse`() =
+        runApplicationTest(
+            aaRegClient = AARegMock.aaRegClientMock(),
+        ) {
+            val personIdForbidden = "ab403"
+            it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
+
+            // Opprett saksbehandlingsperiode
+            client.post("/v1/$personIdForbidden/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
+            }
+
+            val periode =
+                client.get("/v1/$personIdForbidden/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                }.body<List<Saksbehandlingsperiode>>().first()
+
+            // Hent arbeidsforhold dokument
+            client.post("/v1/$personIdForbidden/saksbehandlingsperioder/${periode.id}/dokumenter/arbeidsforhold/hent") {
+                bearerAuth(TestOppsett.userToken)
+            }.apply {
+                assertEquals(403, status.value)
+                assertEquals(
+                    """
+                    {"type":"about:blank","title":"Ingen tilgang","status":403,"detail":"Ikke tilstrekkelig tilgang i AA-REG","instance":null}
+                """.asJsonNode(),
+                    bodyAsText().asJsonNode(),
+                )
+            }
+        }
 
     @Test
     fun `henter pensjonsgivende inntekt dokument`() {

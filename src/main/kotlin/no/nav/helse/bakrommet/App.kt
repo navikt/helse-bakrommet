@@ -12,9 +12,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.aareg.AARegClient
-import no.nav.helse.bakrommet.aareg.arbeidsforholdRoute
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
-import no.nav.helse.bakrommet.ainntekt.ainntektRoute
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
@@ -36,7 +34,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.pensjonsgivendeinntekt.pens
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
-import no.nav.helse.bakrommet.sigrun.pensjonsgivendeInntektRoute
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
 import no.nav.helse.bakrommet.util.objectMapper
@@ -180,11 +177,8 @@ internal fun Application.appModul(
                     ),
             )
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
-            arbeidsforholdRoute(aaRegClient, personDao)
-            ainntektRoute(aInntektClient, personDao)
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
             saksbehandlingsperiodeInntektsforholdRoute(saksbehandlingsperiodeDao, personDao, inntektsforholdDao)
-            pensjonsgivendeInntektRoute(sigrunClient, personDao)
         }
     }
 }
