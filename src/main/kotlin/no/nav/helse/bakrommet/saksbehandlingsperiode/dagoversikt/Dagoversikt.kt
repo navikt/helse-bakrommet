@@ -7,7 +7,7 @@ data class Dag(
     val dagtype: Dagtype,
     val grad: Int?,
     val avvistBegrunnelse: List<AvvistBegrunnelse>,
-    val kilde: Kilde,
+    val kilde: Kilde?,
 )
 
 enum class Dagtype {

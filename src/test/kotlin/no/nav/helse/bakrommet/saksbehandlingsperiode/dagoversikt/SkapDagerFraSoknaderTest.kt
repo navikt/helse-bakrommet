@@ -33,9 +33,13 @@ class SkapDagerFraSoknaderTest {
         assertEquals(Dagtype.Helg, resultat[5].dagtype) // Lørdag
         assertEquals(Dagtype.Helg, resultat[6].dagtype) // Søndag
 
-        // Alle dager skal ha kilde Saksbehandler
+        // Arbeidsdager skal ha kilde Saksbehandler, helgedager skal ha kilde null
         resultat.forEach { dag ->
-            assertEquals(Kilde.Saksbehandler, dag.kilde)
+            if (dag.dagtype == Dagtype.Helg) {
+                assertEquals(null, dag.kilde)
+            } else {
+                assertEquals(Kilde.Saksbehandler, dag.kilde)
+            }
             assertEquals(null, dag.grad)
             assertTrue(dag.avvistBegrunnelse.isEmpty())
         }
@@ -51,7 +55,11 @@ class SkapDagerFraSoknaderTest {
         assertEquals(3, resultat.size)
         resultat.forEach { dag ->
             assertTrue(dag.dagtype == Dagtype.Arbeidsdag || dag.dagtype == Dagtype.Helg)
-            assertEquals(Kilde.Saksbehandler, dag.kilde)
+            if (dag.dagtype == Dagtype.Helg) {
+                assertEquals(null, dag.kilde)
+            } else {
+                assertEquals(Kilde.Saksbehandler, dag.kilde)
+            }
         }
     }
 
@@ -91,9 +99,9 @@ class SkapDagerFraSoknaderTest {
         assertEquals(Dagtype.Helg, dager[0].dagtype) // Lørdag
         assertEquals(Dagtype.Helg, dager[1].dagtype) // Søndag
 
-        // Verifiser at kilde er Saksbehandler for helgedager
+        // Verifiser at kilde er null for helgedager
         dager.forEach { dag ->
-            assertEquals(Kilde.Saksbehandler, dag.kilde)
+            assertEquals(null, dag.kilde)
         }
     }
 
@@ -247,7 +255,7 @@ class SkapDagerFraSoknaderTest {
             if (dagen.dato.dayOfWeek.value in 6..7) {
                 // Helgedager skal forbli helg
                 assertEquals(Dagtype.Helg, dagen.dagtype)
-                assertEquals(Kilde.Saksbehandler, dagen.kilde)
+                assertEquals(null, dagen.kilde)
             } else {
                 // Arbeidsdager skal være arbeidsdager
                 assertEquals(Dagtype.Arbeidsdag, dagen.dagtype)
