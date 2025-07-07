@@ -20,7 +20,7 @@ class InntektsforholdDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
     val fnr = "01019012345"
     val personId = "0h0a1"
-    val saksbehandler = Saksbehandler("ABC", "A. B. C")
+    val saksbehandler = Saksbehandler("ABC", "A. B. C", "ola@nav.no")
     val periode =
         Saksbehandlingsperiode(
             id = UUID.randomUUID(),

@@ -32,6 +32,7 @@ class OAuthMock {
                     "NAVident" to "tullebruker",
                     "name" to "Tulla Bruker",
                     "groups" to grupper,
+                    "preferred_username" to "tullabruker@nav.no",
                 ),
         ).serialize()
 }

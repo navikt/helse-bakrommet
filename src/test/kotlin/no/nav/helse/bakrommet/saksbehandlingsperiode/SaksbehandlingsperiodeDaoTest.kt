@@ -40,7 +40,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val id = UUID.randomUUID()
         val personId = "6512a"
         val now = OffsetDateTime.now()
-        val saksbehandler = Saksbehandler("Z12345", "Ola Nordmann")
+        val saksbehandler = Saksbehandler("Z12345", "Ola Nordmann", "ola@nav.no")
         val fom = LocalDate.of(2021, 1, 1)
         val tom = LocalDate.of(2021, 1, 31)
 
