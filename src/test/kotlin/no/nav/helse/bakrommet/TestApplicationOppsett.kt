@@ -5,6 +5,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.testing.*
+import no.nav.helse.bakrommet.Configuration.Roller
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
@@ -33,31 +34,42 @@ object TestOppsett {
 
     val configuration =
         Configuration(
-            Configuration.DB(jdbcUrl = TestDataSource.dbModule.jdbcUrl),
-            Configuration.OBO(url = "OBO-url"),
-            Configuration.PDL(hostname = "PDL-hostname", scope = OAuthScope("PDL-scope")),
-            oAuthMock.authConfig,
-            Configuration.SykepengesoknadBackend(
-                hostname = "sykepengesoknad-backend",
-                scope = OAuthScope("sykepengesoknad-backend-scope"),
-            ),
-            Configuration.AAReg(
-                hostname = "aareg-host",
-                scope = OAuthScope("aareg-scope"),
-            ),
-            Configuration.AInntekt(
-                hostname = "inntektskomponenten-host",
-                scope = OAuthScope("inntektskomponenten-scope"),
-            ),
-            Configuration.Inntektsmelding(
-                baseUrl = "http://localhost",
-                scope = OAuthScope("im-scope"),
-            ),
-            Configuration.Sigrun(
-                baseUrl = "http://localhost",
-                scope = OAuthScope("sigrun-scope"),
-            ),
-            "test",
+            db = Configuration.DB(jdbcUrl = TestDataSource.dbModule.jdbcUrl),
+            obo = Configuration.OBO(url = "OBO-url"),
+            pdl = Configuration.PDL(hostname = "PDL-hostname", scope = OAuthScope("PDL-scope")),
+            auth = oAuthMock.authConfig,
+            sykepengesoknadBackend =
+                Configuration.SykepengesoknadBackend(
+                    hostname = "sykepengesoknad-backend",
+                    scope = OAuthScope("sykepengesoknad-backend-scope"),
+                ),
+            aareg =
+                Configuration.AAReg(
+                    hostname = "aareg-host",
+                    scope = OAuthScope("aareg-scope"),
+                ),
+            ainntekt =
+                Configuration.AInntekt(
+                    hostname = "inntektskomponenten-host",
+                    scope = OAuthScope("inntektskomponenten-scope"),
+                ),
+            inntektsmelding =
+                Configuration.Inntektsmelding(
+                    baseUrl = "http://localhost",
+                    scope = OAuthScope("im-scope"),
+                ),
+            sigrun =
+                Configuration.Sigrun(
+                    baseUrl = "http://localhost",
+                    scope = OAuthScope("sigrun-scope"),
+                ),
+            roller =
+                Roller(
+                    les = setOf("GRUPPE_LES"),
+                    saksbehandler = setOf("GRUPPE_SAKSBEHANDLER"),
+                    beslutter = setOf("GRUPPE_BESLUTTER"),
+                ),
+            naisClusterName = "test",
         )
     val userToken = oAuthMock.token()
 

@@ -180,7 +180,7 @@ internal fun Application.appModul(
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
             saksbehandlingsperiodeInntektsforholdRoute(saksbehandlingsperiodeDao, personDao, inntektsforholdDao)
-            brukerRoute()
+            brukerRoute(configuration.roller)
         }
     }
 }

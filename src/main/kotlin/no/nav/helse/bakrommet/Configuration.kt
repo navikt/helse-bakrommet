@@ -12,6 +12,7 @@ data class Configuration(
     val ainntekt: AInntekt,
     val inntektsmelding: Inntektsmelding,
     val sigrun: Sigrun,
+    val roller: Roller,
     val naisClusterName: String,
 ) {
     data class DB(
@@ -59,9 +60,23 @@ data class Configuration(
         val tokenEndpoint: String,
     )
 
+    data class Roller(
+        val les: Set<String>,
+        val saksbehandler: Set<String>,
+        val beslutter: Set<String>,
+    )
+
     companion object {
+        private fun String.asSet() = this.split(",").map { it.trim() }.toSet()
+
         fun fromEnv(env: Map<String, String> = System.getenv()): Configuration {
             return Configuration(
+                roller =
+                    Roller(
+                        les = env.getValue("ROLLE_GRUPPER_LES").asSet(),
+                        saksbehandler = env.getValue("ROLLE_GRUPPER_SAKSBEHANDLER").asSet(),
+                        beslutter = env.getValue("ROLLE_GRUPPER_BESLUTTER").asSet(),
+                    ),
                 db = DB(jdbcUrl = env.getValue("DATABASE_JDBC_URL")),
                 obo = OBO(url = env.getValue("NAIS_TOKEN_EXCHANGE_ENDPOINT")),
                 pdl =

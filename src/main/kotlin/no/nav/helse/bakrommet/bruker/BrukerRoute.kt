@@ -5,8 +5,10 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.util.tilRoller
 
-internal fun Route.brukerRoute() {
+internal fun Route.brukerRoute(rolleConfig: Configuration.Roller) {
     get("/v1/bruker") {
         val principal = call.principal<JWTPrincipal>()
         val claimsMap =
@@ -28,6 +30,7 @@ internal fun Route.brukerRoute() {
                         }
                     put(claim.key, value)
                 }
+                put("roller", principal.tilRoller(rolleConfig))
             }
         call.respond(HttpStatusCode.OK, claimsMap)
     }

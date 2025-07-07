@@ -19,7 +19,10 @@ class OAuthMock {
             tokenEndpoint = mockOAuth2Server.tokenEndpointUrl(issuerId).toString(),
         )
 
-    fun token(audience: String = clientId): String =
+    fun token(
+        audience: String = clientId,
+        grupper: List<String> = emptyList(),
+    ): String =
         mockOAuth2Server.issueToken(
             issuerId = issuerId,
             audience = audience,
@@ -28,6 +31,7 @@ class OAuthMock {
                 mapOf(
                     "NAVident" to "tullebruker",
                     "name" to "Tulla Bruker",
+                    "groups" to grupper,
                 ),
         ).serialize()
 }
