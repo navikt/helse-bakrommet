@@ -12,7 +12,21 @@ internal fun Route.brukerRoute() {
         val claimsMap =
             buildMap {
                 for (claim in principal!!.payload.claims) {
-                    put(claim.key, claim.value.asString())
+                    val value =
+                        when {
+                            claim.value.isNull -> null
+                            claim.value.isMissing -> null
+                            else -> {
+                                claim.value.asString()
+                                    ?: claim.value.asInt()
+                                    ?: claim.value.asLong()
+                                    ?: claim.value.asDouble()
+                                    ?: claim.value.asBoolean()
+                                    ?: claim.value.asList(String::class.java)
+                                    ?: claim.value.toString()
+                            }
+                        }
+                    put(claim.key, value)
                 }
             }
         call.respond(HttpStatusCode.OK, claimsMap)
