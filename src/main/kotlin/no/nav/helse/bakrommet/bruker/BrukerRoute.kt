@@ -5,12 +5,16 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.util.serialisertTilString
 
 internal fun Route.brukerRoute() {
     get("/v1/bruker") {
         val principal = call.principal<JWTPrincipal>()
-        val claims = principal!!.payload.claims.serialisertTilString()
-        call.respondText(claims, ContentType.Application.Json, HttpStatusCode.OK)
+        val claimsMap =
+            buildMap {
+                for (claim in principal!!.payload.claims) {
+                    put(claim.key, claim.value.asString())
+                }
+            }
+        call.respond(HttpStatusCode.OK, claimsMap)
     }
 }
