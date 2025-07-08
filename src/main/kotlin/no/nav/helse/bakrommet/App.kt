@@ -79,7 +79,7 @@ internal fun Application.settOppKtor(
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient),
     sigrunClient: SigrunClient = SigrunClient(configuration.sigrun, oboClient),
 ) {
-    azureAdAppAuthentication(configuration.auth)
+    azureAdAppAuthentication(configuration.auth, configuration.roller)
     helsesjekker()
     appModul(
         dataSource,
@@ -180,7 +180,7 @@ internal fun Application.appModul(
             saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
             saksbehandlingsperiodeInntektsforholdRoute(saksbehandlingsperiodeDao, personDao, inntektsforholdDao)
-            brukerRoute(configuration.roller)
+            brukerRoute()
         }
     }
 }

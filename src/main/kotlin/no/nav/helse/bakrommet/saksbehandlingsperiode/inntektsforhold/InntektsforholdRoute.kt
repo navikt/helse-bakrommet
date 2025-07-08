@@ -8,13 +8,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
+import no.nav.helse.bakrommet.auth.brukerPrincipal
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
-import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
 import no.nav.helse.bakrommet.util.somGyldigUUID
@@ -62,7 +62,7 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
                 val inntektsforhold = call.receive<InntektsforholdCreateRequest>()
                 sikkerLogger.info(
                     "Saksbehandler {} legger til inntektsforhold {} for periode {}",
-                    call.saksbehandler().navIdent,
+                    call.brukerPrincipal().navIdent,
                     inntektsforhold,
                     periode,
                 )

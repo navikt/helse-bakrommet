@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
+import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.Rolle
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.`should contain`

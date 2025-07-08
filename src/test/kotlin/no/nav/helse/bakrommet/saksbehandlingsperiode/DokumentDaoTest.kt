@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.nav.Saksbehandler
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.util.Kildespor
@@ -17,7 +17,7 @@ class DokumentDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
     val fnr = "01019012345"
     val personId = "0h0a1"
-    val saksbehandler = Saksbehandler("ABC", "A. B. C", "Saksbehandersen@nav.no")
+    val saksbehandler = Bruker("ABC", "A. B. C", "Saksbehandersen@nav.no", roller = emptySet())
     val periode =
         Saksbehandlingsperiode(
             id = UUID.randomUUID(),

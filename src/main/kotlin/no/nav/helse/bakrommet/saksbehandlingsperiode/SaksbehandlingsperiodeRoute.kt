@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.bearerToken
+import no.nav.helse.bakrommet.auth.brukerPrincipal
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
@@ -18,7 +19,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsfor
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.saksbehandler
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import no.nav.helse.bakrommet.util.tilJsonNode
@@ -67,7 +67,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
                 val fom = LocalDate.parse(body.fom)
                 val tom = LocalDate.parse(body.tom)
                 if (fom.isAfter(tom)) throw InputValideringException("Fom-dato kan ikke være etter tom-dato")
-                val saksbehandler = call.saksbehandler()
+                val saksbehandler = call.brukerPrincipal()
                 val nyPeriode =
                     Saksbehandlingsperiode(
                         id = UUID.randomUUID(),

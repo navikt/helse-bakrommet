@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.auth
 
-import io.ktor.server.auth.jwt.JWTPrincipal
 import no.nav.helse.bakrommet.Configuration
 
 enum class Rolle {
@@ -9,16 +8,15 @@ enum class Rolle {
     BESLUTTER,
 }
 
-fun JWTPrincipal.tilRoller(config: Configuration.Roller): Set<Rolle> {
-    val grupper = this.payload.getClaim("groups").asList(String::class.java).toSet()
+fun Set<String>.tilRoller(config: Configuration.Roller): Set<Rolle> {
     val roller = mutableSetOf<Rolle>()
-    if (config.les.intersect(grupper).isNotEmpty()) {
+    if (config.les.intersect(this).isNotEmpty()) {
         roller.add(Rolle.LES)
     }
-    if (config.saksbehandler.intersect(grupper).isNotEmpty()) {
+    if (config.saksbehandler.intersect(this).isNotEmpty()) {
         roller.add(Rolle.SAKSBEHANDLER)
     }
-    if (config.beslutter.intersect(grupper).isNotEmpty()) {
+    if (config.beslutter.intersect(this).isNotEmpty()) {
         roller.add(Rolle.BESLUTTER)
     }
     return roller
