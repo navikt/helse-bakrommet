@@ -67,7 +67,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
                 val fom = LocalDate.parse(body.fom)
                 val tom = LocalDate.parse(body.tom)
                 if (fom.isAfter(tom)) throw InputValideringException("Fom-dato kan ikke være etter tom-dato")
-                val saksbehandler = call.brukerPrincipal()
+                val saksbehandler = call.brukerPrincipal()!!
                 val nyPeriode =
                     Saksbehandlingsperiode(
                         id = UUID.randomUUID(),

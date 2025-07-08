@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 
 internal fun Route.brukerRoute() {
     get("/v1/bruker") {
-        val bruker = call.brukerPrincipal()
+        val bruker = call.brukerPrincipal() ?: throw IllegalStateException("Bruker ikke funnet i request")
 
         call.respondText(bruker.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
     }

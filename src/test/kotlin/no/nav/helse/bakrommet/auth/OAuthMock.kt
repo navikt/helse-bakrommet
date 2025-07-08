@@ -21,7 +21,7 @@ class OAuthMock {
 
     fun token(
         audience: String = clientId,
-        grupper: List<String> = emptyList(),
+        grupper: List<String> = listOf("GRUPPE_SAKSBEHANDLER"),
     ): String =
         mockOAuth2Server.issueToken(
             issuerId = issuerId,

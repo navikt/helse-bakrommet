@@ -62,7 +62,7 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
                 val inntektsforhold = call.receive<InntektsforholdCreateRequest>()
                 sikkerLogger.info(
                     "Saksbehandler {} legger til inntektsforhold {} for periode {}",
-                    call.brukerPrincipal().navIdent,
+                    call.brukerPrincipal()!!.navIdent,
                     inntektsforhold,
                     periode,
                 )

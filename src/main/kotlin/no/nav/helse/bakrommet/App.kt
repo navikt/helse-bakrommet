@@ -14,6 +14,7 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.RolleMatrise
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.bruker.brukerRoute
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
@@ -140,6 +141,7 @@ internal fun Application.appModul(
 
     routing {
         authenticate("entraid") {
+            install(RolleMatrise)
             personsøkRoute(pdlClient, personDao)
             personinfoRoute(pdlClient, personDao)
             soknaderRoute(sykepengesoknadBackendClient, personDao)
