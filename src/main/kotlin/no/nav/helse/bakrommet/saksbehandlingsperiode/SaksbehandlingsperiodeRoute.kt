@@ -114,6 +114,25 @@ internal fun Route.saksbehandlingsperiodeRoute(
         }
     }
 
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/status/{status}") {
+        post {
+            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
+                val status = SaksbehandlingsperiodeStatus.valueOf(call.parameters["status"]!!)
+
+                if (!SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to status)) {
+                    throw InputValideringException("Ugyldig statusendring: ${periode.status} til $status")
+                }
+
+                // TODO: Verifiser at personen er eier / beslutter
+
+                saksbehandlingsperiodeDao.endreStatus(periode, nyStatus = status)
+                val oppdatertPeriode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periode.id)!!
+
+                call.respondText(oppdatertPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            }
+        }
+    }
+
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->

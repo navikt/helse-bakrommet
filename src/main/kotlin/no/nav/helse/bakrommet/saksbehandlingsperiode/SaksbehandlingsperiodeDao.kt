@@ -29,6 +29,18 @@ enum class SaksbehandlingsperiodeStatus {
     UNDER_BEHANDLING,
     TIL_BESLUTNING,
     GODKJENT,
+    ;
+
+    companion object {
+        val GYLDIGE_ENDRINGER: Set<Pair<SaksbehandlingsperiodeStatus, SaksbehandlingsperiodeStatus>> =
+            setOf(
+                UNDER_BEHANDLING to TIL_BESLUTNING,
+                TIL_BESLUTNING to GODKJENT,
+                TIL_BESLUTNING to UNDER_BEHANDLING,
+            )
+
+        fun erGyldigEndring(fraTil: Pair<SaksbehandlingsperiodeStatus, SaksbehandlingsperiodeStatus>) = GYLDIGE_ENDRINGER.contains(fraTil)
+    }
 }
 
 class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
@@ -90,6 +102,21 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
             status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
             beslutter = row.stringOrNull("beslutter"),
         )
+
+    fun endreStatus(
+        periode: Saksbehandlingsperiode,
+        nyStatus: SaksbehandlingsperiodeStatus,
+    ) {
+        // TODO: Dobbelsjekk at status endring er gyldig ved feks WHERE id = id and status = periode.status e.l.?? )
+        dataSource.update(
+            """
+            UPDATE saksbehandlingsperiode SET status = :status
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to periode.id,
+            "status" to nyStatus.name,
+        )
+    }
 
     fun opprettPeriode(periode: Saksbehandlingsperiode) {
         dataSource.update(
