@@ -1,19 +1,13 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import no.nav.helse.bakrommet.TestOppsett
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
 
 class SaksbehandlingsperiodeStatusTest {
     private companion object {
@@ -22,12 +16,18 @@ class SaksbehandlingsperiodeStatusTest {
     }
 
     @Test
-    fun `oppretter saksbehandlingsperiode`() =
+    fun `diverse statusendringer på saksbehandlingsperiode`() =
         runApplicationTest {
             it.personDao.opprettPerson(fnr, personId)
+
+            val tokenSaksbehandler = oAuthMock.token(navIdent = "S111111", grupper = listOf("GRUPPE_SAKSBEHANDLER"))
+            val tokenSaksbehandler2 = oAuthMock.token(navIdent = "S222222", grupper = listOf("GRUPPE_SAKSBEHANDLER"))
+            val tokenBeslutter = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
+            val tokenBeslutter2 = oAuthMock.token(navIdent = "B222222", grupper = listOf("GRUPPE_BESLUTTER"))
+
             val createResponse =
                 client.post("/v1/$personId/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
+                    bearerAuth(tokenSaksbehandler)
                     contentType(ContentType.Application.Json)
                     setBody(
                         """
@@ -37,69 +37,104 @@ class SaksbehandlingsperiodeStatusTest {
                 }
             assertEquals(201, createResponse.status.value)
 
-            val periode = createResponse.body<Saksbehandlingsperiode>().truncateTidspunkt()
+            val periodeOpprinnelig = createResponse.body<Saksbehandlingsperiode>().truncateTidspunkt()
 
             assertEquals(
                 SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
-                periode.status,
+                periodeOpprinnelig.status,
                 "Status skal være UNDER_BEHANDLING for nyopprettet saksbehandlingsperiode",
             )
 
-            client.endreStatus(periode, nyStatus = "GODKJENT", forventetStatusCode = 400)
-            client.endreStatus(
-                periode,
-                nyStatus = "TIL_BESLUTNING",
-                forventetStatusCode = 200,
-                forventResultat =
-                    periode.copy(status = SaksbehandlingsperiodeStatus.TIL_BESLUTNING),
-            )
-            client.endreStatus(
-                periode,
-                nyStatus = "GODKJENT",
-                forventetStatusCode = 200,
-                forventResultat =
-                    periode.copy(status = SaksbehandlingsperiodeStatus.GODKJENT),
-            )
-            client.endreStatus(
-                periode,
-                nyStatus = "TIL_BESLUTNING",
-                forventetStatusCode = 400,
-            )
-        }
-
-    private suspend fun HttpClient.endreStatus(
-        periode: Saksbehandlingsperiode,
-        nyStatus: String,
-        forventetStatusCode: Int,
-        forventResultat: Saksbehandlingsperiode? = null,
-        token: String = TestOppsett.userToken,
-    ): Saksbehandlingsperiode? {
-        post("/v1/$personId/saksbehandlingsperioder/${periode.id}/status/$nyStatus") {
-            bearerAuth(token)
-        }.let { response ->
-            assertEquals(forventetStatusCode, response.status.value)
-            val returnertPeriode =
-                try {
-                    response.body<Saksbehandlingsperiode>()
-                } catch (e: Exception) {
-                    null
-                }
-            if (forventResultat != null) {
-                assertNotNull(returnertPeriode)
-                assertEquals(forventResultat.truncateTidspunkt(), returnertPeriode.truncateTidspunkt())
-
-                get("/v1/$personId/saksbehandlingsperioder/${periode.id}") {
-                    bearerAuth(token)
-                }.let { getResponse ->
-                    assertEquals(
-                        forventResultat.truncateTidspunkt(),
-                        getResponse.body<Saksbehandlingsperiode>()
-                            .truncateTidspunkt(),
-                        "GET på ny skal reflektere det som ble returnert fra POST",
-                    )
-                }
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                bearerAuth(tokenSaksbehandler2)
+            }.let { response ->
+                assertEquals(
+                    403,
+                    response.status.value,
+                    "Saksbehandler #2 er ikke saksbehandler på denne",
+                )
             }
-            return returnertPeriode
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                bearerAuth(tokenSaksbehandler)
+            }.let { response ->
+                assertEquals(200, response.status.value)
+                val periode = response.body<Saksbehandlingsperiode>()
+                println(periode)
+            }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/tatilbeslutning") {
+                bearerAuth(tokenBeslutter)
+            }.let { response ->
+                assertEquals(200, response.status.value)
+                val periode = response.body<Saksbehandlingsperiode>()
+                assertEquals(
+                    periodeOpprinnelig.copy(
+                        status = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING,
+                        beslutterNavIdent = "B111111",
+                    ).truncateTidspunkt(),
+                    periode.truncateTidspunkt(),
+                )
+            }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbake") {
+                bearerAuth(tokenBeslutter)
+            }.let { response ->
+                assertEquals(200, response.status.value)
+                val periode = response.body<Saksbehandlingsperiode>()
+                assertEquals(
+                    periodeOpprinnelig.copy(
+                        status = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
+                        beslutterNavIdent = null,
+                    ).truncateTidspunkt(),
+                    periode.truncateTidspunkt(),
+                )
+            }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                bearerAuth(tokenSaksbehandler)
+            }.let { response ->
+                assertEquals(200, response.status.value)
+                val periode = response.body<Saksbehandlingsperiode>()
+                println(periode)
+            }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/tatilbeslutning") {
+                bearerAuth(tokenBeslutter)
+            }.let { response ->
+                assertEquals(200, response.status.value)
+                val periode = response.body<Saksbehandlingsperiode>()
+                assertEquals(
+                    periodeOpprinnelig.copy(
+                        status = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING,
+                        beslutterNavIdent = "B111111",
+                    ).truncateTidspunkt(),
+                    periode.truncateTidspunkt(),
+                )
+            }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/godkjenn") {
+                bearerAuth(tokenBeslutter2)
+            }.let { response ->
+                assertEquals(
+                    403,
+                    response.status.value,
+                    "Beslutter #2 er ikke beslutter på denne",
+                )
+            }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/godkjenn") {
+                bearerAuth(tokenBeslutter)
+            }.let { response ->
+                assertEquals(200, response.status.value)
+                val periode = response.body<Saksbehandlingsperiode>()
+                assertEquals(
+                    periodeOpprinnelig.copy(
+                        status = SaksbehandlingsperiodeStatus.GODKJENT,
+                        beslutterNavIdent = "B111111",
+                    ).truncateTidspunkt(),
+                    periode.truncateTidspunkt(),
+                )
+            }
         }
-    }
 }

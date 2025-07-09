@@ -22,12 +22,13 @@ data class Saksbehandlingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
     val status: SaksbehandlingsperiodeStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
-    val beslutter: String? = null,
+    val beslutterNavIdent: String? = null,
 )
 
 enum class SaksbehandlingsperiodeStatus {
     UNDER_BEHANDLING,
     TIL_BESLUTNING,
+    UNDER_BESLUTNING,
     GODKJENT,
     ;
 
@@ -35,7 +36,9 @@ enum class SaksbehandlingsperiodeStatus {
         val GYLDIGE_ENDRINGER: Set<Pair<SaksbehandlingsperiodeStatus, SaksbehandlingsperiodeStatus>> =
             setOf(
                 UNDER_BEHANDLING to TIL_BESLUTNING,
-                TIL_BESLUTNING to GODKJENT,
+                TIL_BESLUTNING to UNDER_BESLUTNING,
+                UNDER_BESLUTNING to GODKJENT,
+                UNDER_BESLUTNING to UNDER_BEHANDLING,
                 TIL_BESLUTNING to UNDER_BEHANDLING,
             )
 
@@ -100,14 +103,14 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
             fom = row.localDate("fom"),
             tom = row.localDate("tom"),
             status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
-            beslutter = row.stringOrNull("beslutter"),
+            beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
         )
 
     fun endreStatus(
         periode: Saksbehandlingsperiode,
         nyStatus: SaksbehandlingsperiodeStatus,
     ) {
-        // TODO: Dobbelsjekk at status endring er gyldig ved feks WHERE id = id and status = periode.status e.l.?? )
+        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
         dataSource.update(
             """
             UPDATE saksbehandlingsperiode SET status = :status
@@ -118,13 +121,30 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
         )
     }
 
+    fun endreStatusOgBeslutter(
+        periode: Saksbehandlingsperiode,
+        nyStatus: SaksbehandlingsperiodeStatus,
+        beslutterNavIdent: String?,
+    ) {
+        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
+        dataSource.update(
+            """
+            UPDATE saksbehandlingsperiode SET status = :status, beslutter_nav_ident = :beslutter_nav_ident
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to periode.id,
+            "status" to nyStatus.name,
+            "beslutter_nav_ident" to beslutterNavIdent,
+        )
+    }
+
     fun opprettPeriode(periode: Saksbehandlingsperiode) {
         dataSource.update(
             """
             insert into saksbehandlingsperiode
-                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter)
+                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident)
             values
-                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter)
+                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident)
             """.trimIndent(),
             "id" to periode.id,
             "spillerom_personid" to periode.spilleromPersonId,
@@ -134,7 +154,7 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
             "fom" to periode.fom,
             "tom" to periode.tom,
             "status" to periode.status.name,
-            "beslutter" to periode.beslutter,
+            "beslutter_nav_ident" to periode.beslutterNavIdent,
         )
     }
 }

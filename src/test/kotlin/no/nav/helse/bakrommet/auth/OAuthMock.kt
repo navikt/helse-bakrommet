@@ -22,6 +22,7 @@ class OAuthMock {
     fun token(
         audience: String = clientId,
         grupper: List<String> = listOf("GRUPPE_SAKSBEHANDLER"),
+        navIdent: String = "tullebruker",
     ): String =
         mockOAuth2Server.issueToken(
             issuerId = issuerId,
@@ -29,7 +30,7 @@ class OAuthMock {
             subject = "tullesubjekt",
             claims =
                 mapOf(
-                    "NAVident" to "tullebruker",
+                    "NAVident" to navIdent,
                     "name" to "Tulla Bruker",
                     "groups" to grupper,
                     "preferred_username" to "tullabruker@nav.no",

@@ -78,8 +78,20 @@ val regler =
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/status/{status}/(method:POST)",
-            role = setOf(SAKSBEHANDLER, BESLUTTER),
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sendtilbeslutning/(method:POST)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/tatilbeslutning/(method:POST)",
+            role = setOf(BESLUTTER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sendtilbake/(method:POST)",
+            role = setOf(BESLUTTER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/godkjenn/(method:POST)",
+            role = setOf(BESLUTTER),
         ),
         // Inntektsforhold
         Rule(

@@ -1,0 +1,1 @@
+ALTER TABLE saksbehandlingsperiode RENAME COLUMN beslutter TO beslutter_nav_ident;
