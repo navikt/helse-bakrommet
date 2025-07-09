@@ -21,7 +21,15 @@ data class Saksbehandlingsperiode(
     val opprettetAvNavn: String,
     val fom: LocalDate,
     val tom: LocalDate,
+    val status: SaksbehandlingsperiodeStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
+    val beslutter: String? = null,
 )
+
+enum class SaksbehandlingsperiodeStatus {
+    UNDER_BEHANDLING,
+    TIL_BESLUTNING,
+    GODKJENT,
+}
 
 class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
     private val vurdertVilkårDao = VurdertVilkårDao(dataSource)
@@ -79,15 +87,17 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
             opprettetAvNavn = row.string("opprettet_av_navn"),
             fom = row.localDate("fom"),
             tom = row.localDate("tom"),
+            status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
+            beslutter = row.stringOrNull("beslutter"),
         )
 
     fun opprettPeriode(periode: Saksbehandlingsperiode) {
         dataSource.update(
             """
             insert into saksbehandlingsperiode
-                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom)
+                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter)
             values
-                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom)
+                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter)
             """.trimIndent(),
             "id" to periode.id,
             "spillerom_personid" to periode.spilleromPersonId,
@@ -96,6 +106,8 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
             "opprettet_av_navn" to periode.opprettetAvNavn,
             "fom" to periode.fom,
             "tom" to periode.tom,
+            "status" to periode.status.name,
+            "beslutter" to periode.beslutter,
         )
     }
 }

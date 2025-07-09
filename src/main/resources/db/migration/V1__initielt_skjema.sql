@@ -13,7 +13,9 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
     opprettet_av_nav_ident TEXT                        NOT NULL,
     opprettet_av_navn      TEXT                        NOT NULL,
     fom                    DATE                        NOT NULL,
-    tom                    DATE                        NOT NULL
+    tom                    DATE                        NOT NULL,
+    status                 TEXT                        NOT NULL,
+    beslutter              TEXT                        NULL
 );
 
 CREATE TABLE IF NOT EXISTS vurdert_vilkaar
