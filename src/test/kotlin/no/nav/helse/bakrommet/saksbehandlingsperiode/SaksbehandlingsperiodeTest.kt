@@ -6,6 +6,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.testutils.`should equal`
+import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -85,7 +86,10 @@ class SaksbehandlingsperiodeTest {
                     assertEquals(200, resp.status.value)
                     resp.bodyAsText().somListe()
                 }
-            assertEquals(setOf(periode1, periode2), absoluttAllePerioder.toSet())
+            assertEquals(
+                listOf(periode1, periode2).tidsstuttet().toSet(),
+                absoluttAllePerioder.tidsstuttet().toSet(),
+            )
         }
     }
 }

@@ -8,6 +8,9 @@ import java.time.temporal.ChronoUnit.SECONDS
 
 fun Saksbehandlingsperiode.truncateTidspunkt() = copy(opprettet = opprettet.truncatedTo(SECONDS))
 
+@JvmName("tidsstuttetSaksbehandlingsperiode")
+fun Iterable<Saksbehandlingsperiode>.tidsstuttet() = map(Saksbehandlingsperiode::truncateTidspunkt)
+
 @JvmName("tidsstuttetDokument")
 fun Iterable<Dokument>.tidsstuttet() = map(Dokument::tidsstuttet)
 
