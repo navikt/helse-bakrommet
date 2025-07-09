@@ -50,4 +50,42 @@ class SaksbehandlingsperiodeTest {
             perioder.map { it.truncateTidspunkt() } `should equal` listOf(saksbehandlingsperiode)
             println(perioder)
         }
+
+    @Test
+    fun `henter alle perioder uten filter eller paginering`() {
+        runApplicationTest {
+            val fnr2 = "02029200000"
+            val personId2 = "2ndnd"
+            it.personDao.opprettPerson(fnr, personId)
+            it.personDao.opprettPerson(fnr2, personId2)
+
+            suspend fun lagPeriodePåPerson(personId: String) =
+                client.post("/v1/$personId/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "fom": "2023-01-01", "tom": "2023-01-31" }
+                        """.trimIndent(),
+                    )
+                }.body<Saksbehandlingsperiode>()
+            val periode1 =
+                lagPeriodePåPerson(personId).also {
+                    assertEquals(personId, it.spilleromPersonId)
+                }
+            val periode2 =
+                lagPeriodePåPerson(personId2).also {
+                    assertEquals(personId2, it.spilleromPersonId)
+                }
+
+            val absoluttAllePerioder: List<Saksbehandlingsperiode> =
+                client.get("/v1/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                }.let { resp ->
+                    assertEquals(200, resp.status.value)
+                    resp.bodyAsText().somListe()
+                }
+            assertEquals(setOf(periode1, periode2), absoluttAllePerioder.toSet())
+        }
+    }
 }

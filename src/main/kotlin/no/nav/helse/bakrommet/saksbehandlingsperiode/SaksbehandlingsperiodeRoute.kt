@@ -55,6 +55,13 @@ internal fun Route.saksbehandlingsperiodeRoute(
     inntektsforholdDao: InntektsforholdDao,
     dokumentRoutes: List<Route.() -> Unit> = emptyList(),
 ) {
+    route("/v1/saksbehandlingsperioder") {
+        get {
+            val perioder = saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder()
+            call.respondText(perioder.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+        }
+    }
+
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder") {
         data class CreatePeriodeRequest(
             val fom: String,

@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Row
+import no.nav.helse.bakrommet.appLogger
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.OpprettetEllerEndret
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
@@ -48,6 +49,23 @@ enum class SaksbehandlingsperiodeStatus {
 
 class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
     private val vurdertVilkårDao = VurdertVilkårDao(dataSource)
+
+    fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode> {
+        val limitEnnSåLenge = 100
+        return dataSource.list(
+            """
+            select *
+              from saksbehandlingsperiode
+             
+              LIMIT $limitEnnSåLenge 
+            """.trimIndent(),
+        ) { rowTilPeriode(it) }.also { perioderIRetur ->
+            if (perioderIRetur.size >= limitEnnSåLenge) {
+                // TODO: Det må inn noe WHERE-kriterer og paginering her ...
+                appLogger.error("hentSaksbehandlingsperioder out of limit")
+            }
+        }
+    }
 
     fun lagreVilkårsvurdering(
         periode: Saksbehandlingsperiode,
