@@ -19,6 +19,7 @@ import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.bruker.brukerRoute
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
+import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.inntektsmelding.inntektsmeldingerRoute
 import no.nav.helse.bakrommet.pdl.PdlClient
@@ -34,6 +35,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsfor
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.pensjonsgivendeinntekt.pensjonsgivendeInntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårRouteSessionDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
@@ -179,7 +181,16 @@ internal fun Application.appModul(
                         },
                     ),
             )
-            saksbehandlingsperiodeVilkårRoute(saksbehandlingsperiodeDao, personDao)
+            saksbehandlingsperiodeVilkårRoute(
+                saksbehandlingsperiodeDao,
+                personDao,
+                sessionFactory =
+                    TransactionalSessionFactory(dataSource) { session ->
+                        object : VilkårRouteSessionDaoer {
+                            override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
+                        }
+                    },
+            )
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
             saksbehandlingsperiodeInntektsforholdRoute(saksbehandlingsperiodeDao, personDao, inntektsforholdDao)
             brukerRoute()

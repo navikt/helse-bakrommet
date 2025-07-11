@@ -2,8 +2,11 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import kotliquery.Session
 import kotliquery.queryOf
-import kotliquery.sessionOf
+import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
+import no.nav.helse.bakrommet.infrastruktur.db.MedSession
+import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.util.*
 import java.time.Instant
@@ -26,9 +29,13 @@ enum class OpprettetEllerEndret {
     ENDRET,
 }
 
-class VurdertVilkårDao(private val dataSource: DataSource) {
+class VurdertVilkårDao internal constructor(private val db: QueryRunner) {
+    // TODO: Endre hovedconstructor ovenfor til "private" når instansiering fra SaksbehandlingsperiodeDao er fjernet
+    constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
+    constructor(session: Session) : this(MedSession(session))
+
     fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> =
-        dataSource.list(
+        db.list(
             sql =
                 """
                 select * from vurdert_vilkaar 
@@ -46,7 +53,7 @@ class VurdertVilkårDao(private val dataSource: DataSource) {
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): VurdertVilkår? =
-        dataSource.single(
+        db.single(
             sql =
                 """
                 select * from vurdert_vilkaar 
@@ -66,21 +73,19 @@ class VurdertVilkårDao(private val dataSource: DataSource) {
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): Int {
-        return sessionOf(dataSource, strict = true).use { session ->
-            session.run(
-                queryOf(
-                    """
-                    DELETE FROM vurdert_vilkaar
-                    where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-                    and kode = :kode
-                    """.trimIndent(),
-                    mapOf(
-                        "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
-                        "kode" to kode,
-                    ),
-                ).asUpdate,
-            )
-        }
+        return db.run(
+            queryOf(
+                """
+                DELETE FROM vurdert_vilkaar
+                where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                and kode = :kode
+                """.trimIndent(),
+                mapOf(
+                    "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+                    "kode" to kode,
+                ),
+            ).asUpdate,
+        )
     }
 
     fun lagreVilkårsvurdering(
@@ -88,61 +93,60 @@ class VurdertVilkårDao(private val dataSource: DataSource) {
         kode: Kode,
         vurdering: JsonNode,
     ): OpprettetEllerEndret {
-        sessionOf(dataSource, strict = true).use { session ->
-            session.transaction { tx ->
-                val finnesFraFør =
-                    tx.run(
-                        queryOf(
-                            """
-                            select * from vurdert_vilkaar 
-                            where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-                            and kode = :kode
-                            """.trimIndent(),
-                            mapOf(
-                                "saksbehandlingsperiode_id" to behandling.id,
-                                "kode" to kode.kode,
-                            ),
-                        ).map { true }.asSingle,
-                    ) ?: false
+        require(db is MedSession) { "Denne operasjonen må kjøres i en transaksjon" }
+        val tx = db // TODO: Flytt denne transaksjonslogikken ut av DAOen (?)
 
-                if (finnesFraFør) {
-                    tx.run(
-                        queryOf(
-                            """
-                            update vurdert_vilkaar 
-                            set vurdering = :vurdering,
-                            vurdering_tidspunkt = :vurdering_tidspunkt
-                            where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-                            and kode = :kode 
-                            """.trimIndent(),
-                            mapOf(
-                                "vurdering" to vurdering.serialisertTilString(),
-                                "vurdering_tidspunkt" to Instant.now(),
-                                "saksbehandlingsperiode_id" to behandling.id,
-                                "kode" to kode.kode,
-                            ),
-                        ).asUpdate,
-                    )
-                    return OpprettetEllerEndret.ENDRET
-                } else {
-                    tx.run(
-                        queryOf(
-                            """
-                            insert into vurdert_vilkaar
-                             (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
-                            values (:vurdering, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
-                            """.trimIndent(),
-                            mapOf(
-                                "vurdering" to vurdering.serialisertTilString(),
-                                "vurdering_tidspunkt" to Instant.now(),
-                                "saksbehandlingsperiode_id" to behandling.id,
-                                "kode" to kode.kode,
-                            ),
-                        ).asUpdate,
-                    )
-                    return OpprettetEllerEndret.OPPRETTET
-                }
-            }
+        val finnesFraFør =
+            tx.run(
+                queryOf(
+                    """
+                    select * from vurdert_vilkaar 
+                    where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                    and kode = :kode
+                    """.trimIndent(),
+                    mapOf(
+                        "saksbehandlingsperiode_id" to behandling.id,
+                        "kode" to kode.kode,
+                    ),
+                ).map { true }.asSingle,
+            ) ?: false
+
+        if (finnesFraFør) {
+            tx.run(
+                queryOf(
+                    """
+                    update vurdert_vilkaar 
+                    set vurdering = :vurdering,
+                    vurdering_tidspunkt = :vurdering_tidspunkt
+                    where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                    and kode = :kode 
+                    """.trimIndent(),
+                    mapOf(
+                        "vurdering" to vurdering.serialisertTilString(),
+                        "vurdering_tidspunkt" to Instant.now(),
+                        "saksbehandlingsperiode_id" to behandling.id,
+                        "kode" to kode.kode,
+                    ),
+                ).asUpdate,
+            )
+            return OpprettetEllerEndret.ENDRET
+        } else {
+            tx.run(
+                queryOf(
+                    """
+                    insert into vurdert_vilkaar
+                     (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
+                    values (:vurdering, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
+                    """.trimIndent(),
+                    mapOf(
+                        "vurdering" to vurdering.serialisertTilString(),
+                        "vurdering_tidspunkt" to Instant.now(),
+                        "saksbehandlingsperiode_id" to behandling.id,
+                        "kode" to kode.kode,
+                    ),
+                ).asUpdate,
+            )
+            return OpprettetEllerEndret.OPPRETTET
         }
     }
 }

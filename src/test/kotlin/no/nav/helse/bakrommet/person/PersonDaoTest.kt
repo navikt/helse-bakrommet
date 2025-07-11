@@ -1,15 +1,14 @@
 package no.nav.helse.bakrommet.person
 
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.util.single
-import no.nav.helse.bakrommet.util.update
+import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import kotlin.test.assertEquals
 
 internal class PersonDaoTest {
-    val dataSource = TestDataSource.dbModule.dataSource
-    private val personDao = PersonDao(dataSource)
+    val db = MedDataSource(TestDataSource.dbModule.dataSource)
+    private val personDao = PersonDao(TestDataSource.dbModule.dataSource)
 
     @Test
     fun `returnerer null for ukjent person-ID`() {
@@ -36,7 +35,7 @@ internal class PersonDaoTest {
         val spilleromId = "987ab"
         personDao.opprettPerson(naturligIdent = fnr, spilleromId = spilleromId)
         val (identFraDb, spilleromIdFraDb) =
-            dataSource.single(
+            db.single(
                 """select naturlig_ident, spillerom_id from ident where spillerom_id = :sid""",
                 "sid" to spilleromId,
             ) {
@@ -64,7 +63,7 @@ internal class PersonDaoTest {
         fnr: String,
         spilleromId: String,
     ) {
-        dataSource.update(
+        db.update(
             """
             insert into ident (spillerom_id, naturlig_ident)
             values (:spilleromId, :fnr)

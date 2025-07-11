@@ -2,6 +2,10 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
 
 import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Row
+import kotliquery.Session
+import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
+import no.nav.helse.bakrommet.infrastruktur.db.MedSession
+import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.util.*
 import java.time.OffsetDateTime
@@ -37,9 +41,12 @@ data class Inntektsforhold(
     val generertFraDokumenter: List<UUID>,
 )
 
-class InntektsforholdDao(private val dataSource: DataSource) {
+class InntektsforholdDao private constructor(private val db: QueryRunner) {
+    constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
+    constructor(session: Session) : this(MedSession(session))
+
     fun opprettInntektsforhold(inntektsforhold: Inntektsforhold): Inntektsforhold {
-        dataSource.update(
+        db.update(
             """
             insert into inntektsforhold
                 (id, kategorisering, kategorisering_generert,
@@ -63,7 +70,7 @@ class InntektsforholdDao(private val dataSource: DataSource) {
     }
 
     fun hentInntektsforhold(id: UUID): Inntektsforhold? =
-        dataSource.single(
+        db.single(
             """
             select * from inntektsforhold where id = :id
             """.trimIndent(),
@@ -72,7 +79,7 @@ class InntektsforholdDao(private val dataSource: DataSource) {
         )
 
     fun hentInntektsforholdFor(periode: Saksbehandlingsperiode): List<Inntektsforhold> =
-        dataSource.list(
+        db.list(
             """
             select * from inntektsforhold where saksbehandlingsperiode_id = :behandling_id
             """.trimIndent(),
@@ -98,7 +105,7 @@ class InntektsforholdDao(private val dataSource: DataSource) {
         inntektsforhold: Inntektsforhold,
         kategorisering: JsonNode,
     ): Inntektsforhold {
-        dataSource.update(
+        db.update(
             """
             update inntektsforhold set kategorisering = :kategorisering where id = :id
             """.trimIndent(),
@@ -155,7 +162,7 @@ class InntektsforholdDao(private val dataSource: DataSource) {
                 eksisterendeDagerMap.values.forEach { add(it) }
             }
 
-        dataSource.update(
+        db.update(
             """
             update inntektsforhold set dagoversikt = :dagoversikt where id = :id
             """.trimIndent(),

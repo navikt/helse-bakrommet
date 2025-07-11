@@ -1,10 +1,15 @@
 package no.nav.helse.bakrommet.person
 
-import no.nav.helse.bakrommet.util.single
-import no.nav.helse.bakrommet.util.update
+import kotliquery.Session
+import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
+import no.nav.helse.bakrommet.infrastruktur.db.MedSession
+import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import javax.sql.DataSource
 
-class PersonDao(private val dataSource: DataSource) {
+class PersonDao private constructor(private val db: QueryRunner) {
+    constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
+    constructor(session: Session) : this(MedSession(session))
+
     fun finnPersonId(vararg identer: String): String? {
         val params = identer.mapIndexed { i, id -> "p$i" to id }
         val placeholderList = params.joinToString(",") { ":${it.first}" }
@@ -15,7 +20,7 @@ class PersonDao(private val dataSource: DataSource) {
       WHERE naturlig_ident IN ($placeholderList)
     """
 
-        return dataSource.single(sql, *params.toTypedArray()) { rs ->
+        return db.single(sql, *params.toTypedArray()) { rs ->
             rs.string("spillerom_id")
         }
     }
@@ -24,7 +29,7 @@ class PersonDao(private val dataSource: DataSource) {
         naturligIdent: String,
         spilleromId: String,
     ) {
-        dataSource.update(
+        db.update(
             """
             insert into ident (spillerom_id, naturlig_ident)
             values (:spillerom_id, :naturlig_ident)
@@ -35,7 +40,7 @@ class PersonDao(private val dataSource: DataSource) {
     }
 
     fun finnNaturligIdent(spilleromId: String): String? {
-        return dataSource.single(
+        return db.single(
             "select naturlig_ident from ident where spillerom_id = :spillerom_id",
             "spillerom_id" to spilleromId,
         ) { it.string(1) }

@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.db
 
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
-import no.nav.helse.bakrommet.util.execute
+import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import org.testcontainers.containers.PostgreSQLContainer
 
 object TestDataSource {
@@ -33,6 +33,7 @@ object TestDataSource {
         }.also { it.migrate() }
 
     fun resetDatasource() {
+        val db = MedDataSource(dbModule.dataSource)
         val cascade =
             if (testcontainers) {
                 " cascade"
@@ -40,15 +41,15 @@ object TestDataSource {
                 ""
             }
         if (!testcontainers) {
-            dbModule.dataSource.execute("SET REFERENTIAL_INTEGRITY TO FALSE")
+            db.execute("SET REFERENTIAL_INTEGRITY TO FALSE")
         }
 
-        dbModule.dataSource.execute("truncate table saksbehandlingsperiode$cascade")
-        dbModule.dataSource.execute("truncate table ident$cascade")
-        dbModule.dataSource.execute("truncate table inntektsforhold$cascade")
+        db.execute("truncate table saksbehandlingsperiode$cascade")
+        db.execute("truncate table ident$cascade")
+        db.execute("truncate table inntektsforhold$cascade")
 
         if (!testcontainers) {
-            dbModule.dataSource.execute("SET REFERENTIAL_INTEGRITY TO TRUE")
+            db.execute("SET REFERENTIAL_INTEGRITY TO TRUE")
         }
     }
 }

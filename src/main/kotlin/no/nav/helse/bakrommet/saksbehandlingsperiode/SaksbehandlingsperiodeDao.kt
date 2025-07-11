@@ -2,13 +2,14 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Row
+import kotliquery.Session
 import no.nav.helse.bakrommet.appLogger
+import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
+import no.nav.helse.bakrommet.infrastruktur.db.MedSession
+import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.OpprettetEllerEndret
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
-import no.nav.helse.bakrommet.util.list
-import no.nav.helse.bakrommet.util.single
-import no.nav.helse.bakrommet.util.update
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -47,12 +48,15 @@ enum class SaksbehandlingsperiodeStatus {
     }
 }
 
-class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
-    private val vurdertVilkårDao = VurdertVilkårDao(dataSource)
+class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner) {
+    constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
+    constructor(session: Session) : this(MedSession(session))
+
+    private val vurdertVilkårDao = VurdertVilkårDao(db)
 
     fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode> {
         val limitEnnSåLenge = 100
-        return dataSource.list(
+        return db.list(
             """
             select *
               from saksbehandlingsperiode
@@ -91,7 +95,7 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
     ) = vurdertVilkårDao.slettVilkårsvurdering(saksbehandlingsperiodeId, kode)
 
     fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
-        dataSource.single(
+        db.single(
             """
             select *
               from saksbehandlingsperiode
@@ -102,7 +106,7 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
 
     // Ny metode: finn én periode basert på spillerom_personid
     fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode> =
-        dataSource.list(
+        db.list(
             """
             select *
               from saksbehandlingsperiode
@@ -129,7 +133,7 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
         nyStatus: SaksbehandlingsperiodeStatus,
     ) {
         check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
-        dataSource.update(
+        db.update(
             """
             UPDATE saksbehandlingsperiode SET status = :status
             WHERE id = :id
@@ -145,7 +149,7 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
         beslutterNavIdent: String?,
     ) {
         check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
-        dataSource.update(
+        db.update(
             """
             UPDATE saksbehandlingsperiode SET status = :status, beslutter_nav_ident = :beslutter_nav_ident
             WHERE id = :id
@@ -157,7 +161,7 @@ class SaksbehandlingsperiodeDao(private val dataSource: DataSource) {
     }
 
     fun opprettPeriode(periode: Saksbehandlingsperiode) {
-        dataSource.update(
+        db.update(
             """
             insert into saksbehandlingsperiode
                 (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident)

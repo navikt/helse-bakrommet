@@ -2,6 +2,10 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Row
+import kotliquery.Session
+import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
+import no.nav.helse.bakrommet.infrastruktur.db.MedSession
+import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.util.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.Instant
@@ -30,9 +34,12 @@ data class Dokument(
     }
 }
 
-class DokumentDao(private val dataSource: DataSource) {
+class DokumentDao private constructor(private val db: QueryRunner) {
+    constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
+    constructor(session: Session) : this(MedSession(session))
+
     fun opprettDokument(dokument: Dokument): Dokument {
-        dataSource.update(
+        db.update(
             """
             insert into dokument
                 (id, dokument_type, ekstern_id, innhold, opprettet, request, opprettet_for_behandling)
@@ -51,7 +58,7 @@ class DokumentDao(private val dataSource: DataSource) {
     }
 
     fun hentDokument(id: UUID): Dokument? =
-        dataSource.single(
+        db.single(
             """
             select * from dokument where id = :id
             """.trimIndent(),
@@ -60,7 +67,7 @@ class DokumentDao(private val dataSource: DataSource) {
         )
 
     fun hentDokumenterFor(behandlingId: UUID): List<Dokument> =
-        dataSource.list(
+        db.list(
             """
             select * from dokument where opprettet_for_behandling = :behandling_id
             """.trimIndent(),

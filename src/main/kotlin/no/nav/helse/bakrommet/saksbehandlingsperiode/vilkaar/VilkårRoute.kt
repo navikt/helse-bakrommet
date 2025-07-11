@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
@@ -31,9 +32,14 @@ class Kode(
     override fun toString(): String = kode
 }
 
+interface VilkårRouteSessionDaoer {
+    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+}
+
 internal fun Route.saksbehandlingsperiodeVilkårRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
+    sessionFactory: TransactionalSessionFactory<VilkårRouteSessionDaoer>,
 ) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaar") {
         get {
@@ -54,11 +60,14 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
                 val vurdertVilkår = call.receive<JsonNode>()
 
                 val opprettetEllerEndret =
-                    saksbehandlingsperiodeDao.lagreVilkårsvurdering(
-                        periode = periode,
-                        vilkårsKode = vilkårsKode,
-                        vurdering = vurdertVilkår,
-                    )
+                    sessionFactory.transactionalSessionScope { session ->
+                        session.saksbehandlingsperiodeDao.lagreVilkårsvurdering(
+                            periode = periode,
+                            vilkårsKode = vilkårsKode,
+                            vurdering = vurdertVilkår,
+                        )
+                    }
+
                 val lagretVurdering = saksbehandlingsperiodeDao.hentVurdertVilkårFor(periode.id, vilkårsKode.kode)
                 call.respondText(
                     lagretVurdering!!.tilApiSvar().serialisertTilString(),
