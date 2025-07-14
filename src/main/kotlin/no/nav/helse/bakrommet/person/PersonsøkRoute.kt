@@ -22,12 +22,12 @@ internal fun Route.personsøkRoute(
 
         val identer = pdlClient.hentIdenterFor(saksbehandlerToken = call.request.bearerToken(), ident = ident)
 
-        fun hentEllerOpprettPersonid(naturligIdent: String): String {
-            personDao.finnPersonId(*identer.toTypedArray())?.let { return it }
-            val newPersonId = UUID.randomUUID().toString().replace("-", "").substring(0, 5)
+        fun hentEllerOpprettPersonid(naturligIdent: String): SpilleromPersonId {
+            personDao.finnPersonId(*identer.toTypedArray())?.let { return SpilleromPersonId(it) }
+            val newPersonId = SpilleromPersonId.lagNy()
 
             // TODO naturlig ident her må være gjeldende fnr fra hentIdenter
-            personDao.opprettPerson(naturligIdent, newPersonId)
+            personDao.opprettPerson(naturligIdent, newPersonId.personId)
             return newPersonId
         }
 
