@@ -8,16 +8,17 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.auth.brukerPrincipal
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
@@ -50,9 +51,8 @@ internal suspend inline fun ApplicationCall.medBehandlingsperiode(
 internal fun Route.saksbehandlingsperiodeRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
-    dokumentHenter: DokumentHenter,
     dokumentDao: DokumentDao,
-    inntektsforholdDao: InntektsforholdDao,
+    saksbehandlingsperiodeService: SaksbehandlingsperiodeService,
     dokumentRoutes: List<Route.() -> Unit> = emptyList(),
 ) {
     route("/v1/saksbehandlingsperioder") {
@@ -75,33 +75,19 @@ internal fun Route.saksbehandlingsperiodeRoute(
                 val body = call.receive<CreatePeriodeRequest>()
                 val fom = LocalDate.parse(body.fom)
                 val tom = LocalDate.parse(body.tom)
-                if (fom.isAfter(tom)) throw InputValideringException("Fom-dato kan ikke være etter tom-dato")
-                val saksbehandler = call.brukerPrincipal()!!
+                val saksbehandler =
+                    BrukerOgToken(
+                        bruker = call.brukerPrincipal()!!,
+                        token = call.request.bearerToken(),
+                    )
                 val nyPeriode =
-                    Saksbehandlingsperiode(
-                        id = UUID.randomUUID(),
-                        spilleromPersonId = spilleromPersonId,
-                        opprettet = OffsetDateTime.now(),
-                        opprettetAvNavIdent = saksbehandler.navIdent,
-                        opprettetAvNavn = saksbehandler.navn,
+                    saksbehandlingsperiodeService.opprettNySaksbehandlingsperiode(
+                        spilleromPersonId = SpilleromPersonId(spilleromPersonId),
                         fom = fom,
                         tom = tom,
+                        søknader = body.søknader?.toSet() ?: emptySet(),
+                        saksbehandler = saksbehandler,
                     )
-                saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
-                val søknader =
-                    if (body.søknader != null && body.søknader.isNotEmpty()) {
-                        dokumentHenter.hentOgLagreSøknader(
-                            nyPeriode.id,
-                            body.søknader,
-                            call.request.bearerToken(),
-                        )
-                    } else {
-                        emptyList()
-                    }
-                lagInntektsforholdFraSøknader(søknader, nyPeriode).forEach(inntektsforholdDao::opprettInntektsforhold)
-
-                // TODO: Returner også innhentede dokumenter?
-
                 call.respondText(nyPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.Created)
             }
         }

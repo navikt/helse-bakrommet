@@ -19,6 +19,8 @@ import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.bruker.brukerRoute
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
+import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
+import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.inntektsmelding.inntektsmeldingerRoute
@@ -29,13 +31,13 @@ import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.aareg.arbeidsforholdRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.ainntekt.ainntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.pensjonsgivendeinntekt.pensjonsgivendeInntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårRouteSessionDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
@@ -122,12 +124,23 @@ internal fun Application.appModul(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
     dokumentDao: DokumentDao = DokumentDao(dataSource),
     vurdertVilkårDao: VurdertVilkårDao = VurdertVilkårDao(dataSource),
+    daoerFelles: DaoerFelles = DaoerFelles(dataSource),
+    sessionFactoryFelles: TransactionalSessionFactory<SessionDaoerFelles> =
+        TransactionalSessionFactory(dataSource) { session ->
+            SessionDaoerFelles(session)
+        },
     dokumentHenter: DokumentHenter =
         DokumentHenter(
             personDao,
             saksbehandlingsperiodeDao,
             dokumentDao,
             sykepengesoknadBackendClient,
+        ),
+    saksbehandlingsperiodeService: SaksbehandlingsperiodeService =
+        SaksbehandlingsperiodeService(
+            daoer = daoerFelles,
+            sessionFactory = sessionFactoryFelles,
+            dokumentHenter = dokumentHenter,
         ),
 ) {
     install(ContentNegotiation) {
@@ -152,9 +165,8 @@ internal fun Application.appModul(
             saksbehandlingsperiodeRoute(
                 saksbehandlingsperiodeDao,
                 personDao,
-                dokumentHenter,
                 dokumentDao,
-                inntektsforholdDao,
+                saksbehandlingsperiodeService,
                 dokumentRoutes =
                     listOf(
                         {
@@ -187,12 +199,7 @@ internal fun Application.appModul(
                 saksbehandlingsperiodeDao,
                 personDao,
                 vurdertVilkårDao,
-                sessionFactory =
-                    TransactionalSessionFactory(dataSource) { session ->
-                        object : VilkårRouteSessionDaoer {
-                            override val vurdertVilkårDao = VurdertVilkårDao(session)
-                        }
-                    },
+                sessionFactory = sessionFactoryFelles,
             )
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
             saksbehandlingsperiodeInntektsforholdRoute(saksbehandlingsperiodeDao, personDao, inntektsforholdDao)

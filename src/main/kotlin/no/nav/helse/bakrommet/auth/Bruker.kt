@@ -13,3 +13,8 @@ data class Bruker(
 fun ApplicationCall.brukerPrincipal(): Bruker? {
     return principal<Bruker>()
 }
+
+class BrukerOgToken(
+    val bruker: Bruker,
+    val token: SpilleromBearerToken,
+)
