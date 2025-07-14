@@ -15,7 +15,6 @@ import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
@@ -41,7 +40,7 @@ internal suspend inline fun ApplicationCall.medBehandlingsperiode(
         val periode =
             saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)
                 ?: throw SaksbehandlingsperiodeIkkeFunnetException()
-        if (periode.spilleromPersonId != spilleromPersonId) {
+        if (periode.spilleromPersonId != spilleromPersonId.personId) {
             throw InputValideringException("Ugyldig saksbehandlingsperiode")
         }
         block(periode)
@@ -82,7 +81,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
                     )
                 val nyPeriode =
                     saksbehandlingsperiodeService.opprettNySaksbehandlingsperiode(
-                        spilleromPersonId = SpilleromPersonId(spilleromPersonId),
+                        spilleromPersonId = spilleromPersonId,
                         fom = fom,
                         tom = tom,
                         søknader = body.søknader?.toSet() ?: emptySet(),
@@ -95,7 +94,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
         /** Hent alle perioder for en person */
         get {
             call.medIdent(personDao) { fnr, spilleromPersonId ->
-                val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId)
+                val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
                 call.respondText(perioder.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }
         }

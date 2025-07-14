@@ -7,7 +7,7 @@ import no.nav.helse.bakrommet.PARAM_PERSONID
 
 internal suspend inline fun ApplicationCall.medIdent(
     personDao: PersonDao,
-    crossinline block: suspend (naturligIdent: String, personId: String) -> Unit,
+    crossinline block: suspend (naturligIdent: String, personId: SpilleromPersonId) -> Unit,
 ) {
     val personId =
         parameters[PARAM_PERSONID]
@@ -17,5 +17,5 @@ internal suspend inline fun ApplicationCall.medIdent(
         personDao.finnNaturligIdent(personId)
             ?: return respond(HttpStatusCode.NotFound, "Fant ikke naturligIdent for personId $personId")
 
-    block(fnr, personId)
+    block(fnr, SpilleromPersonId(personId))
 }
