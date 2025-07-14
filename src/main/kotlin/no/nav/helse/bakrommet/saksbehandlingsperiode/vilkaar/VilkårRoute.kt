@@ -33,19 +33,20 @@ class Kode(
 }
 
 interface VilkårRouteSessionDaoer {
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    val vurdertVilkårDao: VurdertVilkårDao
 }
 
 internal fun Route.saksbehandlingsperiodeVilkårRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
+    vurdertVikårDao: VurdertVilkårDao,
     sessionFactory: TransactionalSessionFactory<VilkårRouteSessionDaoer>,
 ) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaar") {
         get {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vurderteVilkår =
-                    saksbehandlingsperiodeDao.hentVurderteVilkårFor(periode.id).map {
+                    vurdertVikårDao.hentVilkårsvurderinger(periode.id).map {
                         it.tilApiSvar()
                     }
                 call.respondText(vurderteVilkår.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
@@ -61,14 +62,14 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
 
                 val opprettetEllerEndret =
                     sessionFactory.transactionalSessionScope { session ->
-                        session.saksbehandlingsperiodeDao.lagreVilkårsvurdering(
-                            periode = periode,
-                            vilkårsKode = vilkårsKode,
+                        session.vurdertVilkårDao.lagreVilkårsvurdering(
+                            behandling = periode,
+                            kode = vilkårsKode,
                             vurdering = vurdertVilkår,
                         )
                     }
 
-                val lagretVurdering = saksbehandlingsperiodeDao.hentVurdertVilkårFor(periode.id, vilkårsKode.kode)
+                val lagretVurdering = vurdertVikårDao.hentVilkårsvurdering(periode.id, vilkårsKode.kode)
                 call.respondText(
                     lagretVurdering!!.tilApiSvar().serialisertTilString(),
                     ContentType.Application.Json,
@@ -80,7 +81,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
         delete {
             call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
                 val vilkårsKode = Kode(call.parameters["kode"]!!)
-                val numAffectedRows = saksbehandlingsperiodeDao.slettVilkårsvurdering(periode.id, vilkårsKode.kode)
+                val numAffectedRows = vurdertVikårDao.slettVilkårsvurdering(periode.id, vilkårsKode.kode)
                 if (numAffectedRows == 0) {
                     call.respond(HttpStatusCode.NotFound)
                 } else {

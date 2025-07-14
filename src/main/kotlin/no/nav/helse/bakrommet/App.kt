@@ -36,6 +36,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandl
 import no.nav.helse.bakrommet.saksbehandlingsperiode.pensjonsgivendeinntekt.pensjonsgivendeInntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårRouteSessionDaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
@@ -120,6 +121,7 @@ internal fun Application.appModul(
     inntektsforholdDao: InntektsforholdDao = InntektsforholdDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
     dokumentDao: DokumentDao = DokumentDao(dataSource),
+    vurdertVilkårDao: VurdertVilkårDao = VurdertVilkårDao(dataSource),
     dokumentHenter: DokumentHenter =
         DokumentHenter(
             personDao,
@@ -184,10 +186,11 @@ internal fun Application.appModul(
             saksbehandlingsperiodeVilkårRoute(
                 saksbehandlingsperiodeDao,
                 personDao,
+                vurdertVilkårDao,
                 sessionFactory =
                     TransactionalSessionFactory(dataSource) { session ->
                         object : VilkårRouteSessionDaoer {
-                            override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
+                            override val vurdertVilkårDao = VurdertVilkårDao(session)
                         }
                     },
             )

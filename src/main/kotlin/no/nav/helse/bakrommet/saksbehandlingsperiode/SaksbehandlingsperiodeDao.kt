@@ -1,15 +1,11 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
-import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.appLogger
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.OpprettetEllerEndret
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -52,8 +48,6 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    private val vurdertVilkårDao = VurdertVilkårDao(db)
-
     fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode> {
         val limitEnnSåLenge = 100
         return db.list(
@@ -70,29 +64,6 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
             }
         }
     }
-
-    fun lagreVilkårsvurdering(
-        periode: Saksbehandlingsperiode,
-        vilkårsKode: Kode,
-        vurdering: JsonNode,
-    ): OpprettetEllerEndret =
-        vurdertVilkårDao.lagreVilkårsvurdering(
-            behandling = periode,
-            kode = vilkårsKode,
-            vurdering = vurdering,
-        )
-
-    fun hentVurderteVilkårFor(saksbehandlingsperiodeId: UUID) = vurdertVilkårDao.hentVilkårsvurderinger(saksbehandlingsperiodeId)
-
-    fun hentVurdertVilkårFor(
-        saksbehandlingsperiodeId: UUID,
-        medKode: String,
-    ) = vurdertVilkårDao.hentVilkårsvurdering(saksbehandlingsperiodeId, medKode)
-
-    fun slettVilkårsvurdering(
-        saksbehandlingsperiodeId: UUID,
-        kode: String,
-    ) = vurdertVilkårDao.slettVilkårsvurdering(saksbehandlingsperiodeId, kode)
 
     fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
         db.single(

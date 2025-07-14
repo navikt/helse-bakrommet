@@ -29,8 +29,7 @@ enum class OpprettetEllerEndret {
     ENDRET,
 }
 
-class VurdertVilkårDao internal constructor(private val db: QueryRunner) {
-    // TODO: Endre hovedconstructor ovenfor til "private" når instansiering fra SaksbehandlingsperiodeDao er fjernet
+class VurdertVilkårDao private constructor(private val db: QueryRunner) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
