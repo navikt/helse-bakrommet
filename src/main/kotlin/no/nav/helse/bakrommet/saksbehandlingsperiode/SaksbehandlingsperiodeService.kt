@@ -8,7 +8,15 @@ import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetExce
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.SpilleromPersonId
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering
+import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.tilJsonNode
+import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -173,4 +181,61 @@ private fun Saksbehandlingsperiode.verifiserNyStatusGyldighet(nyStatus: Saksbeha
     if (!SaksbehandlingsperiodeStatus.erGyldigEndring(status to nyStatus)) {
         throw InputValideringException("Ugyldig statusendring: $status til $nyStatus")
     }
+}
+
+fun SykepengesoknadDTO.kategorisering(): Kategorisering {
+    return objectMapper.createObjectNode().apply {
+        val soknad = this@kategorisering
+        put("INNTEKTSKATEGORI", soknad.bestemInntektskategori())
+        val orgnummer = soknad.arbeidsgiver?.orgnummer
+        if (orgnummer != null) {
+            put("ORGNUMMER", orgnummer)
+        }
+    }
+}
+
+fun lagInntektsforholdFraSøknader(
+    sykepengesoknader: Iterable<Dokument>,
+    saksbehandlingsperiode: Saksbehandlingsperiode,
+): List<Inntektsforhold> {
+    val kategorierOgSøknader =
+        sykepengesoknader
+            .groupBy { dokument -> dokument.somSøknad().kategorisering() }
+    return kategorierOgSøknader.map { (kategorisering, dok) ->
+        val dagoversikt = skapDagoversiktFraSoknader(dok.map { it.somSøknad() }, saksbehandlingsperiode.fom, saksbehandlingsperiode.tom)
+        Inntektsforhold(
+            id = UUID.randomUUID(),
+            kategorisering = kategorisering,
+            kategoriseringGenerert = kategorisering,
+            dagoversikt = dagoversikt.tilJsonNode(),
+            dagoversiktGenerert = dagoversikt.tilJsonNode(),
+            saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+            opprettet = OffsetDateTime.now(),
+            generertFraDokumenter = dok.map { it.id },
+        )
+    }
+}
+
+private fun SykepengesoknadDTO.bestemInntektskategori() =
+    when (arbeidssituasjon) {
+        ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
+        ArbeidssituasjonDTO.FISKER -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
+        ArbeidssituasjonDTO.JORDBRUKER -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
+        ArbeidssituasjonDTO.FRILANSER -> InntektsforholdType.FRILANSER
+        ArbeidssituasjonDTO.ARBEIDSTAKER -> InntektsforholdType.ARBEIDSTAKER
+        ArbeidssituasjonDTO.ARBEIDSLEDIG -> InntektsforholdType.INAKTIV
+        ArbeidssituasjonDTO.ANNET -> InntektsforholdType.ANNET
+        null -> {
+            logg.warn("'null'-verdi for arbeidssituasjon for søknad med id={}", id)
+            "IKKE SATT"
+        }
+    }.toString()
+
+// kopiert fra frontend:
+private enum class InntektsforholdType {
+    ARBEIDSTAKER,
+    FRILANSER,
+    SELVSTENDIG_NÆRINGSDRIVENDE,
+    INAKTIV,
+    ANNET,
 }
