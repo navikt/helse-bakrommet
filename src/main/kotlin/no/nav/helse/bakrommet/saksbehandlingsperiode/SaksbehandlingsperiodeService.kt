@@ -4,7 +4,6 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.SpilleromPersonId
@@ -38,17 +37,7 @@ class SaksbehandlingsperiodeService(
     private val sessionFactory: TransactionalSessionFactory<SaksbehandlingsperiodeServiceDaoer>,
     private val dokumentHenter: DokumentHenter,
 ) {
-    private fun Saksbehandlingsperiode.reload() = daoer.saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(id)!!
-
-    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse): Saksbehandlingsperiode {
-        val periode =
-            daoer.saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(ref.periodeUUID)
-                ?: throw SaksbehandlingsperiodeIkkeFunnetException()
-        if (periode.spilleromPersonId != ref.spilleromPersonId.personId) {
-            throw InputValideringException("Ugyldig saksbehandlingsperiode")
-        }
-        return periode
-    }
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = daoer.saksbehandlingsperiodeDao.hentPeriode(ref)
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -92,62 +81,76 @@ class SaksbehandlingsperiodeService(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
-        val periode = hentPeriode(periodeRef)
-        krevAtBrukerErSaksbehandlerFor(saksbehandler, periode)
-        val nyStatus = SaksbehandlingsperiodeStatus.TIL_BESLUTNING
-        periode.verifiserNyStatusGyldighet(nyStatus)
-        daoer.saksbehandlingsperiodeDao.endreStatus(periode, nyStatus = nyStatus)
-        return periode.reload()
+        return sessionFactory.transactionalSessionScope { session ->
+            session.saksbehandlingsperiodeDao.let { dao ->
+                val periode = dao.hentPeriode(periodeRef)
+                krevAtBrukerErSaksbehandlerFor(saksbehandler, periode)
+                val nyStatus = SaksbehandlingsperiodeStatus.TIL_BESLUTNING
+                periode.verifiserNyStatusGyldighet(nyStatus)
+                dao.endreStatus(periode, nyStatus = nyStatus)
+                dao.reload(periode)
+            }
+        }
     }
 
     fun taTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
-        // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
-        val periode = hentPeriode(periodeRef)
-        val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
-        periode.verifiserNyStatusGyldighet(nyStatus)
-        daoer.saksbehandlingsperiodeDao.endreStatusOgBeslutter(
-            periode,
-            nyStatus = nyStatus,
-            beslutterNavIdent = saksbehandler.navIdent,
-        )
-        return periode.reload()
+        return sessionFactory.transactionalSessionScope { session ->
+            session.saksbehandlingsperiodeDao.let { dao ->
+                val periode = dao.hentPeriode(periodeRef)
+                // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
+                val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
+                periode.verifiserNyStatusGyldighet(nyStatus)
+                dao.endreStatusOgBeslutter(
+                    periode,
+                    nyStatus = nyStatus,
+                    beslutterNavIdent = saksbehandler.navIdent,
+                )
+                dao.reload(periode)
+            }
+        }
     }
 
     fun sendTilbakeFraBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
-        val periode = hentPeriode(periodeRef)
-        krevAtBrukerErBeslutterFor(saksbehandler, periode)
-
-        val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
-        periode.verifiserNyStatusGyldighet(nyStatus)
-        daoer.saksbehandlingsperiodeDao.endreStatusOgBeslutter(
-            periode,
-            nyStatus = nyStatus,
-            beslutterNavIdent = null,
-        ) // TODO: Eller skal beslutter beholdes ? Jo, mest sannsynlig!
-        return periode.reload()
+        return sessionFactory.transactionalSessionScope { session ->
+            session.saksbehandlingsperiodeDao.let { dao ->
+                val periode = dao.hentPeriode(periodeRef)
+                krevAtBrukerErBeslutterFor(saksbehandler, periode)
+                val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
+                periode.verifiserNyStatusGyldighet(nyStatus)
+                dao.endreStatusOgBeslutter(
+                    periode,
+                    nyStatus = nyStatus,
+                    beslutterNavIdent = null,
+                ) // TODO: Eller skal beslutter beholdes ? Jo, mest sannsynlig!
+                dao.reload(periode)
+            }
+        }
     }
 
     fun godkjennPeriode(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
-        val periode = hentPeriode(periodeRef)
-        krevAtBrukerErBeslutterFor(saksbehandler, periode)
-
-        val nyStatus = SaksbehandlingsperiodeStatus.GODKJENT
-        periode.verifiserNyStatusGyldighet(nyStatus)
-        daoer.saksbehandlingsperiodeDao.endreStatusOgBeslutter(
-            periode,
-            nyStatus = nyStatus,
-            beslutterNavIdent = saksbehandler.navIdent,
-        )
-        return periode.reload()
+        return sessionFactory.transactionalSessionScope { session ->
+            session.saksbehandlingsperiodeDao.let { dao ->
+                val periode = dao.hentPeriode(periodeRef)
+                krevAtBrukerErBeslutterFor(saksbehandler, periode)
+                val nyStatus = SaksbehandlingsperiodeStatus.GODKJENT
+                periode.verifiserNyStatusGyldighet(nyStatus)
+                dao.endreStatusOgBeslutter(
+                    periode,
+                    nyStatus = nyStatus,
+                    beslutterNavIdent = saksbehandler.navIdent,
+                )
+                dao.reload(periode)
+            }
+        }
     }
 }
 

@@ -33,7 +33,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.aareg.arbeidsforholdRelativeRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.ainntekt.ainntektRelativeRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenterRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.pensjonsgivendeinntekt.pensjonsgivendeInntektRelativeRoute
@@ -131,10 +131,11 @@ internal fun Application.appModul(
         },
     dokumentHenter: DokumentHenter =
         DokumentHenter(
-            personDao,
-            saksbehandlingsperiodeDao,
-            dokumentDao,
-            sykepengesoknadBackendClient,
+            personDao = personDao,
+            saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
+            dokumentDao = dokumentDao,
+            soknadClient = sykepengesoknadBackendClient,
+            aInntektClient = aInntektClient,
         ),
     saksbehandlingsperiodeService: SaksbehandlingsperiodeService =
         SaksbehandlingsperiodeService(
@@ -165,18 +166,12 @@ internal fun Application.appModul(
             saksbehandlingsperiodeRoute(
                 saksbehandlingsperiodeDao,
                 personDao,
-                dokumentDao,
                 saksbehandlingsperiodeService,
+            )
+            dokumenterRoute(
+                dokumentHenter = dokumentHenter,
                 dokumentRoutes =
                     listOf(
-                        {
-                            ainntektRelativeRoute(
-                                aInntektClient,
-                                personDao,
-                                saksbehandlingsperiodeDao,
-                                dokumentDao,
-                            )
-                        },
                         {
                             arbeidsforholdRelativeRoute(
                                 aaRegClient,

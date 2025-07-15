@@ -37,7 +37,7 @@ internal suspend inline fun ApplicationCall.medBehandlingsperiode(
     }
 }
 
-private fun ApplicationCall.periodeReferanse() =
+fun ApplicationCall.periodeReferanse() =
     SaksbehandlingsperiodeReferanse(
         spilleromPersonId = personId(),
         periodeUUID = periodeUUID(),
@@ -53,9 +53,7 @@ private suspend fun RoutingCall.respondPeriode(
 internal fun Route.saksbehandlingsperiodeRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
-    dokumentDao: DokumentDao,
     service: SaksbehandlingsperiodeService,
-    dokumentRoutes: List<Route.() -> Unit> = emptyList(),
 ) {
     route("/v1/saksbehandlingsperioder") {
         get {
@@ -134,34 +132,6 @@ internal fun Route.saksbehandlingsperiodeRoute(
             service.godkjennPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondPeriode(oppdatertPeriode)
             }
-        }
-    }
-
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
-        get {
-            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                val dokumenter = dokumentDao.hentDokumenterFor(periode.id)
-                val dokumenterDto = dokumenter.map { it.tilDto() }
-                call.respondText(dokumenterDto.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
-            }
-        }
-
-        route("/{dokumentUUID}") {
-            get {
-                call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                    val dokumentId = call.parameters["dokumentUUID"].somGyldigUUID()
-                    val dok = dokumentDao.hentDokument(dokumentId)
-                    if (dok == null || (dok.opprettetForBehandling != periode.id)) {
-                        call.respond(HttpStatusCode.NotFound)
-                    } else {
-                        call.respondText(dok.tilDto().serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
-                    }
-                }
-            }
-        }
-
-        dokumentRoutes.forEach { dokRoute ->
-            dokRoute(this)
         }
     }
 }
