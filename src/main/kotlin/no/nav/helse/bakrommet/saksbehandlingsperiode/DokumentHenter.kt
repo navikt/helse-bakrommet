@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
@@ -17,6 +18,7 @@ class DokumentHenter(
     private val dokumentDao: DokumentDao,
     private val soknadClient: SykepengesoknadBackendClient,
     private val aInntektClient: AInntektClient,
+    private val aaRegClient: AARegClient,
 ) {
     fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
@@ -90,6 +92,30 @@ class DokumentHenter(
                     dokumentType = DokumentType.aInntekt828,
                     eksternId = null,
                     innhold = inntekter.serialisertTilString(),
+                    request = kildespor,
+                    opprettetForBehandling = periode.id,
+                ),
+            )
+        }
+    }
+
+    suspend fun hentOgLagreArbeidsforhold(
+        ref: SaksbehandlingsperiodeReferanse,
+        saksbehandler: BrukerOgToken,
+    ): Dokument {
+        val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
+        val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
+        logg.info("Henter aareg for periode={}", periode.id)
+        return aaRegClient.hentArbeidsforholdForMedSporing(
+            fnr = fnr,
+            saksbehandlerToken = saksbehandler.token,
+        ).let { (arbeidsforholdRes, kildespor) ->
+            // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?
+            dokumentDao.opprettDokument(
+                Dokument(
+                    dokumentType = DokumentType.arbeidsforhold,
+                    eksternId = null,
+                    innhold = arbeidsforholdRes.serialisertTilString(),
                     request = kildespor,
                     opprettetForBehandling = periode.id,
                 ),

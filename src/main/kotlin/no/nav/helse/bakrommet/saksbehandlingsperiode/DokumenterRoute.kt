@@ -70,6 +70,24 @@ internal fun Route.dokumenterRoute(
             }
         }
 
+        route("/arbeidsforhold") {
+            route("/hent") {
+                post {
+                    val aaregDokument =
+                        dokumentHenter.hentOgLagreArbeidsforhold(
+                            ref = call.periodeReferanse(),
+                            saksbehandler = call.saksbehandlerOgToken(),
+                        )
+                    call.response.headers.append(HttpHeaders.Location, dokumentUriFor(aaregDokument))
+                    call.respondText(
+                        aaregDokument.tilDto().serialisertTilString(),
+                        ContentType.Application.Json,
+                        HttpStatusCode.Created,
+                    )
+                }
+            }
+        }
+
         dokumentRoutes.forEach { dokRoute ->
             dokRoute(this)
         }
