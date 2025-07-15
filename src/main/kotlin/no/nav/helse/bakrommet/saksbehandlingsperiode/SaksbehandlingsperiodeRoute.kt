@@ -43,13 +43,6 @@ fun ApplicationCall.periodeReferanse() =
         periodeUUID = periodeUUID(),
     )
 
-private suspend fun RoutingCall.respondPeriode(
-    periode: Saksbehandlingsperiode,
-    status: HttpStatusCode = HttpStatusCode.OK,
-) {
-    respondText(periode.serialisertTilString(), ContentType.Application.Json, status)
-}
-
 internal fun Route.saksbehandlingsperiodeRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
@@ -58,7 +51,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
     route("/v1/saksbehandlingsperioder") {
         get {
             val perioder = saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder()
-            call.respondText(perioder.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            call.respondPerioder(perioder)
         }
     }
 
@@ -90,7 +83,7 @@ internal fun Route.saksbehandlingsperiodeRoute(
         /** Hent alle perioder for en person */
         get {
             service.finnPerioderForPerson(call.personId()).let { perioder ->
-                call.respondText(perioder.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+                call.respondPerioder(perioder)
             }
         }
     }
@@ -134,4 +127,18 @@ internal fun Route.saksbehandlingsperiodeRoute(
             }
         }
     }
+}
+
+private suspend fun RoutingCall.respondPeriode(
+    periode: Saksbehandlingsperiode,
+    status: HttpStatusCode = HttpStatusCode.OK,
+) {
+    respondText(periode.serialisertTilString(), ContentType.Application.Json, status)
+}
+
+private suspend fun RoutingCall.respondPerioder(
+    perioder: List<Saksbehandlingsperiode>,
+    status: HttpStatusCode = HttpStatusCode.OK,
+) {
+    respondText(perioder.serialisertTilString(), ContentType.Application.Json, status)
 }

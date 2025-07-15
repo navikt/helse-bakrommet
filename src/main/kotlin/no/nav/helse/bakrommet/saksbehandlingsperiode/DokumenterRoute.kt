@@ -8,6 +8,7 @@ import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -39,6 +40,13 @@ fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
     return "$dokUri/${dokument.id}"
 }
 
+private suspend fun RoutingCall.respondDokument(
+    dokument: Dokument,
+    status: HttpStatusCode = HttpStatusCode.OK,
+) {
+    respondText(dokument.tilDto().serialisertTilString(), ContentType.Application.Json, status)
+}
+
 internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
@@ -54,11 +62,7 @@ internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
                 if (dok == null) {
                     call.respond(HttpStatusCode.NotFound)
                 } else {
-                    call.respondText(
-                        dok.tilDto().serialisertTilString(),
-                        ContentType.Application.Json,
-                        HttpStatusCode.OK,
-                    )
+                    call.respondDokument(dok)
                 }
             }
         }
@@ -75,11 +79,7 @@ internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
                             call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(inntektDokument))
-                    call.respondText(
-                        inntektDokument.tilDto().serialisertTilString(),
-                        ContentType.Application.Json,
-                        HttpStatusCode.Created,
-                    )
+                    call.respondDokument(inntektDokument, HttpStatusCode.Created)
                 }
             }
         }
@@ -93,11 +93,7 @@ internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
                             saksbehandler = call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(aaregDokument))
-                    call.respondText(
-                        aaregDokument.tilDto().serialisertTilString(),
-                        ContentType.Application.Json,
-                        HttpStatusCode.Created,
-                    )
+                    call.respondDokument(aaregDokument, HttpStatusCode.Created)
                 }
             }
         }
@@ -114,11 +110,7 @@ internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
                             saksbehandler = call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(pensjonsgivendeinntektDokument))
-                    call.respondText(
-                        pensjonsgivendeinntektDokument.tilDto().serialisertTilString(),
-                        ContentType.Application.Json,
-                        HttpStatusCode.Created,
-                    )
+                    call.respondDokument(pensjonsgivendeinntektDokument, HttpStatusCode.Created)
                 }
             }
         }
