@@ -1,14 +1,22 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.sigrun.PensjonsgivendeInntektÅrMedSporing
+import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.sigrun.data
+import no.nav.helse.bakrommet.sigrun.inntektsaar
+import no.nav.helse.bakrommet.sigrun.sporing
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
+import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.util.toJsonNode
 import java.time.YearMonth
 import java.util.*
 
@@ -19,6 +27,7 @@ class DokumentHenter(
     private val soknadClient: SykepengesoknadBackendClient,
     private val aInntektClient: AInntektClient,
     private val aaRegClient: AARegClient,
+    private val sigrunClient: SigrunClient,
 ) {
     fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
@@ -122,4 +131,40 @@ class DokumentHenter(
             )
         }
     }
+
+    suspend fun hentOgLagrePensjonsgivendeInntekt(
+        ref: SaksbehandlingsperiodeReferanse,
+        senesteÅrTom: Int,
+        antallÅrBakover: Int,
+        saksbehandler: BrukerOgToken,
+    ): Dokument {
+        val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
+        val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
+
+        return sigrunClient.hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
+            fnr = fnr,
+            senesteÅrTom = senesteÅrTom,
+            antallÅrBakover = antallÅrBakover,
+            saksbehandlerToken = saksbehandler.token,
+        ).let { reponsMedSporing ->
+            reponsMedSporing.joinSigrunResponserTilEttDokument().let { (innhold, kildespor) ->
+                dokumentDao.opprettDokument(
+                    Dokument(
+                        dokumentType = DokumentType.pensjonsgivendeinntekt,
+                        eksternId = null,
+                        innhold = innhold.serialisertTilString(),
+                        request = kildespor,
+                        opprettetForBehandling = periode.id,
+                    ),
+                )
+            }
+        }
+    }
+}
+
+private fun List<PensjonsgivendeInntektÅrMedSporing>.joinSigrunResponserTilEttDokument(): Pair<JsonNode, Kildespor> {
+    require(this.isNotEmpty())
+    val data = map { it.data() }
+    val sporingMap = mapOf(*map { it.data().inntektsaar() to it.sporing().kilde }.toTypedArray())
+    return data.toJsonNode() to Kildespor(sporingMap.toString())
 }

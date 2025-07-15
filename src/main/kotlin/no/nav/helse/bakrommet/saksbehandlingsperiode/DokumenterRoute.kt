@@ -4,9 +4,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
+import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
@@ -17,15 +19,27 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.time.YearMonth
 
-data class AInntektHentRequest(
+private data class AInntektHentRequest(
     val fom: YearMonth,
     val tom: YearMonth,
 )
 
-internal fun Route.dokumenterRoute(
-    dokumentHenter: DokumentHenter,
-    dokumentRoutes: List<Route.() -> Unit> = emptyList(),
-) {
+private data class PensjonsgivendeInntektHentRequest(
+    val senesteÅrTom: Int,
+    val antallÅrBakover: Int,
+)
+
+fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
+    val periodeId = call.parameters[PARAM_PERIODEUUID].somGyldigUUID()
+    val personId = call.parameters[PARAM_PERSONID]!!
+    val dokUri = "/v1/$personId/saksbehandlingsperioder/$periodeId/dokumenter"
+    check(call.request.uri.startsWith(dokUri)) {
+        "Forventet å være i kontekst av /dokumenter for å kunne resolve dokument-uri"
+    }
+    return "$dokUri/${dokument.id}"
+}
+
+internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
             val dokumenterDto = dokumentHenter.hentDokumenterFor(call.periodeReferanse()).map { it.tilDto() }
@@ -88,8 +102,25 @@ internal fun Route.dokumenterRoute(
             }
         }
 
-        dokumentRoutes.forEach { dokRoute ->
-            dokRoute(this)
+        route("/pensjonsgivendeinntekt") {
+            route("/hent") {
+                post {
+                    val request = call.receive<PensjonsgivendeInntektHentRequest>()
+                    val pensjonsgivendeinntektDokument =
+                        dokumentHenter.hentOgLagrePensjonsgivendeInntekt(
+                            ref = call.periodeReferanse(),
+                            senesteÅrTom = request.senesteÅrTom,
+                            antallÅrBakover = request.antallÅrBakover,
+                            saksbehandler = call.saksbehandlerOgToken(),
+                        )
+                    call.response.headers.append(HttpHeaders.Location, dokumentUriFor(pensjonsgivendeinntektDokument))
+                    call.respondText(
+                        pensjonsgivendeinntektDokument.tilDto().serialisertTilString(),
+                        ContentType.Application.Json,
+                        HttpStatusCode.Created,
+                    )
+                }
+            }
         }
     }
 }

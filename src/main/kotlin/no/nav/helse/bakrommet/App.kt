@@ -35,7 +35,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServi
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenterRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.pensjonsgivendeinntekt.pensjonsgivendeInntektRelativeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
@@ -136,6 +135,7 @@ internal fun Application.appModul(
             soknadClient = sykepengesoknadBackendClient,
             aInntektClient = aInntektClient,
             aaRegClient = aaRegClient,
+            sigrunClient = sigrunClient,
         ),
     saksbehandlingsperiodeService: SaksbehandlingsperiodeService =
         SaksbehandlingsperiodeService(
@@ -170,17 +170,6 @@ internal fun Application.appModul(
             )
             dokumenterRoute(
                 dokumentHenter = dokumentHenter,
-                dokumentRoutes =
-                    listOf(
-                        {
-                            pensjonsgivendeInntektRelativeRoute(
-                                sigrunClient,
-                                personDao,
-                                saksbehandlingsperiodeDao,
-                                dokumentDao,
-                            )
-                        },
-                    ),
             )
             saksbehandlingsperiodeVilkårRoute(
                 saksbehandlingsperiodeDao,
