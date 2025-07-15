@@ -96,6 +96,13 @@ internal fun Route.saksbehandlingsperiodeRoute(
         }
     }
 
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/historikk") {
+        get {
+            val historikk = service.hentHistorikkFor(call.periodeReferanse())
+            call.respondText(historikk.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+        }
+    }
+
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sendtilbeslutning") {
         post {
             service.sendTilBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
@@ -114,7 +121,8 @@ internal fun Route.saksbehandlingsperiodeRoute(
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sendtilbake") {
         post {
-            service.sendTilbakeFraBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+            val kommentar = "Ikke bra" // TODO
+            service.sendTilbakeFraBeslutning(call.periodeReferanse(), call.saksbehandler(), kommentar = kommentar).let { oppdatertPeriode ->
                 call.respondPeriode(oppdatertPeriode)
             }
         }

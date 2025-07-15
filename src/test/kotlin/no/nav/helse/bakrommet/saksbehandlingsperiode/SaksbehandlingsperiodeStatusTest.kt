@@ -2,10 +2,12 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
+import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -134,6 +136,25 @@ class SaksbehandlingsperiodeStatusTest {
                         beslutterNavIdent = "B111111",
                     ).truncateTidspunkt(),
                     periode.truncateTidspunkt(),
+                )
+            }
+
+            client.get("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/historikk") {
+                bearerAuth(tokenSaksbehandler)
+            }.let { response ->
+                val historikk = response.bodyAsText().somListe<SaksbehandlingsperiodeEndring>()
+
+                assertEquals(
+                    listOf(
+                        listOf("UNDER_BEHANDLING", "STARTET", "S111111"),
+                        listOf("TIL_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111"),
+                        listOf("UNDER_BESLUTNING", "TATT_TIL_BESLUTNING", "B111111"),
+                        listOf("UNDER_BEHANDLING", "SENDT_I_RETUR", "B111111"),
+                        listOf("TIL_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111"),
+                        listOf("UNDER_BESLUTNING", "TATT_TIL_BESLUTNING", "B111111"),
+                        listOf("GODKJENT", "GODKJENT", "B111111"),
+                    ),
+                    historikk.map { listOf(it.status.name, it.endringType.name, it.endretAvNavIdent) },
                 )
             }
         }

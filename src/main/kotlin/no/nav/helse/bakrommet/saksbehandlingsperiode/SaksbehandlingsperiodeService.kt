@@ -25,6 +25,7 @@ import java.util.UUID
 
 interface SaksbehandlingsperiodeServiceDaoer {
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    val saksbehandlingsperiodeEndringerDao: SaksbehandlingsperiodeEndringerDao
     val personDao: PersonDao
     val dokumentDao: DokumentDao
     val inntektsforholdDao: InntektsforholdDao
@@ -60,7 +61,15 @@ class SaksbehandlingsperiodeService(
                 fom = fom,
                 tom = tom,
             )
-        daoer.saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+        sessionFactory.transactionalSessionScope { session ->
+            session.saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+            session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                nyPeriode.endring(
+                    endringType = SaksbehandlingsperiodeEndringType.STARTET,
+                    saksbehandler = saksbehandler.bruker,
+                ),
+            )
+        }
         val søknader =
             if (søknader.isNotEmpty()) {
                 dokumentHenter.hentOgLagreSøknader(
@@ -92,6 +101,13 @@ class SaksbehandlingsperiodeService(
                 periode.verifiserNyStatusGyldighet(nyStatus)
                 dao.endreStatus(periode, nyStatus = nyStatus)
                 dao.reload(periode)
+            }.also { oppdatertPeriode ->
+                session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    oppdatertPeriode.endring(
+                        endringType = SaksbehandlingsperiodeEndringType.SENDT_TIL_BESLUTNING,
+                        saksbehandler = saksbehandler,
+                    ),
+                )
             }
         }
     }
@@ -112,6 +128,13 @@ class SaksbehandlingsperiodeService(
                     beslutterNavIdent = saksbehandler.navIdent,
                 )
                 dao.reload(periode)
+            }.also { oppdatertPeriode ->
+                session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    oppdatertPeriode.endring(
+                        endringType = SaksbehandlingsperiodeEndringType.TATT_TIL_BESLUTNING,
+                        saksbehandler = saksbehandler,
+                    ),
+                )
             }
         }
     }
@@ -119,6 +142,7 @@ class SaksbehandlingsperiodeService(
     fun sendTilbakeFraBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
+        kommentar: String,
     ): Saksbehandlingsperiode {
         return sessionFactory.transactionalSessionScope { session ->
             session.saksbehandlingsperiodeDao.let { dao ->
@@ -132,6 +156,14 @@ class SaksbehandlingsperiodeService(
                     beslutterNavIdent = null,
                 ) // TODO: Eller skal beslutter beholdes ? Jo, mest sannsynlig!
                 dao.reload(periode)
+            }.also { oppdatertPeriode ->
+                session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    oppdatertPeriode.endring(
+                        endringType = SaksbehandlingsperiodeEndringType.SENDT_I_RETUR,
+                        saksbehandler = saksbehandler,
+                        endringKommentar = kommentar,
+                    ),
+                )
             }
         }
     }
@@ -152,10 +184,39 @@ class SaksbehandlingsperiodeService(
                     beslutterNavIdent = saksbehandler.navIdent,
                 )
                 dao.reload(periode)
+            }.also { oppdatertPeriode ->
+                session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    oppdatertPeriode.endring(
+                        endringType = SaksbehandlingsperiodeEndringType.GODKJENT,
+                        saksbehandler = saksbehandler,
+                    ),
+                )
             }
         }
     }
+
+    fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> {
+        val periode = daoer.saksbehandlingsperiodeDao.hentPeriode(periodeRef)
+        return daoer.saksbehandlingsperiodeEndringerDao.hentEndringerFor(periode.id)
+    }
 }
+
+private fun Saksbehandlingsperiode.endring(
+    endringType: SaksbehandlingsperiodeEndringType,
+    saksbehandler: Bruker,
+    status: SaksbehandlingsperiodeStatus = this.status,
+    beslutterNavIdent: String? = this.beslutterNavIdent,
+    endretTidspunkt: OffsetDateTime = OffsetDateTime.now(),
+    endringKommentar: String? = null,
+) = SaksbehandlingsperiodeEndring(
+    saksbehandlingsperiodeId = this.id,
+    status = status,
+    beslutterNavIdent = beslutterNavIdent,
+    endretTidspunkt = endretTidspunkt,
+    endretAvNavIdent = saksbehandler.navIdent,
+    endringType = endringType,
+    endringKommentar = endringKommentar,
+)
 
 private fun krevAtBrukerErBeslutterFor(
     bruker: Bruker,

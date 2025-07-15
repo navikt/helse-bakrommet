@@ -62,6 +62,10 @@ val regler =
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/historikk/(method:GET)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
