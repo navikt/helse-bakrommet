@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.sigrun.SigrunClientTest
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals

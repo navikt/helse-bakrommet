@@ -3,6 +3,8 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.util.Kildespor
 import org.junit.jupiter.api.Assertions.assertEquals

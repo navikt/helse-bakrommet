@@ -28,11 +28,11 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.person.personsøkRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenterRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute

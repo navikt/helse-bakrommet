@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.testutils
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Dokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import java.time.temporal.ChronoUnit.MILLIS
 import java.time.temporal.ChronoUnit.SECONDS

@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode
+package no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter
 
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.util.Kildespor

@@ -8,6 +8,9 @@ import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering

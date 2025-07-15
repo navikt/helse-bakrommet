@@ -6,6 +6,8 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.tilDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDTO
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock

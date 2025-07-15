@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode
+package no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -16,6 +16,7 @@ import io.ktor.server.routing.route
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
+import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.time.YearMonth

@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode
+package no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter
 
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.aareg.AARegClient
@@ -7,6 +7,9 @@ import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.sigrun.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sigrun.data

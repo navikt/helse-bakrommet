@@ -2,9 +2,9 @@ package no.nav.helse.bakrommet.infrastruktur.db
 
 import kotliquery.Session
 import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServiceDaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårRouteSessionDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
