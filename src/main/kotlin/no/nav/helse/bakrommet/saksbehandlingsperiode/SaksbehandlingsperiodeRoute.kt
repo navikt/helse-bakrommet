@@ -7,15 +7,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
-import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.auth.bearerToken
-import no.nav.helse.bakrommet.auth.brukerPrincipal
-import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.auth.saksbehandler
+import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
+import no.nav.helse.bakrommet.periodeUUID
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
+import no.nav.helse.bakrommet.personId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering
@@ -47,11 +46,24 @@ internal suspend inline fun ApplicationCall.medBehandlingsperiode(
     }
 }
 
+private fun ApplicationCall.periodeReferanse() =
+    SaksbehandlingsperiodeReferanse(
+        spilleromPersonId = personId(),
+        periodeUUID = periodeUUID(),
+    )
+
+private suspend fun RoutingCall.respondPeriode(
+    periode: Saksbehandlingsperiode,
+    status: HttpStatusCode = HttpStatusCode.OK,
+) {
+    respondText(periode.serialisertTilString(), ContentType.Application.Json, status)
+}
+
 internal fun Route.saksbehandlingsperiodeRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
     dokumentDao: DokumentDao,
-    saksbehandlingsperiodeService: SaksbehandlingsperiodeService,
+    service: SaksbehandlingsperiodeService,
     dokumentRoutes: List<Route.() -> Unit> = emptyList(),
 ) {
     route("/v1/saksbehandlingsperioder") {
@@ -74,27 +86,21 @@ internal fun Route.saksbehandlingsperiodeRoute(
                 val body = call.receive<CreatePeriodeRequest>()
                 val fom = LocalDate.parse(body.fom)
                 val tom = LocalDate.parse(body.tom)
-                val saksbehandler =
-                    BrukerOgToken(
-                        bruker = call.brukerPrincipal()!!,
-                        token = call.request.bearerToken(),
-                    )
                 val nyPeriode =
-                    saksbehandlingsperiodeService.opprettNySaksbehandlingsperiode(
+                    service.opprettNySaksbehandlingsperiode(
                         spilleromPersonId = spilleromPersonId,
                         fom = fom,
                         tom = tom,
                         søknader = body.søknader?.toSet() ?: emptySet(),
-                        saksbehandler = saksbehandler,
+                        saksbehandler = call.saksbehandlerOgToken(),
                     )
-                call.respondText(nyPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.Created)
+                call.respondPeriode(nyPeriode, HttpStatusCode.Created)
             }
         }
 
         /** Hent alle perioder for en person */
         get {
-            call.medIdent(personDao) { fnr, spilleromPersonId ->
-                val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
+            service.finnPerioderForPerson(call.personId()).let { perioder ->
                 call.respondText(perioder.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
             }
         }
@@ -102,77 +108,40 @@ internal fun Route.saksbehandlingsperiodeRoute(
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}") {
         get {
-            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                call.respondText(periode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            service.hentPeriode(call.periodeReferanse()).let {
+                call.respondPeriode(it)
             }
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sendtilbeslutning") {
         post {
-            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                val bruker = call.brukerPrincipal()!!
-                krevAtBrukerErSaksbehandlerFor(bruker, periode)
-                val nyStatus = SaksbehandlingsperiodeStatus.TIL_BESLUTNING
-                periode.verifiserNyStatusGyldighet(nyStatus)
-                saksbehandlingsperiodeDao.endreStatus(periode, nyStatus = nyStatus)
-                val oppdatertPeriode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periode.id)!!
-                call.respondText(oppdatertPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            service.sendTilBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+                call.respondPeriode(oppdatertPeriode)
             }
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/tatilbeslutning") {
         post {
-            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                val bruker = call.brukerPrincipal()!!
-                val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
-                periode.verifiserNyStatusGyldighet(nyStatus)
-                saksbehandlingsperiodeDao.endreStatusOgBeslutter(
-                    periode,
-                    nyStatus = nyStatus,
-                    beslutterNavIdent = bruker.navIdent,
-                )
-                val oppdatertPeriode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periode.id)!!
-                call.respondText(oppdatertPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            service.taTilBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+                call.respondPeriode(oppdatertPeriode)
             }
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sendtilbake") {
         post {
-            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                val bruker = call.brukerPrincipal()!!
-                krevAtBrukerErBeslutterFor(bruker, periode)
-
-                val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
-                periode.verifiserNyStatusGyldighet(nyStatus)
-                saksbehandlingsperiodeDao.endreStatusOgBeslutter(
-                    periode,
-                    nyStatus = nyStatus,
-                    beslutterNavIdent = null,
-                ) // TODO: Eller skal beslutter beholdes ?
-                val oppdatertPeriode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periode.id)!!
-                call.respondText(oppdatertPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            service.sendTilbakeFraBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+                call.respondPeriode(oppdatertPeriode)
             }
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/godkjenn") {
         post {
-            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                val bruker = call.brukerPrincipal()!!
-                krevAtBrukerErBeslutterFor(bruker, periode)
-
-                val nyStatus = SaksbehandlingsperiodeStatus.GODKJENT
-                periode.verifiserNyStatusGyldighet(nyStatus)
-                saksbehandlingsperiodeDao.endreStatusOgBeslutter(
-                    periode,
-                    nyStatus = nyStatus,
-                    beslutterNavIdent = bruker.navIdent,
-                )
-                val oppdatertPeriode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periode.id)!!
-                call.respondText(oppdatertPeriode.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            service.godkjennPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+                call.respondPeriode(oppdatertPeriode)
             }
         }
     }
@@ -203,38 +172,6 @@ internal fun Route.saksbehandlingsperiodeRoute(
         dokumentRoutes.forEach { dokRoute ->
             dokRoute(this)
         }
-    }
-}
-
-fun krevAtBrukerErBeslutterFor(
-    bruker: Bruker,
-    periode: Saksbehandlingsperiode,
-) {
-    fun Bruker.erBeslutterFor(periode: Saksbehandlingsperiode): Boolean {
-        return periode.beslutterNavIdent == this.navIdent
-    }
-
-    if (!bruker.erBeslutterFor(periode)) {
-        throw ForbiddenException("Ikke beslutter for periode")
-    }
-}
-
-fun krevAtBrukerErSaksbehandlerFor(
-    bruker: Bruker,
-    periode: Saksbehandlingsperiode,
-) {
-    fun Bruker.erSaksbehandlerFor(periode: Saksbehandlingsperiode): Boolean {
-        return periode.opprettetAvNavIdent == this.navIdent
-    }
-
-    if (!bruker.erSaksbehandlerFor(periode)) {
-        throw ForbiddenException("Ikke saksbehandler for periode")
-    }
-}
-
-fun Saksbehandlingsperiode.verifiserNyStatusGyldighet(nyStatus: SaksbehandlingsperiodeStatus) {
-    if (!SaksbehandlingsperiodeStatus.erGyldigEndring(status to nyStatus)) {
-        throw InputValideringException("Ugyldig statusendring: $status til $nyStatus")
     }
 }
 
