@@ -38,6 +38,7 @@ enum class SaksbehandlingsperiodeStatus {
                 UNDER_BESLUTNING to GODKJENT,
                 UNDER_BESLUTNING to UNDER_BEHANDLING,
                 TIL_BESLUTNING to UNDER_BEHANDLING,
+                UNDER_BEHANDLING to UNDER_BESLUTNING,
             )
 
         fun erGyldigEndring(fraTil: Pair<SaksbehandlingsperiodeStatus, SaksbehandlingsperiodeStatus>) = GYLDIGE_ENDRINGER.contains(fraTil)

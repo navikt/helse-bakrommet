@@ -97,7 +97,14 @@ class SaksbehandlingsperiodeService(
             session.saksbehandlingsperiodeDao.let { dao ->
                 val periode = dao.hentPeriode(periodeRef)
                 krevAtBrukerErSaksbehandlerFor(saksbehandler, periode)
-                val nyStatus = SaksbehandlingsperiodeStatus.TIL_BESLUTNING
+
+                fun Saksbehandlingsperiode.harAlleredeBeslutter() = this.beslutterNavIdent != null
+                val nyStatus =
+                    if (periode.harAlleredeBeslutter()) {
+                        SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
+                    } else {
+                        SaksbehandlingsperiodeStatus.TIL_BESLUTNING
+                    }
                 periode.verifiserNyStatusGyldighet(nyStatus)
                 dao.endreStatus(periode, nyStatus = nyStatus)
                 dao.reload(periode)
@@ -150,11 +157,10 @@ class SaksbehandlingsperiodeService(
                 krevAtBrukerErBeslutterFor(saksbehandler, periode)
                 val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
                 periode.verifiserNyStatusGyldighet(nyStatus)
-                dao.endreStatusOgBeslutter(
+                dao.endreStatus(
                     periode,
                     nyStatus = nyStatus,
-                    beslutterNavIdent = null,
-                ) // TODO: Eller skal beslutter beholdes ? Jo, mest sannsynlig!
+                )
                 dao.reload(periode)
             }.also { oppdatertPeriode ->
                 session.saksbehandlingsperiodeEndringerDao.leggTilEndring(

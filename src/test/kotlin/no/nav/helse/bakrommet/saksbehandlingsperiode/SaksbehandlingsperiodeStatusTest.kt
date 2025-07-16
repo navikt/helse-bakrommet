@@ -87,22 +87,15 @@ class SaksbehandlingsperiodeStatusTest {
                 assertEquals(
                     periodeOpprinnelig.copy(
                         status = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
-                        beslutterNavIdent = null,
+                        beslutterNavIdent = "B111111",
                     ).truncateTidspunkt(),
                     periode.truncateTidspunkt(),
+                    "Tilbake til 'under_behandling', men beslutter beholdes",
                 )
             }
 
             client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
                 bearerAuth(tokenSaksbehandler)
-            }.let { response ->
-                assertEquals(200, response.status.value)
-                val periode = response.body<Saksbehandlingsperiode>()
-                println(periode)
-            }
-
-            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/tatilbeslutning") {
-                bearerAuth(tokenBeslutter)
             }.let { response ->
                 assertEquals(200, response.status.value)
                 val periode = response.body<Saksbehandlingsperiode>()
@@ -112,6 +105,7 @@ class SaksbehandlingsperiodeStatusTest {
                         beslutterNavIdent = "B111111",
                     ).truncateTidspunkt(),
                     periode.truncateTidspunkt(),
+                    "Skal nå gå tilbake til opprinnelig beslutter, og ikke legges i beslutterkø",
                 )
             }
 
@@ -150,8 +144,7 @@ class SaksbehandlingsperiodeStatusTest {
                         listOf("TIL_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111"),
                         listOf("UNDER_BESLUTNING", "TATT_TIL_BESLUTNING", "B111111"),
                         listOf("UNDER_BEHANDLING", "SENDT_I_RETUR", "B111111"),
-                        listOf("TIL_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111"),
-                        listOf("UNDER_BESLUTNING", "TATT_TIL_BESLUTNING", "B111111"),
+                        listOf("UNDER_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111"),
                         listOf("GODKJENT", "GODKJENT", "B111111"),
                     ),
                     historikk.map { listOf(it.status.name, it.endringType.name, it.endretAvNavIdent) },
