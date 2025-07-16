@@ -36,6 +36,11 @@ interface VilkårRouteSessionDaoer {
     val vurdertVilkårDao: VurdertVilkårDao
 }
 
+private enum class OpprettetEllerEndret {
+    OPPRETTET,
+    ENDRET,
+}
+
 internal fun Route.saksbehandlingsperiodeVilkårRoute(
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     personDao: PersonDao,
@@ -62,11 +67,16 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(
 
                 val opprettetEllerEndret =
                     sessionFactory.transactionalSessionScope { session ->
-                        session.vurdertVilkårDao.lagreVilkårsvurdering(
-                            behandling = periode,
-                            kode = vilkårsKode,
-                            vurdering = vurdertVilkår,
-                        )
+                        session.vurdertVilkårDao.let { dao ->
+                            val finnesFraFør = dao.eksisterer(periode, vilkårsKode)
+                            if (finnesFraFør) {
+                                dao.oppdater(periode, vilkårsKode, vurdertVilkår)
+                                OpprettetEllerEndret.ENDRET
+                            } else {
+                                dao.leggTil(periode, vilkårsKode, vurdertVilkår)
+                                OpprettetEllerEndret.OPPRETTET
+                            }
+                        }
                     }
 
                 val lagretVurdering = vurdertVikårDao.hentVilkårsvurdering(periode.id, vilkårsKode.kode)

@@ -23,11 +23,6 @@ fun VurdertVilkår.tilApiSvar(): JsonNode {
     return kopiert
 }
 
-enum class OpprettetEllerEndret {
-    OPPRETTET,
-    ENDRET,
-}
-
 class VurdertVilkårDao private constructor(private val db: QueryRunner) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
@@ -134,23 +129,5 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
             "saksbehandlingsperiode_id" to behandling.id,
             "kode" to kode.kode,
         )
-    }
-
-    fun lagreVilkårsvurdering(
-        behandling: Saksbehandlingsperiode,
-        kode: Kode,
-        vurdering: JsonNode,
-    ): OpprettetEllerEndret {
-        require(db is MedSession) { "Denne operasjonen må kjøres i en transaksjon" }
-        // TODO: Flytt denne transaksjonslogikken ut av DAOen (?)
-
-        val finnesFraFør = eksisterer(behandling, kode)
-        if (finnesFraFør) {
-            oppdater(behandling, kode, vurdering)
-            return OpprettetEllerEndret.ENDRET
-        } else {
-            leggTil(behandling, kode, vurdering)
-            return OpprettetEllerEndret.OPPRETTET
-        }
     }
 }
