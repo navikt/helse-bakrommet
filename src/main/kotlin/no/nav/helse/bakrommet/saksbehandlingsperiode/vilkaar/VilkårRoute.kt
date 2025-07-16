@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar
 
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -34,6 +35,12 @@ class Kode(
 
 interface VilkårRouteSessionDaoer {
     val vurdertVilkårDao: VurdertVilkårDao
+}
+
+fun VurdertVilkår.tilApiSvar(): JsonNode {
+    val kopiert = vurdering.deepCopy<ObjectNode>()
+    kopiert.put("kode", kode)
+    return kopiert
 }
 
 private enum class OpprettetEllerEndret {
