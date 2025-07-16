@@ -82,53 +82,74 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
         )
     }
 
+    fun eksisterer(
+        behandling: Saksbehandlingsperiode,
+        kode: Kode,
+    ): Boolean {
+        return db.single(
+            """
+            select * from vurdert_vilkaar 
+            where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+            and kode = :kode
+            """.trimIndent(),
+            "saksbehandlingsperiode_id" to behandling.id,
+            "kode" to kode.kode,
+            mapper = { true },
+        ) ?: false
+    }
+
+    fun oppdater(
+        behandling: Saksbehandlingsperiode,
+        kode: Kode,
+        oppdatertVurdering: JsonNode,
+    ): Int {
+        return db.update(
+            """
+            update vurdert_vilkaar 
+            set vurdering = :vurdering,
+            vurdering_tidspunkt = :vurdering_tidspunkt
+            where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+            and kode = :kode 
+            """.trimIndent(),
+            "vurdering" to oppdatertVurdering.serialisertTilString(),
+            "vurdering_tidspunkt" to Instant.now(),
+            "saksbehandlingsperiode_id" to behandling.id,
+            "kode" to kode.kode,
+        )
+    }
+
+    fun leggTil(
+        behandling: Saksbehandlingsperiode,
+        kode: Kode,
+        vurdering: JsonNode,
+    ): Int {
+        return db.update(
+            """
+            insert into vurdert_vilkaar
+             (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
+            values (:vurdering, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
+            """.trimIndent(),
+            "vurdering" to vurdering.serialisertTilString(),
+            "vurdering_tidspunkt" to Instant.now(),
+            "saksbehandlingsperiode_id" to behandling.id,
+            "kode" to kode.kode,
+        )
+    }
+
     fun lagreVilkårsvurdering(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         vurdering: JsonNode,
     ): OpprettetEllerEndret {
         require(db is MedSession) { "Denne operasjonen må kjøres i en transaksjon" }
-        val tx = db // TODO: Flytt denne transaksjonslogikken ut av DAOen (?)
+        // TODO: Flytt denne transaksjonslogikken ut av DAOen (?)
 
-        val finnesFraFør =
-            tx.single(
-                """
-                select * from vurdert_vilkaar 
-                where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-                and kode = :kode
-                """.trimIndent(),
-                "saksbehandlingsperiode_id" to behandling.id,
-                "kode" to kode.kode,
-                mapper = { true },
-            ) ?: false
-
+        val finnesFraFør = eksisterer(behandling, kode)
         if (finnesFraFør) {
-            tx.update(
-                """
-                update vurdert_vilkaar 
-                set vurdering = :vurdering,
-                vurdering_tidspunkt = :vurdering_tidspunkt
-                where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-                and kode = :kode 
-                """.trimIndent(),
-                "vurdering" to vurdering.serialisertTilString(),
-                "vurdering_tidspunkt" to Instant.now(),
-                "saksbehandlingsperiode_id" to behandling.id,
-                "kode" to kode.kode,
-            )
+            oppdater(behandling, kode, vurdering)
             return OpprettetEllerEndret.ENDRET
         } else {
-            tx.update(
-                """
-                insert into vurdert_vilkaar
-                 (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
-                values (:vurdering, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
-                """.trimIndent(),
-                "vurdering" to vurdering.serialisertTilString(),
-                "vurdering_tidspunkt" to Instant.now(),
-                "saksbehandlingsperiode_id" to behandling.id,
-                "kode" to kode.kode,
-            )
+            leggTil(behandling, kode, vurdering)
             return OpprettetEllerEndret.OPPRETTET
         }
     }
