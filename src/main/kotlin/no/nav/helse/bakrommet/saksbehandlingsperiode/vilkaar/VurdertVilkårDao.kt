@@ -3,7 +3,6 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import kotliquery.Session
-import kotliquery.queryOf
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -92,54 +91,43 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
         val tx = db // TODO: Flytt denne transaksjonslogikken ut av DAOen (?)
 
         val finnesFraFør =
-            tx.run(
-                queryOf(
-                    """
-                    select * from vurdert_vilkaar 
-                    where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-                    and kode = :kode
-                    """.trimIndent(),
-                    mapOf(
-                        "saksbehandlingsperiode_id" to behandling.id,
-                        "kode" to kode.kode,
-                    ),
-                ).map { true }.asSingle,
+            tx.single(
+                """
+                select * from vurdert_vilkaar 
+                where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                and kode = :kode
+                """.trimIndent(),
+                "saksbehandlingsperiode_id" to behandling.id,
+                "kode" to kode.kode,
+                mapper = { true },
             ) ?: false
 
         if (finnesFraFør) {
-            tx.run(
-                queryOf(
-                    """
-                    update vurdert_vilkaar 
-                    set vurdering = :vurdering,
-                    vurdering_tidspunkt = :vurdering_tidspunkt
-                    where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-                    and kode = :kode 
-                    """.trimIndent(),
-                    mapOf(
-                        "vurdering" to vurdering.serialisertTilString(),
-                        "vurdering_tidspunkt" to Instant.now(),
-                        "saksbehandlingsperiode_id" to behandling.id,
-                        "kode" to kode.kode,
-                    ),
-                ).asUpdate,
+            tx.update(
+                """
+                update vurdert_vilkaar 
+                set vurdering = :vurdering,
+                vurdering_tidspunkt = :vurdering_tidspunkt
+                where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                and kode = :kode 
+                """.trimIndent(),
+                "vurdering" to vurdering.serialisertTilString(),
+                "vurdering_tidspunkt" to Instant.now(),
+                "saksbehandlingsperiode_id" to behandling.id,
+                "kode" to kode.kode,
             )
             return OpprettetEllerEndret.ENDRET
         } else {
-            tx.run(
-                queryOf(
-                    """
-                    insert into vurdert_vilkaar
-                     (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
-                    values (:vurdering, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
-                    """.trimIndent(),
-                    mapOf(
-                        "vurdering" to vurdering.serialisertTilString(),
-                        "vurdering_tidspunkt" to Instant.now(),
-                        "saksbehandlingsperiode_id" to behandling.id,
-                        "kode" to kode.kode,
-                    ),
-                ).asUpdate,
+            tx.update(
+                """
+                insert into vurdert_vilkaar
+                 (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
+                values (:vurdering, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
+                """.trimIndent(),
+                "vurdering" to vurdering.serialisertTilString(),
+                "vurdering_tidspunkt" to Instant.now(),
+                "saksbehandlingsperiode_id" to behandling.id,
+                "kode" to kode.kode,
             )
             return OpprettetEllerEndret.OPPRETTET
         }

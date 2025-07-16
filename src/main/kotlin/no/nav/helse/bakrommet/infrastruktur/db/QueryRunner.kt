@@ -32,19 +32,14 @@ sealed class QueryRunner protected constructor() {
                 .asList,
         )
 
-    @Deprecated("Bør nok ikke brukes direkte i DAOene")
-    abstract fun <A> run(
-        action: QueryAction<A>,
-    ): A // TODO: Endre til protected (og fjern '@Deprecated') når direkte bruk fra DAOer er borte
+    protected abstract fun <A> run(action: QueryAction<A>): A
 }
 
 class MedSession(private val session: Session) : QueryRunner() {
-    @Deprecated("Bør nok ikke brukes direkte i DAOene")
     override fun <A> run(action: QueryAction<A>): A = action.runWithSession(session)
 }
 
 class MedDataSource(private val dataSource: DataSource) : QueryRunner() {
-    @Deprecated("Bør nok ikke brukes direkte i DAOene")
     override fun <A> run(action: QueryAction<A>): A =
         sessionOf(dataSource = dataSource, strict = true).use { session ->
             action.runWithSession(session)
