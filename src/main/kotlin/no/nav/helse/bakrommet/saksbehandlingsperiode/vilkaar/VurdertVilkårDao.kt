@@ -72,18 +72,14 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): Int {
-        return db.run(
-            queryOf(
-                """
-                DELETE FROM vurdert_vilkaar
-                where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-                and kode = :kode
-                """.trimIndent(),
-                mapOf(
-                    "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
-                    "kode" to kode,
-                ),
-            ).asUpdate,
+        return db.update(
+            """
+            DELETE FROM vurdert_vilkaar
+            where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+            and kode = :kode
+            """.trimIndent(),
+            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+            "kode" to kode,
         )
     }
 
