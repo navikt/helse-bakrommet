@@ -37,7 +37,7 @@ internal suspend inline fun ApplicationCall.medBehandlingsperiode(
     }
 }
 
-fun ApplicationCall.periodeReferanse() =
+fun RoutingCall.periodeReferanse() =
     SaksbehandlingsperiodeReferanse(
         spilleromPersonId = personId(),
         periodeUUID = periodeUUID(),
