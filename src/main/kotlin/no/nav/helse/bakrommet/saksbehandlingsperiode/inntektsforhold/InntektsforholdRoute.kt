@@ -2,102 +2,52 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.PARAM_INNTEKTSFORHOLDUUID
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
-import no.nav.helse.bakrommet.auth.brukerPrincipal
-import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
-import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
-import no.nav.helse.bakrommet.saksbehandlingsperiode.medBehandlingsperiode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
-import no.nav.helse.bakrommet.util.sikkerLogger
 import no.nav.helse.bakrommet.util.somGyldigUUID
-import no.nav.helse.bakrommet.util.toJsonNode
-import java.time.OffsetDateTime
-import java.util.*
 
-internal suspend inline fun ApplicationCall.medInntektsforhold(
-    personDao: PersonDao,
-    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    inntektsforholdDao: InntektsforholdDao,
-    crossinline block: suspend (inntektsforhold: Inntektsforhold) -> Unit,
-) {
-    this.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-        val inntektsforholdId = parameters["inntektsforholdUUID"].somGyldigUUID()
-        val inntektsforhold =
-            inntektsforholdDao.hentInntektsforhold(inntektsforholdId)
-                ?: throw IkkeFunnetException("Inntektsforhold ikke funnet")
-        require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
-            "Inntektsforhold (id=$inntektsforholdId) tilhører ikke behandlingsperiode (id=${periode.id})"
-        }
-        block(inntektsforhold)
-    }
-}
+fun RoutingCall.inntektsforholdReferanse() =
+    InntektsforholdReferanse(
+        saksbehandlingsperiodeReferanse = periodeReferanse(),
+        inntektsforholdUUID = parameters[PARAM_INNTEKTSFORHOLDUUID].somGyldigUUID(),
+    )
 
-internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
-    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    personDao: PersonDao,
-    inntektsforholdDao: InntektsforholdDao,
-) {
+internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: InntektsforholdService) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/inntektsforhold") {
         get {
-            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                val inntektsforholdFraDB = inntektsforholdDao.hentInntektsforholdFor(periode)
-                call.respondText(
-                    inntektsforholdFraDB.map { it.tilDto() }.serialisertTilString(),
-                    ContentType.Application.Json,
-                    HttpStatusCode.OK,
-                )
-            }
+            val inntektsforhold = service.hentInntektsforholdFor(call.periodeReferanse())
+            call.respondText(
+                inntektsforhold.map { it.tilDto() }.serialisertTilString(),
+                ContentType.Application.Json,
+                HttpStatusCode.OK,
+            )
         }
 
         post {
-            call.medBehandlingsperiode(personDao, saksbehandlingsperiodeDao) { periode ->
-                val inntektsforhold = call.receive<InntektsforholdCreateRequest>()
-                sikkerLogger.info(
-                    "Saksbehandler {} legger til inntektsforhold {} for periode {}",
-                    call.brukerPrincipal()!!.navIdent,
-                    inntektsforhold,
-                    periode,
-                )
-
-                val dagoversikt =
-                    if (inntektsforhold.kategorisering.skalHaDagoversikt()) {
-                        initialiserDager(periode.fom, periode.tom)
-                    } else {
-                        null
-                    }
-
-                val fraDatabasen =
-                    inntektsforholdDao.opprettInntektsforhold(inntektsforhold.tilDatabaseType(periode.id, dagoversikt))
-
-                call.respondText(
-                    fraDatabasen.tilDto().serialisertTilString(),
-                    ContentType.Application.Json,
-                    HttpStatusCode.Created,
-                )
-            }
+            val inntektsforholdRequest = call.receive<InntektsforholdCreateRequest>()
+            val inntektsforhold = service.opprettInntektsforhold(call.periodeReferanse(), inntektsforholdRequest.kategorisering)
+            call.respondText(
+                inntektsforhold.tilDto().serialisertTilString(),
+                ContentType.Application.Json,
+                HttpStatusCode.Created,
+            )
         }
 
-        route("/{inntektsforholdUUID}") {
+        route("/{$PARAM_INNTEKTSFORHOLDUUID}") {
             put("/dagoversikt") {
-                val dagerSomSkalOppdateres = call.receive<JsonNode>()
-                call.medInntektsforhold(personDao, saksbehandlingsperiodeDao, inntektsforholdDao) { inntektsforhold ->
-                    inntektsforholdDao.oppdaterDagoversiktDager(inntektsforhold, dagerSomSkalOppdateres)
-                }
+                val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
+                service.oppdaterDagoversiktDager(call.inntektsforholdReferanse(), dagerSomSkalOppdateres)
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/kategorisering") {
-                val kategorisering = call.receive<JsonNode>()
-                call.medInntektsforhold(personDao, saksbehandlingsperiodeDao, inntektsforholdDao) { inntektsforhold ->
-                    inntektsforholdDao.oppdaterKategorisering(inntektsforhold, kategorisering)
-                }
+                val kategorisering = call.receive<InntektsforholdKategorisering>()
+                service.oppdaterKategorisering(call.inntektsforholdReferanse(), kategorisering)
                 call.respond(HttpStatusCode.NoContent)
             }
         }
@@ -106,23 +56,4 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(
 
 data class InntektsforholdCreateRequest(
     val kategorisering: JsonNode,
-) {
-    fun tilDatabaseType(
-        behandlingsperiodeId: UUID,
-        dagoversikt: List<Dag>?,
-    ) = Inntektsforhold(
-        id = UUID.randomUUID(),
-        kategorisering = kategorisering,
-        kategoriseringGenerert = null,
-        dagoversikt = dagoversikt?.toJsonNode(),
-        dagoversiktGenerert = null,
-        saksbehandlingsperiodeId = behandlingsperiodeId,
-        opprettet = OffsetDateTime.now(),
-        generertFraDokumenter = emptyList(),
-    )
-}
-
-fun JsonNode.skalHaDagoversikt(): Boolean {
-    val erSykmeldt = this.get("ER_SYKMELDT")?.asText()
-    return erSykmeldt == "ER_SYKMELDT_JA" || erSykmeldt == null
-}
+)

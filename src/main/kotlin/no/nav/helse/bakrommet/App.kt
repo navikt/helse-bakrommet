@@ -34,6 +34,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
@@ -178,7 +179,13 @@ internal fun Application.appModul(
                 sessionFactory = sessionFactoryFelles,
             )
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
-            saksbehandlingsperiodeInntektsforholdRoute(saksbehandlingsperiodeDao, personDao, inntektsforholdDao)
+            saksbehandlingsperiodeInntektsforholdRoute(
+                service =
+                    InntektsforholdService(
+                        inntektsforholdDao,
+                        saksbehandlingsperiodeDao,
+                    ),
+            )
             brukerRoute()
         }
     }
