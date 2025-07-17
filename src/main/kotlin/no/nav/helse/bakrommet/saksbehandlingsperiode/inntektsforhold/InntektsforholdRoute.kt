@@ -11,11 +11,27 @@ import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
+import java.util.UUID
 
 fun RoutingCall.inntektsforholdReferanse() =
     InntektsforholdReferanse(
         saksbehandlingsperiodeReferanse = periodeReferanse(),
         inntektsforholdUUID = parameters[PARAM_INNTEKTSFORHOLDUUID].somGyldigUUID(),
+    )
+
+data class InntektsforholdDTO(
+    val id: UUID,
+    val kategorisering: JsonNode,
+    val dagoversikt: JsonNode?,
+    val generertFraDokumenter: List<UUID>,
+)
+
+fun Inntektsforhold.tilDto() =
+    InntektsforholdDTO(
+        id = id,
+        kategorisering = kategorisering,
+        dagoversikt = dagoversikt,
+        generertFraDokumenter = generertFraDokumenter,
     )
 
 internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: InntektsforholdService) {

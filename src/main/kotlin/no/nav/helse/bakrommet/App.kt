@@ -33,7 +33,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServi
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
@@ -119,7 +118,6 @@ internal fun Application.appModul(
     inntektsmeldingClient: InntektsmeldingClient,
     sigrunClient: SigrunClient,
     personDao: PersonDao = PersonDao(dataSource),
-    inntektsforholdDao: InntektsforholdDao = InntektsforholdDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
     dokumentDao: DokumentDao = DokumentDao(dataSource),
     vurdertVilkårDao: VurdertVilkårDao = VurdertVilkårDao(dataSource),
@@ -182,8 +180,8 @@ internal fun Application.appModul(
             saksbehandlingsperiodeInntektsforholdRoute(
                 service =
                     InntektsforholdService(
-                        inntektsforholdDao,
-                        saksbehandlingsperiodeDao,
+                        daoerFelles,
+                        sessionFactoryFelles,
                     ),
             )
             brukerRoute()
