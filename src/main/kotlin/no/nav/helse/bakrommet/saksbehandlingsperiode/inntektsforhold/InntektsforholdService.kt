@@ -1,12 +1,15 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
 
 import com.fasterxml.jackson.databind.JsonNode
+import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
+import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
+import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.toJsonNode
@@ -50,15 +53,20 @@ class InntektsforholdService(
     }
 
     fun hentInntektsforholdFor(ref: SaksbehandlingsperiodeReferanse): List<Inntektsforhold> {
-        val periode = daoer.saksbehandlingsperiodeDao.hentPeriode(ref)
+        val periode = daoer.saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
         return daoer.inntektsforholdDao.hentInntektsforholdFor(periode)
     }
 
     fun opprettInntektsforhold(
         ref: SaksbehandlingsperiodeReferanse,
         kategorisering: InntektsforholdKategorisering,
+        saksbehandler: Bruker,
     ): Inntektsforhold {
-        val periode = daoer.saksbehandlingsperiodeDao.hentPeriode(ref)
+        val periode =
+            daoer.saksbehandlingsperiodeDao.hentPeriode(
+                ref = ref,
+                krav = saksbehandler.erSaksbehandlerPåSaken(),
+            )
         val dagoversikt =
             if (kategorisering.skalHaDagoversikt()) {
                 initialiserDager(periode.fom, periode.tom)
@@ -73,17 +81,27 @@ class InntektsforholdService(
     fun oppdaterKategorisering(
         ref: InntektsforholdReferanse,
         kategorisering: InntektsforholdKategorisering,
+        saksbehandler: Bruker,
     ) {
-        val inntektsforhold = daoer.hentInntektsforhold(ref)
+        val inntektsforhold =
+            daoer.hentInntektsforhold(
+                ref = ref,
+                krav = saksbehandler.erSaksbehandlerPåSaken(),
+            )
         daoer.inntektsforholdDao.oppdaterKategorisering(inntektsforhold, kategorisering)
     }
 
     fun oppdaterDagoversiktDager(
         ref: InntektsforholdReferanse,
         dagerSomSkalOppdateres: DagerSomSkalOppdateres,
+        saksbehandler: Bruker,
     ): Inntektsforhold =
         sessionFactory.transactionalSessionScope { session ->
-            val inntektsforhold = session.hentInntektsforhold(ref)
+            val inntektsforhold =
+                session.hentInntektsforhold(
+                    ref = ref,
+                    krav = saksbehandler.erSaksbehandlerPåSaken(),
+                )
             val dagerSomSkalOppdateresJson = dagerSomSkalOppdateres
             // Hent eksisterende dagoversikt
             val eksisterendeDagoversikt =
@@ -132,13 +150,18 @@ class InntektsforholdService(
         }
 }
 
-private fun InntektsforholdServiceDaoer.hentInntektsforhold(ref: InntektsforholdReferanse) =
-    saksbehandlingsperiodeDao.hentPeriode(ref.saksbehandlingsperiodeReferanse).let { periode ->
-        val inntektsforhold =
-            inntektsforholdDao.hentInntektsforhold(ref.inntektsforholdUUID)
-                ?: throw IkkeFunnetException("Inntektsforhold ikke funnet")
-        require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
-            "Inntektsforhold (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
-        }
-        inntektsforhold
+private fun InntektsforholdServiceDaoer.hentInntektsforhold(
+    ref: InntektsforholdReferanse,
+    krav: BrukerHarRollePåSakenKrav?,
+) = saksbehandlingsperiodeDao.hentPeriode(
+    ref = ref.saksbehandlingsperiodeReferanse,
+    krav = krav,
+).let { periode ->
+    val inntektsforhold =
+        inntektsforholdDao.hentInntektsforhold(ref.inntektsforholdUUID)
+            ?: throw IkkeFunnetException("Inntektsforhold ikke funnet")
+    require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
+        "Inntektsforhold (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
     }
+    inntektsforhold
+}

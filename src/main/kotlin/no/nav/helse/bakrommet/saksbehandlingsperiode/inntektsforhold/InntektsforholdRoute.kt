@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_INNTEKTSFORHOLDUUID
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
+import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
@@ -47,7 +48,12 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: Inntektsf
 
         post {
             val inntektsforholdRequest = call.receive<InntektsforholdCreateRequest>()
-            val inntektsforhold = service.opprettInntektsforhold(call.periodeReferanse(), inntektsforholdRequest.kategorisering)
+            val inntektsforhold =
+                service.opprettInntektsforhold(
+                    call.periodeReferanse(),
+                    inntektsforholdRequest.kategorisering,
+                    call.saksbehandler(),
+                )
             call.respondText(
                 inntektsforhold.tilDto().serialisertTilString(),
                 ContentType.Application.Json,
@@ -58,12 +64,12 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: Inntektsf
         route("/{$PARAM_INNTEKTSFORHOLDUUID}") {
             put("/dagoversikt") {
                 val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
-                service.oppdaterDagoversiktDager(call.inntektsforholdReferanse(), dagerSomSkalOppdateres)
+                service.oppdaterDagoversiktDager(call.inntektsforholdReferanse(), dagerSomSkalOppdateres, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/kategorisering") {
                 val kategorisering = call.receive<InntektsforholdKategorisering>()
-                service.oppdaterKategorisering(call.inntektsforholdReferanse(), kategorisering)
+                service.oppdaterKategorisering(call.inntektsforholdReferanse(), kategorisering, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
         }

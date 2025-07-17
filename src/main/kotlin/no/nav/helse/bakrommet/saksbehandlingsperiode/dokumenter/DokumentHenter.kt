@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.sigrun.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.sigrun.SigrunClient
@@ -33,7 +33,7 @@ class DokumentHenter(
     private val sigrunClient: SigrunClient,
 ) {
     fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
+        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
         return dokumentDao.hentDokumenterFor(periode.id)
     }
 
@@ -41,7 +41,7 @@ class DokumentHenter(
         ref: SaksbehandlingsperiodeReferanse,
         dokumentId: UUID,
     ): Dokument? {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
+        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
         val dok = dokumentDao.hentDokument(dokumentId)
         if (dok != null) {
             if (dok.opprettetForBehandling != periode.id) {
@@ -52,13 +52,12 @@ class DokumentHenter(
     }
 
     suspend fun hentOgLagreSøknader(
-        saksbehandlingsperiodeId: UUID,
+        ref: SaksbehandlingsperiodeReferanse,
         søknadsIder: List<UUID>,
-        spilleromBearerToken: SpilleromBearerToken,
+        saksbehandler: BrukerOgToken,
     ): List<Dokument> {
         if (søknadsIder.isEmpty()) return emptyList()
-        val periode = saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(saksbehandlingsperiodeId)
-        requireNotNull(periode) { "Fant ikke saksbehandlingsperiode med id=$saksbehandlingsperiodeId" }
+        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
         // TODO: Transaksjon ? / Tilrettelegg for å kunne fullføre innhenting som feiler halvveis inni løpet ?
 
@@ -66,7 +65,7 @@ class DokumentHenter(
             søknadsIder.map { søknadId ->
                 logg.info("Henter søknad med id={} for periode={}", søknadId, periode.id)
                 soknadClient.hentSoknadMedSporing(
-                    saksbehandlerToken = spilleromBearerToken,
+                    saksbehandlerToken = saksbehandler.token,
                     id = søknadId.toString(),
                 ).let { (søknadDto, kildespor) ->
                     dokumentDao.opprettDokument(
@@ -75,7 +74,7 @@ class DokumentHenter(
                             eksternId = søknadId.toString(),
                             innhold = søknadDto.serialisertTilString(),
                             request = kildespor,
-                            opprettetForBehandling = saksbehandlingsperiodeId,
+                            opprettetForBehandling = periode.id,
                         ),
                     )
                 }
@@ -90,7 +89,7 @@ class DokumentHenter(
         tom: YearMonth,
         saksbehandler: BrukerOgToken,
     ): Dokument {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
+        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
         val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
         return aInntektClient.hentInntekterForMedSporing(
             fnr = fnr,
@@ -115,7 +114,7 @@ class DokumentHenter(
         ref: SaksbehandlingsperiodeReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
+        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
         val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
         logg.info("Henter aareg for periode={}", periode.id)
         return aaRegClient.hentArbeidsforholdForMedSporing(
@@ -141,7 +140,7 @@ class DokumentHenter(
         antallÅrBakover: Int,
         saksbehandler: BrukerOgToken,
     ): Dokument {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref)
+        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
         val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
 
         return sigrunClient.hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
