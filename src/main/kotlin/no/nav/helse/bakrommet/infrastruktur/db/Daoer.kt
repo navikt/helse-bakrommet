@@ -8,14 +8,14 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServi
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdServiceDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårRouteSessionDaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
 import javax.sql.DataSource
 
 class DaoerFelles(dataSource: DataSource) :
     SaksbehandlingsperiodeServiceDaoer,
     InntektsforholdServiceDaoer,
-    VilkårRouteSessionDaoer {
+    VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(dataSource)
     override val personDao = PersonDao(dataSource)
@@ -27,7 +27,7 @@ class DaoerFelles(dataSource: DataSource) :
 class SessionDaoerFelles(session: Session) :
     SaksbehandlingsperiodeServiceDaoer,
     InntektsforholdServiceDaoer,
-    VilkårRouteSessionDaoer {
+    VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(session)
     override val personDao = PersonDao(session)

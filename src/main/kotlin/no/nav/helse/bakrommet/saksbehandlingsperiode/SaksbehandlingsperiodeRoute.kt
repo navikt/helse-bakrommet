@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,33 +8,13 @@ import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
-import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.periodeUUID
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.personId
 import no.nav.helse.bakrommet.util.serialisertTilString
-import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.time.LocalDate
 import java.util.*
-
-internal suspend inline fun ApplicationCall.medBehandlingsperiode(
-    personDao: PersonDao,
-    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    crossinline block: suspend (saksbehandlingsperiode: Saksbehandlingsperiode) -> Unit,
-) {
-    this.medIdent(personDao) { fnr, spilleromPersonId ->
-        val periodeId = parameters[PARAM_PERIODEUUID].somGyldigUUID()
-        val periode =
-            saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(periodeId)
-                ?: throw SaksbehandlingsperiodeIkkeFunnetException()
-        if (periode.spilleromPersonId != spilleromPersonId.personId) {
-            throw InputValideringException("Ugyldig saksbehandlingsperiode")
-        }
-        block(periode)
-    }
-}
 
 fun RoutingCall.periodeReferanse() =
     SaksbehandlingsperiodeReferanse(
