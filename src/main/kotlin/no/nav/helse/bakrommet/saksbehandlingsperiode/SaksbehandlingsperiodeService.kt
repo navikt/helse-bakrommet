@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.SpilleromPersonId
@@ -42,11 +43,13 @@ fun Saksbehandlingsperiode.somReferanse() =
     )
 
 class SaksbehandlingsperiodeService(
-    private val daoer: SaksbehandlingsperiodeServiceDaoer,
-    private val sessionFactory: TransactionalSessionFactory<SaksbehandlingsperiodeServiceDaoer>,
+    daoer: SaksbehandlingsperiodeServiceDaoer,
+    sessionFactory: TransactionalSessionFactory<SaksbehandlingsperiodeServiceDaoer>,
     private val dokumentHenter: DokumentHenter,
 ) {
-    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = daoer.saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+    private val db = DbDaoer(daoer, sessionFactory)
+
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -66,9 +69,9 @@ class SaksbehandlingsperiodeService(
                 fom = fom,
                 tom = tom,
             )
-        sessionFactory.transactionalSessionScope { session ->
-            session.saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
-            session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+        db.transactional {
+            saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+            saksbehandlingsperiodeEndringerDao.leggTilEndring(
                 nyPeriode.endring(
                     endringType = SaksbehandlingsperiodeEndringType.STARTET,
                     saksbehandler = saksbehandler.bruker,
@@ -85,21 +88,23 @@ class SaksbehandlingsperiodeService(
             } else {
                 emptyList()
             }
-        lagInntektsforholdFraSøknader(søknader, nyPeriode)
-            .forEach(daoer.inntektsforholdDao::opprettInntektsforhold)
+        db.nonTransactional {
+            lagInntektsforholdFraSøknader(søknader, nyPeriode)
+                .forEach(inntektsforholdDao::opprettInntektsforhold)
+        }
         return nyPeriode
     }
 
     fun finnPerioderForPerson(spilleromPersonId: SpilleromPersonId): List<Saksbehandlingsperiode> {
-        return daoer.saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
+        return db.nonTransactional { saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId) }
     }
 
     fun sendTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
-        return sessionFactory.transactionalSessionScope { session ->
-            session.saksbehandlingsperiodeDao.let { dao ->
+        return db.transactional {
+            saksbehandlingsperiodeDao.let { dao ->
                 val periode = dao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
 
                 fun Saksbehandlingsperiode.harAlleredeBeslutter() = this.beslutterNavIdent != null
@@ -113,7 +118,7 @@ class SaksbehandlingsperiodeService(
                 dao.endreStatus(periode, nyStatus = nyStatus)
                 dao.reload(periode)
             }.also { oppdatertPeriode ->
-                session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                saksbehandlingsperiodeEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.SENDT_TIL_BESLUTNING,
                         saksbehandler = saksbehandler,
@@ -127,20 +132,18 @@ class SaksbehandlingsperiodeService(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
-        return sessionFactory.transactionalSessionScope { session ->
-            session.saksbehandlingsperiodeDao.let { dao ->
-                val periode = dao.hentPeriode(periodeRef, krav = null)
-                // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
-                val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
-                periode.verifiserNyStatusGyldighet(nyStatus)
-                dao.endreStatusOgBeslutter(
-                    periode,
-                    nyStatus = nyStatus,
-                    beslutterNavIdent = saksbehandler.navIdent,
-                )
-                dao.reload(periode)
-            }.also { oppdatertPeriode ->
-                session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+        return db.transactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = null)
+            // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
+            val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
+            periode.verifiserNyStatusGyldighet(nyStatus)
+            saksbehandlingsperiodeDao.endreStatusOgBeslutter(
+                periode,
+                nyStatus = nyStatus,
+                beslutterNavIdent = saksbehandler.navIdent,
+            )
+            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+                saksbehandlingsperiodeEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.TATT_TIL_BESLUTNING,
                         saksbehandler = saksbehandler,
@@ -155,18 +158,16 @@ class SaksbehandlingsperiodeService(
         saksbehandler: Bruker,
         kommentar: String,
     ): Saksbehandlingsperiode {
-        return sessionFactory.transactionalSessionScope { session ->
-            session.saksbehandlingsperiodeDao.let { dao ->
-                val periode = dao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
-                val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
-                periode.verifiserNyStatusGyldighet(nyStatus)
-                dao.endreStatus(
-                    periode,
-                    nyStatus = nyStatus,
-                )
-                dao.reload(periode)
-            }.also { oppdatertPeriode ->
-                session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+        return db.transactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
+            val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
+            periode.verifiserNyStatusGyldighet(nyStatus)
+            saksbehandlingsperiodeDao.endreStatus(
+                periode,
+                nyStatus = nyStatus,
+            )
+            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+                saksbehandlingsperiodeEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.SENDT_I_RETUR,
                         saksbehandler = saksbehandler,
@@ -181,19 +182,17 @@ class SaksbehandlingsperiodeService(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
-        return sessionFactory.transactionalSessionScope { session ->
-            session.saksbehandlingsperiodeDao.let { dao ->
-                val periode = dao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
-                val nyStatus = SaksbehandlingsperiodeStatus.GODKJENT
-                periode.verifiserNyStatusGyldighet(nyStatus)
-                dao.endreStatusOgBeslutter(
-                    periode,
-                    nyStatus = nyStatus,
-                    beslutterNavIdent = saksbehandler.navIdent,
-                )
-                dao.reload(periode)
-            }.also { oppdatertPeriode ->
-                session.saksbehandlingsperiodeEndringerDao.leggTilEndring(
+        return db.transactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
+            val nyStatus = SaksbehandlingsperiodeStatus.GODKJENT
+            periode.verifiserNyStatusGyldighet(nyStatus)
+            saksbehandlingsperiodeDao.endreStatusOgBeslutter(
+                periode,
+                nyStatus = nyStatus,
+                beslutterNavIdent = saksbehandler.navIdent,
+            )
+            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+                saksbehandlingsperiodeEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.GODKJENT,
                         saksbehandler = saksbehandler,
@@ -203,10 +202,11 @@ class SaksbehandlingsperiodeService(
         }
     }
 
-    fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> {
-        val periode = daoer.saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = null)
-        return daoer.saksbehandlingsperiodeEndringerDao.hentEndringerFor(periode.id)
-    }
+    fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> =
+        db.nonTransactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = null)
+            saksbehandlingsperiodeEndringerDao.hentEndringerFor(periode.id)
+        }
 }
 
 private fun Saksbehandlingsperiode.endring(
