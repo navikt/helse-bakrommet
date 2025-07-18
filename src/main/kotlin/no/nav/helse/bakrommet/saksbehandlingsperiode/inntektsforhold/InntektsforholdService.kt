@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -30,9 +31,11 @@ typealias InntektsforholdKategorisering = JsonNode
 typealias DagerSomSkalOppdateres = JsonNode
 
 class InntektsforholdService(
-    private val daoer: InntektsforholdServiceDaoer,
-    private val sessionFactory: TransactionalSessionFactory<InntektsforholdServiceDaoer>,
+    daoer: InntektsforholdServiceDaoer,
+    sessionFactory: TransactionalSessionFactory<InntektsforholdServiceDaoer>,
 ) {
+    private val db = DbDaoer(daoer, sessionFactory)
+
     private fun InntektsforholdKategorisering.tilDatabaseType(
         behandlingsperiodeId: UUID,
         dagoversikt: List<Dag>?,
@@ -52,43 +55,45 @@ class InntektsforholdService(
         return erSykmeldt == "ER_SYKMELDT_JA" || erSykmeldt == null
     }
 
-    fun hentInntektsforholdFor(ref: SaksbehandlingsperiodeReferanse): List<Inntektsforhold> {
-        val periode = daoer.saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
-        return daoer.inntektsforholdDao.hentInntektsforholdFor(periode)
-    }
+    fun hentInntektsforholdFor(ref: SaksbehandlingsperiodeReferanse): List<Inntektsforhold> =
+        db.nonTransactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+            inntektsforholdDao.hentInntektsforholdFor(periode)
+        }
 
     fun opprettInntektsforhold(
         ref: SaksbehandlingsperiodeReferanse,
         kategorisering: InntektsforholdKategorisering,
         saksbehandler: Bruker,
-    ): Inntektsforhold {
-        val periode =
-            daoer.saksbehandlingsperiodeDao.hentPeriode(
-                ref = ref,
-                krav = saksbehandler.erSaksbehandlerPåSaken(),
-            )
-        val dagoversikt =
-            if (kategorisering.skalHaDagoversikt()) {
-                initialiserDager(periode.fom, periode.tom)
-            } else {
-                null
-            }
-        val fraDatabasen =
-            daoer.inntektsforholdDao.opprettInntektsforhold(kategorisering.tilDatabaseType(periode.id, dagoversikt))
-        return fraDatabasen
-    }
+    ): Inntektsforhold =
+        db.nonTransactional {
+            val periode =
+                saksbehandlingsperiodeDao.hentPeriode(
+                    ref = ref,
+                    krav = saksbehandler.erSaksbehandlerPåSaken(),
+                )
+            val dagoversikt =
+                if (kategorisering.skalHaDagoversikt()) {
+                    initialiserDager(periode.fom, periode.tom)
+                } else {
+                    null
+                }
+            inntektsforholdDao.opprettInntektsforhold(kategorisering.tilDatabaseType(periode.id, dagoversikt))
+        }
 
     fun oppdaterKategorisering(
         ref: InntektsforholdReferanse,
         kategorisering: InntektsforholdKategorisering,
         saksbehandler: Bruker,
     ) {
-        val inntektsforhold =
-            daoer.hentInntektsforhold(
-                ref = ref,
-                krav = saksbehandler.erSaksbehandlerPåSaken(),
-            )
-        daoer.inntektsforholdDao.oppdaterKategorisering(inntektsforhold, kategorisering)
+        db.nonTransactional {
+            val inntektsforhold =
+                hentInntektsforhold(
+                    ref = ref,
+                    krav = saksbehandler.erSaksbehandlerPåSaken(),
+                )
+            inntektsforholdDao.oppdaterKategorisering(inntektsforhold, kategorisering)
+        }
     }
 
     fun oppdaterDagoversiktDager(
@@ -96,9 +101,9 @@ class InntektsforholdService(
         dagerSomSkalOppdateres: DagerSomSkalOppdateres,
         saksbehandler: Bruker,
     ): Inntektsforhold =
-        sessionFactory.transactionalSessionScope { session ->
+        db.transactional {
             val inntektsforhold =
-                session.hentInntektsforhold(
+                hentInntektsforhold(
                     ref = ref,
                     krav = saksbehandler.erSaksbehandlerPåSaken(),
                 )
@@ -146,7 +151,7 @@ class InntektsforholdService(
                     eksisterendeDagerMap.values.forEach { add(it) }
                 }
 
-            session.inntektsforholdDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
+            inntektsforholdDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
         }
 }
 
