@@ -9,8 +9,6 @@ import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.periodeUUID
-import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.personId
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.LocalDate
@@ -22,14 +20,10 @@ fun RoutingCall.periodeReferanse() =
         periodeUUID = periodeUUID(),
     )
 
-internal fun Route.saksbehandlingsperiodeRoute(
-    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    personDao: PersonDao,
-    service: SaksbehandlingsperiodeService,
-) {
+internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeService) {
     route("/v1/saksbehandlingsperioder") {
         get {
-            val perioder = saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder()
+            val perioder = service.hentAlleSaksbehandlingsperioder()
             call.respondPerioder(perioder)
         }
     }
@@ -43,20 +37,16 @@ internal fun Route.saksbehandlingsperiodeRoute(
 
         /** Opprett en ny periode */
         post {
-            call.medIdent(personDao) { fnr, spilleromPersonId ->
-                val body = call.receive<CreatePeriodeRequest>()
-                val fom = LocalDate.parse(body.fom)
-                val tom = LocalDate.parse(body.tom)
-                val nyPeriode =
-                    service.opprettNySaksbehandlingsperiode(
-                        spilleromPersonId = spilleromPersonId,
-                        fom = fom,
-                        tom = tom,
-                        søknader = body.søknader?.toSet() ?: emptySet(),
-                        saksbehandler = call.saksbehandlerOgToken(),
-                    )
-                call.respondPeriode(nyPeriode, HttpStatusCode.Created)
-            }
+            val body = call.receive<CreatePeriodeRequest>()
+            val nyPeriode =
+                service.opprettNySaksbehandlingsperiode(
+                    spilleromPersonId = call.personId(),
+                    fom = LocalDate.parse(body.fom),
+                    tom = LocalDate.parse(body.tom),
+                    søknader = body.søknader?.toSet() ?: emptySet(),
+                    saksbehandler = call.saksbehandlerOgToken(),
+                )
+            call.respondPeriode(nyPeriode, HttpStatusCode.Created)
         }
 
         /** Hent alle perioder for en person */

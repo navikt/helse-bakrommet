@@ -161,14 +161,8 @@ internal fun Application.appModul(
             personsøkRoute(pdlClient, personDao)
             personinfoRoute(pdlClient, personDao)
             soknaderRoute(sykepengesoknadBackendClient, personDao)
-            saksbehandlingsperiodeRoute(
-                saksbehandlingsperiodeDao,
-                personDao,
-                saksbehandlingsperiodeService,
-            )
-            dokumenterRoute(
-                dokumentHenter = dokumentHenter,
-            )
+            saksbehandlingsperiodeRoute(service = saksbehandlingsperiodeService)
+            dokumenterRoute(dokumentHenter = dokumentHenter)
             saksbehandlingsperiodeVilkårRoute(
                 service = VilkårService(daoerFelles, sessionFactoryFelles),
             )
