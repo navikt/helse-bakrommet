@@ -18,6 +18,8 @@ class PersonSøkServiceTest {
     lateinit var personDao: PersonDao
     val fnr1 = "01019011111"
     val fnr2 = "01018022222"
+    val aktor1 = "1111111111111"
+    val aktor2 = "2222222222222"
     val pdlClient =
         PdlClient(
             configuration = TestOppsett.configuration.pdl,
@@ -25,8 +27,10 @@ class PersonSøkServiceTest {
             httpClient =
                 PdlMock.mockPdl(
                     mapOf(
-                        fnr1 to pdlReply(fnr = fnr1, aktorId = "11111111111"),
-                        fnr2 to pdlReply(fnr = fnr2, aktorId = "22222222222"),
+                        fnr1 to pdlReply(fnr = fnr1, aktorId = aktor1),
+                        fnr2 to pdlReply(fnr = fnr2, aktorId = aktor2),
+                        aktor1 to pdlReply(fnr = fnr1, aktorId = aktor1),
+                        aktor2 to pdlReply(fnr = fnr2, aktorId = aktor2),
                     ),
                 ),
         )
@@ -74,5 +78,29 @@ class PersonSøkServiceTest {
         assertThrows<RuntimeException> {
             runBlocking { service.hentEllerOpprettPersonid(fnr2, saksbehandler = userTokenOgBruker) }
         }
+    }
+
+    private fun service() =
+        PersonsøkService(
+            pdlClient,
+            personDao,
+            personIdFactory =
+                object : PersonIdFactory {
+                    var count = 0
+                    val chars = ('a'..'z').toList()
+
+                    override fun lagNy() =
+                        SpilleromPersonId(
+                            personId = chars[count].toString().repeat(5),
+                        )
+                },
+        )
+
+    @Test
+    fun `ved hentEllerOpprett() på AktørID så er det Folkeregisterident som skal kobles til personId`() {
+        val service = service()
+        val spilleromId1 = runBlocking { service.hentEllerOpprettPersonid(aktor1, saksbehandler = userTokenOgBruker) }
+
+        assertEquals(spilleromId1.personId, personDao.finnPersonId(fnr1))
     }
 }

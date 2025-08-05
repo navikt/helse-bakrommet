@@ -39,6 +39,16 @@ inline fun <reified T> String.somListe(): List<T> {
     )
 }
 
+inline fun <reified T> JsonNode.somListe(): List<T> {
+    return objectMapper.convertValue(
+        this,
+        objectMapper.typeFactory.constructCollectionType(
+            List::class.java,
+            T::class.java,
+        ),
+    )
+}
+
 inline fun <reified T> JsonNode.deserialize(): T = objectMapper.convertValue(this, T::class.java)
 
 fun String?.somGyldigUUID(): UUID {

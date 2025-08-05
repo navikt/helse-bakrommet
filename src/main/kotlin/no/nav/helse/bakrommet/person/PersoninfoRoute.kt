@@ -6,6 +6,7 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.pdl.PdlIdent
 import no.nav.helse.bakrommet.pdl.alder
 import no.nav.helse.bakrommet.pdl.formattert
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -34,7 +35,7 @@ internal fun Route.personinfoRoute(
             val personInfo =
                 PersonInfo(
                     fødselsnummer = fnr,
-                    aktørId = identer.first { it.length == 13 },
+                    aktørId = identer.first { it.gruppe == PdlIdent.AKTORID }.ident,
                     navn = hentPersonInfo.navn.formattert(),
                     alder = hentPersonInfo.alder(),
                 )

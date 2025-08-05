@@ -18,6 +18,18 @@ import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.bakrommet.util.somListe
+
+data class PdlIdent(
+    val ident: String,
+    val gruppe: String,
+) {
+    companion object {
+        val FOLKEREGISTERIDENT = "FOLKEREGISTERIDENT"
+        val AKTORID = "AKTORID"
+        val NPID = "NPID"
+    }
+}
 
 class PdlClient(
     private val configuration: Configuration.PDL,
@@ -89,7 +101,7 @@ class PdlClient(
     suspend fun hentIdenterFor(
         saksbehandlerToken: SpilleromBearerToken,
         ident: String,
-    ): Set<String> {
+    ): List<PdlIdent> {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
@@ -118,7 +130,8 @@ class PdlClient(
                     throw RuntimeException("hentIdenterFor har errors: $json")
                 }
             }
-            return json["data"]["hentIdenter"]["identer"].map { it["ident"].asText() }.toSet()
+
+            return json["data"]["hentIdenter"]["identer"].somListe<PdlIdent>()
         }
         logg.warn("hentIdenterFor statusCode={}", response.status.value)
         throw RuntimeException("hentIdenterFor har statusCode ${response.status.value}")

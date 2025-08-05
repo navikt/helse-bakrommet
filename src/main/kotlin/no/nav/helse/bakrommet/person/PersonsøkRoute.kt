@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.pdl.PdlClient
+import no.nav.helse.bakrommet.pdl.PdlIdent.Companion.FOLKEREGISTERIDENT
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.lang.RuntimeException
@@ -40,15 +41,21 @@ class PersonsøkService(
             throw InputValideringException("Ident må være 11 eller 13 siffer lang")
         }
         val identer = pdlClient.hentIdenterFor(saksbehandlerToken = saksbehandler.token, ident = ident)
-        personDao.finnPersonId(*identer.toTypedArray())?.let { return SpilleromPersonId(it) }
+        personDao.finnPersonId(*identer.map { it.ident }.toTypedArray())?.let { return SpilleromPersonId(it) }
 
-        // TODO naturlig ident her må være gjeldende fnr fra hentIdenter
+        // Ok? : // TODO naturlig ident her må være gjeldende fnr fra hentIdenter
+        // TODO II ?: Sjekk at faktisk er "gjeldende"?
+        // TODO III ?: Uansett lagre alle identer knyttet til spilleromId ??
+        val folkeregisterIdent = identer.first { it.gruppe == FOLKEREGISTERIDENT }.ident
+
         val newPersonId =
-            prøvOpprettFor(naturligIdent = ident)
-                ?: prøvOpprettFor(naturligIdent = ident)
-                ?: prøvOpprettFor(naturligIdent = ident)
-                ?: prøvOpprettFor(naturligIdent = ident)
-                ?: throw RuntimeException("Klarte ikke opprette SpilleromPersonId")
+            folkeregisterIdent.let { fnr ->
+                prøvOpprettFor(naturligIdent = fnr)
+                    ?: prøvOpprettFor(naturligIdent = fnr)
+                    ?: prøvOpprettFor(naturligIdent = fnr)
+                    ?: prøvOpprettFor(naturligIdent = fnr)
+                    ?: throw RuntimeException("Klarte ikke opprette SpilleromPersonId")
+            }
 
         return newPersonId
     }

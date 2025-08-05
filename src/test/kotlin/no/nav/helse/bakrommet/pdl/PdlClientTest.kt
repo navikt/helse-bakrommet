@@ -15,7 +15,7 @@ class PdlClientTest {
     @Test
     fun `returnerer identer`() {
         val resp = runBlocking { pdlClient.hentIdenterFor(saksbehandlerToken = token, ident = "1234") }
-        assertEquals(setOf("12345678910", "10987654321"), resp.toSet())
+        assertEquals(setOf("12345678910", "10987654321"), resp.map { it.ident }.toSet())
     }
 
     @Test
