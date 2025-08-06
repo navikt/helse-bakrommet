@@ -72,6 +72,14 @@ class SaksbehandlingsperiodeService(
                 tom = tom,
             )
         db.transactional {
+            if (saksbehandlingsperiodeDao.finnPerioderForPersonSomOverlapper(
+                    spilleromPersonId = spilleromPersonId.personId,
+                    fom = fom,
+                    tom = tom,
+                ).isNotEmpty()
+            ) {
+                throw InputValideringException("Angitte datoer overlapper med en eksisterende periode")
+            }
             saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
             saksbehandlingsperiodeEndringerDao.leggTilEndring(
                 nyPeriode.endring(

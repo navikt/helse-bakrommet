@@ -76,7 +76,6 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
             "id" to id,
         ) { rowTilPeriode(it) }
 
-    // Ny metode: finn én periode basert på spillerom_personid
     fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode> =
         db.list(
             """
@@ -85,6 +84,24 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
              where spillerom_personid = :spillerom_personid
             """.trimIndent(),
             "spillerom_personid" to spilleromPersonId,
+        ) { rowTilPeriode(it) }
+
+    fun finnPerioderForPersonSomOverlapper(
+        spilleromPersonId: String,
+        fom: LocalDate,
+        tom: LocalDate,
+    ): List<Saksbehandlingsperiode> =
+        db.list(
+            """
+            select *
+              from saksbehandlingsperiode
+             where spillerom_personid = :spillerom_personid
+             AND fom <= :tom
+             AND tom >= :fom
+            """.trimIndent(),
+            "spillerom_personid" to spilleromPersonId,
+            "fom" to fom,
+            "tom" to tom,
         ) { rowTilPeriode(it) }
 
     private fun rowTilPeriode(row: Row) =

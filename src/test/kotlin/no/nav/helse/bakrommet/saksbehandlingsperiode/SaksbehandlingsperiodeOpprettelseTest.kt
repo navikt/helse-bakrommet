@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
@@ -25,6 +26,9 @@ class SaksbehandlingsperiodeOpprettelseTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
+
+        const val FNR2 = "01019022222"
+        const val PERSON_ID2 = "66hth"
     }
 
     @Test
@@ -164,6 +168,51 @@ class SaksbehandlingsperiodeOpprettelseTest {
             val arbgiver1Inntektsforhold = inntektsforhold.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!
             val forventetKategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER","ORGNUMMER":"123321123"}""".asJsonNode()
             assertEquals(forventetKategorisering, arbgiver1Inntektsforhold.kategorisering)
+        }
+    }
+
+    @Test
+    fun `saksbehandlingsperioder for samme person skal ikke kunne overlappe`() {
+        runApplicationTest { daoer ->
+            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personDao.opprettPerson(FNR2, PERSON_ID2)
+
+            suspend fun opprettPeriode(
+                person: String,
+                fom: String,
+                tom: String,
+            ) = client.post("/v1/$person/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{ "fom": "$fom", "tom": "$tom", "søknader": [] }""",
+                )
+            }
+
+            opprettPeriode(PERSON_ID, "2023-01-01", "2023-01-31").apply {
+                assertEquals(HttpStatusCode.Created, status)
+            }
+            opprettPeriode(PERSON_ID, "2023-02-01", "2023-02-15").apply {
+                assertEquals(HttpStatusCode.Created, status)
+            }
+            opprettPeriode(PERSON_ID, "2023-02-15", "2023-02-25").apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+                assertEquals("Angitte datoer overlapper med en eksisterende periode", bodyAsText().asJsonNode()["title"].asText())
+            }
+            opprettPeriode(PERSON_ID, "2023-02-16", "2023-02-25").apply {
+                assertEquals(
+                    HttpStatusCode.Created,
+                    status,
+                    "Nytt forsøk med justert FOM skal fungere",
+                )
+            }
+            opprettPeriode(PERSON_ID2, "2023-02-15", "2023-02-25").apply {
+                assertEquals(
+                    HttpStatusCode.Created,
+                    status,
+                    "Overlapp for annen person skal selvfølgelig fungere",
+                )
+            }
         }
     }
 
