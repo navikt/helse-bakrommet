@@ -8,9 +8,11 @@ import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.periodeUUID
 import no.nav.helse.bakrommet.personId
 import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.LocalDate
 import java.util.*
 
@@ -89,8 +91,17 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
     }
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sendtilbake") {
+        data class SendTilbakeRequest(
+            val kommentar: String,
+        )
         post {
-            val kommentar = "Ikke bra" // TODO
+            val kommentar =
+                try {
+                    call.receive<SendTilbakeRequest>().kommentar
+                } catch (ex: io.ktor.server.plugins.BadRequestException) {
+                    sikkerLogger.warn("Klarte ikke parse SendTilbakeRequest", ex)
+                    throw InputValideringException("Ugyldig innhold i POST-body")
+                }
             service.sendTilbakeFraBeslutning(call.periodeReferanse(), call.saksbehandler(), kommentar = kommentar).let { oppdatertPeriode ->
                 call.respondPeriode(oppdatertPeriode)
             }

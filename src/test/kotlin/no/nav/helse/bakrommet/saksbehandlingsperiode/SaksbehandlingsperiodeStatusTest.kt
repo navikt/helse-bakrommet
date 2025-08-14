@@ -81,6 +81,22 @@ class SaksbehandlingsperiodeStatusTest {
 
             client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbake") {
                 bearerAuth(tokenBeslutter)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "mangler" : "kommentar-felt" }""")
+            }.let { response ->
+                assertEquals(400, response.status.value, "POST-body må inneholde kommentar-felt")
+            }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbake") {
+                bearerAuth(tokenBeslutter)
+            }.let { response ->
+                assertEquals(415, response.status.value, "Mangler POST-body som application/json")
+            }
+
+            client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbake") {
+                bearerAuth(tokenBeslutter)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "kommentar": "Dette blir litt feil" }""")
             }.let { response ->
                 assertEquals(200, response.status.value)
                 val periode = response.body<Saksbehandlingsperiode>()
@@ -140,14 +156,14 @@ class SaksbehandlingsperiodeStatusTest {
 
                 assertEquals(
                     listOf(
-                        listOf("UNDER_BEHANDLING", "STARTET", "S111111"),
-                        listOf("TIL_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111"),
-                        listOf("UNDER_BESLUTNING", "TATT_TIL_BESLUTNING", "B111111"),
-                        listOf("UNDER_BEHANDLING", "SENDT_I_RETUR", "B111111"),
-                        listOf("UNDER_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111"),
-                        listOf("GODKJENT", "GODKJENT", "B111111"),
+                        listOf("UNDER_BEHANDLING", "STARTET", "S111111", null),
+                        listOf("TIL_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111", null),
+                        listOf("UNDER_BESLUTNING", "TATT_TIL_BESLUTNING", "B111111", null),
+                        listOf("UNDER_BEHANDLING", "SENDT_I_RETUR", "B111111", "Dette blir litt feil"),
+                        listOf("UNDER_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111", null),
+                        listOf("GODKJENT", "GODKJENT", "B111111", null),
                     ),
-                    historikk.map { listOf(it.status.name, it.endringType.name, it.endretAvNavIdent) },
+                    historikk.map { listOf(it.status.name, it.endringType.name, it.endretAvNavIdent, it.endringKommentar) },
                 )
             }
         }
