@@ -73,17 +73,17 @@ val regler =
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/{dokumentUUID}/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
-        // Vilkår
+        // Vilkårsvurdering
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/(method:GET)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaarsvurdering/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/{hovedspørsmål}/(method:PUT)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaarsvurdering/{hovedspørsmål}/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/{hovedspørsmål}/(method:DELETE)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaarsvurdering/{hovedspørsmål}/(method:DELETE)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(

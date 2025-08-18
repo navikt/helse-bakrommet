@@ -19,7 +19,7 @@ fun VurdertVilkår.tilApiSvar(): JsonNode {
 }
 
 internal fun Route.saksbehandlingsperiodeVilkårRoute(service: VilkårService) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaar") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaarsvurdering") {
         get {
             val vurderteVilkår =
                 service.hentVilkårsvurderingerFor(call.periodeReferanse()).map {
@@ -29,7 +29,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(service: VilkårService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaar/{hovedspørsmål}") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaarsvurdering/{hovedspørsmål}") {
         put {
             val (lagretVurdering, opprettetEllerEndret) =
                 service.leggTilEllerOpprettVurdertVilkår(
