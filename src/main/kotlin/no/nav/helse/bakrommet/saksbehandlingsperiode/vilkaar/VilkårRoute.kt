@@ -14,7 +14,7 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun VurdertVilkår.tilApiSvar(): JsonNode {
     val kopiert = vurdering.deepCopy<ObjectNode>()
-    kopiert.put("kode", kode)
+    kopiert.put("hovedspørsmål", kode)
     return kopiert
 }
 
