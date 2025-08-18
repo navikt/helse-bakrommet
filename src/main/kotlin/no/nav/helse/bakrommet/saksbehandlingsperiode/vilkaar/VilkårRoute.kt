@@ -29,12 +29,12 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(service: VilkårService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaar/{kode}") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaar/{hovedspørsmål}") {
         put {
             val (lagretVurdering, opprettetEllerEndret) =
                 service.leggTilEllerOpprettVurdertVilkår(
                     ref = call.periodeReferanse(),
-                    vilkårsKode = Kode(call.parameters["kode"]!!),
+                    vilkårsKode = Kode(call.parameters["hovedspørsmål"]!!),
                     vurdertVilkår = call.receive<JsonNode>(),
                     saksbehandler = call.saksbehandler(),
                 )
@@ -49,7 +49,7 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(service: VilkårService) {
             val bleFunnetOgSlettet =
                 service.slettVilkårsvurdering(
                     ref = call.periodeReferanse(),
-                    vilkårsKode = Kode(call.parameters["kode"]!!),
+                    vilkårsKode = Kode(call.parameters["hovedspørsmål"]!!),
                     saksbehandler = call.saksbehandler(),
                 )
             if (bleFunnetOgSlettet) {

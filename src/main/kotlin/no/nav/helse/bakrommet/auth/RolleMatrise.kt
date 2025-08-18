@@ -79,11 +79,11 @@ val regler =
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/{kode}/(method:PUT)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/{hovedspørsmål}/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/{kode}/(method:DELETE)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaar/{hovedspørsmål}/(method:DELETE)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
