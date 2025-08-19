@@ -147,7 +147,7 @@ class SykepengegrunnlagService(
         return SykepengegrunnlagResponse(
             id = UUID.randomUUID(),
             // Dette settes i DAO
-            saksbehandlingsperiodeId = UUID.randomUUID(),
+            saksbehandlingsperiodeId = saksbehandlingsperiodeId,
             faktiskeInntekter = faktiskeInntekter,
             totalInntektØre = totalInntektØre,
             grunnbeløp6GØre = SEKS_G_ØRE,
