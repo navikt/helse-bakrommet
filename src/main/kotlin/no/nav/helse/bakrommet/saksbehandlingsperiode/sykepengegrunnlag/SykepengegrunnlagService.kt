@@ -11,7 +11,8 @@ class SykepengegrunnlagService(
     private val faktiskInntektDao: FaktiskInntektDao,
 ) {
     companion object {
-        // 6G for 2024 = 6 * 124028 = 744168 kroner = 74416800 øre
+        // Grunnbeløp for 2024: 124028 kroner = 12402800 øre
+        // 6G for 2024: 6 * 12402800 øre = 74416800 øre (744168 kroner)
         // TODO: Hent aktuelt grunnbeløp fra ekstern kilde eller konfigurasjon
         private const val GRUNNBELØP_2024_ØRE = 12402800L // 124028 kr * 100
         private const val SEKS_G_ØRE = GRUNNBELØP_2024_ØRE * 6L // 74416800 øre
