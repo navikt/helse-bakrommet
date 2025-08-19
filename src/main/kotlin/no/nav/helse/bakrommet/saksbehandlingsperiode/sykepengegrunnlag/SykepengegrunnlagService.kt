@@ -110,7 +110,7 @@ class SykepengegrunnlagService(
 
             // Valider at kilde er en gyldig enum verdi
             val gyldigeKilder = Inntektskilde.values().toSet()
-            if (faktiskInntekt.kilde !in gyldigeKilder) {
+            if (faktiskInntekt.kilde !in GYLDIGE_KILDER) {
                 throw InputValideringException("Ugyldig kilde: ${faktiskInntekt.kilde} (faktisk inntekt $index)")
             }
 
