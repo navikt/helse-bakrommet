@@ -1,7 +1,9 @@
 package no.nav.helse.bakrommet.errorhandling
 
 import io.ktor.http.*
+import io.ktor.serialization.JsonConvertException
 import io.ktor.server.application.*
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import no.nav.helse.bakrommet.Configuration
@@ -18,6 +20,34 @@ fun Application.installErrorHandling(configuration: Configuration) {
                     title = cause.message,
                     detail = null,
                     typePath = "validation/input",
+                    instance = call.request.uri,
+                )
+
+            call.respondProblem(status, problem)
+        }
+        exception<BadRequestException> { call, cause ->
+            val status = HttpStatusCode.BadRequest
+
+            val problem =
+                buildProblem(
+                    status = status,
+                    title = "Ugyldig forespørsel",
+                    detail = cause.message,
+                    typePath = "validation/request",
+                    instance = call.request.uri,
+                )
+
+            call.respondProblem(status, problem)
+        }
+        exception<JsonConvertException> { call, cause ->
+            val status = HttpStatusCode.BadRequest
+
+            val problem =
+                buildProblem(
+                    status = status,
+                    title = "Ugyldig JSON-format",
+                    detail = cause.message,
+                    typePath = "validation/json",
                     instance = call.request.uri,
                 )
 
