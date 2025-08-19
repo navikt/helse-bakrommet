@@ -65,6 +65,23 @@ val regler =
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/historikk/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
+        // Sykepengegrunnlag
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:GET)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:POST)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:PUT)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:DELETE)",
+            role = setOf(SAKSBEHANDLER),
+        ),
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/(method:GET)",
             role = setOf(SAKSBEHANDLER),
