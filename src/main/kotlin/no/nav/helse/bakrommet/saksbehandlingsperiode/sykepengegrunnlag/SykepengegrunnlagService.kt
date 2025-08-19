@@ -41,7 +41,7 @@ class SykepengegrunnlagService(
             }
 
         // Beregn sykepengegrunnlag
-        val beregning = beregnSykepengegrunnlag(lagredeFaktiskeInntekter, request.begrunnelse, saksbehandler)
+        val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, lagredeFaktiskeInntekter, request.begrunnelse, saksbehandler)
 
         val lagretGrunnlag =
             sykepengegrunnlagDao.opprettSykepengegrunnlag(
@@ -76,7 +76,7 @@ class SykepengegrunnlagService(
             }
 
         // Beregn nytt sykepengegrunnlag
-        val beregning = beregnSykepengegrunnlag(lagredeFaktiskeInntekter, request.begrunnelse, saksbehandler)
+        val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, lagredeFaktiskeInntekter, request.begrunnelse, saksbehandler)
 
         val oppdatertGrunnlag =
             sykepengegrunnlagDao.oppdaterSykepengegrunnlag(
@@ -110,7 +110,7 @@ class SykepengegrunnlagService(
 
             // Valider at kilde er en gyldig enum verdi
             val gyldigeKilder = Inntektskilde.values().toSet()
-            if (faktiskInntekt.kilde !in GYLDIGE_KILDER) {
+            if (faktiskInntekt.kilde !in gyldigeKilder) {
                 throw InputValideringException("Ugyldig kilde: ${faktiskInntekt.kilde} (faktisk inntekt $index)")
             }
 
@@ -130,6 +130,7 @@ class SykepengegrunnlagService(
     }
 
     private fun beregnSykepengegrunnlag(
+        saksbehandlingsperiodeId: UUID,
         faktiskeInntekter: List<FaktiskInntekt>,
         begrunnelse: String?,
         saksbehandler: Bruker,

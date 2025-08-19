@@ -11,20 +11,25 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.util.*
 
+// null ved opprettelse
 data class FaktiskInntekt(
-    val id: UUID? = null, // null ved opprettelse
+    val id: UUID? = null,
     val inntektsforholdId: UUID,
-    val beløpPerMånedØre: Long, // Beløp i øre
+    // Beløp i øre
+    val beløpPerMånedØre: Long,
     val kilde: Inntektskilde,
     val erSkjønnsfastsatt: Boolean = false,
     val skjønnsfastsettelseBegrunnelse: String? = null,
     val refusjon: Refusjonsforhold? = null,
-    val opprettetAv: String? = null, // Settes av service
+    // Settes av service
+    val opprettetAv: String? = null,
 )
 
 data class Refusjonsforhold(
-    val refusjonsbeløpPerMånedØre: Long, // Beløp i øre
-    val refusjonsgrad: Int, // 0-100
+    // Beløp i øre
+    val refusjonsbeløpPerMånedØre: Long,
+    // 0-100
+    val refusjonsgrad: Int,
 )
 
 enum class Inntektskilde {
@@ -42,10 +47,13 @@ data class SykepengegrunnlagResponse(
     val id: UUID,
     val saksbehandlingsperiodeId: UUID,
     val faktiskeInntekter: List<FaktiskInntekt>,
-    val totalInntektØre: Long, // Årsinntekt i øre
-    val grunnbeløp6GØre: Long, // 6G i øre
+    // Årsinntekt i øre
+    val totalInntektØre: Long,
+    // 6G i øre
+    val grunnbeløp6GØre: Long,
     val begrensetTil6G: Boolean,
-    val sykepengegrunnlagØre: Long, // Endelig grunnlag i øre
+    // Endelig grunnlag i øre
+    val sykepengegrunnlagØre: Long,
     val begrunnelse: String? = null,
     val opprettet: String,
     val opprettetAv: String,

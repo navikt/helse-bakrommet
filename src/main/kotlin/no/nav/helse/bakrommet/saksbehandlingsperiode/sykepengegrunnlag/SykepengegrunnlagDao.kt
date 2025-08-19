@@ -96,10 +96,11 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
     }
 
     private fun sykepengegrunnlagFraRow(row: Row): SykepengegrunnlagResponse {
+        // Hentes separat i service
         return SykepengegrunnlagResponse(
             id = row.uuid("id"),
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
-            faktiskeInntekter = emptyList(), // Hentes separat i service
+            faktiskeInntekter = emptyList(),
             totalInntektØre = row.long("total_inntekt_ore"),
             grunnbeløp6GØre = row.long("grunnbelop_6g_ore"),
             begrensetTil6G = row.boolean("begrenset_til_6g"),
