@@ -21,6 +21,7 @@ data class Saksbehandlingsperiode(
     val tom: LocalDate,
     val status: SaksbehandlingsperiodeStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
     val beslutterNavIdent: String? = null,
+    val skjæringstidspunkt: LocalDate? = null,
 )
 
 enum class SaksbehandlingsperiodeStatus {
@@ -115,6 +116,7 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
             tom = row.localDate("tom"),
             status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
+            skjæringstidspunkt = row.localDateOrNull("skjaeringstidspunkt"),
         )
 
     fun endreStatus(
@@ -153,9 +155,9 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
         db.update(
             """
             insert into saksbehandlingsperiode
-                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident)
+                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt)
             values
-                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident)
+                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt)
             """.trimIndent(),
             "id" to periode.id,
             "spillerom_personid" to periode.spilleromPersonId,
@@ -166,6 +168,7 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
             "tom" to periode.tom,
             "status" to periode.status.name,
             "beslutter_nav_ident" to periode.beslutterNavIdent,
+            "skjaeringstidspunkt" to periode.skjæringstidspunkt,
         )
     }
 }

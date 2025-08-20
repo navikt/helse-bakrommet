@@ -54,6 +54,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                 opprettetAvNavn = saksbehandler.navn,
                 fom = fom,
                 tom = tom,
+                skjæringstidspunkt = fom,
             ).truncateTidspunkt()
         dao.opprettPeriode(periode)
 
@@ -87,6 +88,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                     opprettetAvNavn = saksbehandler.navn,
                     fom = fom.toLocalDate(),
                     tom = tom.toLocalDate(),
+                    skjæringstidspunkt = fom.toLocalDate(),
                 ).truncateTidspunkt()
             dao.opprettPeriode(periode)
             return dao.finnSaksbehandlingsperiode(id)!!

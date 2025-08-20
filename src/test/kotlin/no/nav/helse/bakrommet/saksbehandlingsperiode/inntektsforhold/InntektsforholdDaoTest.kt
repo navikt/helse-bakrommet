@@ -30,6 +30,7 @@ class InntektsforholdDaoTest {
             opprettetAvNavn = saksbehandler.navn,
             fom = LocalDate.now().minusMonths(1),
             tom = LocalDate.now().minusDays(1),
+            skjæringstidspunkt = LocalDate.now().minusMonths(1),
         )
 
     @BeforeEach

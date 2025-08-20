@@ -70,6 +70,7 @@ class SaksbehandlingsperiodeService(
                 opprettetAvNavn = saksbehandler.bruker.navn,
                 fom = fom,
                 tom = tom,
+                skjæringstidspunkt = fom,
             )
         db.transactional {
             if (saksbehandlingsperiodeDao.finnPerioderForPersonSomOverlapper(
