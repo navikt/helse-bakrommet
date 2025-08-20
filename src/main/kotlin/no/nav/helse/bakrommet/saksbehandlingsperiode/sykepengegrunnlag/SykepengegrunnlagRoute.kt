@@ -29,7 +29,8 @@ data class Refusjonsperiode(
 
 enum class Inntektskilde {
     AINNTEKT,
-    SAKSBEHANDLER,
+    INNTEKTSMELDING,
+    PENSJONSGIVENDE_INNTEKT,
     SKJONNSFASTSETTELSE,
 }
 
@@ -42,9 +43,7 @@ data class SykepengegrunnlagResponse(
     val id: UUID,
     val saksbehandlingsperiodeId: UUID,
     val inntekter: List<Inntekt>,
-    // Årsinntekt i øre
     val totalInntektØre: Long,
-    // 6G i øre
     val grunnbeløp6GØre: Long,
     val begrensetTil6G: Boolean,
     // Endelig grunnlag i øre
@@ -89,7 +88,7 @@ internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
 
         /** Slett sykepengegrunnlag */
         delete {
-            service.slettSykepengegrunnlag(call.periodeReferanse(), call.saksbehandler())
+            service.slettSykepengegrunnlag(call.periodeReferanse())
             call.respond(HttpStatusCode.NoContent)
         }
     }

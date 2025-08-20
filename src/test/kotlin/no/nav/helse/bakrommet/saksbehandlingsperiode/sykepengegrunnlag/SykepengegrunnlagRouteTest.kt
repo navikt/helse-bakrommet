@@ -74,7 +74,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
-                            "kilde": "SAKSBEHANDLER"
+                            "kilde": "AINNTEKT"
                         }
                     ],
                     "begrunnelse": "Standard saksbehandling"
@@ -108,7 +108,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 8000000,
-                            "kilde": "SAKSBEHANDLER"
+                            "kilde": "AINNTEKT"
                         }
                     ]
                 }
@@ -190,7 +190,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
-                            "kilde": "SAKSBEHANDLER"
+                            "kilde": "AINNTEKT"
                         }
                     ]
                 }
@@ -226,7 +226,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4000000,
-                            "kilde": "SAKSBEHANDLER"
+                            "kilde": "AINNTEKT"
                         }
                     ]
                 }
@@ -278,7 +278,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
-                            "kilde": "SAKSBEHANDLER"
+                            "kilde": "AINNTEKT"
                         }
                     ]
                 }

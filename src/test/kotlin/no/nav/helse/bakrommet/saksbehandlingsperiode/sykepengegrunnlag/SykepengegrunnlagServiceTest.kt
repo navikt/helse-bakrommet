@@ -2,6 +2,8 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
@@ -9,15 +11,19 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdServiceDaoer
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class SykepengegrunnlagServiceTest {
     val dataSource = TestDataSource.dbModule.dataSource
@@ -59,7 +65,20 @@ class SykepengegrunnlagServiceTest {
         inntektsforholdDao.opprettInntektsforhold(inntektsforhold)
 
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
-        service = SykepengegrunnlagService(sykepengegrunnlagDao)
+        val inntektsforholdService =
+            InntektsforholdService(
+                object : InntektsforholdServiceDaoer {
+                    override val saksbehandlingsperiodeDao = behandlingDao
+                    override val inntektsforholdDao = inntektsforholdDao
+                },
+                TransactionalSessionFactory(dataSource) { session ->
+                    object : InntektsforholdServiceDaoer {
+                        override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
+                        override val inntektsforholdDao = InntektsforholdDao(session)
+                    }
+                },
+            )
+        service = SykepengegrunnlagService(sykepengegrunnlagDao, inntektsforholdService)
     }
 
     private fun periodeReferanse() =
@@ -78,7 +97,7 @@ class SykepengegrunnlagServiceTest {
                             inntektsforholdId = inntektsforhold.id,
                             // 45 000 kr/måned
                             beløpPerMånedØre = 4500000L,
-                            kilde = Inntektskilde.SAKSBEHANDLER,
+                            kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -109,7 +128,7 @@ class SykepengegrunnlagServiceTest {
                             inntektsforholdId = inntektsforhold.id,
                             // 80 000 kr/måned
                             beløpPerMånedØre = 8000000L,
-                            kilde = Inntektskilde.SAKSBEHANDLER,
+                            kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -151,7 +170,7 @@ class SykepengegrunnlagServiceTest {
                             inntektsforholdId = inntektsforhold.id,
                             // 30 000 kr/måned
                             beløpPerMånedØre = 3000000L,
-                            kilde = Inntektskilde.SAKSBEHANDLER,
+                            kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                         Inntekt(
@@ -225,7 +244,7 @@ class SykepengegrunnlagServiceTest {
                         Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4500000L,
-                            kilde = Inntektskilde.SAKSBEHANDLER,
+                            kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -249,7 +268,7 @@ class SykepengegrunnlagServiceTest {
                         Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4000000L,
-                            kilde = Inntektskilde.SAKSBEHANDLER,
+                            kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -290,7 +309,7 @@ class SykepengegrunnlagServiceTest {
                         Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4500000L,
-                            kilde = Inntektskilde.SAKSBEHANDLER,
+                            kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -303,7 +322,7 @@ class SykepengegrunnlagServiceTest {
         assertNotNull(hentetFørSletting)
 
         // Slett grunnlaget
-        service.slettSykepengegrunnlag(periodeReferanse(), saksbehandler)
+        service.slettSykepengegrunnlag(periodeReferanse())
 
         // Verifiser at grunnlaget er slettet
         val hentetEtterSletting = service.hentSykepengegrunnlag(periodeReferanse())
@@ -329,7 +348,7 @@ class SykepengegrunnlagServiceTest {
                         Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = eksakt6G,
-                            kilde = Inntektskilde.SAKSBEHANDLER,
+                            kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -342,5 +361,69 @@ class SykepengegrunnlagServiceTest {
         // Ikke over grensen
         assertEquals(false, resultat.begrensetTil6G)
         assertEquals(eksakt6G * 12L, resultat.sykepengegrunnlagØre)
+    }
+
+    @Test
+    fun `kaster feil når inntekt refererer til ikke-eksisterende inntektsforhold`() {
+        val ikkeEksisterendeInntektsforholdId = UUID.randomUUID()
+        val request =
+            SykepengegrunnlagRequest(
+                inntekter =
+                    listOf(
+                        Inntekt(
+                            inntektsforholdId = ikkeEksisterendeInntektsforholdId,
+                            beløpPerMånedØre = 4500000L,
+                            kilde = Inntektskilde.AINNTEKT,
+                            refusjon = emptyList(),
+                        ),
+                    ),
+            )
+
+        val exception =
+            assertThrows<InputValideringException> {
+                service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+            }
+
+        assertTrue(exception.message!!.contains("finnes ikke på behandlingen"))
+        assertTrue(exception.message!!.contains(ikkeEksisterendeInntektsforholdId.toString()))
+    }
+
+    @Test
+    fun `kaster feil når inntektsforhold mangler inntekt i requesten`() {
+        // Opprett et ekstra inntektsforhold som ikke vil ha inntekt i requesten
+        val ekstraInntektsforhold =
+            Inntektsforhold(
+                id = UUID.randomUUID(),
+                kategorisering = """{"INNTEKTSKATEGORI": "FRILANSER"}""".asJsonNode(),
+                kategoriseringGenerert = null,
+                dagoversikt = """[]""".asJsonNode(),
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = periode.id,
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+        val inntektsforholdDao = InntektsforholdDao(dataSource)
+        inntektsforholdDao.opprettInntektsforhold(ekstraInntektsforhold)
+
+        val request =
+            SykepengegrunnlagRequest(
+                inntekter =
+                    listOf(
+                        Inntekt(
+                            inntektsforholdId = inntektsforhold.id,
+                            beløpPerMånedØre = 4500000L,
+                            kilde = Inntektskilde.AINNTEKT,
+                            refusjon = emptyList(),
+                        ),
+                    ),
+            )
+
+        val exception =
+            assertThrows<InputValideringException> {
+                service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+            }
+
+        assertTrue(exception.message!!.contains("mangler inntekt i requesten"))
+        assertTrue(exception.message!!.contains(ekstraInntektsforhold.id.toString()))
     }
 }

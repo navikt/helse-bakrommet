@@ -3,11 +3,13 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
 import java.time.LocalDateTime
 import java.util.*
 
 class SykepengegrunnlagService(
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
+    private val inntektsforholdService: InntektsforholdService,
 ) {
     companion object {
         // Grunnbeløp for 2024: 124028 kroner = 12402800 øre
@@ -26,7 +28,7 @@ class SykepengegrunnlagService(
         request: SykepengegrunnlagRequest,
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
-        validerSykepengegrunnlagRequest(request)
+        validerSykepengegrunnlagRequest(request, referanse)
 
         // Beregn sykepengegrunnlag
         val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, request.inntekter, request.begrunnelse, saksbehandler)
@@ -38,16 +40,35 @@ class SykepengegrunnlagService(
         )
     }
 
-    fun slettSykepengegrunnlag(
-        referanse: SaksbehandlingsperiodeReferanse,
-        saksbehandler: Bruker,
-    ) {
+    fun slettSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse) {
         sykepengegrunnlagDao.slettSykepengegrunnlag(referanse.periodeUUID)
     }
 
-    private fun validerSykepengegrunnlagRequest(request: SykepengegrunnlagRequest) {
+    private fun validerSykepengegrunnlagRequest(
+        request: SykepengegrunnlagRequest,
+        referanse: SaksbehandlingsperiodeReferanse,
+    ) {
         if (request.inntekter.isEmpty()) {
             throw InputValideringException("Må ha minst én inntekt")
+        }
+
+        // Hent inntektsforhold for behandlingen
+        val inntektsforhold = inntektsforholdService.hentInntektsforholdFor(referanse)
+        val inntektsforholdIds = inntektsforhold.map { it.id }.toSet()
+        val requestInntektsforholdIds = request.inntekter.map { it.inntektsforholdId }.toSet()
+
+        // Valider at alle inntekter i requesten eksisterer som inntektsforhold på behandlingen
+        val manglendeInntektsforhold = requestInntektsforholdIds - inntektsforholdIds
+        if (manglendeInntektsforhold.isNotEmpty()) {
+            throw InputValideringException(
+                "Følgende inntektsforhold finnes ikke på behandlingen: ${manglendeInntektsforhold.joinToString(", ")}",
+            )
+        }
+
+        // Valider at alle inntektsforhold har inntekt i requesten
+        val manglendeInntekter = inntektsforholdIds - requestInntektsforholdIds
+        if (manglendeInntekter.isNotEmpty()) {
+            throw InputValideringException("Følgende inntektsforhold mangler inntekt i requesten: ${manglendeInntekter.joinToString(", ")}")
         }
 
         request.inntekter.forEachIndexed { index, inntekt ->

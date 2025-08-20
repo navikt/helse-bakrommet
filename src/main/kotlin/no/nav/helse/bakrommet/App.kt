@@ -181,6 +181,10 @@ internal fun Application.appModul(
                 service =
                     SykepengegrunnlagService(
                         SykepengegrunnlagDao(dataSource),
+                        InntektsforholdService(
+                            daoerFelles,
+                            sessionFactoryFelles,
+                        ),
                     ),
             )
             brukerRoute()
