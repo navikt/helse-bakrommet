@@ -17,8 +17,6 @@ data class Inntekt(
     // Beløp i øre
     val beløpPerMånedØre: Long,
     val kilde: Inntektskilde,
-    val erSkjønnsfastsatt: Boolean = false,
-    val skjønnsfastsettelseBegrunnelse: String? = null,
     val refusjon: List<Refusjonsperiode> = emptyList(),
 )
 

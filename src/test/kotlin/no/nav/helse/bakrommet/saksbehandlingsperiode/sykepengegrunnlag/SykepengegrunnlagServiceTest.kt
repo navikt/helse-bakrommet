@@ -79,8 +79,6 @@ class SykepengegrunnlagServiceTest {
                             // 45 000 kr/måned
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
-                            erSkjønnsfastsatt = false,
-                            skjønnsfastsettelseBegrunnelse = null,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -112,8 +110,6 @@ class SykepengegrunnlagServiceTest {
                             // 80 000 kr/måned
                             beløpPerMånedØre = 8000000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
-                            erSkjønnsfastsatt = false,
-                            skjønnsfastsettelseBegrunnelse = null,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -156,8 +152,6 @@ class SykepengegrunnlagServiceTest {
                             // 30 000 kr/måned
                             beløpPerMånedØre = 3000000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
-                            erSkjønnsfastsatt = false,
-                            skjønnsfastsettelseBegrunnelse = null,
                             refusjon = emptyList(),
                         ),
                         Inntekt(
@@ -165,8 +159,6 @@ class SykepengegrunnlagServiceTest {
                             // 25 000 kr/måned
                             beløpPerMånedØre = 2500000L,
                             kilde = Inntektskilde.AINNTEKT,
-                            erSkjønnsfastsatt = false,
-                            skjønnsfastsettelseBegrunnelse = null,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -202,8 +194,6 @@ class SykepengegrunnlagServiceTest {
                             // 50 000 kr/måned
                             beløpPerMånedØre = 5000000L,
                             kilde = Inntektskilde.SKJONNSFASTSETTELSE,
-                            erSkjønnsfastsatt = true,
-                            skjønnsfastsettelseBegrunnelse = "Fastsatt skjønnsmessig",
                             refusjon = refusjon,
                         ),
                     ),
@@ -217,8 +207,7 @@ class SykepengegrunnlagServiceTest {
         assertEquals(1, resultat.inntekter.size)
 
         val inntekt = resultat.inntekter[0]
-        assertEquals(true, inntekt.erSkjønnsfastsatt)
-        assertEquals("Fastsatt skjønnsmessig", inntekt.skjønnsfastsettelseBegrunnelse)
+        assertEquals(Inntektskilde.SKJONNSFASTSETTELSE, inntekt.kilde)
         assertEquals(Inntektskilde.SKJONNSFASTSETTELSE, inntekt.kilde)
         assertEquals(1, inntekt.refusjon.size)
         val refusjonsperiode = inntekt.refusjon[0]
@@ -237,8 +226,6 @@ class SykepengegrunnlagServiceTest {
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
-                            erSkjønnsfastsatt = false,
-                            skjønnsfastsettelseBegrunnelse = null,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -263,8 +250,6 @@ class SykepengegrunnlagServiceTest {
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4000000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
-                            erSkjønnsfastsatt = false,
-                            skjønnsfastsettelseBegrunnelse = null,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -281,8 +266,6 @@ class SykepengegrunnlagServiceTest {
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 5500000L,
                             kilde = Inntektskilde.SKJONNSFASTSETTELSE,
-                            erSkjønnsfastsatt = true,
-                            skjønnsfastsettelseBegrunnelse = "Justert etter gjennomgang",
                             refusjon = emptyList(),
                         ),
                     ),
@@ -295,7 +278,7 @@ class SykepengegrunnlagServiceTest {
         assertEquals(66000000L, oppdatertGrunnlag.totalInntektØre)
         assertEquals("Oppdatert versjon", oppdatertGrunnlag.begrunnelse)
         assertEquals(1, oppdatertGrunnlag.inntekter.size)
-        assertEquals(true, oppdatertGrunnlag.inntekter[0].erSkjønnsfastsatt)
+        assertEquals(Inntektskilde.SKJONNSFASTSETTELSE, oppdatertGrunnlag.inntekter[0].kilde)
     }
 
     @Test
@@ -308,8 +291,6 @@ class SykepengegrunnlagServiceTest {
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
-                            erSkjønnsfastsatt = false,
-                            skjønnsfastsettelseBegrunnelse = null,
                             refusjon = emptyList(),
                         ),
                     ),
@@ -349,8 +330,6 @@ class SykepengegrunnlagServiceTest {
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = eksakt6G,
                             kilde = Inntektskilde.SAKSBEHANDLER,
-                            erSkjønnsfastsatt = false,
-                            skjønnsfastsettelseBegrunnelse = null,
                             refusjon = emptyList(),
                         ),
                     ),

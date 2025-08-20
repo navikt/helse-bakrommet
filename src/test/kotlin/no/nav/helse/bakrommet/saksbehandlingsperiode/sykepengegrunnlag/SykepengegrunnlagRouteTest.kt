@@ -74,8 +74,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
-                            "kilde": "SAKSBEHANDLER",
-                            "erSkjønnsfastsatt": false
+                            "kilde": "SAKSBEHANDLER"
                         }
                     ],
                     "begrunnelse": "Standard saksbehandling"
@@ -109,8 +108,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 8000000,
-                            "kilde": "SAKSBEHANDLER",
-                            "erSkjønnsfastsatt": false
+                            "kilde": "SAKSBEHANDLER"
                         }
                     ]
                 }
@@ -143,8 +141,6 @@ class SykepengegrunnlagRouteTest {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 5000000,
                             "kilde": "SKJONNSFASTSETTELSE",
-                            "erSkjønnsfastsatt": true,
-                            "skjønnsfastsettelseBegrunnelse": "Inntekt fastsatt skjønnsmessig grunnet manglende dokumentasjon",
                             "refusjon": [
                                 {
                                     "fom": "2023-01-01",
@@ -172,11 +168,7 @@ class SykepengegrunnlagRouteTest {
             assertEquals(1, inntekter.size())
 
             val inntekt = inntekter[0]
-            assertEquals(true, inntekt["erSkjønnsfastsatt"].asBoolean())
-            assertEquals(
-                "Inntekt fastsatt skjønnsmessig grunnet manglende dokumentasjon",
-                inntekt["skjønnsfastsettelseBegrunnelse"].asText(),
-            )
+            assertEquals("SKJONNSFASTSETTELSE", inntekt["kilde"].asText())
 
             val refusjon = inntekt["refusjon"]
             assertEquals(1, refusjon.size())
@@ -198,8 +190,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
-                            "kilde": "SAKSBEHANDLER",
-                            "erSkjønnsfastsatt": false
+                            "kilde": "SAKSBEHANDLER"
                         }
                     ]
                 }
@@ -235,8 +226,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4000000,
-                            "kilde": "SAKSBEHANDLER",
-                            "erSkjønnsfastsatt": false
+                            "kilde": "SAKSBEHANDLER"
                         }
                     ]
                 }
@@ -256,9 +246,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 5500000,
-                            "kilde": "SKJONNSFASTSETTELSE",
-                            "erSkjønnsfastsatt": true,
-                            "skjønnsfastsettelseBegrunnelse": "Justert etter gjennomgang"
+                            "kilde": "SKJONNSFASTSETTELSE"
                         }
                     ],
                     "begrunnelse": "Oppdatert etter ny vurdering"
@@ -290,8 +278,7 @@ class SykepengegrunnlagRouteTest {
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
-                            "kilde": "SAKSBEHANDLER",
-                            "erSkjønnsfastsatt": false
+                            "kilde": "SAKSBEHANDLER"
                         }
                     ]
                 }

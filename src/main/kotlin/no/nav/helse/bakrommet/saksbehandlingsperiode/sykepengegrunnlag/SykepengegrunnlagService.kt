@@ -61,8 +61,9 @@ class SykepengegrunnlagService(
                 throw InputValideringException("Ugyldig kilde: ${inntekt.kilde} (inntekt $index)")
             }
 
-            if (inntekt.erSkjønnsfastsatt && inntekt.skjønnsfastsettelseBegrunnelse.isNullOrBlank()) {
-                throw InputValideringException("Skjønnsfastsettelse krever begrunnelse (inntekt $index)")
+            // Skjønnsfastsettelse er automatisk basert på kilde
+            if (inntekt.kilde == Inntektskilde.SKJONNSFASTSETTELSE && request.begrunnelse.isNullOrBlank()) {
+                throw InputValideringException("Skjønnsfastsettelse krever begrunnelse")
             }
 
             inntekt.refusjon.forEachIndexed { refusjonsIndex, refusjonsperiode ->
