@@ -9,27 +9,24 @@ import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
+import java.time.LocalDate
 import java.util.*
 
-// null ved opprettelse
-data class FaktiskInntekt(
-    val id: UUID? = null,
+data class Inntekt(
     val inntektsforholdId: UUID,
     // Beløp i øre
     val beløpPerMånedØre: Long,
     val kilde: Inntektskilde,
     val erSkjønnsfastsatt: Boolean = false,
     val skjønnsfastsettelseBegrunnelse: String? = null,
-    val refusjon: Refusjonsforhold? = null,
-    // Settes av service
-    val opprettetAv: String? = null,
+    val refusjon: List<Refusjonsperiode> = emptyList(),
 )
 
-data class Refusjonsforhold(
+data class Refusjonsperiode(
+    val fom: LocalDate,
+    val tom: LocalDate,
     // Beløp i øre
-    val refusjonsbeløpPerMånedØre: Long,
-    // 0-100
-    val refusjonsgrad: Int,
+    val beløpØre: Long,
 )
 
 enum class Inntektskilde {
@@ -39,14 +36,14 @@ enum class Inntektskilde {
 }
 
 data class SykepengegrunnlagRequest(
-    val faktiskeInntekter: List<FaktiskInntekt>,
+    val inntekter: List<Inntekt>,
     val begrunnelse: String? = null,
 )
 
 data class SykepengegrunnlagResponse(
     val id: UUID,
     val saksbehandlingsperiodeId: UUID,
-    val faktiskeInntekter: List<FaktiskInntekt>,
+    val inntekter: List<Inntekt>,
     // Årsinntekt i øre
     val totalInntektØre: Long,
     // 6G i øre
@@ -58,7 +55,6 @@ data class SykepengegrunnlagResponse(
     val opprettet: String,
     val opprettetAv: String,
     val sistOppdatert: String,
-    val versjon: Int,
 )
 
 internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {

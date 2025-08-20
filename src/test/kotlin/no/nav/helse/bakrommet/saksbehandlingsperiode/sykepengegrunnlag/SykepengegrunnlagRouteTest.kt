@@ -65,12 +65,12 @@ class SykepengegrunnlagRouteTest {
     }
 
     @Test
-    fun `oppretter sykepengegrunnlag med faktiske inntekter`() =
+    fun `oppretter sykepengegrunnlag med inntekter`() =
         sykepengegrunnlagAppTest { (daoer, saksbehandlingsperiode, inntektsforhold) ->
             val requestBody =
                 """
                 {
-                    "faktiskeInntekter": [
+                    "inntekter": [
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
@@ -97,7 +97,6 @@ class SykepengegrunnlagRouteTest {
             assertEquals(false, responseBody["begrensetTil6G"].asBoolean())
             assertEquals(54000000L, responseBody["sykepengegrunnlagØre"].asLong())
             assertEquals("Standard saksbehandling", responseBody["begrunnelse"].asText())
-            assertEquals(1, responseBody["versjon"].asInt())
         }
 
     @Test
@@ -106,7 +105,7 @@ class SykepengegrunnlagRouteTest {
             val requestBody =
                 """
                 {
-                    "faktiskeInntekter": [
+                    "inntekter": [
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 8000000,
@@ -139,17 +138,20 @@ class SykepengegrunnlagRouteTest {
             val requestBody =
                 """
                 {
-                    "faktiskeInntekter": [
+                    "inntekter": [
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 5000000,
                             "kilde": "SKJONNSFASTSETTELSE",
                             "erSkjønnsfastsatt": true,
                             "skjønnsfastsettelseBegrunnelse": "Inntekt fastsatt skjønnsmessig grunnet manglende dokumentasjon",
-                            "refusjon": {
-                                "refusjonsbeløpPerMånedØre": 5000000,
-                                "refusjonsgrad": 100
-                            }
+                            "refusjon": [
+                                {
+                                    "fom": "2023-01-01",
+                                    "tom": "2023-01-31",
+                                    "beløpØre": 5000000
+                                }
+                            ]
                         }
                     ],
                     "begrunnelse": "Skjønnsfastsettelse med full refusjon"
@@ -166,19 +168,23 @@ class SykepengegrunnlagRouteTest {
             assertEquals(HttpStatusCode.Created, response.status)
 
             val responseBody = objectMapper.readTree(response.bodyAsText())
-            val faktiskeInntekter = responseBody["faktiskeInntekter"]
-            assertEquals(1, faktiskeInntekter.size())
+            val inntekter = responseBody["inntekter"]
+            assertEquals(1, inntekter.size())
 
-            val faktiskInntekt = faktiskeInntekter[0]
-            assertEquals(true, faktiskInntekt["erSkjønnsfastsatt"].asBoolean())
+            val inntekt = inntekter[0]
+            assertEquals(true, inntekt["erSkjønnsfastsatt"].asBoolean())
             assertEquals(
                 "Inntekt fastsatt skjønnsmessig grunnet manglende dokumentasjon",
-                faktiskInntekt["skjønnsfastsettelseBegrunnelse"].asText(),
+                inntekt["skjønnsfastsettelseBegrunnelse"].asText(),
             )
 
-            val refusjon = faktiskInntekt["refusjon"]
-            assertEquals(5000000L, refusjon["refusjonsbeløpPerMånedØre"].asLong())
-            assertEquals(100, refusjon["refusjonsgrad"].asInt())
+            val refusjon = inntekt["refusjon"]
+            assertEquals(1, refusjon.size())
+
+            val refusjonsperiode = refusjon[0]
+            assertEquals("2023-01-01", refusjonsperiode["fom"].asText())
+            assertEquals("2023-01-31", refusjonsperiode["tom"].asText())
+            assertEquals(5000000L, refusjonsperiode["beløpØre"].asLong())
         }
 
     @Test
@@ -188,7 +194,7 @@ class SykepengegrunnlagRouteTest {
             val requestBody =
                 """
                 {
-                    "faktiskeInntekter": [
+                    "inntekter": [
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
@@ -215,7 +221,7 @@ class SykepengegrunnlagRouteTest {
 
             val responseBody = objectMapper.readTree(getResponse.bodyAsText())
             assertEquals(54000000L, responseBody["totalInntektØre"].asLong())
-            assertEquals(1, responseBody["faktiskeInntekter"].size())
+            assertEquals(1, responseBody["inntekter"].size())
         }
 
     @Test
@@ -225,7 +231,7 @@ class SykepengegrunnlagRouteTest {
             val opprettRequestBody =
                 """
                 {
-                    "faktiskeInntekter": [
+                    "inntekter": [
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4000000,
@@ -246,7 +252,7 @@ class SykepengegrunnlagRouteTest {
             val oppdaterRequestBody =
                 """
                 {
-                    "faktiskeInntekter": [
+                    "inntekter": [
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 5500000,
@@ -271,7 +277,6 @@ class SykepengegrunnlagRouteTest {
             val responseBody = objectMapper.readTree(putResponse.bodyAsText())
             assertEquals(66000000L, responseBody["totalInntektØre"].asLong()) // 5.5M * 12
             assertEquals("Oppdatert etter ny vurdering", responseBody["begrunnelse"].asText())
-            assertEquals(2, responseBody["versjon"].asInt()) // Versjon økt
         }
 
     @Test
@@ -281,7 +286,7 @@ class SykepengegrunnlagRouteTest {
             val requestBody =
                 """
                 {
-                    "faktiskeInntekter": [
+                    "inntekter": [
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
@@ -332,7 +337,7 @@ class SykepengegrunnlagRouteTest {
             val ugyldigRequestBody =
                 """
                 {
-                    "faktiskeInntekter": [
+                    "inntekter": [
                         {
                             "inntektsforholdId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": -1000,

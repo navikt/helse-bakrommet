@@ -59,8 +59,7 @@ class SykepengegrunnlagServiceTest {
         inntektsforholdDao.opprettInntektsforhold(inntektsforhold)
 
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
-        val faktiskInntektDao = FaktiskInntektDao(dataSource)
-        service = SykepengegrunnlagService(sykepengegrunnlagDao, faktiskInntektDao)
+        service = SykepengegrunnlagService(sykepengegrunnlagDao)
     }
 
     private fun periodeReferanse() =
@@ -73,18 +72,16 @@ class SykepengegrunnlagServiceTest {
     fun `beregner sykepengegrunnlag uten 6G-begrensning`() {
         val request =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             // 45 000 kr/måned
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
                             erSkjønnsfastsatt = false,
                             skjønnsfastsettelseBegrunnelse = null,
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
                     ),
                 begrunnelse = "Standard beregning",
@@ -101,28 +98,23 @@ class SykepengegrunnlagServiceTest {
         assertEquals(54000000L, resultat.sykepengegrunnlagØre)
         assertEquals("Standard beregning", resultat.begrunnelse)
         assertEquals(saksbehandler.navIdent, resultat.opprettetAv)
-        assertEquals(1, resultat.versjon)
-        assertEquals(1, resultat.faktiskeInntekter.size)
-        // ID skal være satt etter lagring
-        assertNotNull(resultat.faktiskeInntekter[0].id)
+        assertEquals(1, resultat.inntekter.size)
     }
 
     @Test
     fun `beregner sykepengegrunnlag med 6G-begrensning`() {
         val request =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             // 80 000 kr/måned
                             beløpPerMånedØre = 8000000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
                             erSkjønnsfastsatt = false,
                             skjønnsfastsettelseBegrunnelse = null,
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
                     ),
             )
@@ -157,29 +149,25 @@ class SykepengegrunnlagServiceTest {
 
         val request =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             // 30 000 kr/måned
                             beløpPerMånedØre = 3000000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
                             erSkjønnsfastsatt = false,
                             skjønnsfastsettelseBegrunnelse = null,
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold2.id,
                             // 25 000 kr/måned
                             beløpPerMånedØre = 2500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             erSkjønnsfastsatt = false,
                             skjønnsfastsettelseBegrunnelse = null,
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
                     ),
                 begrunnelse = "Kombinert beregning",
@@ -191,23 +179,25 @@ class SykepengegrunnlagServiceTest {
         assertEquals(66000000L, resultat.totalInntektØre)
         assertEquals(false, resultat.begrensetTil6G)
         assertEquals(66000000L, resultat.sykepengegrunnlagØre)
-        assertEquals(2, resultat.faktiskeInntekter.size)
+        assertEquals(2, resultat.inntekter.size)
     }
 
     @Test
     fun `oppretter sykepengegrunnlag med skjønnsfastsettelse og refusjon`() {
         val refusjon =
-            Refusjonsforhold(
-                refusjonsbeløpPerMånedØre = 5000000L,
-                refusjonsgrad = 100,
+            listOf(
+                Refusjonsperiode(
+                    fom = LocalDate.of(2023, 1, 1),
+                    tom = LocalDate.of(2023, 1, 31),
+                    beløpØre = 5000000L,
+                ),
             )
 
         val request =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             // 50 000 kr/måned
                             beløpPerMånedØre = 5000000L,
@@ -215,7 +205,6 @@ class SykepengegrunnlagServiceTest {
                             erSkjønnsfastsatt = true,
                             skjønnsfastsettelseBegrunnelse = "Fastsatt skjønnsmessig",
                             refusjon = refusjon,
-                            opprettetAv = null,
                         ),
                     ),
                 begrunnelse = "Skjønnsfastsettelse med refusjon",
@@ -225,34 +214,32 @@ class SykepengegrunnlagServiceTest {
 
         // 50 000 * 12 = 600 000 kr
         assertEquals(60000000L, resultat.totalInntektØre)
-        assertEquals(1, resultat.faktiskeInntekter.size)
+        assertEquals(1, resultat.inntekter.size)
 
-        val faktiskInntekt = resultat.faktiskeInntekter[0]
-        assertEquals(true, faktiskInntekt.erSkjønnsfastsatt)
-        assertEquals("Fastsatt skjønnsmessig", faktiskInntekt.skjønnsfastsettelseBegrunnelse)
-        assertEquals(Inntektskilde.SKJONNSFASTSETTELSE, faktiskInntekt.kilde)
-        assertNotNull(faktiskInntekt.refusjon)
-        faktiskInntekt.refusjon?.let { refusjon ->
-            assertEquals(5000000L, refusjon.refusjonsbeløpPerMånedØre)
-            assertEquals(100, refusjon.refusjonsgrad)
-        }
+        val inntekt = resultat.inntekter[0]
+        assertEquals(true, inntekt.erSkjønnsfastsatt)
+        assertEquals("Fastsatt skjønnsmessig", inntekt.skjønnsfastsettelseBegrunnelse)
+        assertEquals(Inntektskilde.SKJONNSFASTSETTELSE, inntekt.kilde)
+        assertEquals(1, inntekt.refusjon.size)
+        val refusjonsperiode = inntekt.refusjon[0]
+        assertEquals(LocalDate.of(2023, 1, 1), refusjonsperiode.fom)
+        assertEquals(LocalDate.of(2023, 1, 31), refusjonsperiode.tom)
+        assertEquals(5000000L, refusjonsperiode.beløpØre)
     }
 
     @Test
     fun `henter eksisterende sykepengegrunnlag`() {
         val request =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
                             erSkjønnsfastsatt = false,
                             skjønnsfastsettelseBegrunnelse = null,
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
                     ),
             )
@@ -263,24 +250,22 @@ class SykepengegrunnlagServiceTest {
 
         assertNotNull(hentetGrunnlag)
         assertEquals(54000000L, hentetGrunnlag.totalInntektØre)
-        assertEquals(1, hentetGrunnlag.faktiskeInntekter.size)
+        assertEquals(1, hentetGrunnlag.inntekter.size)
     }
 
     @Test
     fun `oppdaterer eksisterende sykepengegrunnlag`() {
         val opprettRequest =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4000000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
                             erSkjønnsfastsatt = false,
                             skjønnsfastsettelseBegrunnelse = null,
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
                     ),
                 begrunnelse = "Første versjon",
@@ -290,17 +275,15 @@ class SykepengegrunnlagServiceTest {
 
         val oppdaterRequest =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 5500000L,
                             kilde = Inntektskilde.SKJONNSFASTSETTELSE,
                             erSkjønnsfastsatt = true,
                             skjønnsfastsettelseBegrunnelse = "Justert etter gjennomgang",
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
                     ),
                 begrunnelse = "Oppdatert versjon",
@@ -311,26 +294,23 @@ class SykepengegrunnlagServiceTest {
         // 55 000 * 12
         assertEquals(66000000L, oppdatertGrunnlag.totalInntektØre)
         assertEquals("Oppdatert versjon", oppdatertGrunnlag.begrunnelse)
-        assertEquals(2, oppdatertGrunnlag.versjon)
-        assertEquals(1, oppdatertGrunnlag.faktiskeInntekter.size)
-        assertEquals(true, oppdatertGrunnlag.faktiskeInntekter[0].erSkjønnsfastsatt)
+        assertEquals(1, oppdatertGrunnlag.inntekter.size)
+        assertEquals(true, oppdatertGrunnlag.inntekter[0].erSkjønnsfastsatt)
     }
 
     @Test
     fun `sletter sykepengegrunnlag`() {
         val request =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.SAKSBEHANDLER,
                             erSkjønnsfastsatt = false,
                             skjønnsfastsettelseBegrunnelse = null,
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
                     ),
             )
@@ -363,17 +343,15 @@ class SykepengegrunnlagServiceTest {
 
         val request =
             SykepengegrunnlagRequest(
-                faktiskeInntekter =
+                inntekter =
                     listOf(
-                        FaktiskInntekt(
-                            id = null,
+                        Inntekt(
                             inntektsforholdId = inntektsforhold.id,
                             beløpPerMånedØre = eksakt6G,
                             kilde = Inntektskilde.SAKSBEHANDLER,
                             erSkjønnsfastsatt = false,
                             skjønnsfastsettelseBegrunnelse = null,
-                            refusjon = null,
-                            opprettetAv = null,
+                            refusjon = emptyList(),
                         ),
                     ),
             )

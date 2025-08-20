@@ -8,7 +8,6 @@ import java.util.*
 
 class SykepengegrunnlagService(
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
-    private val faktiskInntektDao: FaktiskInntektDao,
 ) {
     companion object {
         // Grunnbeløp for 2024: 124028 kroner = 12402800 øre
@@ -19,10 +18,7 @@ class SykepengegrunnlagService(
     }
 
     fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? {
-        val grunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID) ?: return null
-        val faktiskeInntekter = faktiskInntektDao.hentFaktiskeInntekterFor(referanse.periodeUUID)
-
-        return grunnlag.copy(faktiskeInntekter = faktiskeInntekter)
+        return sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
     }
 
     fun opprettSykepengegrunnlag(
@@ -32,25 +28,14 @@ class SykepengegrunnlagService(
     ): SykepengegrunnlagResponse {
         validerSykepengegrunnlagRequest(request)
 
-        // Lagre faktiske inntekter først
-        val lagredeFaktiskeInntekter =
-            request.faktiskeInntekter.map { faktiskInntekt ->
-                faktiskInntektDao.opprettFaktiskInntekt(
-                    faktiskInntekt.copy(opprettetAv = saksbehandler.navIdent),
-                )
-            }
-
         // Beregn sykepengegrunnlag
-        val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, lagredeFaktiskeInntekter, request.begrunnelse, saksbehandler)
+        val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, request.inntekter, request.begrunnelse, saksbehandler)
 
-        val lagretGrunnlag =
-            sykepengegrunnlagDao.opprettSykepengegrunnlag(
-                referanse.periodeUUID,
-                beregning,
-                saksbehandler,
-            )
-
-        return lagretGrunnlag.copy(faktiskeInntekter = lagredeFaktiskeInntekter)
+        return sykepengegrunnlagDao.opprettSykepengegrunnlag(
+            referanse.periodeUUID,
+            beregning,
+            saksbehandler,
+        )
     }
 
     fun oppdaterSykepengegrunnlag(
@@ -64,66 +49,50 @@ class SykepengegrunnlagService(
             sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
                 ?: throw IllegalStateException("Finner ikke eksisterende sykepengegrunnlag for periode ${referanse.periodeUUID}")
 
-        // Slett eksisterende faktiske inntekter
-        faktiskInntektDao.slettFaktiskeInntekterFor(referanse.periodeUUID)
-
-        // Opprett nye faktiske inntekter
-        val lagredeFaktiskeInntekter =
-            request.faktiskeInntekter.map { faktiskInntekt ->
-                faktiskInntektDao.opprettFaktiskInntekt(
-                    faktiskInntekt.copy(opprettetAv = saksbehandler.navIdent),
-                )
-            }
-
         // Beregn nytt sykepengegrunnlag
-        val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, lagredeFaktiskeInntekter, request.begrunnelse, saksbehandler)
+        val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, request.inntekter, request.begrunnelse, saksbehandler)
 
-        val oppdatertGrunnlag =
-            sykepengegrunnlagDao.oppdaterSykepengegrunnlag(
-                eksisterende.id,
-                referanse.periodeUUID,
-                beregning,
-                saksbehandler,
-                eksisterende.versjon + 1,
-            )
-
-        return oppdatertGrunnlag.copy(faktiskeInntekter = lagredeFaktiskeInntekter)
+        return sykepengegrunnlagDao.oppdaterSykepengegrunnlag(
+            referanse.periodeUUID,
+            beregning,
+            saksbehandler,
+        )
     }
 
     fun slettSykepengegrunnlag(
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ) {
-        faktiskInntektDao.slettFaktiskeInntekterFor(referanse.periodeUUID)
         sykepengegrunnlagDao.slettSykepengegrunnlag(referanse.periodeUUID)
     }
 
     private fun validerSykepengegrunnlagRequest(request: SykepengegrunnlagRequest) {
-        if (request.faktiskeInntekter.isEmpty()) {
-            throw InputValideringException("Må ha minst én faktisk inntekt")
+        if (request.inntekter.isEmpty()) {
+            throw InputValideringException("Må ha minst én inntekt")
         }
 
-        request.faktiskeInntekter.forEachIndexed { index, faktiskInntekt ->
-            if (faktiskInntekt.beløpPerMånedØre < 0) {
-                throw InputValideringException("Beløp per måned kan ikke være negativt (faktisk inntekt $index)")
+        request.inntekter.forEachIndexed { index, inntekt ->
+            if (inntekt.beløpPerMånedØre < 0) {
+                throw InputValideringException("Beløp per måned kan ikke være negativt (inntekt $index)")
             }
 
             // Valider at kilde er en gyldig enum verdi
             val gyldigeKilder = Inntektskilde.values().toSet()
-            if (faktiskInntekt.kilde !in gyldigeKilder) {
-                throw InputValideringException("Ugyldig kilde: ${faktiskInntekt.kilde} (faktisk inntekt $index)")
+            if (inntekt.kilde !in gyldigeKilder) {
+                throw InputValideringException("Ugyldig kilde: ${inntekt.kilde} (inntekt $index)")
             }
 
-            if (faktiskInntekt.erSkjønnsfastsatt && faktiskInntekt.skjønnsfastsettelseBegrunnelse.isNullOrBlank()) {
-                throw InputValideringException("Skjønnsfastsettelse krever begrunnelse (faktisk inntekt $index)")
+            if (inntekt.erSkjønnsfastsatt && inntekt.skjønnsfastsettelseBegrunnelse.isNullOrBlank()) {
+                throw InputValideringException("Skjønnsfastsettelse krever begrunnelse (inntekt $index)")
             }
 
-            faktiskInntekt.refusjon?.let { refusjon ->
-                if (refusjon.refusjonsbeløpPerMånedØre < 0) {
-                    throw InputValideringException("Refusjonsbeløp kan ikke være negativt (faktisk inntekt $index)")
+            inntekt.refusjon.forEachIndexed { refusjonsIndex, refusjonsperiode ->
+                if (refusjonsperiode.beløpØre < 0) {
+                    throw InputValideringException("Refusjonsbeløp kan ikke være negativt (inntekt $index, refusjon $refusjonsIndex)")
                 }
-                if (refusjon.refusjonsgrad < 0 || refusjon.refusjonsgrad > 100) {
-                    throw InputValideringException("Refusjonsgrad må være mellom 0 og 100 (faktisk inntekt $index)")
+                // Valider at fom er før eller lik tom
+                if (refusjonsperiode.fom.isAfter(refusjonsperiode.tom)) {
+                    throw InputValideringException("Fra-dato kan ikke være etter til-dato (inntekt $index, refusjon $refusjonsIndex)")
                 }
             }
         }
@@ -131,13 +100,13 @@ class SykepengegrunnlagService(
 
     private fun beregnSykepengegrunnlag(
         saksbehandlingsperiodeId: UUID,
-        faktiskeInntekter: List<FaktiskInntekt>,
+        inntekter: List<Inntekt>,
         begrunnelse: String?,
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
         // Summer opp alle månedlige inntekter og konverter til årsinntekt (i øre)
         val totalInntektØre =
-            faktiskeInntekter
+            inntekter
                 .sumOf { it.beløpPerMånedØre } * 12L
         // Månedsinntekt * 12 = årsinntekt
 
@@ -147,9 +116,8 @@ class SykepengegrunnlagService(
 
         return SykepengegrunnlagResponse(
             id = UUID.randomUUID(),
-            // Dette settes i DAO
             saksbehandlingsperiodeId = saksbehandlingsperiodeId,
-            faktiskeInntekter = faktiskeInntekter,
+            inntekter = inntekter,
             totalInntektØre = totalInntektØre,
             grunnbeløp6GØre = SEKS_G_ØRE,
             begrensetTil6G = begrensetTil6G,
@@ -158,7 +126,6 @@ class SykepengegrunnlagService(
             opprettet = LocalDateTime.now().toString(),
             opprettetAv = saksbehandler.navIdent,
             sistOppdatert = LocalDateTime.now().toString(),
-            versjon = 1,
         )
     }
 }

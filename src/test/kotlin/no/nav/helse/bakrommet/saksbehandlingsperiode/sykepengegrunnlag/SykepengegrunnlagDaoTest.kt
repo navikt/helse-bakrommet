@@ -48,7 +48,7 @@ class SykepengegrunnlagDaoTest {
             SykepengegrunnlagResponse(
                 id = UUID.randomUUID(),
                 saksbehandlingsperiodeId = periode.id,
-                faktiskeInntekter = emptyList(),
+                inntekter = emptyList(),
                 totalInntektØre = 54000000L,
                 grunnbeløp6GØre = 74416800L,
                 begrensetTil6G = false,
@@ -57,7 +57,6 @@ class SykepengegrunnlagDaoTest {
                 opprettet = LocalDateTime.now().toString(),
                 opprettetAv = saksbehandler.navIdent,
                 sistOppdatert = LocalDateTime.now().toString(),
-                versjon = 1,
             )
 
         val lagretGrunnlag = dao.opprettSykepengegrunnlag(periode.id, beregning, saksbehandler)
@@ -69,7 +68,6 @@ class SykepengegrunnlagDaoTest {
         assertEquals(54000000L, lagretGrunnlag.sykepengegrunnlagØre)
         assertEquals("Test beregning", lagretGrunnlag.begrunnelse)
         assertEquals(saksbehandler.navIdent, lagretGrunnlag.opprettetAv)
-        assertEquals(1, lagretGrunnlag.versjon)
 
         val hentetGrunnlag = dao.hentSykepengegrunnlag(periode.id)
         assertEquals(lagretGrunnlag.id, hentetGrunnlag!!.id)
@@ -84,7 +82,7 @@ class SykepengegrunnlagDaoTest {
             SykepengegrunnlagResponse(
                 id = UUID.randomUUID(),
                 saksbehandlingsperiodeId = periode.id,
-                faktiskeInntekter = emptyList(),
+                inntekter = emptyList(),
                 // Over 6G
                 totalInntektØre = 96000000L,
                 grunnbeløp6GØre = 74416800L,
@@ -95,7 +93,6 @@ class SykepengegrunnlagDaoTest {
                 opprettet = LocalDateTime.now().toString(),
                 opprettetAv = saksbehandler.navIdent,
                 sistOppdatert = LocalDateTime.now().toString(),
-                versjon = 1,
             )
 
         val lagretGrunnlag = dao.opprettSykepengegrunnlag(periode.id, beregning, saksbehandler)
@@ -113,7 +110,7 @@ class SykepengegrunnlagDaoTest {
             SykepengegrunnlagResponse(
                 id = UUID.randomUUID(),
                 saksbehandlingsperiodeId = periode.id,
-                faktiskeInntekter = emptyList(),
+                inntekter = emptyList(),
                 totalInntektØre = 48000000L,
                 grunnbeløp6GØre = 74416800L,
                 begrensetTil6G = false,
@@ -122,7 +119,6 @@ class SykepengegrunnlagDaoTest {
                 opprettet = LocalDateTime.now().toString(),
                 opprettetAv = saksbehandler.navIdent,
                 sistOppdatert = LocalDateTime.now().toString(),
-                versjon = 1,
             )
 
         val lagretGrunnlag = dao.opprettSykepengegrunnlag(periode.id, opprinneligBeregning, saksbehandler)
@@ -131,7 +127,7 @@ class SykepengegrunnlagDaoTest {
             SykepengegrunnlagResponse(
                 id = lagretGrunnlag.id,
                 saksbehandlingsperiodeId = periode.id,
-                faktiskeInntekter = emptyList(),
+                inntekter = emptyList(),
                 totalInntektØre = 66000000L,
                 grunnbeløp6GØre = 74416800L,
                 begrensetTil6G = false,
@@ -140,21 +136,17 @@ class SykepengegrunnlagDaoTest {
                 opprettet = lagretGrunnlag.opprettet,
                 opprettetAv = saksbehandler.navIdent,
                 sistOppdatert = LocalDateTime.now().toString(),
-                versjon = 2,
             )
 
         val oppdatertGrunnlag =
             dao.oppdaterSykepengegrunnlag(
-                lagretGrunnlag.id,
                 periode.id,
                 oppdatertBeregning,
                 saksbehandler,
-                2,
             )
 
         assertEquals(66000000L, oppdatertGrunnlag.totalInntektØre)
         assertEquals("Oppdatert beregning", oppdatertGrunnlag.begrunnelse)
-        assertEquals(2, oppdatertGrunnlag.versjon)
 
         // Verifiser at sistOppdatert er endret
         assertTrue(oppdatertGrunnlag.sistOppdatert >= lagretGrunnlag.sistOppdatert)
@@ -168,7 +160,7 @@ class SykepengegrunnlagDaoTest {
             SykepengegrunnlagResponse(
                 id = UUID.randomUUID(),
                 saksbehandlingsperiodeId = periode.id,
-                faktiskeInntekter = emptyList(),
+                inntekter = emptyList(),
                 totalInntektØre = 54000000L,
                 grunnbeløp6GØre = 74416800L,
                 begrensetTil6G = false,
@@ -177,7 +169,6 @@ class SykepengegrunnlagDaoTest {
                 opprettet = LocalDateTime.now().toString(),
                 opprettetAv = saksbehandler.navIdent,
                 sistOppdatert = LocalDateTime.now().toString(),
-                versjon = 1,
             )
 
         dao.opprettSykepengegrunnlag(periode.id, beregning, saksbehandler)
@@ -213,7 +204,7 @@ class SykepengegrunnlagDaoTest {
             SykepengegrunnlagResponse(
                 id = UUID.randomUUID(),
                 saksbehandlingsperiodeId = periode.id,
-                faktiskeInntekter = emptyList(),
+                inntekter = emptyList(),
                 totalInntektØre = 48000000L,
                 grunnbeløp6GØre = 74416800L,
                 begrensetTil6G = false,
@@ -222,7 +213,6 @@ class SykepengegrunnlagDaoTest {
                 opprettet = LocalDateTime.now().toString(),
                 opprettetAv = saksbehandler.navIdent,
                 sistOppdatert = LocalDateTime.now().toString(),
-                versjon = 1,
             )
 
         val lagret1 = dao.opprettSykepengegrunnlag(periode.id, versjon1, saksbehandler)
@@ -233,7 +223,7 @@ class SykepengegrunnlagDaoTest {
                 // Bruk samme ID
                 id = lagret1.id,
                 saksbehandlingsperiodeId = periode.id,
-                faktiskeInntekter = emptyList(),
+                inntekter = emptyList(),
                 totalInntektØre = 60000000L,
                 grunnbeløp6GØre = 74416800L,
                 begrensetTil6G = false,
@@ -243,16 +233,14 @@ class SykepengegrunnlagDaoTest {
                 opprettet = lagret1.opprettet,
                 opprettetAv = saksbehandler.navIdent,
                 sistOppdatert = LocalDateTime.now().toString(),
-                versjon = 2,
             )
 
-        dao.oppdaterSykepengegrunnlag(lagret1.id, periode.id, versjon2, saksbehandler, 2)
+        dao.oppdaterSykepengegrunnlag(periode.id, versjon2, saksbehandler)
 
         // Hent grunnlag - skal returnere siste versjon
         val hentetGrunnlag = dao.hentSykepengegrunnlag(periode.id)
 
         assertEquals(60000000L, hentetGrunnlag!!.totalInntektØre)
         assertEquals("Versjon 2", hentetGrunnlag.begrunnelse)
-        assertEquals(2, hentetGrunnlag.versjon)
     }
 }
