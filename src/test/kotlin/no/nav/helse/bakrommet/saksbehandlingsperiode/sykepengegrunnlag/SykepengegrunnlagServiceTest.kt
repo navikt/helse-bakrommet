@@ -87,7 +87,7 @@ class SykepengegrunnlagServiceTest {
                 begrunnelse = "Standard beregning",
             )
 
-        val resultat = service.opprettSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+        val resultat = service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
 
         // 45 000 * 12 = 540 000 kr
         assertEquals(54000000L, resultat.totalInntektØre)
@@ -119,7 +119,7 @@ class SykepengegrunnlagServiceTest {
                     ),
             )
 
-        val resultat = service.opprettSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+        val resultat = service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
 
         // 80 000 * 12 = 960 000 kr
         assertEquals(96000000L, resultat.totalInntektØre)
@@ -173,7 +173,7 @@ class SykepengegrunnlagServiceTest {
                 begrunnelse = "Kombinert beregning",
             )
 
-        val resultat = service.opprettSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+        val resultat = service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
 
         // (30 000 + 25 000) * 12 = 660 000 kr
         assertEquals(66000000L, resultat.totalInntektØre)
@@ -210,7 +210,7 @@ class SykepengegrunnlagServiceTest {
                 begrunnelse = "Skjønnsfastsettelse med refusjon",
             )
 
-        val resultat = service.opprettSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+        val resultat = service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
 
         // 50 000 * 12 = 600 000 kr
         assertEquals(60000000L, resultat.totalInntektØre)
@@ -244,7 +244,7 @@ class SykepengegrunnlagServiceTest {
                     ),
             )
 
-        service.opprettSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+        service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
 
         val hentetGrunnlag = service.hentSykepengegrunnlag(periodeReferanse())
 
@@ -271,7 +271,7 @@ class SykepengegrunnlagServiceTest {
                 begrunnelse = "Første versjon",
             )
 
-        service.opprettSykepengegrunnlag(periodeReferanse(), opprettRequest, saksbehandler)
+        service.settSykepengegrunnlag(periodeReferanse(), opprettRequest, saksbehandler)
 
         val oppdaterRequest =
             SykepengegrunnlagRequest(
@@ -289,7 +289,7 @@ class SykepengegrunnlagServiceTest {
                 begrunnelse = "Oppdatert versjon",
             )
 
-        val oppdatertGrunnlag = service.oppdaterSykepengegrunnlag(periodeReferanse(), oppdaterRequest, saksbehandler)
+        val oppdatertGrunnlag = service.settSykepengegrunnlag(periodeReferanse(), oppdaterRequest, saksbehandler)
 
         // 55 000 * 12
         assertEquals(66000000L, oppdatertGrunnlag.totalInntektØre)
@@ -315,7 +315,7 @@ class SykepengegrunnlagServiceTest {
                     ),
             )
 
-        service.opprettSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+        service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
 
         // Verifiser at grunnlaget finnes
         val hentetFørSletting = service.hentSykepengegrunnlag(periodeReferanse())
@@ -356,7 +356,7 @@ class SykepengegrunnlagServiceTest {
                     ),
             )
 
-        val resultat = service.opprettSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+        val resultat = service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
 
         assertEquals(eksakt6G * 12L, resultat.totalInntektØre)
         assertEquals(74416800L, resultat.grunnbeløp6GØre)

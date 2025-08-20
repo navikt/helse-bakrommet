@@ -15,34 +15,66 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun opprettSykepengegrunnlag(
+    fun settSykepengegrunnlag(
         saksbehandlingsperiodeId: UUID,
         beregning: SykepengegrunnlagResponse,
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
         val inntekterJson = objectMapper.writeValueAsString(beregning.inntekter)
 
-        db.update(
-            """
-            INSERT INTO sykepengegrunnlag 
-                (id, saksbehandlingsperiode_id, total_inntekt_ore, grunnbelop_6g_ore, 
-                 begrenset_til_6g, sykepengegrunnlag_ore, begrunnelse, inntekter,
-                 opprettet, opprettet_av_nav_ident, sist_oppdatert)
-            VALUES 
-                (:id, :saksbehandlingsperiode_id, :total_inntekt_ore, :grunnbelop_6g_ore,
-                 :begrenset_til_6g, :sykepengegrunnlag_ore, :begrunnelse, :inntekter,
-                 NOW(), :opprettet_av_nav_ident, NOW())
-            """.trimIndent(),
-            "id" to beregning.id,
-            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
-            "total_inntekt_ore" to beregning.totalInntektØre,
-            "grunnbelop_6g_ore" to beregning.grunnbeløp6GØre,
-            "begrenset_til_6g" to beregning.begrensetTil6G,
-            "sykepengegrunnlag_ore" to beregning.sykepengegrunnlagØre,
-            "begrunnelse" to beregning.begrunnelse,
-            "inntekter" to inntekterJson,
-            "opprettet_av_nav_ident" to saksbehandler.navIdent,
-        )
+        // Sjekk om det finnes fra før
+        val eksisterende = hentSykepengegrunnlag(saksbehandlingsperiodeId)
+
+        if (eksisterende != null) {
+            // Oppdater eksisterende
+            db.update(
+                """
+                UPDATE sykepengegrunnlag 
+                SET 
+                    inntekter = :inntekter,
+                    total_inntekt_ore = :total_inntekt_ore,
+                    grunnbelop_6g_ore = :grunnbelop_6g_ore,
+                    begrenset_til_6g = :begrenset_til_6g,
+                    sykepengegrunnlag_ore = :sykepengegrunnlag_ore,
+                    begrunnelse = :begrunnelse,
+                    opprettet_av_nav_ident = :opprettet_av_nav_ident,
+                    sist_oppdatert = NOW()
+                WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                """.trimIndent(),
+                "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+                "inntekter" to inntekterJson,
+                "total_inntekt_ore" to beregning.totalInntektØre,
+                "grunnbelop_6g_ore" to beregning.grunnbeløp6GØre,
+                "begrenset_til_6g" to beregning.begrensetTil6G,
+                "sykepengegrunnlag_ore" to beregning.sykepengegrunnlagØre,
+                "begrunnelse" to beregning.begrunnelse,
+                "opprettet_av_nav_ident" to saksbehandler.navIdent,
+            )
+        } else {
+            // Opprett nytt
+            db.update(
+                """
+                INSERT INTO sykepengegrunnlag 
+                    (id, saksbehandlingsperiode_id, total_inntekt_ore, grunnbelop_6g_ore, 
+                     begrenset_til_6g, sykepengegrunnlag_ore, begrunnelse, inntekter,
+                     opprettet, opprettet_av_nav_ident, sist_oppdatert)
+                VALUES 
+                    (:id, :saksbehandlingsperiode_id, :total_inntekt_ore, :grunnbelop_6g_ore,
+                     :begrenset_til_6g, :sykepengegrunnlag_ore, :begrunnelse, :inntekter,
+                     NOW(), :opprettet_av_nav_ident, NOW())
+                """.trimIndent(),
+                "id" to beregning.id,
+                "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+                "total_inntekt_ore" to beregning.totalInntektØre,
+                "grunnbelop_6g_ore" to beregning.grunnbeløp6GØre,
+                "begrenset_til_6g" to beregning.begrensetTil6G,
+                "sykepengegrunnlag_ore" to beregning.sykepengegrunnlagØre,
+                "begrunnelse" to beregning.begrunnelse,
+                "inntekter" to inntekterJson,
+                "opprettet_av_nav_ident" to saksbehandler.navIdent,
+            )
+        }
+
         return hentSykepengegrunnlag(saksbehandlingsperiodeId)!!
     }
 
@@ -55,37 +87,6 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
             "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
             mapper = ::sykepengegrunnlagFraRow,
         )
-
-    fun oppdaterSykepengegrunnlag(
-        saksbehandlingsperiodeId: UUID,
-        beregning: SykepengegrunnlagResponse,
-        saksbehandler: Bruker,
-    ): SykepengegrunnlagResponse {
-        val inntekterJson = objectMapper.writeValueAsString(beregning.inntekter)
-
-        db.update(
-            """
-            UPDATE sykepengegrunnlag 
-            SET 
-                total_inntekt_ore = :total_inntekt_ore,
-                grunnbelop_6g_ore = :grunnbelop_6g_ore,
-                begrenset_til_6g = :begrenset_til_6g,
-                sykepengegrunnlag_ore = :sykepengegrunnlag_ore,
-                begrunnelse = :begrunnelse,
-                inntekter = :inntekter,
-                sist_oppdatert = NOW()
-            WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
-            """.trimIndent(),
-            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
-            "total_inntekt_ore" to beregning.totalInntektØre,
-            "grunnbelop_6g_ore" to beregning.grunnbeløp6GØre,
-            "begrenset_til_6g" to beregning.begrensetTil6G,
-            "sykepengegrunnlag_ore" to beregning.sykepengegrunnlagØre,
-            "begrunnelse" to beregning.begrunnelse,
-            "inntekter" to inntekterJson,
-        )
-        return hentSykepengegrunnlag(saksbehandlingsperiodeId)!!
-    }
 
     fun slettSykepengegrunnlag(saksbehandlingsperiodeId: UUID) {
         db.update(

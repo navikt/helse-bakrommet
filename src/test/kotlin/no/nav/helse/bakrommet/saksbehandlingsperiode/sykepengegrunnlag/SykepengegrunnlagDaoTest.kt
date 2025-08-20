@@ -59,7 +59,7 @@ class SykepengegrunnlagDaoTest {
                 sistOppdatert = LocalDateTime.now().toString(),
             )
 
-        val lagretGrunnlag = dao.opprettSykepengegrunnlag(periode.id, beregning, saksbehandler)
+        val lagretGrunnlag = dao.settSykepengegrunnlag(periode.id, beregning, saksbehandler)
 
         assertEquals(periode.id, lagretGrunnlag.saksbehandlingsperiodeId)
         assertEquals(54000000L, lagretGrunnlag.totalInntektØre)
@@ -95,7 +95,7 @@ class SykepengegrunnlagDaoTest {
                 sistOppdatert = LocalDateTime.now().toString(),
             )
 
-        val lagretGrunnlag = dao.opprettSykepengegrunnlag(periode.id, beregning, saksbehandler)
+        val lagretGrunnlag = dao.settSykepengegrunnlag(periode.id, beregning, saksbehandler)
 
         assertEquals(96000000L, lagretGrunnlag.totalInntektØre)
         assertEquals(true, lagretGrunnlag.begrensetTil6G)
@@ -121,7 +121,7 @@ class SykepengegrunnlagDaoTest {
                 sistOppdatert = LocalDateTime.now().toString(),
             )
 
-        val lagretGrunnlag = dao.opprettSykepengegrunnlag(periode.id, opprinneligBeregning, saksbehandler)
+        val lagretGrunnlag = dao.settSykepengegrunnlag(periode.id, opprinneligBeregning, saksbehandler)
 
         val oppdatertBeregning =
             SykepengegrunnlagResponse(
@@ -139,7 +139,7 @@ class SykepengegrunnlagDaoTest {
             )
 
         val oppdatertGrunnlag =
-            dao.oppdaterSykepengegrunnlag(
+            dao.settSykepengegrunnlag(
                 periode.id,
                 oppdatertBeregning,
                 saksbehandler,
@@ -171,7 +171,7 @@ class SykepengegrunnlagDaoTest {
                 sistOppdatert = LocalDateTime.now().toString(),
             )
 
-        dao.opprettSykepengegrunnlag(periode.id, beregning, saksbehandler)
+        dao.settSykepengegrunnlag(periode.id, beregning, saksbehandler)
 
         // Verifiser at grunnlaget finnes
         val hentetFørSletting = dao.hentSykepengegrunnlag(periode.id)
@@ -215,7 +215,7 @@ class SykepengegrunnlagDaoTest {
                 sistOppdatert = LocalDateTime.now().toString(),
             )
 
-        val lagret1 = dao.opprettSykepengegrunnlag(periode.id, versjon1, saksbehandler)
+        val lagret1 = dao.settSykepengegrunnlag(periode.id, versjon1, saksbehandler)
 
         // Oppdater til andre versjon
         val versjon2 =
@@ -235,7 +235,7 @@ class SykepengegrunnlagDaoTest {
                 sistOppdatert = LocalDateTime.now().toString(),
             )
 
-        dao.oppdaterSykepengegrunnlag(periode.id, versjon2, saksbehandler)
+        dao.settSykepengegrunnlag(periode.id, versjon2, saksbehandler)
 
         // Hent grunnlag - skal returnere siste versjon
         val hentetGrunnlag = dao.hentSykepengegrunnlag(periode.id)

@@ -21,7 +21,7 @@ class SykepengegrunnlagService(
         return sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
     }
 
-    fun opprettSykepengegrunnlag(
+    fun settSykepengegrunnlag(
         referanse: SaksbehandlingsperiodeReferanse,
         request: SykepengegrunnlagRequest,
         saksbehandler: Bruker,
@@ -31,28 +31,7 @@ class SykepengegrunnlagService(
         // Beregn sykepengegrunnlag
         val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, request.inntekter, request.begrunnelse, saksbehandler)
 
-        return sykepengegrunnlagDao.opprettSykepengegrunnlag(
-            referanse.periodeUUID,
-            beregning,
-            saksbehandler,
-        )
-    }
-
-    fun oppdaterSykepengegrunnlag(
-        referanse: SaksbehandlingsperiodeReferanse,
-        request: SykepengegrunnlagRequest,
-        saksbehandler: Bruker,
-    ): SykepengegrunnlagResponse {
-        validerSykepengegrunnlagRequest(request)
-
-        val eksisterende =
-            sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
-                ?: throw IllegalStateException("Finner ikke eksisterende sykepengegrunnlag for periode ${referanse.periodeUUID}")
-
-        // Beregn nytt sykepengegrunnlag
-        val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, request.inntekter, request.begrunnelse, saksbehandler)
-
-        return sykepengegrunnlagDao.oppdaterSykepengegrunnlag(
+        return sykepengegrunnlagDao.settSykepengegrunnlag(
             referanse.periodeUUID,
             beregning,
             saksbehandler,

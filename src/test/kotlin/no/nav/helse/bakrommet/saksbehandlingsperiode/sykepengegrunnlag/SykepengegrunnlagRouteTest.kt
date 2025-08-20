@@ -65,7 +65,7 @@ class SykepengegrunnlagRouteTest {
     }
 
     @Test
-    fun `oppretter sykepengegrunnlag med inntekter`() =
+    fun `lagrer sykepengegrunnlag med inntekter`() =
         sykepengegrunnlagAppTest { (daoer, saksbehandlingsperiode, inntektsforhold) ->
             val requestBody =
                 """
@@ -83,13 +83,13 @@ class SykepengegrunnlagRouteTest {
                 """.trimIndent()
 
             val response =
-                client.post("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
+                client.put("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(requestBody)
                 }
 
-            assertEquals(HttpStatusCode.Created, response.status)
+            assertEquals(HttpStatusCode.OK, response.status)
 
             val responseBody = objectMapper.readTree(response.bodyAsText())
             assertEquals(54000000L, responseBody["totalInntektØre"].asLong()) // 4.5M * 12
@@ -117,13 +117,13 @@ class SykepengegrunnlagRouteTest {
                 """.trimIndent()
 
             val response =
-                client.post("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
+                client.put("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(requestBody)
                 }
 
-            assertEquals(HttpStatusCode.Created, response.status)
+            assertEquals(HttpStatusCode.OK, response.status)
 
             val responseBody = objectMapper.readTree(response.bodyAsText())
             assertEquals(96000000L, responseBody["totalInntektØre"].asLong()) // 8M * 12
@@ -133,7 +133,7 @@ class SykepengegrunnlagRouteTest {
         }
 
     @Test
-    fun `oppretter sykepengegrunnlag med skjønnsfastsettelse og refusjon`() =
+    fun `lagrer sykepengegrunnlag med skjønnsfastsettelse og refusjon`() =
         sykepengegrunnlagAppTest { (daoer, saksbehandlingsperiode, inntektsforhold) ->
             val requestBody =
                 """
@@ -159,13 +159,13 @@ class SykepengegrunnlagRouteTest {
                 """.trimIndent()
 
             val response =
-                client.post("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
+                client.put("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(requestBody)
                 }
 
-            assertEquals(HttpStatusCode.Created, response.status)
+            assertEquals(HttpStatusCode.OK, response.status)
 
             val responseBody = objectMapper.readTree(response.bodyAsText())
             val inntekter = responseBody["inntekter"]
@@ -205,7 +205,7 @@ class SykepengegrunnlagRouteTest {
                 }
                 """.trimIndent()
 
-            client.post("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
+            client.put("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(requestBody)
@@ -242,7 +242,7 @@ class SykepengegrunnlagRouteTest {
                 }
                 """.trimIndent()
 
-            client.post("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
+            client.put("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(opprettRequestBody)
@@ -297,7 +297,7 @@ class SykepengegrunnlagRouteTest {
                 }
                 """.trimIndent()
 
-            client.post("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
+            client.put("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(requestBody)
@@ -348,7 +348,7 @@ class SykepengegrunnlagRouteTest {
                 """.trimIndent()
 
             val response =
-                client.post("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
+                client.put("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(ugyldigRequestBody)

@@ -73,33 +73,17 @@ internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
             }
         }
 
-        /** Opprett nytt sykepengegrunnlag */
-        post {
-            val request = call.receive<SykepengegrunnlagRequest>()
-            val nyttGrunnlag =
-                service.opprettSykepengegrunnlag(
-                    call.periodeReferanse(),
-                    request,
-                    call.saksbehandler(),
-                )
-            call.respondText(
-                nyttGrunnlag.serialisertTilString(),
-                ContentType.Application.Json,
-                HttpStatusCode.Created,
-            )
-        }
-
-        /** Oppdater eksisterende sykepengegrunnlag */
+        /** Sett sykepengegrunnlag (opprett eller oppdater) */
         put {
             val request = call.receive<SykepengegrunnlagRequest>()
-            val oppdatertGrunnlag =
-                service.oppdaterSykepengegrunnlag(
+            val grunnlag =
+                service.settSykepengegrunnlag(
                     call.periodeReferanse(),
                     request,
                     call.saksbehandler(),
                 )
             call.respondText(
-                oppdatertGrunnlag.serialisertTilString(),
+                grunnlag.serialisertTilString(),
                 ContentType.Application.Json,
                 HttpStatusCode.OK,
             )
