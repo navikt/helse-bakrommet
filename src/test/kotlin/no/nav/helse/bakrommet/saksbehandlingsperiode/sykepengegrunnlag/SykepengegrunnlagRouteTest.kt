@@ -304,18 +304,20 @@ class SykepengegrunnlagRouteTest {
                     bearerAuth(TestOppsett.userToken)
                 }
 
-            assertEquals(HttpStatusCode.NotFound, getResponse.status)
+            assertEquals(HttpStatusCode.OK, getResponse.status)
+            assertEquals("null", getResponse.bodyAsText())
         }
 
     @Test
-    fun `får 404 ved henting av ikke-eksisterende sykepengegrunnlag`() =
+    fun `får null ved henting av ikke-eksisterende sykepengegrunnlag`() =
         sykepengegrunnlagAppTest { (daoer, saksbehandlingsperiode, inntektsforhold) ->
             val getResponse =
                 client.get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/sykepengegrunnlag") {
                     bearerAuth(TestOppsett.userToken)
                 }
 
-            assertEquals(HttpStatusCode.NotFound, getResponse.status)
+            assertEquals(HttpStatusCode.OK, getResponse.status)
+            assertEquals("null", getResponse.bodyAsText())
         }
 
     @Test

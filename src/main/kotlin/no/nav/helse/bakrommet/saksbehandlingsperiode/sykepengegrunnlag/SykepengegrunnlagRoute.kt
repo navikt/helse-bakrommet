@@ -59,15 +59,11 @@ internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
         /** Hent eksisterende sykepengegrunnlag */
         get {
             val grunnlag = service.hentSykepengegrunnlag(call.periodeReferanse())
-            if (grunnlag != null) {
-                call.respondText(
-                    grunnlag.serialisertTilString(),
-                    ContentType.Application.Json,
-                    HttpStatusCode.OK,
-                )
-            } else {
-                call.respond(HttpStatusCode.NotFound, "Ingen sykepengegrunnlag funnet for periode")
-            }
+            call.respondText(
+                grunnlag?.serialisertTilString() ?: "null",
+                ContentType.Application.Json,
+                HttpStatusCode.OK,
+            )
         }
 
         /** Sett sykepengegrunnlag (opprett eller oppdater) */
