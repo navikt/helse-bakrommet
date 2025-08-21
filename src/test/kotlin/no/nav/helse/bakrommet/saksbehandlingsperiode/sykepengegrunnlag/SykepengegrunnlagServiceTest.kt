@@ -110,6 +110,8 @@ class SykepengegrunnlagServiceTest {
 
         // 45 000 * 12 = 540 000 kr
         assertEquals(54000000L, resultat.totalInntektØre)
+        // 1G - sjekk at det er et gyldig grunnbeløp (enten 2024 eller 2025)
+        assertTrue(resultat.grunnbeløpØre == 12402800L || resultat.grunnbeløpØre == 13016000L || resultat.grunnbeløpØre == 11147700L)
         // 6G - sjekk at det er et gyldig grunnbeløp (enten 2024 eller 2025)
         assertTrue(resultat.grunnbeløp6GØre == 74416800L || resultat.grunnbeløp6GØre == 78096000L || resultat.grunnbeløp6GØre == 66886200L)
         assertEquals(false, resultat.begrensetTil6G)
@@ -140,6 +142,8 @@ class SykepengegrunnlagServiceTest {
 
         // 80 000 * 12 = 960 000 kr
         assertEquals(96000000L, resultat.totalInntektØre)
+        // 1G - sjekk at det er et gyldig grunnbeløp (enten 2024 eller 2025)
+        assertTrue(resultat.grunnbeløpØre == 12402800L || resultat.grunnbeløpØre == 13016000L || resultat.grunnbeløpØre == 11147700L)
         // 6G - sjekk at det er et gyldig grunnbeløp (enten 2024 eller 2025)
         assertTrue(resultat.grunnbeløp6GØre == 74416800L || resultat.grunnbeløp6GØre == 78096000L || resultat.grunnbeløp6GØre == 66886200L)
         assertEquals(true, resultat.begrensetTil6G)

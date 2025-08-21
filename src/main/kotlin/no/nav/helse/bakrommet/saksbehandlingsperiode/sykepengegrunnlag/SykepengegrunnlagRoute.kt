@@ -44,12 +44,14 @@ data class SykepengegrunnlagResponse(
     val saksbehandlingsperiodeId: UUID,
     val inntekter: List<Inntekt>,
     val totalInntektØre: Long,
+    val grunnbeløpØre: Long,
     val grunnbeløp6GØre: Long,
     val begrensetTil6G: Boolean,
     // Endelig grunnlag i øre
     val sykepengegrunnlagØre: Long,
     val begrunnelse: String? = null,
-    val grunnbeløpVirkningstidspunkt: LocalDate, // New field for the virkningstidspunkt of the Grunnbeløp
+    // New field for the virkningstidspunkt of the Grunnbeløp
+    val grunnbeløpVirkningstidspunkt: LocalDate,
     val opprettet: String,
     val opprettetAv: String,
     val sistOppdatert: String,

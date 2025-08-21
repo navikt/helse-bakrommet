@@ -33,6 +33,7 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
                 SET 
                     inntekter = :inntekter,
                     total_inntekt_ore = :total_inntekt_ore,
+                    grunnbelop_ore = :grunnbelop_ore,
                     grunnbelop_6g_ore = :grunnbelop_6g_ore,
                     begrenset_til_6g = :begrenset_til_6g,
                     sykepengegrunnlag_ore = :sykepengegrunnlag_ore,
@@ -45,6 +46,7 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
                 "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
                 "inntekter" to inntekterJson,
                 "total_inntekt_ore" to beregning.totalInntektØre,
+                "grunnbelop_ore" to beregning.grunnbeløpØre,
                 "grunnbelop_6g_ore" to beregning.grunnbeløp6GØre,
                 "begrenset_til_6g" to beregning.begrensetTil6G,
                 "sykepengegrunnlag_ore" to beregning.sykepengegrunnlagØre,
@@ -57,17 +59,18 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
             db.update(
                 """
                 INSERT INTO sykepengegrunnlag 
-                    (id, saksbehandlingsperiode_id, total_inntekt_ore, grunnbelop_6g_ore, 
+                    (id, saksbehandlingsperiode_id, total_inntekt_ore, grunnbelop_ore, grunnbelop_6g_ore, 
                      begrenset_til_6g, sykepengegrunnlag_ore, begrunnelse, inntekter,
                      grunnbelop_virkningstidspunkt, opprettet, opprettet_av_nav_ident, sist_oppdatert)
                 VALUES 
-                    (:id, :saksbehandlingsperiode_id, :total_inntekt_ore, :grunnbelop_6g_ore,
+                    (:id, :saksbehandlingsperiode_id, :total_inntekt_ore, :grunnbelop_ore, :grunnbelop_6g_ore,
                      :begrenset_til_6g, :sykepengegrunnlag_ore, :begrunnelse, :inntekter,
                      :grunnbelop_virkningstidspunkt, NOW(), :opprettet_av_nav_ident, NOW())
                 """.trimIndent(),
                 "id" to beregning.id,
                 "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
                 "total_inntekt_ore" to beregning.totalInntektØre,
+                "grunnbelop_ore" to beregning.grunnbeløpØre,
                 "grunnbelop_6g_ore" to beregning.grunnbeløp6GØre,
                 "begrenset_til_6g" to beregning.begrensetTil6G,
                 "sykepengegrunnlag_ore" to beregning.sykepengegrunnlagØre,
@@ -118,6 +121,7 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
             inntekter = inntekter,
             totalInntektØre = row.long("total_inntekt_ore"),
+            grunnbeløpØre = row.long("grunnbelop_ore"),
             grunnbeløp6GØre = row.long("grunnbelop_6g_ore"),
             begrensetTil6G = row.boolean("begrenset_til_6g"),
             sykepengegrunnlagØre = row.long("sykepengegrunnlag_ore"),

@@ -94,6 +94,9 @@ class SykepengegrunnlagRouteTest {
             val responseBody = objectMapper.readTree(response.bodyAsText())
             assertEquals(54000000L, responseBody["totalInntektØre"].asLong()) // 4.5M * 12
             assertTrue(
+                responseBody["grunnbeløpØre"].asLong() == 12402800L || responseBody["grunnbeløpØre"].asLong() == 13016000L || responseBody["grunnbeløpØre"].asLong() == 11147700L,
+            ) // 1G
+            assertTrue(
                 responseBody["grunnbeløp6GØre"].asLong() == 74416800L || responseBody["grunnbeløp6GØre"].asLong() == 78096000L || responseBody["grunnbeløp6GØre"].asLong() == 66886200L,
             ) // 6G
             assertEquals(false, responseBody["begrensetTil6G"].asBoolean())
@@ -128,6 +131,9 @@ class SykepengegrunnlagRouteTest {
 
             val responseBody = objectMapper.readTree(response.bodyAsText())
             assertEquals(96000000L, responseBody["totalInntektØre"].asLong()) // 8M * 12
+            assertTrue(
+                responseBody["grunnbeløpØre"].asLong() == 12402800L || responseBody["grunnbeløpØre"].asLong() == 13016000L || responseBody["grunnbeløpØre"].asLong() == 11147700L,
+            ) // 1G
             assertTrue(
                 responseBody["grunnbeløp6GØre"].asLong() == 74416800L || responseBody["grunnbeløp6GØre"].asLong() == 78096000L || responseBody["grunnbeløp6GØre"].asLong() == 66886200L,
             ) // 6G

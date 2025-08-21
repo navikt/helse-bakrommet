@@ -117,6 +117,9 @@ class SykepengegrunnlagService(
         val grunnbeløpsBeløp = seksG / 6.0 // Konverterer 6G til 1G
         val grunnbeløpVirkningstidspunkt = Grunnbeløp.virkningstidspunktFor(grunnbeløpsBeløp)
 
+        // Beregn 1G i øre
+        val grunnbeløpØre = (grunnbeløpsBeløp.årlig * 100).toLong()
+
         // Summer opp alle månedlige inntekter og konverter til årsinntekt (i øre)
         val totalInntektØre = inntekter.sumOf { it.beløpPerMånedØre } * 12L
 
@@ -130,6 +133,7 @@ class SykepengegrunnlagService(
             saksbehandlingsperiodeId = referanse.periodeUUID,
             inntekter = inntekter,
             totalInntektØre = totalInntektØre,
+            grunnbeløpØre = grunnbeløpØre,
             grunnbeløp6GØre = seksGØre,
             begrensetTil6G = begrensetTil6G,
             sykepengegrunnlagØre = sykepengegrunnlagØre,
