@@ -10,34 +10,28 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsfor
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import javax.sql.DataSource
 
 class DaoerFelles(dataSource: DataSource) :
     SaksbehandlingsperiodeServiceDaoer,
     InntektsforholdServiceDaoer,
-    YrkesaktivitetServiceDaoer,
     VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(dataSource)
     override val personDao = PersonDao(dataSource)
     override val dokumentDao = DokumentDao(dataSource)
     override val inntektsforholdDao = InntektsforholdDao(dataSource)
-    override val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
     override val vurdertVilkårDao = VurdertVilkårDao(dataSource)
 }
 
 class SessionDaoerFelles(session: Session) :
     SaksbehandlingsperiodeServiceDaoer,
     InntektsforholdServiceDaoer,
-    YrkesaktivitetServiceDaoer,
     VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(session)
     override val personDao = PersonDao(session)
     override val dokumentDao = DokumentDao(session)
     override val inntektsforholdDao = InntektsforholdDao(session)
-    override val yrkesaktivitetDao = YrkesaktivitetDao(session)
     override val vurdertVilkårDao = VurdertVilkårDao(session)
 }
