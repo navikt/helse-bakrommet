@@ -2,23 +2,20 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
+import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.økonomi.Grunnbeløp
 import java.time.LocalDateTime
 import java.util.*
 
 class SykepengegrunnlagService(
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
-    private val inntektsforholdService: InntektsforholdService,
+    private val inntektsforholdDao: InntektsforholdDao,
+    private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
 ) {
-    companion object {
-        // Grunnbeløp for 2024: 124028 kroner = 12402800 øre
-        // 6G for 2024: 6 * 12402800 øre = 74416800 øre (744168 kroner)
-        // TODO: Hent aktuelt grunnbeløp fra ekstern kilde eller konfigurasjon
-        private const val GRUNNBELØP_2024_ØRE = 12402800L // 124028 kr * 100
-        private const val SEKS_G_ØRE = GRUNNBELØP_2024_ØRE * 6L // 74416800 øre
-    }
-
     fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? {
         return sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
     }
@@ -28,10 +25,10 @@ class SykepengegrunnlagService(
         request: SykepengegrunnlagRequest,
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
-        validerSykepengegrunnlagRequest(request, referanse)
+        validerSykepengegrunnlagRequest(request, referanse, saksbehandler)
 
         // Beregn sykepengegrunnlag
-        val beregning = beregnSykepengegrunnlag(referanse.periodeUUID, request.inntekter, request.begrunnelse, saksbehandler)
+        val beregning = beregnSykepengegrunnlag(referanse, request.inntekter, request.begrunnelse, saksbehandler)
 
         return sykepengegrunnlagDao.settSykepengegrunnlag(
             referanse.periodeUUID,
@@ -47,13 +44,15 @@ class SykepengegrunnlagService(
     private fun validerSykepengegrunnlagRequest(
         request: SykepengegrunnlagRequest,
         referanse: SaksbehandlingsperiodeReferanse,
+        saksbehandler: Bruker,
     ) {
         if (request.inntekter.isEmpty()) {
             throw InputValideringException("Må ha minst én inntekt")
         }
 
         // Hent inntektsforhold for behandlingen
-        val inntektsforhold = inntektsforholdService.hentInntektsforholdFor(referanse)
+        val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+        val inntektsforhold = inntektsforholdDao.hentInntektsforholdFor(periode)
         val inntektsforholdIds = inntektsforhold.map { it.id }.toSet()
         val requestInntektsforholdIds = request.inntekter.map { it.inntektsforholdId }.toSet()
 
@@ -100,30 +99,42 @@ class SykepengegrunnlagService(
     }
 
     private fun beregnSykepengegrunnlag(
-        saksbehandlingsperiodeId: UUID,
+        referanse: SaksbehandlingsperiodeReferanse,
         inntekter: List<Inntekt>,
         begrunnelse: String?,
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
-        // Summer opp alle månedlige inntekter og konverter til årsinntekt (i øre)
-        val totalInntektØre =
-            inntekter
-                .sumOf { it.beløpPerMånedØre } * 12L
-        // Månedsinntekt * 12 = årsinntekt
+        // Hent perioden og skjæringstidspunkt
+        val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+        val skjæringstidspunkt =
+            periode.skjæringstidspunkt
+                ?: throw InputValideringException("Periode mangler skjæringstidspunkt")
 
-        // Begrens til 6G
-        val begrensetTil6G = totalInntektØre > SEKS_G_ØRE
-        val sykepengegrunnlagØre = if (begrensetTil6G) SEKS_G_ØRE else totalInntektØre
+        // Hent gjeldende grunnbeløp basert på skjæringstidspunkt
+        val seksG = Grunnbeløp.`6G`.beløp(skjæringstidspunkt)
+
+        // Hent virkningstidspunktet for grunnbeløpet som ble brukt
+        val grunnbeløpsBeløp = seksG / 6.0 // Konverterer 6G til 1G
+        val grunnbeløpVirkningstidspunkt = Grunnbeløp.virkningstidspunktFor(grunnbeløpsBeløp)
+
+        // Summer opp alle månedlige inntekter og konverter til årsinntekt (i øre)
+        val totalInntektØre = inntekter.sumOf { it.beløpPerMånedØre } * 12L
+
+        // Begrens til 6G - konverter fra kroner til øre (1 krone = 100 øre)
+        val seksGØre = (seksG.årlig * 100).toLong()
+        val begrensetTil6G = totalInntektØre > seksGØre
+        val sykepengegrunnlagØre = if (begrensetTil6G) seksGØre else totalInntektØre
 
         return SykepengegrunnlagResponse(
             id = UUID.randomUUID(),
-            saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+            saksbehandlingsperiodeId = referanse.periodeUUID,
             inntekter = inntekter,
             totalInntektØre = totalInntektØre,
-            grunnbeløp6GØre = SEKS_G_ØRE,
+            grunnbeløp6GØre = seksGØre,
             begrensetTil6G = begrensetTil6G,
             sykepengegrunnlagØre = sykepengegrunnlagØre,
             begrunnelse = begrunnelse,
+            grunnbeløpVirkningstidspunkt = grunnbeløpVirkningstidspunkt,
             opprettet = LocalDateTime.now().toString(),
             opprettetAv = saksbehandler.navIdent,
             sistOppdatert = LocalDateTime.now().toString(),

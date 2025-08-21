@@ -49,6 +49,7 @@ data class SykepengegrunnlagResponse(
     // Endelig grunnlag i øre
     val sykepengegrunnlagØre: Long,
     val begrunnelse: String? = null,
+    val grunnbeløpVirkningstidspunkt: LocalDate, // New field for the virkningstidspunkt of the Grunnbeløp
     val opprettet: String,
     val opprettetAv: String,
     val sistOppdatert: String,

@@ -33,6 +33,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServi
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
@@ -181,10 +182,8 @@ internal fun Application.appModul(
                 service =
                     SykepengegrunnlagService(
                         SykepengegrunnlagDao(dataSource),
-                        InntektsforholdService(
-                            daoerFelles,
-                            sessionFactoryFelles,
-                        ),
+                        InntektsforholdDao(dataSource),
+                        saksbehandlingsperiodeDao,
                     ),
             )
             brukerRoute()

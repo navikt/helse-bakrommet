@@ -37,6 +37,7 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
                     begrenset_til_6g = :begrenset_til_6g,
                     sykepengegrunnlag_ore = :sykepengegrunnlag_ore,
                     begrunnelse = :begrunnelse,
+                    grunnbelop_virkningstidspunkt = :grunnbelop_virkningstidspunkt,
                     opprettet_av_nav_ident = :opprettet_av_nav_ident,
                     sist_oppdatert = NOW()
                 WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
@@ -48,6 +49,7 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
                 "begrenset_til_6g" to beregning.begrensetTil6G,
                 "sykepengegrunnlag_ore" to beregning.sykepengegrunnlagØre,
                 "begrunnelse" to beregning.begrunnelse,
+                "grunnbelop_virkningstidspunkt" to beregning.grunnbeløpVirkningstidspunkt,
                 "opprettet_av_nav_ident" to saksbehandler.navIdent,
             )
         } else {
@@ -57,11 +59,11 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
                 INSERT INTO sykepengegrunnlag 
                     (id, saksbehandlingsperiode_id, total_inntekt_ore, grunnbelop_6g_ore, 
                      begrenset_til_6g, sykepengegrunnlag_ore, begrunnelse, inntekter,
-                     opprettet, opprettet_av_nav_ident, sist_oppdatert)
+                     grunnbelop_virkningstidspunkt, opprettet, opprettet_av_nav_ident, sist_oppdatert)
                 VALUES 
                     (:id, :saksbehandlingsperiode_id, :total_inntekt_ore, :grunnbelop_6g_ore,
                      :begrenset_til_6g, :sykepengegrunnlag_ore, :begrunnelse, :inntekter,
-                     NOW(), :opprettet_av_nav_ident, NOW())
+                     :grunnbelop_virkningstidspunkt, NOW(), :opprettet_av_nav_ident, NOW())
                 """.trimIndent(),
                 "id" to beregning.id,
                 "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
@@ -71,6 +73,7 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
                 "sykepengegrunnlag_ore" to beregning.sykepengegrunnlagØre,
                 "begrunnelse" to beregning.begrunnelse,
                 "inntekter" to inntekterJson,
+                "grunnbelop_virkningstidspunkt" to beregning.grunnbeløpVirkningstidspunkt,
                 "opprettet_av_nav_ident" to saksbehandler.navIdent,
             )
         }
@@ -106,6 +109,10 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
                 object : TypeReference<List<Inntekt>>() {},
             )
 
+        // For backward compatibility - default to the current date if the column is null
+        // This will only happen for records created before the migration
+        val grunnbeløpVirkningstidspunkt = row.localDateOrNull("grunnbelop_virkningstidspunkt") ?: java.time.LocalDate.now()
+
         return SykepengegrunnlagResponse(
             id = row.uuid("id"),
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
@@ -115,6 +122,7 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
             begrensetTil6G = row.boolean("begrenset_til_6g"),
             sykepengegrunnlagØre = row.long("sykepengegrunnlag_ore"),
             begrunnelse = row.stringOrNull("begrunnelse"),
+            grunnbeløpVirkningstidspunkt = grunnbeløpVirkningstidspunkt,
             opprettet = row.offsetDateTime("opprettet").toString(),
             opprettetAv = row.string("opprettet_av_nav_ident"),
             sistOppdatert = row.offsetDateTime("sist_oppdatert").toString(),
