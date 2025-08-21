@@ -9,6 +9,7 @@ import java.util.UUID
 const val PARAM_PERIODEUUID = "periodeUUID"
 const val PARAM_PERSONID = "personId"
 const val PARAM_INNTEKTSFORHOLDUUID = "inntektsforholdUUID"
+const val PARAM_YRKESAKTIVITETUUID = "yrkesaktivitetUUID"
 
 fun ApplicationCall.personId(): SpilleromPersonId {
     return parameters[PARAM_PERSONID]?.let { SpilleromPersonId(it) }

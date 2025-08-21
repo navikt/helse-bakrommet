@@ -46,7 +46,26 @@ object TestDataSource {
 
         db.execute("truncate table saksbehandlingsperiode$cascade")
         db.execute("truncate table ident$cascade")
-        db.execute("truncate table inntektsforhold$cascade")
+        
+        // Håndter både gamle og nye tabellnavn under migrering
+        try {
+            db.execute("truncate table inntektsforhold$cascade")
+        } catch (e: Exception) {
+            // Tabellen eksisterer ikke lenger, prøv nye navn
+        }
+        
+        try {
+            db.execute("truncate table yrkesaktivitet$cascade")
+        } catch (e: Exception) {
+            // Tabellen eksisterer ikke ennå, prøv gamle navn
+        }
+        
+        // Rydd opp sykepengegrunnlag-tabellen også
+        try {
+            db.execute("truncate table sykepengegrunnlag$cascade")
+        } catch (e: Exception) {
+            // Tabellen eksisterer ikke
+        }
 
         if (!testcontainers) {
             db.execute("SET REFERENTIAL_INTEGRITY TO TRUE")
