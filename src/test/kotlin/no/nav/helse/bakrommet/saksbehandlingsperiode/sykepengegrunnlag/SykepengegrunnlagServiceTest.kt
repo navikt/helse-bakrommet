@@ -79,6 +79,7 @@ class SykepengegrunnlagServiceTest {
                         override val inntektsforholdDao = InntektsforholdDao(session)
                     }
                 },
+                sykepengegrunnlagDao,
             )
         service = SykepengegrunnlagService(sykepengegrunnlagDao, inntektsforholdDao, sbPeriodeDao)
     }

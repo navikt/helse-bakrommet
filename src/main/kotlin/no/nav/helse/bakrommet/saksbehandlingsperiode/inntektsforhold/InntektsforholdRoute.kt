@@ -62,6 +62,10 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: Inntektsf
         }
 
         route("/{$PARAM_INNTEKTSFORHOLDUUID}") {
+            delete {
+                service.slettInntektsforhold(call.inntektsforholdReferanse(), call.saksbehandler())
+                call.respond(HttpStatusCode.NoContent)
+            }
             put("/dagoversikt") {
                 val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
                 service.oppdaterDagoversiktDager(call.inntektsforholdReferanse(), dagerSomSkalOppdateres, call.saksbehandler())

@@ -12,6 +12,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.toJsonNode
 import java.time.OffsetDateTime
@@ -33,6 +34,7 @@ typealias DagerSomSkalOppdateres = JsonNode
 class InntektsforholdService(
     daoer: InntektsforholdServiceDaoer,
     sessionFactory: TransactionalSessionFactory<InntektsforholdServiceDaoer>,
+    private val sykepengegrunnlagDao: SykepengegrunnlagDao,
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
@@ -78,7 +80,12 @@ class InntektsforholdService(
                 } else {
                     null
                 }
-            inntektsforholdDao.opprettInntektsforhold(kategorisering.tilDatabaseType(periode.id, dagoversikt))
+            val inntektsforhold = inntektsforholdDao.opprettInntektsforhold(kategorisering.tilDatabaseType(periode.id, dagoversikt))
+
+            // Slett sykepengegrunnlag når inntektsforhold endres
+            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.periodeUUID)
+
+            inntektsforhold
         }
 
     fun oppdaterKategorisering(
@@ -93,6 +100,26 @@ class InntektsforholdService(
                     krav = saksbehandler.erSaksbehandlerPåSaken(),
                 )
             inntektsforholdDao.oppdaterKategorisering(inntektsforhold, kategorisering)
+
+            // Slett sykepengegrunnlag når inntektsforhold endres
+            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+        }
+    }
+
+    fun slettInntektsforhold(
+        ref: InntektsforholdReferanse,
+        saksbehandler: Bruker,
+    ) {
+        db.nonTransactional {
+            val inntektsforhold =
+                hentInntektsforhold(
+                    ref = ref,
+                    krav = saksbehandler.erSaksbehandlerPåSaken(),
+                )
+            inntektsforholdDao.slettInntektsforhold(inntektsforhold.id)
+
+            // Slett sykepengegrunnlag når inntektsforhold endres
+            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
         }
     }
 
@@ -151,7 +178,12 @@ class InntektsforholdService(
                     eksisterendeDagerMap.values.forEach { add(it) }
                 }
 
-            inntektsforholdDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
+            val oppdatertInntektsforhold = inntektsforholdDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
+
+            // Slett sykepengegrunnlag når inntektsforhold endres
+            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+
+            oppdatertInntektsforhold
         }
 }
 

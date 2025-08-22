@@ -176,6 +176,7 @@ internal fun Application.appModul(
                     InntektsforholdService(
                         daoerFelles,
                         sessionFactoryFelles,
+                        SykepengegrunnlagDao(dataSource),
                     ),
             )
             sykepengegrunnlagRoute(

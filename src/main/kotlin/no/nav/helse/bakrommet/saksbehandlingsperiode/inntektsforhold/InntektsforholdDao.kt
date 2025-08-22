@@ -114,4 +114,13 @@ class InntektsforholdDao private constructor(private val db: QueryRunner) {
         )
         return hentInntektsforhold(inntektsforhold.id)!!
     }
+
+    fun slettInntektsforhold(id: UUID) {
+        db.update(
+            """
+            delete from inntektsforhold where id = :id
+            """.trimIndent(),
+            "id" to id,
+        )
+    }
 }
