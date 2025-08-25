@@ -8,12 +8,13 @@ import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.toJsonNode
 import java.time.OffsetDateTime
@@ -27,6 +28,8 @@ data class InntektsforholdReferanse(
 interface InntektsforholdServiceDaoer {
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
     val inntektsforholdDao: InntektsforholdDao
+    val sykepengegrunnlagDao: SykepengegrunnlagDao
+    val beregningDao: UtbetalingsberegningDao
 }
 
 typealias InntektsforholdKategorisering = JsonNode
@@ -35,8 +38,6 @@ typealias DagerSomSkalOppdateres = JsonNode
 class InntektsforholdService(
     daoer: InntektsforholdServiceDaoer,
     sessionFactory: TransactionalSessionFactory<InntektsforholdServiceDaoer>,
-    private val sykepengegrunnlagDao: SykepengegrunnlagDao,
-    private val beregningDao: BeregningDao,
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
@@ -182,11 +183,14 @@ class InntektsforholdService(
 
             val oppdatertInntektsforhold = inntektsforholdDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
 
-            // Slett sykepengegrunnlag når inntektsforhold endres
-            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
-
-            // Slett beregning når dagoversikt endres
-            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            val beregningshjelperISammeTransaksjon =
+                UtbetalingsBeregningHjelper(
+                    beregningDao,
+                    saksbehandlingsperiodeDao,
+                    sykepengegrunnlagDao,
+                    inntektsforholdDao,
+                )
+            beregningshjelperISammeTransaksjon.settBeregning(ref.saksbehandlingsperiodeReferanse, saksbehandler)
 
             oppdatertInntektsforhold
         }

@@ -3,10 +3,12 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDTO
+import no.nav.helse.bakrommet.testutils.print
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.deserialize
 import org.intellij.lang.annotations.Language
@@ -152,6 +154,8 @@ class InntektsforholdOperasjonerTest {
                     contentType(ContentType.Application.Json)
                     setBody(oppdateringer)
                 }
+            val responseTekst = response.bodyAsText()
+            print(responseTekst)
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             // Verifiser at dagoversikten er oppdatert korrekt

@@ -30,19 +30,17 @@ import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregningRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.sykepengegrunnlagRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
@@ -127,7 +125,6 @@ internal fun Application.appModul(
     personDao: PersonDao = PersonDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
     dokumentDao: DokumentDao = DokumentDao(dataSource),
-    inntektsforholdDao: InntektsforholdDao = InntektsforholdDao(dataSource),
     daoerFelles: DaoerFelles = DaoerFelles(dataSource),
     sessionFactoryFelles: TransactionalSessionFactory<SessionDaoerFelles> =
         TransactionalSessionFactory(dataSource) { session ->
@@ -180,26 +177,19 @@ internal fun Application.appModul(
                     InntektsforholdService(
                         daoerFelles,
                         sessionFactoryFelles,
-                        SykepengegrunnlagDao(dataSource),
-                        BeregningDao(dataSource),
                     ),
             )
             sykepengegrunnlagRoute(
                 service =
                     SykepengegrunnlagService(
-                        SykepengegrunnlagDao(dataSource),
-                        InntektsforholdDao(dataSource),
-                        saksbehandlingsperiodeDao,
-                        BeregningDao(dataSource),
+                        daoerFelles,
+                        sessionFactoryFelles,
                     ),
             )
             beregningRoute(
                 service =
-                    BeregningService(
-                        BeregningDao(dataSource),
-                        saksbehandlingsperiodeDao,
-                        SykepengegrunnlagDao(dataSource),
-                        inntektsforholdDao,
+                    UtbetalingsberegningService(
+                        UtbetalingsberegningDao(dataSource),
                     ),
             )
             brukerRoute()

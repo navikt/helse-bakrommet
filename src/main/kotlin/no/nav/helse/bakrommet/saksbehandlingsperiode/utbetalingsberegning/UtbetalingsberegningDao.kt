@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.beregning
+package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import kotliquery.Row
 import kotliquery.Session
@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.util.objectMapper
 import java.util.UUID
 import javax.sql.DataSource
 
-class BeregningDao private constructor(private val db: QueryRunner) {
+class UtbetalingsberegningDao private constructor(private val db: QueryRunner) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
@@ -28,29 +28,29 @@ class BeregningDao private constructor(private val db: QueryRunner) {
             // Oppdater eksisterende
             db.update(
                 """
-                UPDATE beregning 
+                UPDATE utbetalingsberegning 
                 SET 
-                    beregning_data = :beregning_data,
+                    utbetalingsberegning_data = :utbetalingsberegning_data,
                     opprettet_av_nav_ident = :opprettet_av_nav_ident,
                     sist_oppdatert = NOW()
                 WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
                 """.trimIndent(),
                 "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
-                "beregning_data" to beregningJson,
+                "utbetalingsberegning_data" to beregningJson,
                 "opprettet_av_nav_ident" to saksbehandler.navIdent,
             )
         } else {
             // Opprett nytt
             db.update(
                 """
-                INSERT INTO beregning 
-                    (id, saksbehandlingsperiode_id, beregning_data, opprettet, opprettet_av_nav_ident, sist_oppdatert)
+                INSERT INTO utbetalingsberegning 
+                    (id, saksbehandlingsperiode_id, utbetalingsberegning_data, opprettet, opprettet_av_nav_ident, sist_oppdatert)
                 VALUES 
-                    (:id, :saksbehandlingsperiode_id, :beregning_data, NOW(), :opprettet_av_nav_ident, NOW())
+                    (:id, :saksbehandlingsperiode_id, :utbetalingsberegning_data, NOW(), :opprettet_av_nav_ident, NOW())
                 """.trimIndent(),
                 "id" to beregning.id,
                 "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
-                "beregning_data" to beregningJson,
+                "utbetalingsberegning_data" to beregningJson,
                 "opprettet_av_nav_ident" to saksbehandler.navIdent,
             )
         }
@@ -61,7 +61,7 @@ class BeregningDao private constructor(private val db: QueryRunner) {
     fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse? =
         db.single(
             """
-            SELECT * FROM beregning 
+            SELECT * FROM utbetalingsberegning 
             WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
             """.trimIndent(),
             "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
@@ -71,7 +71,7 @@ class BeregningDao private constructor(private val db: QueryRunner) {
     fun slettBeregning(saksbehandlingsperiodeId: UUID) {
         db.update(
             """
-            DELETE FROM beregning 
+            DELETE FROM utbetalingsberegning 
             WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
             """.trimIndent(),
             "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
@@ -79,8 +79,8 @@ class BeregningDao private constructor(private val db: QueryRunner) {
     }
 
     private fun beregningFraRow(row: Row): BeregningResponse {
-        val beregningJson = row.string("beregning_data")
-        val beregningData = objectMapper.readValue(beregningJson, BeregningData::class.java)
+        val beregningJson = row.string("utbetalingsberegning_data")
+        val beregningData = objectMapper.readValue(beregningJson, UtbetalingsberegningData::class.java)
 
         return BeregningResponse(
             id = row.uuid("id"),

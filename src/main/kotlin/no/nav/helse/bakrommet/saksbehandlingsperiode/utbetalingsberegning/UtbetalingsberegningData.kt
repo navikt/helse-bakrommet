@@ -1,25 +1,25 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.beregning
+package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import java.time.LocalDate
 import java.util.UUID
 
-data class BeregningInput(
+data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
     val inntektsforhold: List<Inntektsforhold>,
 )
 
-data class BeregningData(
-    val yrkesaktiviteter: List<YrkesaktivitetBeregning>,
+data class UtbetalingsberegningData(
+    val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegning>,
 )
 
-data class YrkesaktivitetBeregning(
+data class YrkesaktivitetUtbetalingsberegning(
     val yrkesaktivitetId: UUID,
-    val dager: List<DagBeregning>,
+    val dager: List<DagUtbetalingsberegning>,
 )
 
-data class DagBeregning(
+data class DagUtbetalingsberegning(
     val dato: LocalDate,
     val utbetalingØre: Long,
     val refusjonØre: Long,
@@ -28,7 +28,7 @@ data class DagBeregning(
 data class BeregningResponse(
     val id: UUID,
     val saksbehandlingsperiodeId: UUID,
-    val beregningData: BeregningData,
+    val beregningData: UtbetalingsberegningData,
     val opprettet: String,
     val opprettetAv: String,
     val sistOppdatert: String,

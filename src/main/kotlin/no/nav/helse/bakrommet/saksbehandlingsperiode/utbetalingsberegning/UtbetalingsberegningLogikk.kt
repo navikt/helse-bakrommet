@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.beregning
+package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
@@ -8,14 +8,14 @@ import no.nav.helse.bakrommet.util.objectMapper
 import java.time.LocalDate
 import java.util.UUID
 
-object BeregningLogikk {
+object UtbetalingsberegningLogikk {
     /**
      * Beregner sykepengegrunnlaget basert på input data
      *
      * @param input Input data for beregningen
      * @return BeregningData med resultatet
      */
-    fun beregn(input: BeregningInput): BeregningData {
+    fun beregn(input: UtbetalingsberegningInput): UtbetalingsberegningData {
         // Beregn dagsats (sykepengegrunnlag delt på 260)
         val dagsatsØre = input.sykepengegrunnlag.sykepengegrunnlagØre / 260L
 
@@ -28,13 +28,13 @@ object BeregningLogikk {
                         beregnDag(dag, dagsatsØre, input.sykepengegrunnlag, inntektsforhold.id)
                     }
 
-                YrkesaktivitetBeregning(
+                YrkesaktivitetUtbetalingsberegning(
                     yrkesaktivitetId = inntektsforhold.id,
                     dager = dagBeregninger,
                 )
             }
 
-        return BeregningData(yrkesaktiviteter = yrkesaktiviteter)
+        return UtbetalingsberegningData(yrkesaktiviteter = yrkesaktiviteter)
     }
 
     private fun hentDagoversiktFraInntektsforhold(inntektsforhold: Inntektsforhold): List<Dag> {
@@ -58,7 +58,7 @@ object BeregningLogikk {
         dagsatsØre: Long,
         sykepengegrunnlag: SykepengegrunnlagResponse,
         inntektsforholdId: UUID,
-    ): DagBeregning {
+    ): DagUtbetalingsberegning {
         // Beregn utbetaling basert på grad og dagtype
         val utbetalingØre =
             when (dag.dagtype) {
@@ -72,7 +72,7 @@ object BeregningLogikk {
         // Finn refusjon for denne dagen fra sykepengegrunnlaget
         val refusjonØre = finnRefusjonForDag(dag.dato, sykepengegrunnlag, inntektsforholdId)
 
-        return DagBeregning(
+        return DagUtbetalingsberegning(
             dato = dag.dato,
             utbetalingØre = utbetalingØre,
             refusjonØre = refusjonØre,

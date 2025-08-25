@@ -8,6 +8,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServi
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdServiceDaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
 import javax.sql.DataSource
@@ -15,6 +18,7 @@ import javax.sql.DataSource
 class DaoerFelles(dataSource: DataSource) :
     SaksbehandlingsperiodeServiceDaoer,
     InntektsforholdServiceDaoer,
+    SykepengegrunnlagServiceDaoer,
     VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(dataSource)
@@ -22,11 +26,14 @@ class DaoerFelles(dataSource: DataSource) :
     override val dokumentDao = DokumentDao(dataSource)
     override val inntektsforholdDao = InntektsforholdDao(dataSource)
     override val vurdertVilkårDao = VurdertVilkårDao(dataSource)
+    override val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
+    override val beregningDao = UtbetalingsberegningDao(dataSource)
 }
 
 class SessionDaoerFelles(session: Session) :
     SaksbehandlingsperiodeServiceDaoer,
     InntektsforholdServiceDaoer,
+    SykepengegrunnlagServiceDaoer,
     VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(session)
@@ -34,4 +41,6 @@ class SessionDaoerFelles(session: Session) :
     override val dokumentDao = DokumentDao(session)
     override val inntektsforholdDao = InntektsforholdDao(session)
     override val vurdertVilkårDao = VurdertVilkårDao(session)
+    override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
+    override val beregningDao = UtbetalingsberegningDao(session)
 }

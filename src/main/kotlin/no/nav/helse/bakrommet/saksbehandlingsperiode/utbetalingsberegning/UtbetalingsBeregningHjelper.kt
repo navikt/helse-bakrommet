@@ -1,7 +1,6 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.beregning
+package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
@@ -11,40 +10,36 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import java.time.LocalDateTime
 import java.util.*
 
-class BeregningService(
-    private val beregningDao: BeregningDao,
+class UtbetalingsBeregningHjelper(
+    private val beregningDao: UtbetalingsberegningDao,
     private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val inntektsforholdDao: InntektsforholdDao,
 ) {
-    fun hentBeregning(referanse: SaksbehandlingsperiodeReferanse): BeregningResponse? {
-        return beregningDao.hentBeregning(referanse.periodeUUID)
-    }
-
     fun settBeregning(
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
-    ): BeregningResponse {
+    ) {
         // Hent nødvendige data for beregningen
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
 
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
             sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
-                ?: throw InputValideringException("Mangler sykepengegrunnlag for perioden")
+                ?: return
 
         // Hent inntektsforhold
         val inntektsforhold = inntektsforholdDao.hentInntektsforholdFor(periode)
 
         // Opprett input for beregning
         val beregningInput =
-            BeregningInput(
+            UtbetalingsberegningInput(
                 sykepengegrunnlag = sykepengegrunnlag,
                 inntektsforhold = inntektsforhold,
             )
 
         // Utfør beregning
-        val beregningData = BeregningLogikk.beregn(beregningInput)
+        val beregningData = UtbetalingsberegningLogikk.beregn(beregningInput)
 
         // Opprett response
         val beregningResponse =
@@ -57,14 +52,10 @@ class BeregningService(
                 sistOppdatert = LocalDateTime.now().toString(),
             )
 
-        return beregningDao.settBeregning(
+        beregningDao.settBeregning(
             referanse.periodeUUID,
             beregningResponse,
             saksbehandler,
         )
-    }
-
-    fun slettBeregning(referanse: SaksbehandlingsperiodeReferanse) {
-        beregningDao.slettBeregning(referanse.periodeUUID)
     }
 }

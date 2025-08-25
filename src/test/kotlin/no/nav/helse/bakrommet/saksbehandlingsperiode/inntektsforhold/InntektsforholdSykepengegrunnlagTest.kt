@@ -8,8 +8,8 @@ import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.*
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -50,25 +50,43 @@ class InntektsforholdSykepengegrunnlagTest {
         val inntektsforholdDao = InntektsforholdDao(dataSource)
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
 
-        val beregningDao = BeregningDao(dataSource)
+        val beregningDao = UtbetalingsberegningDao(dataSource)
 
         inntektsforholdService =
             InntektsforholdService(
                 object : InntektsforholdServiceDaoer {
                     override val saksbehandlingsperiodeDao = behandlingDao
                     override val inntektsforholdDao = inntektsforholdDao
+                    override val sykepengegrunnlagDao = sykepengegrunnlagDao
+                    override val beregningDao = beregningDao
                 },
                 TransactionalSessionFactory(dataSource) { session ->
                     object : InntektsforholdServiceDaoer {
                         override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
                         override val inntektsforholdDao = InntektsforholdDao(session)
+                        override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
+                        override val beregningDao = UtbetalingsberegningDao(session)
                     }
                 },
-                sykepengegrunnlagDao,
-                beregningDao,
             )
 
-        sykepengegrunnlagService = SykepengegrunnlagService(sykepengegrunnlagDao, inntektsforholdDao, behandlingDao, beregningDao)
+        sykepengegrunnlagService =
+            SykepengegrunnlagService(
+                object : SykepengegrunnlagServiceDaoer {
+                    override val saksbehandlingsperiodeDao = behandlingDao
+                    override val inntektsforholdDao = inntektsforholdDao
+                    override val sykepengegrunnlagDao = sykepengegrunnlagDao
+                    override val beregningDao = beregningDao
+                },
+                TransactionalSessionFactory(dataSource) { session ->
+                    object : SykepengegrunnlagServiceDaoer {
+                        override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
+                        override val inntektsforholdDao = InntektsforholdDao(session)
+                        override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
+                        override val beregningDao = UtbetalingsberegningDao(session)
+                    }
+                },
+            )
     }
 
     private fun periodeReferanse() =

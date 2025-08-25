@@ -1,7 +1,6 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.beregning
+package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import io.ktor.http.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
@@ -9,22 +8,16 @@ import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 
-internal fun Route.beregningRoute(service: BeregningService) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/beregning") {
+internal fun Route.beregningRoute(service: UtbetalingsberegningService) {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/utbetalingsberegning") {
         /** Hent eksisterende beregning */
         get {
-            val beregning = service.hentBeregning(call.periodeReferanse())
+            val beregning = service.hentUtbetalingsberegning(call.periodeReferanse())
             call.respondText(
                 beregning?.serialisertTilString() ?: "null",
                 ContentType.Application.Json,
                 HttpStatusCode.OK,
             )
-        }
-
-        /** Slett beregning */
-        delete {
-            service.slettBeregning(call.periodeReferanse())
-            call.respond(HttpStatusCode.NoContent)
         }
     }
 }

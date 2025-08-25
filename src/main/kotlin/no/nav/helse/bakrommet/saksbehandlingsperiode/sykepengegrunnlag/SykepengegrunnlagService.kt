@@ -2,99 +2,75 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningInput
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningLogikk
-import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningResponse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
-import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
+import no.nav.helse.bakrommet.saksbehandlingsperiode.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.økonomi.Grunnbeløp
 import java.time.LocalDateTime
 import java.util.*
 
+interface SykepengegrunnlagServiceDaoer {
+    val sykepengegrunnlagDao: SykepengegrunnlagDao
+    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    val inntektsforholdDao: InntektsforholdDao
+    val beregningDao: UtbetalingsberegningDao
+}
+
 class SykepengegrunnlagService(
-    private val sykepengegrunnlagDao: SykepengegrunnlagDao,
-    private val inntektsforholdDao: InntektsforholdDao,
-    private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    private val beregningDao: BeregningDao,
+    daoer: SykepengegrunnlagServiceDaoer,
+    sessionFactory: TransactionalSessionFactory<SykepengegrunnlagServiceDaoer>,
 ) {
-    fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? {
-        return sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
-    }
+    private val db = DbDaoer(daoer, sessionFactory)
+
+    fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? =
+        db.nonTransactional {
+            sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
+        }
 
     fun settSykepengegrunnlag(
         referanse: SaksbehandlingsperiodeReferanse,
         request: SykepengegrunnlagRequest,
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
-        validerSykepengegrunnlagRequest(request, referanse, saksbehandler)
+        return db.transactional {
+            validerSykepengegrunnlagRequest(this, request, referanse, saksbehandler)
+            val periode =
+                saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
 
-        // Beregn sykepengegrunnlag
-        val beregning = beregnSykepengegrunnlag(referanse, request.inntekter, request.begrunnelse, saksbehandler)
+            val beregning = beregnSykepengegrunnlag(periode, request.inntekter, request.begrunnelse, saksbehandler)
+            // Sett sykepengegrunnlag og beregning i samme transaksjon
+            val sykepengegrunnlagResponse =
+                sykepengegrunnlagDao.settSykepengegrunnlag(
+                    referanse.periodeUUID,
+                    beregning,
+                    saksbehandler,
+                )
 
-        // Sett sykepengegrunnlag og beregning i samme transaksjon
-        val sykepengegrunnlagResponse =
-            sykepengegrunnlagDao.settSykepengegrunnlag(
-                referanse.periodeUUID,
-                beregning,
-                saksbehandler,
-            )
-
-        // Oppdater beregning basert på det nye sykepengegrunnlaget
-        oppdaterBeregning(referanse, saksbehandler)
-
-        return sykepengegrunnlagResponse
+            // Oppdater beregning basert på det nye sykepengegrunnlaget
+            val beregningshjelperISammeTransaksjon =
+                UtbetalingsBeregningHjelper(
+                    beregningDao,
+                    saksbehandlingsperiodeDao,
+                    sykepengegrunnlagDao,
+                    inntektsforholdDao,
+                )
+            beregningshjelperISammeTransaksjon.settBeregning(referanse, saksbehandler)
+            sykepengegrunnlagResponse
+        }
     }
 
     fun slettSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse) {
-        sykepengegrunnlagDao.slettSykepengegrunnlag(referanse.periodeUUID)
-        // Slett også beregning når sykepengegrunnlag slettes
-        beregningDao.slettBeregning(referanse.periodeUUID)
-    }
-
-    private fun oppdaterBeregning(
-        referanse: SaksbehandlingsperiodeReferanse,
-        saksbehandler: Bruker,
-    ) {
-        // Hent nødvendige data for beregningen
-        val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
-        val sykepengegrunnlag =
-            sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
-                ?: return // Hvis ingen sykepengegrunnlag, ikke oppdater beregning
-        val inntektsforhold = inntektsforholdDao.hentInntektsforholdFor(periode)
-
-        // Opprett input for beregning
-        val beregningInput =
-            BeregningInput(
-                sykepengegrunnlag = sykepengegrunnlag,
-                inntektsforhold = inntektsforhold,
-            )
-
-        // Utfør beregning
-        val beregningData = BeregningLogikk.beregn(beregningInput)
-
-        // Opprett response og sett beregning
-        val beregningResponse =
-            BeregningResponse(
-                id = UUID.randomUUID(),
-                saksbehandlingsperiodeId = referanse.periodeUUID,
-                beregningData = beregningData,
-                opprettet = LocalDateTime.now().toString(),
-                opprettetAv = saksbehandler.navIdent,
-                sistOppdatert = LocalDateTime.now().toString(),
-            )
-
-        beregningDao.settBeregning(
-            referanse.periodeUUID,
-            beregningResponse,
-            saksbehandler,
-        )
+        return db.transactional {
+            sykepengegrunnlagDao.slettSykepengegrunnlag(referanse.periodeUUID)
+            beregningDao.slettBeregning(referanse.periodeUUID)
+        }
     }
 
     private fun validerSykepengegrunnlagRequest(
+        daoer: SykepengegrunnlagServiceDaoer,
         request: SykepengegrunnlagRequest,
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
@@ -104,8 +80,9 @@ class SykepengegrunnlagService(
         }
 
         // Hent inntektsforhold for behandlingen
-        val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
-        val inntektsforhold = inntektsforholdDao.hentInntektsforholdFor(periode)
+        val periode =
+            daoer.saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+        val inntektsforhold = daoer.inntektsforholdDao.hentInntektsforholdFor(periode)
         val inntektsforholdIds = inntektsforhold.map { it.id }.toSet()
         val requestInntektsforholdIds = request.inntekter.map { it.inntektsforholdId }.toSet()
 
@@ -120,7 +97,13 @@ class SykepengegrunnlagService(
         // Valider at alle inntektsforhold har inntekt i requesten
         val manglendeInntekter = inntektsforholdIds - requestInntektsforholdIds
         if (manglendeInntekter.isNotEmpty()) {
-            throw InputValideringException("Følgende inntektsforhold mangler inntekt i requesten: ${manglendeInntekter.joinToString(", ")}")
+            throw InputValideringException(
+                "Følgende inntektsforhold mangler inntekt i requesten: ${
+                    manglendeInntekter.joinToString(
+                        ", ",
+                    )
+                }",
+            )
         }
 
         request.inntekter.forEachIndexed { index, inntekt ->
@@ -152,13 +135,12 @@ class SykepengegrunnlagService(
     }
 
     private fun beregnSykepengegrunnlag(
-        referanse: SaksbehandlingsperiodeReferanse,
+        periode: Saksbehandlingsperiode,
         inntekter: List<Inntekt>,
         begrunnelse: String?,
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
         // Hent perioden og skjæringstidspunkt
-        val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
         val skjæringstidspunkt =
             periode.skjæringstidspunkt
                 ?: throw InputValideringException("Periode mangler skjæringstidspunkt")
@@ -183,7 +165,7 @@ class SykepengegrunnlagService(
 
         return SykepengegrunnlagResponse(
             id = UUID.randomUUID(),
-            saksbehandlingsperiodeId = referanse.periodeUUID,
+            saksbehandlingsperiodeId = periode.id,
             inntekter = inntekter,
             totalInntektØre = totalInntektØre,
             grunnbeløpØre = grunnbeløpØre,
