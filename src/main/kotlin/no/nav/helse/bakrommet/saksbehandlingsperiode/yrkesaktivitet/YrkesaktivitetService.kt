@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
@@ -138,6 +139,17 @@ class InntektsforholdService(
                     krav = saksbehandler.erSaksbehandlerPåSaken(),
                 )
             val dagerSomSkalOppdateresJson = dagerSomSkalOppdateres
+
+            // Håndter både gammelt format (array av dager) og nytt format (objekt med dager og notat)
+            val dagerSomSkalOppdateresArray =
+                when {
+                    dagerSomSkalOppdateresJson.isArray -> dagerSomSkalOppdateresJson
+                    dagerSomSkalOppdateresJson.isObject && dagerSomSkalOppdateresJson.has("dager") && dagerSomSkalOppdateresJson.get("dager").isArray -> {
+                        dagerSomSkalOppdateresJson.get("dager")
+                    }
+                    else -> throw InputValideringException("Body must be an array of days or an object with dager field")
+                }
+
             // Hent eksisterende dagoversikt
             val eksisterendeDagoversikt =
                 inntektsforhold.dagoversikt?.let { dagoversiktJson ->
@@ -155,23 +167,21 @@ class InntektsforholdService(
                 }.toMutableMap()
 
             // Oppdater kun dagene som finnes i input, ignorer helgedager
-            if (dagerSomSkalOppdateresJson.isArray) {
-                dagerSomSkalOppdateresJson.forEach { oppdatertDagJson ->
-                    val dato = oppdatertDagJson["dato"].asText()
-                    val eksisterendeDag = eksisterendeDagerMap[dato]
+            dagerSomSkalOppdateresArray.forEach { oppdatertDagJson ->
+                val dato = oppdatertDagJson["dato"].asText()
+                val eksisterendeDag = eksisterendeDagerMap[dato]
 
-                    if (eksisterendeDag != null && eksisterendeDag["dagtype"].asText() != "Helg") {
-                        // Oppdater dagen og sett kilde til Saksbehandler
-                        val oppdatertDag =
-                            objectMapper.createObjectNode().apply {
-                                set<JsonNode>("dato", oppdatertDagJson["dato"])
-                                set<JsonNode>("dagtype", oppdatertDagJson["dagtype"])
-                                set<JsonNode>("grad", oppdatertDagJson["grad"])
-                                set<JsonNode>("avvistBegrunnelse", oppdatertDagJson["avvistBegrunnelse"])
-                                put("kilde", "Saksbehandler")
-                            }
-                        eksisterendeDagerMap[dato] = oppdatertDag
-                    }
+                if (eksisterendeDag != null && eksisterendeDag["dagtype"].asText() != "Helg") {
+                    // Oppdater dagen og sett kilde til Saksbehandler
+                    val oppdatertDag =
+                        objectMapper.createObjectNode().apply {
+                            set<JsonNode>("dato", oppdatertDagJson["dato"])
+                            set<JsonNode>("dagtype", oppdatertDagJson["dagtype"])
+                            set<JsonNode>("grad", oppdatertDagJson["grad"])
+                            set<JsonNode>("avvistBegrunnelse", oppdatertDagJson["avvistBegrunnelse"])
+                            put("kilde", "Saksbehandler")
+                        }
+                    eksisterendeDagerMap[dato] = oppdatertDag
                 }
             }
 

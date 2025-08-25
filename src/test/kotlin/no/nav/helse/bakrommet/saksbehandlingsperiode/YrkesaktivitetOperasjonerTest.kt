@@ -201,4 +201,98 @@ class YrkesaktivitetOperasjonerTest {
             }
         }
     }
+
+    @Test
+    fun `oppdaterer dagoversikt for inntektsforhold med nytt format`() {
+        runApplicationTest { daoer ->
+            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-10" }""")
+            }
+
+            val periode =
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                }.body<List<Saksbehandlingsperiode>>().first()
+
+            // Opprett inntektsforhold med dagoversikt
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{"kategorisering": {"ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+            }
+
+            val inntektsforholdId =
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    bearerAuth(TestOppsett.userToken)
+                }.body<List<InntektsforholdDTO>>().first().id
+
+            // Oppdater dagoversikt med nytt format (objekt med dager og notat)
+            val oppdateringer = """{
+                "dager": [
+                    {
+                        "dato": "2023-01-02",
+                        "dagtype": "Syk",
+                        "grad": 100,
+                        "avvistBegrunnelse": []
+                    },
+                    {
+                        "dato": "2023-01-03",
+                        "dagtype": "Arbeidsdag", 
+                        "grad": 0,
+                        "avvistBegrunnelse": []
+                    }
+                ],
+                "notat": "Test notat"
+            }"""
+
+            val response =
+                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$inntektsforholdId/dagoversikt") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(oppdateringer)
+                }
+            val responseTekst = response.bodyAsText()
+            print(responseTekst)
+            assertEquals(HttpStatusCode.NoContent, response.status)
+
+            // Verifiser at dagoversikten er oppdatert korrekt
+            val oppdatertInntektsforhold = daoer.yrkesaktivitetDao.hentYrkesaktivitet(inntektsforholdId)!!
+            val dagoversikt = oppdatertInntektsforhold.dagoversikt!!
+            assertTrue(dagoversikt.isArray)
+
+            val dager =
+                dagoversikt.map { dag ->
+                    Triple(
+                        dag["dato"].asText(),
+                        dag["dagtype"].asText(),
+                        if (dag["kilde"].isNull) null else dag["kilde"].asText(),
+                    )
+                }
+
+            // Verifiser at spesifiserte arbeidsdager er oppdatert med kilde Saksbehandler
+            assertTrue(
+                dager.any { (dato, dagtype, kilde) ->
+                    dato == "2023-01-02" && dagtype == "Syk" && kilde == "Saksbehandler"
+                },
+            )
+            assertTrue(
+                dager.any { (dato, dagtype, kilde) ->
+                    dato == "2023-01-03" && dagtype == "Arbeidsdag" && kilde == "Saksbehandler"
+                },
+            )
+
+            // Verifiser at helgedager ikke er oppdatert (bevarer opprinnelig kilde null)
+            val helgedager =
+                dager.filter { (dato, dagtype, _) ->
+                    dagtype == "Helg"
+                }
+            helgedager.forEach { (_, _, kilde) ->
+                assertEquals(null, kilde, "Helgedager skal fortsatt ha kilde null")
+            }
+        }
+    }
 }
