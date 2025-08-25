@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.*
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.BeforeEach
@@ -49,6 +50,8 @@ class InntektsforholdSykepengegrunnlagTest {
         val inntektsforholdDao = InntektsforholdDao(dataSource)
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
 
+        val beregningDao = BeregningDao(dataSource)
+
         inntektsforholdService =
             InntektsforholdService(
                 object : InntektsforholdServiceDaoer {
@@ -62,9 +65,10 @@ class InntektsforholdSykepengegrunnlagTest {
                     }
                 },
                 sykepengegrunnlagDao,
+                beregningDao,
             )
 
-        sykepengegrunnlagService = SykepengegrunnlagService(sykepengegrunnlagDao, inntektsforholdDao, behandlingDao)
+        sykepengegrunnlagService = SykepengegrunnlagService(sykepengegrunnlagDao, inntektsforholdDao, behandlingDao, beregningDao)
     }
 
     private fun periodeReferanse() =

@@ -8,7 +8,6 @@ import java.util.UUID
 data class BeregningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
     val inntektsforhold: List<Inntektsforhold>,
-    val maksdao: Int,
 )
 
 data class BeregningData(

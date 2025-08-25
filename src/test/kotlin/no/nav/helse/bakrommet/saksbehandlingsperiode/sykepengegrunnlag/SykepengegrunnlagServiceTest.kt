@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
@@ -67,6 +68,7 @@ class SykepengegrunnlagServiceTest {
 
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
         val sbPeriodeDao = SaksbehandlingsperiodeDao(dataSource)
+        val beregningDao = BeregningDao(dataSource)
         val inntektsforholdService =
             InntektsforholdService(
                 object : InntektsforholdServiceDaoer {
@@ -80,8 +82,9 @@ class SykepengegrunnlagServiceTest {
                     }
                 },
                 sykepengegrunnlagDao,
+                beregningDao,
             )
-        service = SykepengegrunnlagService(sykepengegrunnlagDao, inntektsforholdDao, sbPeriodeDao)
+        service = SykepengegrunnlagService(sykepengegrunnlagDao, inntektsforholdDao, sbPeriodeDao, beregningDao)
     }
 
     private fun periodeReferanse() =

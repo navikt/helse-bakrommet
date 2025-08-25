@@ -181,6 +181,7 @@ internal fun Application.appModul(
                         daoerFelles,
                         sessionFactoryFelles,
                         SykepengegrunnlagDao(dataSource),
+                        BeregningDao(dataSource),
                     ),
             )
             sykepengegrunnlagRoute(
@@ -189,6 +190,7 @@ internal fun Application.appModul(
                         SykepengegrunnlagDao(dataSource),
                         InntektsforholdDao(dataSource),
                         saksbehandlingsperiodeDao,
+                        BeregningDao(dataSource),
                     ),
             )
             beregningRoute(

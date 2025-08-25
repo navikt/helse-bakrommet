@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
@@ -35,6 +36,7 @@ class InntektsforholdService(
     daoer: InntektsforholdServiceDaoer,
     sessionFactory: TransactionalSessionFactory<InntektsforholdServiceDaoer>,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
+    private val beregningDao: BeregningDao,
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
@@ -182,6 +184,9 @@ class InntektsforholdService(
 
             // Slett sykepengegrunnlag når inntektsforhold endres
             sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+
+            // Slett beregning når dagoversikt endres
+            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
 
             oppdatertInntektsforhold
         }

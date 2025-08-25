@@ -23,11 +23,8 @@ class BeregningService(
 
     fun settBeregning(
         referanse: SaksbehandlingsperiodeReferanse,
-        request: BeregningRequest,
         saksbehandler: Bruker,
     ): BeregningResponse {
-        validerBeregningRequest(request, referanse, saksbehandler)
-
         // Hent nødvendige data for beregningen
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
 
@@ -44,7 +41,6 @@ class BeregningService(
             BeregningInput(
                 sykepengegrunnlag = sykepengegrunnlag,
                 inntektsforhold = inntektsforhold,
-                maksdao = request.maksdao,
             )
 
         // Utfør beregning
@@ -71,18 +67,4 @@ class BeregningService(
     fun slettBeregning(referanse: SaksbehandlingsperiodeReferanse) {
         beregningDao.slettBeregning(referanse.periodeUUID)
     }
-
-    private fun validerBeregningRequest(
-        request: BeregningRequest,
-        referanse: SaksbehandlingsperiodeReferanse,
-        saksbehandler: Bruker,
-    ) {
-        if (request.maksdao <= 0) {
-            throw InputValideringException("Maksdao må være større enn 0")
-        }
-    }
 }
-
-data class BeregningRequest(
-    val maksdao: Int,
-)
