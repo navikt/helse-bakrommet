@@ -30,6 +30,9 @@ import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.BeregningService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregningRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
@@ -124,6 +127,7 @@ internal fun Application.appModul(
     personDao: PersonDao = PersonDao(dataSource),
     saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
     dokumentDao: DokumentDao = DokumentDao(dataSource),
+    inntektsforholdDao: InntektsforholdDao = InntektsforholdDao(dataSource),
     daoerFelles: DaoerFelles = DaoerFelles(dataSource),
     sessionFactoryFelles: TransactionalSessionFactory<SessionDaoerFelles> =
         TransactionalSessionFactory(dataSource) { session ->
@@ -185,6 +189,14 @@ internal fun Application.appModul(
                         SykepengegrunnlagDao(dataSource),
                         InntektsforholdDao(dataSource),
                         saksbehandlingsperiodeDao,
+                    ),
+            )
+            beregningRoute(
+                service =
+                    BeregningService(
+                        BeregningDao(dataSource),
+                        saksbehandlingsperiodeDao,
+                        SykepengegrunnlagDao(dataSource),
                     ),
             )
             brukerRoute()
