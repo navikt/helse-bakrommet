@@ -5,9 +5,9 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.saksbehandlingsperiode.*
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.økonomi.Grunnbeløp
 import java.time.LocalDateTime
 import java.util.*
@@ -15,7 +15,7 @@ import java.util.*
 interface SykepengegrunnlagServiceDaoer {
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
-    val inntektsforholdDao: InntektsforholdDao
+    val yrkesaktivitetDao: YrkesaktivitetDao
     val beregningDao: UtbetalingsberegningDao
 }
 
@@ -55,7 +55,7 @@ class SykepengegrunnlagService(
                     beregningDao,
                     saksbehandlingsperiodeDao,
                     sykepengegrunnlagDao,
-                    inntektsforholdDao,
+                    yrkesaktivitetDao,
                 )
             beregningshjelperISammeTransaksjon.settBeregning(referanse, saksbehandler)
             sykepengegrunnlagResponse
@@ -82,7 +82,7 @@ class SykepengegrunnlagService(
         // Hent inntektsforhold for behandlingen
         val periode =
             daoer.saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
-        val inntektsforhold = daoer.inntektsforholdDao.hentInntektsforholdFor(periode)
+        val inntektsforhold = daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
         val inntektsforholdIds = inntektsforhold.map { it.id }.toSet()
         val requestInntektsforholdIds = request.inntekter.map { it.inntektsforholdId }.toSet()
 

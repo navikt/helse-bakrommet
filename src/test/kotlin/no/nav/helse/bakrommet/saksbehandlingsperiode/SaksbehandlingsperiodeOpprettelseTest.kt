@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.tilDto
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDTO
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektsforholdDTO
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
@@ -155,7 +155,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
             // Verifiser inntektsforhold
             val inntektsforhold =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                 }.body<List<InntektsforholdDTO>>()
 

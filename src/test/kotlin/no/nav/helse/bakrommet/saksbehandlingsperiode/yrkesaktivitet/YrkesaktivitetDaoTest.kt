@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
+package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
@@ -16,7 +16,7 @@ import java.time.OffsetDateTime
 import java.util.*
 import kotlin.test.assertEquals
 
-class InntektsforholdDaoTest {
+class YrkesaktivitetDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
     val fnr = "01019012345"
     val personId = "0h0a1"
@@ -44,9 +44,9 @@ class InntektsforholdDaoTest {
 
     @Test
     fun `oppretter og henter inntektsforhold`() {
-        val dao = InntektsforholdDao(dataSource)
-        val inntektsforhold =
-            Inntektsforhold(
+        val dao = YrkesaktivitetDao(dataSource)
+        val yrkesaktivitet =
+            Yrkesaktivitet(
                 id = UUID.randomUUID(),
                 kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
                 kategoriseringGenerert = null,
@@ -56,20 +56,20 @@ class InntektsforholdDaoTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
             )
-        val ekko = dao.opprettInntektsforhold(inntektsforhold)
-        assertEquals(inntektsforhold.tidsstuttet(), ekko.tidsstuttet())
+        val ekko = dao.opprettYrkesaktivitet(yrkesaktivitet)
+        assertEquals(yrkesaktivitet.tidsstuttet(), ekko.tidsstuttet())
 
-        assertEquals(ekko, dao.hentInntektsforhold(ekko.id))
+        assertEquals(ekko, dao.hentYrkesaktivitet(ekko.id))
 
-        assertEquals(listOf(ekko), dao.hentInntektsforholdFor(periode))
+        assertEquals(listOf(ekko), dao.hentYrkesaktivitetFor(periode))
     }
 
     @Test
     fun `inntektsforhold må referere gyldig saksbehandlingsperiode`() {
-        val dao = InntektsforholdDao(dataSource)
+        val dao = YrkesaktivitetDao(dataSource)
         val ugyldigPeriodeId = UUID.randomUUID()
-        val inntektsforhold =
-            Inntektsforhold(
+        val yrkesaktivitet =
+            Yrkesaktivitet(
                 id = UUID.randomUUID(),
                 kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
                 kategoriseringGenerert = null,
@@ -81,7 +81,7 @@ class InntektsforholdDaoTest {
             )
 
         assertThrows<SQLException> {
-            dao.opprettInntektsforhold(inntektsforhold)
+            dao.opprettYrkesaktivitet(yrkesaktivitet)
         }
     }
 }

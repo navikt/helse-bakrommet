@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
+package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
@@ -16,7 +16,7 @@ import javax.sql.DataSource
 typealias Kategorisering = JsonNode
 typealias Dagoversikt = JsonNode
 
-data class Inntektsforhold(
+data class Yrkesaktivitet(
     val id: UUID,
     val kategorisering: Kategorisering,
     val kategoriseringGenerert: Kategorisering?,
@@ -27,14 +27,14 @@ data class Inntektsforhold(
     val generertFraDokumenter: List<UUID>,
 )
 
-class InntektsforholdDao private constructor(private val db: QueryRunner) {
+class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun opprettInntektsforhold(inntektsforhold: Inntektsforhold): Inntektsforhold {
+    fun opprettYrkesaktivitet(yrkesaktivitet: Yrkesaktivitet): Yrkesaktivitet {
         db.update(
             """
-            insert into inntektsforhold
+            insert into yrkesaktivitet
                 (id, kategorisering, kategorisering_generert,
                 dagoversikt, dagoversikt_generert,
                 saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter)
@@ -43,38 +43,38 @@ class InntektsforholdDao private constructor(private val db: QueryRunner) {
                 :dagoversikt, :dagoversikt_generert,
                 :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter)
             """.trimIndent(),
-            "id" to inntektsforhold.id,
-            "kategorisering" to inntektsforhold.kategorisering.serialisertTilString(),
-            "kategorisering_generert" to inntektsforhold.kategoriseringGenerert?.serialisertTilString(),
-            "dagoversikt" to inntektsforhold.dagoversikt?.serialisertTilString(),
-            "dagoversikt_generert" to inntektsforhold.dagoversiktGenerert?.serialisertTilString(),
-            "saksbehandlingsperiode_id" to inntektsforhold.saksbehandlingsperiodeId,
-            "opprettet" to inntektsforhold.opprettet,
-            "generert_fra_dokumenter" to inntektsforhold.generertFraDokumenter.serialisertTilString(),
+            "id" to yrkesaktivitet.id,
+            "kategorisering" to yrkesaktivitet.kategorisering.serialisertTilString(),
+            "kategorisering_generert" to yrkesaktivitet.kategoriseringGenerert?.serialisertTilString(),
+            "dagoversikt" to yrkesaktivitet.dagoversikt?.serialisertTilString(),
+            "dagoversikt_generert" to yrkesaktivitet.dagoversiktGenerert?.serialisertTilString(),
+            "saksbehandlingsperiode_id" to yrkesaktivitet.saksbehandlingsperiodeId,
+            "opprettet" to yrkesaktivitet.opprettet,
+            "generert_fra_dokumenter" to yrkesaktivitet.generertFraDokumenter.serialisertTilString(),
         )
-        return hentInntektsforhold(inntektsforhold.id)!!
+        return hentYrkesaktivitet(yrkesaktivitet.id)!!
     }
 
-    fun hentInntektsforhold(id: UUID): Inntektsforhold? =
+    fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
         db.single(
             """
-            select * from inntektsforhold where id = :id
+            select * from yrkesaktivitet where id = :id
             """.trimIndent(),
             "id" to id,
-            mapper = ::inntektsforholdFraRow,
+            mapper = ::yrkesaktivitetFraRow,
         )
 
-    fun hentInntektsforholdFor(periode: Saksbehandlingsperiode): List<Inntektsforhold> =
+    fun hentYrkesaktivitetFor(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
         db.list(
             """
-            select * from inntektsforhold where saksbehandlingsperiode_id = :behandling_id
+            select * from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
             """.trimIndent(),
             "behandling_id" to periode.id,
-            mapper = ::inntektsforholdFraRow,
+            mapper = ::yrkesaktivitetFraRow,
         )
 
-    private fun inntektsforholdFraRow(row: Row) =
-        Inntektsforhold(
+    private fun yrkesaktivitetFraRow(row: Row) =
+        Yrkesaktivitet(
             id = row.uuid("id"),
             kategorisering = row.string("kategorisering").asJsonNode(),
             kategoriseringGenerert = row.stringOrNull("kategorisering_generert")?.asJsonNode(),
@@ -88,37 +88,37 @@ class InntektsforholdDao private constructor(private val db: QueryRunner) {
         )
 
     fun oppdaterKategorisering(
-        inntektsforhold: Inntektsforhold,
+        yrkesaktivitet: Yrkesaktivitet,
         kategorisering: JsonNode,
-    ): Inntektsforhold {
+    ): Yrkesaktivitet {
         db.update(
             """
-            update inntektsforhold set kategorisering = :kategorisering where id = :id
+            update yrkesaktivitet set kategorisering = :kategorisering where id = :id
             """.trimIndent(),
-            "id" to inntektsforhold.id,
+            "id" to yrkesaktivitet.id,
             "kategorisering" to kategorisering.serialisertTilString(),
         )
-        return hentInntektsforhold(inntektsforhold.id)!!
+        return hentYrkesaktivitet(yrkesaktivitet.id)!!
     }
 
     fun oppdaterDagoversikt(
-        inntektsforhold: Inntektsforhold,
+        yrkesaktivitet: Yrkesaktivitet,
         oppdatertDagoversikt: ArrayNode,
-    ): Inntektsforhold {
+    ): Yrkesaktivitet {
         db.update(
             """
-            update inntektsforhold set dagoversikt = :dagoversikt where id = :id
+            update yrkesaktivitet set dagoversikt = :dagoversikt where id = :id
             """.trimIndent(),
-            "id" to inntektsforhold.id,
+            "id" to yrkesaktivitet.id,
             "dagoversikt" to oppdatertDagoversikt.serialisertTilString(),
         )
-        return hentInntektsforhold(inntektsforhold.id)!!
+        return hentYrkesaktivitet(yrkesaktivitet.id)!!
     }
 
     fun slettInntektsforhold(id: UUID) {
         db.update(
             """
-            delete from inntektsforhold where id = :id
+            delete from yrkesaktivitet where id = :id
             """.trimIndent(),
             "id" to id,
         )

@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
@@ -25,7 +25,7 @@ class SykepengegrunnlagRouteTest {
     }
 
     fun sykepengegrunnlagAppTest(
-        testBlock: suspend ApplicationTestBuilder.(Triple<Daoer, Saksbehandlingsperiode, Inntektsforhold>) -> Unit,
+        testBlock: suspend ApplicationTestBuilder.(Triple<Daoer, Saksbehandlingsperiode, Yrkesaktivitet>) -> Unit,
     ) = runApplicationTest {
         it.personDao.opprettPerson(fnr, personId)
 
@@ -49,8 +49,8 @@ class SykepengegrunnlagRouteTest {
             ).truncateTidspunkt()
 
         // Opprett inntektsforhold
-        val inntektsforhold =
-            Inntektsforhold(
+        val yrkesaktivitet =
+            Yrkesaktivitet(
                 id = UUID.randomUUID(),
                 kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER", "orgnummer": "123456789"}""".asJsonNode(),
                 kategoriseringGenerert = null,
@@ -60,7 +60,7 @@ class SykepengegrunnlagRouteTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
             )
-        val lagretInntektsforhold = it.inntektsforholdDao.opprettInntektsforhold(inntektsforhold)
+        val lagretInntektsforhold = it.yrkesaktivitetDao.opprettYrkesaktivitet(yrkesaktivitet)
 
         this.testBlock(Triple(it, saksbehandlingsperiode, lagretInntektsforhold))
     }

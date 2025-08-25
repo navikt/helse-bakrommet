@@ -11,9 +11,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversikt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Kategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Kategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.tilJsonNode
@@ -28,7 +28,7 @@ interface SaksbehandlingsperiodeServiceDaoer {
     val saksbehandlingsperiodeEndringerDao: SaksbehandlingsperiodeEndringerDao
     val personDao: PersonDao
     val dokumentDao: DokumentDao
-    val inntektsforholdDao: InntektsforholdDao
+    val yrkesaktivitetDao: YrkesaktivitetDao
 }
 
 data class SaksbehandlingsperiodeReferanse(
@@ -101,7 +101,7 @@ class SaksbehandlingsperiodeService(
             }
         db.nonTransactional {
             lagInntektsforholdFraSøknader(søknader, nyPeriode)
-                .forEach(inntektsforholdDao::opprettInntektsforhold)
+                .forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
         }
         return nyPeriode
     }
@@ -257,13 +257,13 @@ fun SykepengesoknadDTO.kategorisering(): Kategorisering {
 fun lagInntektsforholdFraSøknader(
     sykepengesoknader: Iterable<Dokument>,
     saksbehandlingsperiode: Saksbehandlingsperiode,
-): List<Inntektsforhold> {
+): List<Yrkesaktivitet> {
     val kategorierOgSøknader =
         sykepengesoknader
             .groupBy { dokument -> dokument.somSøknad().kategorisering() }
     return kategorierOgSøknader.map { (kategorisering, dok) ->
         val dagoversikt = skapDagoversiktFraSoknader(dok.map { it.somSøknad() }, saksbehandlingsperiode.fom, saksbehandlingsperiode.tom)
-        Inntektsforhold(
+        Yrkesaktivitet(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,
             kategoriseringGenerert = kategorisering,

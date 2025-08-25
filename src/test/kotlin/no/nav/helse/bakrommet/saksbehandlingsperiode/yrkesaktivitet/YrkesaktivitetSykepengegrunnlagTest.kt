@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
+package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
@@ -19,7 +19,7 @@ import java.util.*
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class InntektsforholdSykepengegrunnlagTest {
+class YrkesaktivitetSykepengegrunnlagTest {
     private val dataSource = TestDataSource.dbModule.dataSource
     private val fnr = "01019012345"
     private val personId = "0h0a1"
@@ -47,7 +47,7 @@ class InntektsforholdSykepengegrunnlagTest {
         val behandlingDao = SaksbehandlingsperiodeDao(dataSource)
         behandlingDao.opprettPeriode(periode)
 
-        val inntektsforholdDao = InntektsforholdDao(dataSource)
+        val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
 
         val beregningDao = UtbetalingsberegningDao(dataSource)
@@ -56,14 +56,14 @@ class InntektsforholdSykepengegrunnlagTest {
             InntektsforholdService(
                 object : InntektsforholdServiceDaoer {
                     override val saksbehandlingsperiodeDao = behandlingDao
-                    override val inntektsforholdDao = inntektsforholdDao
+                    override val yrkesaktivitetDao = yrkesaktivitetDao
                     override val sykepengegrunnlagDao = sykepengegrunnlagDao
                     override val beregningDao = beregningDao
                 },
                 TransactionalSessionFactory(dataSource) { session ->
                     object : InntektsforholdServiceDaoer {
                         override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
-                        override val inntektsforholdDao = InntektsforholdDao(session)
+                        override val yrkesaktivitetDao = YrkesaktivitetDao(session)
                         override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
                         override val beregningDao = UtbetalingsberegningDao(session)
                     }
@@ -74,14 +74,14 @@ class InntektsforholdSykepengegrunnlagTest {
             SykepengegrunnlagService(
                 object : SykepengegrunnlagServiceDaoer {
                     override val saksbehandlingsperiodeDao = behandlingDao
-                    override val inntektsforholdDao = inntektsforholdDao
+                    override val yrkesaktivitetDao = yrkesaktivitetDao
                     override val sykepengegrunnlagDao = sykepengegrunnlagDao
                     override val beregningDao = beregningDao
                 },
                 TransactionalSessionFactory(dataSource) { session ->
                     object : SykepengegrunnlagServiceDaoer {
                         override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
-                        override val inntektsforholdDao = InntektsforholdDao(session)
+                        override val yrkesaktivitetDao = YrkesaktivitetDao(session)
                         override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
                         override val beregningDao = UtbetalingsberegningDao(session)
                     }

@@ -46,7 +46,7 @@ object TestDataSource {
 
         db.execute("truncate table saksbehandlingsperiode$cascade")
         db.execute("truncate table ident$cascade")
-        db.execute("truncate table inntektsforhold$cascade")
+        db.execute("truncate table yrkesaktivitet$cascade")
 
         if (!testcontainers) {
             db.execute("SET REFERENTIAL_INTEGRITY TO TRUE")

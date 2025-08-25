@@ -7,7 +7,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDTO
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektsforholdDTO
 import no.nav.helse.bakrommet.testutils.print
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.deserialize
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import java.util.*
 
-class InntektsforholdOperasjonerTest {
+class YrkesaktivitetOperasjonerTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
@@ -56,7 +56,7 @@ class InntektsforholdOperasjonerTest {
 
             // Opprett inntektsforhold
             val opprettetInntektsforholdId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(kategorisering)
@@ -80,7 +80,7 @@ class InntektsforholdOperasjonerTest {
                 """.trimIndent()
 
             // Oppdater kategorisering
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold/$opprettetInntektsforholdId/kategorisering") {
+            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$opprettetInntektsforholdId/kategorisering") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(nyKategorisering)
@@ -89,7 +89,7 @@ class InntektsforholdOperasjonerTest {
             }
 
             // Verifiser at kategorisering ble oppdatert
-            daoer.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
+            daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
                 inntektsforholdFraDB.filter { it.id == opprettetInntektsforholdId }.also {
                     assertEquals(1, it.size)
                     assertEquals(nyKategorisering.asJsonNode(), it.first().kategorisering)
@@ -115,14 +115,14 @@ class InntektsforholdOperasjonerTest {
                 }.body<List<Saksbehandlingsperiode>>().first()
 
             // Opprett inntektsforhold med dagoversikt
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("""{"kategorisering": {"ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
             }
 
             val inntektsforholdId =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                 }.body<List<InntektsforholdDTO>>().first().id
 
@@ -149,7 +149,7 @@ class InntektsforholdOperasjonerTest {
             ]"""
 
             val response =
-                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold/$inntektsforholdId/dagoversikt") {
+                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$inntektsforholdId/dagoversikt") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(oppdateringer)
@@ -159,7 +159,7 @@ class InntektsforholdOperasjonerTest {
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             // Verifiser at dagoversikten er oppdatert korrekt
-            val oppdatertInntektsforhold = daoer.inntektsforholdDao.hentInntektsforhold(inntektsforholdId)!!
+            val oppdatertInntektsforhold = daoer.yrkesaktivitetDao.hentYrkesaktivitet(inntektsforholdId)!!
             val dagoversikt = oppdatertInntektsforhold.dagoversikt!!
             assertTrue(dagoversikt.isArray)
 

@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.util.objectMapper
 import java.time.LocalDate
 import java.util.UUID
@@ -21,7 +21,7 @@ object UtbetalingsberegningLogikk {
 
         // Opprett beregning for hver inntektsforhold
         val yrkesaktiviteter =
-            input.inntektsforhold.map { inntektsforhold ->
+            input.yrkesaktivitet.map { inntektsforhold ->
                 val dagoversikt = hentDagoversiktFraInntektsforhold(inntektsforhold)
                 val dagBeregninger =
                     dagoversikt.map { dag ->
@@ -37,8 +37,8 @@ object UtbetalingsberegningLogikk {
         return UtbetalingsberegningData(yrkesaktiviteter = yrkesaktiviteter)
     }
 
-    private fun hentDagoversiktFraInntektsforhold(inntektsforhold: Inntektsforhold): List<Dag> {
-        val dagoversiktJson = inntektsforhold.dagoversikt ?: return emptyList()
+    private fun hentDagoversiktFraInntektsforhold(yrkesaktivitet: Yrkesaktivitet): List<Dag> {
+        val dagoversiktJson = yrkesaktivitet.dagoversikt ?: return emptyList()
 
         return try {
             if (dagoversiktJson.isArray) {

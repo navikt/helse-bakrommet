@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS dokument
     opprettet_for_behandling UUID                        NOT NULL REFERENCES saksbehandlingsperiode (id)
 );
 
-CREATE TABLE IF NOT EXISTS inntektsforhold
+CREATE TABLE IF NOT EXISTS yrkesaktivitet
 (
     id                        UUID                        NOT NULL PRIMARY KEY,
     kategorisering            TEXT                        NOT NULL,
@@ -82,3 +82,12 @@ CREATE TABLE IF NOT EXISTS sykepengegrunnlag
     grunnbelop_virkningstidspunkt DATE                     NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS utbetalingsberegning
+(
+    id                            UUID PRIMARY KEY,
+    saksbehandlingsperiode_id     UUID                     NOT NULL REFERENCES saksbehandlingsperiode (id) UNIQUE,
+    utbetalingsberegning_data                TEXT                     NOT NULL,
+    opprettet                     TIMESTAMP WITH TIME ZONE NOT NULL,
+    opprettet_av_nav_ident        TEXT                     NOT NULL,
+    sist_oppdatert                TIMESTAMP WITH TIME ZONE NOT NULL
+);

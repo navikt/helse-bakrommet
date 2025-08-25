@@ -26,7 +26,7 @@ import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
@@ -123,7 +123,7 @@ class Daoer(
     val personDao: PersonDao,
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     val dokumentDao: DokumentDao,
-    val inntektsforholdDao: InntektsforholdDao,
+    val yrkesaktivitetDao: YrkesaktivitetDao,
 ) {
     companion object {
         fun instansier(dataSource: DataSource): Daoer {
@@ -131,7 +131,7 @@ class Daoer(
                 PersonDao(dataSource),
                 SaksbehandlingsperiodeDao(dataSource),
                 DokumentDao(dataSource),
-                InntektsforholdDao(dataSource),
+                YrkesaktivitetDao(dataSource),
             )
         }
     }

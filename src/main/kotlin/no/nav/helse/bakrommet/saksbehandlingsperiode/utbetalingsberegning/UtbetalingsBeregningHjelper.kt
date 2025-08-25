@@ -5,8 +5,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import java.time.LocalDateTime
 import java.util.*
 
@@ -14,7 +14,7 @@ class UtbetalingsBeregningHjelper(
     private val beregningDao: UtbetalingsberegningDao,
     private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
-    private val inntektsforholdDao: InntektsforholdDao,
+    private val yrkesaktivitetDao: YrkesaktivitetDao,
 ) {
     fun settBeregning(
         referanse: SaksbehandlingsperiodeReferanse,
@@ -29,13 +29,13 @@ class UtbetalingsBeregningHjelper(
                 ?: return
 
         // Hent inntektsforhold
-        val inntektsforhold = inntektsforholdDao.hentInntektsforholdFor(periode)
+        val inntektsforhold = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
 
         // Opprett input for beregning
         val beregningInput =
             UtbetalingsberegningInput(
                 sykepengegrunnlag = sykepengegrunnlag,
-                inntektsforhold = inntektsforhold,
+                yrkesaktivitet = inntektsforhold,
             )
 
         // Utfør beregning

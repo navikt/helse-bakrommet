@@ -33,8 +33,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServi
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.InntektsforholdService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.sykepengegrunnlagRoute
@@ -43,6 +41,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Utbeta
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektsforholdService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.saksbehandlingsperiodeInntektsforholdRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute

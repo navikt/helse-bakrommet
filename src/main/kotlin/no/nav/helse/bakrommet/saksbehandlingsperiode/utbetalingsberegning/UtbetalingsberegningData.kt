@@ -1,13 +1,13 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import java.time.LocalDate
 import java.util.UUID
 
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
-    val inntektsforhold: List<Inntektsforhold>,
+    val yrkesaktivitet: List<Yrkesaktivitet>,
 )
 
 data class UtbetalingsberegningData(

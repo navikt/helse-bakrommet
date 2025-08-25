@@ -93,7 +93,7 @@ object SaksbehandlingsperiodeTestFixtures {
         kategorisering: String,
     ): UUID {
         val response =
-            client.post("/v1/$personId/saksbehandlingsperioder/$periodeId/inntektsforhold") {
+            client.post("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(kategorisering)

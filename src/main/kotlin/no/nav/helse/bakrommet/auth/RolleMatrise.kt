@@ -117,19 +117,19 @@ val regler =
         ),
         // Inntektsforhold
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/inntektsforhold/(method:GET)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/inntektsforhold/(method:POST)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/inntektsforhold/{inntektsforholdUUID}/dagoversikt/(method:PUT)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/dagoversikt/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/inntektsforhold/{inntektsforholdUUID}/kategorisering/(method:PUT)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/kategorisering/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         // Dokumenter - relaterte ruter

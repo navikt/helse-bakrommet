@@ -53,7 +53,7 @@ class DagoversiktLogikkTest {
                 """.trimIndent()
 
             val inntektsforholdMedSykmeldtId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(kategoriseringMedSykmeldt)
@@ -76,7 +76,7 @@ class DagoversiktLogikkTest {
                 """.trimIndent()
 
             val inntektsforholdUtenSykmeldtId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(kategoriseringUtenSykmeldt)
@@ -100,7 +100,7 @@ class DagoversiktLogikkTest {
                 """.trimIndent()
 
             val inntektsforholdIkkeSykmeldtId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(kategoriseringIkkeSykmeldt)
@@ -111,7 +111,7 @@ class DagoversiktLogikkTest {
                 }
 
             // Verifiser at dagoversikt ble opprettet for de to første, men ikke den siste
-            daoer.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
+            daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
                 val medSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdMedSykmeldtId }!!
                 val utenSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdUtenSykmeldtId }!!
                 val ikkeSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdIkkeSykmeldtId }!!
@@ -147,7 +147,7 @@ class DagoversiktLogikkTest {
                 }.body<List<Saksbehandlingsperiode>>().first()
 
             val inntektsforholdId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/inntektsforhold") {
+                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
@@ -156,7 +156,7 @@ class DagoversiktLogikkTest {
                 }
 
             // Verifiser at dagoversikt har 28 dager for februar 2023
-            daoer.inntektsforholdDao.hentInntektsforholdFor(periode).also { inntektsforholdFraDB ->
+            daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
                 val inntektsforhold = inntektsforholdFraDB.find { it.id == inntektsforholdId }!!
                 assertEquals(28, inntektsforhold.dagoversikt?.size() ?: 0, "Februar 2023 skal ha 28 dager")
             }

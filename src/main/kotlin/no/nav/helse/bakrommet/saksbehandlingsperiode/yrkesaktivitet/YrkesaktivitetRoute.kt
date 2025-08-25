@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold
+package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
@@ -27,7 +27,7 @@ data class InntektsforholdDTO(
     val generertFraDokumenter: List<UUID>,
 )
 
-fun Inntektsforhold.tilDto() =
+fun Yrkesaktivitet.tilDto() =
     InntektsforholdDTO(
         id = id,
         kategorisering = kategorisering,
@@ -36,7 +36,7 @@ fun Inntektsforhold.tilDto() =
     )
 
 internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: InntektsforholdService) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/inntektsforhold") {
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
             val inntektsforhold = service.hentInntektsforholdFor(call.periodeReferanse())
             call.respondText(

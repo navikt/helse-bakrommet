@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.testutils
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import java.time.temporal.ChronoUnit.MILLIS
 import java.time.temporal.ChronoUnit.SECONDS
 
@@ -17,6 +17,6 @@ fun Iterable<Dokument>.tidsstuttet() = map(Dokument::tidsstuttet)
 fun Dokument.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(MILLIS))
 
 @JvmName("tidsstuttetInntektsforhold")
-fun Iterable<Inntektsforhold>.tidsstuttet() = map(Inntektsforhold::tidsstuttet)
+fun Iterable<Yrkesaktivitet>.tidsstuttet() = map(Yrkesaktivitet::tidsstuttet)
 
-fun Inntektsforhold.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(MILLIS))
+fun Yrkesaktivitet.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(MILLIS))
