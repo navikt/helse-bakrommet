@@ -197,6 +197,7 @@ internal fun Application.appModul(
                         BeregningDao(dataSource),
                         saksbehandlingsperiodeDao,
                         SykepengegrunnlagDao(dataSource),
+                        inntektsforholdDao,
                     ),
             )
             brukerRoute()

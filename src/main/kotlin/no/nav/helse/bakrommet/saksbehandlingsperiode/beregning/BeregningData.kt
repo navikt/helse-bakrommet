@@ -1,31 +1,14 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.beregning
 
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import java.time.LocalDate
 import java.util.UUID
 
 data class BeregningInput(
-    val dagoversikt: List<DagoversiktDag>,
-    val sykepengegrunnlag: SykepengegrunnlagInput,
-    val refusjon: List<RefusjonInput>,
+    val sykepengegrunnlag: SykepengegrunnlagResponse,
+    val inntektsforhold: List<Inntektsforhold>,
     val maksdao: Int,
-)
-
-data class DagoversiktDag(
-    val dato: LocalDate,
-    val dagtype: String,
-    val grad: Int?,
-    val yrkesaktivitetId: UUID,
-)
-
-data class SykepengegrunnlagInput(
-    val sykepengegrunnlagØre: Long,
-)
-
-data class RefusjonInput(
-    val yrkesaktivitetId: UUID,
-    val fom: LocalDate,
-    val tom: LocalDate,
-    val beløpØre: Long,
 )
 
 data class BeregningData(

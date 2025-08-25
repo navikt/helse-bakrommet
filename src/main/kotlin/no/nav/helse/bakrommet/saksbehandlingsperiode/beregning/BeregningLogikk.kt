@@ -1,5 +1,13 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.beregning
 
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsforhold.Inntektsforhold
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.util.objectMapper
+import java.time.LocalDate
+import java.util.UUID
+
 object BeregningLogikk {
     /**
      * Beregner sykepengegrunnlaget basert på input data
@@ -11,19 +19,17 @@ object BeregningLogikk {
         // Beregn dagsats (sykepengegrunnlag delt på 260)
         val dagsatsØre = input.sykepengegrunnlag.sykepengegrunnlagØre / 260L
 
-        // Grupper dager per yrkesaktivitet
-        val dagerPerYrkesaktivitet = input.dagoversikt.groupBy { it.yrkesaktivitetId }
-
-        // Opprett beregning for hver yrkesaktivitet
+        // Opprett beregning for hver inntektsforhold
         val yrkesaktiviteter =
-            dagerPerYrkesaktivitet.map { (yrkesaktivitetId, dager) ->
+            input.inntektsforhold.map { inntektsforhold ->
+                val dagoversikt = hentDagoversiktFraInntektsforhold(inntektsforhold)
                 val dagBeregninger =
-                    dager.map { dag ->
-                        beregnDag(dag, dagsatsØre, input.refusjon, input.maksdao)
+                    dagoversikt.map { dag ->
+                        beregnDag(dag, dagsatsØre, input.sykepengegrunnlag, inntektsforhold.id)
                     }
 
                 YrkesaktivitetBeregning(
-                    yrkesaktivitetId = yrkesaktivitetId,
+                    yrkesaktivitetId = inntektsforhold.id,
                     dager = dagBeregninger,
                 )
             }
@@ -31,33 +37,61 @@ object BeregningLogikk {
         return BeregningData(yrkesaktiviteter = yrkesaktiviteter)
     }
 
+    private fun hentDagoversiktFraInntektsforhold(inntektsforhold: Inntektsforhold): List<Dag> {
+        val dagoversiktJson = inntektsforhold.dagoversikt ?: return emptyList()
+
+        return try {
+            if (dagoversiktJson.isArray) {
+                dagoversiktJson.map { dagJson ->
+                    objectMapper.treeToValue(dagJson, Dag::class.java)
+                }
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
     private fun beregnDag(
-        dag: DagoversiktDag,
+        dag: Dag,
         dagsatsØre: Long,
-        refusjoner: List<RefusjonInput>,
-        maksdao: Int,
+        sykepengegrunnlag: SykepengegrunnlagResponse,
+        inntektsforholdId: UUID,
     ): DagBeregning {
         // Beregn utbetaling basert på grad og dagtype
         val utbetalingØre =
             when (dag.dagtype) {
-                "Syk", "SykNav" -> {
+                Dagtype.Syk, Dagtype.SykNav -> {
                     val grad = dag.grad ?: 100
                     (dagsatsØre * grad) / 100L
                 }
                 else -> 0L
             }
 
-        // Finn refusjon for denne dagen og yrkesaktivitet
-        val refusjonØre =
-            refusjoner
-                .filter { it.yrkesaktivitetId == dag.yrkesaktivitetId }
-                .filter { dag.dato in it.fom..it.tom }
-                .sumOf { it.beløpØre }
+        // Finn refusjon for denne dagen fra sykepengegrunnlaget
+        val refusjonØre = finnRefusjonForDag(dag.dato, sykepengegrunnlag, inntektsforholdId)
 
         return DagBeregning(
             dato = dag.dato,
             utbetalingØre = utbetalingØre,
             refusjonØre = refusjonØre,
         )
+    }
+
+    private fun finnRefusjonForDag(
+        dato: LocalDate,
+        sykepengegrunnlag: SykepengegrunnlagResponse,
+        inntektsforholdId: UUID,
+    ): Long {
+        // Finn refusjon fra sykepengegrunnlaget for denne datoen og inntektsforholdet
+        return sykepengegrunnlag.inntekter
+            .filter { it.inntektsforholdId == inntektsforholdId }
+            .flatMap { inntekt ->
+                inntekt.refusjon.filter { refusjon ->
+                    dato in refusjon.fom..refusjon.tom
+                }
+            }
+            .sumOf { it.beløpØre }
     }
 }
