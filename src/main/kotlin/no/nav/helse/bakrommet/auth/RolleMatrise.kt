@@ -59,16 +59,16 @@ val regler =
         // Saksbehandlingsperioder - spesifikke endepunkter
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/(method:GET)",
-            role = setOf(SAKSBEHANDLER),
+            role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/historikk/(method:GET)",
-            role = setOf(SAKSBEHANDLER),
+            role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         // Sykepengegrunnlag
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:GET)",
-            role = setOf(SAKSBEHANDLER),
+            role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:PUT)",
@@ -80,16 +80,20 @@ val regler =
         ),
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/(method:GET)",
-            role = setOf(SAKSBEHANDLER),
+            role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/utbetalingsberegning/(method:GET)",
+            role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/{dokumentUUID}/(method:GET)",
-            role = setOf(SAKSBEHANDLER),
+            role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         // Vilkårsvurdering
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaarsvurdering/(method:GET)",
-            role = setOf(SAKSBEHANDLER),
+            role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/vilkaarsvurdering/{hovedspørsmål}/(method:PUT)",
