@@ -1,4 +1,6 @@
-package no.nav.helse.bakrommet.util
+@file:Suppress("ktlint")
+
+package no.nav.helse
 
 import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY
@@ -31,6 +33,11 @@ fun Int.november(year: Int): LocalDate = LocalDate.of(year, 11, this)
 
 fun Int.desember(year: Int): LocalDate = LocalDate.of(year, 12, this)
 
+fun YearMonth.isWithinRangeOf(
+    dato: LocalDate,
+    måneder: Long,
+) = this in YearMonth.from(dato).let { it.minusMonths(måneder)..it.minusMonths(1) }
+
 val LocalDate.yearMonth: YearMonth get() = YearMonth.from(this)
 
 val Int.ukedager get() = Ukedager(this)
@@ -44,7 +51,7 @@ class Ukedager(private val antallUkedager: Int) {
         // feks lørdag + 1 ukedag => 2 fordi man skal først hoppe over søndag og deretter ukedagen (mandag).
         // Et koordinat (x, y) i en 2D-tabell med w kolonner kan omgjøres til et punkt z i en 1D-tabell ved formelen z = f(x, y, w) = wx + y
         // https://support.claris.com/s/article/Calculating-a-Finish-Date-Given-a-Starting-Date-and-the-Number-of-Work-Days-1503692916564
-        private const val TABLE = "01234012360125601456034562345612345"
+        private const val table = "01234012360125601456034562345612345"
 
         private fun String.tilleggsdager(
             row: DayOfWeek,
@@ -52,7 +59,7 @@ class Ukedager(private val antallUkedager: Int) {
         ) = this[(row.value - 1) * 5 + col % 5].toString().toInt()
     }
 
-    private fun dager(dato: LocalDate) = antallUkedager / 5 * 7 + TABLE.tilleggsdager(dato.dayOfWeek, antallUkedager)
+    private fun dager(dato: LocalDate) = antallUkedager / 5 * 7 + table.tilleggsdager(dato.dayOfWeek, antallUkedager)
 
     operator fun plus(other: LocalDate): LocalDate = other.plusDays(dager(other).toLong())
 }

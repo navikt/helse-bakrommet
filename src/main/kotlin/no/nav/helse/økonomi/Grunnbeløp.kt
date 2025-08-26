@@ -1,9 +1,12 @@
-package no.nav.helse.bakrommet.økonomi
+package no.nav.helse.økonomi
 
 import no.nav.helse.*
-import no.nav.helse.bakrommet.util.*
-import no.nav.helse.bakrommet.økonomi.Inntekt.Companion.årlig
+import no.nav.helse.hendelser.til
+import no.nav.helse.økonomi.Inntekt.Companion.INGEN
+import no.nav.helse.økonomi.Inntekt.Companion.summer
+import no.nav.helse.økonomi.Inntekt.Companion.årlig
 import java.time.LocalDate
+import kotlin.math.roundToInt
 
 class Grunnbeløp private constructor(private val multiplier: Double) {
     private val grunnbeløp =
@@ -96,6 +99,8 @@ class Grunnbeløp private constructor(private val multiplier: Double) {
         virkningFra: LocalDate,
     ) = beløp(dato, virkningFra).rundTilDaglig()
 
+    fun snitt(år: Int) = HistoriskGrunnbeløp.snitt(grunnbeløp, år) * multiplier
+
     private fun gjeldende(
         dato: LocalDate,
         virkningFra: LocalDate? = null,
@@ -147,6 +152,32 @@ class Grunnbeløp private constructor(private val multiplier: Double) {
             ) { "Virkningsdato for kravet til minsteinntekt må være nyere eller lik gyldighetstidspunktet" }
         }
 
+        private fun gyldighetsperiode(
+            år: Int,
+            andre: List<HistoriskGrunnbeløp>,
+        ) = gyldigFra til (
+            andre
+                .filter { it.gyldigFra > this.gyldigFra }
+                .minByOrNull { it.gyldigFra }
+                ?.gyldigFra?.forrigeDag
+                ?: gyldigFra.withMonth(12).withDayOfMonth(31)
+        )
+
+        private fun snitt(
+            år: Int,
+            andre: List<HistoriskGrunnbeløp>,
+        ): Inntekt {
+            val gyldighetsperiode = gyldighetsperiode(år, andre)
+            val periode = 1.januar(år) til 31.desember(år)
+            if (!gyldighetsperiode.overlapperMed(periode)) return INGEN
+            val antallMånederSomDekkesAvGrunnbeløpet =
+                gyldighetsperiode.subset(periode)
+                    .let { it.endInclusive.monthValue - it.start.monthValue + 1 }
+            return beløp(antallMånederSomDekkesAvGrunnbeløpet.toDouble())
+                .månedlig
+                .årlig
+        }
+
         companion object {
             // TODO: Innføre startegy pattern
             fun gjeldendeGrunnbeløp(
@@ -169,6 +200,17 @@ class Grunnbeløp private constructor(private val multiplier: Double) {
                     .filter { dato >= it.gyldigMinsteinntektKrav }
                     .maxByOrNull { it.gyldigMinsteinntektKrav }
                     ?: throw NoSuchElementException("Finner ingen grunnbeløp som gyldig som minsteinntektskrav for $dato")
+            }
+
+            fun snitt(
+                grunnbeløper: List<HistoriskGrunnbeløp>,
+                år: Int,
+            ): Inntekt {
+                return grunnbeløper
+                    .map { it.snitt(år, grunnbeløper) }
+                    .summer()
+                    .årlig.roundToInt()
+                    .årlig
             }
         }
 
