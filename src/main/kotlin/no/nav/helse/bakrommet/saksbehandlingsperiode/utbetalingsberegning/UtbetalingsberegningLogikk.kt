@@ -27,39 +27,71 @@ object UtbetalingsberegningLogikk {
                 InntektbeløpDto.Årlig(input.sykepengegrunnlag.sykepengegrunnlagØre / 100.0),
             )
 
-        // Opprett beregning for hver inntektsforhold
+        // Samle alle dager fra alle yrkesaktiviteter
+        val alleDager = mutableMapOf<LocalDate, MutableList<DagMedYrkesaktivitet>>()
+
+        input.yrkesaktivitet.forEach { inntektsforhold ->
+            val dagoversikt = hentDagoversiktFraYrkesaktivitet(inntektsforhold)
+            dagoversikt.forEach { dag ->
+                alleDager.getOrPut(dag.dato) { mutableListOf() }.add(
+                    DagMedYrkesaktivitet(dag, inntektsforhold.id),
+                )
+            }
+        }
+
+        // Beregn dag-for-dag for alle yrkesaktiviteter
+        val dagBeregningerPerYrkesaktivitet = mutableMapOf<UUID, MutableList<DagUtbetalingsberegning>>()
+
+        alleDager.forEach { (dato, dagerForDato) ->
+            // Opprett økonomi-objekter for alle yrkesaktiviteter denne dagen
+            val økonomiList =
+                dagerForDato.map { dagMedYrkesaktivitet ->
+                    opprettØkonomiForDag(
+                        dagMedYrkesaktivitet.dag,
+                        input.sykepengegrunnlag,
+                        dagMedYrkesaktivitet.yrkesaktivitetId,
+                    )
+                }
+
+            // Beregn utbetaling for alle yrkesaktiviteter denne dagen sammen
+            val beregnedeØkonomier = Økonomi.betal(sykepengegrunnlagBegrenset6G, økonomiList)
+
+            // Fordel resultatene tilbake til riktig yrkesaktivitet
+            dagerForDato.zip(beregnedeØkonomier).forEach { (dagMedYrkesaktivitet, beregnetØkonomi) ->
+                val yrkesaktivitetId = dagMedYrkesaktivitet.yrkesaktivitetId
+                val dagBeregning = konverterTilDagBeregning(dagMedYrkesaktivitet.dag, beregnetØkonomi)
+
+                dagBeregningerPerYrkesaktivitet.getOrPut(yrkesaktivitetId) { mutableListOf() }.add(dagBeregning)
+            }
+        }
+
+        // Opprett resultat per yrkesaktivitet
         val yrkesaktiviteter =
             input.yrkesaktivitet.map { inntektsforhold ->
-                val dagoversikt = hentDagoversiktFraYrkesaktivitet(inntektsforhold)
-                val dagBeregninger =
-                    dagoversikt.map { dag ->
-                        beregnDagMedØkonomi(
-                            dag,
-                            sykepengegrunnlagBegrenset6G,
-                            input.sykepengegrunnlag,
-                            inntektsforhold.id,
-                        )
-                    }
-
+                val dager = dagBeregningerPerYrkesaktivitet[inntektsforhold.id] ?: emptyList()
                 YrkesaktivitetUtbetalingsberegning(
                     yrkesaktivitetId = inntektsforhold.id,
-                    dager = dagBeregninger,
+                    dager = dager,
                 )
             }
 
         return UtbetalingsberegningData(yrkesaktiviteter = yrkesaktiviteter)
     }
 
+    private data class DagMedYrkesaktivitet(
+        val dag: Dag,
+        val yrkesaktivitetId: UUID,
+    )
+
     private fun hentDagoversiktFraYrkesaktivitet(yrkesaktivitet: Yrkesaktivitet): List<Dag> {
         return yrkesaktivitet.dagoversikt.tilDagoversikt()
     }
 
-    private fun beregnDagMedØkonomi(
+    private fun opprettØkonomiForDag(
         dag: Dag,
-        sykepengegrunnlagBegrenset6G: Inntekt,
         sykepengegrunnlag: SykepengegrunnlagResponse,
         yrkesaktivitetId: UUID,
-    ): DagUtbetalingsberegning {
+    ): Økonomi {
         // Finn inntekt for denne inntektsforholdet
         val inntektForYrkesaktivitet = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitetId)
         val aktuellDagsinntekt =
@@ -68,39 +100,40 @@ object UtbetalingsberegningLogikk {
             )
 
         // Opprett økonomi-objekt basert på dagtype og grad
-        val økonomi =
-            when (dag.dagtype) {
-                Dagtype.Syk, Dagtype.SykNav -> {
-                    val sykdomsgrad = Prosentdel.gjenopprett(ProsentdelDto((dag.grad ?: 100) / 100.0))
-                    val refusjonØre = finnRefusjonForDag(dag.dato, sykepengegrunnlag, yrkesaktivitetId)
-                    val refusjonsbeløp =
-                        if (refusjonØre > 0) {
-                            Inntekt.gjenopprett(InntektbeløpDto.DagligInt(refusjonØre.toInt()))
-                        } else {
-                            Inntekt.INGEN
-                        }
+        return when (dag.dagtype) {
+            Dagtype.Syk, Dagtype.SykNav -> {
+                val sykdomsgrad = Prosentdel.gjenopprett(ProsentdelDto((dag.grad ?: 100) / 100.0))
+                val refusjonØre = finnRefusjonForDag(dag.dato, sykepengegrunnlag, yrkesaktivitetId)
+                val refusjonsbeløp =
+                    if (refusjonØre > 0) {
+                        Inntekt.gjenopprett(InntektbeløpDto.DagligInt(refusjonØre.toInt()))
+                    } else {
+                        Inntekt.INGEN
+                    }
 
-                    Økonomi.inntekt(
-                        sykdomsgrad = sykdomsgrad,
-                        aktuellDagsinntekt = aktuellDagsinntekt,
-                        dekningsgrad = Prosentdel.gjenopprett(ProsentdelDto(1.0)),
-                        refusjonsbeløp = refusjonsbeløp,
-                        inntektjustering = Inntekt.INGEN,
-                    )
-                }
-
-                else -> {
-                    // For dager som ikke skal betales (Arbeidsdag, Helg, Ferie, etc.)
-                    Økonomi.ikkeBetalt(
-                        aktuellDagsinntekt = aktuellDagsinntekt,
-                        inntektjustering = Inntekt.INGEN,
-                    )
-                }
+                Økonomi.inntekt(
+                    sykdomsgrad = sykdomsgrad,
+                    aktuellDagsinntekt = aktuellDagsinntekt,
+                    dekningsgrad = Prosentdel.gjenopprett(ProsentdelDto(1.0)),
+                    refusjonsbeløp = refusjonsbeløp,
+                    inntektjustering = Inntekt.INGEN,
+                )
             }
 
-        // Beregn utbetaling ved hjelp av økonomi-klassene
-        val beregnetØkonomi = Økonomi.betal(sykepengegrunnlagBegrenset6G, listOf(økonomi)).first()
+            else -> {
+                // For dager som ikke skal betales (Arbeidsdag, Helg, Ferie, etc.)
+                Økonomi.ikkeBetalt(
+                    aktuellDagsinntekt = aktuellDagsinntekt,
+                    inntektjustering = Inntekt.INGEN,
+                )
+            }
+        }
+    }
 
+    private fun konverterTilDagBeregning(
+        dag: Dag,
+        beregnetØkonomi: Økonomi,
+    ): DagUtbetalingsberegning {
         // Konverter tilbake til øre-format for output
         val utbetalingØre = (beregnetØkonomi.personbeløp?.dagligInt ?: 0).toLong()
         val refusjonØre = (beregnetØkonomi.arbeidsgiverbeløp?.dagligInt ?: 0).toLong()
