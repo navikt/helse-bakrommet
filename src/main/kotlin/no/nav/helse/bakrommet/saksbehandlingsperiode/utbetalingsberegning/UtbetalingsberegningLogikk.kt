@@ -2,9 +2,9 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.util.objectMapper
 import java.time.LocalDate
 import java.util.UUID
 
@@ -38,19 +38,7 @@ object UtbetalingsberegningLogikk {
     }
 
     private fun hentDagoversiktFraInntektsforhold(yrkesaktivitet: Yrkesaktivitet): List<Dag> {
-        val dagoversiktJson = yrkesaktivitet.dagoversikt ?: return emptyList()
-
-        return try {
-            if (dagoversiktJson.isArray) {
-                dagoversiktJson.map { dagJson ->
-                    objectMapper.treeToValue(dagJson, Dag::class.java)
-                }
-            } else {
-                emptyList()
-            }
-        } catch (e: Exception) {
-            emptyList()
-        }
+        return yrkesaktivitet.dagoversikt.tilDagoversikt()
     }
 
     private fun beregnDag(

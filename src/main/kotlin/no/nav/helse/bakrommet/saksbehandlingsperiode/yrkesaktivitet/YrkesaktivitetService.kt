@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversiktJson
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
@@ -151,14 +152,7 @@ class InntektsforholdService(
                 }
 
             // Hent eksisterende dagoversikt
-            val eksisterendeDagoversikt =
-                inntektsforhold.dagoversikt?.let { dagoversiktJson ->
-                    if (dagoversiktJson.isArray) {
-                        dagoversiktJson.toList()
-                    } else {
-                        emptyList()
-                    }
-                } ?: emptyList()
+            val eksisterendeDagoversikt = inntektsforhold.dagoversikt.tilDagoversiktJson()
 
             // Opprett map for enkel oppslag basert på dato
             val eksisterendeDagerMap =
