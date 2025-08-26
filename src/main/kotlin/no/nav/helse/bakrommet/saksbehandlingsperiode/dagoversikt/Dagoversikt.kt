@@ -62,10 +62,10 @@ fun JsonNode?.tilDagoversikt(): List<Dag> {
                 objectMapper.treeToValue(dagJson, Dag::class.java)
             }
         } else {
-            emptyList()
+            throw RuntimeException("Forventet array for")
         }
     } catch (e: Exception) {
-        emptyList()
+        throw RuntimeException("feil ved parsing av dagoversikt", e)
     }
 }
 
