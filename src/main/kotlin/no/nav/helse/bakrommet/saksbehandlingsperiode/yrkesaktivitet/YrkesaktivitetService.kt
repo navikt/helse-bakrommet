@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversiktJson
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
@@ -184,6 +185,13 @@ class InntektsforholdService(
                 objectMapper.createArrayNode().apply {
                     eksisterendeDagerMap.values.forEach { add(it) }
                 }
+
+            // Valider at dagoversikten kan parses til Dag-objekter før lagring
+            try {
+                oppdatertDagoversikt.tilDagoversikt()
+            } catch (e: Exception) {
+                throw InputValideringException("Ugyldig dagoversikt: ${e.message}")
+            }
 
             val oppdatertInntektsforhold = yrkesaktivitetDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
 
