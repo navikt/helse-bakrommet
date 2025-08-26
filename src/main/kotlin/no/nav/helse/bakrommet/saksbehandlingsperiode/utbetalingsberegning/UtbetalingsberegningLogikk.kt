@@ -164,8 +164,9 @@ object UtbetalingsberegningLogikk {
         beregnetØkonomi: Økonomi,
     ): DagUtbetalingsberegning {
         // Konverter tilbake til øre-format for output
-        val utbetalingØre = (beregnetØkonomi.personbeløp?.dagligInt ?: 0).toLong()
-        val refusjonØre = (beregnetØkonomi.arbeidsgiverbeløp?.dagligInt ?: 0).toLong()
+        // dagligInt returnerer kroner som Int, men vi trenger øre
+        val utbetalingØre = ((beregnetØkonomi.personbeløp?.dagligInt ?: 0) * 100).toLong()
+        val refusjonØre = ((beregnetØkonomi.arbeidsgiverbeløp?.dagligInt ?: 0) * 100).toLong()
 
         return DagUtbetalingsberegning(
             dato = dag.dato,
