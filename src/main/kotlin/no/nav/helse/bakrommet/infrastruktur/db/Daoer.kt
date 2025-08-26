@@ -11,13 +11,13 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektsforholdServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import javax.sql.DataSource
 
 class DaoerFelles(dataSource: DataSource) :
     SaksbehandlingsperiodeServiceDaoer,
-    InntektsforholdServiceDaoer,
+    YrkesaktivitetServiceDaoer,
     SykepengegrunnlagServiceDaoer,
     VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource)
@@ -32,7 +32,7 @@ class DaoerFelles(dataSource: DataSource) :
 
 class SessionDaoerFelles(session: Session) :
     SaksbehandlingsperiodeServiceDaoer,
-    InntektsforholdServiceDaoer,
+    YrkesaktivitetServiceDaoer,
     SykepengegrunnlagServiceDaoer,
     VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)

@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.tilDto
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektsforholdDTO
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
@@ -157,7 +157,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             val inntektsforhold =
                 client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
-                }.body<List<InntektsforholdDTO>>()
+                }.body<List<YrkesaktivitetDTO>>()
 
             assertEquals(3, inntektsforhold.size)
             assertEquals(
@@ -165,9 +165,9 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 inntektsforhold.map { it.kategorisering["ORGNUMMER"]?.asText() }.toSet(),
             )
 
-            val arbgiver1Inntektsforhold = inntektsforhold.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!
+            val arbgiver1Yrkesaktivitet = inntektsforhold.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!
             val forventetKategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER","ORGNUMMER":"123321123"}""".asJsonNode()
-            assertEquals(forventetKategorisering, arbgiver1Inntektsforhold.kategorisering)
+            assertEquals(forventetKategorisering, arbgiver1Yrkesaktivitet.kategorisering)
         }
     }
 

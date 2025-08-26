@@ -83,19 +83,19 @@ class SykepengegrunnlagService(
         val periode =
             daoer.saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
         val inntektsforhold = daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
-        val inntektsforholdIds = inntektsforhold.map { it.id }.toSet()
-        val requestInntektsforholdIds = request.inntekter.map { it.inntektsforholdId }.toSet()
+        val yrkesaktivitetIds = inntektsforhold.map { it.id }.toSet()
+        val requestYrkesaktivitetIds = request.inntekter.map { it.yrkesaktivitetId }.toSet()
 
         // Valider at alle inntekter i requesten eksisterer som inntektsforhold på behandlingen
-        val manglendeInntektsforhold = requestInntektsforholdIds - inntektsforholdIds
-        if (manglendeInntektsforhold.isNotEmpty()) {
+        val manglendeYrkesaktivitet = requestYrkesaktivitetIds - yrkesaktivitetIds
+        if (manglendeYrkesaktivitet.isNotEmpty()) {
             throw InputValideringException(
-                "Følgende inntektsforhold finnes ikke på behandlingen: ${manglendeInntektsforhold.joinToString(", ")}",
+                "Følgende inntektsforhold finnes ikke på behandlingen: ${manglendeYrkesaktivitet.joinToString(", ")}",
             )
         }
 
         // Valider at alle inntektsforhold har inntekt i requesten
-        val manglendeInntekter = inntektsforholdIds - requestInntektsforholdIds
+        val manglendeInntekter = yrkesaktivitetIds - requestYrkesaktivitetIds
         if (manglendeInntekter.isNotEmpty()) {
             throw InputValideringException(
                 "Følgende inntektsforhold mangler inntekt i requesten: ${

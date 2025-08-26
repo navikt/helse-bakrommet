@@ -23,28 +23,28 @@ import no.nav.helse.bakrommet.util.toJsonNode
 import java.time.OffsetDateTime
 import java.util.*
 
-data class InntektsforholdReferanse(
+data class YrkesaktivitetReferanse(
     val saksbehandlingsperiodeReferanse: SaksbehandlingsperiodeReferanse,
     val inntektsforholdUUID: UUID,
 )
 
-interface InntektsforholdServiceDaoer {
+interface YrkesaktivitetServiceDaoer {
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val beregningDao: UtbetalingsberegningDao
 }
 
-typealias InntektsforholdKategorisering = JsonNode
+typealias YrkesaktivitetKategorisering = JsonNode
 typealias DagerSomSkalOppdateres = JsonNode
 
-class InntektsforholdService(
-    daoer: InntektsforholdServiceDaoer,
-    sessionFactory: TransactionalSessionFactory<InntektsforholdServiceDaoer>,
+class YrkesaktivitetService(
+    daoer: YrkesaktivitetServiceDaoer,
+    sessionFactory: TransactionalSessionFactory<YrkesaktivitetServiceDaoer>,
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    private fun InntektsforholdKategorisering.tilDatabaseType(
+    private fun YrkesaktivitetKategorisering.tilDatabaseType(
         behandlingsperiodeId: UUID,
         dagoversikt: List<Dag>?,
     ) = Yrkesaktivitet(
@@ -58,20 +58,20 @@ class InntektsforholdService(
         generertFraDokumenter = emptyList(),
     )
 
-    private fun InntektsforholdKategorisering.skalHaDagoversikt(): Boolean {
+    private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean {
         val erSykmeldt = this.get("ER_SYKMELDT")?.asText()
         return erSykmeldt == "ER_SYKMELDT_JA" || erSykmeldt == null
     }
 
-    fun hentInntektsforholdFor(ref: SaksbehandlingsperiodeReferanse): List<Yrkesaktivitet> =
+    fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<Yrkesaktivitet> =
         db.nonTransactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
             yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
         }
 
-    fun opprettInntektsforhold(
+    fun opprettYrkesaktivitet(
         ref: SaksbehandlingsperiodeReferanse,
-        kategorisering: InntektsforholdKategorisering,
+        kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
     ): Yrkesaktivitet =
         db.nonTransactional {
@@ -95,8 +95,8 @@ class InntektsforholdService(
         }
 
     fun oppdaterKategorisering(
-        ref: InntektsforholdReferanse,
-        kategorisering: InntektsforholdKategorisering,
+        ref: YrkesaktivitetReferanse,
+        kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
     ) {
         db.nonTransactional {
@@ -112,8 +112,8 @@ class InntektsforholdService(
         }
     }
 
-    fun slettInntektsforhold(
-        ref: InntektsforholdReferanse,
+    fun slettYrkesaktivitet(
+        ref: YrkesaktivitetReferanse,
         saksbehandler: Bruker,
     ) {
         db.nonTransactional {
@@ -122,7 +122,7 @@ class InntektsforholdService(
                     ref = ref,
                     krav = saksbehandler.erSaksbehandlerPåSaken(),
                 )
-            yrkesaktivitetDao.slettInntektsforhold(inntektsforhold.id)
+            yrkesaktivitetDao.slettYrkesaktivitet(inntektsforhold.id)
 
             // Slett sykepengegrunnlag når inntektsforhold endres
             sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
@@ -130,7 +130,7 @@ class InntektsforholdService(
     }
 
     fun oppdaterDagoversiktDager(
-        ref: InntektsforholdReferanse,
+        ref: YrkesaktivitetReferanse,
         dagerSomSkalOppdateres: DagerSomSkalOppdateres,
         saksbehandler: Bruker,
     ): Yrkesaktivitet =
@@ -193,7 +193,7 @@ class InntektsforholdService(
                 throw InputValideringException("Ugyldig dagoversikt: ${e.message}")
             }
 
-            val oppdatertInntektsforhold = yrkesaktivitetDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
+            val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
 
             val beregningshjelperISammeTransaksjon =
                 UtbetalingsBeregningHjelper(
@@ -204,12 +204,12 @@ class InntektsforholdService(
                 )
             beregningshjelperISammeTransaksjon.settBeregning(ref.saksbehandlingsperiodeReferanse, saksbehandler)
 
-            oppdatertInntektsforhold
+            oppdatertYrkesaktivitet
         }
 }
 
-private fun InntektsforholdServiceDaoer.hentYrkesaktivitet(
-    ref: InntektsforholdReferanse,
+private fun YrkesaktivitetServiceDaoer.hentYrkesaktivitet(
+    ref: YrkesaktivitetReferanse,
     krav: BrukerHarRollePåSakenKrav?,
 ) = saksbehandlingsperiodeDao.hentPeriode(
     ref = ref.saksbehandlingsperiodeReferanse,
@@ -217,9 +217,9 @@ private fun InntektsforholdServiceDaoer.hentYrkesaktivitet(
 ).let { periode ->
     val inntektsforhold =
         yrkesaktivitetDao.hentYrkesaktivitet(ref.inntektsforholdUUID)
-            ?: throw IkkeFunnetException("Inntektsforhold ikke funnet")
+            ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
     require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
-        "Inntektsforhold (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
+        "Yrkesaktivitet (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
     }
     inntektsforhold
 }

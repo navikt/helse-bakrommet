@@ -86,7 +86,7 @@ object SaksbehandlingsperiodeTestFixtures {
         }.body<List<Saksbehandlingsperiode>>().first()
     }
 
-    suspend fun opprettTestInntektsforhold(
+    suspend fun opprettTestYrkesaktivitet(
         client: io.ktor.client.HttpClient,
         personId: String = TEST_PERSON_ID,
         periodeId: UUID,

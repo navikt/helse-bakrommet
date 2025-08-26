@@ -16,7 +16,7 @@ fun Iterable<Dokument>.tidsstuttet() = map(Dokument::tidsstuttet)
 
 fun Dokument.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(MILLIS))
 
-@JvmName("tidsstuttetInntektsforhold")
+@JvmName("tidsstuttetYrkesaktivitet")
 fun Iterable<Yrkesaktivitet>.tidsstuttet() = map(Yrkesaktivitet::tidsstuttet)
 
 fun Yrkesaktivitet.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(MILLIS))

@@ -7,7 +7,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektsforholdDTO
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.testutils.print
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.deserialize
@@ -55,7 +55,7 @@ class YrkesaktivitetOperasjonerTest {
                 """.trimIndent()
 
             // Opprett inntektsforhold
-            val opprettetInntektsforholdId =
+            val opprettetYrkesaktivitetId =
                 client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -66,7 +66,7 @@ class YrkesaktivitetOperasjonerTest {
                     assertEquals(kategorisering.asJsonNode()["kategorisering"], body["kategorisering"])
                     val id = body["id"].asText()
                     assertDoesNotThrow { UUID.fromString(id) }
-                    assertDoesNotThrow { body.deserialize<InntektsforholdDTO>() }
+                    assertDoesNotThrow { body.deserialize<YrkesaktivitetDTO>() }
                     UUID.fromString(id)
                 }
 
@@ -80,7 +80,7 @@ class YrkesaktivitetOperasjonerTest {
                 """.trimIndent()
 
             // Oppdater kategorisering
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$opprettetInntektsforholdId/kategorisering") {
+            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$opprettetYrkesaktivitetId/kategorisering") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(nyKategorisering)
@@ -90,7 +90,7 @@ class YrkesaktivitetOperasjonerTest {
 
             // Verifiser at kategorisering ble oppdatert
             daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
-                inntektsforholdFraDB.filter { it.id == opprettetInntektsforholdId }.also {
+                inntektsforholdFraDB.filter { it.id == opprettetYrkesaktivitetId }.also {
                     assertEquals(1, it.size)
                     assertEquals(nyKategorisering.asJsonNode(), it.first().kategorisering)
                 }
@@ -121,10 +121,10 @@ class YrkesaktivitetOperasjonerTest {
                 setBody("""{"kategorisering": {"ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
             }
 
-            val inntektsforholdId =
+            val yrkesaktivitetId =
                 client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
-                }.body<List<InntektsforholdDTO>>().first().id
+                }.body<List<YrkesaktivitetDTO>>().first().id
 
             // Oppdater dagoversikt med array av spesifikke dager
             val oppdateringer = """[
@@ -149,7 +149,7 @@ class YrkesaktivitetOperasjonerTest {
             ]"""
 
             val response =
-                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$inntektsforholdId/dagoversikt") {
+                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(oppdateringer)
@@ -159,8 +159,8 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             // Verifiser at dagoversikten er oppdatert korrekt
-            val oppdatertInntektsforhold = daoer.yrkesaktivitetDao.hentYrkesaktivitet(inntektsforholdId)!!
-            val dagoversikt = oppdatertInntektsforhold.dagoversikt!!
+            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
             assertTrue(dagoversikt.isArray)
 
             val dager =
@@ -225,10 +225,10 @@ class YrkesaktivitetOperasjonerTest {
                 setBody("""{"kategorisering": {"ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
             }
 
-            val inntektsforholdId =
+            val yrkesaktivitetId =
                 client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
-                }.body<List<InntektsforholdDTO>>().first().id
+                }.body<List<YrkesaktivitetDTO>>().first().id
 
             // Oppdater dagoversikt med nytt format (objekt med dager og notat)
             val oppdateringer = """{
@@ -250,7 +250,7 @@ class YrkesaktivitetOperasjonerTest {
             }"""
 
             val response =
-                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$inntektsforholdId/dagoversikt") {
+                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(oppdateringer)
@@ -260,8 +260,8 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             // Verifiser at dagoversikten er oppdatert korrekt
-            val oppdatertInntektsforhold = daoer.yrkesaktivitetDao.hentYrkesaktivitet(inntektsforholdId)!!
-            val dagoversikt = oppdatertInntektsforhold.dagoversikt!!
+            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
             assertTrue(dagoversikt.isArray)
 
             val dager =

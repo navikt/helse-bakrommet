@@ -115,7 +115,7 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
         return hentYrkesaktivitet(yrkesaktivitet.id)!!
     }
 
-    fun slettInntektsforhold(id: UUID) {
+    fun slettYrkesaktivitet(id: UUID) {
         db.update(
             """
             delete from yrkesaktivitet where id = :id

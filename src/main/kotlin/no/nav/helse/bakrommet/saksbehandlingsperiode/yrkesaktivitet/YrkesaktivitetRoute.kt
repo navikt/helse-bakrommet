@@ -15,12 +15,12 @@ import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.UUID
 
 fun RoutingCall.inntektsforholdReferanse() =
-    InntektsforholdReferanse(
+    YrkesaktivitetReferanse(
         saksbehandlingsperiodeReferanse = periodeReferanse(),
         inntektsforholdUUID = parameters[PARAM_INNTEKTSFORHOLDUUID].somGyldigUUID(),
     )
 
-data class InntektsforholdDTO(
+data class YrkesaktivitetDTO(
     val id: UUID,
     val kategorisering: JsonNode,
     val dagoversikt: JsonNode?,
@@ -28,17 +28,17 @@ data class InntektsforholdDTO(
 )
 
 fun Yrkesaktivitet.tilDto() =
-    InntektsforholdDTO(
+    YrkesaktivitetDTO(
         id = id,
         kategorisering = kategorisering,
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
     )
 
-internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: InntektsforholdService) {
+internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: YrkesaktivitetService) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
-            val inntektsforhold = service.hentInntektsforholdFor(call.periodeReferanse())
+            val inntektsforhold = service.hentYrkesaktivitetFor(call.periodeReferanse())
             call.respondText(
                 inntektsforhold.map { it.tilDto() }.serialisertTilString(),
                 ContentType.Application.Json,
@@ -47,9 +47,9 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: Inntektsf
         }
 
         post {
-            val inntektsforholdRequest = call.receive<InntektsforholdCreateRequest>()
+            val inntektsforholdRequest = call.receive<YrkesaktivitetCreateRequest>()
             val inntektsforhold =
-                service.opprettInntektsforhold(
+                service.opprettYrkesaktivitet(
                     call.periodeReferanse(),
                     inntektsforholdRequest.kategorisering,
                     call.saksbehandler(),
@@ -63,7 +63,7 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: Inntektsf
 
         route("/{$PARAM_INNTEKTSFORHOLDUUID}") {
             delete {
-                service.slettInntektsforhold(call.inntektsforholdReferanse(), call.saksbehandler())
+                service.slettYrkesaktivitet(call.inntektsforholdReferanse(), call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/dagoversikt") {
@@ -72,7 +72,7 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: Inntektsf
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/kategorisering") {
-                val kategorisering = call.receive<InntektsforholdKategorisering>()
+                val kategorisering = call.receive<YrkesaktivitetKategorisering>()
                 service.oppdaterKategorisering(call.inntektsforholdReferanse(), kategorisering, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
@@ -80,6 +80,6 @@ internal fun Route.saksbehandlingsperiodeInntektsforholdRoute(service: Inntektsf
     }
 }
 
-data class InntektsforholdCreateRequest(
+data class YrkesaktivitetCreateRequest(
     val kategorisering: JsonNode,
 )

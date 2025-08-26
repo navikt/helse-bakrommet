@@ -99,7 +99,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             // 45 000 kr/måned
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
@@ -132,7 +132,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             // 80 000 kr/måned
                             beløpPerMånedØre = 8000000L,
                             kilde = Inntektskilde.AINNTEKT,
@@ -176,14 +176,14 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             // 30 000 kr/måned
                             beløpPerMånedØre = 3000000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet2.id,
+                            yrkesaktivitetId = yrkesaktivitet2.id,
                             // 25 000 kr/måned
                             beløpPerMånedØre = 2500000L,
                             kilde = Inntektskilde.AINNTEKT,
@@ -218,7 +218,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             // 50 000 kr/måned
                             beløpPerMånedØre = 5000000L,
                             kilde = Inntektskilde.SKJONNSFASTSETTELSE,
@@ -251,7 +251,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -275,7 +275,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             beløpPerMånedØre = 4000000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -291,7 +291,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             beløpPerMånedØre = 5500000L,
                             kilde = Inntektskilde.SKJONNSFASTSETTELSE,
                             refusjon = emptyList(),
@@ -316,7 +316,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -355,7 +355,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             beløpPerMånedØre = eksakt6G,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -374,13 +374,13 @@ class SykepengegrunnlagServiceTest {
 
     @Test
     fun `kaster feil når inntekt refererer til ikke-eksisterende inntektsforhold`() {
-        val ikkeEksisterendeInntektsforholdId = UUID.randomUUID()
+        val ikkeEksisterendeYrkesaktivitetId = UUID.randomUUID()
         val request =
             SykepengegrunnlagRequest(
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = ikkeEksisterendeInntektsforholdId,
+                            yrkesaktivitetId = ikkeEksisterendeYrkesaktivitetId,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -394,7 +394,7 @@ class SykepengegrunnlagServiceTest {
             }
 
         assertTrue(exception.message!!.contains("finnes ikke på behandlingen"))
-        assertTrue(exception.message!!.contains(ikkeEksisterendeInntektsforholdId.toString()))
+        assertTrue(exception.message!!.contains(ikkeEksisterendeYrkesaktivitetId.toString()))
     }
 
     @Test
@@ -419,7 +419,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitet.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),

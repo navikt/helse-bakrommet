@@ -124,7 +124,7 @@ class UtbetalingsberegningIntegrasjonTest {
                 inntekter =
                     listOf(
                         no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt(
-                            inntektsforholdId = yrkesaktivitetId,
+                            yrkesaktivitetId = yrkesaktivitetId,
                             beløpPerMånedØre = 5_000_000L,
                             kilde = no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde.AINNTEKT,
                             refusjon =

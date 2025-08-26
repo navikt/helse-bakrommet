@@ -119,7 +119,7 @@ val regler =
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/godkjenn/(method:POST)",
             role = setOf(BESLUTTER),
         ),
-        // Inntektsforhold
+        // Yrkesaktivitet
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/(method:GET)",
             role = setOf(SAKSBEHANDLER),

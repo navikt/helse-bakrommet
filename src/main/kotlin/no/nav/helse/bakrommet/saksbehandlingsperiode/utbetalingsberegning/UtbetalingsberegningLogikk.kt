@@ -24,16 +24,21 @@ object UtbetalingsberegningLogikk {
         // Konverter sykepengegrunnlag til Inntekt-objekt (øre til daglig inntekt)
         val sykepengegrunnlagBegrenset6G =
             Inntekt.gjenopprett(
-                InntektbeløpDto.DagligInt((input.sykepengegrunnlag.sykepengegrunnlagØre / 260).toInt()),
+                InntektbeløpDto.Årlig(input.sykepengegrunnlag.sykepengegrunnlagØre / 100.0),
             )
 
         // Opprett beregning for hver inntektsforhold
         val yrkesaktiviteter =
             input.yrkesaktivitet.map { inntektsforhold ->
-                val dagoversikt = hentDagoversiktFraInntektsforhold(inntektsforhold)
+                val dagoversikt = hentDagoversiktFraYrkesaktivitet(inntektsforhold)
                 val dagBeregninger =
                     dagoversikt.map { dag ->
-                        beregnDagMedØkonomi(dag, sykepengegrunnlagBegrenset6G, input.sykepengegrunnlag, inntektsforhold.id)
+                        beregnDagMedØkonomi(
+                            dag,
+                            sykepengegrunnlagBegrenset6G,
+                            input.sykepengegrunnlag,
+                            inntektsforhold.id,
+                        )
                     }
 
                 YrkesaktivitetUtbetalingsberegning(
@@ -45,7 +50,7 @@ object UtbetalingsberegningLogikk {
         return UtbetalingsberegningData(yrkesaktiviteter = yrkesaktiviteter)
     }
 
-    private fun hentDagoversiktFraInntektsforhold(yrkesaktivitet: Yrkesaktivitet): List<Dag> {
+    private fun hentDagoversiktFraYrkesaktivitet(yrkesaktivitet: Yrkesaktivitet): List<Dag> {
         return yrkesaktivitet.dagoversikt.tilDagoversikt()
     }
 
@@ -53,13 +58,13 @@ object UtbetalingsberegningLogikk {
         dag: Dag,
         sykepengegrunnlagBegrenset6G: Inntekt,
         sykepengegrunnlag: SykepengegrunnlagResponse,
-        inntektsforholdId: UUID,
+        yrkesaktivitetId: UUID,
     ): DagUtbetalingsberegning {
         // Finn inntekt for denne inntektsforholdet
-        val inntektForInntektsforhold = finnInntektForInntektsforhold(sykepengegrunnlag, inntektsforholdId)
+        val inntektForYrkesaktivitet = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitetId)
         val aktuellDagsinntekt =
             Inntekt.gjenopprett(
-                InntektbeløpDto.MånedligDouble(inntektForInntektsforhold.beløpPerMånedØre.toDouble()),
+                InntektbeløpDto.MånedligDouble(inntektForYrkesaktivitet.beløpPerMånedØre.toDouble()),
             )
 
         // Opprett økonomi-objekt basert på dagtype og grad
@@ -67,7 +72,7 @@ object UtbetalingsberegningLogikk {
             when (dag.dagtype) {
                 Dagtype.Syk, Dagtype.SykNav -> {
                     val sykdomsgrad = Prosentdel.gjenopprett(ProsentdelDto((dag.grad ?: 100) / 100.0))
-                    val refusjonØre = finnRefusjonForDag(dag.dato, sykepengegrunnlag, inntektsforholdId)
+                    val refusjonØre = finnRefusjonForDag(dag.dato, sykepengegrunnlag, yrkesaktivitetId)
                     val refusjonsbeløp =
                         if (refusjonØre > 0) {
                             Inntekt.gjenopprett(InntektbeløpDto.DagligInt(refusjonØre.toInt()))
@@ -83,6 +88,7 @@ object UtbetalingsberegningLogikk {
                         inntektjustering = Inntekt.INGEN,
                     )
                 }
+
                 else -> {
                     // For dager som ikke skal betales (Arbeidsdag, Helg, Ferie, etc.)
                     Økonomi.ikkeBetalt(
@@ -106,22 +112,22 @@ object UtbetalingsberegningLogikk {
         )
     }
 
-    private fun finnInntektForInntektsforhold(
+    private fun finnInntektForYrkesaktivitet(
         sykepengegrunnlag: SykepengegrunnlagResponse,
-        inntektsforholdId: UUID,
+        yrkesaktivitetId: UUID,
     ): no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt {
-        return sykepengegrunnlag.inntekter.find { it.inntektsforholdId == inntektsforholdId }
-            ?: throw IllegalArgumentException("Fant ikke inntekt for inntektsforhold $inntektsforholdId")
+        return sykepengegrunnlag.inntekter.find { it.yrkesaktivitetId == yrkesaktivitetId }
+            ?: throw IllegalArgumentException("Fant ikke inntekt for inntektsforhold $yrkesaktivitetId")
     }
 
     private fun finnRefusjonForDag(
         dato: LocalDate,
         sykepengegrunnlag: SykepengegrunnlagResponse,
-        inntektsforholdId: UUID,
+        yrkesaktivitetId: UUID,
     ): Long {
         // Finn refusjon fra sykepengegrunnlaget for denne datoen og inntektsforholdet
         return sykepengegrunnlag.inntekter
-            .filter { it.inntektsforholdId == inntektsforholdId }
+            .filter { it.yrkesaktivitetId == yrkesaktivitetId }
             .flatMap { inntekt ->
                 inntekt.refusjon.filter { refusjon ->
                     dato in refusjon.fom..refusjon.tom

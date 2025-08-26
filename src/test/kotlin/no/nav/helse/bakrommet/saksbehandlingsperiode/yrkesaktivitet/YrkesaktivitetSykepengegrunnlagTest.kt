@@ -36,7 +36,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
             skjæringstidspunkt = LocalDate.now().minusMonths(1),
         )
 
-    private lateinit var inntektsforholdService: InntektsforholdService
+    private lateinit var inntektsforholdService: YrkesaktivitetService
     private lateinit var sykepengegrunnlagService: SykepengegrunnlagService
 
     @BeforeEach
@@ -53,15 +53,15 @@ class YrkesaktivitetSykepengegrunnlagTest {
         val beregningDao = UtbetalingsberegningDao(dataSource)
 
         inntektsforholdService =
-            InntektsforholdService(
-                object : InntektsforholdServiceDaoer {
+            YrkesaktivitetService(
+                object : YrkesaktivitetServiceDaoer {
                     override val saksbehandlingsperiodeDao = behandlingDao
                     override val yrkesaktivitetDao = yrkesaktivitetDao
                     override val sykepengegrunnlagDao = sykepengegrunnlagDao
                     override val beregningDao = beregningDao
                 },
                 TransactionalSessionFactory(dataSource) { session ->
-                    object : InntektsforholdServiceDaoer {
+                    object : YrkesaktivitetServiceDaoer {
                         override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
                         override val yrkesaktivitetDao = YrkesaktivitetDao(session)
                         override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
@@ -99,7 +99,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
     fun `sykepengegrunnlag slettes når inntektsforhold opprettes`() {
         // Given - opprett inntektsforhold først
         val kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode()
-        val inntektsforhold = inntektsforholdService.opprettInntektsforhold(periodeReferanse(), kategorisering, saksbehandler)
+        val inntektsforhold = inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), kategorisering, saksbehandler)
 
         // Opprett sykepengegrunnlag
         val request =
@@ -107,7 +107,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            inntektsforholdId = inntektsforhold.id,
+                            yrkesaktivitetId = inntektsforhold.id,
                             // 5000 kr/måned
                             beløpPerMånedØre = 500000L,
                             kilde = Inntektskilde.INNTEKTSMELDING,
@@ -124,7 +124,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
 
         // When - opprett nytt inntektsforhold
         val nyKategorisering = """{"INNTEKTSKATEGORI": "FRILANSER"}""".asJsonNode()
-        inntektsforholdService.opprettInntektsforhold(periodeReferanse(), nyKategorisering, saksbehandler)
+        inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), nyKategorisering, saksbehandler)
 
         // Then - sykepengegrunnlag skal være slettet
         val grunnlagEtter = sykepengegrunnlagService.hentSykepengegrunnlag(periodeReferanse())

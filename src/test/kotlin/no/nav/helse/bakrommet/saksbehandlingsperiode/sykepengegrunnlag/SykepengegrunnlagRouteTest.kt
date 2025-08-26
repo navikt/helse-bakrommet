@@ -60,9 +60,9 @@ class SykepengegrunnlagRouteTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
             )
-        val lagretInntektsforhold = it.yrkesaktivitetDao.opprettYrkesaktivitet(yrkesaktivitet)
+        val lagretYrkesaktivitet = it.yrkesaktivitetDao.opprettYrkesaktivitet(yrkesaktivitet)
 
-        this.testBlock(Triple(it, saksbehandlingsperiode, lagretInntektsforhold))
+        this.testBlock(Triple(it, saksbehandlingsperiode, lagretYrkesaktivitet))
     }
 
     @Test
@@ -73,7 +73,7 @@ class SykepengegrunnlagRouteTest {
                 {
                     "inntekter": [
                         {
-                            "inntektsforholdId": "${inntektsforhold.id}",
+                            "yrkesaktivitetId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
                             "kilde": "AINNTEKT"
                         }
@@ -112,7 +112,7 @@ class SykepengegrunnlagRouteTest {
                 {
                     "inntekter": [
                         {
-                            "inntektsforholdId": "${inntektsforhold.id}",
+                            "yrkesaktivitetId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 8000000,
                             "kilde": "AINNTEKT"
                         }
@@ -149,7 +149,7 @@ class SykepengegrunnlagRouteTest {
                 {
                     "inntekter": [
                         {
-                            "inntektsforholdId": "${inntektsforhold.id}",
+                            "yrkesaktivitetId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 5000000,
                             "kilde": "SKJONNSFASTSETTELSE",
                             "refusjon": [
@@ -199,7 +199,7 @@ class SykepengegrunnlagRouteTest {
                 {
                     "inntekter": [
                         {
-                            "inntektsforholdId": "${inntektsforhold.id}",
+                            "yrkesaktivitetId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
                             "kilde": "AINNTEKT"
                         }
@@ -235,7 +235,7 @@ class SykepengegrunnlagRouteTest {
                 {
                     "inntekter": [
                         {
-                            "inntektsforholdId": "${inntektsforhold.id}",
+                            "yrkesaktivitetId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4000000,
                             "kilde": "AINNTEKT"
                         }
@@ -255,7 +255,7 @@ class SykepengegrunnlagRouteTest {
                 {
                     "inntekter": [
                         {
-                            "inntektsforholdId": "${inntektsforhold.id}",
+                            "yrkesaktivitetId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 5500000,
                             "kilde": "SKJONNSFASTSETTELSE"
                         }
@@ -287,7 +287,7 @@ class SykepengegrunnlagRouteTest {
                 {
                     "inntekter": [
                         {
-                            "inntektsforholdId": "${inntektsforhold.id}",
+                            "yrkesaktivitetId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": 4500000,
                             "kilde": "AINNTEKT"
                         }
@@ -339,7 +339,7 @@ class SykepengegrunnlagRouteTest {
                 {
                     "inntekter": [
                         {
-                            "inntektsforholdId": "${inntektsforhold.id}",
+                            "yrkesaktivitetId": "${inntektsforhold.id}",
                             "beløpPerMånedØre": -1000,
                             "kilde": "UGYLDIG_KILDE"
                         }

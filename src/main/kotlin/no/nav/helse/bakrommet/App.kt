@@ -41,8 +41,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Utbeta
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektsforholdService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.saksbehandlingsperiodeInntektsforholdRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.saksbehandlingsperiodeYrkesaktivitetRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
@@ -172,9 +172,9 @@ internal fun Application.appModul(
                 service = VilkårService(daoerFelles, sessionFactoryFelles),
             )
             inntektsmeldingerRoute(inntektsmeldingClient, personDao)
-            saksbehandlingsperiodeInntektsforholdRoute(
+            saksbehandlingsperiodeYrkesaktivitetRoute(
                 service =
-                    InntektsforholdService(
+                    YrkesaktivitetService(
                         daoerFelles,
                         sessionFactoryFelles,
                     ),

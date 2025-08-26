@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.util.*
 
 data class Inntekt(
-    val inntektsforholdId: UUID,
+    val yrkesaktivitetId: UUID,
     // Beløp i øre
     val beløpPerMånedØre: Long,
     val kilde: Inntektskilde,

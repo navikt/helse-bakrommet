@@ -100,7 +100,7 @@ class SaksbehandlingsperiodeService(
                 emptyList()
             }
         db.nonTransactional {
-            lagInntektsforholdFraSøknader(søknader, nyPeriode)
+            lagYrkesaktivitetFraSøknader(søknader, nyPeriode)
                 .forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
         }
         return nyPeriode
@@ -254,7 +254,7 @@ fun SykepengesoknadDTO.kategorisering(): Kategorisering {
     }
 }
 
-fun lagInntektsforholdFraSøknader(
+fun lagYrkesaktivitetFraSøknader(
     sykepengesoknader: Iterable<Dokument>,
     saksbehandlingsperiode: Saksbehandlingsperiode,
 ): List<Yrkesaktivitet> {
@@ -278,13 +278,13 @@ fun lagInntektsforholdFraSøknader(
 
 private fun SykepengesoknadDTO.bestemInntektskategori() =
     when (arbeidssituasjon) {
-        ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
-        ArbeidssituasjonDTO.FISKER -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
-        ArbeidssituasjonDTO.JORDBRUKER -> InntektsforholdType.SELVSTENDIG_NÆRINGSDRIVENDE
-        ArbeidssituasjonDTO.FRILANSER -> InntektsforholdType.FRILANSER
-        ArbeidssituasjonDTO.ARBEIDSTAKER -> InntektsforholdType.ARBEIDSTAKER
-        ArbeidssituasjonDTO.ARBEIDSLEDIG -> InntektsforholdType.INAKTIV
-        ArbeidssituasjonDTO.ANNET -> InntektsforholdType.ANNET
+        ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
+        ArbeidssituasjonDTO.FISKER -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
+        ArbeidssituasjonDTO.JORDBRUKER -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
+        ArbeidssituasjonDTO.FRILANSER -> YrkesaktivitetType.FRILANSER
+        ArbeidssituasjonDTO.ARBEIDSTAKER -> YrkesaktivitetType.ARBEIDSTAKER
+        ArbeidssituasjonDTO.ARBEIDSLEDIG -> YrkesaktivitetType.INAKTIV
+        ArbeidssituasjonDTO.ANNET -> YrkesaktivitetType.ANNET
         null -> {
             logg.warn("'null'-verdi for arbeidssituasjon for søknad med id={}", id)
             "IKKE SATT"
@@ -292,7 +292,7 @@ private fun SykepengesoknadDTO.bestemInntektskategori() =
     }.toString()
 
 // kopiert fra frontend:
-private enum class InntektsforholdType {
+private enum class YrkesaktivitetType {
     ARBEIDSTAKER,
     FRILANSER,
     SELVSTENDIG_NÆRINGSDRIVENDE,
