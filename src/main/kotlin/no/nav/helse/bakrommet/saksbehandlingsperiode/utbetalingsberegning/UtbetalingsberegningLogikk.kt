@@ -27,6 +27,12 @@ object UtbetalingsberegningLogikk {
                 InntektbeløpDto.Årlig(input.sykepengegrunnlag.sykepengegrunnlagØre / 100.0),
             )
 
+        // Opprett refusjonstidslinjer for hver yrkesaktivitet
+        val refusjonstidslinjer =
+            input.yrkesaktivitet.associate { inntektsforhold ->
+                inntektsforhold.id to opprettRefusjonstidslinje(input.sykepengegrunnlag, inntektsforhold.id)
+            }
+
         // Samle alle dager fra alle yrkesaktiviteter
         val alleDager = mutableMapOf<LocalDate, MutableList<DagMedYrkesaktivitet>>()
 
@@ -50,6 +56,7 @@ object UtbetalingsberegningLogikk {
                         dagMedYrkesaktivitet.dag,
                         input.sykepengegrunnlag,
                         dagMedYrkesaktivitet.yrkesaktivitetId,
+                        refusjonstidslinjer[dagMedYrkesaktivitet.yrkesaktivitetId] ?: emptyMap(),
                     )
                 }
 
@@ -87,10 +94,36 @@ object UtbetalingsberegningLogikk {
         return yrkesaktivitet.dagoversikt.tilDagoversikt()
     }
 
+    /**
+     * Oppretter en refusjonstidslinje for en yrkesaktivitet basert på refusjonsopplysninger
+     * Dette simulerer Spleis sin refusjonstidslinje-funksjonalitet
+     */
+    private fun opprettRefusjonstidslinje(
+        sykepengegrunnlag: SykepengegrunnlagResponse,
+        yrkesaktivitetId: UUID,
+    ): Map<LocalDate, Inntekt> {
+        val refusjonstidslinje = mutableMapOf<LocalDate, Inntekt>()
+
+        sykepengegrunnlag.inntekter
+            .filter { it.yrkesaktivitetId == yrkesaktivitetId }
+            .flatMap { inntekt ->
+                inntekt.refusjon.map { refusjon ->
+                    // Fyll tidslinjen for hver dag i refusjonsperioden
+                    refusjon.fom.datesUntil(refusjon.tom.plusDays(1)).forEach { dato ->
+                        val beløp = Inntekt.gjenopprett(InntektbeløpDto.DagligInt(refusjon.beløpØre.toInt()))
+                        refusjonstidslinje[dato] = beløp
+                    }
+                }
+            }
+
+        return refusjonstidslinje
+    }
+
     private fun opprettØkonomiForDag(
         dag: Dag,
         sykepengegrunnlag: SykepengegrunnlagResponse,
         yrkesaktivitetId: UUID,
+        refusjonstidslinje: Map<LocalDate, Inntekt>,
     ): Økonomi {
         // Finn inntekt for denne inntektsforholdet
         val inntektForYrkesaktivitet = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitetId)
@@ -99,17 +132,13 @@ object UtbetalingsberegningLogikk {
                 InntektbeløpDto.MånedligDouble(inntektForYrkesaktivitet.beløpPerMånedØre.toDouble()),
             )
 
+        // Hent refusjonsbeløp fra refusjonstidslinje (som Spleis)
+        val refusjonsbeløp = refusjonstidslinje[dag.dato] ?: Inntekt.INGEN
+
         // Opprett økonomi-objekt basert på dagtype og grad
         return when (dag.dagtype) {
             Dagtype.Syk, Dagtype.SykNav -> {
                 val sykdomsgrad = Prosentdel.gjenopprett(ProsentdelDto((dag.grad ?: 100) / 100.0))
-                val refusjonØre = finnRefusjonForDag(dag.dato, sykepengegrunnlag, yrkesaktivitetId)
-                val refusjonsbeløp =
-                    if (refusjonØre > 0) {
-                        Inntekt.gjenopprett(InntektbeløpDto.DagligInt(refusjonØre.toInt()))
-                    } else {
-                        Inntekt.INGEN
-                    }
 
                 Økonomi.inntekt(
                     sykdomsgrad = sykdomsgrad,
@@ -151,21 +180,5 @@ object UtbetalingsberegningLogikk {
     ): no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt {
         return sykepengegrunnlag.inntekter.find { it.yrkesaktivitetId == yrkesaktivitetId }
             ?: throw IllegalArgumentException("Fant ikke inntekt for inntektsforhold $yrkesaktivitetId")
-    }
-
-    private fun finnRefusjonForDag(
-        dato: LocalDate,
-        sykepengegrunnlag: SykepengegrunnlagResponse,
-        yrkesaktivitetId: UUID,
-    ): Long {
-        // Finn refusjon fra sykepengegrunnlaget for denne datoen og inntektsforholdet
-        return sykepengegrunnlag.inntekter
-            .filter { it.yrkesaktivitetId == yrkesaktivitetId }
-            .flatMap { inntekt ->
-                inntekt.refusjon.filter { refusjon ->
-                    dato in refusjon.fom..refusjon.tom
-                }
-            }
-            .sumOf { it.beløpØre }
     }
 }
