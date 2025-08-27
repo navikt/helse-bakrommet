@@ -225,25 +225,30 @@ class UtbetalingsberegningIntegrasjonTest {
         val dag1 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 1) }!!
         assertEquals(0, dag1.utbetalingØre, "Dag 1 skal ikke ha personutbetaling (arbeidsgiver betaler alt)")
         assertEquals(230800, dag1.refusjonØre, "Dag 1 skal ha 230800 øre refusjon")
+        assertEquals(100, dag1.totalGrad, "Dag 1 skal ha 100% total grad")
 
         // Dag 2: 70% syk - skal ha 70% refusjon
         val dag2 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 2) }!!
         assertEquals(0, dag2.utbetalingØre, "Dag 2 skal ikke ha personutbetaling (arbeidsgiver betaler alt)")
         assertEquals(161500, dag2.refusjonØre, "Dag 2 skal ha 161500 øre refusjon (70% av dag 1)")
+        assertEquals(70, dag2.totalGrad, "Dag 2 skal ha 70% total grad")
 
         // Dag 3: Ferie - skal ikke ha utbetaling
         val dag3 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 3) }!!
         assertEquals(0, dag3.utbetalingØre, "Dag 3 (Ferie) skal ikke ha utbetaling")
         assertEquals(0, dag3.refusjonØre, "Dag 3 (Ferie) skal ikke ha refusjon")
+        assertEquals(0, dag3.totalGrad, "Dag 3 (Ferie) skal ha 0% total grad")
 
         // Dag 4: 100% syk - skal ha samme refusjon som dag 1
         val dag4 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 4) }!!
         assertEquals(0, dag4.utbetalingØre, "Dag 4 skal ikke ha personutbetaling (arbeidsgiver betaler alt)")
         assertEquals(230800, dag4.refusjonØre, "Dag 4 skal ha samme refusjon som dag 1")
+        assertEquals(100, dag4.totalGrad, "Dag 4 skal ha 100% total grad")
 
         // Dag 5: Arbeidsdag - skal ikke ha utbetaling
         val dag5 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 5) }!!
         assertEquals(0, dag5.utbetalingØre, "Dag 5 (Arbeidsdag) skal ikke ha utbetaling")
         assertEquals(0, dag5.refusjonØre, "Dag 5 (Arbeidsdag) skal ikke ha refusjon")
+        assertEquals(0, dag5.totalGrad, "Dag 5 (Arbeidsdag) skal ha 0% total grad")
     }
 }

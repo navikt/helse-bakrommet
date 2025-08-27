@@ -23,6 +23,7 @@ data class DagUtbetalingsberegning(
     val dato: LocalDate,
     val utbetalingØre: Long,
     val refusjonØre: Long,
+    val totalGrad: Int,
 )
 
 data class BeregningResponse(

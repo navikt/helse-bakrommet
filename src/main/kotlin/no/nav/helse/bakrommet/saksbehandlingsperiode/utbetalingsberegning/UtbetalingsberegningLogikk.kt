@@ -60,8 +60,11 @@ object UtbetalingsberegningLogikk {
                     )
                 }
 
+            // Beregn total sykdomsgrad for alle yrkesaktiviteter denne dagen (som Spleis)
+            val økonomiMedTotalGrad = Økonomi.totalSykdomsgrad(økonomiList)
+
             // Beregn utbetaling for alle yrkesaktiviteter denne dagen sammen
-            val beregnedeØkonomier = Økonomi.betal(sykepengegrunnlagBegrenset6G, økonomiList)
+            val beregnedeØkonomier = Økonomi.betal(sykepengegrunnlagBegrenset6G, økonomiMedTotalGrad)
 
             // Fordel resultatene tilbake til riktig yrkesaktivitet
             dagerForDato.zip(beregnedeØkonomier).forEach { (dagMedYrkesaktivitet, beregnetØkonomi) ->
@@ -168,10 +171,14 @@ object UtbetalingsberegningLogikk {
         val utbetalingØre = ((beregnetØkonomi.personbeløp?.dagligInt ?: 0) * 100).toLong()
         val refusjonØre = ((beregnetØkonomi.arbeidsgiverbeløp?.dagligInt ?: 0) * 100).toLong()
 
+        // Hent total grad som heltall (som Spleis)
+        val totalGrad = beregnetØkonomi.brukTotalGrad { it }
+
         return DagUtbetalingsberegning(
             dato = dag.dato,
             utbetalingØre = utbetalingØre,
             refusjonØre = refusjonØre,
+            totalGrad = totalGrad,
         )
     }
 
