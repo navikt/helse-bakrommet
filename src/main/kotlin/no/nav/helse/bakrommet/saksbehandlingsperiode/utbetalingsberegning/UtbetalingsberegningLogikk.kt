@@ -150,8 +150,8 @@ object UtbetalingsberegningLogikk {
                 inntekt.refusjon.map { refusjon ->
                     // Fyll tidslinjen for hver dag i refusjonsperioden
                     refusjon.fom.datesUntil(refusjon.tom.plusDays(1)).forEach { dato ->
-                        // Konverter fra månedlig øre til daglig kroner (del på 30 for å få daglig beløp)
-                        val dagligBeløpKroner = (refusjon.beløpØre / 30 / 100).toInt()
+                        // Konverter fra månedlig øre til daglig kroner (gange med 12 og dele på 260 arbeidsdager)
+                        val dagligBeløpKroner = ((refusjon.beløpØre * 12) / 260 / 100).toInt()
                         val beløp = Inntekt.gjenopprett(InntektbeløpDto.DagligInt(dagligBeløpKroner))
                         refusjonstidslinje[dato] = beløp
                     }
