@@ -39,6 +39,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregningRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.demoUtbetalingsberegningRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetService
@@ -161,6 +162,9 @@ internal fun Application.appModul(
     installErrorHandling(configuration)
 
     routing {
+        // Demo API - åpen endpoint uten autentisering
+        demoUtbetalingsberegningRoute()
+
         authenticate("entraid") {
             install(RolleMatrise)
             personsøkRoute(pdlClient, personDao)
