@@ -33,12 +33,14 @@ object UtbetalingsberegningLogikk {
                 inntektsforhold.id to opprettRefusjonstidslinje(input.sykepengegrunnlag, inntektsforhold.id)
             }
 
-        // Samle alle dager fra alle yrkesaktiviteter
+        // Samle alle dager fra alle yrkesaktiviteter og fyll ut manglende dager
         val alleDager = mutableMapOf<LocalDate, MutableList<DagMedYrkesaktivitet>>()
 
         input.yrkesaktivitet.forEach { inntektsforhold ->
             val dagoversikt = hentDagoversiktFraYrkesaktivitet(inntektsforhold)
-            dagoversikt.forEach { dag ->
+            val komplettDagoversikt = fyllUtManglendeDager(dagoversikt, input.saksbehandlingsperiode)
+
+            komplettDagoversikt.forEach { dag ->
                 alleDager.getOrPut(dag.dato) { mutableListOf() }.add(
                     DagMedYrkesaktivitet(dag, inntektsforhold.id),
                 )
@@ -95,6 +97,41 @@ object UtbetalingsberegningLogikk {
 
     private fun hentDagoversiktFraYrkesaktivitet(yrkesaktivitet: Yrkesaktivitet): List<Dag> {
         return yrkesaktivitet.dagoversikt.tilDagoversikt()
+    }
+
+    /**
+     * Fyller ut manglende dager i saksbehandlingsperioden med arbeidsdager
+     * Dager som ikke er definert i dagoversikten fylles ut som arbeidsdager
+     */
+    private fun fyllUtManglendeDager(
+        eksisterendeDager: List<Dag>,
+        saksbehandlingsperiode: Saksbehandlingsperiode,
+    ): List<Dag> {
+        val eksisterendeDatoer = eksisterendeDager.map { it.dato }.toSet()
+        val komplettDagoversikt = mutableListOf<Dag>()
+
+        // Legg til alle eksisterende dager
+        komplettDagoversikt.addAll(eksisterendeDager)
+
+        // Fyll ut manglende dager som arbeidsdager
+        var aktuellDato = saksbehandlingsperiode.fom
+        while (!aktuellDato.isAfter(saksbehandlingsperiode.tom)) {
+            if (!eksisterendeDatoer.contains(aktuellDato)) {
+                val arbeidsdag =
+                    Dag(
+                        dato = aktuellDato,
+                        dagtype = Dagtype.Arbeidsdag,
+                        grad = null,
+                        avvistBegrunnelse = emptyList(),
+                        kilde = null,
+                    )
+                komplettDagoversikt.add(arbeidsdag)
+            }
+            aktuellDato = aktuellDato.plusDays(1)
+        }
+
+        // Sorter dager etter dato
+        return komplettDagoversikt.sortedBy { it.dato }
     }
 
     /**

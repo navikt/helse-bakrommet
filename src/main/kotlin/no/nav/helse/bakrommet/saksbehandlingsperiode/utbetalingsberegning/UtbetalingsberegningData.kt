@@ -8,6 +8,12 @@ import java.util.UUID
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
     val yrkesaktivitet: List<Yrkesaktivitet>,
+    val saksbehandlingsperiode: Saksbehandlingsperiode,
+)
+
+data class Saksbehandlingsperiode(
+    val fom: LocalDate,
+    val tom: LocalDate,
 )
 
 data class UtbetalingsberegningData(

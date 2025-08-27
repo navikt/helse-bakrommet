@@ -140,6 +140,11 @@ class DemoUtbetalingsberegningRouteTest {
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
             yrkesaktivitet = listOf(yrkesaktivitet),
+            saksbehandlingsperiode =
+                Saksbehandlingsperiode(
+                    fom = LocalDate.of(2024, 1, 1),
+                    tom = LocalDate.of(2024, 1, 31),
+                ),
         )
     }
 }

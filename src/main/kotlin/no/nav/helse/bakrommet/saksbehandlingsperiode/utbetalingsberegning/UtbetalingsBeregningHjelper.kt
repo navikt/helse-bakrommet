@@ -36,6 +36,11 @@ class UtbetalingsBeregningHjelper(
             UtbetalingsberegningInput(
                 sykepengegrunnlag = sykepengegrunnlag,
                 yrkesaktivitet = inntektsforhold,
+                saksbehandlingsperiode =
+                    Saksbehandlingsperiode(
+                        fom = periode.fom,
+                        tom = periode.tom,
+                    ),
             )
 
         // Utfør beregning
