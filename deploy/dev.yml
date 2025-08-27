@@ -44,6 +44,7 @@ spec:
     inbound:
       rules:
         - application: spillerom
+        - application: spillerom-demo
     outbound:
       rules:
           - application: sykepengesoknad-backend
