@@ -113,7 +113,8 @@ object UtbetalingsberegningLogikk {
                 inntekt.refusjon.map { refusjon ->
                     // Fyll tidslinjen for hver dag i refusjonsperioden
                     refusjon.fom.datesUntil(refusjon.tom.plusDays(1)).forEach { dato ->
-                        val beløp = Inntekt.gjenopprett(InntektbeløpDto.DagligInt(refusjon.beløpØre.toInt()))
+                        // Konverter fra øre til kroner for DagligInt
+                        val beløp = Inntekt.gjenopprett(InntektbeløpDto.DagligInt((refusjon.beløpØre / 100).toInt()))
                         refusjonstidslinje[dato] = beløp
                     }
                 }
