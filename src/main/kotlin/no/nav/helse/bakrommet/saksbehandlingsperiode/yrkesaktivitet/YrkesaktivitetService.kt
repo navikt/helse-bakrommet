@@ -88,8 +88,9 @@ class YrkesaktivitetService(
                 }
             val inntektsforhold = yrkesaktivitetDao.opprettYrkesaktivitet(kategorisering.tilDatabaseType(periode.id, dagoversikt))
 
-            // Slett sykepengegrunnlag når inntektsforhold endres
+            // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
             sykepengegrunnlagDao.slettSykepengegrunnlag(ref.periodeUUID)
+            beregningDao.slettBeregning(ref.periodeUUID)
 
             inntektsforhold
         }
@@ -107,8 +108,9 @@ class YrkesaktivitetService(
                 )
             yrkesaktivitetDao.oppdaterKategorisering(inntektsforhold, kategorisering)
 
-            // Slett sykepengegrunnlag når inntektsforhold endres
+            // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
             sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
         }
     }
 
@@ -124,8 +126,9 @@ class YrkesaktivitetService(
                 )
             yrkesaktivitetDao.slettYrkesaktivitet(inntektsforhold.id)
 
-            // Slett sykepengegrunnlag når inntektsforhold endres
+            // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
             sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
         }
     }
 

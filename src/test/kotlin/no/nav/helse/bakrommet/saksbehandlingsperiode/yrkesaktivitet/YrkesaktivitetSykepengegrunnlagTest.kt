@@ -130,4 +130,41 @@ class YrkesaktivitetSykepengegrunnlagTest {
         val grunnlagEtter = sykepengegrunnlagService.hentSykepengegrunnlag(periodeReferanse())
         assertNull(grunnlagEtter)
     }
+
+    @Test
+    fun `utbetalingsberegning slettes når inntektsforhold endres`() {
+        // Given - opprett inntektsforhold først
+        val kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode()
+        val inntektsforhold = inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), kategorisering, saksbehandler)
+
+        // Opprett sykepengegrunnlag (som også oppretter utbetalingsberegning)
+        val request =
+            SykepengegrunnlagRequest(
+                inntekter =
+                    listOf(
+                        Inntekt(
+                            yrkesaktivitetId = inntektsforhold.id,
+                            // 5000 kr/måned
+                            beløpPerMånedØre = 500000L,
+                            kilde = Inntektskilde.INNTEKTSMELDING,
+                            refusjon = emptyList(),
+                        ),
+                    ),
+                begrunnelse = "Test",
+            )
+        sykepengegrunnlagService.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+
+        // Verify utbetalingsberegning eksisterer
+        val beregningDao = UtbetalingsberegningDao(dataSource)
+        val beregningFør = beregningDao.hentBeregning(periode.id)
+        assertNotNull(beregningFør)
+
+        // When - opprett nytt inntektsforhold
+        val nyKategorisering = """{"INNTEKTSKATEGORI": "FRILANSER"}""".asJsonNode()
+        inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), nyKategorisering, saksbehandler)
+
+        // Then - utbetalingsberegning skal være slettet
+        val beregningEtter = beregningDao.hentBeregning(periode.id)
+        assertNull(beregningEtter)
+    }
 }
