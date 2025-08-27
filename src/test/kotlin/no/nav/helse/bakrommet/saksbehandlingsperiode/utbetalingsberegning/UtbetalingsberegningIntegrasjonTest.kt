@@ -223,14 +223,14 @@ class UtbetalingsberegningIntegrasjonTest {
 
         // Dag 1: 100% syk - skal ha refusjon
         val dag1 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 1) }!!
-        assertEquals(0, dag1.utbetalingØre, "Dag 1 skal ikke ha personutbetaling (arbeidsgiver betaler alt)")
-        assertEquals(230800, dag1.refusjonØre, "Dag 1 skal ha 230800 øre refusjon")
+        assertEquals(197500, dag1.utbetalingØre, "Dag 1 skal ha personutbetaling siden refusjon ikke dekker alt")
+        assertEquals(33300, dag1.refusjonØre, "Dag 1 skal ha 33300 øre refusjon (10000 kr / 30 dager)")
         assertEquals(100, dag1.totalGrad, "Dag 1 skal ha 100% total grad")
 
         // Dag 2: 70% syk - skal ha 70% refusjon
         val dag2 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 2) }!!
-        assertEquals(0, dag2.utbetalingØre, "Dag 2 skal ikke ha personutbetaling (arbeidsgiver betaler alt)")
-        assertEquals(161500, dag2.refusjonØre, "Dag 2 skal ha 161500 øre refusjon (70% av dag 1)")
+        assertEquals(138200, dag2.utbetalingØre, "Dag 2 skal ha personutbetaling siden refusjon ikke dekker alt")
+        assertEquals(23300, dag2.refusjonØre, "Dag 2 skal ha 23300 øre refusjon (70% av dag 1, avrundet)")
         assertEquals(70, dag2.totalGrad, "Dag 2 skal ha 70% total grad")
 
         // Dag 3: Ferie - skal ikke ha utbetaling
@@ -241,8 +241,8 @@ class UtbetalingsberegningIntegrasjonTest {
 
         // Dag 4: 100% syk - skal ha samme refusjon som dag 1
         val dag4 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 4) }!!
-        assertEquals(0, dag4.utbetalingØre, "Dag 4 skal ikke ha personutbetaling (arbeidsgiver betaler alt)")
-        assertEquals(230800, dag4.refusjonØre, "Dag 4 skal ha samme refusjon som dag 1")
+        assertEquals(197500, dag4.utbetalingØre, "Dag 4 skal ha samme personutbetaling som dag 1")
+        assertEquals(33300, dag4.refusjonØre, "Dag 4 skal ha samme refusjon som dag 1")
         assertEquals(100, dag4.totalGrad, "Dag 4 skal ha 100% total grad")
 
         // Dag 5: Arbeidsdag - skal ikke ha utbetaling
