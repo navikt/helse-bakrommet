@@ -2,7 +2,7 @@
 [![Bygg og deploy Bakrommet](https://github.com/navikt/helse-bakrommet/actions/workflows/main.yml/badge.svg)](https://github.com/navikt/helse-bakrommet/actions/workflows/main.yml)
 
 ## Beskrivelse
-Backend for frontenden Spillerom
+Backend for frontenden Spillerom. Holder behandlinger, dagoversikt, sykepengegrunnlag og annen fakta puttet inn av saksbehandler i spillerom.
 
 ## Henvendelser
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.
