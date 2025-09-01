@@ -22,7 +22,8 @@ data class Inntekt(
 
 data class Refusjonsperiode(
     val fom: LocalDate,
-    val tom: LocalDate,
+    val tom: LocalDate?,
+    // Kan være null for åpne refusjonsperioder
     // Beløp i øre
     val beløpØre: Long,
 )

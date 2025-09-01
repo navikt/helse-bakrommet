@@ -41,9 +41,10 @@ object UtbetalingsberegningLogikk {
     private fun opprettRefusjonstidslinjer(input: UtbetalingsberegningInput): Map<UUID, Map<LocalDate, Inntekt>> {
         return input.yrkesaktivitet.associate { yrkesaktivitet ->
             yrkesaktivitet.id to
-                beregnRefusjonstidslinje(
+                RefusjonstidslinjeUtility.beregnRefusjonstidslinje(
                     input.sykepengegrunnlag,
                     yrkesaktivitet.id,
+                    input.saksbehandlingsperiode,
                 )
         }
     }
@@ -153,37 +154,6 @@ object UtbetalingsberegningLogikk {
             avvistBegrunnelse = emptyList(),
             kilde = null,
         )
-    }
-
-    private fun beregnRefusjonstidslinje(
-        sykepengegrunnlag: SykepengegrunnlagResponse,
-        yrkesaktivitetId: UUID,
-    ): Map<LocalDate, Inntekt> {
-        val refusjonstidslinje = mutableMapOf<LocalDate, Inntekt>()
-
-        sykepengegrunnlag.inntekter
-            .filter { it.yrkesaktivitetId == yrkesaktivitetId }
-            .flatMap { inntekt ->
-                inntekt.refusjon.map { refusjon ->
-                    // Fyll tidslinjen for hver dag i refusjonsperioden
-                    refusjon.fom.datesUntil(refusjon.tom.plusDays(1)).forEach { dato ->
-                        val dagligBeløpKroner = konverterMånedligØreTilDagligKroner(refusjon.beløpØre)
-                        val beløp = Inntekt.gjenopprett(InntektbeløpDto.DagligInt(dagligBeløpKroner))
-                        refusjonstidslinje[dato] = beløp
-                    }
-                }
-            }
-
-        return refusjonstidslinje
-    }
-
-    private fun konverterMånedligØreTilDagligKroner(månedligBeløpØre: Long): Int {
-        // Konverter fra månedlig øre til daglig kroner (gange med 12 og dele på 260 arbeidsdager)
-        return (
-            (månedligBeløpØre * UtbetalingsberegningKonfigurasjon.MÅNEDLIG_TIL_ÅRLIG_FAKTOR) /
-                UtbetalingsberegningKonfigurasjon.STANDARD_ÅRLIGE_ARBEIDSDAGER /
-                UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR
-        ).toInt()
     }
 
     private fun beregnØkonomiForDag(

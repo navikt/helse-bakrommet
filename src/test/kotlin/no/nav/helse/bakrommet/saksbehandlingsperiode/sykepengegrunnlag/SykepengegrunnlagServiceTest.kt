@@ -245,6 +245,73 @@ class SykepengegrunnlagServiceTest {
     }
 
     @Test
+    fun `oppretter sykepengegrunnlag med åpen refusjonsperiode`() {
+        val refusjon =
+            listOf(
+                Refusjonsperiode(
+                    fom = LocalDate.of(2023, 1, 1),
+                    tom = null, // Åpen refusjonsperiode
+                    beløpØre = 5000000L,
+                ),
+            )
+
+        val request =
+            SykepengegrunnlagRequest(
+                inntekter =
+                    listOf(
+                        Inntekt(
+                            yrkesaktivitetId = yrkesaktivitet.id,
+                            // 50 000 kr/måned
+                            beløpPerMånedØre = 5000000L,
+                            kilde = Inntektskilde.AINNTEKT,
+                            refusjon = refusjon,
+                        ),
+                    ),
+            )
+
+        val resultat = service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+
+        assertEquals(60000000L, resultat.totalInntektØre)
+        assertEquals(1, resultat.inntekter.size)
+
+        val inntekt = resultat.inntekter[0]
+        assertEquals(1, inntekt.refusjon.size)
+        val refusjonsperiode = inntekt.refusjon[0]
+        assertEquals(LocalDate.of(2023, 1, 1), refusjonsperiode.fom)
+        assertNull(refusjonsperiode.tom) // Tom skal være null for åpne perioder
+        assertEquals(5000000L, refusjonsperiode.beløpØre)
+    }
+
+    @Test
+    fun `validerer at åpen refusjonsperiode ikke krever tom`() {
+        val refusjon =
+            listOf(
+                Refusjonsperiode(
+                    fom = LocalDate.of(2023, 1, 1),
+                    tom = null, // Åpen refusjonsperiode
+                    beløpØre = 5000000L,
+                ),
+            )
+
+        val request =
+            SykepengegrunnlagRequest(
+                inntekter =
+                    listOf(
+                        Inntekt(
+                            yrkesaktivitetId = yrkesaktivitet.id,
+                            beløpPerMånedØre = 5000000L,
+                            kilde = Inntektskilde.AINNTEKT,
+                            refusjon = refusjon,
+                        ),
+                    ),
+            )
+
+        // Dette skal ikke kaste noen valideringsfeil
+        val resultat = service.settSykepengegrunnlag(periodeReferanse(), request, saksbehandler)
+        assertNotNull(resultat)
+    }
+
+    @Test
     fun `henter eksisterende sykepengegrunnlag`() {
         val request =
             SykepengegrunnlagRequest(

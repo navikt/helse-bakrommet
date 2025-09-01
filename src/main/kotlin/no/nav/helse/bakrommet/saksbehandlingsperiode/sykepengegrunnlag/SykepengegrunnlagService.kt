@@ -126,8 +126,8 @@ class SykepengegrunnlagService(
                 if (refusjonsperiode.beløpØre < 0) {
                     throw InputValideringException("Refusjonsbeløp kan ikke være negativt (inntekt $index, refusjon $refusjonsIndex)")
                 }
-                // Valider at fom er før eller lik tom
-                if (refusjonsperiode.fom.isAfter(refusjonsperiode.tom)) {
+                // Valider at fom er før eller lik tom (hvis tom er satt)
+                if (refusjonsperiode.tom != null && refusjonsperiode.fom.isAfter(refusjonsperiode.tom)) {
                     throw InputValideringException("Fra-dato kan ikke være etter til-dato (inntekt $index, refusjon $refusjonsIndex)")
                 }
             }

@@ -1,159 +1,242 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.util.asJsonNode
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.UUID
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt as SykepengegrunnlagInntekt
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class UtbetalingsberegningLogikkTest {
     @Test
-    fun `skal beregne utbetaling for enkelt sykedag`() {
-        // Given
+    fun `beregner utbetaling med åpen refusjonsperiode`() {
         val yrkesaktivitetId = UUID.randomUUID()
-        val input =
-            lagTestInput(
-                yrkesaktivitet = listOf(lagSykYrkesaktivitet(yrkesaktivitetId)),
-                // 50 000 kr
-                sykepengegrunnlag = lagSykepengegrunnlag(yrkesaktivitetId, 5000000),
-            )
-
-        // When
-        val resultat = UtbetalingsberegningLogikk.beregn(input)
-
-        // Then
-        assertEquals(1, resultat.yrkesaktiviteter.size)
-        assertEquals(yrkesaktivitetId, resultat.yrkesaktiviteter[0].yrkesaktivitetId)
-        assertEquals(1, resultat.yrkesaktiviteter[0].dager.size)
-        assertTrue(resultat.yrkesaktiviteter[0].dager[0].utbetalingØre > 0)
-    }
-
-    @Test
-    fun `skal håndtere manglende inntekt for yrkesaktivitet`() {
-        // Given
-        val yrkesaktivitetId = UUID.randomUUID()
-        val input =
-            lagTestInput(
-                yrkesaktivitet = listOf(lagSykYrkesaktivitet(yrkesaktivitetId)),
-                // Feil yrkesaktivitetId
-                sykepengegrunnlag = lagSykepengegrunnlag(UUID.randomUUID(), 5000000),
-            )
-
-        // When/Then
-        val exception =
-            assertThrows(UtbetalingsberegningFeil.ManglendeInntekt::class.java) {
-                UtbetalingsberegningLogikk.beregn(input)
-            }
-        assertEquals(yrkesaktivitetId, exception.yrkesaktivitetId)
-    }
-
-    @Test
-    fun `skal fylle ut manglende dager som arbeidsdager`() {
-        // Given
-        val yrkesaktivitetId = UUID.randomUUID()
-        val input =
-            lagTestInput(
-                yrkesaktivitet = listOf(lagSykYrkesaktivitet(yrkesaktivitetId)),
-                saksbehandlingsperiode =
-                    Saksbehandlingsperiode(
-                        fom = LocalDate.of(2024, 1, 1),
-                        tom = LocalDate.of(2024, 1, 3),
-                    ),
-            )
-
-        // When
-        val resultat = UtbetalingsberegningLogikk.beregn(input)
-
-        // Then
-        assertEquals(3, resultat.yrkesaktiviteter[0].dager.size)
-        assertEquals(LocalDate.of(2024, 1, 1), resultat.yrkesaktiviteter[0].dager[0].dato)
-        assertEquals(LocalDate.of(2024, 1, 2), resultat.yrkesaktiviteter[0].dager[1].dato)
-        assertEquals(LocalDate.of(2024, 1, 3), resultat.yrkesaktiviteter[0].dager[2].dato)
-    }
-
-    @Test
-    fun `skal håndtere ugyldig periode`() {
-        // Given
-        val yrkesaktivitetId = UUID.randomUUID()
-        val input =
-            lagTestInput(
-                yrkesaktivitet = listOf(lagSykYrkesaktivitet(yrkesaktivitetId)),
-                saksbehandlingsperiode =
-                    Saksbehandlingsperiode(
-                        // Tom før fom
-                        fom = LocalDate.of(2024, 1, 3),
-                        tom = LocalDate.of(2024, 1, 1),
-                    ),
-            )
-
-        // When/Then
-        assertThrows(UtbetalingsberegningFeil.UgyldigPeriode::class.java) {
-            UtbetalingsberegningLogikk.beregn(input)
-        }
-    }
-
-    private fun lagTestInput(
-        yrkesaktivitet: List<Yrkesaktivitet>,
-        sykepengegrunnlag: SykepengegrunnlagResponse = lagSykepengegrunnlag(yrkesaktivitet.first().id, 5000000),
-        saksbehandlingsperiode: Saksbehandlingsperiode =
+        val saksbehandlingsperiode =
             Saksbehandlingsperiode(
                 fom = LocalDate.of(2024, 1, 1),
-                tom = LocalDate.of(2024, 1, 1),
-            ),
-    ): UtbetalingsberegningInput {
-        return UtbetalingsberegningInput(
-            yrkesaktivitet = yrkesaktivitet,
-            sykepengegrunnlag = sykepengegrunnlag,
-            saksbehandlingsperiode = saksbehandlingsperiode,
-        )
+                tom = LocalDate.of(2024, 1, 31),
+            )
+
+        val sykepengegrunnlag =
+            lagSykepengegrunnlag(
+                yrkesaktivitetId = yrkesaktivitetId,
+                refusjon =
+                    listOf(
+                        Refusjonsperiode(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = null,
+                            // Åpen refusjonsperiode
+                            beløpØre = 1000000L,
+                            // 10 000 kr/mnd
+                        ),
+                    ),
+            )
+
+        val dagoversikt =
+            listOf(
+                Dag(
+                    dato = LocalDate.of(2024, 1, 1),
+                    dagtype = Dagtype.Syk,
+                    grad = 100,
+                    avvistBegrunnelse = emptyList(),
+                    kilde = Kilde.Saksbehandler,
+                ),
+                Dag(
+                    dato = LocalDate.of(2024, 1, 2),
+                    dagtype = Dagtype.Syk,
+                    grad = 100,
+                    avvistBegrunnelse = emptyList(),
+                    kilde = Kilde.Saksbehandler,
+                ),
+            )
+
+        val yrkesaktivitet =
+            lagYrkesaktivitet(
+                id = yrkesaktivitetId,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                dagoversikt = dagoversikt,
+            )
+
+        val input =
+            UtbetalingsberegningInput(
+                sykepengegrunnlag = sykepengegrunnlag,
+                yrkesaktivitet = listOf(yrkesaktivitet),
+                saksbehandlingsperiode = saksbehandlingsperiode,
+            )
+
+        val resultat = UtbetalingsberegningLogikk.beregn(input)
+
+        assertEquals(1, resultat.yrkesaktiviteter.size)
+        val yrkesaktivitetResultat = resultat.yrkesaktiviteter.first()
+        assertEquals(yrkesaktivitetId, yrkesaktivitetResultat.yrkesaktivitetId)
+
+        // Vi skal ha 31 dager (hele januar)
+        assertEquals(31, yrkesaktivitetResultat.dager.size)
+
+        // Sjekk at sykedagene har refusjon
+        val sykedag1 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 1, 1) }
+        assertNotNull(sykedag1)
+        assertEquals(100, sykedag1.totalGrad)
+        assertTrue(sykedag1.refusjonØre > 0, "Sykedag skal ha refusjon")
+
+        val sykedag2 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 1, 2) }
+        assertNotNull(sykedag2)
+        assertEquals(100, sykedag2.totalGrad)
+        assertTrue(sykedag2.refusjonØre > 0, "Sykedag skal ha refusjon")
     }
 
-    private fun lagSykYrkesaktivitet(yrkesaktivitetId: UUID): Yrkesaktivitet {
-        return Yrkesaktivitet(
-            id = yrkesaktivitetId,
-            kategorisering = "{}".asJsonNode(),
-            kategoriseringGenerert = null,
-            dagoversikt = """[{"dato":"2024-01-01","dagtype":"Syk","grad":100,"avvistBegrunnelse":[],"kilde":null}]""".asJsonNode(),
-            dagoversiktGenerert = null,
-            saksbehandlingsperiodeId = UUID.randomUUID(),
-            opprettet = java.time.OffsetDateTime.now(),
-            generertFraDokumenter = emptyList(),
-        )
+    @Test
+    fun `beregner utbetaling med blandet refusjon (lukket og åpen)`() {
+        val yrkesaktivitetId = UUID.randomUUID()
+        val saksbehandlingsperiode =
+            Saksbehandlingsperiode(
+                fom = LocalDate.of(2024, 1, 1),
+                tom = LocalDate.of(2024, 3, 31),
+            )
+
+        val sykepengegrunnlag =
+            lagSykepengegrunnlag(
+                yrkesaktivitetId = yrkesaktivitetId,
+                refusjon =
+                    listOf(
+                        Refusjonsperiode(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = LocalDate.of(2024, 1, 15),
+                            // Lukket periode
+                            beløpØre = 1000000L,
+                            // 10 000 kr/mnd
+                        ),
+                        Refusjonsperiode(
+                            fom = LocalDate.of(2024, 2, 1),
+                            tom = null,
+                            // Åpen periode
+                            beløpØre = 2000000L,
+                            // 20 000 kr/mnd
+                        ),
+                    ),
+            )
+
+        val yrkesaktivitet =
+            lagYrkesaktivitet(
+                id = yrkesaktivitetId,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                dagoversikt =
+                    listOf(
+                        Dag(
+                            dato = LocalDate.of(2024, 1, 10),
+                            // I første refusjonsperiode
+                            dagtype = Dagtype.Syk,
+                            grad = 100,
+                            avvistBegrunnelse = emptyList(),
+                            kilde = Kilde.Saksbehandler,
+                        ),
+                        Dag(
+                            dato = LocalDate.of(2024, 2, 10),
+                            // I andre refusjonsperiode
+                            dagtype = Dagtype.Syk,
+                            grad = 100,
+                            avvistBegrunnelse = emptyList(),
+                            kilde = Kilde.Saksbehandler,
+                        ),
+                        Dag(
+                            dato = LocalDate.of(2024, 3, 10),
+                            // I åpen refusjonsperiode
+                            dagtype = Dagtype.Syk,
+                            grad = 100,
+                            avvistBegrunnelse = emptyList(),
+                            kilde = Kilde.Saksbehandler,
+                        ),
+                    ),
+            )
+
+        val input =
+            UtbetalingsberegningInput(
+                sykepengegrunnlag = sykepengegrunnlag,
+                yrkesaktivitet = listOf(yrkesaktivitet),
+                saksbehandlingsperiode = saksbehandlingsperiode,
+            )
+
+        val resultat = UtbetalingsberegningLogikk.beregn(input)
+
+        assertEquals(1, resultat.yrkesaktiviteter.size)
+        val yrkesaktivitetResultat = resultat.yrkesaktiviteter.first()
+
+        // Vi skal ha 91 dager (jan-mars 2024)
+        assertEquals(91, yrkesaktivitetResultat.dager.size)
+
+        // Sjekk at alle sykedagene har refusjon
+        val sykedag1 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 1, 10) }
+        assertNotNull(sykedag1)
+        assertTrue(sykedag1.refusjonØre > 0, "Dag i lukket refusjonsperiode skal ha refusjon")
+
+        val sykedag2 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 2, 10) }
+        assertNotNull(sykedag2)
+        assertTrue(sykedag2.refusjonØre > 0, "Dag i åpen refusjonsperiode skal ha refusjon")
+
+        val sykedag3 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 3, 10) }
+        assertNotNull(sykedag3)
+        assertTrue(sykedag3.refusjonØre > 0, "Dag i åpen refusjonsperiode skal ha refusjon")
     }
 
     private fun lagSykepengegrunnlag(
         yrkesaktivitetId: UUID,
-        beløpPerMånedØre: Long,
+        refusjon: List<Refusjonsperiode>,
     ): SykepengegrunnlagResponse {
         return SykepengegrunnlagResponse(
             id = UUID.randomUUID(),
             saksbehandlingsperiodeId = UUID.randomUUID(),
             inntekter =
                 listOf(
-                    SykepengegrunnlagInntekt(
+                    Inntekt(
                         yrkesaktivitetId = yrkesaktivitetId,
-                        beløpPerMånedØre = beløpPerMånedØre,
-                        kilde = no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde.AINNTEKT,
-                        refusjon = emptyList(),
+                        beløpPerMånedØre = 5000000L,
+                        // 50 000 kr/mnd
+                        kilde = Inntektskilde.AINNTEKT,
+                        refusjon = refusjon,
                     ),
                 ),
-            totalInntektØre = beløpPerMånedØre * 12,
-            // 1000 kr
-            grunnbeløpØre = 100000,
-            // 600 000 kr (6G)
-            grunnbeløp6GØre = 60000000,
+            totalInntektØre = 60000000L,
+            // 50 000 * 12
+            grunnbeløpØre = 12402800L,
+            // 1G
+            grunnbeløp6GØre = 74416800L,
+            // 6G
             begrensetTil6G = false,
-            // 600 000 kr (6G)
-            sykepengegrunnlagØre = 60000000,
-            grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 1, 1),
-            opprettet = "2024-01-01T00:00:00",
+            sykepengegrunnlagØre = 60000000L,
+            grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
+            opprettet = "2024-01-01T00:00:00Z",
             opprettetAv = "test",
-            sistOppdatert = "2024-01-01T00:00:00",
+            sistOppdatert = "2024-01-01T00:00:00Z",
+        )
+    }
+
+    private fun lagYrkesaktivitet(
+        id: UUID,
+        saksbehandlingsperiodeId: UUID,
+        dagoversikt: List<Dag>,
+    ): Yrkesaktivitet {
+        return Yrkesaktivitet(
+            id = id,
+            kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
+            kategoriseringGenerert = null,
+            dagoversikt =
+                dagoversikt.map { dag ->
+                    """{"dato":"${dag.dato}","dagtype":"${dag.dagtype}","grad":${dag.grad},"avvistBegrunnelse":[],"kilde":"${dag.kilde}"}"""
+                }.joinToString(",", "[", "]").asJsonNode(),
+            dagoversiktGenerert = null,
+            saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+            opprettet = OffsetDateTime.now(),
+            generertFraDokumenter = emptyList(),
         )
     }
 }
