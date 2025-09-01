@@ -1,8 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 
-private val flywayVersion = "11.5.0"
-private val ktorVersion = "3.1.2"
-
 plugins {
     kotlin("jvm") version "2.1.20"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
@@ -43,6 +40,18 @@ dependencies {
     implementation(libs.bundles.logback)
     implementation(libs.micrometerPrometheus)
     implementation(libs.sykepengesoknad)
+    implementation(libs.spleisUtbetaling) {
+        exclude(group = "no.nav.helse", module = "sykepenger-aktivitetslogg")
+        exclude(group = "no.nav.helse", module = "sykepenger-etterlevelse-api")
+    }
+    implementation(libs.spleisPrimitiver) {
+        exclude(group = "no.nav.helse", module = "sykepenger-etterlevelse-api")
+    }
+    implementation(libs.spleisModel) {
+        exclude(group = "no.nav.helse", module = "sykepenger-etterlevelse-api")
+        exclude(group = "no.nav.helse", module = "sykepenger-aktivitetslogg")
+        exclude(group = "no.nav.helse", module = "sykepenger-aktivitetslogg-dto")
+    }
 
     testImplementation(libs.bundles.ktorServerTest)
     testImplementation(libs.testcontainers.postgres)

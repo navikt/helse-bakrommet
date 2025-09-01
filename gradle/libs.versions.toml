@@ -2,6 +2,7 @@
 flyway = "11.7.2"
 ktor = "3.2.0"
 testcontainers = "1.21.0"
+spleis="2025.09.01-09.22-dd093777"
 
 [libraries]
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
@@ -35,6 +36,10 @@ slf4jApi = "org.slf4j:slf4j-api:2.0.17"
 
 micrometerPrometheus = "io.micrometer:micrometer-registry-prometheus:1.14.6"
 sykepengesoknad = "no.nav.helse.flex:sykepengesoknad-kafka:2025.04.08-17.40-d97b1f21"
+
+spleisUtbetaling = { module = "no.nav.helse:sykepenger-utbetaling", version.ref = "spleis" }
+spleisPrimitiver = { module = "no.nav.helse:sykepenger-primitiver", version.ref = "spleis" }
+spleisModel = { module = "no.nav.helse:sykepenger-model", version.ref = "spleis" }
 
 [bundles]
 flywayPostgres = [
