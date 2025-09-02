@@ -12,6 +12,13 @@ import no.nav.helse.økonomi.Prosentdel
 fun Yrkesaktivitet.hentDekningsgrad(): Prosentdel {
     return when (kategorisering.get("INNTEKTSKATEGORI")?.asText()) {
         "SELVSTENDIG_NÆRINGSDRIVENDE" -> {
+            // Sjekk først om det er en fisker - disse skal ha 100% dekning uansett
+            val typeSelvstendig = kategorisering.get("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE")?.asText()
+
+            if (typeSelvstendig == "FISKER") {
+                return Prosentdel.HundreProsent
+            }
+
             // Sjekk om det finnes forsikringsinformasjon
             val forsikring = kategorisering.get("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING")?.asText()
 

@@ -139,6 +139,31 @@ class YrkesaktivitetExtensionsTest {
     }
 
     @Test
+    fun `skal returnere 100 prosent for fisker på blad b`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
+                put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "FISKER")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 100.0
+    }
+
+    @Test
     fun `skal kaste feil for inaktiv uten variant`() {
         val kategorisering =
             objectMapper.createObjectNode().apply {
