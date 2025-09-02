@@ -128,7 +128,9 @@ class DemoUtbetalingsberegningRouteTest {
         val yrkesaktivitet =
             Yrkesaktivitet(
                 id = yrkesaktivitetId,
-                kategorisering = objectMapper.createObjectNode(),
+                kategorisering = objectMapper.createObjectNode().apply {
+                    put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                },
                 kategoriseringGenerert = null,
                 dagoversikt = dagoversikt,
                 dagoversiktGenerert = null,
