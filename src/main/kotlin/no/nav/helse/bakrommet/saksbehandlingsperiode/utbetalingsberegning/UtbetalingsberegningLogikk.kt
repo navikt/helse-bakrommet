@@ -99,7 +99,7 @@ object UtbetalingsberegningLogikk {
 
             dagerForDato.zip(beregnedeØkonomier).forEach { (dagMedYrkesaktivitet, beregnetØkonomi) ->
                 val yrkesaktivitetId = dagMedYrkesaktivitet.yrkesaktivitet.id
-                val dagBeregning = konverterTilDagBeregning(dagMedYrkesaktivitet.dag, beregnetØkonomi, dagMedYrkesaktivitet.yrkesaktivitet)
+                val dagBeregning = konverterTilDagBeregning(dagMedYrkesaktivitet.dag, beregnetØkonomi)
                 dagBeregningerPerYrkesaktivitet.getOrPut(yrkesaktivitetId) { mutableListOf() }.add(dagBeregning)
             }
         }
@@ -195,7 +195,6 @@ object UtbetalingsberegningLogikk {
     private fun konverterTilDagBeregning(
         dag: Dag,
         beregnetØkonomi: Økonomi,
-        yrkesaktivitet: Yrkesaktivitet,
     ): DagUtbetalingsberegning {
         // Konverter tilbake til øre-format for output
         // dagligInt returnerer kroner som Int, men vi trenger øre
@@ -205,15 +204,11 @@ object UtbetalingsberegningLogikk {
         // Hent total grad som heltall (som Spleis)
         val totalGrad = beregnetØkonomi.brukTotalGrad { it }
 
-        // Hent dekningsgrad fra yrkesaktivitet
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad().toDouble()
-
         return DagUtbetalingsberegning(
             dato = dag.dato,
             utbetalingØre = utbetalingØre,
             refusjonØre = refusjonØre,
             totalGrad = totalGrad,
-            dekningsgrad = dekningsgrad,
         )
     }
 
