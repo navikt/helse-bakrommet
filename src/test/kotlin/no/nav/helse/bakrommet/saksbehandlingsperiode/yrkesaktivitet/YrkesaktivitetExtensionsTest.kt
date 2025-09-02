@@ -1,9 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.helse.økonomi.Prosentdel
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
+import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 import java.util.*
@@ -32,9 +30,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        // Sjekk at dekningsgraden er en Prosentdel
-        assertNotNull(dekningsgrad)
-        assertTrue(dekningsgrad is Prosentdel)
+        dekningsgrad.toDouble() `should equal` 80.0
     }
 
     @Test
@@ -58,9 +54,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        // Sjekk at dekningsgraden er en Prosentdel
-        assertNotNull(dekningsgrad)
-        assertTrue(dekningsgrad is Prosentdel)
+        dekningsgrad.toDouble() `should equal` 100.0
     }
 
     @Test
@@ -84,9 +78,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        // Sjekk at dekningsgraden er en Prosentdel
-        assertNotNull(dekningsgrad)
-        assertTrue(dekningsgrad is Prosentdel)
+        dekningsgrad.toDouble() `should equal` 100.0
     }
 
     @Test
@@ -106,10 +98,7 @@ class YrkesaktivitetExtensionsTest {
             )
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
-
-        // Sjekk at dekningsgraden er en Prosentdel
-        assertNotNull(dekningsgrad)
-        assertTrue(dekningsgrad is Prosentdel)
+        dekningsgrad.toDouble() `should equal` 100.0
     }
 
     @Test
@@ -150,10 +139,7 @@ class YrkesaktivitetExtensionsTest {
         val selvstendigDekningsgrad = selvstendigYrkesaktivitet.hentDekningsgrad()
         val arbeidstakerDekningsgrad = arbeidstakerYrkesaktivitet.hentDekningsgrad()
 
-        // Sjekk at begge returnerer Prosentdel-objekter
-        assertNotNull(selvstendigDekningsgrad)
-        assertNotNull(arbeidstakerDekningsgrad)
-        assertTrue(selvstendigDekningsgrad is Prosentdel)
-        assertTrue(arbeidstakerDekningsgrad is Prosentdel)
+        selvstendigDekningsgrad.toDouble() `should equal` 80.0
+        arbeidstakerDekningsgrad.toDouble() `should equal` 100.0
     }
 }
