@@ -10,10 +10,135 @@ class YrkesaktivitetExtensionsTest {
     private val objectMapper = ObjectMapper()
 
     @Test
-    fun `skal returnere Prosentdel for selvstendig næringsdrivende`() {
+    fun `skal returnere 80 prosent for selvstendig næringsdrivende uten forsikring`() {
         val kategorisering =
             objectMapper.createObjectNode().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 80.0
+    }
+
+    @Test
+    fun `skal returnere 100 prosent for selvstendig næringsdrivende med 100 prosent fra første sykedag`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
+                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 100.0
+    }
+
+    @Test
+    fun `skal returnere 100 prosent for selvstendig næringsdrivende med 100 prosent fra 17 sykedag`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
+                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_17_SYKEDAG")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 100.0
+    }
+
+    @Test
+    fun `skal returnere 80 prosent for selvstendig næringsdrivende med 80 prosent fra første sykedag`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
+                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 80.0
+    }
+
+    @Test
+    fun `skal returnere 80 prosent for selvstendig næringsdrivende med ingen forsikring`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
+                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "INGEN_FORSIKRING")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 80.0
+    }
+
+    @Test
+    fun `skal returnere 80 prosent for selvstendig næringsdrivende med ukjent forsikringstype`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
+                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "UKJENT_FORSIKRING")
             }
 
         val yrkesaktivitet =
@@ -106,6 +231,7 @@ class YrkesaktivitetExtensionsTest {
         val selvstendigKategorisering =
             objectMapper.createObjectNode().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
+                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG")
             }
         val arbeidstakerKategorisering =
             objectMapper.createObjectNode().apply {
@@ -139,7 +265,7 @@ class YrkesaktivitetExtensionsTest {
         val selvstendigDekningsgrad = selvstendigYrkesaktivitet.hentDekningsgrad()
         val arbeidstakerDekningsgrad = arbeidstakerYrkesaktivitet.hentDekningsgrad()
 
-        selvstendigDekningsgrad.toDouble() `should equal` 80.0
+        selvstendigDekningsgrad.toDouble() `should equal` 100.0
         arbeidstakerDekningsgrad.toDouble() `should equal` 100.0
     }
 }
