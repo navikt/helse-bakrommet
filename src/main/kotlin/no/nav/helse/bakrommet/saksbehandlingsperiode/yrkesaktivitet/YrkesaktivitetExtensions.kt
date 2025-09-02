@@ -20,7 +20,7 @@ fun Yrkesaktivitet.hentDekningsgrad(): Prosentdel {
                 "FORSIKRING_100_PROSENT_FRA_17_SYKEDAG" -> Prosentdel.HundreProsent
                 "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG" -> Prosentdel.gjenopprett(ProsentdelDto(0.8))
                 "INGEN_FORSIKRING" -> Prosentdel.gjenopprett(ProsentdelDto(0.8))
-                else -> Prosentdel.gjenopprett(ProsentdelDto(0.8)) // Standard for næringsdrivende
+                else -> throw IllegalArgumentException("Ukjent forsikringstype for selvstendig næringsdrivende: $forsikring")
             }
         }
         "INAKTIV" -> {
@@ -30,9 +30,12 @@ fun Yrkesaktivitet.hentDekningsgrad(): Prosentdel {
             when (variant) {
                 "INAKTIV_VARIANT_A" -> Prosentdel.gjenopprett(ProsentdelDto(0.65)) // 65% dekningsgrad
                 "INAKTIV_VARIANT_B" -> Prosentdel.HundreProsent // 100% dekningsgrad
-                else -> Prosentdel.HundreProsent // Standard for inaktive
+                else -> throw IllegalArgumentException("Ukjent variant for inaktiv: $variant")
             }
         }
-        else -> Prosentdel.HundreProsent // Standard for andre yrkesaktiviteter
+        "ARBEIDSTAKER" -> Prosentdel.HundreProsent
+        "FRILANSER" -> Prosentdel.HundreProsent
+        "ARBEIDSLEDIG" -> Prosentdel.HundreProsent
+        else -> throw IllegalArgumentException("Ukjent inntektskategori: ${kategorisering.get("INNTEKTSKATEGORI")?.asText()}")
     }
 }
