@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
-import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -9,6 +8,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.økonomi.Grunnbeløp
 import java.time.LocalDateTime
 import java.util.*
 

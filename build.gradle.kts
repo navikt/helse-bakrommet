@@ -40,18 +40,7 @@ dependencies {
     implementation(libs.bundles.logback)
     implementation(libs.micrometerPrometheus)
     implementation(libs.sykepengesoknad)
-    implementation(libs.spleisUtbetaling) {
-        exclude(group = "no.nav.helse", module = "sykepenger-aktivitetslogg")
-        exclude(group = "no.nav.helse", module = "sykepenger-etterlevelse-api")
-    }
-    implementation(libs.spleisPrimitiver) {
-        exclude(group = "no.nav.helse", module = "sykepenger-etterlevelse-api")
-    }
-    implementation(libs.spleisModel) {
-        exclude(group = "no.nav.helse", module = "sykepenger-etterlevelse-api")
-        exclude(group = "no.nav.helse", module = "sykepenger-aktivitetslogg")
-        exclude(group = "no.nav.helse", module = "sykepenger-aktivitetslogg-dto")
-    }
+    implementation(libs.spleisOkonomi)
 
     testImplementation(libs.bundles.ktorServerTest)
     testImplementation(libs.testcontainers.postgres)

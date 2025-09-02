@@ -250,7 +250,7 @@ class SykepengegrunnlagServiceTest {
             listOf(
                 Refusjonsperiode(
                     fom = LocalDate.of(2023, 1, 1),
-                    tom = null, // Åpen refusjonsperiode
+                    tom = null,
                     beløpØre = 5000000L,
                 ),
             )
@@ -288,7 +288,7 @@ class SykepengegrunnlagServiceTest {
             listOf(
                 Refusjonsperiode(
                     fom = LocalDate.of(2023, 1, 1),
-                    tom = null, // Åpen refusjonsperiode
+                    tom = null,
                     beløpØre = 5000000L,
                 ),
             )
