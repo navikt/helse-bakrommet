@@ -159,6 +159,105 @@ class YrkesaktivitetExtensionsTest {
     }
 
     @Test
+    fun `skal returnere 100 prosent for inaktiv uten variant`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "INAKTIV")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 100.0
+    }
+
+    @Test
+    fun `skal returnere 65 prosent for inaktiv variant A`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "INAKTIV")
+                put("VARIANT_AV_INAKTIV", "INAKTIV_VARIANT_A")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 65.0
+    }
+
+    @Test
+    fun `skal returnere 100 prosent for inaktiv variant B`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "INAKTIV")
+                put("VARIANT_AV_INAKTIV", "INAKTIV_VARIANT_B")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 100.0
+    }
+
+    @Test
+    fun `skal returnere 100 prosent for inaktiv med ukjent variant`() {
+        val kategorisering =
+            objectMapper.createObjectNode().apply {
+                put("INNTEKTSKATEGORI", "INAKTIV")
+                put("VARIANT_AV_INAKTIV", "UKJENT_VARIANT")
+            }
+
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = null,
+                dagoversikt = null,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = UUID.randomUUID(),
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+            )
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+
+        dekningsgrad.toDouble() `should equal` 100.0
+    }
+
+    @Test
     fun `skal returnere Prosentdel for arbeidstaker`() {
         val kategorisering =
             objectMapper.createObjectNode().apply {
