@@ -5,9 +5,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
-import no.nav.helse.økonomi.Prosentdel
 import no.nav.helse.økonomi.Økonomi
 import java.time.LocalDate
 import java.util.UUID
@@ -61,7 +61,7 @@ object UtbetalingsberegningLogikk {
 
             komplettDagoversikt.forEach { dag ->
                 alleDager.getOrPut(dag.dato) { mutableListOf() }.add(
-                    DagMedYrkesaktivitet(dag, yrkesaktivitet.id),
+                    DagMedYrkesaktivitet(dag, yrkesaktivitet),
                 )
             }
         }
@@ -83,8 +83,8 @@ object UtbetalingsberegningLogikk {
                     beregnØkonomiForDag(
                         dagMedYrkesaktivitet.dag,
                         sykepengegrunnlag,
-                        dagMedYrkesaktivitet.yrkesaktivitetId,
-                        refusjonstidslinjer[dagMedYrkesaktivitet.yrkesaktivitetId] ?: emptyMap(),
+                        refusjonstidslinjer[dagMedYrkesaktivitet.yrkesaktivitet.id] ?: emptyMap(),
+                        dagMedYrkesaktivitet.yrkesaktivitet,
                     )
                 }
 
@@ -98,7 +98,7 @@ object UtbetalingsberegningLogikk {
                 }
 
             dagerForDato.zip(beregnedeØkonomier).forEach { (dagMedYrkesaktivitet, beregnetØkonomi) ->
-                val yrkesaktivitetId = dagMedYrkesaktivitet.yrkesaktivitetId
+                val yrkesaktivitetId = dagMedYrkesaktivitet.yrkesaktivitet.id
                 val dagBeregning = konverterTilDagBeregning(dagMedYrkesaktivitet.dag, beregnetØkonomi)
                 dagBeregningerPerYrkesaktivitet.getOrPut(yrkesaktivitetId) { mutableListOf() }.add(dagBeregning)
             }
@@ -159,17 +159,19 @@ object UtbetalingsberegningLogikk {
     private fun beregnØkonomiForDag(
         dag: Dag,
         sykepengegrunnlag: SykepengegrunnlagResponse,
-        yrkesaktivitetId: UUID,
         refusjonstidslinje: Map<LocalDate, Inntekt>,
+        yrkesaktivitet: Yrkesaktivitet,
     ): Økonomi {
-        val aktuellDagsinntekt = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitetId)
+        val aktuellDagsinntekt = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitet.id)
         val refusjonsbeløp = refusjonstidslinje[dag.dato] ?: Inntekt.INGEN
         val sykdomsgrad = Sykdomsgrad(dag.grad ?: 0).tilProsentdel()
+
+        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
         return Økonomi.inntekt(
             sykdomsgrad = sykdomsgrad,
             aktuellDagsinntekt = aktuellDagsinntekt,
-            dekningsgrad = Prosentdel.HundreProsent,
+            dekningsgrad = dekningsgrad,
             refusjonsbeløp = refusjonsbeløp,
             inntektjustering = Inntekt.INGEN,
         )
@@ -228,6 +230,6 @@ object UtbetalingsberegningLogikk {
 
     private data class DagMedYrkesaktivitet(
         val dag: Dag,
-        val yrkesaktivitetId: UUID,
+        val yrkesaktivitet: Yrkesaktivitet,
     )
 }
