@@ -30,6 +30,7 @@ data class DagUtbetalingsberegning(
     val utbetalingØre: Long,
     val refusjonØre: Long,
     val totalGrad: Int,
+    val dekningsgrad: Double,
 )
 
 data class BeregningResponse(
