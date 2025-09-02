@@ -70,7 +70,8 @@ class DagoversiktLogikkTest {
                 {
                     "kategorisering": {
                         "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
-                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER"
+                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER",
+                        "SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING": "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG"
                     }
                 }
                 """.trimIndent()

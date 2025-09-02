@@ -8,6 +8,7 @@ import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.testutils.print
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.deserialize
@@ -49,6 +50,7 @@ class YrkesaktivitetOperasjonerTest {
                         "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
                         "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER",
                         "FISKER_BLAD": "FISKER_BLAD_B",
+                        "SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING": "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG",
                         "ER_SYKMELDT": "ER_SYKMELDT_JA"
                     }
                 }
@@ -74,7 +76,7 @@ class YrkesaktivitetOperasjonerTest {
             val nyKategorisering =
                 """
                 {
-                    "INNTEKTSKATEGORI": "ARBEIDSTAKER_ELLER_NOE_SÅNT",
+                    "INNTEKTSKATEGORI": "ARBEIDSTAKER",
                     "ER_SYKMELDT": "ER_SYKMELDT_NEI"
                 }
                 """.trimIndent()
@@ -95,6 +97,10 @@ class YrkesaktivitetOperasjonerTest {
                     assertEquals(nyKategorisering.asJsonNode(), it.first().kategorisering)
                 }
             }
+
+            // Verifiser at dekningsgrad er riktig etter oppdatering
+            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(opprettetYrkesaktivitetId)!!
+            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().toDouble().toInt())
         }
     }
 
@@ -118,7 +124,7 @@ class YrkesaktivitetOperasjonerTest {
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody("""{"kategorisering": {"ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+                setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
             }
 
             val yrkesaktivitetId =
@@ -199,6 +205,9 @@ class YrkesaktivitetOperasjonerTest {
                 assertEquals("Helg", dag7.second, "2023-01-07 skal fortsatt være helg")
                 assertEquals(null, dag7.third, "2023-01-07 skal fortsatt ha kilde null")
             }
+
+            // Verifiser at dekningsgrad er riktig
+            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().toDouble().toInt())
         }
     }
 
@@ -222,7 +231,7 @@ class YrkesaktivitetOperasjonerTest {
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody("""{"kategorisering": {"ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+                setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
             }
 
             val yrkesaktivitetId =
@@ -293,6 +302,9 @@ class YrkesaktivitetOperasjonerTest {
             helgedager.forEach { (_, _, kilde) ->
                 assertEquals(null, kilde, "Helgedager skal fortsatt ha kilde null")
             }
+
+            // Verifiser at dekningsgrad er riktig
+            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().toDouble().toInt())
         }
     }
 }

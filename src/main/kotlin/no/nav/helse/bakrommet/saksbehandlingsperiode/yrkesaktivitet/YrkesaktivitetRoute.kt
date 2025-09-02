@@ -25,6 +25,7 @@ data class YrkesaktivitetDTO(
     val kategorisering: JsonNode,
     val dagoversikt: JsonNode?,
     val generertFraDokumenter: List<UUID>,
+    val dekningsgrad: Int,
 )
 
 fun Yrkesaktivitet.tilDto() =
@@ -33,6 +34,7 @@ fun Yrkesaktivitet.tilDto() =
         kategorisering = kategorisering,
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
+        dekningsgrad = hentDekningsgrad().toDouble().toInt(),
     )
 
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: YrkesaktivitetService) {

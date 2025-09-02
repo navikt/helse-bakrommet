@@ -246,10 +246,26 @@ private fun Saksbehandlingsperiode.verifiserNyStatusGyldighet(nyStatus: Saksbeha
 fun SykepengesoknadDTO.kategorisering(): Kategorisering {
     return objectMapper.createObjectNode().apply {
         val soknad = this@kategorisering
-        put("INNTEKTSKATEGORI", soknad.bestemInntektskategori())
+        val inntektskategori = soknad.bestemInntektskategori()
+        put("INNTEKTSKATEGORI", inntektskategori)
         val orgnummer = soknad.arbeidsgiver?.orgnummer
         if (orgnummer != null) {
             put("ORGNUMMER", orgnummer)
+        }
+
+        // Legg til påkrevde felter for selvstendig næringsdrivende
+        if (inntektskategori == "SELVSTENDIG_NÆRINGSDRIVENDE") {
+            put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "INGEN_FORSIKRING")
+            when (soknad.arbeidssituasjon) {
+                ArbeidssituasjonDTO.FISKER -> put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "FISKER")
+                ArbeidssituasjonDTO.JORDBRUKER -> put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "JORDBRUKER")
+                ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE ->
+                    put(
+                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE",
+                        "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
+                    )
+                else -> put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE")
+            }
         }
     }
 }
