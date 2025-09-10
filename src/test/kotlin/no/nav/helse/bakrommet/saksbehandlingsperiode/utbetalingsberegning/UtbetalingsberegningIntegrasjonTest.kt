@@ -159,33 +159,33 @@ class UtbetalingsberegningIntegrasjonTest {
                     "dato": "2024-01-01",
                     "dagtype": "Syk",
                     "grad": 100,
-                    "avvistBegrunnelse": [],
+                    "avslåttBegrunnelse": [],
                     "kilde": "Saksbehandler"
                 },
                 {
                     "dato": "2024-01-02",
                     "dagtype": "Syk",
                     "grad": 70,
-                    "avvistBegrunnelse": [],
+                    "avslåttBegrunnelse": [],
                     "kilde": "Saksbehandler"
                 },
                 {
                     "dato": "2024-01-03",
                     "dagtype": "Ferie",
-                    "avvistBegrunnelse": [],
+                    "avslåttBegrunnelse": [],
                     "kilde": "Saksbehandler"
                 },
                 {
                     "dato": "2024-01-04",
                     "dagtype": "Syk",
                     "grad": 100,
-                    "avvistBegrunnelse": [],
+                    "avslåttBegrunnelse": [],
                     "kilde": "Saksbehandler"
                 },
                 {
                     "dato": "2024-01-05",
                     "dagtype": "Arbeidsdag",
-                    "avvistBegrunnelse": [],
+                    "avslåttBegrunnelse": [],
                     "kilde": "Saksbehandler"
                 }
             ]

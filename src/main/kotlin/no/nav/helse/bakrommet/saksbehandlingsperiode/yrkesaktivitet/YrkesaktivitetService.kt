@@ -176,7 +176,7 @@ class YrkesaktivitetService(
                             set<JsonNode>("dato", oppdatertDagJson["dato"])
                             set<JsonNode>("dagtype", oppdatertDagJson["dagtype"])
                             set<JsonNode>("grad", oppdatertDagJson["grad"])
-                            set<JsonNode>("avvistBegrunnelse", oppdatertDagJson["avvistBegrunnelse"])
+                            set<JsonNode>("avslåttBegrunnelse", oppdatertDagJson["avslåttBegrunnelse"])
                             put("kilde", "Saksbehandler")
                         }
                     eksisterendeDagerMap[dato] = oppdatertDag

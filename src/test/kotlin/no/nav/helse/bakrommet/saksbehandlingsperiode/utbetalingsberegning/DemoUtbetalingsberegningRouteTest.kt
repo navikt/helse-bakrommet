@@ -102,7 +102,7 @@ class DemoUtbetalingsberegningRouteTest {
                         put("dato", "2024-01-01")
                         put("dagtype", "Syk")
                         put("grad", 100)
-                        set<ObjectNode>("avvistBegrunnelse", objectMapper.createArrayNode())
+                        set<ObjectNode>("avslåttBegrunnelse", objectMapper.createArrayNode())
                         put("kilde", "Søknad")
                     },
                 )
@@ -111,7 +111,7 @@ class DemoUtbetalingsberegningRouteTest {
                         put("dato", "2024-01-02")
                         put("dagtype", "Syk")
                         put("grad", 100)
-                        set<ObjectNode>("avvistBegrunnelse", objectMapper.createArrayNode())
+                        set<ObjectNode>("avslåttBegrunnelse", objectMapper.createArrayNode())
                         put("kilde", "Søknad")
                     },
                 )
@@ -119,7 +119,7 @@ class DemoUtbetalingsberegningRouteTest {
                     objectMapper.createObjectNode().apply {
                         put("dato", "2024-01-03")
                         put("dagtype", "Arbeidsdag")
-                        set<ObjectNode>("avvistBegrunnelse", objectMapper.createArrayNode())
+                        set<ObjectNode>("avslåttBegrunnelse", objectMapper.createArrayNode())
                         put("kilde", "Søknad")
                     },
                 )

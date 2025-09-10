@@ -48,14 +48,14 @@ class UtbetalingsberegningLogikkTest {
                     dato = LocalDate.of(2024, 1, 1),
                     dagtype = Dagtype.Syk,
                     grad = 100,
-                    avvistBegrunnelse = emptyList(),
+                    avslåttBegrunnelse = emptyList(),
                     kilde = Kilde.Saksbehandler,
                 ),
                 Dag(
                     dato = LocalDate.of(2024, 1, 2),
                     dagtype = Dagtype.Syk,
                     grad = 100,
-                    avvistBegrunnelse = emptyList(),
+                    avslåttBegrunnelse = emptyList(),
                     kilde = Kilde.Saksbehandler,
                 ),
             )
@@ -137,7 +137,7 @@ class UtbetalingsberegningLogikkTest {
                             // I første refusjonsperiode
                             dagtype = Dagtype.Syk,
                             grad = 100,
-                            avvistBegrunnelse = emptyList(),
+                            avslåttBegrunnelse = emptyList(),
                             kilde = Kilde.Saksbehandler,
                         ),
                         Dag(
@@ -145,7 +145,7 @@ class UtbetalingsberegningLogikkTest {
                             // I andre refusjonsperiode
                             dagtype = Dagtype.Syk,
                             grad = 100,
-                            avvistBegrunnelse = emptyList(),
+                            avslåttBegrunnelse = emptyList(),
                             kilde = Kilde.Saksbehandler,
                         ),
                         Dag(
@@ -153,7 +153,7 @@ class UtbetalingsberegningLogikkTest {
                             // I åpen refusjonsperiode
                             dagtype = Dagtype.Syk,
                             grad = 100,
-                            avvistBegrunnelse = emptyList(),
+                            avslåttBegrunnelse = emptyList(),
                             kilde = Kilde.Saksbehandler,
                         ),
                     ),
@@ -231,7 +231,7 @@ class UtbetalingsberegningLogikkTest {
             kategoriseringGenerert = null,
             dagoversikt =
                 dagoversikt.map { dag ->
-                    """{"dato":"${dag.dato}","dagtype":"${dag.dagtype}","grad":${dag.grad},"avvistBegrunnelse":[],"kilde":"${dag.kilde}"}"""
+                    """{"dato":"${dag.dato}","dagtype":"${dag.dagtype}","grad":${dag.grad},"avslåttBegrunnelse":[],"kilde":"${dag.kilde}"}"""
                 }.joinToString(",", "[", "]").asJsonNode(),
             dagoversiktGenerert = null,
             saksbehandlingsperiodeId = saksbehandlingsperiodeId,

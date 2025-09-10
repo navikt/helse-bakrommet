@@ -32,7 +32,7 @@ fun initialiserDager(
                 dato = dato,
                 dagtype = dagtype,
                 grad = null,
-                avvistBegrunnelse = emptyList(),
+                avslåttBegrunnelse = emptyList(),
                 kilde = if (erHelg) null else Kilde.Saksbehandler,
             )
         }

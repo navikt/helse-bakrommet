@@ -138,19 +138,19 @@ class YrkesaktivitetOperasjonerTest {
                     "dato": "2023-01-02",
                     "dagtype": "Syk",
                     "grad": 100,
-                    "avvistBegrunnelse": []
+                    "avslåttBegrunnelse": []
                 },
                 {
                     "dato": "2023-01-03",
                     "dagtype": "Arbeidsdag", 
                     "grad": 0,
-                    "avvistBegrunnelse": []
+                    "avslåttBegrunnelse": []
                 },
                 {
                     "dato": "2023-01-07",
                     "dagtype": "Syk",
                     "grad": 50,
-                    "avvistBegrunnelse": []
+                    "avslåttBegrunnelse": []
                 }
             ]"""
 
@@ -246,13 +246,13 @@ class YrkesaktivitetOperasjonerTest {
                         "dato": "2023-01-02",
                         "dagtype": "Syk",
                         "grad": 100,
-                        "avvistBegrunnelse": []
+                        "avslåttBegrunnelse": []
                     },
                     {
                         "dato": "2023-01-03",
                         "dagtype": "Arbeidsdag", 
                         "grad": 0,
-                        "avvistBegrunnelse": []
+                        "avslåttBegrunnelse": []
                     }
                 ],
                 "notat": "Test notat"

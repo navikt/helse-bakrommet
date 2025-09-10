@@ -151,7 +151,7 @@ object UtbetalingsberegningLogikk {
             dato = dato,
             dagtype = Dagtype.Arbeidsdag,
             grad = null,
-            avvistBegrunnelse = emptyList(),
+            avslåttBegrunnelse = emptyList(),
             kilde = null,
         )
     }
