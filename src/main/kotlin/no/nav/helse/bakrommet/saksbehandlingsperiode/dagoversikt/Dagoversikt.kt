@@ -8,7 +8,7 @@ data class Dag(
     val dato: LocalDate,
     val dagtype: Dagtype,
     val grad: Int?,
-    val avvistBegrunnelse: List<AvvistBegrunnelse>,
+    val avslåttBegrunnelse: List<AvslåttBegrunnelse>,
     val kilde: Kilde?,
 )
 
@@ -20,7 +20,7 @@ enum class Dagtype {
     Ferie,
     Permisjon,
     Foreldet,
-    Avvist,
+    Avslått,
 }
 
 enum class Kilde {
@@ -28,7 +28,7 @@ enum class Kilde {
     Saksbehandler,
 }
 
-enum class AvvistBegrunnelse {
+enum class AvslåttBegrunnelse {
     Over70,
     SykepengedagerOppbrukt,
     SykepengedagerOppbruktOver67,
