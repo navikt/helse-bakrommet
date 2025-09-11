@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.infrastruktur.db
 
 import kotliquery.Session
+import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringerDao
@@ -28,6 +29,7 @@ class DaoerFelles(dataSource: DataSource) :
     override val vurdertVilkårDao = VurdertVilkårDao(dataSource)
     override val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
     override val beregningDao = UtbetalingsberegningDao(dataSource)
+    override val outboxDao = OutboxDao(dataSource)
 }
 
 class SessionDaoerFelles(session: Session) :
@@ -43,4 +45,5 @@ class SessionDaoerFelles(session: Session) :
     override val vurdertVilkårDao = VurdertVilkårDao(session)
     override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
     override val beregningDao = UtbetalingsberegningDao(session)
+    override val outboxDao = OutboxDao(session)
 }

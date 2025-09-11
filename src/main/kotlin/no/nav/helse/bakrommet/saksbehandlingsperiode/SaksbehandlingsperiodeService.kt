@@ -5,7 +5,8 @@ import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
+import no.nav.helse.bakrommet.kafka.leggTilOutbox
 import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
@@ -13,7 +14,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Kategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.tilJsonNode
@@ -23,12 +23,9 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
-interface SaksbehandlingsperiodeServiceDaoer {
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+interface SaksbehandlingsperiodeServiceDaoer : SaksbehandlingsperiodeKafkaDtoDaoer {
     val saksbehandlingsperiodeEndringerDao: SaksbehandlingsperiodeEndringerDao
-    val personDao: PersonDao
     val dokumentDao: DokumentDao
-    val yrkesaktivitetDao: YrkesaktivitetDao
 }
 
 data class SaksbehandlingsperiodeReferanse(
@@ -88,6 +85,7 @@ class SaksbehandlingsperiodeService(
                     saksbehandler = saksbehandler.bruker,
                 ),
             )
+            leggTilOutbox(nyPeriode)
         }
         val søknader =
             if (søknader.isNotEmpty()) {
@@ -202,14 +200,17 @@ class SaksbehandlingsperiodeService(
                 nyStatus = nyStatus,
                 beslutterNavIdent = saksbehandler.navIdent,
             )
-            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
-                saksbehandlingsperiodeEndringerDao.leggTilEndring(
-                    oppdatertPeriode.endring(
-                        endringType = SaksbehandlingsperiodeEndringType.GODKJENT,
-                        saksbehandler = saksbehandler,
-                    ),
-                )
-            }
+            val saksbehandlingsperiode =
+                saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+                    saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                        oppdatertPeriode.endring(
+                            endringType = SaksbehandlingsperiodeEndringType.GODKJENT,
+                            saksbehandler = saksbehandler,
+                        ),
+                    )
+                }
+            leggTilOutbox(periodeRef)
+            return@transactional saksbehandlingsperiode
         }
     }
 
@@ -264,6 +265,7 @@ fun SykepengesoknadDTO.kategorisering(): Kategorisering {
                         "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE",
                         "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
                     )
+
                 else -> put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE")
             }
         }
@@ -278,7 +280,12 @@ fun lagYrkesaktivitetFraSøknader(
         sykepengesoknader
             .groupBy { dokument -> dokument.somSøknad().kategorisering() }
     return kategorierOgSøknader.map { (kategorisering, dok) ->
-        val dagoversikt = skapDagoversiktFraSoknader(dok.map { it.somSøknad() }, saksbehandlingsperiode.fom, saksbehandlingsperiode.tom)
+        val dagoversikt =
+            skapDagoversiktFraSoknader(
+                dok.map { it.somSøknad() },
+                saksbehandlingsperiode.fom,
+                saksbehandlingsperiode.tom,
+            )
         Yrkesaktivitet(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,

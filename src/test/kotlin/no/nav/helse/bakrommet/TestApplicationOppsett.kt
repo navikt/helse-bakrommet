@@ -21,6 +21,7 @@ import no.nav.helse.bakrommet.auth.tilRoller
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonDao
@@ -124,6 +125,7 @@ class Daoer(
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     val dokumentDao: DokumentDao,
     val yrkesaktivitetDao: YrkesaktivitetDao,
+    val outboxDao: OutboxDao,
 ) {
     companion object {
         fun instansier(dataSource: DataSource): Daoer {
@@ -132,6 +134,7 @@ class Daoer(
                 SaksbehandlingsperiodeDao(dataSource),
                 DokumentDao(dataSource),
                 YrkesaktivitetDao(dataSource),
+                OutboxDao(dataSource),
             )
         }
     }

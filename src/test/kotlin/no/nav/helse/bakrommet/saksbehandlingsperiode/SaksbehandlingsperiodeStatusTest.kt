@@ -6,6 +6,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -27,6 +28,7 @@ class SaksbehandlingsperiodeStatusTest {
             val tokenBeslutter = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
             val tokenBeslutter2 = oAuthMock.token(navIdent = "B222222", grupper = listOf("GRUPPE_BESLUTTER"))
 
+            it.outboxDao.hentAlleUpubliserteEntries().size `should equal` 0
             val createResponse =
                 client.post("/v1/$personId/saksbehandlingsperioder") {
                     bearerAuth(tokenSaksbehandler)
@@ -38,6 +40,9 @@ class SaksbehandlingsperiodeStatusTest {
                     )
                 }
             assertEquals(201, createResponse.status.value)
+
+            val outboxAfterCreation = it.outboxDao.hentAlleUpubliserteEntries()
+            assertEquals(1, outboxAfterCreation.size, "Det skal være én melding i outbox etter opprettelse av perioden")
 
             val periodeOpprinnelig = createResponse.body<Saksbehandlingsperiode>().truncateTidspunkt()
 
@@ -148,6 +153,9 @@ class SaksbehandlingsperiodeStatusTest {
                     periode.truncateTidspunkt(),
                 )
             }
+
+            val outboxAfterApproval = it.outboxDao.hentAlleUpubliserteEntries()
+            assertEquals(2, outboxAfterApproval.size, "Det skal være to meldinger i outbox etter godkjenning av perioden")
 
             client.get("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/historikk") {
                 bearerAuth(tokenSaksbehandler)
