@@ -15,14 +15,16 @@ data class OutboxEntry(
     val publisert: Instant?,
 )
 
+data class KafkaMelding(
+    val kafkaKey: String,
+    val kafkaPayload: String,
+)
+
 class OutboxDao private constructor(private val db: QueryRunner) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun lagreTilOutbox(
-        kafkaKey: String,
-        kafkaPayload: String,
-    ) {
+    fun lagreTilOutbox(kafkaMelding: KafkaMelding) {
         db.update(
             """
             insert into kafka_outbox
@@ -30,8 +32,8 @@ class OutboxDao private constructor(private val db: QueryRunner) {
             values
                 (:kafka_key, :kafka_payload, :opprettet)
             """.trimIndent(),
-            "kafka_key" to kafkaKey,
-            "kafka_payload" to kafkaPayload,
+            "kafka_key" to kafkaMelding.kafkaKey,
+            "kafka_payload" to kafkaMelding.kafkaPayload,
             "opprettet" to Instant.now(),
         )
     }

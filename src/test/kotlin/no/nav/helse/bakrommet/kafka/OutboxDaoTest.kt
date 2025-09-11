@@ -21,7 +21,7 @@ class OutboxDaoTest {
         val kafkaKey = "test-key-123"
         val kafkaPayload = """{"type":"test","data":"some data"}"""
 
-        dao.lagreTilOutbox(kafkaKey, kafkaPayload)
+        dao.lagreTilOutbox(KafkaMelding(kafkaKey, kafkaPayload))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(1, upubliserteEntries.size)
@@ -41,9 +41,9 @@ class OutboxDaoTest {
         val entry2 = Pair("key-2", """{"order":2}""")
         val entry3 = Pair("key-3", """{"order":3}""")
 
-        dao.lagreTilOutbox(entry1.first, entry1.second)
-        dao.lagreTilOutbox(entry2.first, entry2.second)
-        dao.lagreTilOutbox(entry3.first, entry3.second)
+        dao.lagreTilOutbox(KafkaMelding(entry1.first, entry1.second))
+        dao.lagreTilOutbox(KafkaMelding(entry2.first, entry2.second))
+        dao.lagreTilOutbox(KafkaMelding(entry3.first, entry3.second))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(3, upubliserteEntries.size)
@@ -67,7 +67,7 @@ class OutboxDaoTest {
         val kafkaKey = "test-key-publish"
         val kafkaPayload = """{"status":"ready"}"""
 
-        dao.lagreTilOutbox(kafkaKey, kafkaPayload)
+        dao.lagreTilOutbox(KafkaMelding(kafkaKey, kafkaPayload))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(1, upubliserteEntries.size)
@@ -88,8 +88,8 @@ class OutboxDaoTest {
         val kafkaKey2 = "key-2"
         val kafkaPayload2 = """{"message":"second"}"""
 
-        dao.lagreTilOutbox(kafkaKey1, kafkaPayload1)
-        dao.lagreTilOutbox(kafkaKey2, kafkaPayload2)
+        dao.lagreTilOutbox(KafkaMelding(kafkaKey1, kafkaPayload1))
+        dao.lagreTilOutbox(KafkaMelding(kafkaKey2, kafkaPayload2))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(2, upubliserteEntries.size)
