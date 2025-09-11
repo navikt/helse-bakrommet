@@ -44,6 +44,7 @@ object TestDataSource {
             db.execute("SET REFERENTIAL_INTEGRITY TO FALSE")
         }
 
+        db.execute("truncate table kafka_outbox$cascade")
         db.execute("truncate table saksbehandlingsperiode$cascade")
         db.execute("truncate table ident$cascade")
         db.execute("truncate table yrkesaktivitet$cascade")
