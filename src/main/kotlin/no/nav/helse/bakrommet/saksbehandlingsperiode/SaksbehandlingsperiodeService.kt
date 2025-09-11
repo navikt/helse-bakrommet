@@ -46,9 +46,11 @@ class SaksbehandlingsperiodeService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
+    fun hentAlleSaksbehandlingsperioder() =
+        db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
 
-    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) =
+        db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -200,17 +202,15 @@ class SaksbehandlingsperiodeService(
                 nyStatus = nyStatus,
                 beslutterNavIdent = saksbehandler.navIdent,
             )
-            val saksbehandlingsperiode =
-                saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
-                    saksbehandlingsperiodeEndringerDao.leggTilEndring(
-                        oppdatertPeriode.endring(
-                            endringType = SaksbehandlingsperiodeEndringType.GODKJENT,
-                            saksbehandler = saksbehandler,
-                        ),
-                    )
-                }
+            val oppdatertPeriode = saksbehandlingsperiodeDao.reload(periode)
+            saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                oppdatertPeriode.endring(
+                    endringType = SaksbehandlingsperiodeEndringType.GODKJENT,
+                    saksbehandler = saksbehandler,
+                ),
+            )
             leggTilOutbox(periodeRef)
-            return@transactional saksbehandlingsperiode
+            return@transactional oppdatertPeriode
         }
     }
 
