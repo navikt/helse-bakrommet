@@ -11,6 +11,8 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.OboClient
@@ -69,6 +71,14 @@ internal fun startApp(configuration: Configuration) {
         appLogger.info("Setter opp ktor")
         settOppKtor(dataSource, configuration)
         appLogger.info("Starter bakrommet")
+        monitor.subscribe(ApplicationStarted) {
+            launch {
+                while (true) {
+                    appLogger.info("Kjører coroutine")
+                    delay(30_000)
+                }
+            }
+        }
     }.start(true)
 }
 

@@ -46,11 +46,9 @@ class SaksbehandlingsperiodeService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    fun hentAlleSaksbehandlingsperioder() =
-        db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
+    fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
 
-    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) =
-        db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
