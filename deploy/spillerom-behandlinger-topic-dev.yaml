@@ -1,0 +1,21 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: spillerom-behandlinger
+  namespace: speilvendt
+  labels:
+    team: speilvendt
+spec:
+  pool: {{kafkaPool}}
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 2
+    partitions: 20
+    replication: 3
+    retentionBytes: -1
+    retentionHours: -1
+    localRetentionHours: 24 # 1 dag lagring på rask disk
+  acl:
+    - team: speilvendt
+      application: helse-bakrommet
+      access: write
