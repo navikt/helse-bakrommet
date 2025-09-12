@@ -10,16 +10,14 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversiktJson
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.toJsonNode
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -51,7 +49,7 @@ class YrkesaktivitetService(
         id = UUID.randomUUID(),
         kategorisering = this,
         kategoriseringGenerert = null,
-        dagoversikt = dagoversikt?.toJsonNode(),
+        dagoversikt = dagoversikt,
         dagoversiktGenerert = null,
         saksbehandlingsperiodeId = behandlingsperiodeId,
         opprettet = OffsetDateTime.now(),
@@ -156,12 +154,12 @@ class YrkesaktivitetService(
                 }
 
             // Hent eksisterende dagoversikt
-            val eksisterendeDagoversikt = inntektsforhold.dagoversikt.tilDagoversiktJson()
+            val eksisterendeDagoversikt = inntektsforhold.dagoversikt ?: emptyList()
 
             // Opprett map for enkel oppslag basert på dato
             val eksisterendeDagerMap =
-                eksisterendeDagoversikt.associateBy {
-                    it["dato"].asText()
+                eksisterendeDagoversikt.associateBy { dag ->
+                    dag.dato.toString()
                 }.toMutableMap()
 
             // Oppdater kun dagene som finnes i input, ignorer helgedager
@@ -169,32 +167,31 @@ class YrkesaktivitetService(
                 val dato = oppdatertDagJson["dato"].asText()
                 val eksisterendeDag = eksisterendeDagerMap[dato]
 
-                if (eksisterendeDag != null && eksisterendeDag["dagtype"].asText() != "Helg") {
+                if (eksisterendeDag != null && eksisterendeDag.dagtype != Dagtype.Helg) {
                     // Oppdater dagen og sett kilde til Saksbehandler
                     val oppdatertDag =
-                        objectMapper.createObjectNode().apply {
-                            set<JsonNode>("dato", oppdatertDagJson["dato"])
-                            set<JsonNode>("dagtype", oppdatertDagJson["dagtype"])
-                            set<JsonNode>("grad", oppdatertDagJson["grad"])
-                            set<JsonNode>("avslåttBegrunnelse", oppdatertDagJson["avslåttBegrunnelse"])
-                            put("kilde", "Saksbehandler")
-                        }
+                        eksisterendeDag.copy(
+                            dagtype = Dagtype.valueOf(oppdatertDagJson["dagtype"].asText()),
+                            grad =
+                                if (oppdatertDagJson.has("grad") && !oppdatertDagJson["grad"].isNull) {
+                                    oppdatertDagJson["grad"].asInt()
+                                } else {
+                                    null
+                                },
+                            avslåttBegrunnelse =
+                                if (oppdatertDagJson.has("avslåttBegrunnelse") && !oppdatertDagJson["avslåttBegrunnelse"].isNull) {
+                                    oppdatertDagJson["avslåttBegrunnelse"].map { it.asText() }
+                                } else {
+                                    null
+                                },
+                            kilde = Kilde.Saksbehandler,
+                        )
                     eksisterendeDagerMap[dato] = oppdatertDag
                 }
             }
 
-            // Konverter tilbake til JsonNode array og lagre
-            val oppdatertDagoversikt =
-                objectMapper.createArrayNode().apply {
-                    eksisterendeDagerMap.values.forEach { add(it) }
-                }
-
-            // Valider at dagoversikten kan parses til Dag-objekter før lagring
-            try {
-                oppdatertDagoversikt.tilDagoversikt()
-            } catch (e: Exception) {
-                throw InputValideringException("Ugyldig dagoversikt: ${e.message}")
-            }
+            // Konverter tilbake til List<Dag> og lagre
+            val oppdatertDagoversikt = eksisterendeDagerMap.values.toList()
 
             val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
 

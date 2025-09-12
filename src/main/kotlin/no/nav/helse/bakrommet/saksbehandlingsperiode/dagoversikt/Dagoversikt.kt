@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.bakrommet.util.objectMapper
 import java.time.LocalDate
 
@@ -37,17 +38,10 @@ enum class Kilde {
  * Extension function for å parse dagoversikt fra JsonNode til List<Dag>
  * Håndterer både array-format og returnerer tom liste hvis parsing feiler
  */
-fun JsonNode?.tilDagoversikt(): List<Dag> {
-    if (this == null) return emptyList()
-
+fun String?.tilDagoversikt(): List<Dag>? {
+    if (this == null) return null
     return try {
-        if (isArray) {
-            map { dagJson ->
-                objectMapper.treeToValue(dagJson, Dag::class.java)
-            }
-        } else {
-            throw RuntimeException("Forventet array for")
-        }
+        objectMapper.readValue(this)
     } catch (e: Exception) {
         throw RuntimeException("feil ved parsing av dagoversikt", e)
     }

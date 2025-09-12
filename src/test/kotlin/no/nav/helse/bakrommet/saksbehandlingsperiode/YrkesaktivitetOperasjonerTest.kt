@@ -143,8 +143,7 @@ class YrkesaktivitetOperasjonerTest {
                 {
                     "dato": "2023-01-03",
                     "dagtype": "Arbeidsdag", 
-                    "grad": 0,
-                    "avslåttBegrunnelse": []
+                    "grad": 0
                 },
                 {
                     "dato": "2023-01-07",
@@ -160,21 +159,26 @@ class YrkesaktivitetOperasjonerTest {
                     contentType(ContentType.Application.Json)
                     setBody(oppdateringer)
                 }
-            val responseTekst = response.bodyAsText()
-            print(responseTekst)
             assertEquals(HttpStatusCode.NoContent, response.status)
 
+            client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                bearerAuth(TestOppsett.userToken)
+            }.also {
+                assertEquals(HttpStatusCode.OK, it.status)
+                val body = it.bodyAsText()
+                print(body)
+            }
             // Verifiser at dagoversikten er oppdatert korrekt
             val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
             val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
-            assertTrue(dagoversikt.isArray)
+            assertTrue(dagoversikt.isNotEmpty())
 
             val dager =
                 dagoversikt.map { dag ->
                     Triple(
-                        dag["dato"].asText(),
-                        dag["dagtype"].asText(),
-                        if (dag["kilde"].isNull) null else dag["kilde"].asText(),
+                        dag.dato.toString(),
+                        dag.dagtype.name,
+                        dag.kilde?.name,
                     )
                 }
 
@@ -271,14 +275,14 @@ class YrkesaktivitetOperasjonerTest {
             // Verifiser at dagoversikten er oppdatert korrekt
             val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
             val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
-            assertTrue(dagoversikt.isArray)
+            assertTrue(dagoversikt.isNotEmpty())
 
             val dager =
                 dagoversikt.map { dag ->
                     Triple(
-                        dag["dato"].asText(),
-                        dag["dagtype"].asText(),
-                        if (dag["kilde"].isNull) null else dag["kilde"].asText(),
+                        dag.dato.toString(),
+                        dag.dagtype.name,
+                        dag.kilde?.name,
                     )
                 }
 

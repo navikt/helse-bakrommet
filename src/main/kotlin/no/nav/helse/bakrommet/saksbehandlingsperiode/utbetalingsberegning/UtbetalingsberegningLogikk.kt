@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
@@ -108,7 +107,7 @@ object UtbetalingsberegningLogikk {
     }
 
     private fun hentDagoversiktFraYrkesaktivitet(yrkesaktivitet: Yrkesaktivitet): List<Dag> {
-        return yrkesaktivitet.dagoversikt.tilDagoversikt()
+        return yrkesaktivitet.dagoversikt ?: emptyList()
     }
 
     private fun fyllUtManglendeDager(

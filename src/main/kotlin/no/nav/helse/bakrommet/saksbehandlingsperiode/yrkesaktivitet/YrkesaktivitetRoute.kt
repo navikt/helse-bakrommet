@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.PARAM_INNTEKTSFORHOLDUUID
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
@@ -23,7 +24,7 @@ fun RoutingCall.inntektsforholdReferanse() =
 data class YrkesaktivitetDTO(
     val id: UUID,
     val kategorisering: JsonNode,
-    val dagoversikt: JsonNode?,
+    val dagoversikt: List<Dag>?,
     val generertFraDokumenter: List<UUID>,
     val dekningsgrad: Int,
 )

@@ -118,12 +118,12 @@ class DagoversiktLogikkTest {
                 val ikkeSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdIkkeSykmeldtId }!!
 
                 // Disse skal ha dagoversikt (31 dager for januar 2023)
-                assertEquals(31, medSykmeldt.dagoversikt?.size() ?: 0, "Yrkesaktivitet med ER_SYKMELDT_JA skal ha dagoversikt")
-                assertEquals(31, utenSykmeldt.dagoversikt?.size() ?: 0, "Yrkesaktivitet uten ER_SYKMELDT skal ha dagoversikt")
+                assertEquals(31, medSykmeldt.dagoversikt?.size ?: 0, "Yrkesaktivitet med ER_SYKMELDT_JA skal ha dagoversikt")
+                assertEquals(31, utenSykmeldt.dagoversikt?.size ?: 0, "Yrkesaktivitet uten ER_SYKMELDT skal ha dagoversikt")
 
                 // Denne skal IKKE ha dagoversikt
                 assertTrue(
-                    ikkeSykmeldt.dagoversikt == null || ikkeSykmeldt.dagoversikt?.size() == 0,
+                    ikkeSykmeldt.dagoversikt == null || ikkeSykmeldt.dagoversikt?.size == 0,
                     "Yrkesaktivitet med ER_SYKMELDT_NEI skal ikke ha dagoversikt",
                 )
             }
@@ -159,7 +159,7 @@ class DagoversiktLogikkTest {
             // Verifiser at dagoversikt har 28 dager for februar 2023
             daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
                 val inntektsforhold = inntektsforholdFraDB.find { it.id == yrkesaktivitetId }!!
-                assertEquals(28, inntektsforhold.dagoversikt?.size() ?: 0, "Februar 2023 skal ha 28 dager")
+                assertEquals(28, inntektsforhold.dagoversikt?.size ?: 0, "Februar 2023 skal ha 28 dager")
             }
         }
     }

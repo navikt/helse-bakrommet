@@ -16,7 +16,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Kategoriseri
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.tilJsonNode
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
@@ -288,8 +287,8 @@ fun lagYrkesaktivitetFraSøknader(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,
             kategoriseringGenerert = kategorisering,
-            dagoversikt = dagoversikt.tilJsonNode(),
-            dagoversiktGenerert = dagoversikt.tilJsonNode(),
+            dagoversikt = dagoversikt,
+            dagoversiktGenerert = dagoversikt,
             saksbehandlingsperiodeId = saksbehandlingsperiode.id,
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = dok.map { it.id },

@@ -229,10 +229,7 @@ class UtbetalingsberegningLogikkTest {
             id = id,
             kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
             kategoriseringGenerert = null,
-            dagoversikt =
-                dagoversikt.map { dag ->
-                    """{"dato":"${dag.dato}","dagtype":"${dag.dagtype}","grad":${dag.grad},"avslåttBegrunnelse":[],"kilde":"${dag.kilde}"}"""
-                }.joinToString(",", "[", "]").asJsonNode(),
+            dagoversikt = dagoversikt,
             dagoversiktGenerert = null,
             saksbehandlingsperiodeId = saksbehandlingsperiodeId,
             opprettet = OffsetDateTime.now(),

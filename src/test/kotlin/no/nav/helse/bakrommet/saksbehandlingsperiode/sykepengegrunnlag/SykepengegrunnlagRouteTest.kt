@@ -54,7 +54,7 @@ class SykepengegrunnlagRouteTest {
                 id = UUID.randomUUID(),
                 kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER", "orgnummer": "123456789"}""".asJsonNode(),
                 kategoriseringGenerert = null,
-                dagoversikt = """[]""".asJsonNode(),
+                dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = saksbehandlingsperiode.id,
                 opprettet = OffsetDateTime.now(),

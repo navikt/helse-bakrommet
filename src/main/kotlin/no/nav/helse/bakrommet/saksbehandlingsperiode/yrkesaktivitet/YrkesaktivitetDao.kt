@@ -1,27 +1,27 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.util.*
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
 
 typealias Kategorisering = JsonNode
-typealias Dagoversikt = JsonNode
 
 data class Yrkesaktivitet(
     val id: UUID,
     val kategorisering: Kategorisering,
     val kategoriseringGenerert: Kategorisering?,
-    val dagoversikt: Dagoversikt?,
-    val dagoversiktGenerert: Dagoversikt?,
+    val dagoversikt: List<Dag>?,
+    val dagoversiktGenerert: List<Dag>?,
     val saksbehandlingsperiodeId: UUID,
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
@@ -78,8 +78,8 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
             id = row.uuid("id"),
             kategorisering = row.string("kategorisering").asJsonNode(),
             kategoriseringGenerert = row.stringOrNull("kategorisering_generert")?.asJsonNode(),
-            dagoversikt = row.stringOrNull("dagoversikt")?.asJsonNode(),
-            dagoversiktGenerert = row.stringOrNull("dagoversikt_generert")?.asJsonNode(),
+            dagoversikt = row.stringOrNull("dagoversikt")?.tilDagoversikt(),
+            dagoversiktGenerert = row.stringOrNull("dagoversikt_generert")?.tilDagoversikt(),
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
             opprettet = row.offsetDateTime("opprettet"),
             generertFraDokumenter =
@@ -103,7 +103,7 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
 
     fun oppdaterDagoversikt(
         yrkesaktivitet: Yrkesaktivitet,
-        oppdatertDagoversikt: ArrayNode,
+        oppdatertDagoversikt: List<Dag>,
     ): Yrkesaktivitet {
         db.update(
             """

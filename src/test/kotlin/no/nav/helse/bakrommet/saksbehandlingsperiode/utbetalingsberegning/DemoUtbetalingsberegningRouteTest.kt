@@ -1,12 +1,14 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import com.fasterxml.jackson.databind.node.ObjectNode
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
@@ -94,36 +96,34 @@ class DemoUtbetalingsberegningRouteTest {
                 sistOppdatert = "2024-01-01T10:00:00Z",
             )
 
-        // Opprett dagoversikt som JsonNode
+        // Opprett dagoversikt som List<Dag>
         val dagoversikt =
-            objectMapper.createArrayNode().apply {
-                add(
-                    objectMapper.createObjectNode().apply {
-                        put("dato", "2024-01-01")
-                        put("dagtype", "Syk")
-                        put("grad", 100)
-                        set<ObjectNode>("avslåttBegrunnelse", objectMapper.createArrayNode())
-                        put("kilde", "Søknad")
-                    },
-                )
-                add(
-                    objectMapper.createObjectNode().apply {
-                        put("dato", "2024-01-02")
-                        put("dagtype", "Syk")
-                        put("grad", 100)
-                        set<ObjectNode>("avslåttBegrunnelse", objectMapper.createArrayNode())
-                        put("kilde", "Søknad")
-                    },
-                )
-                add(
-                    objectMapper.createObjectNode().apply {
-                        put("dato", "2024-01-03")
-                        put("dagtype", "Arbeidsdag")
-                        set<ObjectNode>("avslåttBegrunnelse", objectMapper.createArrayNode())
-                        put("kilde", "Søknad")
-                    },
-                )
-            }
+            listOf(
+                Dag(
+                    dato = LocalDate.of(2024, 1, 1),
+                    dagtype = Dagtype.Syk,
+                    grad = 100,
+                    avslåttBegrunnelse = emptyList(),
+                    andreYtelserBegrunnelse = null,
+                    kilde = Kilde.Søknad,
+                ),
+                Dag(
+                    dato = LocalDate.of(2024, 1, 2),
+                    dagtype = Dagtype.Syk,
+                    grad = 100,
+                    avslåttBegrunnelse = emptyList(),
+                    andreYtelserBegrunnelse = null,
+                    kilde = Kilde.Søknad,
+                ),
+                Dag(
+                    dato = LocalDate.of(2024, 1, 3),
+                    dagtype = Dagtype.Arbeidsdag,
+                    grad = null,
+                    avslåttBegrunnelse = emptyList(),
+                    andreYtelserBegrunnelse = null,
+                    kilde = Kilde.Søknad,
+                ),
+            )
 
         val yrkesaktivitet =
             Yrkesaktivitet(
