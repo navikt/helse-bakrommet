@@ -22,6 +22,7 @@ fun Application.installErrorHandling(configuration: Configuration) {
                     typePath = "validation/input",
                     instance = call.request.uri,
                 )
+            logg.warn("Input valideringsexception ${call.request.uri}", cause)
 
             call.respondProblem(status, problem)
         }

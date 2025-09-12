@@ -8,7 +8,8 @@ data class Dag(
     val dato: LocalDate,
     val dagtype: Dagtype,
     val grad: Int?,
-    val avslåttBegrunnelse: List<String>,
+    val avslåttBegrunnelse: List<String>? = null,
+    val andreYtelserBegrunnelse: List<String>? = null,
     val kilde: Kilde?,
 )
 

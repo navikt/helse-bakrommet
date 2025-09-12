@@ -43,7 +43,7 @@ class SkapDagerFraSoknaderTest {
                 assertEquals(Kilde.Saksbehandler, dag.kilde)
             }
             assertEquals(null, dag.grad)
-            assertTrue(dag.avslåttBegrunnelse.isEmpty())
+            assertTrue(dag.avslåttBegrunnelse!!.isEmpty())
         }
     }
 
