@@ -1,0 +1,21 @@
+name: "Deploy topic"
+on:
+  push:
+    paths:
+      - deploy/topics/**
+      - .github/workflows/topic.yml
+jobs:
+  deploy-topic-to-dev:
+    if: github.ref_name == 'main'
+    name: Deploy topic to dev-gcp
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Deploy spillerom-behandlinger-topic topic til dev-gcp
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: nais/topics/spillerom-behandlinger-topic-dev.yaml
