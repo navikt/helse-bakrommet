@@ -64,6 +64,16 @@ private fun oppdaterDagerMedSøknadsdata(
         oppdaterDagerMedFravær(dagerMap, fravær, fom, tom, Dagtype.Ferie)
     }
 
+    // Legg til ventetid fra selvstendig næringsdrivende
+    søknad.selvstendigNaringsdrivende?.ventetid?.let { ventetid ->
+        oppdaterDagerIIntervall(
+            dagerMap,
+            ventetid.fom,
+            ventetid.tom,
+            Dagtype.Ventetid,
+        )
+    }
+
     // Håndter arbeidGjenopptatt - sett alle dager fra og med denne til arbeidsdager (med mindre det er helg)
     søknad.arbeidGjenopptatt?.let { arbeidGjenopptattDato ->
         oppdaterDagerIIntervall(dagerMap, maxOf(fom, arbeidGjenopptattDato), tom, Dagtype.Arbeidsdag)

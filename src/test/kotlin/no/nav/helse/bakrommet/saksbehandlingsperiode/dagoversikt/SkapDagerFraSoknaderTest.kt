@@ -2,10 +2,12 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt
 
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SelvstendigNaringsdrivendeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsperiodeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.VentetidDTO
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -301,6 +303,27 @@ class SkapDagerFraSoknaderTest {
         assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 6) }!!.dagtype) // Lørdag - skal være helg
         assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype) // Søndag - skal være helg
     }
+
+    @Test
+    fun `leser inn ventetid`() {
+        val fom = LocalDate.of(2024, 1, 1)
+        val tom = LocalDate.of(2024, 1, 7)
+
+        val søknad =
+            lagSøknad(
+                fom = fom,
+                tom = tom,
+                ventetid = fom to fom.plusDays(3),
+            )
+
+        val resultat = skapDagoversiktFraSoknader(listOf(søknad), fom, tom)
+
+        assertEquals(7, resultat.size)
+        assertEquals(Dagtype.Ventetid, resultat[0].dagtype) // Lørdag
+        assertEquals(Dagtype.Ventetid, resultat[1].dagtype) // Søndag
+        assertEquals(Dagtype.Ventetid, resultat[3].dagtype) // Søndag
+        assertEquals(Dagtype.Syk, resultat[4].dagtype) // Søndag
+    }
 }
 
 private fun lagSøknad(
@@ -310,6 +333,7 @@ private fun lagSøknad(
     ferie: List<Pair<LocalDate, LocalDate>> = emptyList(),
     permisjon: List<Pair<LocalDate, LocalDate>> = emptyList(),
     arbeidGjenopptatt: LocalDate? = null,
+    ventetid: Pair<LocalDate, LocalDate>? = null,
 ): SykepengesoknadDTO {
     return SykepengesoknadDTO(
         id = "test-soknad",
@@ -347,5 +371,16 @@ private fun lagSøknad(
                         type = FravarstypeDTO.PERMISJON,
                     )
                 },
+        selvstendigNaringsdrivende =
+            ventetid?.let { (ventetidFom, ventetidTom) ->
+                SelvstendigNaringsdrivendeDTO(
+                    roller = emptyList(),
+                    ventetid =
+                        VentetidDTO(
+                            fom = ventetidFom,
+                            tom = ventetidTom,
+                        ),
+                )
+            },
     )
 }
