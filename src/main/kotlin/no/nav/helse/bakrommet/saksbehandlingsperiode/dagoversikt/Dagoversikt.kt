@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import java.time.LocalDate
@@ -8,7 +9,9 @@ data class Dag(
     val dato: LocalDate,
     val dagtype: Dagtype,
     val grad: Int?,
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     val avslåttBegrunnelse: List<String>? = null,
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     val andreYtelserBegrunnelse: List<String>? = null,
     val kilde: Kilde?,
 )
