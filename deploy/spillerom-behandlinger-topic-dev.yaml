@@ -6,7 +6,7 @@ metadata:
   labels:
     team: speilvendt
 spec:
-  pool: {{kafkaPool}}
+  pool: nav-dev
   config:
     cleanupPolicy: delete
     minimumInSyncReplicas: 2
