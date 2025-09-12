@@ -302,6 +302,7 @@ private fun SykepengesoknadDTO.bestemInntektskategori() =
         ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
         ArbeidssituasjonDTO.FISKER -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
         ArbeidssituasjonDTO.JORDBRUKER -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
+        ArbeidssituasjonDTO.BARNEPASSER -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
         ArbeidssituasjonDTO.FRILANSER -> YrkesaktivitetType.FRILANSER
         ArbeidssituasjonDTO.ARBEIDSTAKER -> YrkesaktivitetType.ARBEIDSTAKER
         ArbeidssituasjonDTO.ARBEIDSLEDIG -> YrkesaktivitetType.INAKTIV
