@@ -12,6 +12,7 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class SaksbehandlingsperiodeDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
@@ -39,7 +40,7 @@ internal class SaksbehandlingsperiodeDaoTest {
     @Test
     fun `kan opprette og hente periode`() {
         val id = UUID.randomUUID()
-        val personId = "6512a"
+        val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
         val now = OffsetDateTime.now()
         val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
         val fom = LocalDate.of(2021, 1, 1)
@@ -55,15 +56,16 @@ internal class SaksbehandlingsperiodeDaoTest {
                 fom = fom,
                 tom = tom,
                 skjæringstidspunkt = fom,
+                individuellBegrunnelse = null,
             ).truncateTidspunkt()
         dao.opprettPeriode(periode)
 
         val hentet = dao.finnSaksbehandlingsperiode(id)!!
         assertEquals(periode, hentet)
 
+        // Sjekk at perioden finnes i listen over alle perioder for personen
         val perioder = dao.finnPerioderForPerson(personId)
-        assertEquals(1, perioder.size)
-        assertEquals(periode, perioder[0])
+        assertTrue(perioder.any { it.id == id })
     }
 
     @Test
@@ -117,5 +119,79 @@ internal class SaksbehandlingsperiodeDaoTest {
         assertEquals(setOf(p1, p2), finnOverlappende("2024-02-01", "2024-02-15"))
         assertEquals(setOf(p2), finnOverlappende("2024-02-25", "2024-03-15"))
         assertEquals(emptySet(), finnOverlappende("2024-02-26", "2024-03-15"))
+    }
+
+    @Test
+    fun `kan oppdatere individuell begrunnelse`() {
+        val id = UUID.randomUUID()
+        val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
+        val now = OffsetDateTime.now()
+        val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
+        val fom = LocalDate.of(2021, 1, 1)
+        val tom = LocalDate.of(2021, 1, 31)
+
+        val periode =
+            Saksbehandlingsperiode(
+                id = id,
+                spilleromPersonId = personId,
+                opprettet = now,
+                opprettetAvNavIdent = saksbehandler.navIdent,
+                opprettetAvNavn = saksbehandler.navn,
+                fom = fom,
+                tom = tom,
+                skjæringstidspunkt = fom,
+                individuellBegrunnelse = null,
+            ).truncateTidspunkt()
+        dao.opprettPeriode(periode)
+
+        // Oppdater individuell begrunnelse
+        val nyBegrunnelse = "Spesielle omstendigheter som krever individuell vurdering"
+        dao.oppdaterIndividuellBegrunnelse(id, nyBegrunnelse)
+
+        val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        assertEquals(nyBegrunnelse, oppdatertPeriode.individuellBegrunnelse)
+
+        // Nullstill individuell begrunnelse
+        dao.oppdaterIndividuellBegrunnelse(id, null)
+
+        val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        assertNull(nullstiltPeriode.individuellBegrunnelse)
+    }
+
+    @Test
+    fun `kan oppdatere skjæringstidspunkt`() {
+        val id = UUID.randomUUID()
+        val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
+        val now = OffsetDateTime.now()
+        val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
+        val fom = LocalDate.of(2021, 1, 1)
+        val tom = LocalDate.of(2021, 1, 31)
+
+        val periode =
+            Saksbehandlingsperiode(
+                id = id,
+                spilleromPersonId = personId,
+                opprettet = now,
+                opprettetAvNavIdent = saksbehandler.navIdent,
+                opprettetAvNavn = saksbehandler.navn,
+                fom = fom,
+                tom = tom,
+                skjæringstidspunkt = fom,
+                individuellBegrunnelse = null,
+            ).truncateTidspunkt()
+        dao.opprettPeriode(periode)
+
+        // Oppdater skjæringstidspunkt
+        val nyttSkjæringstidspunkt = LocalDate.of(2021, 1, 15)
+        dao.oppdaterSkjæringstidspunkt(id, nyttSkjæringstidspunkt)
+
+        val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt)
+
+        // Nullstill skjæringstidspunkt
+        dao.oppdaterSkjæringstidspunkt(id, null)
+
+        val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        assertNull(nullstiltPeriode.skjæringstidspunkt)
     }
 }

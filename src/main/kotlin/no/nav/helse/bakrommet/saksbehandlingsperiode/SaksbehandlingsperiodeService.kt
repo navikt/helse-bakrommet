@@ -214,6 +214,44 @@ class SaksbehandlingsperiodeService(
             val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = null)
             saksbehandlingsperiodeEndringerDao.hentEndringerFor(periode.id)
         }
+
+    fun oppdaterIndividuellBegrunnelse(
+        periodeRef: SaksbehandlingsperiodeReferanse,
+        individuellBegrunnelse: String?,
+        saksbehandler: Bruker,
+    ): Saksbehandlingsperiode {
+        return db.transactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
+            saksbehandlingsperiodeDao.oppdaterIndividuellBegrunnelse(periode.id, individuellBegrunnelse)
+            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    oppdatertPeriode.endring(
+                        endringType = SaksbehandlingsperiodeEndringType.OPPDATERT_INDIVIDUELL_BEGRUNNELSE,
+                        saksbehandler = saksbehandler,
+                    ),
+                )
+            }
+        }
+    }
+
+    fun oppdaterSkjæringstidspunkt(
+        periodeRef: SaksbehandlingsperiodeReferanse,
+        skjæringstidspunkt: LocalDate?,
+        saksbehandler: Bruker,
+    ): Saksbehandlingsperiode {
+        return db.transactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
+            saksbehandlingsperiodeDao.oppdaterSkjæringstidspunkt(periode.id, skjæringstidspunkt)
+            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    oppdatertPeriode.endring(
+                        endringType = SaksbehandlingsperiodeEndringType.OPPDATERT_SKJÆRINGSTIDSPUNKT,
+                        saksbehandler = saksbehandler,
+                    ),
+                )
+            }
+        }
+    }
 }
 
 private fun Saksbehandlingsperiode.endring(

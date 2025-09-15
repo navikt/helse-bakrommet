@@ -22,6 +22,7 @@ data class Saksbehandlingsperiode(
     val status: SaksbehandlingsperiodeStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
     val beslutterNavIdent: String? = null,
     val skjæringstidspunkt: LocalDate? = null,
+    val individuellBegrunnelse: String? = null,
 )
 
 enum class SaksbehandlingsperiodeStatus {
@@ -117,6 +118,7 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
             status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
             skjæringstidspunkt = row.localDateOrNull("skjaeringstidspunkt"),
+            individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
         )
 
     fun endreStatus(
@@ -155,9 +157,9 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
         db.update(
             """
             insert into saksbehandlingsperiode
-                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt)
+                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse)
             values
-                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt)
+                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse)
             """.trimIndent(),
             "id" to periode.id,
             "spillerom_personid" to periode.spilleromPersonId,
@@ -169,6 +171,37 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
             "status" to periode.status.name,
             "beslutter_nav_ident" to periode.beslutterNavIdent,
             "skjaeringstidspunkt" to periode.skjæringstidspunkt,
+            "individuell_begrunnelse" to periode.individuellBegrunnelse,
+        )
+    }
+
+    fun oppdaterIndividuellBegrunnelse(
+        periodeId: UUID,
+        individuellBegrunnelse: String?,
+    ) {
+        db.update(
+            """
+            UPDATE saksbehandlingsperiode 
+            SET individuell_begrunnelse = :individuell_begrunnelse
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to periodeId,
+            "individuell_begrunnelse" to individuellBegrunnelse,
+        )
+    }
+
+    fun oppdaterSkjæringstidspunkt(
+        periodeId: UUID,
+        skjæringstidspunkt: LocalDate?,
+    ) {
+        db.update(
+            """
+            UPDATE saksbehandlingsperiode 
+            SET skjaeringstidspunkt = :skjaeringstidspunkt
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to periodeId,
+            "skjaeringstidspunkt" to skjæringstidspunkt,
         )
     }
 }

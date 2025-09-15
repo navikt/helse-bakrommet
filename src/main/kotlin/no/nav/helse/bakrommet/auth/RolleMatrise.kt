@@ -119,6 +119,14 @@ val regler =
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/godkjenn/(method:POST)",
             role = setOf(BESLUTTER),
         ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/individuell-begrunnelse/(method:PUT)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/skjaeringstidspunkt/(method:PUT)",
+            role = setOf(SAKSBEHANDLER),
+        ),
         // Yrkesaktivitet
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/(method:GET)",

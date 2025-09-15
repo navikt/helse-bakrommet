@@ -115,6 +115,41 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
             }
         }
     }
+
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/individuell-begrunnelse") {
+        data class OppdaterIndividuellBegrunnelseRequest(
+            val individuellBegrunnelse: String?,
+        )
+
+        put {
+            val body = call.receive<OppdaterIndividuellBegrunnelseRequest>()
+            service.oppdaterIndividuellBegrunnelse(
+                periodeRef = call.periodeReferanse(),
+                individuellBegrunnelse = body.individuellBegrunnelse,
+                saksbehandler = call.saksbehandler(),
+            ).let { oppdatertPeriode ->
+                call.respondPeriode(oppdatertPeriode)
+            }
+        }
+    }
+
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/skjaeringstidspunkt") {
+        data class OppdaterSkjæringstidspunktRequest(
+            val skjaeringstidspunkt: String?,
+        )
+
+        put {
+            val body = call.receive<OppdaterSkjæringstidspunktRequest>()
+            val skjæringstidspunkt = body.skjaeringstidspunkt?.let { LocalDate.parse(it) }
+            service.oppdaterSkjæringstidspunkt(
+                periodeRef = call.periodeReferanse(),
+                skjæringstidspunkt = skjæringstidspunkt,
+                saksbehandler = call.saksbehandler(),
+            ).let { oppdatertPeriode ->
+                call.respondPeriode(oppdatertPeriode)
+            }
+        }
+    }
 }
 
 private suspend fun RoutingCall.respondPeriode(

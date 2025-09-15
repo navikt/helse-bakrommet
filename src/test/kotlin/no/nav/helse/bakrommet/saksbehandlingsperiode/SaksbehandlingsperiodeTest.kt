@@ -92,4 +92,94 @@ class SaksbehandlingsperiodeTest {
             )
         }
     }
+
+    @Test
+    fun `kan oppdatere individuell begrunnelse`() =
+        runApplicationTest {
+            it.personDao.opprettPerson(fnr, personId)
+            val opprettetPeriode =
+                client.post("/v1/$personId/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "fom": "2023-01-01", "tom": "2023-01-31" }
+                        """.trimIndent(),
+                    )
+                }.body<Saksbehandlingsperiode>()
+
+            // Oppdater individuell begrunnelse
+            val nyBegrunnelse = "Spesielle omstendigheter som krever individuell vurdering"
+            val oppdatertPeriode =
+                client.put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/individuell-begrunnelse") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "individuellBegrunnelse": "$nyBegrunnelse" }
+                        """.trimIndent(),
+                    )
+                }.body<Saksbehandlingsperiode>()
+
+            assertEquals(nyBegrunnelse, oppdatertPeriode.individuellBegrunnelse)
+
+            // Nullstill individuell begrunnelse
+            val nullstiltPeriode =
+                client.put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/individuell-begrunnelse") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "individuellBegrunnelse": null }
+                        """.trimIndent(),
+                    )
+                }.body<Saksbehandlingsperiode>()
+
+            assertEquals(null, nullstiltPeriode.individuellBegrunnelse)
+        }
+
+    @Test
+    fun `kan oppdatere skjæringstidspunkt`() =
+        runApplicationTest {
+            it.personDao.opprettPerson(fnr, personId)
+            val opprettetPeriode =
+                client.post("/v1/$personId/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "fom": "2023-01-01", "tom": "2023-01-31" }
+                        """.trimIndent(),
+                    )
+                }.body<Saksbehandlingsperiode>()
+
+            // Oppdater skjæringstidspunkt
+            val nyttSkjæringstidspunkt = "2023-01-15"
+            val oppdatertPeriode =
+                client.put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/skjaeringstidspunkt") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "skjaeringstidspunkt": "$nyttSkjæringstidspunkt" }
+                        """.trimIndent(),
+                    )
+                }.body<Saksbehandlingsperiode>()
+
+            assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt.toString())
+
+            // Nullstill skjæringstidspunkt
+            val nullstiltPeriode =
+                client.put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/skjaeringstidspunkt") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "skjaeringstidspunkt": null }
+                        """.trimIndent(),
+                    )
+                }.body<Saksbehandlingsperiode>()
+
+            assertEquals(null, nullstiltPeriode.skjæringstidspunkt)
+        }
 }

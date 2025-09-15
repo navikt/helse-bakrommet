@@ -15,6 +15,8 @@ enum class SaksbehandlingsperiodeEndringType {
     TATT_TIL_BESLUTNING,
     SENDT_I_RETUR,
     GODKJENT,
+    OPPDATERT_INDIVIDUELL_BEGRUNNELSE,
+    OPPDATERT_SKJÆRINGSTIDSPUNKT,
 }
 
 data class SaksbehandlingsperiodeEndring(
