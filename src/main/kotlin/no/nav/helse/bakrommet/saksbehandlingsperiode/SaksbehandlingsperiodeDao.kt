@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.appLogger
@@ -11,6 +12,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class Saksbehandlingsperiode(
     val id: UUID,
     val spilleromPersonId: String,
