@@ -8,10 +8,10 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektsk
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.HashMap
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -227,7 +227,10 @@ class UtbetalingsberegningLogikkTest {
     ): Yrkesaktivitet {
         return Yrkesaktivitet(
             id = id,
-            kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
+            kategorisering =
+                HashMap<String, String>().apply {
+                    put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                },
             kategoriseringGenerert = null,
             dagoversikt = dagoversikt,
             dagoversiktGenerert = null,

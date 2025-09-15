@@ -72,14 +72,11 @@ class YrkesaktivitetOperasjonerTest {
                     UUID.fromString(id)
                 }
 
-            @Language("json")
             val nyKategorisering =
-                """
-                {
-                    "INNTEKTSKATEGORI": "ARBEIDSTAKER",
-                    "ER_SYKMELDT": "ER_SYKMELDT_NEI"
+                HashMap<String, String>().apply {
+                    put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                    put("ER_SYKMELDT", "ER_SYKMELDT_NEI")
                 }
-                """.trimIndent()
 
             // Oppdater kategorisering
             client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$opprettetYrkesaktivitetId/kategorisering") {
@@ -94,7 +91,7 @@ class YrkesaktivitetOperasjonerTest {
             daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
                 inntektsforholdFraDB.filter { it.id == opprettetYrkesaktivitetId }.also {
                     assertEquals(1, it.size)
-                    assertEquals(nyKategorisering.asJsonNode(), it.first().kategorisering)
+                    assertEquals(nyKategorisering, it.first().kategorisering)
                 }
             }
 

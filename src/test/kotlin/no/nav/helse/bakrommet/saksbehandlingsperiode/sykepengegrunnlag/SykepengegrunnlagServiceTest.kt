@@ -12,7 +12,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeRefer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -43,7 +42,7 @@ class SykepengegrunnlagServiceTest {
     val yrkesaktivitet =
         Yrkesaktivitet(
             id = UUID.randomUUID(),
-            kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
+            kategorisering = mapOf("INNTEKTSKATEGORI" to "ARBEIDSTAKER"),
             kategoriseringGenerert = null,
             dagoversikt = emptyList(),
             dagoversiktGenerert = null,
@@ -160,7 +159,7 @@ class SykepengegrunnlagServiceTest {
         val yrkesaktivitet2 =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering = """{"INNTEKTSKATEGORI": "FRILANSER"}""".asJsonNode(),
+                kategorisering = mapOf("INNTEKTSKATEGORI" to "FRILANSER"),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
@@ -470,7 +469,7 @@ class SykepengegrunnlagServiceTest {
         val ekstraYrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering = """{"INNTEKTSKATEGORI": "FRILANSER"}""".asJsonNode(),
+                kategorisering = mapOf("INNTEKTSKATEGORI" to "FRILANSER"),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,

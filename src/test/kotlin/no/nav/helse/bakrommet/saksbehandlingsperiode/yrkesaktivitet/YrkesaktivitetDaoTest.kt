@@ -6,7 +6,6 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.testutils.tidsstuttet
-import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -48,7 +47,10 @@ class YrkesaktivitetDaoTest {
         val yrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
+                kategorisering =
+                    HashMap<String, String>().apply {
+                        put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                    },
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
@@ -71,7 +73,10 @@ class YrkesaktivitetDaoTest {
         val yrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode(),
+                kategorisering =
+                    HashMap<String, String>().apply {
+                        put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                    },
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,

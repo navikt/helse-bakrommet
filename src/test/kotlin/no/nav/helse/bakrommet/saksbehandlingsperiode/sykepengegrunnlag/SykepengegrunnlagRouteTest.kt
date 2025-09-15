@@ -10,7 +10,6 @@ import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
-import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -52,7 +51,7 @@ class SykepengegrunnlagRouteTest {
         val yrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER", "orgnummer": "123456789"}""".asJsonNode(),
+                kategorisering = mapOf("INNTEKTSKATEGORI" to "ARBEIDSTAKER", "orgnummer" to "123456789"),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,

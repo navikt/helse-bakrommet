@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
-import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -23,7 +22,7 @@ fun RoutingCall.inntektsforholdReferanse() =
 
 data class YrkesaktivitetDTO(
     val id: UUID,
-    val kategorisering: JsonNode,
+    val kategorisering: Map<String, String>,
     val dagoversikt: List<Dag>?,
     val generertFraDokumenter: List<UUID>,
     val dekningsgrad: Int,
@@ -84,5 +83,5 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: Yrkesaktiv
 }
 
 data class YrkesaktivitetCreateRequest(
-    val kategorisering: JsonNode,
+    val kategorisering: Map<String, String>,
 )

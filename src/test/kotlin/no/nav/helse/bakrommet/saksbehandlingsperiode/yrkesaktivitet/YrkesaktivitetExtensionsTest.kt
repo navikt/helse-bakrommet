@@ -14,7 +14,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal kaste feil for selvstendig næringsdrivende uten forsikring`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
             }
 
@@ -41,7 +41,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 100 prosent for selvstendig næringsdrivende med 100 prosent fra første sykedag`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
                 put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG")
             }
@@ -66,7 +66,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 100 prosent for selvstendig næringsdrivende med 100 prosent fra 17 sykedag`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
                 put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_17_SYKEDAG")
             }
@@ -91,7 +91,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 80 prosent for selvstendig næringsdrivende med 80 prosent fra første sykedag`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
                 put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
             }
@@ -116,7 +116,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 80 prosent for selvstendig næringsdrivende med ingen forsikring`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
                 put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "INGEN_FORSIKRING")
             }
@@ -141,7 +141,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 100 prosent for fisker på blad b`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
                 put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "FISKER")
             }
@@ -166,7 +166,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal kaste feil for inaktiv uten variant`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "INAKTIV")
             }
 
@@ -193,7 +193,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 65 prosent for inaktiv variant A`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "INAKTIV")
                 put("VARIANT_AV_INAKTIV", "INAKTIV_VARIANT_A")
             }
@@ -218,7 +218,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 100 prosent for inaktiv variant B`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "INAKTIV")
                 put("VARIANT_AV_INAKTIV", "INAKTIV_VARIANT_B")
             }
@@ -243,7 +243,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere Prosentdel for arbeidstaker`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
             }
 
@@ -267,7 +267,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere Prosentdel for frilanser`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "FRILANSER")
             }
 
@@ -291,7 +291,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 100 prosent for arbeidsledig`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "ARBEIDSLEDIG")
             }
 
@@ -315,7 +315,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal kaste feil for ukjent forsikringstype for selvstendig næringsdrivende`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
                 put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "UKJENT_FORSIKRING")
             }
@@ -343,7 +343,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal kaste feil for ukjent variant for inaktiv`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "INAKTIV")
                 put("VARIANT_AV_INAKTIV", "UKJENT_VARIANT")
             }
@@ -371,7 +371,7 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal kaste feil for ukjent inntektskategori`() {
         val kategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "UKJENT_KATEGORI")
             }
 
@@ -397,7 +397,7 @@ class YrkesaktivitetExtensionsTest {
 
     @Test
     fun `skal kaste feil når INNTEKTSKATEGORI ikke er satt`() {
-        val kategorisering = objectMapper.createObjectNode()
+        val kategorisering = HashMap<String, String>()
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -422,12 +422,12 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere forskjellige Prosentdel-objekter for ulike kategorier`() {
         val selvstendigKategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
                 put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG")
             }
         val arbeidstakerKategorisering =
-            objectMapper.createObjectNode().apply {
+            HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
             }
 

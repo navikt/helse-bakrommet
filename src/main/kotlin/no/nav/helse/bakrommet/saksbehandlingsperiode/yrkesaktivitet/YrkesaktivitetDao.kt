@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
-import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
@@ -14,12 +13,10 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
 
-typealias Kategorisering = JsonNode
-
 data class Yrkesaktivitet(
     val id: UUID,
-    val kategorisering: Kategorisering,
-    val kategoriseringGenerert: Kategorisering?,
+    val kategorisering: Map<String, String>,
+    val kategoriseringGenerert: Map<String, String>?,
     val dagoversikt: List<Dag>?,
     val dagoversiktGenerert: List<Dag>?,
     val saksbehandlingsperiodeId: UUID,
@@ -76,8 +73,8 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
     private fun yrkesaktivitetFraRow(row: Row) =
         Yrkesaktivitet(
             id = row.uuid("id"),
-            kategorisering = row.string("kategorisering").asJsonNode(),
-            kategoriseringGenerert = row.stringOrNull("kategorisering_generert")?.asJsonNode(),
+            kategorisering = row.string("kategorisering").asStringStringMap(),
+            kategoriseringGenerert = row.stringOrNull("kategorisering_generert")?.asStringStringMap(),
             dagoversikt = row.stringOrNull("dagoversikt")?.tilDagoversikt(),
             dagoversiktGenerert = row.stringOrNull("dagoversikt_generert")?.tilDagoversikt(),
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
@@ -89,7 +86,7 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
 
     fun oppdaterKategorisering(
         yrkesaktivitet: Yrkesaktivitet,
-        kategorisering: JsonNode,
+        kategorisering: Map<String, String>,
     ): Yrkesaktivitet {
         db.update(
             """

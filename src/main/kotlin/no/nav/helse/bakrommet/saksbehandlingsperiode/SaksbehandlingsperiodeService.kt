@@ -12,10 +12,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversikt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Kategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.util.logg
-import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
@@ -241,8 +239,8 @@ private fun Saksbehandlingsperiode.verifiserNyStatusGyldighet(nyStatus: Saksbeha
     }
 }
 
-fun SykepengesoknadDTO.kategorisering(): Kategorisering {
-    return objectMapper.createObjectNode().apply {
+fun SykepengesoknadDTO.kategorisering(): Map<String, String> {
+    return HashMap<String, String>().apply {
         val soknad = this@kategorisering
         val inntektskategori = soknad.bestemInntektskategori()
         put("INNTEKTSKATEGORI", inntektskategori)

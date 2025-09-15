@@ -162,11 +162,16 @@ class SaksbehandlingsperiodeOpprettelseTest {
             assertEquals(3, inntektsforhold.size)
             assertEquals(
                 setOf("123321123", null, "654321123"),
-                inntektsforhold.map { it.kategorisering["ORGNUMMER"]?.asText() }.toSet(),
+                inntektsforhold.map { it.kategorisering["ORGNUMMER"] }.toSet(),
             )
 
-            val arbgiver1Yrkesaktivitet = inntektsforhold.find { it.kategorisering["ORGNUMMER"]?.asText() == arbeidsgiver1.identifikator }!!
-            val forventetKategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER","ORGNUMMER":"123321123"}""".asJsonNode()
+            val arbgiver1Yrkesaktivitet = inntektsforhold.find { it.kategorisering["ORGNUMMER"] == arbeidsgiver1.identifikator }!!
+            val forventetKategorisering =
+                HashMap<String, String>().apply {
+                    put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                    put("ORGNUMMER", "123321123")
+                }
+
             assertEquals(forventetKategorisering, arbgiver1Yrkesaktivitet.kategorisering)
         }
     }

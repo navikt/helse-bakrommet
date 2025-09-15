@@ -12,7 +12,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektsk
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Kategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.util.HashUtils
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -138,7 +137,7 @@ data class SaksbehandlingsperiodeKafkaDto(
 // TODO typ strengt når landet
 data class YrkesaktivitetKafkaDto(
     val id: UUID,
-    val kategorisering: Kategorisering,
+    val kategorisering: Map<String, String>,
     val dagoversikt: List<Dag>?,
 )
 

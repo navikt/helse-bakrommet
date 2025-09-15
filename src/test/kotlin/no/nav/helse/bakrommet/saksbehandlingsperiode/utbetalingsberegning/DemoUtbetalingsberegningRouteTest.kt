@@ -14,7 +14,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektsk
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -129,7 +128,7 @@ class DemoUtbetalingsberegningRouteTest {
             Yrkesaktivitet(
                 id = yrkesaktivitetId,
                 kategorisering =
-                    objectMapper.createObjectNode().apply {
+                    HashMap<String, String>().apply {
                         put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
                     },
                 kategoriseringGenerert = null,

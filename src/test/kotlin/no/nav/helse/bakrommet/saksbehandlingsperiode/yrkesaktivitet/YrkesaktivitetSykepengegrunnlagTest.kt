@@ -10,7 +10,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -98,7 +97,10 @@ class YrkesaktivitetSykepengegrunnlagTest {
     @Test
     fun `sykepengegrunnlag slettes når inntektsforhold opprettes`() {
         // Given - opprett inntektsforhold først
-        val kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode()
+        val kategorisering =
+            HashMap<String, String>().apply {
+                put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+            }
         val inntektsforhold = inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), kategorisering, saksbehandler)
 
         // Opprett sykepengegrunnlag
@@ -123,7 +125,10 @@ class YrkesaktivitetSykepengegrunnlagTest {
         assertNotNull(grunnlagFør)
 
         // When - opprett nytt inntektsforhold
-        val nyKategorisering = """{"INNTEKTSKATEGORI": "FRILANSER"}""".asJsonNode()
+        val nyKategorisering =
+            HashMap<String, String>().apply {
+                put("INNTEKTSKATEGORI", "FRILANSER")
+            }
         inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), nyKategorisering, saksbehandler)
 
         // Then - sykepengegrunnlag skal være slettet
@@ -134,7 +139,10 @@ class YrkesaktivitetSykepengegrunnlagTest {
     @Test
     fun `utbetalingsberegning slettes når inntektsforhold endres`() {
         // Given - opprett inntektsforhold først
-        val kategorisering = """{"INNTEKTSKATEGORI": "ARBEIDSTAKER"}""".asJsonNode()
+        val kategorisering =
+            HashMap<String, String>().apply {
+                put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+            }
         val inntektsforhold = inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), kategorisering, saksbehandler)
 
         // Opprett sykepengegrunnlag (som også oppretter utbetalingsberegning)
@@ -160,7 +168,10 @@ class YrkesaktivitetSykepengegrunnlagTest {
         assertNotNull(beregningFør)
 
         // When - opprett nytt inntektsforhold
-        val nyKategorisering = """{"INNTEKTSKATEGORI": "FRILANSER"}""".asJsonNode()
+        val nyKategorisering =
+            HashMap<String, String>().apply {
+                put("INNTEKTSKATEGORI", "FRILANSER")
+            }
         inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), nyKategorisering, saksbehandler)
 
         // Then - utbetalingsberegning skal være slettet

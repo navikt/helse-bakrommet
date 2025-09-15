@@ -33,7 +33,7 @@ interface YrkesaktivitetServiceDaoer {
     val beregningDao: UtbetalingsberegningDao
 }
 
-typealias YrkesaktivitetKategorisering = JsonNode
+typealias YrkesaktivitetKategorisering = Map<String, String>
 typealias DagerSomSkalOppdateres = JsonNode
 
 class YrkesaktivitetService(
@@ -57,7 +57,7 @@ class YrkesaktivitetService(
     )
 
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean {
-        val erSykmeldt = this.get("ER_SYKMELDT")?.asText()
+        val erSykmeldt = this["ER_SYKMELDT"]
         return erSykmeldt == "ER_SYKMELDT_JA" || erSykmeldt == null
     }
 

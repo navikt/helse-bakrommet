@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import java.util.*
@@ -23,6 +24,10 @@ fun <T> T.tilJsonNode(): JsonNode = objectMapper.valueToTree(this)
 
 fun String.asJsonNode(): JsonNode {
     return objectMapper.readTree(this)
+}
+
+fun String.asStringStringMap(): Map<String, String> {
+    return objectMapper.readValue(this)
 }
 
 fun Any.toJsonNode(): JsonNode {
