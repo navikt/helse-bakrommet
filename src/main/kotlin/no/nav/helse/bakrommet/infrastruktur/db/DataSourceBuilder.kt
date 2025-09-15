@@ -15,8 +15,10 @@ class DataSourceBuilder(configuration: Configuration.DB) {
     private val hikariConfig =
         HikariConfig().apply {
             jdbcUrl = configuration.jdbcUrl
-            maximumPoolSize = 20
-            minimumIdle = 2
+            // Reduser connection pool for tester
+            val isTestEnvironment = jdbcUrl.contains("testdb") || jdbcUrl.contains("testcontainers")
+            maximumPoolSize = if (isTestEnvironment) 2 else 20
+            minimumIdle = if (isTestEnvironment) 1 else 2
             idleTimeout = 1.minutes.inWholeMilliseconds
             maxLifetime = idleTimeout * 5
             initializationFailTimeout = 1.minutes.inWholeMilliseconds
