@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 plugins {
     kotlin("jvm") version "2.1.20"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
-    id("com.gradleup.shadow") version "8.3.6"
+    id("com.gradleup.shadow") version "9.1.0"
 }
 
 repositories {
