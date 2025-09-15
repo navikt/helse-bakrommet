@@ -80,6 +80,12 @@ tasks {
             exceptionFormat = FULL
             showStackTraces = true
         }
+        maxParallelForks =
+            if (System.getenv("CI") == "true") {
+                (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+            } else {
+                2
+            }
         afterSuite(
             KotlinClosure2<TestDescriptor, TestResult, Any>(
                 { desc, result ->
