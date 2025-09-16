@@ -19,3 +19,9 @@ spec:
     - team: speilvendt
       application: bakrommet
       access: write
+    - team: speilvendt
+      application: spillerom-utbetaling
+      access: read
+    - team: speilvendt
+      application: spillerom-kafkaviewer
+      access: read
