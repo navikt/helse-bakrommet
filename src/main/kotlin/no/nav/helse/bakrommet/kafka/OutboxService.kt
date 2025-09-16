@@ -4,10 +4,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import javax.sql.DataSource
 
-class OutboxService(private val outboxDao: OutboxDao) {
+class OutboxService(
+    private val outboxDao: OutboxDao,
+    private val kafkaProducer: KafkaProducerInterface,
+) {
     private val logger: Logger = LoggerFactory.getLogger(OutboxService::class.java)
 
-    constructor(dataSource: DataSource) : this(OutboxDao(dataSource))
+    constructor(dataSource: DataSource, kafkaProducer: KafkaProducerInterface) : this(OutboxDao(dataSource), kafkaProducer)
 
     fun prosesserOutbox(): Int {
         var antallProsessert = 0
@@ -25,12 +28,27 @@ class OutboxService(private val outboxDao: OutboxDao) {
             logger.info("Fant ${upubliserteMeldinger.size} upubliserte meldinger i outbox")
 
             upubliserteMeldinger.forEach { entry ->
-                // TODO: Her vil vi senere implementere selve kafka-produseringen
-                logger.debug("Prosesserer melding med id=${entry.id}, key=${entry.kafkaKey}")
+                try {
+                    logger.debug("Prosesserer melding med id=${entry.id}, key=${entry.kafkaKey}")
 
-                outboxDao.markerSomPublisert(entry.id)
-                logger.debug("Melding med id=${entry.id} markert som publisert")
-                antallProsessert++
+                    kafkaProducer.send(
+                        topic = "speilvendt.spillerom-behandlinger",
+                        key = entry.kafkaKey,
+                        value = entry.kafkaPayload,
+                        headers =
+                            mapOf(
+                                "outbox-id" to entry.id.toString(),
+                                "outbox-opprettet" to entry.opprettet.toString(),
+                            ),
+                    ).get() // Blokkerer til meldingen er sendt
+
+                    outboxDao.markerSomPublisert(entry.id)
+                    logger.debug("Melding med id=${entry.id} sendt til Kafka og markert som publisert")
+                    antallProsessert++
+                } catch (e: Exception) {
+                    logger.error("Feil ved sending av melding med id=${entry.id} til Kafka", e)
+                    throw e
+                }
             }
 
             logger.info(

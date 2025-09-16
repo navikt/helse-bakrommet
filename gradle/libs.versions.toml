@@ -3,6 +3,7 @@ flyway = "11.7.2"
 ktor = "3.2.0"
 testcontainers = "1.21.0"
 spleis="2025.09.01-09.22-dd093777"
+kafka = "3.8.0"
 
 [libraries]
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
@@ -37,6 +38,8 @@ slf4jApi = "org.slf4j:slf4j-api:2.0.17"
 micrometerPrometheus = "io.micrometer:micrometer-registry-prometheus:1.14.6"
 sykepengesoknad = "no.nav.helse.flex:sykepengesoknad-kafka:2025.09.09-07.30-baf456bb"
 spleisOkonomi= "com.github.navikt.spleis:sykepenger-okonomi:2025.09.05-14.51-15db36a7"
+
+kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
 
 
 [bundles]

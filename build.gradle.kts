@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.micrometerPrometheus)
     implementation(libs.sykepengesoknad)
     implementation(libs.spleisOkonomi)
+    implementation(libs.kafka.clients)
 
     testImplementation(libs.bundles.ktorServerTest)
     testImplementation(libs.testcontainers.postgres)

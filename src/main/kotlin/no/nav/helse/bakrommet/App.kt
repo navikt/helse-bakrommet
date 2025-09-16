@@ -26,6 +26,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.inntektsmelding.inntektsmeldingerRoute
+import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
 import no.nav.helse.bakrommet.kafka.OutboxService
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonDao
@@ -73,7 +74,8 @@ internal fun startApp(configuration: Configuration) {
         settOppKtor(dataSource, configuration)
         appLogger.info("Starter bakrommet")
         monitor.subscribe(ApplicationStarted) {
-            val outboxService = OutboxService(dataSource)
+            val kafkaProducer = KafkaProducerImpl()
+            val outboxService = OutboxService(dataSource, kafkaProducer)
             launch {
                 while (true) {
                     outboxService.prosesserOutbox()
