@@ -114,6 +114,7 @@ tasks {
                 ),
             )
         }
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         mergeServiceFiles()
     }
 }
