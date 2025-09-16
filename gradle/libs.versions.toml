@@ -35,7 +35,7 @@ logback-classic = "ch.qos.logback:logback-classic:1.5.18"
 logback-logstashEncoder = "net.logstash.logback:logstash-logback-encoder:8.1"
 slf4jApi = "org.slf4j:slf4j-api:2.0.17"
 
-micrometerPrometheus = "io.micrometer:micrometer-registry-prometheus:1.14.6"
+micrometerPrometheus = "io.micrometer:micrometer-registry-prometheus:1.15.4"
 sykepengesoknad = "no.nav.helse.flex:sykepengesoknad-kafka:2025.09.09-07.30-baf456bb"
 spleisOkonomi= "com.github.navikt.spleis:sykepenger-okonomi:2025.09.05-14.51-15db36a7"
 
