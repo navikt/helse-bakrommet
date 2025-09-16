@@ -17,5 +17,5 @@ spec:
     localRetentionHours: 24 # 1 dag lagring på rask disk
   acl:
     - team: speilvendt
-      application: helse-bakrommet
+      application: bakrommet
       access: write
