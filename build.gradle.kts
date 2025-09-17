@@ -7,7 +7,7 @@ val spleisVersion = "2025.09.01-09.22-dd093777"
 val kafkaVersion = "3.8.0"
 
 plugins {
-    kotlin("jvm") version "2.1.20"
+    kotlin("jvm") version "2.2.20"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
 }
 
