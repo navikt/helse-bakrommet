@@ -37,7 +37,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
     implementation("org.slf4j:slf4j-api:2.0.17")
 
-    implementation("org.postgresql:postgresql:42.7.5")
+    implementation("org.postgresql:postgresql:42.7.7")
     implementation("com.zaxxer:HikariCP:6.3.0")
 
     implementation("org.flywaydb:flyway-core:$flywayVersion")
