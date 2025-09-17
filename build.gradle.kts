@@ -9,7 +9,6 @@ val kafkaVersion = "3.8.0"
 plugins {
     kotlin("jvm") version "2.1.20"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
-    id("com.gradleup.shadow") version "9.1.0"
 }
 
 repositories {
@@ -123,18 +122,24 @@ tasks {
         )
     }
 
-    shadowJar {
+    named<Jar>("jar") {
         archiveBaseName.set("app")
-        archiveClassifier.set("")
-        isZip64 = true
+
         manifest {
-            attributes(
-                mapOf(
-                    "Main-Class" to "no.nav.helse.bakrommet.AppKt",
-                ),
-            )
+            attributes["Main-Class"] = "no.nav.helse.bakrommet.AppKt"
+            attributes["Class-Path"] =
+                configurations.runtimeClasspath.get().joinToString(separator = " ") {
+                    it.name
+                }
         }
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        mergeServiceFiles()
+
+        doLast {
+            configurations.runtimeClasspath.get().forEach {
+                val file = File("${layout.buildDirectory.get()}/libs/${it.name}")
+                if (!file.exists()) {
+                    it.copyTo(file)
+                }
+            }
+        }
     }
 }
