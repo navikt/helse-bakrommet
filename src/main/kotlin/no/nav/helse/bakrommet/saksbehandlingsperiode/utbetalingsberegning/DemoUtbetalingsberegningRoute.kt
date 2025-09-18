@@ -18,7 +18,7 @@ internal fun Route.demoUtbetalingsberegningRoute() {
             val rawInput = call.receiveText()
             try {
                 // Parse input til objekt
-                val input = no.nav.helse.bakrommet.util.objectMapper.readValue(rawInput, UtbetalingsberegningInput::class.java)
+                val input = objectMapper.readValue(rawInput, UtbetalingsberegningInput::class.java)
                 val beregningData = UtbetalingsberegningLogikk.beregn(input)
 
                 call.respondText(

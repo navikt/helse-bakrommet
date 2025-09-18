@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
+import no.nav.helse.økonomi.Prosentdel
 import no.nav.helse.økonomi.Økonomi
 import java.time.LocalDate
 import java.util.UUID
@@ -25,10 +26,11 @@ object UtbetalingsberegningLogikk {
     fun beregn(input: UtbetalingsberegningInput): UtbetalingsberegningData {
         val sykepengegrunnlagBegrenset6G = opprettSykepengegrunnlag(input.sykepengegrunnlag)
         val refusjonstidslinjer = opprettRefusjonstidslinjer(input)
-        val alleDager = samleAlleDager(input, refusjonstidslinjer)
-        val dagBeregninger = beregnDagForDag(alleDager, sykepengegrunnlagBegrenset6G, input.sykepengegrunnlag, refusjonstidslinjer)
+        val alleDager = samleAlleDager(input)
+        val dagBeregninger =
+            beregnDagForDag(alleDager.first, sykepengegrunnlagBegrenset6G, input.sykepengegrunnlag, refusjonstidslinjer)
 
-        return opprettResultat(input.yrkesaktivitet, dagBeregninger)
+        return opprettResultat(input.yrkesaktivitet, dagBeregninger, alleDager.second)
     }
 
     private fun opprettSykepengegrunnlag(sykepengegrunnlag: SykepengegrunnlagResponse): Inntekt {
@@ -50,22 +52,28 @@ object UtbetalingsberegningLogikk {
 
     private fun samleAlleDager(
         input: UtbetalingsberegningInput,
-        refusjonstidslinjer: Map<UUID, Map<LocalDate, Inntekt>>,
-    ): Map<LocalDate, List<DagMedYrkesaktivitet>> {
+    ): Pair<MutableMap<LocalDate, MutableList<DagMedYrkesaktivitet>>, List<Beregningssporing>> {
         val alleDager = mutableMapOf<LocalDate, MutableList<DagMedYrkesaktivitet>>()
+
+        val sporing = mutableListOf<Beregningssporing>()
 
         input.yrkesaktivitet.forEach { yrkesaktivitet ->
             val dagoversikt = hentDagoversiktFraYrkesaktivitet(yrkesaktivitet)
+            val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+            // TODO add til listen hvis sykmeldt og få sporingen ut fra hentDekningsgrad
+            if (yrkesaktivitet.kategorisering["INNTEKTSKATEGORI"] == "ARBEIDSTAKER") {
+                sporing.add(Beregningssporing.ARBEIDSTAKER_100)
+            }
             val komplettDagoversikt = fyllUtManglendeDager(dagoversikt, input.saksbehandlingsperiode)
 
             komplettDagoversikt.forEach { dag ->
                 alleDager.getOrPut(dag.dato) { mutableListOf() }.add(
-                    DagMedYrkesaktivitet(dag, yrkesaktivitet),
+                    DagMedYrkesaktivitet(dag, yrkesaktivitet, dekningsgrad),
                 )
             }
         }
 
-        return alleDager
+        return Pair(alleDager, sporing)
     }
 
     private fun beregnDagForDag(
@@ -80,10 +88,11 @@ object UtbetalingsberegningLogikk {
             val økonomiList =
                 dagerForDato.map { dagMedYrkesaktivitet ->
                     beregnØkonomiForDag(
-                        dagMedYrkesaktivitet.dag,
-                        sykepengegrunnlag,
-                        refusjonstidslinjer[dagMedYrkesaktivitet.yrkesaktivitet.id] ?: emptyMap(),
-                        dagMedYrkesaktivitet.yrkesaktivitet,
+                        dag = dagMedYrkesaktivitet.dag,
+                        sykepengegrunnlag = sykepengegrunnlag,
+                        refusjonstidslinje = refusjonstidslinjer[dagMedYrkesaktivitet.yrkesaktivitet.id] ?: emptyMap(),
+                        yrkesaktivitet = dagMedYrkesaktivitet.yrkesaktivitet,
+                        dekningsgrad = dagMedYrkesaktivitet.dekningsgrad,
                     )
                 }
 
@@ -160,12 +169,11 @@ object UtbetalingsberegningLogikk {
         sykepengegrunnlag: SykepengegrunnlagResponse,
         refusjonstidslinje: Map<LocalDate, Inntekt>,
         yrkesaktivitet: Yrkesaktivitet,
+        dekningsgrad: Prosentdel,
     ): Økonomi {
         val aktuellDagsinntekt = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitet.id)
         val refusjonsbeløp = refusjonstidslinje[dag.dato] ?: Inntekt.INGEN
         val sykdomsgrad = Sykdomsgrad(dag.grad ?: 0).tilProsentdel()
-
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
         return Økonomi.inntekt(
             sykdomsgrad = sykdomsgrad,
@@ -197,8 +205,20 @@ object UtbetalingsberegningLogikk {
     ): DagUtbetalingsberegning {
         // Konverter tilbake til øre-format for output
         // dagligInt returnerer kroner som Int, men vi trenger øre
-        val utbetalingØre = ((beregnetØkonomi.personbeløp?.dagligInt ?: 0) * UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR).toLong()
-        val refusjonØre = ((beregnetØkonomi.arbeidsgiverbeløp?.dagligInt ?: 0) * UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR).toLong()
+        val utbetalingØre =
+            (
+                (
+                    beregnetØkonomi.personbeløp?.dagligInt
+                        ?: 0
+                ) * UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR
+            ).toLong()
+        val refusjonØre =
+            (
+                (
+                    beregnetØkonomi.arbeidsgiverbeløp?.dagligInt
+                        ?: 0
+                ) * UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR
+            ).toLong()
 
         // Hent total grad som heltall (som Spleis)
         val totalGrad = beregnetØkonomi.brukTotalGrad { it }
@@ -214,6 +234,7 @@ object UtbetalingsberegningLogikk {
     private fun opprettResultat(
         yrkesaktiviteter: List<Yrkesaktivitet>,
         dagBeregninger: Map<UUID, List<DagUtbetalingsberegning>>,
+        sporing: List<Beregningssporing>,
     ): UtbetalingsberegningData {
         val yrkesaktivitetUtbetalingsberegninger =
             yrkesaktiviteter.map { yrkesaktivitet ->
@@ -224,11 +245,12 @@ object UtbetalingsberegningLogikk {
                 )
             }
 
-        return UtbetalingsberegningData(yrkesaktivitetUtbetalingsberegninger, emptyList())
+        return UtbetalingsberegningData(yrkesaktivitetUtbetalingsberegninger, sporing)
     }
 
     private data class DagMedYrkesaktivitet(
         val dag: Dag,
         val yrkesaktivitet: Yrkesaktivitet,
+        val dekningsgrad: Prosentdel,
     )
 }

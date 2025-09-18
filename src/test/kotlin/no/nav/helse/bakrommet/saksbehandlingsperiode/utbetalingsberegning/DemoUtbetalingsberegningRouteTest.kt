@@ -1,10 +1,8 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
