@@ -224,7 +224,7 @@ object UtbetalingsberegningLogikk {
                 )
             }
 
-        return UtbetalingsberegningData(yrkesaktivitetUtbetalingsberegninger)
+        return UtbetalingsberegningData(yrkesaktivitetUtbetalingsberegninger, emptyList())
     }
 
     private data class DagMedYrkesaktivitet(

@@ -5,6 +5,17 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import java.time.LocalDate
 import java.util.UUID
 
+enum class Beregningssporing {
+    ARBEIDSTAKER_100,
+    ORDINAER_SELVSTENDIG_80,
+    ORDINAER_SELVSTENDIG_NAVFORSIKRING_100,
+    SELVSTENDIG_KOLLEKTIVFORSIKRING_100,
+    FRILANSER_100,
+    INAKTIV_65,
+    INAKTIV_100,
+    DAGPENGEMOTTAKER_100,
+}
+
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
     val yrkesaktivitet: List<Yrkesaktivitet>,
@@ -18,6 +29,7 @@ data class Saksbehandlingsperiode(
 
 data class UtbetalingsberegningData(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegning>,
+    val sporing: List<Beregningssporing>,
 )
 
 data class YrkesaktivitetUtbetalingsberegning(

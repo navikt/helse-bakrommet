@@ -37,7 +37,7 @@ class UtbetalingsBeregningHjelper(
                 sykepengegrunnlag = sykepengegrunnlag,
                 yrkesaktivitet = inntektsforhold,
                 saksbehandlingsperiode =
-                    no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Saksbehandlingsperiode(
+                    Saksbehandlingsperiode(
                         fom = periode.fom,
                         tom = periode.tom,
                     ),
