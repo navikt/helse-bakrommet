@@ -138,6 +138,23 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
         )
     }
 
+    fun endreStatusOgIndividuellBegrunnelse(
+        periode: Saksbehandlingsperiode,
+        nyStatus: SaksbehandlingsperiodeStatus,
+        individuellBegrunnelse: String?,
+    ) {
+        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
+        db.update(
+            """
+            UPDATE saksbehandlingsperiode SET status = :status, individuell_begrunnelse = :individuell_begrunnelse
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to periode.id,
+            "status" to nyStatus.name,
+            "individuell_begrunnelse" to individuellBegrunnelse,
+        )
+    }
+
     fun endreStatusOgBeslutter(
         periode: Saksbehandlingsperiode,
         nyStatus: SaksbehandlingsperiodeStatus,

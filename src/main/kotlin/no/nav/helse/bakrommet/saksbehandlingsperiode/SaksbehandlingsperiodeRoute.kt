@@ -75,8 +75,13 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
     }
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sendtilbeslutning") {
+        data class SendTilBeslutningRequest(
+            val individuellBegrunnelse: String?,
+        )
+
         post {
-            service.sendTilBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+            val body = call.receive<SendTilBeslutningRequest>()
+            service.sendTilBeslutning(call.periodeReferanse(), body.individuellBegrunnelse, call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondPeriode(oppdatertPeriode)
             }
         }

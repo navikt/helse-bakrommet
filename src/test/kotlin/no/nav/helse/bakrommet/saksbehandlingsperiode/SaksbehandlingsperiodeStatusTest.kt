@@ -54,6 +54,8 @@ class SaksbehandlingsperiodeStatusTest {
 
             client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
                 bearerAuth(tokenSaksbehandler2)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "individuellBegrunnelse" : "En begrunnelse" }""".trimIndent())
             }.let { response ->
                 assertEquals(
                     403,
@@ -64,6 +66,8 @@ class SaksbehandlingsperiodeStatusTest {
 
             client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
                 bearerAuth(tokenSaksbehandler)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "individuellBegrunnelse" : "En begrunnelse" }""".trimIndent())
             }.let { response ->
                 assertEquals(200, response.status.value)
                 val periode = response.body<Saksbehandlingsperiode>()
@@ -78,6 +82,7 @@ class SaksbehandlingsperiodeStatusTest {
                 assertEquals(
                     periodeOpprinnelig.copy(
                         status = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING,
+                        individuellBegrunnelse = "En begrunnelse",
                         beslutterNavIdent = "B111111",
                     ).truncateTidspunkt(),
                     periode.truncateTidspunkt(),
@@ -108,6 +113,7 @@ class SaksbehandlingsperiodeStatusTest {
                 assertEquals(
                     periodeOpprinnelig.copy(
                         status = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
+                        individuellBegrunnelse = "En begrunnelse",
                         beslutterNavIdent = "B111111",
                     ).truncateTidspunkt(),
                     periode.truncateTidspunkt(),
@@ -117,12 +123,15 @@ class SaksbehandlingsperiodeStatusTest {
 
             client.post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
                 bearerAuth(tokenSaksbehandler)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "individuellBegrunnelse" : "En ny begrunnelse" }""".trimIndent())
             }.let { response ->
                 assertEquals(200, response.status.value)
                 val periode = response.body<Saksbehandlingsperiode>()
                 assertEquals(
                     periodeOpprinnelig.copy(
                         status = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING,
+                        individuellBegrunnelse = "En ny begrunnelse",
                         beslutterNavIdent = "B111111",
                     ).truncateTidspunkt(),
                     periode.truncateTidspunkt(),
@@ -148,6 +157,7 @@ class SaksbehandlingsperiodeStatusTest {
                 assertEquals(
                     periodeOpprinnelig.copy(
                         status = SaksbehandlingsperiodeStatus.GODKJENT,
+                        individuellBegrunnelse = "En ny begrunnelse",
                         beslutterNavIdent = "B111111",
                     ).truncateTidspunkt(),
                     periode.truncateTidspunkt(),

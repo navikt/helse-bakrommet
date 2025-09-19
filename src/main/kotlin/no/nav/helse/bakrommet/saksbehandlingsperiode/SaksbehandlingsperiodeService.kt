@@ -107,6 +107,7 @@ class SaksbehandlingsperiodeService(
 
     fun sendTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
+        individuellBegrunnelse: String?,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
         return db.transactional {
@@ -121,7 +122,7 @@ class SaksbehandlingsperiodeService(
                         SaksbehandlingsperiodeStatus.TIL_BESLUTNING
                     }
                 periode.verifiserNyStatusGyldighet(nyStatus)
-                dao.endreStatus(periode, nyStatus = nyStatus)
+                dao.endreStatusOgIndividuellBegrunnelse(periode, nyStatus = nyStatus, individuellBegrunnelse)
                 dao.reload(periode)
             }.also { oppdatertPeriode ->
                 saksbehandlingsperiodeEndringerDao.leggTilEndring(
