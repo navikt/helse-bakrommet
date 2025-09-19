@@ -34,7 +34,7 @@ fun Yrkesaktivitet.tilDto() =
         kategorisering = kategorisering,
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
-        dekningsgrad = hentDekningsgrad().verdi.toDouble().toInt(),
+        dekningsgrad = hentDekningsgrad().verdi.prosentDesimal.toInt(),
         // TODO ikke returner denne, vis fra beregning istedenfor
     )
 

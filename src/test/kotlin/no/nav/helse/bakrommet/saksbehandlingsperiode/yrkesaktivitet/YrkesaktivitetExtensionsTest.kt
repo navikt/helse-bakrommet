@@ -61,7 +61,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
     }
 
@@ -87,7 +87,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
     }
 
@@ -113,7 +113,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 80.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 0.8
         dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_80
     }
 
@@ -139,7 +139,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 80.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 0.8
         dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_80
     }
 
@@ -165,7 +165,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.SELVSTENDIG_KOLLEKTIVFORSIKRING_100
     }
 
@@ -218,7 +218,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 65.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 0.65
         dekningsgrad.sporing `should equal` Beregningssporing.INAKTIV_65
     }
 
@@ -244,7 +244,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.INAKTIV_100
     }
 
@@ -269,7 +269,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.ARBEIDSTAKER_100
     }
 
@@ -294,7 +294,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.FRILANSER_100
     }
 
@@ -319,7 +319,7 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.DAGPENGEMOTTAKER_100
     }
 
@@ -469,10 +469,10 @@ class YrkesaktivitetExtensionsTest {
         val selvstendigDekningsgrad = selvstendigYrkesaktivitet.hentDekningsgrad()
         val arbeidstakerDekningsgrad = arbeidstakerYrkesaktivitet.hentDekningsgrad()
 
-        selvstendigDekningsgrad.verdi.toDouble() `should equal` 100.0
+        selvstendigDekningsgrad.verdi.prosentDesimal `should equal` 1.0
         selvstendigDekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
 
-        arbeidstakerDekningsgrad.verdi.toDouble() `should equal` 100.0
+        arbeidstakerDekningsgrad.verdi.prosentDesimal `should equal` 1.0
         arbeidstakerDekningsgrad.sporing `should equal` Beregningssporing.ARBEIDSTAKER_100
     }
 }

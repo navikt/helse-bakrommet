@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.dto.InntektbeløpDto
+import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Prosentdel
 import no.nav.helse.økonomi.Økonomi
@@ -19,7 +20,7 @@ import java.util.UUID
 object UtbetalingsberegningLogikk {
     data class YrkesaktivitetMedDekningsgrad(
         val yrkesaktivitet: Yrkesaktivitet,
-        val dekningsgrad: Sporbar<Prosentdel>?,
+        val dekningsgrad: Sporbar<ProsentdelDto>?,
     )
 
     fun beregn(input: UtbetalingsberegningInput): UtbetalingsberegningData {
@@ -172,7 +173,7 @@ object UtbetalingsberegningLogikk {
         sykepengegrunnlag: SykepengegrunnlagResponse,
         refusjonstidslinje: Map<LocalDate, Inntekt>,
         yrkesaktivitet: Yrkesaktivitet,
-        dekningsgrad: Prosentdel?,
+        dekningsgrad: ProsentdelDto?,
     ): Økonomi {
         val aktuellDagsinntekt = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitet.id)
         val refusjonsbeløp = refusjonstidslinje[dag.dato] ?: Inntekt.INGEN
@@ -182,7 +183,7 @@ object UtbetalingsberegningLogikk {
             sykdomsgrad = sykdomsgrad,
             aktuellDagsinntekt = aktuellDagsinntekt,
             // TODO Ikke default til 100% her
-            dekningsgrad = dekningsgrad ?: Prosentdel.HundreProsent,
+            dekningsgrad = dekningsgrad?.tilProsentdel() ?: Prosentdel.HundreProsent,
             refusjonsbeløp = refusjonsbeløp,
             inntektjustering = Inntekt.INGEN,
         )
@@ -256,4 +257,9 @@ object UtbetalingsberegningLogikk {
         val dag: Dag,
         val yrkesaktivitet: YrkesaktivitetMedDekningsgrad,
     )
+}
+
+fun ProsentdelDto?.tilProsentdel(): Prosentdel? {
+    if (this == null) return null
+    return Prosentdel.gjenopprett(this)
 }

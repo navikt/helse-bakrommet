@@ -13,6 +13,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
+import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -66,7 +67,7 @@ class UtbetalingsberegningIntegrasjonTest {
             val beregning = hentUtbetalingsberegning(periode.id)
 
             // Verifiser resultatet
-            verifiserBeregning(beregning)
+            verifiserBeregning(beregning!!)
         }
     }
 
@@ -98,6 +99,7 @@ class UtbetalingsberegningIntegrasjonTest {
             {
                 "kategorisering": {
                     "INNTEKTSKATEGORI": "ARBEIDSTAKER",
+                    "ER_SYKMELDT": "ER_SYKMELDT_JA",
                     "ORGNUMMER": "$ARBEIDSGIVER_ORGNR"
                 }
             }
@@ -210,16 +212,12 @@ class UtbetalingsberegningIntegrasjonTest {
         return if (responseText == "null") null else response.body()
     }
 
-    private fun verifiserBeregning(beregning: BeregningResponse?) {
-        // Beregning kan være null hvis ingen utbetalinger skal gjøres
-        if (beregning == null) {
-            return
-        }
-
+    private fun verifiserBeregning(beregning: BeregningResponse) {
         assertEquals(1, beregning.beregningData.yrkesaktiviteter.size)
 
         val yrkesaktivitet = beregning.beregningData.yrkesaktiviteter.first()
         assertEquals(31, yrkesaktivitet.dager.size) // Januar 2024 har 31 dager
+        yrkesaktivitet.dekningsgrad!!.verdi.prosentDesimal `should equal` 1.0
 
         // Dag 1: 100% syk - skal ha refusjon
         val dag1 = yrkesaktivitet.dager.find { it.dato == LocalDate.of(2024, 1, 1) }!!

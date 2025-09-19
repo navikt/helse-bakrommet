@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.økonomi.Prosentdel
+import no.nav.helse.dto.ProsentdelDto
 import java.time.LocalDate
 import java.util.UUID
 
@@ -40,7 +40,7 @@ data class Sporbar<T>(
 data class YrkesaktivitetUtbetalingsberegning(
     val yrkesaktivitetId: UUID,
     val dager: List<DagUtbetalingsberegning>,
-    val dekningsgrad: Sporbar<Prosentdel>?,
+    val dekningsgrad: Sporbar<ProsentdelDto>?,
 )
 
 data class DagUtbetalingsberegning(
