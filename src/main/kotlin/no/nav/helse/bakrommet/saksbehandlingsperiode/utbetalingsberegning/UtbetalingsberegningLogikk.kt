@@ -181,7 +181,7 @@ object UtbetalingsberegningLogikk {
         return Økonomi.inntekt(
             sykdomsgrad = sykdomsgrad,
             aktuellDagsinntekt = aktuellDagsinntekt,
-            //TODO Ikke default til 100% her
+            // TODO Ikke default til 100% her
             dekningsgrad = dekningsgrad ?: Prosentdel.HundreProsent,
             refusjonsbeløp = refusjonsbeløp,
             inntektjustering = Inntekt.INGEN,
