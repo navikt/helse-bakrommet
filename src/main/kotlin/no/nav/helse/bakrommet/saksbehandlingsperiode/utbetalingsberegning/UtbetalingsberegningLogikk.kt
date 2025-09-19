@@ -87,17 +87,17 @@ object UtbetalingsberegningLogikk {
 
         alleDager.forEach { (dato, dagerForDato) ->
             val økonomiList =
-                dagerForDato.map(
-                    fun(dagMedYrkesaktivitet: DagMedYrkesaktivitet): Økonomi {
-                        return beregnØkonomiForDag(
-                            dag = dagMedYrkesaktivitet.dag,
-                            sykepengegrunnlag = sykepengegrunnlag,
-                            refusjonstidslinje = refusjonstidslinjer[dagMedYrkesaktivitet.yrkesaktivitet.yrkesaktivitet.id] ?: emptyMap(),
-                            yrkesaktivitet = dagMedYrkesaktivitet.yrkesaktivitet.yrkesaktivitet,
-                            dekningsgrad = dagMedYrkesaktivitet.yrkesaktivitet.dekningsgrad?.verdi,
-                        )
-                    },
-                )
+                dagerForDato.map { dagMedYrkesaktivitet: DagMedYrkesaktivitet ->
+                    beregnØkonomiForDag(
+                        dag = dagMedYrkesaktivitet.dag,
+                        sykepengegrunnlag = sykepengegrunnlag,
+                        refusjonstidslinje =
+                            refusjonstidslinjer[dagMedYrkesaktivitet.yrkesaktivitet.yrkesaktivitet.id]
+                                ?: emptyMap(),
+                        yrkesaktivitet = dagMedYrkesaktivitet.yrkesaktivitet.yrkesaktivitet,
+                        dekningsgrad = dagMedYrkesaktivitet.yrkesaktivitet.dekningsgrad?.verdi,
+                    )
+                }
 
             val økonomiMedTotalGrad = Økonomi.totalSykdomsgrad(økonomiList)
             val beregnedeØkonomier =
