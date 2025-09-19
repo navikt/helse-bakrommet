@@ -56,6 +56,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
         val naturligIdent = personDao.finnNaturligIdent(periode.spilleromPersonId) ?: throw IllegalStateException("Fant ikke fnr")
         val sykepengegrunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
+        val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
         val saksbehandlingsperiodeKafkaDto =
             SaksbehandlingsperiodeKafkaDto(
                 id = periode.id,
@@ -78,6 +79,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                         )
                     },
                 sykepengegrunnlag = sykepengegrunnlag.tilSykepengegrunnlagKafkaDto(),
+                beregningssporing = beregning?.beregningData?.sporing?.map { it.name },
             )
 
         // Lag sha256 hash av spilleromPersonId som key
@@ -132,6 +134,7 @@ data class SaksbehandlingsperiodeKafkaDto(
     val skjæringstidspunkt: LocalDate?,
     val yrkesaktiviteter: List<YrkesaktivitetKafkaDto>,
     val sykepengegrunnlag: SykepengegrunnlagKafkaDto?,
+    val beregningssporing: List<String>?,
 )
 
 // TODO typ strengt når landet
