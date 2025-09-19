@@ -68,7 +68,7 @@ dependencies {
     testImplementation("no.nav.security:mock-oauth2-server:2.3.0")
     testImplementation("io.ktor:ktor-client-mock-jvm:$ktorVersion")
 
-    testImplementation(platform("org.junit:junit-bom:5.12.2"))
+    testImplementation(platform("org.junit:junit-bom:5.13.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
