@@ -194,21 +194,6 @@ class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner)
         )
     }
 
-    fun oppdaterIndividuellBegrunnelse(
-        periodeId: UUID,
-        individuellBegrunnelse: String?,
-    ) {
-        db.update(
-            """
-            UPDATE saksbehandlingsperiode 
-            SET individuell_begrunnelse = :individuell_begrunnelse
-            WHERE id = :id
-            """.trimIndent(),
-            "id" to periodeId,
-            "individuell_begrunnelse" to individuellBegrunnelse,
-        )
-    }
-
     fun oppdaterSkjæringstidspunkt(
         periodeId: UUID,
         skjæringstidspunkt: LocalDate?,

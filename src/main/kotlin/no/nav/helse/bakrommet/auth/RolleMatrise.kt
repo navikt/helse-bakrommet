@@ -120,10 +120,6 @@ val regler =
             role = setOf(BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/individuell-begrunnelse/(method:PUT)",
-            role = setOf(SAKSBEHANDLER),
-        ),
-        Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/skjaeringstidspunkt/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),

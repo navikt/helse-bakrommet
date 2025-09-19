@@ -122,43 +122,6 @@ internal class SaksbehandlingsperiodeDaoTest {
     }
 
     @Test
-    fun `kan oppdatere individuell begrunnelse`() {
-        val id = UUID.randomUUID()
-        val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
-        val now = OffsetDateTime.now()
-        val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
-        val fom = LocalDate.of(2021, 1, 1)
-        val tom = LocalDate.of(2021, 1, 31)
-
-        val periode =
-            Saksbehandlingsperiode(
-                id = id,
-                spilleromPersonId = personId,
-                opprettet = now,
-                opprettetAvNavIdent = saksbehandler.navIdent,
-                opprettetAvNavn = saksbehandler.navn,
-                fom = fom,
-                tom = tom,
-                skjæringstidspunkt = fom,
-                individuellBegrunnelse = null,
-            ).truncateTidspunkt()
-        dao.opprettPeriode(periode)
-
-        // Oppdater individuell begrunnelse
-        val nyBegrunnelse = "Spesielle omstendigheter som krever individuell vurdering"
-        dao.oppdaterIndividuellBegrunnelse(id, nyBegrunnelse)
-
-        val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
-        assertEquals(nyBegrunnelse, oppdatertPeriode.individuellBegrunnelse)
-
-        // Nullstill individuell begrunnelse
-        dao.oppdaterIndividuellBegrunnelse(id, null)
-
-        val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
-        assertNull(nullstiltPeriode.individuellBegrunnelse)
-    }
-
-    @Test
     fun `kan oppdatere skjæringstidspunkt`() {
         val id = UUID.randomUUID()
         val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
