@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 
 val flywayVersion = "11.12.0"
 val ktorVersion = "3.3.0"
-val testcontainersVersion = "1.21.0"
+val testcontainersVersion = "1.21.3"
 val spleisVersion = "2025.09.01-09.22-dd093777"
 val kafkaVersion = "3.8.0"
 
