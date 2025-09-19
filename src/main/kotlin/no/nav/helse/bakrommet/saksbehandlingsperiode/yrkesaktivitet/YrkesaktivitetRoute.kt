@@ -34,7 +34,8 @@ fun Yrkesaktivitet.tilDto() =
         kategorisering = kategorisering,
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
-        dekningsgrad = hentDekningsgrad().toDouble().toInt(),
+        dekningsgrad = hentDekningsgrad().verdi.toDouble().toInt(),
+        // TODO ikke returner denne, vis fra beregning istedenfor
     )
 
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: YrkesaktivitetService) {

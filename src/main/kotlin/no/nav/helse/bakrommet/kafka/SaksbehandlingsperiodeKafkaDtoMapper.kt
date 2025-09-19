@@ -79,7 +79,6 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                         )
                     },
                 sykepengegrunnlag = sykepengegrunnlag.tilSykepengegrunnlagKafkaDto(),
-                beregningssporing = beregning?.beregningData?.sporing?.map { it.name },
             )
 
         // Lag sha256 hash av spilleromPersonId som key
@@ -134,7 +133,6 @@ data class SaksbehandlingsperiodeKafkaDto(
     val skjæringstidspunkt: LocalDate?,
     val yrkesaktiviteter: List<YrkesaktivitetKafkaDto>,
     val sykepengegrunnlag: SykepengegrunnlagKafkaDto?,
-    val beregningssporing: List<String>?,
 )
 
 // TODO typ strengt når landet

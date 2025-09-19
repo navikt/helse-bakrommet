@@ -97,7 +97,7 @@ class YrkesaktivitetOperasjonerTest {
 
             // Verifiser at dekningsgrad er riktig etter oppdatering
             val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(opprettetYrkesaktivitetId)!!
-            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().toDouble().toInt())
+            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.toDouble().toInt())
         }
     }
 
@@ -208,7 +208,7 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             // Verifiser at dekningsgrad er riktig
-            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().toDouble().toInt())
+            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.toDouble().toInt())
         }
     }
 
@@ -305,7 +305,7 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             // Verifiser at dekningsgrad er riktig
-            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().toDouble().toInt())
+            assertEquals(100, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.toDouble().toInt())
         }
     }
 }

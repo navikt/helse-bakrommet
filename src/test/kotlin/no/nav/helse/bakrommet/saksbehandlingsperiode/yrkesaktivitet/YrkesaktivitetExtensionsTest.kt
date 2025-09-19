@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -60,7 +61,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
     }
 
     @Test
@@ -85,7 +87,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
     }
 
     @Test
@@ -110,7 +113,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 80.0
+        dekningsgrad.verdi.toDouble() `should equal` 80.0
+        dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_80
     }
 
     @Test
@@ -135,7 +139,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 80.0
+        dekningsgrad.verdi.toDouble() `should equal` 80.0
+        dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_80
     }
 
     @Test
@@ -160,7 +165,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.sporing `should equal` Beregningssporing.SELVSTENDIG_KOLLEKTIVFORSIKRING_100
     }
 
     @Test
@@ -212,7 +218,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 65.0
+        dekningsgrad.verdi.toDouble() `should equal` 65.0
+        dekningsgrad.sporing `should equal` Beregningssporing.INAKTIV_65
     }
 
     @Test
@@ -237,7 +244,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.sporing `should equal` Beregningssporing.INAKTIV_100
     }
 
     @Test
@@ -261,7 +269,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.sporing `should equal` Beregningssporing.ARBEIDSTAKER_100
     }
 
     @Test
@@ -285,7 +294,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.sporing `should equal` Beregningssporing.FRILANSER_100
     }
 
     @Test
@@ -309,7 +319,8 @@ class YrkesaktivitetExtensionsTest {
 
         val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
 
-        dekningsgrad.toDouble() `should equal` 100.0
+        dekningsgrad.verdi.toDouble() `should equal` 100.0
+        dekningsgrad.sporing `should equal` Beregningssporing.DAGPENGEMOTTAKER_100
     }
 
     @Test
@@ -458,7 +469,10 @@ class YrkesaktivitetExtensionsTest {
         val selvstendigDekningsgrad = selvstendigYrkesaktivitet.hentDekningsgrad()
         val arbeidstakerDekningsgrad = arbeidstakerYrkesaktivitet.hentDekningsgrad()
 
-        selvstendigDekningsgrad.toDouble() `should equal` 100.0
-        arbeidstakerDekningsgrad.toDouble() `should equal` 100.0
+        selvstendigDekningsgrad.verdi.toDouble() `should equal` 100.0
+        selvstendigDekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
+
+        arbeidstakerDekningsgrad.verdi.toDouble() `should equal` 100.0
+        arbeidstakerDekningsgrad.sporing `should equal` Beregningssporing.ARBEIDSTAKER_100
     }
 }
