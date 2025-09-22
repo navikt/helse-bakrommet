@@ -177,6 +177,9 @@ object UtbetalingsberegningLogikk {
     ): Økonomi {
         val aktuellDagsinntekt = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitet.id)
         val refusjonsbeløp = refusjonstidslinje[dag.dato] ?: Inntekt.INGEN
+
+        // TODO mer eksplisitt håndtering av Syk/SykNav og arbeidsgiverperiode?
+
         val sykdomsgrad = Sykdomsgrad(dag.grad ?: 0).tilProsentdel()
 
         return Økonomi.inntekt(

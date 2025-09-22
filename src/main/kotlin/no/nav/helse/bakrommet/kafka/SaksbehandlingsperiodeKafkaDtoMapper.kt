@@ -1,17 +1,22 @@
 package no.nav.helse.bakrommet.kafka
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.util.HashUtils
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -54,7 +59,8 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
     fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): KafkaMelding {
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, null)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
-        val naturligIdent = personDao.finnNaturligIdent(periode.spilleromPersonId) ?: throw IllegalStateException("Fant ikke fnr")
+        val naturligIdent =
+            personDao.finnNaturligIdent(periode.spilleromPersonId) ?: throw IllegalStateException("Fant ikke fnr")
         val sykepengegrunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
         val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
         val saksbehandlingsperiodeKafkaDto =
@@ -71,22 +77,55 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                 beslutterNavIdent = periode.beslutterNavIdent,
                 skjæringstidspunkt = periode.skjæringstidspunkt,
                 yrkesaktiviteter =
-                    yrkesaktivitet.map {
-                        YrkesaktivitetKafkaDto(
-                            id = it.id,
-                            kategorisering = it.kategorisering,
-                            dagoversikt = it.dagoversikt,
-                        )
-                    },
+                    yrkesaktivitet.map(
+                        fun(ya: Yrkesaktivitet): YrkesaktivitetKafkaDto {
+                            val beregningForYrkesaktivitet =
+                                beregning
+                                    ?.beregningData
+                                    ?.yrkesaktiviteter
+                                    ?.singleOrNull { it.yrkesaktivitetId == ya.id }
+
+                            return YrkesaktivitetKafkaDto(
+                                id = ya.id,
+                                kategorisering = ya.kategorisering,
+                                dagoversikt = ya.dagoversikt?.map { it.tilDagKafkaDto(beregningForYrkesaktivitet) },
+                            )
+                        },
+                    ),
                 sykepengegrunnlag = sykepengegrunnlag.tilSykepengegrunnlagKafkaDto(),
             )
 
         // Lag sha256 hash av spilleromPersonId som key
         val hash = HashUtils.sha256(periode.spilleromPersonId)
-
         return KafkaMelding(hash, saksbehandlingsperiodeKafkaDto.serialisertTilString())
     }
 }
+
+private fun Dag.tilDagKafkaDto(beregning: YrkesaktivitetUtbetalingsberegning?): DagKafkaDto =
+    DagKafkaDto(
+        dato = dato,
+        dagtype = dagtype,
+        refusjonØre = beregning?.dager?.singleOrNull { it.dato == this.dato }?.refusjonØre?.toInt(),
+        utbetalingØre = beregning?.dager?.singleOrNull { it.dato == this.dato }?.utbetalingØre?.toInt(),
+        totalGrad = beregning?.dager?.singleOrNull { it.dato == this.dato }?.totalGrad,
+        grad = this.grad,
+        avslåttBegrunnelse = this.avslåttBegrunnelse,
+        andreYtelserBegrunnelse = this.andreYtelserBegrunnelse,
+        kilde = this.kilde,
+    )
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class DagKafkaDto(
+    val dato: LocalDate,
+    val dagtype: Dagtype,
+    val refusjonØre: Int?,
+    val utbetalingØre: Int?,
+    val grad: Int?,
+    val totalGrad: Int?,
+    val avslåttBegrunnelse: List<String>? = null,
+    val andreYtelserBegrunnelse: List<String>? = null,
+    val kilde: Kilde?,
+)
 
 private fun SykepengegrunnlagResponse?.tilSykepengegrunnlagKafkaDto(): SykepengegrunnlagKafkaDto? {
     if (this == null) return null
@@ -139,7 +178,7 @@ data class SaksbehandlingsperiodeKafkaDto(
 data class YrkesaktivitetKafkaDto(
     val id: UUID,
     val kategorisering: Map<String, String>,
-    val dagoversikt: List<Dag>?,
+    val dagoversikt: List<DagKafkaDto>?,
 )
 
 data class InntektKafkaDto(

@@ -1,20 +1,27 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.TestOppsett.oAuthMock
+import no.nav.helse.bakrommet.godkjenn
+import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagRequest
+import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
+import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
+import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -50,10 +57,13 @@ class UtbetalingsberegningIntegrasjonTest {
                 ),
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 0
+
+            val tokenBeslutter = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
 
             // Opprett saksbehandlingsperiode
             val periode = opprettSaksbehandlingsperiode()
-
+            daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 1
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId = opprettYrkesaktivitet(periode.id)
 
@@ -68,7 +78,26 @@ class UtbetalingsberegningIntegrasjonTest {
 
             // Verifiser resultatet
             verifiserBeregning(beregning!!)
+
+            sendTilBeslutning(periode)
+            taTilBesluting(periode, tokenBeslutter)
+
+            godkjenn(periode, tokenBeslutter)
+            val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()
+            upubliserteEntries.size `should equal` 2
+
+            val kafkaPayload = upubliserteEntries.last().kafkaPayload.tilSaksbehandlingsperiodeKafkaDto()
+            kafkaPayload.yrkesaktiviteter.single().dagoversikt!![0].refusjonØre `should equal` 46100
+            kafkaPayload.yrkesaktiviteter.single().dagoversikt!![0].utbetalingØre `should equal` 184700
+            kafkaPayload.yrkesaktiviteter.single().dagoversikt!![0].totalGrad `should equal` 100
+            kafkaPayload.yrkesaktiviteter.single().dagoversikt!![1].refusjonØre `should equal` 32300
+            kafkaPayload.yrkesaktiviteter.single().dagoversikt!![1].utbetalingØre `should equal` 129300
+            kafkaPayload.yrkesaktiviteter.single().dagoversikt!![1].totalGrad `should equal` 70
         }
+    }
+
+    private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto {
+        return objectMapper.readValue(this)
     }
 
     private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Saksbehandlingsperiode {
