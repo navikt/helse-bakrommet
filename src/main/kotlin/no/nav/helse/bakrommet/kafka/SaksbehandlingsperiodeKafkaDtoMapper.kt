@@ -63,6 +63,21 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
             personDao.finnNaturligIdent(periode.spilleromPersonId) ?: throw IllegalStateException("Fant ikke fnr")
         val sykepengegrunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
         val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
+
+        fun Yrkesaktivitet.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto {
+            val beregningForYrkesaktivitet =
+                beregning
+                    ?.beregningData
+                    ?.yrkesaktiviteter
+                    ?.singleOrNull { it.yrkesaktivitetId == id }
+
+            return YrkesaktivitetKafkaDto(
+                id = id,
+                kategorisering = kategorisering,
+                dagoversikt = dagoversikt?.map { it.tilDagKafkaDto(beregningForYrkesaktivitet) },
+            )
+        }
+
         val saksbehandlingsperiodeKafkaDto =
             SaksbehandlingsperiodeKafkaDto(
                 id = periode.id,
@@ -76,22 +91,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                 status = periode.status,
                 beslutterNavIdent = periode.beslutterNavIdent,
                 skjæringstidspunkt = periode.skjæringstidspunkt,
-                yrkesaktiviteter =
-                    yrkesaktivitet.map(
-                        fun(ya: Yrkesaktivitet): YrkesaktivitetKafkaDto {
-                            val beregningForYrkesaktivitet =
-                                beregning
-                                    ?.beregningData
-                                    ?.yrkesaktiviteter
-                                    ?.singleOrNull { it.yrkesaktivitetId == ya.id }
-
-                            return YrkesaktivitetKafkaDto(
-                                id = ya.id,
-                                kategorisering = ya.kategorisering,
-                                dagoversikt = ya.dagoversikt?.map { it.tilDagKafkaDto(beregningForYrkesaktivitet) },
-                            )
-                        },
-                    ),
+                yrkesaktiviteter = yrkesaktivitet.map { it.tilYrkesaktivitetKafkaDto() },
                 sykepengegrunnlag = sykepengegrunnlag.tilSykepengegrunnlagKafkaDto(),
             )
 
