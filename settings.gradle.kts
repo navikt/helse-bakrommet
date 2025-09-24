@@ -1,5 +1,6 @@
 rootProject.name = "helse-bakrommet"
 include(
+    "bakrommet-dependencies",
     "bakrommet-common",
     "bakrommet-api",
     "bakrommet-client-aareg",

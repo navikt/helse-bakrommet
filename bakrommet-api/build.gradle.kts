@@ -2,10 +2,9 @@ plugins {
     `java-test-fixtures`
 }
 
-val ktorVersion = "3.3.0"
-val flywayVersion = "11.12.0"
-
 dependencies {
+    api(platform(project(":bakrommet-dependencies")))
+
     api(project(":bakrommet-common"))
     implementation(project(":bakrommet-client-pdl"))
     implementation(project(":bakrommet-client-aareg"))
@@ -14,40 +13,40 @@ dependencies {
     implementation(project(":bakrommet-client-inntektsmelding"))
     implementation(project(":bakrommet-client-sykepengesoknad"))
 
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-server-cio:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
-    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics-micrometer")
+    implementation("io.ktor:ktor-server-core")
+    implementation("io.ktor:ktor-server-cio")
+    implementation("io.ktor:ktor-server-auth")
+    implementation("io.ktor:ktor-server-auth-jwt")
+    implementation("io.ktor:ktor-server-content-negotiation")
+    implementation("io.ktor:ktor-server-call-logging")
+    implementation("io.ktor:ktor-server-status-pages")
+    implementation("io.ktor:ktor-serialization-jackson")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.15.4")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
-    implementation("org.postgresql:postgresql:42.7.5")
-    implementation("com.zaxxer:HikariCP:6.3.0")
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
-    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
-    implementation("com.github.seratch:kotliquery:1.9.1")
+    implementation("org.postgresql:postgresql")
+    implementation("com.zaxxer:HikariCP")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("com.github.seratch:kotliquery")
 
-    implementation("org.apache.kafka:kafka-clients:3.8.0")
-    implementation("no.nav.helse.flex:sykepengesoknad-kafka:2025.09.09-07.30-baf456bb")
-    implementation("com.github.navikt.spleis:sykepenger-okonomi:2025.09.05-14.51-15db36a7")
+    implementation("org.apache.kafka:kafka-clients")
+    implementation("no.nav.helse.flex:sykepengesoknad-kafka")
+    implementation("com.github.navikt.spleis:sykepenger-okonomi")
 
-    implementation("ch.qos.logback:logback-classic:1.5.18")
-    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
-    implementation("org.slf4j:slf4j-api:2.0.17")
+    implementation("ch.qos.logback:logback-classic")
+    implementation("net.logstash.logback:logstash-logback-encoder")
+    implementation("org.slf4j:slf4j-api")
 
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("org.testcontainers:postgresql:1.21.0")
-    testImplementation("no.nav.security:mock-oauth2-server:2.3.0")
+    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("no.nav.security:mock-oauth2-server")
 
-    testFixturesImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testFixturesImplementation("org.testcontainers:postgresql:1.21.0")
-    testFixturesImplementation("no.nav.security:mock-oauth2-server:2.3.0")
+    testFixturesImplementation("io.ktor:ktor-server-test-host")
+    testFixturesImplementation("org.testcontainers:postgresql")
+    testFixturesImplementation("no.nav.security:mock-oauth2-server")
     testFixturesImplementation(testFixtures(project(":bakrommet-client-pdl")))
     testFixturesImplementation(testFixtures(project(":bakrommet-client-aareg")))
     testFixturesImplementation(testFixtures(project(":bakrommet-client-ainntekt")))

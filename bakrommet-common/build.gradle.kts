@@ -2,27 +2,27 @@ plugins {
     `java-test-fixtures`
 }
 
-val ktorVersion = "3.3.0"
-
 dependencies {
-    api("io.ktor:ktor-client-core:$ktorVersion")
-    api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    api("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    api("io.ktor:ktor-client-apache-jvm:$ktorVersion")
-    api("io.ktor:ktor-server-auth-jwt:$ktorVersion")
-    api("io.ktor:ktor-server-status-pages:$ktorVersion")
-    api("io.ktor:ktor-server-core:$ktorVersion")
-    api("com.fasterxml.jackson.core:jackson-core:2.18.2")
-    api("com.fasterxml.jackson.core:jackson-databind:2.18.2")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
-    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
-    api("ch.qos.logback:logback-classic:1.5.18")
-    api("org.slf4j:slf4j-api:2.0.17")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    api(platform(project(":bakrommet-dependencies")))
 
-    testImplementation("io.ktor:ktor-client-mock-jvm:$ktorVersion")
-    testImplementation("no.nav.security:mock-oauth2-server:2.3.0")
+    api("io.ktor:ktor-client-core")
+    api("io.ktor:ktor-client-content-negotiation")
+    api("io.ktor:ktor-serialization-jackson")
+    api("io.ktor:ktor-client-apache-jvm")
+    api("io.ktor:ktor-server-auth-jwt")
+    api("io.ktor:ktor-server-status-pages")
+    api("io.ktor:ktor-server-core")
+    api("com.fasterxml.jackson.core:jackson-core")
+    api("com.fasterxml.jackson.core:jackson-databind")
+    api("com.fasterxml.jackson.module:jackson-module-kotlin")
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    api("ch.qos.logback:logback-classic")
+    api("org.slf4j:slf4j-api")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json")
 
-    testFixturesImplementation("io.ktor:ktor-client-mock-jvm:$ktorVersion")
-    testFixturesImplementation("no.nav.security:mock-oauth2-server:2.3.0")
+    testImplementation("io.ktor:ktor-client-mock-jvm")
+    testImplementation("no.nav.security:mock-oauth2-server")
+
+    testFixturesImplementation("io.ktor:ktor-client-mock-jvm")
+    testFixturesImplementation("no.nav.security:mock-oauth2-server")
 }

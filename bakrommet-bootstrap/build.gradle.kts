@@ -1,10 +1,6 @@
 dependencies {
     api(project(":bakrommet-api"))
     api(project(":bakrommet-common"))
-
-    testImplementation(testFixtures(project(":bakrommet-api")))
-    testImplementation(testFixtures(project(":bakrommet-common")))
-    testImplementation("no.nav.security:mock-oauth2-server:2.3.0")
 }
 
 tasks {

@@ -20,47 +20,53 @@ allprojects {
         maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
 
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    // Ekskluder bakrommet-dependencies fra standard konfigurasjon
+    if (name != "bakrommet-dependencies") {
+        apply(plugin = "org.jetbrains.kotlin.jvm")
+        apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
-    ktlint {
-        ignoreFailures = true
-        filter {
-            exclude { it.file.path.contains("generated") }
-        }
-    }
-
-    dependencies {
-        constraints {
-            implementation("org.apache.commons:commons-compress:1.27.1") {
-                because("org.testcontainers:postgresql:1.21.0 -> 1.24.0 har en sårbarhet")
+        ktlint {
+            ignoreFailures = true
+            filter {
+                exclude { it.file.path.contains("generated") }
             }
         }
 
-        testImplementation(platform("org.junit:junit-bom:5.12.2"))
-        testImplementation("org.junit.jupiter:junit-jupiter")
-        testImplementation(kotlin("test"))
+        dependencies {
+            constraints {
+                implementation("org.apache.commons:commons-compress:1.27.1") {
+                    because("org.testcontainers:postgresql:1.21.0 -> 1.24.0 har en sårbarhet")
+                }
+            }
+
+            testImplementation(platform("org.junit:junit-bom:5.12.2"))
+            testImplementation("org.junit.jupiter:junit-jupiter")
+            testImplementation(kotlin("test"))
+        }
     }
 }
 
 subprojects {
-    kotlin {
-        jvmToolchain(21)
-    }
-    tasks {
-        named<Test>("test") {
-            useJUnitPlatform()
-            testLogging {
-                events("skipped", "failed")
-                showStackTraces = true
-                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-            }
-            maxParallelForks =
-                if (System.getenv("CI") == "true") {
-                    (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
-                } else {
-                    2
+    // Ekskluder bakrommet-dependencies fra standard konfigurasjon
+    if (name != "bakrommet-dependencies") {
+        kotlin {
+            jvmToolchain(21)
+        }
+        tasks {
+            named<Test>("test") {
+                useJUnitPlatform()
+                testLogging {
+                    events("skipped", "failed")
+                    showStackTraces = true
+                    exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
                 }
+                maxParallelForks =
+                    if (System.getenv("CI") == "true") {
+                        (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+                    } else {
+                        2
+                    }
+            }
         }
     }
 }
