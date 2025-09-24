@@ -3,7 +3,7 @@ plugins {
 }
 
 val ktorVersion = "3.3.0"
-val flywayVersion = "11.12.0"
+val flywayVersion = "11.13.1"
 
 dependencies {
     api(project(":bakrommet-common"))
