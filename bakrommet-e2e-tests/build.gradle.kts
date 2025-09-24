@@ -25,6 +25,7 @@ dependencies {
     testImplementation("no.nav.security:mock-oauth2-server:2.3.0")
     testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
     testImplementation("no.nav.helse.flex:sykepengesoknad-kafka:2025.09.09-07.30-baf456bb")
+    testImplementation("com.github.navikt.spleis:sykepenger-okonomi:2025.09.05-14.51-15db36a7")
 
     testImplementation(testFixtures(project(":bakrommet-api")))
     testImplementation(testFixtures(project(":bakrommet-common")))

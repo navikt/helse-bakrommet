@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -10,8 +9,6 @@ import java.time.OffsetDateTime
 import java.util.*
 
 class YrkesaktivitetExtensionsTest {
-    private val objectMapper = ObjectMapper()
-
     @Test
     fun `skal kaste feil for selvstendig næringsdrivende uten forsikring`() {
         val kategorisering =
