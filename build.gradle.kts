@@ -1,81 +1,74 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-
-val flywayVersion = "11.12.0"
-val ktorVersion = "3.3.0"
-val testcontainersVersion = "1.21.0"
-val spleisVersion = "2025.09.01-09.22-dd093777"
-val kafkaVersion = "3.8.0"
-
 plugins {
     kotlin("jvm") version "2.1.20"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
 }
 
-repositories {
-    val githubPassword: String by project
+val githubPassword: String by project
 
-    mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/navikt/*")
-        credentials {
-            username = "x-access-token"
-            password = githubPassword
+allprojects {
+    group = "no.nav.helse"
+
+    repositories {
+        mavenCentral()
+        maven {
+            url = uri("https://maven.pkg.github.com/navikt/*")
+            credentials {
+                username = "x-access-token"
+                password = githubPassword
+            }
+        }
+        maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+    }
+
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    ktlint {
+        ignoreFailures = true
+        filter {
+            exclude { it.file.path.contains("generated") }
+            exclude { it.file.path.contains("test") }
         }
     }
-    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+
+    dependencies {
+        constraints {
+            implementation("org.apache.commons:commons-compress:1.27.1") {
+                because("org.testcontainers:postgresql:1.21.0 -> 1.24.0 har en sårbarhet")
+            }
+        }
+
+        testImplementation(platform("org.junit:junit-bom:5.12.2"))
+        testImplementation("org.junit.jupiter:junit-jupiter")
+        testImplementation(kotlin("test"))
+    }
 }
 
-dependencies {
-    constraints {
-        implementation("org.apache.commons:commons-compress:1.27.1") {
-            because("org.testcontainers:postgresql:1.21.0 -> 1.24.0 har en sårbarhet")
+subprojects {
+    kotlin {
+        jvmToolchain(21)
+    }
+    tasks {
+        named<Test>("test") {
+            useJUnitPlatform()
+            testLogging {
+                events("skipped", "failed")
+                showStackTraces = true
+                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            }
+            maxParallelForks =
+                if (System.getenv("CI") == "true") {
+                    (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+                } else {
+                    2
+                }
         }
     }
-
-    implementation("ch.qos.logback:logback-classic:1.5.18")
-    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
-    implementation("org.slf4j:slf4j-api:2.0.17")
-
-    implementation("org.postgresql:postgresql:42.7.5")
-    implementation("com.zaxxer:HikariCP:6.3.0")
-
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
-    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
-    implementation("com.github.seratch:kotliquery:1.9.1")
-
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
-    implementation("io.ktor:ktor-client-apache-jvm:$ktorVersion")
-
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-server-cio:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
-    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
-
-    implementation("io.micrometer:micrometer-registry-prometheus:1.15.4")
-    implementation("no.nav.helse.flex:sykepengesoknad-kafka:2025.09.09-07.30-baf456bb")
-    implementation("com.github.navikt.spleis:sykepenger-okonomi:2025.09.05-14.51-15db36a7")
-    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
-    testImplementation("no.nav.security:mock-oauth2-server:2.3.0")
-    testImplementation("io.ktor:ktor-client-mock-jvm:$ktorVersion")
-
-    testImplementation(platform("org.junit:junit-bom:5.12.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks {
-    kotlin {
-        jvmToolchain(21)
+    jar {
+        enabled = false
     }
     build {
         doLast {
@@ -90,54 +83,6 @@ tasks {
                     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     """.trimIndent(),
                 )
-            }
-        }
-    }
-    test {
-        useJUnitPlatform()
-        testLogging {
-            events("FAILED", "SKIPPED")
-            exceptionFormat = FULL
-            showStackTraces = true
-        }
-        maxParallelForks =
-            if (System.getenv("CI") == "true") {
-                (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
-            } else {
-                2
-            }
-        afterSuite(
-            KotlinClosure2<TestDescriptor, TestResult, Any>(
-                { desc, result ->
-                    if (desc.parent == null) {
-                        println(
-                            result.run {
-                                "Testresultat: $resultType ($testCount tests, $successfulTestCount successes, $failedTestCount failures, $skippedTestCount skipped)"
-                            },
-                        )
-                    }
-                },
-            ),
-        )
-    }
-
-    named<Jar>("jar") {
-        archiveBaseName.set("app")
-
-        manifest {
-            attributes["Main-Class"] = "no.nav.helse.bakrommet.AppKt"
-            attributes["Class-Path"] =
-                configurations.runtimeClasspath.get().joinToString(separator = " ") {
-                    it.name
-                }
-        }
-
-        doLast {
-            configurations.runtimeClasspath.get().forEach {
-                val file = File("${layout.buildDirectory.get()}/libs/${it.name}")
-                if (!file.exists()) {
-                    it.copyTo(file)
-                }
             }
         }
     }

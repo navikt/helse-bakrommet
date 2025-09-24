@@ -5,6 +5,7 @@ ENV JAVA_OPTS='-XX:MaxRAMPercentage=90'
 
 WORKDIR /app
 
-COPY build/libs/*.jar /app/
+COPY bakrommet-bootstrap/build/deps/*.jar /app/
+COPY bakrommet-bootstrap/build/libs/*.jar /app/
 
 CMD ["app.jar"]
