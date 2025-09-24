@@ -84,7 +84,7 @@ fun startApp(configuration: Configuration) {
 
 internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
 
-internal fun Application.settOppKtor(
+fun Application.settOppKtor(
     dataSource: DataSource,
     configuration: Configuration,
     oboClient: OboClient = OboClient(configuration.obo),

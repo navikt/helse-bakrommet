@@ -5,6 +5,9 @@ import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.Configuration.Roller
 import no.nav.helse.bakrommet.aareg.AARegClient
@@ -19,6 +22,7 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.auth.tilRoller
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.OutboxDao
@@ -33,10 +37,6 @@ import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.infrastruktur.db.DBModule
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import javax.sql.DataSource
 
 object TestOppsett {
@@ -185,26 +185,3 @@ fun runApplicationTest(
 
 // Manglende funksjoner fra App.kt
 internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
-
-internal fun Application.settOppKtor(
-    dataSource: DataSource,
-    configuration: Configuration,
-    oboClient: OboClient = OboClient(configuration.obo),
-    pdlClient: PdlClient = PdlClient(configuration.pdl, oboClient),
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient =
-        SykepengesoknadBackendClient(
-            configuration.sykepengesoknadBackend,
-            oboClient,
-        ),
-    aaRegClient: AARegClient = AARegClient(configuration.aareg, oboClient),
-    aInntektClient: AInntektClient = AInntektClient(configuration.ainntekt, oboClient),
-    inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient),
-    sigrunClient: SigrunClient = SigrunClient(configuration.sigrun, oboClient),
-) {
-    // Sette opp alle routes her - implementeres senere
-    // For nå bare helsesjekker
-    routing {
-        get("/isalive") { call.respondText("I'm alive") }
-        get("/isready") { call.respondText("I'm ready") }
-    }
-}

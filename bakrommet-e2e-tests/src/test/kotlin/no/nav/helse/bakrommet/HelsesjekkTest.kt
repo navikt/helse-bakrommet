@@ -7,18 +7,17 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class HelsesjekkTest {
-    
     @Test
-    fun `helsesjekk endepunkter fungerer`() = runApplicationTest {
-        client.get("/isalive").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            assertEquals("I'm alive", bodyAsText())
-        }
-        
-        client.get("/isready").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            assertEquals("I'm ready", bodyAsText())
-        }
-    }
+    fun `helsesjekk endepunkter fungerer`() =
+        runApplicationTest {
+            client.get("/isalive").apply {
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("I'm alive", bodyAsText())
+            }
 
+            client.get("/isready").apply {
+                assertEquals(HttpStatusCode.OK, status)
+                assertEquals("I'm ready", bodyAsText())
+            }
+        }
 }

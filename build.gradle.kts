@@ -27,7 +27,6 @@ allprojects {
         ignoreFailures = true
         filter {
             exclude { it.file.path.contains("generated") }
-            exclude { it.file.path.contains("test") }
         }
     }
 
