@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.20"
+    kotlin("jvm") version "2.2.20"
     id("java-test-fixtures")
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
 }
