@@ -49,7 +49,7 @@ dependencies {
         api("io.micrometer:micrometer-registry-prometheus:1.15.4")
 
         // Testing
-        api("org.testcontainers:postgresql:1.21.0")
+        api("org.testcontainers:postgresql:1.21.3")
         api("no.nav.security:mock-oauth2-server:2.3.0")
 
         // NAV dependencies
