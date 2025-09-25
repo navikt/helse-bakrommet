@@ -60,7 +60,7 @@ object UtbetalingsberegningLogikk {
                 val dagerNavOvertarAnsvar = emptyList<Periode>() // TODO
                 val refusjonstidslinje =
                     (
-                        refusjonstidslinjer[ya.id]?.mapValues { (dato, inntekt) ->
+                        refusjonstidslinjer[ya.id]?.map { (dato, inntekt) ->
                             Beløpsdag(
                                 dato = dato, beløp = inntekt,
                                 kilde =
@@ -69,12 +69,12 @@ object UtbetalingsberegningLogikk {
                                         meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()), avsender = Avsender.ARBEIDSGIVER, tidsstempel = LocalDateTime.now(),
                                     ),
                             )
-                        }?.toSortedMap() ?: emptyMap()
+                        } ?: emptyList()
                     ).let {
                         Beløpstidslinje(it)
                     }
                 val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, ya.id)
-                val inntektjusteringer = Beløpstidslinje(emptyMap()) // TODO ?
+                val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO ?
 
                 val builder =
                     ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(

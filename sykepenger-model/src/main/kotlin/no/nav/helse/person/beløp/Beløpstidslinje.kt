@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.util.SortedMap
 
 data class Beløpstidslinje(private val dager: SortedMap<LocalDate, Beløpsdag>) : Collection<Dag> by dager.values {
-    constructor(dager: Map<LocalDate, Beløpsdag>) : this(dager.toSortedMap())
+    private constructor(dager: Map<LocalDate, Beløpsdag>) : this(dager.toSortedMap())
     constructor(dager: List<Beløpsdag> = emptyList()) : this(
         dager.associateBy { it.dato }.toSortedMap().also {
             require(dager.size == it.size) { "Forsøkte å opprette en beløpstidslinje med duplikate datoer. Det blir for rart for meg." }
