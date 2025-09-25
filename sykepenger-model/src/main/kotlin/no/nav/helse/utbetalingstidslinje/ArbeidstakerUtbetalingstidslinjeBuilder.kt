@@ -25,7 +25,7 @@ internal data class ArbeidsgiverperiodeForVedtaksperiode(
     val skalFatteVedtak = erUtenforAGP || navSkalOvertaAGP
 }
 
-internal class ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
+class ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
     private val arbeidsgiverperiode: List<Periode>,
     private val dagerNavOvertarAnsvar: List<Periode>,
     private val refusjonstidslinje: Beløpstidslinje,
@@ -52,7 +52,7 @@ internal class ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
         )
     }
 
-    internal fun result(sykdomstidslinje: Sykdomstidslinje): Utbetalingstidslinje {
+    fun result(sykdomstidslinje: Sykdomstidslinje): Utbetalingstidslinje {
         val builder = Utbetalingstidslinje.Builder()
         sykdomstidslinje.forEach { dag ->
             when (dag) {

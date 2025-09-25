@@ -7,10 +7,19 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.ProsentdelDto
+import no.nav.helse.hendelser.Avsender
+import no.nav.helse.hendelser.MeldingsreferanseId
+import no.nav.helse.hendelser.Periode
+import no.nav.helse.person.beløp.Beløpsdag
+import no.nav.helse.person.beløp.Beløpstidslinje
+import no.nav.helse.person.beløp.Kilde
+import no.nav.helse.utbetalingstidslinje.ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode
+import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Prosentdel
 import no.nav.helse.økonomi.Økonomi
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -39,6 +48,53 @@ object UtbetalingsberegningLogikk {
             beregnDagForDag(alleDager, sykepengegrunnlagBegrenset6G, input.sykepengegrunnlag, refusjonstidslinjer)
 
         return opprettResultat(yrkeskaktivitererMedDekningsgrad, dagBeregninger)
+    }
+
+    fun beregnAlaSpleis(input: UtbetalingsberegningInput): UtbetalingsberegningData {
+        val refusjonstidslinjer = opprettRefusjonstidslinjer(input)
+
+        val yrkesaktivitetMedSykdomstidslinjeListe =
+            input.yrkesaktivitet.map { ya ->
+                val sykdomstidslinje = ya.dagoversikt!!.tilSykdomstidslinje()
+                val arbeidsgiverperiode = emptyList<Periode>() // TODO
+                val dagerNavOvertarAnsvar = emptyList<Periode>() // TODO
+                val refusjonstidslinje =
+                    (
+                        refusjonstidslinjer[ya.id]?.mapValues { (dato, inntekt) ->
+                            Beløpsdag(
+                                dato = dato, beløp = inntekt,
+                                kilde =
+                                    Kilde(
+                                        // TODO:
+                                        meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()), avsender = Avsender.ARBEIDSGIVER, tidsstempel = LocalDateTime.now(),
+                                    ),
+                            )
+                        }?.toSortedMap() ?: emptyMap()
+                    ).let {
+                        Beløpstidslinje(it)
+                    }
+                val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, ya.id)
+                val inntektjusteringer = Beløpstidslinje(emptyMap()) // TODO ?
+
+                val builder =
+                    ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
+                        arbeidsgiverperiode = arbeidsgiverperiode,
+                        dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
+                        refusjonstidslinje = refusjonstidslinje,
+                        fastsattÅrsinntekt = fastsattÅrsinntekt,
+                        inntektjusteringer = inntektjusteringer,
+                    )
+
+                val utbetalingstidslinje: Utbetalingstidslinje = builder.result(sykdomstidslinje)
+                // Hmmm..... Hvor skjer sammenslåing/fordeling (?)
+
+                /*YrkesaktivitetUtbetalingsberegning(
+                    yrkesaktivitetId = UUID(), dager = listOf(), dekningsgrad = null
+
+                )*/
+                // println(utbetalingstidslinje)
+            }
+        TODO()
     }
 
     private fun opprettSykepengegrunnlag(sykepengegrunnlag: SykepengegrunnlagResponse): Inntekt {

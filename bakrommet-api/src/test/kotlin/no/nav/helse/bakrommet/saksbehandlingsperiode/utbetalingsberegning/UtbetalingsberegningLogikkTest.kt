@@ -168,6 +168,10 @@ class UtbetalingsberegningLogikkTest {
 
         val resultat = UtbetalingsberegningLogikk.beregn(input)
 
+        // println(resultat)
+
+        // UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+
         assertEquals(1, resultat.yrkesaktiviteter.size)
         val yrkesaktivitetResultat = resultat.yrkesaktiviteter.first()
 

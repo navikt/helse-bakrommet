@@ -2,32 +2,14 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Hendelseskilde
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
 import no.nav.helse.økonomi.Prosentdel
 import java.time.LocalDate
+import kotlin.collections.List
 
-object UtbetalingsberegningLogikkSpleis {
-    data class YrkesaktivitetMedSykdomstidslinje(
-        val yrkesaktivitet: Yrkesaktivitet,
-        val sykdomstidslinje: Sykdomstidslinje,
-    )
-
-    fun beregn(input: UtbetalingsberegningInput): UtbetalingsberegningData {
-        val yrkesaktivitetMedSykdomstidslinjeListe =
-            input.yrkesaktivitet.map { ya ->
-                YrkesaktivitetMedSykdomstidslinje(
-                    yrkesaktivitet = ya,
-                    sykdomstidslinje = ya.dagoversikt!!.tilSykdomstidslinje(),
-                )
-            }
-        TODO()
-    }
-}
-
-private fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
+internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
     val kilde_HARDKODET = Hendelseskilde.INGEN
 
     var syk_TMP = false
