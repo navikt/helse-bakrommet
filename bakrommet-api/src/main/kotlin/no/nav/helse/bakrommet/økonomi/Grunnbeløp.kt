@@ -1,6 +1,13 @@
 package no.nav.helse.bakrommet.økonomi
 
-import no.nav.helse.bakrommet.primitiver.*
+import no.nav.helse.april
+import no.nav.helse.desember
+import no.nav.helse.januar
+import no.nav.helse.juli
+import no.nav.helse.juni
+import no.nav.helse.mai
+import no.nav.helse.oktober
+import no.nav.helse.september
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.årlig
 import java.time.LocalDate

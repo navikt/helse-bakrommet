@@ -106,7 +106,7 @@ sealed class Dag(
 
     override fun toString() = "${this::class.java.simpleName} ($dato) $kilde"
 
-    internal class UkjentDag(
+    class UkjentDag(
         dato: LocalDate,
         kilde: Hendelseskilde,
     ) : Dag(dato, kilde) {
@@ -125,7 +125,7 @@ sealed class Dag(
         }
     }
 
-    internal class Arbeidsdag(
+    class Arbeidsdag(
         dato: LocalDate,
         kilde: Hendelseskilde,
     ) : Dag(dato, kilde) {
@@ -144,7 +144,7 @@ sealed class Dag(
         }
     }
 
-    internal class Arbeidsgiverdag(
+    class Arbeidsgiverdag(
         dato: LocalDate,
         val grad: Prosentdel,
         kilde: Hendelseskilde,
@@ -165,7 +165,7 @@ sealed class Dag(
         }
     }
 
-    internal class Feriedag(
+    class Feriedag(
         dato: LocalDate,
         kilde: Hendelseskilde,
     ) : Dag(dato, kilde) {
@@ -184,7 +184,7 @@ sealed class Dag(
         }
     }
 
-    internal class ArbeidIkkeGjenopptattDag(
+    class ArbeidIkkeGjenopptattDag(
         dato: LocalDate,
         kilde: Hendelseskilde,
     ) : Dag(dato, kilde) {
@@ -203,7 +203,7 @@ sealed class Dag(
         }
     }
 
-    internal class FriskHelgedag(
+    class FriskHelgedag(
         dato: LocalDate,
         kilde: Hendelseskilde,
     ) : Dag(dato, kilde) {
@@ -222,7 +222,7 @@ sealed class Dag(
         }
     }
 
-    internal class ArbeidsgiverHelgedag(
+    class ArbeidsgiverHelgedag(
         dato: LocalDate,
         val grad: Prosentdel,
         kilde: Hendelseskilde,
@@ -243,7 +243,7 @@ sealed class Dag(
         }
     }
 
-    internal class Sykedag(
+    class Sykedag(
         dato: LocalDate,
         val grad: Prosentdel,
         kilde: Hendelseskilde,
@@ -264,7 +264,7 @@ sealed class Dag(
         }
     }
 
-    internal class ForeldetSykedag(
+    class ForeldetSykedag(
         dato: LocalDate,
         val grad: Prosentdel,
         kilde: Hendelseskilde,
@@ -285,7 +285,7 @@ sealed class Dag(
         }
     }
 
-    internal class SykHelgedag(
+    class SykHelgedag(
         dato: LocalDate,
         val grad: Prosentdel,
         kilde: Hendelseskilde,
@@ -306,7 +306,7 @@ sealed class Dag(
         }
     }
 
-    internal class Permisjonsdag(
+    class Permisjonsdag(
         dato: LocalDate,
         kilde: Hendelseskilde,
     ) : Dag(dato, kilde) {
@@ -325,7 +325,7 @@ sealed class Dag(
         }
     }
 
-    internal class ProblemDag(
+    class ProblemDag(
         dato: LocalDate,
         kilde: Hendelseskilde,
         val other: Hendelseskilde,
@@ -355,7 +355,7 @@ sealed class Dag(
         }
     }
 
-    internal class AndreYtelser(
+    class AndreYtelser(
         dato: LocalDate,
         kilde: Hendelseskilde,
         val ytelse: AnnenYtelse,

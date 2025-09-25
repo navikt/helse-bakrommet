@@ -17,6 +17,6 @@ data class Hendelseskilde(
             return Hendelseskilde(kilde.type)
         }
 
-        internal val INGEN = Hendelseskilde("SykdomshistorikkHendelse")
+        val INGEN = Hendelseskilde("SykdomshistorikkHendelse")
     }
 }
