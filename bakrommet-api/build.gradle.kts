@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":bakrommet-client-sigrun"))
     implementation(project(":bakrommet-client-inntektsmelding"))
     implementation(project(":bakrommet-client-sykepengesoknad"))
+    implementation(project(":sykepenger-model"))
 
     implementation("io.ktor:ktor-server-metrics-micrometer")
     implementation("io.ktor:ktor-server-core")

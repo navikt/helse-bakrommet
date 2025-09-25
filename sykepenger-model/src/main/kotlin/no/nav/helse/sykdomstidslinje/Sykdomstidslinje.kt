@@ -43,7 +43,7 @@ class Sykdomstidslinje private constructor(
     // Støtte for at perioden er lengre enn vi har dager for (Map-et er sparse)
     private val periode: Periode? = periode ?: if (dager.size > 0) Periode(dager.firstKey(), dager.lastKey()) else null
 
-    internal constructor(dager: Map<LocalDate, Dag> = emptyMap()) : this(dager.toSortedMap())
+    constructor(dager: Map<LocalDate, Dag> = emptyMap()) : this(dager.toSortedMap())
 
     internal constructor(original: Sykdomstidslinje, spanningPeriode: Periode) :
         this(original.dager, original.periode?.plus(spanningPeriode), original.låstePerioder.toMutableList())
