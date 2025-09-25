@@ -1,8 +1,8 @@
 package no.nav.helse
 
+import no.nav.helse.dto.AlderDto
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit.YEARS
-import no.nav.helse.dto.AlderDto
 
 class Alder(val fødselsdato: LocalDate, val dødsdato: LocalDate?) {
     internal val syttiårsdagen: LocalDate = fødselsdato.plusYears(70)
@@ -14,7 +14,7 @@ class Alder(val fødselsdato: LocalDate, val dødsdato: LocalDate?) {
         internal fun gjenopprett(dto: AlderDto): Alder {
             return Alder(
                 fødselsdato = dto.fødselsdato,
-                dødsdato = dto.dødsdato
+                dødsdato = dto.dødsdato,
             )
         }
 

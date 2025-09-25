@@ -1,8 +1,5 @@
 package no.nav.helse.dto.serialisering
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.UUID
 import no.nav.helse.dto.ArbeidsgiverperiodeavklaringDto
 import no.nav.helse.dto.ArbeidssituasjonDto
 import no.nav.helse.dto.BeløpstidslinjeDto
@@ -11,6 +8,9 @@ import no.nav.helse.dto.InntektskildeDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.dto.SykdomstidslinjeDto
 import no.nav.helse.dto.UtbetalingTilstandDto
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
 
 data class BehandlingendringUtDto(
     val id: UUID,
@@ -34,5 +34,5 @@ data class BehandlingendringUtDto(
     val maksdatoresultat: MaksdatoresultatUtDto,
     val inntektjusteringer: Map<InntektskildeDto, BeløpstidslinjeDto>,
     val faktaavklartInntekt: SelvstendigFaktaavklartInntektUtDto?,
-    val ventetid: PeriodeDto?
+    val ventetid: PeriodeDto?,
 )

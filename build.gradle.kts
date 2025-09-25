@@ -34,6 +34,7 @@ allprojects {
                 // exclude sykepenger-utbetaling modul
                 exclude { it.file.path.contains("sykepenger-utbetaling") }
                 exclude { it.file.path.contains("sykepenger-primitiver") }
+                exclude { it.file.path.contains("sykepenger-model") }
             }
         }
 

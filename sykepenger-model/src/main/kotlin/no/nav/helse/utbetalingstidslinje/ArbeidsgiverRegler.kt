@@ -1,10 +1,12 @@
 package no.nav.helse.utbetalingstidslinje
 
-
 internal interface ArbeidsgiverRegler {
     fun burdeStarteNyArbeidsgiverperiode(oppholdsdagerBrukt: Int): Boolean
+
     fun arbeidsgiverperiodenGjennomført(arbeidsgiverperiodedagerBrukt: Int): Boolean
+
     fun maksSykepengedager(): Int
+
     fun maksSykepengedagerOver67(): Int
 
     companion object {
@@ -19,6 +21,7 @@ internal interface ArbeidsgiverRegler {
                 arbeidsgiverperiodedagerBrukt >= arbeidsgiverperiodelengde
 
             override fun maksSykepengedager() = 248
+
             override fun maksSykepengedagerOver67() = 60
         }
     }
