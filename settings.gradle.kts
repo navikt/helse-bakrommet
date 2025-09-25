@@ -11,4 +11,8 @@ include(
     "bakrommet-client-sykepengesoknad",
     "bakrommet-bootstrap",
     "bakrommet-e2e-tests",
+    "sykepenger-primitiver",
+    "sykepenger-primitiver-dto",
+    "sykepenger-utbetaling",
+    "sykepenger-utbetaling-dto",
 )

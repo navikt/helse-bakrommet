@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.20"
+    id("java-test-fixtures")
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
 }
 
@@ -24,11 +25,15 @@ allprojects {
     if (name != "bakrommet-dependencies") {
         apply(plugin = "org.jetbrains.kotlin.jvm")
         apply(plugin = "org.jlleitschuh.gradle.ktlint")
+        apply(plugin = "java-test-fixtures")
 
         ktlint {
             ignoreFailures = true
             filter {
                 exclude { it.file.path.contains("generated") }
+                // exclude sykepenger-utbetaling modul
+                exclude { it.file.path.contains("sykepenger-utbetaling") }
+                exclude { it.file.path.contains("sykepenger-primitiver") }
             }
         }
 
