@@ -36,7 +36,7 @@ dependencies {
         api("net.logstash.logback:logstash-logback-encoder:8.1")
 
         // Database
-        api("org.postgresql:postgresql:42.7.5")
+        api("org.postgresql:postgresql:42.7.8")
         api("com.zaxxer:HikariCP:6.3.0")
         api("org.flywaydb:flyway-core:11.12.0")
         api("org.flywaydb:flyway-database-postgresql:11.12.0")
