@@ -15,4 +15,6 @@ include(
     "sykepenger-primitiver-dto",
     "sykepenger-utbetaling",
     "sykepenger-utbetaling-dto",
+    "sykepenger-model",
+    "sykepenger-model-dto",
 )
