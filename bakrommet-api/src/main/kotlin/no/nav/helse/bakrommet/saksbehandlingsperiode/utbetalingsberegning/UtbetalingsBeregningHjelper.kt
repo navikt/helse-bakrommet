@@ -47,7 +47,8 @@ class UtbetalingsBeregningHjelper(
         // Utfør beregning
         val beregningData =
             if (_brukSpleisBeregning) {
-                UtbetalingsberegningLogikk.beregnAlaSpleis(beregningInput)
+                TODO()
+                // UtbetalingsberegningLogikk.beregnAlaSpleis(beregningInput)
             } else {
                 UtbetalingsberegningLogikk.beregn(beregningInput)
             }

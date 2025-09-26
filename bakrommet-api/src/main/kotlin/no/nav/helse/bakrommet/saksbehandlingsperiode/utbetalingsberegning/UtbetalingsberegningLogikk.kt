@@ -50,10 +50,10 @@ object UtbetalingsberegningLogikk {
         return opprettResultat(yrkeskaktivitererMedDekningsgrad, dagBeregninger)
     }
 
-    fun beregnAlaSpleis(input: UtbetalingsberegningInput): UtbetalingsberegningData {
+    fun beregnAlaSpleis(input: UtbetalingsberegningInput): List<Pair<Yrkesaktivitet, Utbetalingstidslinje>> {
         val refusjonstidslinjer = opprettRefusjonstidslinjer(input)
 
-        val yrkesaktivitetMedSykdomstidslinjeListe =
+        val utbetalingstidslinjer =
             input.yrkesaktivitet.map { ya ->
                 val sykdomstidslinje = ya.dagoversikt!!.tilSykdomstidslinje()
                 val arbeidsgiverperiode = emptyList<Periode>() // TODO
@@ -78,6 +78,7 @@ object UtbetalingsberegningLogikk {
 
                 val builder =
                     ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
+                        // TODO : Dekningsgrad er hardkodet til 100% inni Buildern (i og med "Arbeidstaker...Builder")
                         arbeidsgiverperiode = arbeidsgiverperiode,
                         dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
                         refusjonstidslinje = refusjonstidslinje,
@@ -92,9 +93,27 @@ object UtbetalingsberegningLogikk {
                     yrkesaktivitetId = UUID(), dager = listOf(), dekningsgrad = null
 
                 )*/
+                // println(utbetalingstidslinje.toJsonNode().toPrettyString())
                 // println(utbetalingstidslinje)
+                utbetalingstidslinje
+            }.let {
+                Utbetalingstidslinje.totalSykdomsgrad(it)
+            }.let {
+                Utbetalingstidslinje.betale(
+                    sykepengegrunnlagBegrenset6G =
+                        Inntekt.gjenopprett(
+                            InntektbeløpDto.Årlig(
+                                // ?? TODO
+                                beløp = minOf(input.sykepengegrunnlag.sykepengegrunnlagØre, input.sykepengegrunnlag.grunnbeløp6GØre) / 100.0,
+                            ),
+                        ),
+                    tidslinjer = it,
+                )
             }
-        TODO()
+
+        // println(utbetalingstidslinjer.toJsonNode().toPrettyString())
+
+        return input.yrkesaktivitet.zip(utbetalingstidslinjer)
     }
 
     private fun opprettSykepengegrunnlag(sykepengegrunnlag: SykepengegrunnlagResponse): Inntekt {
