@@ -22,6 +22,12 @@ import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
+import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
+import no.nav.helse.dto.serialisering.ØkonomiUtDto
+import no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
+import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
+import no.nav.helse.dto.deserialisering.ØkonomiInnDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -237,30 +243,82 @@ class UtbetalingsberegningIntegrasjonTest {
         val responseText = response.bodyAsText()
         if (responseText == "null") return null
         
-        // Deserialiser JSON som InnDto (siden vi skal konvertere tilbake til domenemodell)
-        val json = objectMapper.readTree(responseText)
-        val beregningDataJson = json["beregningData"].toString()
-        val beregningData = objectMapper.readValue(beregningDataJson, BeregningDataInnDto::class.java)
+        // API-et sender BeregningResponseUtDto (med InntektDto som har alle felt)
+        val responseUtDto = objectMapper.readValue(responseText, BeregningResponseUtDto::class.java)
         
+        // Konverter til domenemodell
         return BeregningResponse(
-            id = UUID.fromString(json["id"].asText()),
-            saksbehandlingsperiodeId = UUID.fromString(json["saksbehandlingsperiodeId"].asText()),
-            beregningData = beregningData.tilBeregningData(),
-            opprettet = json["opprettet"].asText(),
-            opprettetAv = json["opprettetAv"].asText(),
-            sistOppdatert = json["sistOppdatert"].asText(),
+            id = responseUtDto.id,
+            saksbehandlingsperiodeId = responseUtDto.saksbehandlingsperiodeId,
+            beregningData = responseUtDto.beregningData.tilBeregningData(),
+            opprettet = responseUtDto.opprettet,
+            opprettetAv = responseUtDto.opprettetAv,
+            sistOppdatert = responseUtDto.sistOppdatert,
         )
     }
     
-    private fun BeregningDataInnDto.tilBeregningData(): BeregningData {
+    private fun BeregningDataUtDto.tilBeregningData(): BeregningData {
+        // Konverter UtDto til InnDto for å bruke den eksisterende gjenopprett-logikken
+        val innDto = this.tilBeregningDataInnDto()
         return BeregningData(
-            yrkesaktiviteter = yrkesaktiviteter.map {
+            yrkesaktiviteter = innDto.yrkesaktiviteter.map {
                 YrkesaktivitetUtbetalingsberegning(
                     yrkesaktivitetId = it.yrkesaktivitetId,
                     utbetalingstidslinje = no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje.gjenopprett(it.utbetalingstidslinje),
                     dekningsgrad = it.dekningsgrad,
                 )
             },
+        )
+    }
+    
+    private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto {
+        return BeregningDataInnDto(
+            yrkesaktiviteter = yrkesaktiviteter.map { it.tilInnDto() }
+        )
+    }
+    
+    private fun YrkesaktivitetUtbetalingsberegningUtDto.tilInnDto(): YrkesaktivitetUtbetalingsberegningInnDto {
+        return YrkesaktivitetUtbetalingsberegningInnDto(
+            yrkesaktivitetId = yrkesaktivitetId,
+            utbetalingstidslinje = utbetalingstidslinje.tilInnDto(),
+            dekningsgrad = dekningsgrad
+        )
+    }
+    
+    private fun UtbetalingstidslinjeUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto {
+        return no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto(
+            dager = dager.map { it.tilInnDto() }
+        )
+    }
+    
+    private fun UtbetalingsdagUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto {
+        return when (this) {
+            is UtbetalingsdagUtDto.NavDagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.NavDagDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsgiverperiodeDagNavDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.NavHelgDagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.NavHelgDagDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.ArbeidsdagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsdagDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.FridagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.FridagDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.AvvistDagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.AvvistDagDto(dato, økonomi.tilInnDto(), begrunnelser)
+            is UtbetalingsdagUtDto.ForeldetDagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ForeldetDagDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.UkjentDagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.UkjentDagDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.VentetidsdagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.VentetidsdagDto(dato, økonomi.tilInnDto())
+        }
+    }
+    
+    private fun ØkonomiUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.ØkonomiInnDto {
+        return no.nav.helse.dto.deserialisering.ØkonomiInnDto(
+            grad = grad,
+            totalGrad = totalGrad,
+            utbetalingsgrad = utbetalingsgrad,
+            arbeidsgiverRefusjonsbeløp = arbeidsgiverRefusjonsbeløp.dagligDouble,
+            aktuellDagsinntekt = aktuellDagsinntekt.dagligDouble,
+            inntektjustering = inntektjustering.dagligDouble,
+            dekningsgrad = dekningsgrad,
+            arbeidsgiverbeløp = arbeidsgiverbeløp?.dagligDouble,
+            personbeløp = personbeløp?.dagligDouble,
+            reservertArbeidsgiverbeløp = reservertArbeidsgiverbeløp?.dagligDouble,
+            reservertPersonbeløp = reservertPersonbeløp?.dagligDouble
         )
     }
 

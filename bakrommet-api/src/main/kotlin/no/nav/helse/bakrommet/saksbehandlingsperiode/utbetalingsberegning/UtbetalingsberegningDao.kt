@@ -7,6 +7,14 @@ import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.dto.InntektDto
+import no.nav.helse.dto.InntektbeløpDto
+import no.nav.helse.dto.deserialisering.ØkonomiInnDto
+import no.nav.helse.dto.serialisering.ØkonomiUtDto
+import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
+import no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
+import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
+import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
 import javax.sql.DataSource
@@ -20,7 +28,10 @@ class UtbetalingsberegningDao private constructor(private val db: QueryRunner) {
         beregning: BeregningResponse,
         saksbehandler: Bruker,
     ): BeregningResponse {
-        val beregningJson = objectMapper.writeValueAsString(beregning.beregningData.tilBeregningDataUtDto())
+        // Konverter til InnDto format for lagring (slik at deserialisering fungerer)
+        val beregningDataUtDto = beregning.beregningData.tilBeregningDataUtDto()
+        val beregningDataInnDto = beregningDataUtDto.tilBeregningDataInnDto()
+        val beregningJson = objectMapper.writeValueAsString(beregningDataInnDto)
 
         // Sjekk om det finnes fra før
         val eksisterende = hentBeregning(saksbehandlingsperiodeId)
@@ -128,5 +139,59 @@ internal fun BeregningResponse.tilBeregningResponseUtDto(): BeregningResponseUtD
         opprettet = opprettet,
         opprettetAv = opprettetAv,
         sistOppdatert = sistOppdatert,
+    )
+}
+
+// Converter funksjoner for å konvertere UtDto til InnDto format for lagring
+private fun InntektDto.tilDagligDouble(): InntektbeløpDto.DagligDouble = this.dagligDouble
+
+private fun ØkonomiUtDto.tilØkonomiInnDto(): ØkonomiInnDto {
+    return ØkonomiInnDto(
+        grad = grad,
+        totalGrad = totalGrad,
+        utbetalingsgrad = utbetalingsgrad,
+        arbeidsgiverRefusjonsbeløp = arbeidsgiverRefusjonsbeløp.tilDagligDouble(),
+        aktuellDagsinntekt = aktuellDagsinntekt.tilDagligDouble(),
+        inntektjustering = inntektjustering.tilDagligDouble(),
+        dekningsgrad = dekningsgrad,
+        arbeidsgiverbeløp = arbeidsgiverbeløp?.tilDagligDouble(),
+        personbeløp = personbeløp?.tilDagligDouble(),
+        reservertArbeidsgiverbeløp = reservertArbeidsgiverbeløp?.tilDagligDouble(),
+        reservertPersonbeløp = reservertPersonbeløp?.tilDagligDouble()
+    )
+}
+
+private fun UtbetalingsdagUtDto.tilUtbetalingsdagInnDto(): UtbetalingsdagInnDto {
+    return when (this) {
+        is UtbetalingsdagUtDto.NavDagDto -> UtbetalingsdagInnDto.NavDagDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto -> UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto -> UtbetalingsdagInnDto.ArbeidsgiverperiodeDagNavDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.NavHelgDagDto -> UtbetalingsdagInnDto.NavHelgDagDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.ArbeidsdagDto -> UtbetalingsdagInnDto.ArbeidsdagDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.FridagDto -> UtbetalingsdagInnDto.FridagDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.AvvistDagDto -> UtbetalingsdagInnDto.AvvistDagDto(dato, økonomi.tilØkonomiInnDto(), begrunnelser)
+        is UtbetalingsdagUtDto.ForeldetDagDto -> UtbetalingsdagInnDto.ForeldetDagDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.UkjentDagDto -> UtbetalingsdagInnDto.UkjentDagDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.VentetidsdagDto -> UtbetalingsdagInnDto.VentetidsdagDto(dato, økonomi.tilØkonomiInnDto())
+    }
+}
+
+private fun UtbetalingstidslinjeUtDto.tilUtbetalingstidslinjeInnDto(): UtbetalingstidslinjeInnDto {
+    return UtbetalingstidslinjeInnDto(
+        dager = dager.map { it.tilUtbetalingsdagInnDto() }
+    )
+}
+
+private fun YrkesaktivitetUtbetalingsberegningUtDto.tilYrkesaktivitetUtbetalingsberegningInnDto(): YrkesaktivitetUtbetalingsberegningInnDto {
+    return YrkesaktivitetUtbetalingsberegningInnDto(
+        yrkesaktivitetId = yrkesaktivitetId,
+        utbetalingstidslinje = utbetalingstidslinje.tilUtbetalingstidslinjeInnDto(),
+        dekningsgrad = dekningsgrad
+    )
+}
+
+private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto {
+    return BeregningDataInnDto(
+        yrkesaktiviteter = yrkesaktiviteter.map { it.tilYrkesaktivitetUtbetalingsberegningInnDto() }
     )
 }
