@@ -82,8 +82,9 @@ object UtbetalingsberegningLogikk {
                         Beløpstidslinje(it)
                     }
                 val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, ya.id)
-                val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO ?
+                val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO Dette er tilkommen inntekt?
 
+                // TODO annen builder for næringsdrivende
                 val builder =
                     ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
                         // TODO : Dekningsgrad er hardkodet til 100% inni Buildern (i og med "Arbeidstaker...Builder")
@@ -95,34 +96,23 @@ object UtbetalingsberegningLogikk {
                     )
 
                 val utbetalingstidslinje: Utbetalingstidslinje = builder.result(sykdomstidslinje)
-                /* Hmmm..... Hvor skjer sammenslåing/fordeling (?)
-
-                YrkesaktivitetUtbetalingsberegning(
-                    yrkesaktivitetId = UUID(), dager = listOf(), dekningsgrad = null
-
-                )
-                // println(utbetalingstidslinje.toJsonNode().toPrettyString())
-                // println(utbetalingstidslinje)
-
-                 */
                 utbetalingstidslinje
-            }.let {
-                Utbetalingstidslinje.totalSykdomsgrad(it)
-            }.let {
-                Utbetalingstidslinje.betale(
-                    sykepengegrunnlagBegrenset6G =
-                        Inntekt.gjenopprett(
-                            InntektbeløpDto.Årlig(
-                                // ?? TODO
-                                beløp =
-                                    minOf(
-                                        input.sykepengegrunnlag.sykepengegrunnlagØre,
-                                        input.sykepengegrunnlag.grunnbeløp6GØre,
-                                    ) / 100.0,
-                            ),
+            }.let { utbetalingstidslinjer ->
+                // Først beregn total sykdomsgrad på tvers av alle yrkesaktiviteter, dag for dag
+                Utbetalingstidslinje.totalSykdomsgrad(utbetalingstidslinjer)
+            }.let { utbetalingstidslinjerMedTotalGrad ->
+                // Så beregn utbetaling med 6G-begrensning, dag for dag
+                val sykepengegrunnlagBegrenset6G =
+                    Inntekt.gjenopprett(
+                        InntektbeløpDto.Årlig(
+                            beløp =
+                                minOf(
+                                    input.sykepengegrunnlag.sykepengegrunnlagØre,
+                                    input.sykepengegrunnlag.grunnbeløp6GØre,
+                                ) / 100.0,
                         ),
-                    tidslinjer = it,
-                )
+                    )
+                Utbetalingstidslinje.betale(sykepengegrunnlagBegrenset6G, utbetalingstidslinjerMedTotalGrad)
             }
 
         // println(utbetalingstidslinjer.toJsonNode().toPrettyString())
