@@ -17,8 +17,9 @@ import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 interface SaksbehandlingsperiodeServiceDaoer : SaksbehandlingsperiodeKafkaDtoDaoer {
     val saksbehandlingsperiodeEndringerDao: SaksbehandlingsperiodeEndringerDao
@@ -55,7 +56,7 @@ class SaksbehandlingsperiodeService(
         saksbehandler: BrukerOgToken,
     ): Saksbehandlingsperiode {
         if (fom.isAfter(tom)) throw InputValideringException("Fom-dato kan ikke være etter tom-dato")
-        val nyPeriode =
+        var nyPeriode =
             Saksbehandlingsperiode(
                 id = UUID.randomUUID(),
                 spilleromPersonId = spilleromPersonId.personId,
@@ -66,15 +67,39 @@ class SaksbehandlingsperiodeService(
                 tom = tom,
                 skjæringstidspunkt = fom,
             )
+
         db.transactional {
-            if (saksbehandlingsperiodeDao.finnPerioderForPersonSomOverlapper(
-                    spilleromPersonId = spilleromPersonId.personId,
-                    fom = fom,
-                    tom = tom,
-                ).isNotEmpty()
-            ) {
+            val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
+
+            if (perioder.any { it.fom <= tom && it.tom >= fom }) {
                 throw InputValideringException("Angitte datoer overlapper med en eksisterende periode")
             }
+
+            val tidligerePeriodeInntilNyPeriode =
+                perioder
+                    .find { it.tom.plusDays(1).isEqual(fom) }
+
+            if (tidligerePeriodeInntilNyPeriode != null) {
+                sykepengegrunnlagDao.hentSykepengegrunnlag(tidligerePeriodeInntilNyPeriode.id)?.let {
+                    sykepengegrunnlagDao.settSykepengegrunnlag(
+                        saksbehandlingsperiodeId = nyPeriode.id,
+                        beregning =
+                            it.copy(
+                                id = UUID.randomUUID(),
+                                saksbehandlingsperiodeId = nyPeriode.id,
+                                opprettet = LocalDateTime.now().toString(),
+                                opprettetAv = saksbehandler.bruker.navIdent,
+                                sistOppdatert = LocalDateTime.now().toString(),
+                            ),
+                        saksbehandler = saksbehandler.bruker,
+                    )
+                }
+                nyPeriode =
+                    nyPeriode.copy(
+                        skjæringstidspunkt = tidligerePeriodeInntilNyPeriode.skjæringstidspunkt ?: fom,
+                    )
+            }
+
             saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
             saksbehandlingsperiodeEndringerDao.leggTilEndring(
                 nyPeriode.endring(
@@ -222,7 +247,8 @@ class SaksbehandlingsperiodeService(
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
         return db.transactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
+            val periode =
+                saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
             saksbehandlingsperiodeDao.oppdaterSkjæringstidspunkt(periode.id, skjæringstidspunkt)
             saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
                 saksbehandlingsperiodeEndringerDao.leggTilEndring(
