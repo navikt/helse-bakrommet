@@ -4,6 +4,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Hendelseskilde
+import no.nav.helse.hendelser.Periode
 import no.nav.helse.sykdomstidslinje.Dag.ArbeidIkkeGjenopptattDag
 import no.nav.helse.sykdomstidslinje.Dag.Arbeidsdag
 import no.nav.helse.sykdomstidslinje.Dag.ArbeidsgiverHelgedag
@@ -21,7 +22,7 @@ import kotlin.collections.List
 val kilde_HARDKODET = Hendelseskilde.INGEN
 val annenytelse_HARDKODET = no.nav.helse.sykdomstidslinje.Dag.AndreYtelser.AnnenYtelse.Foreldrepenger
 
-internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
+internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): Sykdomstidslinje {
     // TODO TMP
     var syk = false
 
@@ -37,7 +38,9 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
 
     fun Int.somProsentdel() = Prosentdel.gjenopprett(ProsentdelDto(this.toDouble() / 100))
 
-    fun LocalDate.erAGP() = false // TODO
+    fun LocalDate.erAGP(): Boolean {
+        return arbeidsgiverperiode.any { agp -> agp.contains(this) }
+    }
 
     val spleisDagerMap =
         this.map { spilleromDag ->

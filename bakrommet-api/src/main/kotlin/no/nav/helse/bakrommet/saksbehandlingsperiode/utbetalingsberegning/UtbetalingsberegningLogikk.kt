@@ -55,9 +55,15 @@ object UtbetalingsberegningLogikk {
 
         val utbetalingstidslinjer =
             input.yrkesaktivitet.map { ya ->
-                val sykdomstidslinje = ya.dagoversikt!!.tilSykdomstidslinje()
-                val arbeidsgiverperiode = emptyList<Periode>() // TODO
-                val dagerNavOvertarAnsvar = emptyList<Periode>() // TODO
+                val arbeidsgiverperiode = ya.arbeidsgiverperioder?.map { Periode.gjenopprett(it) } ?: emptyList()
+                val dagerNavOvertarAnsvar: List<Periode> = ya.dagoversikt?.tilDagerNavOvertarAnsvar() ?: emptyList()
+
+                // Kast feil hvis dagerNavOvertarAnsvar ikke er inkludert i arbeidsgiverperioden
+                if (dagerNavOvertarAnsvar.any { navPeriode -> arbeidsgiverperiode.none { agp -> navPeriode in agp } }) {
+                    throw IllegalArgumentException("Ugyldig input: dagerNavOvertarAnsvar må være innenfor arbeidsgiverperioden")
+                }
+
+                val sykdomstidslinje = (ya.dagoversikt ?: emptyList()).tilSykdomstidslinje(arbeidsgiverperiode)
                 val refusjonstidslinje =
                     (
                         refusjonstidslinjer[ya.id]?.map { (dato, inntekt) ->
@@ -66,7 +72,9 @@ object UtbetalingsberegningLogikk {
                                 kilde =
                                     Kilde(
                                         // TODO:
-                                        meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()), avsender = Avsender.ARBEIDSGIVER, tidsstempel = LocalDateTime.now(),
+                                        meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()),
+                                        avsender = Avsender.ARBEIDSGIVER,
+                                        tidsstempel = LocalDateTime.now(),
                                     ),
                             )
                         } ?: emptyList()
@@ -106,7 +114,11 @@ object UtbetalingsberegningLogikk {
                         Inntekt.gjenopprett(
                             InntektbeløpDto.Årlig(
                                 // ?? TODO
-                                beløp = minOf(input.sykepengegrunnlag.sykepengegrunnlagØre, input.sykepengegrunnlag.grunnbeløp6GØre) / 100.0,
+                                beløp =
+                                    minOf(
+                                        input.sykepengegrunnlag.sykepengegrunnlagØre,
+                                        input.sykepengegrunnlag.grunnbeløp6GØre,
+                                    ) / 100.0,
                             ),
                         ),
                     tidslinjer = it,
@@ -337,6 +349,33 @@ object UtbetalingsberegningLogikk {
         val dag: Dag,
         val yrkesaktivitet: YrkesaktivitetMedDekningsgrad,
     )
+}
+
+private fun List<Dag>?.tilDagerNavOvertarAnsvar(): List<Periode> {
+    // Alle dager som er SykNav er dager NAV overtar ansvar
+    if (this == null) return emptyList()
+    val sykNavDager = this.filter { it.dagtype == Dagtype.SykNav }.map { it.dato }.toSet()
+    if (sykNavDager.isEmpty()) return emptyList()
+    val sortedDager = sykNavDager.sorted()
+    val perioder = mutableListOf<Periode>()
+    var periodeStart = sortedDager.first()
+    var periodeSlutt = sortedDager.first()
+    for (i in 1 until sortedDager.size) {
+        val currentDate = sortedDager[i]
+        if (currentDate == periodeSlutt.plusDays(1)) {
+            // Fortsett perioden
+            periodeSlutt = currentDate
+        } else {
+            // Avslutt nåværende
+            perioder.add(Periode(periodeStart, periodeSlutt))
+            // Start ny periode
+            periodeStart = currentDate
+            periodeSlutt = currentDate
+        }
+    }
+    // Legg til siste periode
+    perioder.add(Periode(periodeStart, periodeSlutt))
+    return perioder
 }
 
 fun ProsentdelDto?.tilProsentdel(): Prosentdel? {

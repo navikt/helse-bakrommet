@@ -10,6 +10,7 @@ dependencies {
     testImplementation(project(":bakrommet-client-sigrun"))
     testImplementation(project(":bakrommet-client-inntektsmelding"))
     testImplementation(project(":bakrommet-client-sykepengesoknad"))
+    testImplementation(project(":sykepenger-model"))
 
     testImplementation("io.ktor:ktor-server-core")
     testImplementation("io.ktor:ktor-server-test-host")

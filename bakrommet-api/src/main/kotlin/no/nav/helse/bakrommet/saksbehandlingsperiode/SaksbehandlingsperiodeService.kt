@@ -310,6 +310,8 @@ fun lagYrkesaktivitetFraSøknader(
             saksbehandlingsperiodeId = saksbehandlingsperiode.id,
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = dok.map { it.id },
+            arbeidsgiverperioder = null,
+            venteperioder = null,
         )
     }
 }

@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.util.*
+import no.nav.helse.dto.PeriodeDto
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
@@ -22,6 +23,8 @@ data class Yrkesaktivitet(
     val saksbehandlingsperiodeId: UUID,
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
+    val arbeidsgiverperioder: List<PeriodeDto>? = null,
+    val venteperioder: List<PeriodeDto>? = null,
 )
 
 class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
@@ -82,6 +85,8 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
             generertFraDokumenter =
                 row
                     .stringOrNull("generert_fra_dokumenter")?.somListe<UUID>() ?: emptyList(),
+            arbeidsgiverperioder = null,
+            venteperioder = null,
         )
 
     fun oppdaterKategorisering(

@@ -54,6 +54,8 @@ class YrkesaktivitetService(
         saksbehandlingsperiodeId = behandlingsperiodeId,
         opprettet = OffsetDateTime.now(),
         generertFraDokumenter = emptyList(),
+        arbeidsgiverperioder = null,
+        venteperioder = null,
     )
 
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean {
