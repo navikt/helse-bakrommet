@@ -9,7 +9,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -70,19 +69,13 @@ class DemoUtbetalingsberegningRouteTest {
                     listOf(
                         Inntekt(
                             yrkesaktivitetId = yrkesaktivitetId,
-                            beløpPerMånedØre = 30000L,
+                            beløpPerMånedØre = 500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon =
-                                listOf(
-                                    Refusjonsperiode(
-                                        fom = LocalDate.of(2024, 1, 1),
-                                        tom = LocalDate.of(2024, 1, 31),
-                                        beløpØre = 100L,
-                                    ),
-                                ),
+                                listOf(),
                         ),
                     ),
-                totalInntektØre = 30000L,
+                totalInntektØre = 500000L,
                 grunnbeløpØre = 100000L,
                 grunnbeløp6GØre = 600000L,
                 begrensetTil6G = false,

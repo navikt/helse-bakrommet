@@ -66,6 +66,6 @@ class UtbetalingsBeregningHjelper(
 
         val hentet = beregningDao.hentBeregning(referanse.periodeUUID)
         print("efgg")
-        requireNotNull(hentet) { "Kunne ikke hente lagret beregning"}
+        requireNotNull(hentet) { "Kunne ikke hente lagret beregning" }
     }
 }

@@ -9,12 +9,12 @@ import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.dto.InntektDto
 import no.nav.helse.dto.InntektbeløpDto
-import no.nav.helse.dto.deserialisering.ØkonomiInnDto
-import no.nav.helse.dto.serialisering.ØkonomiUtDto
-import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
 import no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
-import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
+import no.nav.helse.dto.deserialisering.ØkonomiInnDto
+import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
+import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
+import no.nav.helse.dto.serialisering.ØkonomiUtDto
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
 import javax.sql.DataSource
@@ -157,7 +157,7 @@ private fun ØkonomiUtDto.tilØkonomiInnDto(): ØkonomiInnDto {
         arbeidsgiverbeløp = arbeidsgiverbeløp?.tilDagligDouble(),
         personbeløp = personbeløp?.tilDagligDouble(),
         reservertArbeidsgiverbeløp = reservertArbeidsgiverbeløp?.tilDagligDouble(),
-        reservertPersonbeløp = reservertPersonbeløp?.tilDagligDouble()
+        reservertPersonbeløp = reservertPersonbeløp?.tilDagligDouble(),
     )
 }
 
@@ -165,7 +165,11 @@ private fun UtbetalingsdagUtDto.tilUtbetalingsdagInnDto(): UtbetalingsdagInnDto 
     return when (this) {
         is UtbetalingsdagUtDto.NavDagDto -> UtbetalingsdagInnDto.NavDagDto(dato, økonomi.tilØkonomiInnDto())
         is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto -> UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(dato, økonomi.tilØkonomiInnDto())
-        is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto -> UtbetalingsdagInnDto.ArbeidsgiverperiodeDagNavDto(dato, økonomi.tilØkonomiInnDto())
+        is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto ->
+            UtbetalingsdagInnDto.ArbeidsgiverperiodeDagNavDto(
+                dato,
+                økonomi.tilØkonomiInnDto(),
+            )
         is UtbetalingsdagUtDto.NavHelgDagDto -> UtbetalingsdagInnDto.NavHelgDagDto(dato, økonomi.tilØkonomiInnDto())
         is UtbetalingsdagUtDto.ArbeidsdagDto -> UtbetalingsdagInnDto.ArbeidsdagDto(dato, økonomi.tilØkonomiInnDto())
         is UtbetalingsdagUtDto.FridagDto -> UtbetalingsdagInnDto.FridagDto(dato, økonomi.tilØkonomiInnDto())
@@ -178,7 +182,7 @@ private fun UtbetalingsdagUtDto.tilUtbetalingsdagInnDto(): UtbetalingsdagInnDto 
 
 private fun UtbetalingstidslinjeUtDto.tilUtbetalingstidslinjeInnDto(): UtbetalingstidslinjeInnDto {
     return UtbetalingstidslinjeInnDto(
-        dager = dager.map { it.tilUtbetalingsdagInnDto() }
+        dager = dager.map { it.tilUtbetalingsdagInnDto() },
     )
 }
 
@@ -186,12 +190,12 @@ private fun YrkesaktivitetUtbetalingsberegningUtDto.tilYrkesaktivitetUtbetalings
     return YrkesaktivitetUtbetalingsberegningInnDto(
         yrkesaktivitetId = yrkesaktivitetId,
         utbetalingstidslinje = utbetalingstidslinje.tilUtbetalingstidslinjeInnDto(),
-        dekningsgrad = dekningsgrad
+        dekningsgrad = dekningsgrad,
     )
 }
 
 private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto {
     return BeregningDataInnDto(
-        yrkesaktiviteter = yrkesaktiviteter.map { it.tilYrkesaktivitetUtbetalingsberegningInnDto() }
+        yrkesaktiviteter = yrkesaktiviteter.map { it.tilYrkesaktivitetUtbetalingsberegningInnDto() },
     )
 }
