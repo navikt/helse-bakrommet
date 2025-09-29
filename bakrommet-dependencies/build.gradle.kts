@@ -38,8 +38,8 @@ dependencies {
         // Database
         api("org.postgresql:postgresql:42.7.5")
         api("com.zaxxer:HikariCP:6.3.0")
-        api("org.flywaydb:flyway-core:11.12.0")
-        api("org.flywaydb:flyway-database-postgresql:11.12.0")
+        api("org.flywaydb:flyway-core:11.13.2")
+        api("org.flywaydb:flyway-database-postgresql:11.13.2")
         api("com.github.seratch:kotliquery:1.9.1")
 
         // Kafka
