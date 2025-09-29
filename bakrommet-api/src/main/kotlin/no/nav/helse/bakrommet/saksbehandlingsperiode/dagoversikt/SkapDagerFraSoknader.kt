@@ -67,7 +67,6 @@ private fun oppdaterDagerMedSøknadsdata(
     // Legg til ventetid fra selvstendig næringsdrivende
     // TODO ventetid skal være metadata i yrkesaktiviteten
 
-
     // Håndter arbeidGjenopptatt - sett alle dager fra og med denne til arbeidsdager (med mindre det er helg)
     søknad.arbeidGjenopptatt?.let { arbeidGjenopptattDato ->
         oppdaterDagerIIntervall(dagerMap, maxOf(fom, arbeidGjenopptattDato), tom, Dagtype.Arbeidsdag)

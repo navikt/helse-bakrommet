@@ -39,8 +39,6 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
 
     fun LocalDate.erAGP() = false // TODO
 
-    fun LocalDate.erForeldet() = false // TODO
-
     val spleisDagerMap =
         this.map { spilleromDag ->
             when (spilleromDag.dagtype) {
@@ -102,7 +100,7 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
                     ).also { frisk() }
 
                 Dagtype.Avslått ->
-                    if (spilleromDag.dato.erForeldet()) {
+                    if (spilleromDag.erForeldet()) {
                         // TODO: Flere enn ForeldetSykedag + ArbeidIkkeGjenopptattDag ??
                         ForeldetSykedag(
                             dato = spilleromDag.dato,
@@ -132,4 +130,10 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
         }
 
     return Sykdomstidslinje(spleisDagerMap)
+}
+
+private fun Dag.erForeldet(): Boolean {
+    if (dagtype != Dagtype.Avslått) return false
+    if (avslåttBegrunnelse?.contains("FORELDET") == true) return true // TODO denne må matche kodeverdi(er) i kodeverket
+    return false
 }

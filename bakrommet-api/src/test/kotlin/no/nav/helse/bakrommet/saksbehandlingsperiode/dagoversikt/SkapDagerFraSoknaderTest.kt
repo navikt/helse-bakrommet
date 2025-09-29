@@ -303,8 +303,6 @@ class SkapDagerFraSoknaderTest {
         assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 6) }!!.dagtype) // Lørdag - skal være helg
         assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype) // Søndag - skal være helg
     }
-
-
 }
 
 private fun lagSøknad(
