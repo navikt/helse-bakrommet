@@ -14,7 +14,7 @@ internal fun Route.beregningRoute(service: UtbetalingsberegningService) {
         get {
             val beregning = service.hentUtbetalingsberegning(call.periodeReferanse())
             call.respondText(
-                beregning?.serialisertTilString() ?: "null",
+                beregning?.tilBeregningResponseUtDto()?.serialisertTilString() ?: "null",
                 ContentType.Application.Json,
                 HttpStatusCode.OK,
             )

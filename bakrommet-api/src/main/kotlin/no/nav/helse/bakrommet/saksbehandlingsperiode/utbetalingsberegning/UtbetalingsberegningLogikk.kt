@@ -4,7 +4,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
@@ -17,7 +16,6 @@ import no.nav.helse.utbetalingstidslinje.ArbeidstakerUtbetalingstidslinjeBuilder
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Prosentdel
-import no.nav.helse.økonomi.Økonomi
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -32,38 +30,22 @@ object UtbetalingsberegningLogikk {
         val dekningsgrad: Sporbar<ProsentdelDto>?,
     )
 
-    fun beregn(input: UtbetalingsberegningInput): UtbetalingsberegningData {
-        val sykepengegrunnlagBegrenset6G = opprettSykepengegrunnlag(input.sykepengegrunnlag)
-        val refusjonstidslinjer = opprettRefusjonstidslinjer(input)
-
-        val yrkeskaktivitererMedDekningsgrad =
-            input.yrkesaktivitet.map {
-                val sykmeldt = it.kategorisering["ER_SYKMELDT"] == "ER_SYKMELDT_JA"
-                val dekningsgrad = if (sykmeldt) it.hentDekningsgrad() else null
-                YrkesaktivitetMedDekningsgrad(it, dekningsgrad)
-            }
-
-        val alleDager = samleAlleDager(yrkeskaktivitererMedDekningsgrad, input.saksbehandlingsperiode)
-        val dagBeregninger =
-            beregnDagForDag(alleDager, sykepengegrunnlagBegrenset6G, input.sykepengegrunnlag, refusjonstidslinjer)
-
-        return opprettResultat(yrkeskaktivitererMedDekningsgrad, dagBeregninger)
-    }
-
-    fun beregnAlaSpleis(input: UtbetalingsberegningInput): List<Pair<Yrkesaktivitet, Utbetalingstidslinje>> {
+    fun beregnAlaSpleis(input: UtbetalingsberegningInput): List<YrkesaktivitetUtbetalingsberegning> {
         val refusjonstidslinjer = opprettRefusjonstidslinjer(input)
 
         val utbetalingstidslinjer =
             input.yrkesaktivitet.map { ya ->
+                val dager = fyllUtManglendeDager(ya.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
+
                 val arbeidsgiverperiode = ya.arbeidsgiverperioder?.map { Periode.gjenopprett(it) } ?: emptyList()
-                val dagerNavOvertarAnsvar: List<Periode> = ya.dagoversikt?.tilDagerNavOvertarAnsvar() ?: emptyList()
+                val dagerNavOvertarAnsvar: List<Periode> = dager.tilDagerNavOvertarAnsvar()
 
                 // Kast feil hvis dagerNavOvertarAnsvar ikke er inkludert i arbeidsgiverperioden
                 if (dagerNavOvertarAnsvar.any { navPeriode -> arbeidsgiverperiode.none { agp -> navPeriode in agp } }) {
                     throw IllegalArgumentException("Ugyldig input: dagerNavOvertarAnsvar må være innenfor arbeidsgiverperioden")
                 }
 
-                val sykdomstidslinje = (ya.dagoversikt ?: emptyList()).tilSykdomstidslinje(arbeidsgiverperiode)
+                val sykdomstidslinje = dager.tilSykdomstidslinje(arbeidsgiverperiode)
                 val refusjonstidslinje =
                     (
                         refusjonstidslinjer[ya.id]?.map { (dato, inntekt) ->
@@ -85,6 +67,7 @@ object UtbetalingsberegningLogikk {
                 val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO Dette er tilkommen inntekt?
 
                 // TODO annen builder for næringsdrivende
+                // TODO sporbar dekningsgrad
                 val builder =
                     ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
                         // TODO : Dekningsgrad er hardkodet til 100% inni Buildern (i og med "Arbeidstaker...Builder")
@@ -117,13 +100,14 @@ object UtbetalingsberegningLogikk {
 
         // println(utbetalingstidslinjer.toJsonNode().toPrettyString())
 
-        return input.yrkesaktivitet.zip(utbetalingstidslinjer)
-    }
-
-    private fun opprettSykepengegrunnlag(sykepengegrunnlag: SykepengegrunnlagResponse): Inntekt {
-        return Inntekt.gjenopprett(
-            InntektbeløpDto.Årlig(sykepengegrunnlag.sykepengegrunnlagØre / UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR),
-        )
+        return input.yrkesaktivitet.zip(utbetalingstidslinjer).map { (yrkesaktivitet, utbetalingstidslinje) ->
+            YrkesaktivitetUtbetalingsberegning(
+                yrkesaktivitetId = yrkesaktivitet.id,
+                utbetalingstidslinje = utbetalingstidslinje,
+                dekningsgrad = Sporbar(ProsentdelDto(1.0), Beregningssporing.ARBEIDSTAKER_100),
+                // TODO finn riktig dekningsgrad
+            )
+        }
     }
 
     private fun opprettRefusjonstidslinjer(input: UtbetalingsberegningInput): Map<UUID, Map<LocalDate, Inntekt>> {
@@ -135,71 +119,6 @@ object UtbetalingsberegningLogikk {
                     input.saksbehandlingsperiode,
                 )
         }
-    }
-
-    private fun samleAlleDager(
-        yrkesaktivitetMedDekningsgrad: List<YrkesaktivitetMedDekningsgrad>,
-        saksbehandlingsperiode: Saksbehandlingsperiode,
-    ): Map<LocalDate, List<DagMedYrkesaktivitet>> {
-        val alleDager = mutableMapOf<LocalDate, MutableList<DagMedYrkesaktivitet>>()
-
-        yrkesaktivitetMedDekningsgrad.forEach { yd ->
-            val dagoversikt = yd.yrkesaktivitet.hentDagoversikt()
-            val komplettDagoversikt = fyllUtManglendeDager(dagoversikt, saksbehandlingsperiode)
-
-            komplettDagoversikt.forEach { dag ->
-                alleDager.getOrPut(dag.dato) { mutableListOf() }.add(
-                    DagMedYrkesaktivitet(dag, yd),
-                )
-            }
-        }
-
-        return alleDager
-    }
-
-    private fun beregnDagForDag(
-        alleDager: Map<LocalDate, List<DagMedYrkesaktivitet>>,
-        sykepengegrunnlagBegrenset6G: Inntekt,
-        sykepengegrunnlag: SykepengegrunnlagResponse,
-        refusjonstidslinjer: Map<UUID, Map<LocalDate, Inntekt>>,
-    ): Map<UUID, List<DagUtbetalingsberegning>> {
-        val dagBeregningerPerYrkesaktivitet = mutableMapOf<UUID, MutableList<DagUtbetalingsberegning>>()
-
-        alleDager.forEach { (dato, dagerForDato) ->
-            val økonomiList =
-                dagerForDato.map { dagMedYrkesaktivitet: DagMedYrkesaktivitet ->
-                    beregnØkonomiForDag(
-                        dag = dagMedYrkesaktivitet.dag,
-                        sykepengegrunnlag = sykepengegrunnlag,
-                        refusjonstidslinje =
-                            refusjonstidslinjer[dagMedYrkesaktivitet.yrkesaktivitet.yrkesaktivitet.id]
-                                ?: emptyMap(),
-                        yrkesaktivitet = dagMedYrkesaktivitet.yrkesaktivitet.yrkesaktivitet,
-                        dekningsgrad = dagMedYrkesaktivitet.yrkesaktivitet.dekningsgrad?.verdi,
-                    )
-                }
-
-            val økonomiMedTotalGrad = Økonomi.totalSykdomsgrad(økonomiList)
-            val beregnedeØkonomier =
-                try {
-                    Økonomi.betal(sykepengegrunnlagBegrenset6G, økonomiMedTotalGrad)
-                } catch (e: IllegalStateException) {
-                    // Hvis Økonomi.betal() feiler på grunn av restbeløp, bruk original økonomi
-                    økonomiMedTotalGrad
-                }
-
-            dagerForDato.zip(beregnedeØkonomier).forEach { (dagMedYrkesaktivitet, beregnetØkonomi) ->
-                val yrkesaktivitetId = dagMedYrkesaktivitet.yrkesaktivitet.yrkesaktivitet.id
-                val dagBeregning = konverterTilDagBeregning(dagMedYrkesaktivitet.dag, beregnetØkonomi)
-                dagBeregningerPerYrkesaktivitet.getOrPut(yrkesaktivitetId) { mutableListOf() }.add(dagBeregning)
-            }
-        }
-
-        return dagBeregningerPerYrkesaktivitet
-    }
-
-    private fun Yrkesaktivitet.hentDagoversikt(): List<Dag> {
-        return this.dagoversikt ?: emptyList()
     }
 
     private fun fyllUtManglendeDager(
@@ -247,30 +166,6 @@ object UtbetalingsberegningLogikk {
         )
     }
 
-    private fun beregnØkonomiForDag(
-        dag: Dag,
-        sykepengegrunnlag: SykepengegrunnlagResponse,
-        refusjonstidslinje: Map<LocalDate, Inntekt>,
-        yrkesaktivitet: Yrkesaktivitet,
-        dekningsgrad: ProsentdelDto?,
-    ): Økonomi {
-        val aktuellDagsinntekt = finnInntektForYrkesaktivitet(sykepengegrunnlag, yrkesaktivitet.id)
-        val refusjonsbeløp = refusjonstidslinje[dag.dato] ?: Inntekt.INGEN
-
-        // TODO mer eksplisitt håndtering av Syk/SykNav og arbeidsgiverperiode?
-
-        val sykdomsgrad = Sykdomsgrad(dag.grad ?: 0).tilProsentdel()
-
-        return Økonomi.inntekt(
-            sykdomsgrad = sykdomsgrad,
-            aktuellDagsinntekt = aktuellDagsinntekt,
-            // TODO Ikke default til 100% her
-            dekningsgrad = dekningsgrad?.tilProsentdel() ?: Prosentdel.HundreProsent,
-            refusjonsbeløp = refusjonsbeløp,
-            inntektjustering = Inntekt.INGEN,
-        )
-    }
-
     private fun finnInntektForYrkesaktivitet(
         sykepengegrunnlag: SykepengegrunnlagResponse,
         yrkesaktivitetId: UUID,
@@ -285,60 +180,6 @@ object UtbetalingsberegningLogikk {
             ),
         )
     }
-
-    private fun konverterTilDagBeregning(
-        dag: Dag,
-        beregnetØkonomi: Økonomi,
-    ): DagUtbetalingsberegning {
-        // Konverter tilbake til øre-format for output
-        // dagligInt returnerer kroner som Int, men vi trenger øre
-        val utbetalingØre =
-            (
-                (
-                    beregnetØkonomi.personbeløp?.dagligInt
-                        ?: 0
-                ) * UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR
-            ).toLong()
-        val refusjonØre =
-            (
-                (
-                    beregnetØkonomi.arbeidsgiverbeløp?.dagligInt
-                        ?: 0
-                ) * UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR
-            ).toLong()
-
-        // Hent total grad som heltall (som Spleis)
-        val totalGrad = beregnetØkonomi.brukTotalGrad { it }
-
-        return DagUtbetalingsberegning(
-            dato = dag.dato,
-            utbetalingØre = utbetalingØre,
-            refusjonØre = refusjonØre,
-            totalGrad = totalGrad,
-        )
-    }
-
-    private fun opprettResultat(
-        yrkesaktiviteter: List<YrkesaktivitetMedDekningsgrad>,
-        dagBeregninger: Map<UUID, List<DagUtbetalingsberegning>>,
-    ): UtbetalingsberegningData {
-        val yrkesaktivitetUtbetalingsberegninger =
-            yrkesaktiviteter.map { yrkesaktivitet ->
-                val dager = dagBeregninger[yrkesaktivitet.yrkesaktivitet.id] ?: emptyList()
-                YrkesaktivitetUtbetalingsberegning(
-                    yrkesaktivitetId = yrkesaktivitet.yrkesaktivitet.id,
-                    dager = dager,
-                    dekningsgrad = yrkesaktivitet.dekningsgrad,
-                )
-            }
-
-        return UtbetalingsberegningData(yrkesaktivitetUtbetalingsberegninger)
-    }
-
-    private data class DagMedYrkesaktivitet(
-        val dag: Dag,
-        val yrkesaktivitet: YrkesaktivitetMedDekningsgrad,
-    )
 }
 
 private fun List<Dag>?.tilDagerNavOvertarAnsvar(): List<Periode> {

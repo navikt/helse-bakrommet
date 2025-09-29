@@ -45,13 +45,7 @@ class UtbetalingsBeregningHjelper(
             )
 
         // Utfør beregning
-        val beregningData =
-            if (_brukSpleisBeregning) {
-                TODO()
-                // UtbetalingsberegningLogikk.beregnAlaSpleis(beregningInput)
-            } else {
-                UtbetalingsberegningLogikk.beregn(beregningInput)
-            }
+        val beregningData = BeregningData(UtbetalingsberegningLogikk.beregnAlaSpleis(beregningInput))
 
         // Opprett response
         val beregningResponse =

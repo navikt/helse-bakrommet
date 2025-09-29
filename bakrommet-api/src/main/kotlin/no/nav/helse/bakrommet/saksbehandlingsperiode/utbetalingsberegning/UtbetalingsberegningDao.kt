@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -19,7 +20,7 @@ class UtbetalingsberegningDao private constructor(private val db: QueryRunner) {
         beregning: BeregningResponse,
         saksbehandler: Bruker,
     ): BeregningResponse {
-        val beregningJson = objectMapper.writeValueAsString(beregning.beregningData)
+        val beregningJson = objectMapper.writeValueAsString(beregning.beregningData.tilBeregningDataUtDto())
 
         // Sjekk om det finnes fra før
         val eksisterende = hentBeregning(saksbehandlingsperiodeId)
@@ -80,15 +81,52 @@ class UtbetalingsberegningDao private constructor(private val db: QueryRunner) {
 
     private fun beregningFraRow(row: Row): BeregningResponse {
         val beregningJson = row.string("utbetalingsberegning_data")
-        val beregningData = objectMapper.readValue(beregningJson, UtbetalingsberegningData::class.java)
+        val beregningData = objectMapper.readValue(beregningJson, BeregningDataInnDto::class.java)
 
         return BeregningResponse(
             id = row.uuid("id"),
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
-            beregningData = beregningData,
+            beregningData = beregningData.tilBeregningData(),
             opprettet = row.offsetDateTime("opprettet").toString(),
             opprettetAv = row.string("opprettet_av_nav_ident"),
             sistOppdatert = row.offsetDateTime("sist_oppdatert").toString(),
         )
     }
+}
+
+internal fun BeregningData.tilBeregningDataUtDto(): BeregningDataUtDto {
+    return BeregningDataUtDto(
+        yrkesaktiviteter =
+            yrkesaktiviteter.map {
+                YrkesaktivitetUtbetalingsberegningUtDto(
+                    yrkesaktivitetId = it.yrkesaktivitetId,
+                    utbetalingstidslinje = it.utbetalingstidslinje.dto(),
+                    dekningsgrad = it.dekningsgrad,
+                )
+            },
+    )
+}
+
+private fun BeregningDataInnDto.tilBeregningData(): BeregningData {
+    return BeregningData(
+        yrkesaktiviteter =
+            yrkesaktiviteter.map {
+                YrkesaktivitetUtbetalingsberegning(
+                    yrkesaktivitetId = it.yrkesaktivitetId,
+                    utbetalingstidslinje = Utbetalingstidslinje.gjenopprett(it.utbetalingstidslinje),
+                    dekningsgrad = it.dekningsgrad,
+                )
+            },
+    )
+}
+
+internal fun BeregningResponse.tilBeregningResponseUtDto(): BeregningResponseUtDto {
+    return BeregningResponseUtDto(
+        id = id,
+        saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+        beregningData = beregningData.tilBeregningDataUtDto(),
+        opprettet = opprettet,
+        opprettetAv = opprettetAv,
+        sistOppdatert = sistOppdatert,
+    )
 }

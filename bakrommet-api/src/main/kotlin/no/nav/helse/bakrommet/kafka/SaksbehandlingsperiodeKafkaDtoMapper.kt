@@ -6,7 +6,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
@@ -15,7 +14,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektsk
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.util.HashUtils
@@ -65,16 +63,11 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
 
         fun Yrkesaktivitet.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto {
-            val beregningForYrkesaktivitet =
-                beregning
-                    ?.beregningData
-                    ?.yrkesaktiviteter
-                    ?.singleOrNull { it.yrkesaktivitetId == id }
-
             return YrkesaktivitetKafkaDto(
                 id = id,
                 kategorisering = kategorisering,
-                dagoversikt = dagoversikt?.map { it.tilDagKafkaDto(beregningForYrkesaktivitet) },
+                dagoversikt = emptyList(),
+                // TODO
             )
         }
 
@@ -100,19 +93,6 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         return KafkaMelding(hash, saksbehandlingsperiodeKafkaDto.serialisertTilString())
     }
 }
-
-private fun Dag.tilDagKafkaDto(beregning: YrkesaktivitetUtbetalingsberegning?): DagKafkaDto =
-    DagKafkaDto(
-        dato = dato,
-        dagtype = dagtype,
-        refusjonØre = beregning?.dager?.singleOrNull { it.dato == this.dato }?.refusjonØre?.toInt(),
-        utbetalingØre = beregning?.dager?.singleOrNull { it.dato == this.dato }?.utbetalingØre?.toInt(),
-        totalGrad = beregning?.dager?.singleOrNull { it.dato == this.dato }?.totalGrad,
-        grad = this.grad,
-        avslåttBegrunnelse = this.avslåttBegrunnelse,
-        andreYtelserBegrunnelse = this.andreYtelserBegrunnelse,
-        kilde = this.kilde,
-    )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class DagKafkaDto(

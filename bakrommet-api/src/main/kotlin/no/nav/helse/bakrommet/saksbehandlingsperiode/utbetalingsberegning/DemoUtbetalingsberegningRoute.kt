@@ -19,10 +19,11 @@ internal fun Route.demoUtbetalingsberegningRoute() {
             try {
                 // Parse input til objekt
                 val input = objectMapper.readValue(rawInput, UtbetalingsberegningInput::class.java)
-                val beregningData = UtbetalingsberegningLogikk.beregn(input)
+                val beregningData = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+                val beregningDataDto = BeregningData(beregningData).tilBeregningDataUtDto()
 
                 call.respondText(
-                    beregningData.serialisertTilString(),
+                    beregningDataDto.serialisertTilString(),
                     ContentType.Application.Json,
                     HttpStatusCode.OK,
                 )

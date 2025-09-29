@@ -3,9 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.util.toJsonNode
-import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.*
@@ -85,18 +83,8 @@ class UtbetalingViaSpleisKodeTest {
                 saksbehandlingsperiode = saksbehandlingsperiode,
             )
 
-        val resultat = UtbetalingsberegningLogikk.beregn(input)
-
-        // println(resultat.toJsonNode().toPrettyString())
-
         val res2 = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
 
         println(res2.toJsonNode().toPrettyString())
-    }
-}
-
-fun List<Pair<Yrkesaktivitet, Utbetalingstidslinje>>.plottTabell() {
-    this.forEach { (ya, linje) ->
-        TODO()
     }
 }

@@ -3,6 +3,9 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.dto.ProsentdelDto
+import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
+import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
+import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.time.LocalDate
 import java.util.UUID
 
@@ -28,10 +31,6 @@ data class Saksbehandlingsperiode(
     val tom: LocalDate,
 )
 
-data class UtbetalingsberegningData(
-    val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegning>,
-)
-
 data class Sporbar<T>(
     val verdi: T,
     val sporing: Beregningssporing,
@@ -39,21 +38,47 @@ data class Sporbar<T>(
 
 data class YrkesaktivitetUtbetalingsberegning(
     val yrkesaktivitetId: UUID,
-    val dager: List<DagUtbetalingsberegning>,
+    val utbetalingstidslinje: Utbetalingstidslinje,
     val dekningsgrad: Sporbar<ProsentdelDto>?,
 )
 
-data class DagUtbetalingsberegning(
-    val dato: LocalDate,
-    val utbetalingØre: Long,
-    val refusjonØre: Long,
-    val totalGrad: Int,
+data class YrkesaktivitetUtbetalingsberegningUtDto(
+    val yrkesaktivitetId: UUID,
+    val utbetalingstidslinje: UtbetalingstidslinjeUtDto,
+    val dekningsgrad: Sporbar<ProsentdelDto>?,
+)
+
+data class YrkesaktivitetUtbetalingsberegningInnDto(
+    val yrkesaktivitetId: UUID,
+    val utbetalingstidslinje: UtbetalingstidslinjeInnDto,
+    val dekningsgrad: Sporbar<ProsentdelDto>?,
+)
+
+data class BeregningData(
+    val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegning>,
+)
+
+data class BeregningDataUtDto(
+    val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegningUtDto>,
+)
+
+data class BeregningDataInnDto(
+    val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegningInnDto>,
 )
 
 data class BeregningResponse(
     val id: UUID,
     val saksbehandlingsperiodeId: UUID,
-    val beregningData: UtbetalingsberegningData,
+    val beregningData: BeregningData,
+    val opprettet: String,
+    val opprettetAv: String,
+    val sistOppdatert: String,
+)
+
+data class BeregningResponseUtDto(
+    val id: UUID,
+    val saksbehandlingsperiodeId: UUID,
+    val beregningData: BeregningDataUtDto,
     val opprettet: String,
     val opprettetAv: String,
     val sistOppdatert: String,

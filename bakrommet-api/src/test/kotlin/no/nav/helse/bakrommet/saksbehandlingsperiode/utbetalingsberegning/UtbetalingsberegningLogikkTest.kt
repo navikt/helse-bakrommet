@@ -74,25 +74,31 @@ class UtbetalingsberegningLogikkTest {
                 saksbehandlingsperiode = saksbehandlingsperiode,
             )
 
-        val resultat = UtbetalingsberegningLogikk.beregn(input)
+        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
 
-        assertEquals(1, resultat.yrkesaktiviteter.size)
-        val yrkesaktivitetResultat = resultat.yrkesaktiviteter.first()
+        assertEquals(1, resultat.size)
+        val yrkesaktivitetResultat = resultat.first()
         assertEquals(yrkesaktivitetId, yrkesaktivitetResultat.yrkesaktivitetId)
 
         // Vi skal ha 31 dager (hele januar)
-        assertEquals(31, yrkesaktivitetResultat.dager.size)
+        assertEquals(31, yrkesaktivitetResultat.utbetalingstidslinje.size)
 
         // Sjekk at sykedagene har refusjon
-        val sykedag1 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 1, 1) }
+        val sykedag1 = yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 1) }
         assertNotNull(sykedag1)
-        assertEquals(100, sykedag1.totalGrad)
-        assertTrue(sykedag1.refusjonØre > 0, "Sykedag skal ha refusjon")
+        assertEquals(100, sykedag1.økonomi.brukTotalGrad { it })
+        assertTrue(
+            sykedag1.økonomi.arbeidsgiverbeløp != null && sykedag1.økonomi.arbeidsgiverbeløp!!.dagligInt > 0,
+            "Sykedag skal ha refusjon",
+        )
 
-        val sykedag2 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 1, 2) }
+        val sykedag2 = yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 2) }
         assertNotNull(sykedag2)
-        assertEquals(100, sykedag2.totalGrad)
-        assertTrue(sykedag2.refusjonØre > 0, "Sykedag skal ha refusjon")
+        assertEquals(100, sykedag2.økonomi.brukTotalGrad { it })
+        assertTrue(
+            sykedag2.økonomi.arbeidsgiverbeløp != null && sykedag2.økonomi.arbeidsgiverbeløp!!.dagligInt > 0,
+            "Sykedag skal ha refusjon",
+        )
     }
 
     @Test
@@ -166,30 +172,37 @@ class UtbetalingsberegningLogikkTest {
                 saksbehandlingsperiode = saksbehandlingsperiode,
             )
 
-        val resultat = UtbetalingsberegningLogikk.beregn(input)
+        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
 
         // println(resultat)
 
-        // UtbetalingsberegningLogikk.beregnAlaSpleis(input)
-
-        assertEquals(1, resultat.yrkesaktiviteter.size)
-        val yrkesaktivitetResultat = resultat.yrkesaktiviteter.first()
+        assertEquals(1, resultat.size)
+        val yrkesaktivitetResultat = resultat.first()
 
         // Vi skal ha 91 dager (jan-mars 2024)
-        assertEquals(91, yrkesaktivitetResultat.dager.size)
+        assertEquals(91, yrkesaktivitetResultat.utbetalingstidslinje.size)
 
         // Sjekk at alle sykedagene har refusjon
-        val sykedag1 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 1, 10) }
+        val sykedag1 = yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 10) }
         assertNotNull(sykedag1)
-        assertTrue(sykedag1.refusjonØre > 0, "Dag i lukket refusjonsperiode skal ha refusjon")
+        assertTrue(
+            sykedag1.økonomi.arbeidsgiverbeløp != null && sykedag1.økonomi.arbeidsgiverbeløp!!.dagligInt > 0,
+            "Dag i lukket refusjonsperiode skal ha refusjon",
+        )
 
-        val sykedag2 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 2, 10) }
+        val sykedag2 = yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 2, 10) }
         assertNotNull(sykedag2)
-        assertTrue(sykedag2.refusjonØre > 0, "Dag i åpen refusjonsperiode skal ha refusjon")
+        assertTrue(
+            sykedag2.økonomi.arbeidsgiverbeløp != null && sykedag2.økonomi.arbeidsgiverbeløp!!.dagligInt > 0,
+            "Dag i åpen refusjonsperiode skal ha refusjon",
+        )
 
-        val sykedag3 = yrkesaktivitetResultat.dager.find { it.dato == LocalDate.of(2024, 3, 10) }
+        val sykedag3 = yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 3, 10) }
         assertNotNull(sykedag3)
-        assertTrue(sykedag3.refusjonØre > 0, "Dag i åpen refusjonsperiode skal ha refusjon")
+        assertTrue(
+            sykedag3.økonomi.arbeidsgiverbeløp != null && sykedag3.økonomi.arbeidsgiverbeløp!!.dagligInt > 0,
+            "Dag i åpen refusjonsperiode skal ha refusjon",
+        )
     }
 
     private fun lagSykepengegrunnlag(
