@@ -304,26 +304,7 @@ class SkapDagerFraSoknaderTest {
         assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype) // Søndag - skal være helg
     }
 
-    @Test
-    fun `leser inn ventetid`() {
-        val fom = LocalDate.of(2024, 1, 1)
-        val tom = LocalDate.of(2024, 1, 7)
 
-        val søknad =
-            lagSøknad(
-                fom = fom,
-                tom = tom,
-                ventetid = fom to fom.plusDays(3),
-            )
-
-        val resultat = skapDagoversiktFraSoknader(listOf(søknad), fom, tom)
-
-        assertEquals(7, resultat.size)
-        assertEquals(Dagtype.Ventetid, resultat[0].dagtype) // Lørdag
-        assertEquals(Dagtype.Ventetid, resultat[1].dagtype) // Søndag
-        assertEquals(Dagtype.Ventetid, resultat[3].dagtype) // Søndag
-        assertEquals(Dagtype.Syk, resultat[4].dagtype) // Søndag
-    }
 }
 
 private fun lagSøknad(

@@ -65,14 +65,8 @@ private fun oppdaterDagerMedSøknadsdata(
     }
 
     // Legg til ventetid fra selvstendig næringsdrivende
-    søknad.selvstendigNaringsdrivende?.ventetid?.let { ventetid ->
-        oppdaterDagerIIntervall(
-            dagerMap,
-            ventetid.fom,
-            ventetid.tom,
-            Dagtype.Ventetid,
-        )
-    }
+    // TODO ventetid skal være metadata i yrkesaktiviteten
+
 
     // Håndter arbeidGjenopptatt - sett alle dager fra og med denne til arbeidsdager (med mindre det er helg)
     søknad.arbeidGjenopptatt?.let { arbeidGjenopptattDato ->

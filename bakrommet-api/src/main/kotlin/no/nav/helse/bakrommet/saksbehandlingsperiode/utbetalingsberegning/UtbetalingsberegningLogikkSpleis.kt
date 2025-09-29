@@ -4,27 +4,36 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Hendelseskilde
+import no.nav.helse.sykdomstidslinje.Dag.ArbeidIkkeGjenopptattDag
+import no.nav.helse.sykdomstidslinje.Dag.Arbeidsdag
+import no.nav.helse.sykdomstidslinje.Dag.ArbeidsgiverHelgedag
+import no.nav.helse.sykdomstidslinje.Dag.Arbeidsgiverdag
+import no.nav.helse.sykdomstidslinje.Dag.Feriedag
+import no.nav.helse.sykdomstidslinje.Dag.ForeldetSykedag
+import no.nav.helse.sykdomstidslinje.Dag.FriskHelgedag
+import no.nav.helse.sykdomstidslinje.Dag.SykHelgedag
+import no.nav.helse.sykdomstidslinje.Dag.Sykedag
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
 import no.nav.helse.økonomi.Prosentdel
 import java.time.LocalDate
 import kotlin.collections.List
 
-internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
-    val kilde_HARDKODET = Hendelseskilde.INGEN
+val kilde_HARDKODET = Hendelseskilde.INGEN
+val annenytelse_HARDKODET = no.nav.helse.sykdomstidslinje.Dag.AndreYtelser.AnnenYtelse.Foreldrepenger
 
-    var syk_TMP = false
+internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
+    // TODO TMP
+    var syk = false
 
     fun syk() {
-        syk_TMP = true
+        syk = true
     }
 
     fun frisk() {
-        syk_TMP = false
+        syk = false
     }
 
-    fun erSyk() = syk_TMP
-
-    val annenytelse_HARDKODET = no.nav.helse.sykdomstidslinje.Dag.AndreYtelser.AnnenYtelse.Foreldrepenger
+    fun erSyk() = syk
 
     fun Int.somProsentdel() = Prosentdel.gjenopprett(ProsentdelDto(this.toDouble() / 100))
 
@@ -39,13 +48,13 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
                 Dagtype.SykNav,
                 ->
                     if (spilleromDag.dato.erAGP()) {
-                        no.nav.helse.sykdomstidslinje.Dag.Arbeidsgiverdag(
+                        Arbeidsgiverdag(
                             dato = spilleromDag.dato,
                             grad = spilleromDag.grad!!.somProsentdel(),
                             kilde = kilde_HARDKODET,
                         )
                     } else {
-                        no.nav.helse.sykdomstidslinje.Dag.Sykedag(
+                        Sykedag(
                             dato = spilleromDag.dato,
                             grad = spilleromDag.grad!!.somProsentdel(),
                             kilde = kilde_HARDKODET,
@@ -53,7 +62,7 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
                     }.also { syk() }
 
                 Dagtype.Arbeidsdag ->
-                    no.nav.helse.sykdomstidslinje.Dag.Arbeidsdag(
+                    Arbeidsdag(
                         dato = spilleromDag.dato,
                         kilde = kilde_HARDKODET,
                     ).also { frisk() }
@@ -61,27 +70,27 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
                 Dagtype.Helg ->
                     if (erSyk()) {
                         if (spilleromDag.dato.erAGP()) {
-                            no.nav.helse.sykdomstidslinje.Dag.ArbeidsgiverHelgedag(
+                            ArbeidsgiverHelgedag(
                                 dato = spilleromDag.dato,
                                 grad = spilleromDag.grad!!.somProsentdel(),
                                 kilde = kilde_HARDKODET,
                             )
                         } else {
-                            no.nav.helse.sykdomstidslinje.Dag.SykHelgedag(
+                            SykHelgedag(
                                 dato = spilleromDag.dato,
                                 grad = spilleromDag.grad!!.somProsentdel(),
                                 kilde = kilde_HARDKODET,
                             )
                         }
                     } else {
-                        no.nav.helse.sykdomstidslinje.Dag.FriskHelgedag(
+                        FriskHelgedag(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,
                         )
                     }
 
                 Dagtype.Ferie ->
-                    no.nav.helse.sykdomstidslinje.Dag.Feriedag(
+                    Feriedag(
                         dato = spilleromDag.dato,
                         kilde = kilde_HARDKODET,
                     ).also { frisk() }
@@ -95,13 +104,15 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
                 Dagtype.Avslått ->
                     if (spilleromDag.dato.erForeldet()) {
                         // TODO: Flere enn ForeldetSykedag + ArbeidIkkeGjenopptattDag ??
-                        no.nav.helse.sykdomstidslinje.Dag.ForeldetSykedag(
+                        ForeldetSykedag(
                             dato = spilleromDag.dato,
                             grad = spilleromDag.grad!!.somProsentdel(),
                             kilde = kilde_HARDKODET,
                         )
                     } else {
-                        no.nav.helse.sykdomstidslinje.Dag.ArbeidIkkeGjenopptattDag(
+                        // TODO eller bruke en felles avslått-dag i Sykdomstidslinje?
+                        // TODO eller bare ikke ha dagen i tidslinjen?
+                        ArbeidIkkeGjenopptattDag(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,
                         )
@@ -113,8 +124,6 @@ internal fun List<Dag>.tilSykdomstidslinje(): Sykdomstidslinje {
                         kilde = kilde_HARDKODET,
                         ytelse = annenytelse_HARDKODET,
                     )
-
-                Dagtype.Ventetid -> throw IllegalArgumentException("Ventetid bør være metadata?")
             }.let { spleisDag ->
                 spilleromDag.dato to spleisDag
             }

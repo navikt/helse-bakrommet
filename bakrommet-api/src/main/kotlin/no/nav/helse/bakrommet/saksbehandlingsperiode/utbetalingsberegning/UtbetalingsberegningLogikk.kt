@@ -87,14 +87,16 @@ object UtbetalingsberegningLogikk {
                     )
 
                 val utbetalingstidslinje: Utbetalingstidslinje = builder.result(sykdomstidslinje)
-                // Hmmm..... Hvor skjer sammenslåing/fordeling (?)
+                /* Hmmm..... Hvor skjer sammenslåing/fordeling (?)
 
-                /*YrkesaktivitetUtbetalingsberegning(
+                YrkesaktivitetUtbetalingsberegning(
                     yrkesaktivitetId = UUID(), dager = listOf(), dekningsgrad = null
 
-                )*/
+                )
                 // println(utbetalingstidslinje.toJsonNode().toPrettyString())
                 // println(utbetalingstidslinje)
+
+                 */
                 utbetalingstidslinje
             }.let {
                 Utbetalingstidslinje.totalSykdomsgrad(it)
