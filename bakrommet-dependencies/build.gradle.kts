@@ -53,7 +53,7 @@ dependencies {
         api("no.nav.security:mock-oauth2-server:2.3.0")
 
         // NAV dependencies
-        api("no.nav.helse.flex:sykepengesoknad-kafka:2025.09.09-07.30-baf456bb")
+        api("no.nav.helse.flex:sykepengesoknad-kafka:2025.09.23-17.33-5e6b02b6")
         api("com.github.navikt.spleis:sykepenger-okonomi:2025.09.05-14.51-15db36a7")
     }
 }
