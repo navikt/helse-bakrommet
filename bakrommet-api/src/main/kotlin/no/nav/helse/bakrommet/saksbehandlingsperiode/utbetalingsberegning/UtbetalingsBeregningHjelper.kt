@@ -7,6 +7,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.utbetalingslinjer.Klassekode
+import no.nav.helse.utbetalingslinjer.UtbetalingkladdBuilder
 import java.time.LocalDateTime
 import java.util.*
 
@@ -45,7 +47,12 @@ class UtbetalingsBeregningHjelper(
             )
 
         // Utfør beregning
-        val beregningData = BeregningData(UtbetalingsberegningLogikk.beregnAlaSpleis(beregningInput))
+        val beregnet = UtbetalingsberegningLogikk.beregnAlaSpleis(beregningInput)
+
+        // Bygg oppdrag for hver yrkesaktivitet
+        val oppdrag = byggOppdragFraBeregning(beregnet)
+
+        val beregningData = BeregningData(beregnet, oppdrag)
 
         // Opprett response
         val beregningResponse =
@@ -63,9 +70,33 @@ class UtbetalingsBeregningHjelper(
             beregningResponse,
             saksbehandler,
         )
-
-        val hentet = beregningDao.hentBeregning(referanse.periodeUUID)
-        print("efgg")
-        requireNotNull(hentet) { "Kunne ikke hente lagret beregning" }
     }
+}
+
+/**
+ * Bygger oppdrag fra en liste av yrkesaktivitet-beregninger
+ */
+fun byggOppdragFraBeregning(beregnet: List<YrkesaktivitetUtbetalingsberegning>): List<no.nav.helse.utbetalingslinjer.Oppdrag> {
+    val oppdrag = mutableListOf<no.nav.helse.utbetalingslinjer.Oppdrag>()
+
+    beregnet.forEach { yrkesaktivitetBeregning ->
+        // TODO: Hent riktig mottaker og klassekode basert på yrkesaktivitet
+        val mottakerRefusjon = "TODO" // Hent fra yrkesaktivitet
+        val mottakerBruker = "TODO" // Hent fra yrkesaktivitet
+        val klassekodeBruker = Klassekode.SykepengerArbeidstakerOrdinær
+
+        val utbetalingkladdBuilder =
+            UtbetalingkladdBuilder(
+                tidslinje = yrkesaktivitetBeregning.utbetalingstidslinje,
+                mottakerRefusjon = mottakerRefusjon,
+                mottakerBruker = mottakerBruker,
+                klassekodeBruker = klassekodeBruker,
+            )
+
+        val utbetalingkladd = utbetalingkladdBuilder.build()
+        oppdrag.add(utbetalingkladd.arbeidsgiveroppdrag)
+        oppdrag.add(utbetalingkladd.personoppdrag)
+    }
+
+    return oppdrag
 }

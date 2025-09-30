@@ -3,8 +3,11 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.dto.ProsentdelDto
+import no.nav.helse.dto.deserialisering.OppdragInnDto
 import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
+import no.nav.helse.dto.serialisering.OppdragUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
+import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.time.LocalDate
 import java.util.UUID
@@ -56,14 +59,17 @@ data class YrkesaktivitetUtbetalingsberegningInnDto(
 
 data class BeregningData(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegning>,
+    val oppdrag: List<Oppdrag> = emptyList(),
 )
 
 data class BeregningDataUtDto(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegningUtDto>,
+    val oppdrag: List<OppdragUtDto> = emptyList(),
 )
 
 data class BeregningDataInnDto(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegningInnDto>,
+    val oppdrag: List<OppdragInnDto> = emptyList(),
 )
 
 data class BeregningResponse(

@@ -9,12 +9,17 @@ import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.dto.InntektDto
 import no.nav.helse.dto.InntektbeløpDto
+import no.nav.helse.dto.deserialisering.OppdragInnDto
 import no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
+import no.nav.helse.dto.deserialisering.UtbetalingslinjeInnDto
 import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
 import no.nav.helse.dto.deserialisering.ØkonomiInnDto
+import no.nav.helse.dto.serialisering.OppdragUtDto
 import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
+import no.nav.helse.dto.serialisering.UtbetalingslinjeUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.dto.serialisering.ØkonomiUtDto
+import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
 import javax.sql.DataSource
@@ -115,6 +120,7 @@ internal fun BeregningData.tilBeregningDataUtDto(): BeregningDataUtDto {
                     dekningsgrad = it.dekningsgrad,
                 )
             },
+        oppdrag = oppdrag.map { it.dto() },
     )
 }
 
@@ -128,6 +134,7 @@ private fun BeregningDataInnDto.tilBeregningData(): BeregningData {
                     dekningsgrad = it.dekningsgrad,
                 )
             },
+        oppdrag = oppdrag.map { Oppdrag.gjenopprett(it) },
     )
 }
 
@@ -197,5 +204,38 @@ private fun YrkesaktivitetUtbetalingsberegningUtDto.tilYrkesaktivitetUtbetalings
 private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto {
     return BeregningDataInnDto(
         yrkesaktiviteter = yrkesaktiviteter.map { it.tilYrkesaktivitetUtbetalingsberegningInnDto() },
+        oppdrag = oppdrag.map { it.tilOppdragInnDto() },
+    )
+}
+
+private fun OppdragUtDto.tilOppdragInnDto(): OppdragInnDto {
+    return OppdragInnDto(
+        mottaker = mottaker,
+        fagområde = fagområde,
+        linjer = linjer.map { it.tilUtbetalingslinjeInnDto() },
+        fagsystemId = fagsystemId,
+        endringskode = endringskode,
+        nettoBeløp = nettoBeløp,
+        overføringstidspunkt = overføringstidspunkt,
+        avstemmingsnøkkel = avstemmingsnøkkel,
+        status = status,
+        tidsstempel = tidsstempel,
+        erSimulert = erSimulert,
+        simuleringsResultat = simuleringsResultat,
+    )
+}
+
+private fun UtbetalingslinjeUtDto.tilUtbetalingslinjeInnDto(): UtbetalingslinjeInnDto {
+    return UtbetalingslinjeInnDto(
+        fom = fom,
+        tom = tom,
+        beløp = beløp,
+        grad = grad,
+        refFagsystemId = refFagsystemId,
+        delytelseId = delytelseId,
+        refDelytelseId = refDelytelseId,
+        endringskode = endringskode,
+        klassekode = klassekode,
+        datoStatusFom = datoStatusFom,
     )
 }

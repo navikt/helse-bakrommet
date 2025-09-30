@@ -3,7 +3,6 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
@@ -25,11 +24,6 @@ import java.util.UUID
  * Alle funksjoner er stateless og har ingen sideeffekter
  */
 object UtbetalingsberegningLogikk {
-    data class YrkesaktivitetMedDekningsgrad(
-        val yrkesaktivitet: Yrkesaktivitet,
-        val dekningsgrad: Sporbar<ProsentdelDto>?,
-    )
-
     fun beregnAlaSpleis(input: UtbetalingsberegningInput): List<YrkesaktivitetUtbetalingsberegning> {
         val refusjonstidslinjer = opprettRefusjonstidslinjer(input)
 
