@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
@@ -12,6 +13,7 @@ import no.nav.helse.person.beløp.Beløpsdag
 import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.person.beløp.Kilde
 import no.nav.helse.utbetalingstidslinje.ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode
+import no.nav.helse.utbetalingstidslinje.InaktivUtbetalingstidslinjeBuilder
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Prosentdel
@@ -60,20 +62,33 @@ object UtbetalingsberegningLogikk {
                 val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, ya.id)
                 val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO Dette er tilkommen inntekt?
 
-                // TODO annen builder for næringsdrivende
-                // TODO sporbar dekningsgrad
-                val builder =
-                    ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
+                fun lagUtbetalingstidslinje(): Utbetalingstidslinje {
+                    val dekningsgrad = ya.hentDekningsgrad()
+
+                    if (ya.kategorisering["INNTEKTSKATEGORI"] == "INAKTIV")
+                        {
+                            return InaktivUtbetalingstidslinjeBuilder(
+                                // TODO : Sporbar dekningsgrad
+                                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                                dekningsgrad = dekningsgrad.verdi.tilProsentdel(),
+                                inntektjusteringer = inntektjusteringer,
+                                venteperiode = emptyList(),
+                            ).result(sykdomstidslinje)
+                        }
+
+                    // TODO annen builder for næringsdrivende
+                    // TODO sporbar dekningsgrad
+                    return ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
                         // TODO : Dekningsgrad er hardkodet til 100% inni Buildern (i og med "Arbeidstaker...Builder")
                         arbeidsgiverperiode = arbeidsgiverperiode,
                         dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
                         refusjonstidslinje = refusjonstidslinje,
                         fastsattÅrsinntekt = fastsattÅrsinntekt,
                         inntektjusteringer = inntektjusteringer,
-                    )
+                    ).result(sykdomstidslinje)
+                }
 
-                val utbetalingstidslinje: Utbetalingstidslinje = builder.result(sykdomstidslinje)
-                utbetalingstidslinje
+                lagUtbetalingstidslinje()
             }.let { utbetalingstidslinjer ->
                 // Først beregn total sykdomsgrad på tvers av alle yrkesaktiviteter, dag for dag
                 Utbetalingstidslinje.totalSykdomsgrad(utbetalingstidslinjer)
@@ -203,7 +218,6 @@ private fun List<Dag>?.tilDagerNavOvertarAnsvar(): List<Periode> {
     return perioder
 }
 
-fun ProsentdelDto?.tilProsentdel(): Prosentdel? {
-    if (this == null) return null
+fun ProsentdelDto.tilProsentdel(): Prosentdel {
     return Prosentdel.gjenopprett(this)
 }
