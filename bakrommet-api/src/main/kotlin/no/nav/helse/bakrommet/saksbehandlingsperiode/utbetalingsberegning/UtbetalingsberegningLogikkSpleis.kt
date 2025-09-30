@@ -16,6 +16,7 @@ import no.nav.helse.sykdomstidslinje.Dag.SykHelgedag
 import no.nav.helse.sykdomstidslinje.Dag.Sykedag
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
 import no.nav.helse.økonomi.Prosentdel
+import no.nav.helse.økonomi.Prosentdel.Companion.NullProsent
 import java.time.LocalDate
 import kotlin.collections.List
 
@@ -73,13 +74,13 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                         if (spilleromDag.dato.erAGP()) {
                             ArbeidsgiverHelgedag(
                                 dato = spilleromDag.dato,
-                                grad = spilleromDag.grad!!.somProsentdel(),
+                                grad = spilleromDag.grad?.somProsentdel() ?: NullProsent,
                                 kilde = kilde_HARDKODET,
                             )
                         } else {
                             SykHelgedag(
                                 dato = spilleromDag.dato,
-                                grad = spilleromDag.grad!!.somProsentdel(),
+                                grad = spilleromDag.grad?.somProsentdel() ?: NullProsent,
                                 kilde = kilde_HARDKODET,
                             )
                         }
