@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
 import no.nav.helse.bakrommet.kafka.leggTilOutbox
 import no.nav.helse.bakrommet.person.SpilleromPersonId
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
@@ -44,9 +45,11 @@ class SaksbehandlingsperiodeService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
+    fun hentAlleSaksbehandlingsperioder() =
+        db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
 
-    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) =
+        db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -68,47 +71,6 @@ class SaksbehandlingsperiodeService(
                 skjæringstidspunkt = fom,
             )
 
-        db.transactional {
-            val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
-
-            if (perioder.any { it.fom <= tom && it.tom >= fom }) {
-                throw InputValideringException("Angitte datoer overlapper med en eksisterende periode")
-            }
-
-            val tidligerePeriodeInntilNyPeriode =
-                perioder
-                    .find { it.tom.plusDays(1).isEqual(fom) }
-
-            if (tidligerePeriodeInntilNyPeriode != null) {
-                sykepengegrunnlagDao.hentSykepengegrunnlag(tidligerePeriodeInntilNyPeriode.id)?.let {
-                    sykepengegrunnlagDao.settSykepengegrunnlag(
-                        saksbehandlingsperiodeId = nyPeriode.id,
-                        beregning =
-                            it.copy(
-                                id = UUID.randomUUID(),
-                                saksbehandlingsperiodeId = nyPeriode.id,
-                                opprettet = LocalDateTime.now().toString(),
-                                opprettetAv = saksbehandler.bruker.navIdent,
-                                sistOppdatert = LocalDateTime.now().toString(),
-                            ),
-                        saksbehandler = saksbehandler.bruker,
-                    )
-                }
-                nyPeriode =
-                    nyPeriode.copy(
-                        skjæringstidspunkt = tidligerePeriodeInntilNyPeriode.skjæringstidspunkt ?: fom,
-                    )
-            }
-
-            saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
-            saksbehandlingsperiodeEndringerDao.leggTilEndring(
-                nyPeriode.endring(
-                    endringType = SaksbehandlingsperiodeEndringType.STARTET,
-                    saksbehandler = saksbehandler.bruker,
-                ),
-            )
-            leggTilOutbox(nyPeriode)
-        }
         val søknader =
             if (søknader.isNotEmpty()) {
                 dokumentHenter.hentOgLagreSøknader(
@@ -119,10 +81,52 @@ class SaksbehandlingsperiodeService(
             } else {
                 emptyList()
             }
-        db.nonTransactional {
-            lagYrkesaktivitetFraSøknader(søknader, nyPeriode)
+
+        db.transactional {
+            val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
+
+            if (perioder.any { it.fom <= tom && it.tom >= fom }) {
+                throw InputValideringException("Angitte datoer overlapper med en eksisterende periode")
+            }
+
+            val tidligerePeriodeInntilNyPeriode = perioder.find { it.tom.plusDays(1).isEqual(fom) }
+
+            val tidligereYrkesaktiviteter = tidligerePeriodeInntilNyPeriode
+                ?.let { yrkesaktivitetDao.hentYrkesaktivitetFor(it) }
+                ?: emptyList()
+
+            tidligerePeriodeInntilNyPeriode?.let {
+                sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
+                    sykepengegrunnlagDao.settSykepengegrunnlag(
+                        saksbehandlingsperiodeId = nyPeriode.id,
+                        beregning = grunnlag.copy(
+                            id = UUID.randomUUID(),
+                            saksbehandlingsperiodeId = nyPeriode.id,
+                            opprettet = LocalDateTime.now().toString(),
+                            opprettetAv = saksbehandler.bruker.navIdent,
+                            sistOppdatert = LocalDateTime.now().toString(),
+                        ),
+                        saksbehandler = saksbehandler.bruker,
+                    )
+                }
+                nyPeriode = nyPeriode.copy(
+                    skjæringstidspunkt = it.skjæringstidspunkt ?: fom,
+                )
+            }
+
+            lagYrkesaktiviteter(søknader, nyPeriode, tidligereYrkesaktiviteter)
                 .forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
+
+            saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+            saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                nyPeriode.endring(
+                    endringType = SaksbehandlingsperiodeEndringType.STARTET,
+                    saksbehandler = saksbehandler.bruker,
+                ),
+            )
+            leggTilOutbox(nyPeriode)
         }
+
         return nyPeriode
     }
 
@@ -328,6 +332,43 @@ fun lagYrkesaktivitetFraSøknader(
                 saksbehandlingsperiode.tom,
             )
         Yrkesaktivitet(
+            id = UUID.randomUUID(),
+            kategorisering = kategorisering,
+            kategoriseringGenerert = kategorisering,
+            dagoversikt = dagoversikt,
+            dagoversiktGenerert = dagoversikt,
+            saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+            opprettet = OffsetDateTime.now(),
+            generertFraDokumenter = dok.map { it.id },
+            arbeidsgiverperioder = null,
+            venteperioder = null,
+        )
+    }
+}
+
+fun lagYrkesaktiviteter(
+    sykepengesoknader: Iterable<Dokument>,
+    saksbehandlingsperiode: Saksbehandlingsperiode,
+    tidligereYrkesaktiviteter: List<Yrkesaktivitet>,
+): List<Yrkesaktivitet> {
+    val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
+    val kategorierOgSøknader = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
+
+    return kategorierOgSøknader.map { (kategorisering, dok) ->
+        val dagoversikt = skapDagoversiktFraSoknader(
+            dok.map { it.somSøknad() },
+            saksbehandlingsperiode.fom,
+            saksbehandlingsperiode.tom,
+        )
+
+        val tidligere = tidligereMap[kategorisering]
+        tidligere?.copy(
+            dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
+            dagoversiktGenerert = null,
+            generertFraDokumenter = emptyList(),
+            saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+            opprettet = OffsetDateTime.now(),
+        ) ?: Yrkesaktivitet(
             id = UUID.randomUUID(),
             kategorisering = kategorisering,
             kategoriseringGenerert = kategorisering,
