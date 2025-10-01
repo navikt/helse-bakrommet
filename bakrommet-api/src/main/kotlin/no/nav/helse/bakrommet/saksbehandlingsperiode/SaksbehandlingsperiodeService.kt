@@ -69,7 +69,7 @@ class SaksbehandlingsperiodeService(
                 skjæringstidspunkt = fom,
             )
 
-        var tidligereYrkesaktiviteter: List<Yrkesaktivitet> = emptyList()
+        var tidligerePeriodeInntilNyPeriode: Saksbehandlingsperiode? = null
 
         db.transactional {
             val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
@@ -78,11 +78,25 @@ class SaksbehandlingsperiodeService(
                 throw InputValideringException("Angitte datoer overlapper med en eksisterende periode")
             }
 
-            val tidligerePeriodeInntilNyPeriode = perioder.find { it.tom.plusDays(1).isEqual(fom) }
+            tidligerePeriodeInntilNyPeriode = perioder.find { it.tom.plusDays(1).isEqual(fom) }
 
-            tidligereYrkesaktiviteter = tidligerePeriodeInntilNyPeriode
-                ?.let { yrkesaktivitetDao.hentYrkesaktivitetFor(it) }
-                ?: emptyList()
+            tidligerePeriodeInntilNyPeriode?.let {
+                nyPeriode =
+                    nyPeriode.copy(
+                        skjæringstidspunkt = it.skjæringstidspunkt ?: fom,
+                    )
+            }
+
+            saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+            saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                nyPeriode.endring(
+                    endringType = SaksbehandlingsperiodeEndringType.STARTET,
+                    saksbehandler = saksbehandler.bruker,
+                ),
+            )
+            leggTilOutbox(nyPeriode)
+
+
 
             tidligerePeriodeInntilNyPeriode?.let {
                 sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
@@ -99,20 +113,7 @@ class SaksbehandlingsperiodeService(
                         saksbehandler = saksbehandler.bruker,
                     )
                 }
-                nyPeriode =
-                    nyPeriode.copy(
-                        skjæringstidspunkt = it.skjæringstidspunkt ?: fom,
-                    )
             }
-
-            saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
-            saksbehandlingsperiodeEndringerDao.leggTilEndring(
-                nyPeriode.endring(
-                    endringType = SaksbehandlingsperiodeEndringType.STARTET,
-                    saksbehandler = saksbehandler.bruker,
-                ),
-            )
-            leggTilOutbox(nyPeriode)
         }
 
         val søknader =
@@ -127,6 +128,9 @@ class SaksbehandlingsperiodeService(
             }
 
         db.nonTransactional {
+            val tidligereYrkesaktiviteter = tidligerePeriodeInntilNyPeriode
+                ?.let { yrkesaktivitetDao.hentYrkesaktivitetFor(it) }
+                ?: emptyList()
             lagYrkesaktiviteter(søknader, nyPeriode, tidligereYrkesaktiviteter)
                 .forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
         }
