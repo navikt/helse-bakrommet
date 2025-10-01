@@ -82,7 +82,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: Yrkesaktiv
                 service.oppdaterKategorisering(call.inntektsforholdReferanse(), kategorisering, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
-            post("/perioder") {
+            put("/perioder") {
                 val perioderJson = call.receiveText()
                 val perioder: Perioder? = if (perioderJson == "null") null else objectMapper.readValue(perioderJson, Perioder::class.java)
                 service.oppdaterPerioder(call.inntektsforholdReferanse(), perioder, call.saksbehandler())

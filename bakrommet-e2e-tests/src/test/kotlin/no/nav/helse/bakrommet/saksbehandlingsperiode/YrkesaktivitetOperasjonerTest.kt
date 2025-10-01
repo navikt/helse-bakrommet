@@ -353,7 +353,7 @@ class YrkesaktivitetOperasjonerTest {
             }"""
 
             val response =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(perioder)
@@ -379,7 +379,7 @@ class YrkesaktivitetOperasjonerTest {
                 ]
             }"""
 
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(ventetidPerioder)
@@ -393,7 +393,7 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals(1, oppdatertYrkesaktivitet2.perioder!!.perioder.size)
 
             // Slett perioder ved å sende null
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("null")
