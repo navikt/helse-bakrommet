@@ -361,34 +361,39 @@ fun lagYrkesaktiviteter(
 ): List<Yrkesaktivitet> {
     val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
     val kategorierOgSøknader = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
+    val alleKategorier = tidligereMap.keys + kategorierOgSøknader.keys
 
-    return kategorierOgSøknader.map { (kategorisering, dok) ->
-        val dagoversikt =
-            skapDagoversiktFraSoknader(
-                dok.map { it.somSøknad() },
+    return alleKategorier.map { kategorisering ->
+        val tidligere = tidligereMap[kategorisering]
+        if (tidligere != null) {
+            tidligere.copy(
+                dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
+                dagoversiktGenerert = null,
+                generertFraDokumenter = emptyList(),
+                saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+                opprettet = OffsetDateTime.now(),
+            )
+        } else {
+            val søknader = kategorierOgSøknader[kategorisering].orEmpty()
+            val dagoversikt = skapDagoversiktFraSoknader(
+                søknader.map { it.somSøknad() },
                 saksbehandlingsperiode.fom,
                 saksbehandlingsperiode.tom,
             )
 
-        val tidligere = tidligereMap[kategorisering]
-        tidligere?.copy(
-            dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
-            dagoversiktGenerert = null,
-            generertFraDokumenter = emptyList(),
-            saksbehandlingsperiodeId = saksbehandlingsperiode.id,
-            opprettet = OffsetDateTime.now(),
-        ) ?: Yrkesaktivitet(
-            id = UUID.randomUUID(),
-            kategorisering = kategorisering,
-            kategoriseringGenerert = kategorisering,
-            dagoversikt = dagoversikt,
-            dagoversiktGenerert = dagoversikt,
-            saksbehandlingsperiodeId = saksbehandlingsperiode.id,
-            opprettet = OffsetDateTime.now(),
-            generertFraDokumenter = dok.map { it.id },
-            arbeidsgiverperioder = null,
-            venteperioder = null,
-        )
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategorisering,
+                kategoriseringGenerert = kategorisering,
+                dagoversikt = dagoversikt,
+                dagoversiktGenerert = dagoversikt,
+                saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = søknader.map { it.id },
+                arbeidsgiverperioder = null,
+                venteperioder = null,
+            )
+        }
     }
 }
 
