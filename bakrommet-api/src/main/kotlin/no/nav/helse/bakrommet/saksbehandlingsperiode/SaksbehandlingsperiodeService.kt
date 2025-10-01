@@ -45,9 +45,11 @@ class SaksbehandlingsperiodeService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
+    fun hentAlleSaksbehandlingsperioder() =
+        db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
 
-    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) =
+        db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -95,25 +97,6 @@ class SaksbehandlingsperiodeService(
                 ),
             )
             leggTilOutbox(nyPeriode)
-
-
-
-            tidligerePeriodeInntilNyPeriode?.let {
-                sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
-                    sykepengegrunnlagDao.settSykepengegrunnlag(
-                        saksbehandlingsperiodeId = nyPeriode.id,
-                        beregning =
-                            grunnlag.copy(
-                                id = UUID.randomUUID(),
-                                saksbehandlingsperiodeId = nyPeriode.id,
-                                opprettet = LocalDateTime.now().toString(),
-                                opprettetAv = saksbehandler.bruker.navIdent,
-                                sistOppdatert = LocalDateTime.now().toString(),
-                            ),
-                        saksbehandler = saksbehandler.bruker,
-                    )
-                }
-            }
         }
 
         val søknader =
@@ -131,8 +114,33 @@ class SaksbehandlingsperiodeService(
             val tidligereYrkesaktiviteter = tidligerePeriodeInntilNyPeriode
                 ?.let { yrkesaktivitetDao.hentYrkesaktivitetFor(it) }
                 ?: emptyList()
-            lagYrkesaktiviteter(søknader, nyPeriode, tidligereYrkesaktiviteter)
-                .forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
+
+            val (yrkesaktiviteter, gammelTilNyIdMap) = lagYrkesaktiviteter(
+                sykepengesoknader = søknader,
+                saksbehandlingsperiode = nyPeriode,
+                tidligereYrkesaktiviteter = tidligereYrkesaktiviteter
+            )
+            yrkesaktiviteter.forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
+
+            tidligerePeriodeInntilNyPeriode?.let {
+                sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
+                    sykepengegrunnlagDao.settSykepengegrunnlag(
+                        saksbehandlingsperiodeId = nyPeriode.id,
+                        beregning = grunnlag.copy(
+                            id = UUID.randomUUID(),
+                            saksbehandlingsperiodeId = nyPeriode.id,
+                            opprettet = LocalDateTime.now().toString(),
+                            opprettetAv = saksbehandler.bruker.navIdent,
+                            sistOppdatert = LocalDateTime.now().toString(),
+                            inntekter = grunnlag.inntekter.map { inntekt ->
+                                val nyId = gammelTilNyIdMap[inntekt.yrkesaktivitetId] ?: UUID.randomUUID()
+                                inntekt.copy(yrkesaktivitetId = nyId)
+                            },
+                        ),
+                        saksbehandler = saksbehandler.bruker,
+                    )
+                }
+            }
         }
 
         return nyPeriode
@@ -358,16 +366,21 @@ fun lagYrkesaktiviteter(
     sykepengesoknader: Iterable<Dokument>,
     saksbehandlingsperiode: Saksbehandlingsperiode,
     tidligereYrkesaktiviteter: List<Yrkesaktivitet>,
-): List<Yrkesaktivitet> {
+): Pair<List<Yrkesaktivitet>, Map<UUID, UUID>> {
     val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
     val kategorierOgSøknader = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
     val alleKategorier = tidligereMap.keys + kategorierOgSøknader.keys
 
+    val gammelTilNyIdMap = mutableMapOf<UUID, UUID>()
+
     return alleKategorier.map { kategorisering ->
         val tidligere = tidligereMap[kategorisering]
         if (tidligere != null) {
+            val nyId = UUID.randomUUID()
+            gammelTilNyIdMap[tidligere.id] = nyId
+
             tidligere.copy(
-                id = UUID.randomUUID(),
+                id = nyId,
                 dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
                 dagoversiktGenerert = null,
                 generertFraDokumenter = emptyList(),
@@ -395,7 +408,7 @@ fun lagYrkesaktiviteter(
                 venteperioder = null,
             )
         }
-    }
+    } to gammelTilNyIdMap
 }
 
 private fun SykepengesoknadDTO.bestemInntektskategori() =
