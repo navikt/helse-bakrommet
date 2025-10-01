@@ -62,33 +62,28 @@ object UtbetalingsberegningLogikk {
                 val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, ya.id)
                 val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO Dette er tilkommen inntekt?
 
-                fun lagUtbetalingstidslinje(): Utbetalingstidslinje {
-                    val dekningsgrad = ya.hentDekningsgrad()
+                val dekningsgrad = ya.hentDekningsgrad()
 
-                    if (ya.kategorisering["INNTEKTSKATEGORI"] == "INAKTIV")
-                        {
-                            return InaktivUtbetalingstidslinjeBuilder(
-                                // TODO : Sporbar dekningsgrad
-                                fastsattÅrsinntekt = fastsattÅrsinntekt,
-                                dekningsgrad = dekningsgrad.verdi.tilProsentdel(),
-                                inntektjusteringer = inntektjusteringer,
-                                venteperiode = emptyList(),
-                            ).result(sykdomstidslinje)
-                        }
-
-                    // TODO annen builder for næringsdrivende
-                    // TODO sporbar dekningsgrad
-                    return ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
-                        // TODO : Dekningsgrad er hardkodet til 100% inni Buildern (i og med "Arbeidstaker...Builder")
-                        arbeidsgiverperiode = arbeidsgiverperiode,
-                        dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
-                        refusjonstidslinje = refusjonstidslinje,
+                if (ya.kategorisering["INNTEKTSKATEGORI"] == "INAKTIV") {
+                    return@map InaktivUtbetalingstidslinjeBuilder(
+                        // TODO : Sporbar dekningsgrad
                         fastsattÅrsinntekt = fastsattÅrsinntekt,
+                        dekningsgrad = dekningsgrad.verdi.tilProsentdel(),
                         inntektjusteringer = inntektjusteringer,
+                        venteperiode = emptyList(),
                     ).result(sykdomstidslinje)
                 }
 
-                lagUtbetalingstidslinje()
+                // TODO annen builder for næringsdrivende
+                // TODO sporbar dekningsgrad
+                return@map ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
+                    // TODO : Dekningsgrad er hardkodet til 100% inni Buildern (i og med "Arbeidstaker...Builder")
+                    arbeidsgiverperiode = arbeidsgiverperiode,
+                    dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
+                    refusjonstidslinje = refusjonstidslinje,
+                    fastsattÅrsinntekt = fastsattÅrsinntekt,
+                    inntektjusteringer = inntektjusteringer,
+                ).result(sykdomstidslinje)
             }.let { utbetalingstidslinjer ->
                 // Først beregn total sykdomsgrad på tvers av alle yrkesaktiviteter, dag for dag
                 Utbetalingstidslinje.totalSykdomsgrad(utbetalingstidslinjer)
@@ -106,8 +101,6 @@ object UtbetalingsberegningLogikk {
                     )
                 Utbetalingstidslinje.betale(sykepengegrunnlagBegrenset6G, utbetalingstidslinjerMedTotalGrad)
             }
-
-        // println(utbetalingstidslinjer.toJsonNode().toPrettyString())
 
         return input.yrkesaktivitet.zip(utbetalingstidslinjer).map { (yrkesaktivitet, utbetalingstidslinje) ->
             YrkesaktivitetUtbetalingsberegning(

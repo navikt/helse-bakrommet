@@ -45,11 +45,9 @@ class SaksbehandlingsperiodeService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    fun hentAlleSaksbehandlingsperioder() =
-        db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
+    fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
 
-    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) =
-        db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -90,21 +88,22 @@ class SaksbehandlingsperiodeService(
                 sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
                     sykepengegrunnlagDao.settSykepengegrunnlag(
                         saksbehandlingsperiodeId = nyPeriode.id,
-                        beregning = grunnlag.copy(
-                            id = UUID.randomUUID(),
-                            saksbehandlingsperiodeId = nyPeriode.id,
-                            opprettet = LocalDateTime.now().toString(),
-                            opprettetAv = saksbehandler.bruker.navIdent,
-                            sistOppdatert = LocalDateTime.now().toString(),
-                        ),
+                        beregning =
+                            grunnlag.copy(
+                                id = UUID.randomUUID(),
+                                saksbehandlingsperiodeId = nyPeriode.id,
+                                opprettet = LocalDateTime.now().toString(),
+                                opprettetAv = saksbehandler.bruker.navIdent,
+                                sistOppdatert = LocalDateTime.now().toString(),
+                            ),
                         saksbehandler = saksbehandler.bruker,
                     )
                 }
-                nyPeriode = nyPeriode.copy(
-                    skjæringstidspunkt = it.skjæringstidspunkt ?: fom,
-                )
+                nyPeriode =
+                    nyPeriode.copy(
+                        skjæringstidspunkt = it.skjæringstidspunkt ?: fom,
+                    )
             }
-
 
             saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
             saksbehandlingsperiodeEndringerDao.leggTilEndring(
@@ -360,11 +359,12 @@ fun lagYrkesaktiviteter(
     val kategorierOgSøknader = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
 
     return kategorierOgSøknader.map { (kategorisering, dok) ->
-        val dagoversikt = skapDagoversiktFraSoknader(
-            dok.map { it.somSøknad() },
-            saksbehandlingsperiode.fom,
-            saksbehandlingsperiode.tom,
-        )
+        val dagoversikt =
+            skapDagoversiktFraSoknader(
+                dok.map { it.somSøknad() },
+                saksbehandlingsperiode.fom,
+                saksbehandlingsperiode.tom,
+            )
 
         val tidligere = tidligereMap[kategorisering]
         tidligere?.copy(
