@@ -140,6 +140,14 @@ val regler =
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/kategorisering/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/perioder/(method:POST)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/(method:DELETE)",
+            role = setOf(SAKSBEHANDLER),
+        ),
         // Dokumenter - relaterte ruter
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/ainntekt/hent/(method:POST)",

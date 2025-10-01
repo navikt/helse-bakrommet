@@ -307,4 +307,103 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals(1.0, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.prosentDesimal)
         }
     }
+
+    @Test
+    fun `oppdaterer perioder for inntektsforhold`() {
+        runApplicationTest { daoer ->
+            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+
+            // Opprett saksbehandlingsperiode
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
+            }
+
+            val periode =
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                }.body<List<Saksbehandlingsperiode>>().first()
+
+            // Opprett inntektsforhold
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+            }
+
+            val yrkesaktivitetId =
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    bearerAuth(TestOppsett.userToken)
+                }.body<List<YrkesaktivitetDTO>>().first().id
+
+            // Oppdater perioder med ARBEIDSGIVERPERIODE
+            val perioder = """{
+                "type": "ARBEIDSGIVERPERIODE",
+                "perioder": [
+                    {
+                        "fom": "2023-01-01",
+                        "tom": "2023-01-15"
+                    },
+                    {
+                        "fom": "2023-01-20",
+                        "tom": "2023-01-31"
+                    }
+                ]
+            }"""
+
+            val response =
+                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(perioder)
+                }
+            assertEquals(HttpStatusCode.NoContent, response.status)
+
+            // Verifiser at perioder ble lagret
+            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            assertTrue(oppdatertYrkesaktivitet.perioder != null)
+            assertEquals("ARBEIDSGIVERPERIODE", oppdatertYrkesaktivitet.perioder!!.type.name)
+            assertEquals(2, oppdatertYrkesaktivitet.perioder!!.perioder.size)
+            assertEquals("2023-01-01", oppdatertYrkesaktivitet.perioder!!.perioder[0].fom.toString())
+            assertEquals("2023-01-15", oppdatertYrkesaktivitet.perioder!!.perioder[0].tom.toString())
+
+            // Oppdater perioder med VENTETID
+            val ventetidPerioder = """{
+                "type": "VENTETID",
+                "perioder": [
+                    {
+                        "fom": "2023-01-16",
+                        "tom": "2023-01-19"
+                    }
+                ]
+            }"""
+
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(ventetidPerioder)
+            }.let { response ->
+                assertEquals(HttpStatusCode.NoContent, response.status)
+            }
+
+            // Verifiser at perioder ble oppdatert
+            val oppdatertYrkesaktivitet2 = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            assertEquals("VENTETID", oppdatertYrkesaktivitet2.perioder!!.type.name)
+            assertEquals(1, oppdatertYrkesaktivitet2.perioder!!.perioder.size)
+
+            // Slett perioder ved å sende null
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("null")
+            }.let { response ->
+                assertEquals(HttpStatusCode.NoContent, response.status)
+            }
+
+            // Verifiser at perioder ble slettet
+            val oppdatertYrkesaktivitet3 = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            assertEquals(null, oppdatertYrkesaktivitet3.perioder)
+        }
+    }
 }

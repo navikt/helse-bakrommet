@@ -25,6 +25,7 @@ data class Yrkesaktivitet(
     val generertFraDokumenter: List<UUID>,
     val arbeidsgiverperioder: List<PeriodeDto>? = null,
     val venteperioder: List<PeriodeDto>? = null,
+    val perioder: Perioder? = null,
 )
 
 class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
@@ -37,11 +38,11 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
             insert into yrkesaktivitet
                 (id, kategorisering, kategorisering_generert,
                 dagoversikt, dagoversikt_generert,
-                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter)
+                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter, perioder)
             values
                 (:id, :kategorisering, :kategorisering_generert,
                 :dagoversikt, :dagoversikt_generert,
-                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter)
+                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder)
             """.trimIndent(),
             "id" to yrkesaktivitet.id,
             "kategorisering" to yrkesaktivitet.kategorisering.serialisertTilString(),
@@ -51,6 +52,7 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
             "saksbehandlingsperiode_id" to yrkesaktivitet.saksbehandlingsperiodeId,
             "opprettet" to yrkesaktivitet.opprettet,
             "generert_fra_dokumenter" to yrkesaktivitet.generertFraDokumenter.serialisertTilString(),
+            "perioder" to yrkesaktivitet.perioder?.serialisertTilString(),
         )
         return hentYrkesaktivitet(yrkesaktivitet.id)!!
     }
@@ -87,6 +89,7 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
                     .stringOrNull("generert_fra_dokumenter")?.somListe<UUID>() ?: emptyList(),
             arbeidsgiverperioder = null,
             venteperioder = null,
+            perioder = row.stringOrNull("perioder")?.let { objectMapper.readValue(it, Perioder::class.java) },
         )
 
     fun oppdaterKategorisering(
@@ -113,6 +116,20 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
             """.trimIndent(),
             "id" to yrkesaktivitet.id,
             "dagoversikt" to oppdatertDagoversikt.serialisertTilString(),
+        )
+        return hentYrkesaktivitet(yrkesaktivitet.id)!!
+    }
+
+    fun oppdaterPerioder(
+        yrkesaktivitet: Yrkesaktivitet,
+        perioder: Perioder?,
+    ): Yrkesaktivitet {
+        db.update(
+            """
+            update yrkesaktivitet set perioder = :perioder where id = :id
+            """.trimIndent(),
+            "id" to yrkesaktivitet.id,
+            "perioder" to perioder?.serialisertTilString(),
         )
         return hentYrkesaktivitet(yrkesaktivitet.id)!!
     }

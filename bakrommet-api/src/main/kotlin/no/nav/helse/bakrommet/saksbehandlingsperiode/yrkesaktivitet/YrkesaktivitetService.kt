@@ -56,6 +56,7 @@ class YrkesaktivitetService(
         generertFraDokumenter = emptyList(),
         arbeidsgiverperioder = null,
         venteperioder = null,
+        perioder = null,
     )
 
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean {
@@ -208,6 +209,25 @@ class YrkesaktivitetService(
 
             oppdatertYrkesaktivitet
         }
+
+    fun oppdaterPerioder(
+        ref: YrkesaktivitetReferanse,
+        perioder: Perioder?,
+        saksbehandler: Bruker,
+    ) {
+        db.nonTransactional {
+            val inntektsforhold =
+                hentYrkesaktivitet(
+                    ref = ref,
+                    krav = saksbehandler.erSaksbehandlerPåSaken(),
+                )
+            yrkesaktivitetDao.oppdaterPerioder(inntektsforhold, perioder)
+
+            // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
+            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+        }
+    }
 }
 
 private fun YrkesaktivitetServiceDaoer.hentYrkesaktivitet(

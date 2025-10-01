@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.testutils.tidsstuttet
+import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -88,5 +89,46 @@ class YrkesaktivitetDaoTest {
         assertThrows<SQLException> {
             dao.opprettYrkesaktivitet(yrkesaktivitet)
         }
+    }
+
+    @Test
+    fun `oppdaterer perioder for inntektsforhold`() {
+        val dao = YrkesaktivitetDao(dataSource)
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering =
+                    HashMap<String, String>().apply {
+                        put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                    },
+                kategoriseringGenerert = null,
+                dagoversikt = emptyList(),
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = periode.id,
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+                perioder = null,
+            )
+        val opprettetYrkesaktivitet = dao.opprettYrkesaktivitet(yrkesaktivitet)
+
+        // Oppdater perioder
+        val perioder =
+            Perioder(
+                type = Periodetype.ARBEIDSGIVERPERIODE,
+                perioder =
+                    listOf(
+                        PeriodeDto(
+                            fom = LocalDate.of(2023, 1, 1),
+                            tom = LocalDate.of(2023, 1, 15),
+                        ),
+                    ),
+            )
+
+        val oppdatertYrkesaktivitet = dao.oppdaterPerioder(opprettetYrkesaktivitet, perioder)
+        assertEquals(perioder, oppdatertYrkesaktivitet.perioder)
+
+        // Slett perioder
+        val yrkesaktivitetUtenPerioder = dao.oppdaterPerioder(opprettetYrkesaktivitet, null)
+        assertEquals(null, yrkesaktivitetUtenPerioder.perioder)
     }
 }

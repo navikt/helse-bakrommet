@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.UUID
@@ -26,6 +27,7 @@ data class YrkesaktivitetDTO(
     val dagoversikt: List<Dag>?,
     val generertFraDokumenter: List<UUID>,
     val dekningsgrad: Int,
+    val perioder: Perioder?,
 )
 
 fun Yrkesaktivitet.tilDto() =
@@ -35,6 +37,7 @@ fun Yrkesaktivitet.tilDto() =
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
         dekningsgrad = hentDekningsgrad().verdi.prosentDesimal.toInt(),
+        perioder = perioder,
         // TODO ikke returner denne, vis fra beregning istedenfor
     )
 
@@ -77,6 +80,12 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: Yrkesaktiv
             put("/kategorisering") {
                 val kategorisering = call.receive<YrkesaktivitetKategorisering>()
                 service.oppdaterKategorisering(call.inntektsforholdReferanse(), kategorisering, call.saksbehandler())
+                call.respond(HttpStatusCode.NoContent)
+            }
+            post("/perioder") {
+                val perioderJson = call.receiveText()
+                val perioder: Perioder? = if (perioderJson == "null") null else objectMapper.readValue(perioderJson, Perioder::class.java)
+                service.oppdaterPerioder(call.inntektsforholdReferanse(), perioder, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
         }
