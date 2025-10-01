@@ -71,16 +71,7 @@ class SaksbehandlingsperiodeService(
                 skjæringstidspunkt = fom,
             )
 
-        val søknader =
-            if (søknader.isNotEmpty()) {
-                dokumentHenter.hentOgLagreSøknader(
-                    nyPeriode.somReferanse(),
-                    søknader.toList(),
-                    saksbehandler,
-                )
-            } else {
-                emptyList()
-            }
+        var tidligereYrkesaktiviteter: List<Yrkesaktivitet> = emptyList()
 
         db.transactional {
             val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
@@ -91,7 +82,7 @@ class SaksbehandlingsperiodeService(
 
             val tidligerePeriodeInntilNyPeriode = perioder.find { it.tom.plusDays(1).isEqual(fom) }
 
-            val tidligereYrkesaktiviteter = tidligerePeriodeInntilNyPeriode
+            tidligereYrkesaktiviteter = tidligerePeriodeInntilNyPeriode
                 ?.let { yrkesaktivitetDao.hentYrkesaktivitetFor(it) }
                 ?: emptyList()
 
@@ -114,8 +105,6 @@ class SaksbehandlingsperiodeService(
                 )
             }
 
-            lagYrkesaktiviteter(søknader, nyPeriode, tidligereYrkesaktiviteter)
-                .forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
 
             saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
             saksbehandlingsperiodeEndringerDao.leggTilEndring(
@@ -125,6 +114,22 @@ class SaksbehandlingsperiodeService(
                 ),
             )
             leggTilOutbox(nyPeriode)
+        }
+
+        val søknader =
+            if (søknader.isNotEmpty()) {
+                dokumentHenter.hentOgLagreSøknader(
+                    nyPeriode.somReferanse(),
+                    søknader.toList(),
+                    saksbehandler,
+                )
+            } else {
+                emptyList()
+            }
+
+        db.nonTransactional {
+            lagYrkesaktiviteter(søknader, nyPeriode, tidligereYrkesaktiviteter)
+                .forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
         }
 
         return nyPeriode
