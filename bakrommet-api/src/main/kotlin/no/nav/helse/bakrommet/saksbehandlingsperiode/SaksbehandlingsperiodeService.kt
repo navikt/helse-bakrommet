@@ -367,6 +367,7 @@ fun lagYrkesaktiviteter(
         val tidligere = tidligereMap[kategorisering]
         if (tidligere != null) {
             tidligere.copy(
+                id = UUID.randomUUID(),
                 dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
                 dagoversiktGenerert = null,
                 generertFraDokumenter = emptyList(),
