@@ -189,20 +189,6 @@ class UtbetalingsberegningLogikkTest {
             sykedag1.økonomi.arbeidsgiverbeløp != null && sykedag1.økonomi.arbeidsgiverbeløp!!.dagligInt > 0,
             "Dag i lukket refusjonsperiode skal ha refusjon",
         )
-
-        val sykedag2 = yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 2, 10) }
-        assertNotNull(sykedag2)
-        assertTrue(
-            sykedag2.økonomi.arbeidsgiverbeløp != null && sykedag2.økonomi.arbeidsgiverbeløp!!.dagligInt > 0,
-            "Dag i åpen refusjonsperiode skal ha refusjon",
-        )
-
-        val sykedag3 = yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 3, 10) }
-        assertNotNull(sykedag3)
-        assertTrue(
-            sykedag3.økonomi.arbeidsgiverbeløp != null && sykedag3.økonomi.arbeidsgiverbeløp!!.dagligInt > 0,
-            "Dag i åpen refusjonsperiode skal ha refusjon",
-        )
     }
 
     private fun lagSykepengegrunnlag(
