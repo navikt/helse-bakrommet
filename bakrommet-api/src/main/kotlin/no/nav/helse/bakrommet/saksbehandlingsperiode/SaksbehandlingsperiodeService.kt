@@ -373,37 +373,38 @@ fun lagYrkesaktiviteter(
 
     val gammelTilNyIdMap = mutableMapOf<UUID, UUID>()
 
-    val result = kategorier.mapNotNull { kategori ->
-        søknaderPerKategori[kategori]?.let { søknader ->
-            val dagoversikt =
-                skapDagoversiktFraSoknader(
-                    søknader.map { it.somSøknad() },
-                    saksbehandlingsperiode.fom,
-                    saksbehandlingsperiode.tom,
+    val result =
+        kategorier.mapNotNull { kategori ->
+            søknaderPerKategori[kategori]?.let { søknader ->
+                val dagoversikt =
+                    skapDagoversiktFraSoknader(
+                        søknader.map { it.somSøknad() },
+                        saksbehandlingsperiode.fom,
+                        saksbehandlingsperiode.tom,
+                    )
+                Yrkesaktivitet(
+                    id = UUID.randomUUID(),
+                    kategorisering = kategori,
+                    kategoriseringGenerert = kategori,
+                    dagoversikt = dagoversikt,
+                    dagoversiktGenerert = dagoversikt,
+                    saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+                    opprettet = OffsetDateTime.now(),
+                    generertFraDokumenter = søknader.map { it.id },
                 )
-            Yrkesaktivitet(
-                id = UUID.randomUUID(),
-                kategorisering = kategori,
-                kategoriseringGenerert = kategori,
-                dagoversikt = dagoversikt,
-                dagoversiktGenerert = dagoversikt,
-                saksbehandlingsperiodeId = saksbehandlingsperiode.id,
-                opprettet = OffsetDateTime.now(),
-                generertFraDokumenter = søknader.map { it.id },
-            )
-        } ?: tidligereMap[kategori]?.let { tidligere ->
-            val nyId = UUID.randomUUID()
-            gammelTilNyIdMap[tidligere.id] = nyId
-            tidligere.copy(
-                id = nyId,
-                dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
-                dagoversiktGenerert = null,
-                generertFraDokumenter = emptyList(),
-                saksbehandlingsperiodeId = saksbehandlingsperiode.id,
-                opprettet = OffsetDateTime.now(),
-            )
+            } ?: tidligereMap[kategori]?.let { tidligere ->
+                val nyId = UUID.randomUUID()
+                gammelTilNyIdMap[tidligere.id] = nyId
+                tidligere.copy(
+                    id = nyId,
+                    dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
+                    dagoversiktGenerert = null,
+                    generertFraDokumenter = emptyList(),
+                    saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+                    opprettet = OffsetDateTime.now(),
+                )
+            }
         }
-    }
 
     return result to gammelTilNyIdMap
 }
