@@ -15,6 +15,7 @@ import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.person.beløp.Kilde
 import no.nav.helse.utbetalingstidslinje.ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode
 import no.nav.helse.utbetalingstidslinje.InaktivUtbetalingstidslinjeBuilder
+import no.nav.helse.utbetalingstidslinje.SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Prosentdel
@@ -34,16 +35,13 @@ object UtbetalingsberegningLogikk {
             input.yrkesaktivitet.map { ya ->
                 val dager = fyllUtManglendeDager(ya.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
 
-                val arbeidsgiverperiode =
-                    if (ya.perioder?.type == Periodetype.ARBEIDSGIVERPERIODE) {
-                        ya.perioder.perioder.map { Periode(it.fom, it.tom) }
-                    } else {
-                        emptyList()
-                    }
+                val arbeidsgiverperiode = ya.hentPerioderForType(Periodetype.ARBEIDSGIVERPERIODE)
+
                 val dagerNavOvertarAnsvar: List<Periode> = dager.tilDagerNavOvertarAnsvar()
 
                 // Kast feil hvis dagerNavOvertarAnsvar ikke er inkludert i arbeidsgiverperioden
                 if (dagerNavOvertarAnsvar.any { navPeriode -> arbeidsgiverperiode.none { agp -> navPeriode in agp } }) {
+                    // TODO er dette riktig sted å kaste feil på?
                     throw IllegalArgumentException("Ugyldig input: dagerNavOvertarAnsvar må være innenfor arbeidsgiverperioden")
                 }
 
@@ -76,7 +74,16 @@ object UtbetalingsberegningLogikk {
                         fastsattÅrsinntekt = fastsattÅrsinntekt,
                         dekningsgrad = dekningsgrad.verdi.tilProsentdel(),
                         inntektjusteringer = inntektjusteringer,
-                        venteperiode = emptyList(),
+                        venteperiode = ya.hentPerioderForType(Periodetype.VENTETID_INAKTIV),
+                    ).result(sykdomstidslinje)
+                }
+
+                if (ya.kategorisering["INNTEKTSKATEGORI"] == "SELVSTENDIG_NÆRINGSDRIVENDE") {
+                    return@map SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
+                        // TODO : Sporbar dekningsgrad
+                        fastsattÅrsinntekt = fastsattÅrsinntekt,
+                        dekningsgrad = dekningsgrad.verdi.tilProsentdel(),
+                        ventetid = ya.hentPerioderForType(Periodetype.VENTETID),
                     ).result(sykdomstidslinje)
                 }
 

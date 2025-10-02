@@ -10,8 +10,10 @@ import no.nav.helse.økonomi.Prosentdel.Companion.prosent
 import no.nav.helse.økonomi.Økonomi
 import java.time.LocalDate
 
-internal class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
+class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
     private val fastsattÅrsinntekt: Inntekt,
+    private val dekningsgrad: Prosentdel,
+    private val ventetid: List<Periode>,
 ) {
     private fun medInntektHvisFinnes(grad: Prosentdel): Økonomi {
         return medInntekt(grad)
@@ -21,16 +23,18 @@ internal class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         return Økonomi.inntekt(
             sykdomsgrad = grad,
             aktuellDagsinntekt = fastsattÅrsinntekt,
-            dekningsgrad = 80.prosent,
+            dekningsgrad = dekningsgrad,
             refusjonsbeløp = INGEN,
             inntektjustering = INGEN,
         )
     }
 
-    internal fun result(
+    private fun LocalDate.erVentetid() = ventetid.any { this in it }
+
+
+    fun result(
         sykdomstidslinje: Sykdomstidslinje,
-        ventetid: Periode,
-    ): Utbetalingstidslinje {
+        ): Utbetalingstidslinje {
         val builder = Utbetalingstidslinje.Builder()
         sykdomstidslinje.forEach { dag ->
             when (dag) {
@@ -38,7 +42,7 @@ internal class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
                 is Dag.ForeldetSykedag -> foreldetdag(builder, dag.dato, dag.grad)
                 is Dag.FriskHelgedag -> arbeidsdag(builder, dag.dato)
                 is Dag.SykHelgedag ->
-                    if (dag.dato in ventetid) {
+                    if (dag.dato.erVentetid()) {
                         ventetidsdag(
                             builder,
                             dag.dato,
@@ -47,8 +51,9 @@ internal class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
                     } else {
                         helg(builder, dag.dato, dag.grad)
                     }
+
                 is Dag.Sykedag ->
-                    if (dag.dato in ventetid) {
+                    if (dag.dato.erVentetid()) {
                         ventetidsdag(
                             builder,
                             dag.dato,
@@ -57,6 +62,7 @@ internal class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
                     } else {
                         navDag(builder, dag.dato, dag.grad)
                     }
+
                 is Dag.AndreYtelser -> {
                     val begrunnelse =
                         when (dag.ytelse) {
@@ -78,7 +84,7 @@ internal class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
                 is Dag.ProblemDag,
                 is Dag.Feriedag,
                 is Dag.UkjentDag,
-                -> error("Forventer ikke ${dag::class.simpleName} i utbetalingstidslinjen for selvstendig næringsdrivende")
+                    -> error("Forventer ikke ${dag::class.simpleName} i utbetalingstidslinjen for selvstendig næringsdrivende")
             }
         }
         return builder.build()

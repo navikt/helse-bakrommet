@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.util.*
+import no.nav.helse.hendelser.Periode
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
@@ -23,7 +24,15 @@ data class Yrkesaktivitet(
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
-)
+) {
+    fun hentPerioderForType(periodetype: Periodetype): List<Periode> {
+        return if (this.perioder?.type == periodetype) {
+            this.perioder.perioder.map { Periode(it.fom, it.tom) }
+        } else {
+            emptyList()
+        }
+    }
+}
 
 class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
