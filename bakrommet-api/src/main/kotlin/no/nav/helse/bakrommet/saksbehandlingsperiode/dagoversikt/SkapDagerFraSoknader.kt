@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt
 
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import java.time.DayOfWeek
 import java.time.LocalDate
 
 fun skapDagoversiktFraSoknader(
@@ -25,15 +24,12 @@ fun initialiserDager(
     return generateSequence(fom) { it.plusDays(1) }
         .takeWhile { !it.isAfter(tom) }
         .map { dato ->
-            val erHelg = dato.dayOfWeek == DayOfWeek.SATURDAY || dato.dayOfWeek == DayOfWeek.SUNDAY
-            val dagtype = if (erHelg) Dagtype.Helg else Dagtype.Arbeidsdag
-
             Dag(
                 dato = dato,
-                dagtype = dagtype,
+                dagtype = Dagtype.Arbeidsdag,
                 grad = null,
                 avslåttBegrunnelse = emptyList(),
-                kilde = if (erHelg) null else Kilde.Saksbehandler,
+                kilde = Kilde.Saksbehandler,
             )
         }
         .toList()
@@ -124,7 +120,7 @@ private fun oppdaterDagerIIntervall(
         .takeWhile { !it.isAfter(tom) }
         .forEach { dato ->
             val eksisterendeDag = dagerMap[dato]
-            if (eksisterendeDag != null && eksisterendeDag.dagtype != Dagtype.Helg) {
+            if (eksisterendeDag != null) {
                 dagerMap[dato] =
                     eksisterendeDag.copy(
                         dagtype = dagtype,

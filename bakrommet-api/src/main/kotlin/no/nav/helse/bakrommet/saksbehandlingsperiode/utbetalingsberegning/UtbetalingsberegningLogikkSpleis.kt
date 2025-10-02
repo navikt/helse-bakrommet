@@ -8,7 +8,6 @@ import no.nav.helse.hendelser.Hendelseskilde
 import no.nav.helse.hendelser.Periode
 import no.nav.helse.sykdomstidslinje.Dag.ArbeidIkkeGjenopptattDag
 import no.nav.helse.sykdomstidslinje.Dag.Arbeidsdag
-import no.nav.helse.sykdomstidslinje.Dag.ArbeidsgiverHelgedag
 import no.nav.helse.sykdomstidslinje.Dag.Arbeidsgiverdag
 import no.nav.helse.sykdomstidslinje.Dag.Feriedag
 import no.nav.helse.sykdomstidslinje.Dag.ForeldetSykedag
@@ -88,28 +87,6 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                         dato = spilleromDag.dato,
                         kilde = kilde_HARDKODET,
                     ).also { frisk() }
-
-                Dagtype.Helg ->
-                    if (erSyk()) {
-                        if (spilleromDag.dato.erAGP()) {
-                            ArbeidsgiverHelgedag(
-                                dato = spilleromDag.dato,
-                                grad = spilleromDag.grad?.somProsentdel() ?: NullProsent,
-                                kilde = kilde_HARDKODET,
-                            )
-                        } else {
-                            SykHelgedag(
-                                dato = spilleromDag.dato,
-                                grad = spilleromDag.grad?.somProsentdel() ?: NullProsent,
-                                kilde = kilde_HARDKODET,
-                            )
-                        }
-                    } else {
-                        FriskHelgedag(
-                            dato = spilleromDag.dato,
-                            kilde = kilde_HARDKODET,
-                        )
-                    }
 
                 Dagtype.Ferie ->
                     Feriedag(

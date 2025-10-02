@@ -168,7 +168,7 @@ class YrkesaktivitetService(
                 val dato = oppdatertDagJson["dato"].asText()
                 val eksisterendeDag = eksisterendeDagerMap[dato]
 
-                if (eksisterendeDag != null && eksisterendeDag.dagtype != Dagtype.Helg) {
+                if (eksisterendeDag != null) {
                     // Oppdater dagen og sett kilde til Saksbehandler
                     val oppdatertDag =
                         eksisterendeDag.copy(

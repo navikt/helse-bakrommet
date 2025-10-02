@@ -20,7 +20,6 @@ enum class Dagtype {
     Syk,
     SykNav,
     Arbeidsdag,
-    Helg,
     Ferie,
     Permisjon,
     Avslått,

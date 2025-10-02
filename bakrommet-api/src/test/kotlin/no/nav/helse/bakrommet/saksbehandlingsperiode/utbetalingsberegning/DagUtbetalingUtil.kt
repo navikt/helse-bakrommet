@@ -6,7 +6,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.HashMap
@@ -57,12 +56,8 @@ fun lagYrkesaktivitet(
 }
 
 class DagListeBuilder(førsteDag: LocalDate) {
-    fun LocalDate.erHelg() = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
-
     val dager = mutableListOf<Dag>()
     private var gjeldendeDag = førsteDag
-
-    private fun erHelg() = gjeldendeDag.erHelg()
 
     fun dag(
         dagtype: Dagtype = Dagtype.Syk,
@@ -83,7 +78,7 @@ class DagListeBuilder(førsteDag: LocalDate) {
 
     fun syk(grad: Int = 100) =
         dag(
-            dagtype = if (erHelg()) Dagtype.Helg else Dagtype.Syk,
+            dagtype = Dagtype.Syk,
             grad = grad,
         )
 }

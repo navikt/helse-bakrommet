@@ -190,22 +190,6 @@ class YrkesaktivitetOperasjonerTest {
                 },
             )
 
-            // Verifiser at helgedager ikke er oppdatert (bevarer opprinnelig kilde null)
-            val helgedager =
-                dager.filter { (dato, dagtype, _) ->
-                    dagtype == "Helg"
-                }
-            helgedager.forEach { (_, _, kilde) ->
-                assertEquals(null, kilde, "Helgedager skal fortsatt ha kilde null")
-            }
-
-            // Verifiser at dag 2023-01-07 (lørdag/helg) ikke ble oppdatert selv om den var i oppdateringslisten
-            val dag7 = dager.find { (dato, _, _) -> dato == "2023-01-07" }
-            if (dag7 != null) {
-                assertEquals("Helg", dag7.second, "2023-01-07 skal fortsatt være helg")
-                assertEquals(null, dag7.third, "2023-01-07 skal fortsatt ha kilde null")
-            }
-
             // Verifiser at dekningsgrad er riktig
             assertEquals(1.0, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.prosentDesimal)
         }

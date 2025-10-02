@@ -30,21 +30,6 @@ class SkapDagerFraSoknaderTest {
         assertEquals(Dagtype.Arbeidsdag, resultat[2].dagtype) // Onsdag
         assertEquals(Dagtype.Arbeidsdag, resultat[3].dagtype) // Torsdag
         assertEquals(Dagtype.Arbeidsdag, resultat[4].dagtype) // Fredag
-
-        // Lørdag og søndag skal være helgedager
-        assertEquals(Dagtype.Helg, resultat[5].dagtype) // Lørdag
-        assertEquals(Dagtype.Helg, resultat[6].dagtype) // Søndag
-
-        // Arbeidsdager skal ha kilde Saksbehandler, helgedager skal ha kilde null
-        resultat.forEach { dag ->
-            if (dag.dagtype == Dagtype.Helg) {
-                assertEquals(null, dag.kilde)
-            } else {
-                assertEquals(Kilde.Saksbehandler, dag.kilde)
-            }
-            assertEquals(null, dag.grad)
-            assertTrue(dag.avslåttBegrunnelse!!.isEmpty())
-        }
     }
 
     @Test
@@ -56,12 +41,7 @@ class SkapDagerFraSoknaderTest {
 
         assertEquals(3, resultat.size)
         resultat.forEach { dag ->
-            assertTrue(dag.dagtype == Dagtype.Arbeidsdag || dag.dagtype == Dagtype.Helg)
-            if (dag.dagtype == Dagtype.Helg) {
-                assertEquals(null, dag.kilde)
-            } else {
-                assertEquals(Kilde.Saksbehandler, dag.kilde)
-            }
+            assertTrue(dag.dagtype == Dagtype.Arbeidsdag)
         }
     }
 
@@ -75,36 +55,6 @@ class SkapDagerFraSoknaderTest {
         assertEquals(1, resultat.size)
         assertEquals(Dagtype.Arbeidsdag, resultat[0].dagtype)
         assertEquals(fom, resultat[0].dato)
-    }
-
-    @Test
-    fun `skal håndtere helg`() {
-        val fom = LocalDate.of(2024, 1, 6) // Lørdag
-        val tom = LocalDate.of(2024, 1, 7) // Søndag
-
-        val resultat = skapDagoversiktFraSoknader(emptyList(), fom, tom)
-
-        assertEquals(2, resultat.size)
-        assertEquals(Dagtype.Helg, resultat[0].dagtype) // Lørdag
-        assertEquals(Dagtype.Helg, resultat[1].dagtype) // Søndag
-    }
-
-    @Test
-    fun `helgedager overskrives ikke av søknadsperioder, ferie eller permisjon`() {
-        val fom = LocalDate.of(2024, 1, 6) // Lørdag
-        val tom = LocalDate.of(2024, 1, 7) // Søndag
-
-        // Test med tom liste for å verifisere at helgedager opprettes korrekt
-        val dager = skapDagoversiktFraSoknader(emptyList(), fom, tom)
-
-        assertEquals(2, dager.size)
-        assertEquals(Dagtype.Helg, dager[0].dagtype) // Lørdag
-        assertEquals(Dagtype.Helg, dager[1].dagtype) // Søndag
-
-        // Verifiser at kilde er null for helgedager
-        dager.forEach { dag ->
-            assertEquals(null, dag.kilde)
-        }
     }
 
     @Test
@@ -135,10 +85,6 @@ class SkapDagerFraSoknaderTest {
         // Verifiser at dager utenfor er arbeidsdager
         assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 1) }!!.dagtype)
         assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 8) }!!.dagtype)
-
-        // Verifiser at helgen forblir helg
-        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 6) }!!.dagtype)
-        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype)
     }
 
     @Test
@@ -223,10 +169,6 @@ class SkapDagerFraSoknaderTest {
         // Feriedagene skal overskrive permisjonsdagene
         assertEquals(Dagtype.Ferie, resultat.find { it.dato == LocalDate.of(2024, 1, 11) }!!.dagtype)
         assertEquals(Dagtype.Ferie, resultat.find { it.dato == LocalDate.of(2024, 1, 12) }!!.dagtype)
-
-        // Helgedagene skal forbli helg
-        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 13) }!!.dagtype)
-        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 14) }!!.dagtype)
     }
 
     @Test
@@ -254,16 +196,11 @@ class SkapDagerFraSoknaderTest {
         // Dager fra og med arbeidGjenopptatt skal være arbeidsdager (unntatt helg)
         (5..10).forEach { dag ->
             val dagen = resultat.find { it.dato == LocalDate.of(2024, 1, dag) }!!
-            if (dagen.dato.dayOfWeek.value in 6..7) {
-                // Helgedager skal forbli helg
-                assertEquals(Dagtype.Helg, dagen.dagtype)
-                assertEquals(null, dagen.kilde)
-            } else {
-                // Arbeidsdager skal være arbeidsdager
-                assertEquals(Dagtype.Arbeidsdag, dagen.dagtype)
-                assertEquals(Kilde.Søknad, dagen.kilde)
-                assertEquals(null, dagen.grad)
-            }
+
+            // Arbeidsdager skal være arbeidsdager
+            assertEquals(Dagtype.Arbeidsdag, dagen.dagtype)
+            assertEquals(Kilde.Søknad, dagen.kilde)
+            assertEquals(null, dagen.grad)
         }
     }
 
@@ -291,17 +228,10 @@ class SkapDagerFraSoknaderTest {
             assertEquals(Dagtype.Syk, dagen.dagtype)
         }
 
-        // Fra arbeidGjenopptatt skal alle dager være arbeidsdager (unntatt helg)
-        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 6) }!!.dagtype) // Lørdag
-        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype) // Søndag
+        // Fra arbeidGjenopptatt skal alle dager være arbeidsdager
         assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 8) }!!.dagtype) // Mandag
         assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 9) }!!.dagtype) // Tirsdag
         assertEquals(Dagtype.Arbeidsdag, resultat.find { it.dato == LocalDate.of(2024, 1, 10) }!!.dagtype) // Onsdag
-
-        // Verifiser at ferie ikke har presedens over arbeidGjenopptatt på arbeidsdager
-        // Men helgedager skal forbli helg uansett
-        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 6) }!!.dagtype) // Lørdag - skal være helg
-        assertEquals(Dagtype.Helg, resultat.find { it.dato == LocalDate.of(2024, 1, 7) }!!.dagtype) // Søndag - skal være helg
     }
 }
 
