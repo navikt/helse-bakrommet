@@ -213,7 +213,7 @@ class YrkesaktivitetService(
         perioder: Perioder?,
         saksbehandler: Bruker,
     ) {
-        db.nonTransactional {
+        db.transactional {
             val inntektsforhold =
                 hentYrkesaktivitet(
                     ref = ref,
@@ -221,9 +221,14 @@ class YrkesaktivitetService(
                 )
             yrkesaktivitetDao.oppdaterPerioder(inntektsforhold, perioder)
 
-            // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
-            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            val beregningshjelperISammeTransaksjon =
+                UtbetalingsBeregningHjelper(
+                    beregningDao,
+                    saksbehandlingsperiodeDao,
+                    sykepengegrunnlagDao,
+                    yrkesaktivitetDao,
+                )
+            beregningshjelperISammeTransaksjon.settBeregning(ref.saksbehandlingsperiodeReferanse, saksbehandler)
         }
     }
 }
