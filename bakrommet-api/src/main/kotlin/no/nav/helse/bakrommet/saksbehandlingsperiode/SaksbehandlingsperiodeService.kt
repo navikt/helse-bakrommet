@@ -368,17 +368,32 @@ fun lagYrkesaktiviteter(
     tidligereYrkesaktiviteter: List<Yrkesaktivitet>,
 ): Pair<List<Yrkesaktivitet>, Map<UUID, UUID>> {
     val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
-    val kategorierOgSøknader = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
-    val alleKategorier = tidligereMap.keys + kategorierOgSøknader.keys
+    val søknaderPerKategori = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
+    val kategorier = tidligereMap.keys + søknaderPerKategori.keys
 
     val gammelTilNyIdMap = mutableMapOf<UUID, UUID>()
 
-    return alleKategorier.map { kategorisering ->
-        val tidligere = tidligereMap[kategorisering]
-        if (tidligere != null) {
+    val result = kategorier.mapNotNull { kategori ->
+        søknaderPerKategori[kategori]?.let { søknader ->
+            val dagoversikt =
+                skapDagoversiktFraSoknader(
+                    søknader.map { it.somSøknad() },
+                    saksbehandlingsperiode.fom,
+                    saksbehandlingsperiode.tom,
+                )
+            Yrkesaktivitet(
+                id = UUID.randomUUID(),
+                kategorisering = kategori,
+                kategoriseringGenerert = kategori,
+                dagoversikt = dagoversikt,
+                dagoversiktGenerert = dagoversikt,
+                saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = søknader.map { it.id },
+            )
+        } ?: tidligereMap[kategori]?.let { tidligere ->
             val nyId = UUID.randomUUID()
             gammelTilNyIdMap[tidligere.id] = nyId
-
             tidligere.copy(
                 id = nyId,
                 dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
@@ -387,27 +402,10 @@ fun lagYrkesaktiviteter(
                 saksbehandlingsperiodeId = saksbehandlingsperiode.id,
                 opprettet = OffsetDateTime.now(),
             )
-        } else {
-            val søknader = kategorierOgSøknader[kategorisering].orEmpty()
-            val dagoversikt =
-                skapDagoversiktFraSoknader(
-                    søknader.map { it.somSøknad() },
-                    saksbehandlingsperiode.fom,
-                    saksbehandlingsperiode.tom,
-                )
-
-            Yrkesaktivitet(
-                id = UUID.randomUUID(),
-                kategorisering = kategorisering,
-                kategoriseringGenerert = kategorisering,
-                dagoversikt = dagoversikt,
-                dagoversiktGenerert = dagoversikt,
-                saksbehandlingsperiodeId = saksbehandlingsperiode.id,
-                opprettet = OffsetDateTime.now(),
-                generertFraDokumenter = søknader.map { it.id },
-            )
         }
-    } to gammelTilNyIdMap
+    }
+
+    return result to gammelTilNyIdMap
 }
 
 private fun SykepengesoknadDTO.bestemInntektskategori() =
