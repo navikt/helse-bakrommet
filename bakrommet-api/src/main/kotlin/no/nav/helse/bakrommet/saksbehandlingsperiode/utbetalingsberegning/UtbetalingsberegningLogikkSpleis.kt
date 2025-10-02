@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.dto.ProsentdelDto
+import no.nav.helse.erHelg
 import no.nav.helse.hendelser.Hendelseskilde
 import no.nav.helse.hendelser.Periode
 import no.nav.helse.sykdomstidslinje.Dag.ArbeidIkkeGjenopptattDag
@@ -45,6 +46,25 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
 
     val spleisDagerMap =
         this.map { spilleromDag ->
+
+            if (spilleromDag.dato.erHelg()) {
+                if (spilleromDag.dagtype == Dagtype.Syk || spilleromDag.dagtype == Dagtype.SykNav) {
+                    return@map SykHelgedag(
+                        dato = spilleromDag.dato,
+                        grad = spilleromDag.grad?.somProsentdel() ?: NullProsent,
+                        kilde = kilde_HARDKODET,
+                    ).also { syk() }.let { spleisDag ->
+                        spilleromDag.dato to spleisDag
+                    }
+                }
+                return@map FriskHelgedag(
+                    dato = spilleromDag.dato,
+                    kilde = kilde_HARDKODET,
+                ).also { frisk() }.let { spleisDag ->
+                    spilleromDag.dato to spleisDag
+                }
+            }
+
             when (spilleromDag.dagtype) {
                 Dagtype.Syk,
                 Dagtype.SykNav,

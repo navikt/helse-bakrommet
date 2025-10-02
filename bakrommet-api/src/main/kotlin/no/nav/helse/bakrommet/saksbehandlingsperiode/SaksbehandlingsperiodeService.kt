@@ -45,11 +45,9 @@ class SaksbehandlingsperiodeService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    fun hentAlleSaksbehandlingsperioder() =
-        db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
+    fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
 
-    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) =
-        db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -111,32 +109,36 @@ class SaksbehandlingsperiodeService(
             }
 
         db.nonTransactional {
-            val tidligereYrkesaktiviteter = tidligerePeriodeInntilNyPeriode
-                ?.let { yrkesaktivitetDao.hentYrkesaktivitetFor(it) }
-                ?: emptyList()
+            val tidligereYrkesaktiviteter =
+                tidligerePeriodeInntilNyPeriode
+                    ?.let { yrkesaktivitetDao.hentYrkesaktivitetFor(it) }
+                    ?: emptyList()
 
-            val (yrkesaktiviteter, gammelTilNyIdMap) = lagYrkesaktiviteter(
-                sykepengesoknader = søknader,
-                saksbehandlingsperiode = nyPeriode,
-                tidligereYrkesaktiviteter = tidligereYrkesaktiviteter
-            )
+            val (yrkesaktiviteter, gammelTilNyIdMap) =
+                lagYrkesaktiviteter(
+                    sykepengesoknader = søknader,
+                    saksbehandlingsperiode = nyPeriode,
+                    tidligereYrkesaktiviteter = tidligereYrkesaktiviteter,
+                )
             yrkesaktiviteter.forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
 
             tidligerePeriodeInntilNyPeriode?.let {
                 sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
                     sykepengegrunnlagDao.settSykepengegrunnlag(
                         saksbehandlingsperiodeId = nyPeriode.id,
-                        beregning = grunnlag.copy(
-                            id = UUID.randomUUID(),
-                            saksbehandlingsperiodeId = nyPeriode.id,
-                            opprettet = LocalDateTime.now().toString(),
-                            opprettetAv = saksbehandler.bruker.navIdent,
-                            sistOppdatert = LocalDateTime.now().toString(),
-                            inntekter = grunnlag.inntekter.map { inntekt ->
-                                val nyId = gammelTilNyIdMap[inntekt.yrkesaktivitetId] ?: UUID.randomUUID()
-                                inntekt.copy(yrkesaktivitetId = nyId)
-                            },
-                        ),
+                        beregning =
+                            grunnlag.copy(
+                                id = UUID.randomUUID(),
+                                saksbehandlingsperiodeId = nyPeriode.id,
+                                opprettet = LocalDateTime.now().toString(),
+                                opprettetAv = saksbehandler.bruker.navIdent,
+                                sistOppdatert = LocalDateTime.now().toString(),
+                                inntekter =
+                                    grunnlag.inntekter.map { inntekt ->
+                                        val nyId = gammelTilNyIdMap[inntekt.yrkesaktivitetId] ?: UUID.randomUUID()
+                                        inntekt.copy(yrkesaktivitetId = nyId)
+                                    },
+                            ),
                         saksbehandler = saksbehandler.bruker,
                     )
                 }
@@ -389,11 +391,12 @@ fun lagYrkesaktiviteter(
             )
         } else {
             val søknader = kategorierOgSøknader[kategorisering].orEmpty()
-            val dagoversikt = skapDagoversiktFraSoknader(
-                søknader.map { it.somSøknad() },
-                saksbehandlingsperiode.fom,
-                saksbehandlingsperiode.tom,
-            )
+            val dagoversikt =
+                skapDagoversiktFraSoknader(
+                    søknader.map { it.somSøknad() },
+                    saksbehandlingsperiode.fom,
+                    saksbehandlingsperiode.tom,
+                )
 
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
