@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.ProsentdelDto
@@ -33,7 +34,12 @@ object UtbetalingsberegningLogikk {
             input.yrkesaktivitet.map { ya ->
                 val dager = fyllUtManglendeDager(ya.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
 
-                val arbeidsgiverperiode = ya.arbeidsgiverperioder?.map { Periode.gjenopprett(it) } ?: emptyList()
+                val arbeidsgiverperiode =
+                    if (ya.perioder?.type == Periodetype.ARBEIDSGIVERPERIODE) {
+                        ya.perioder.perioder.map { Periode(it.fom, it.tom) }
+                    } else {
+                        emptyList()
+                    }
                 val dagerNavOvertarAnsvar: List<Periode> = dager.tilDagerNavOvertarAnsvar()
 
                 // Kast feil hvis dagerNavOvertarAnsvar ikke er inkludert i arbeidsgiverperioden

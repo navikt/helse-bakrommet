@@ -21,7 +21,6 @@ class UtbetalingsBeregningHjelper(
     fun settBeregning(
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
-        _brukSpleisBeregning: Boolean = false,
     ) {
         // Hent nødvendige data for beregningen
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())

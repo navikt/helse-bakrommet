@@ -358,8 +358,6 @@ fun lagYrkesaktivitetFraSøknader(
             saksbehandlingsperiodeId = saksbehandlingsperiode.id,
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = dok.map { it.id },
-            arbeidsgiverperioder = null,
-            venteperioder = null,
         )
     }
 }
@@ -407,8 +405,6 @@ fun lagYrkesaktiviteter(
                 saksbehandlingsperiodeId = saksbehandlingsperiode.id,
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = søknader.map { it.id },
-                arbeidsgiverperioder = null,
-                venteperioder = null,
             )
         }
     } to gammelTilNyIdMap
