@@ -45,7 +45,7 @@ allprojects {
                 }
             }
 
-            testImplementation(platform("org.junit:junit-bom:5.12.2"))
+            testImplementation(platform("org.junit:junit-bom:6.0.0"))
             testImplementation("org.junit.jupiter:junit-jupiter")
             testImplementation(kotlin("test"))
         }
