@@ -31,8 +31,14 @@ object UtbetalingsberegningLogikk {
     fun beregnAlaSpleis(input: UtbetalingsberegningInput): List<YrkesaktivitetUtbetalingsberegning> {
         val refusjonstidslinjer = opprettRefusjonstidslinjer(input)
 
-        val utbetalingstidslinjer =
+        val yrkesaktivitetMedDekningsgrad =
             input.yrkesaktivitet.map { ya ->
+                val dekningsgrad = ya.hentDekningsgrad()
+                ya to dekningsgrad
+            }
+
+        val utbetalingstidslinjer =
+            yrkesaktivitetMedDekningsgrad.map { (ya, dekningsgrad) ->
                 val dager = fyllUtManglendeDager(ya.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
 
                 val arbeidsgiverperiode = ya.hentPerioderForType(Periodetype.ARBEIDSGIVERPERIODE)
@@ -65,8 +71,6 @@ object UtbetalingsberegningLogikk {
                     }
                 val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, ya.id)
                 val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO Dette er tilkommen inntekt?
-
-                val dekningsgrad = ya.hentDekningsgrad()
 
                 if (ya.kategorisering["INNTEKTSKATEGORI"] == "INAKTIV") {
                     return@map InaktivUtbetalingstidslinjeBuilder(
@@ -115,12 +119,12 @@ object UtbetalingsberegningLogikk {
                 Utbetalingstidslinje.betale(sykepengegrunnlagBegrenset6G, utbetalingstidslinjerMedTotalGrad)
             }
 
-        return input.yrkesaktivitet.zip(utbetalingstidslinjer).map { (yrkesaktivitet, utbetalingstidslinje) ->
+        return yrkesaktivitetMedDekningsgrad.zip(utbetalingstidslinjer).map { (yrkesaktivitetMedDekningsgrad, utbetalingstidslinje) ->
+            val (yrkesaktivitet, dekningsgrad) = yrkesaktivitetMedDekningsgrad
             YrkesaktivitetUtbetalingsberegning(
                 yrkesaktivitetId = yrkesaktivitet.id,
                 utbetalingstidslinje = utbetalingstidslinje,
-                dekningsgrad = Sporbar(ProsentdelDto(1.0), Beregningssporing.ARBEIDSTAKER_100),
-                // TODO finn riktig dekningsgrad
+                dekningsgrad = dekningsgrad,
             )
         }
     }
