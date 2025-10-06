@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
@@ -36,7 +37,7 @@ class UtbetalingsberegningLogikkTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()
@@ -99,7 +100,7 @@ class UtbetalingsberegningLogikkTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()

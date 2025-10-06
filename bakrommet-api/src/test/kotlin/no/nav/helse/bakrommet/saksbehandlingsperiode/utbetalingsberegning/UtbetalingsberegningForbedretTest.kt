@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.toJsonNode
 import org.junit.jupiter.api.Test
@@ -38,7 +39,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()
@@ -101,7 +102,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()
@@ -147,7 +148,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()
@@ -187,7 +188,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
         val oppdrage = resultat
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()
@@ -246,7 +247,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(2, resultat.size)
 
@@ -294,7 +295,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()
@@ -338,7 +339,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()
@@ -377,7 +378,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
 
         assertEquals(1, resultat.size)
         val yrkesaktivitetResultat = resultat.first()
@@ -449,7 +450,7 @@ class UtbetalingsberegningForbedretTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
         println(resultat.toJsonNode().toPrettyString())
     }
 }

@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
@@ -19,7 +20,7 @@ internal fun Route.demoUtbetalingsberegningRoute() {
             try {
                 // Parse input til objekt
                 val input = objectMapper.readValue(rawInput, UtbetalingsberegningInput::class.java)
-                val beregnet = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+                val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
                 val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, "NATURLIG_IDENT_DEMO")
                 val beregningData = BeregningData(beregnet, oppdrag)
                 val beregningDataDto = beregningData.tilBeregningDataUtDto()

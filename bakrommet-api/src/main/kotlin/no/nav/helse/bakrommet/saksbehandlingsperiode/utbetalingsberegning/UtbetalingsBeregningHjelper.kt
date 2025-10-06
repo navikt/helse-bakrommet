@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeRefer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.utbetalingslinjer.Klassekode
@@ -52,7 +53,7 @@ class UtbetalingsBeregningHjelper(
             )
 
         // Utfør beregning
-        val beregnet = UtbetalingsberegningLogikk.beregnAlaSpleis(beregningInput)
+        val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(beregningInput)
 
         // Bygg oppdrag for hver yrkesaktivitet
         val oppdrag = byggOppdragFraBeregning(beregnet, yrkesaktiviteter, ident)

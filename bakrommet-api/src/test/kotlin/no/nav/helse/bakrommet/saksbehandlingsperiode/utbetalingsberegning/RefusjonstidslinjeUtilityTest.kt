@@ -4,6 +4,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnRefusjonstidslinje
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
@@ -38,7 +39,7 @@ class RefusjonstidslinjeUtilityTest {
             )
 
         val refusjonstidslinje =
-            RefusjonstidslinjeUtility.beregnRefusjonstidslinje(
+            beregnRefusjonstidslinje(
                 sykepengegrunnlag,
                 yrkesaktivitetId,
                 saksbehandlingsperiode,
@@ -86,7 +87,7 @@ class RefusjonstidslinjeUtilityTest {
             )
 
         val refusjonstidslinje =
-            RefusjonstidslinjeUtility.beregnRefusjonstidslinje(
+            beregnRefusjonstidslinje(
                 sykepengegrunnlag,
                 yrkesaktivitetId,
                 saksbehandlingsperiode,
@@ -136,7 +137,7 @@ class RefusjonstidslinjeUtilityTest {
             )
 
         val refusjonstidslinje =
-            RefusjonstidslinjeUtility.beregnRefusjonstidslinje(
+            beregnRefusjonstidslinje(
                 sykepengegrunnlag,
                 yrkesaktivitetId,
                 saksbehandlingsperiode,

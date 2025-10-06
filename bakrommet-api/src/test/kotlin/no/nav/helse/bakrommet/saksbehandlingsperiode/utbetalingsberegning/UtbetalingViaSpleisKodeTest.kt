@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.util.toJsonNode
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -54,7 +55,7 @@ class UtbetalingViaSpleisKodeTest {
                 }
             }
 
-        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
         println(resultat.toJsonNode().toPrettyString())
     }
 }
