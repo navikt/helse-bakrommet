@@ -1,13 +1,14 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
-import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import java.time.LocalDate
 import java.util.UUID
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnRefusjonstidslinje as beregnRefusjonstidslinjeFunksjonell
 
 /**
- * Utility-klasse for å håndtere refusjonsuttrekning og tidslinje-opprettelse
+ * Legacy wrapper for refusjonstidslinje - bruker nå funksjonell tilnærming
+ * @deprecated Bruk beregnRefusjonstidslinje direkte fra beregning-pakken
  */
 object RefusjonstidslinjeUtility {
     /**
@@ -23,38 +24,6 @@ object RefusjonstidslinjeUtility {
         yrkesaktivitetId: UUID,
         saksbehandlingsperiode: Saksbehandlingsperiode,
     ): Map<LocalDate, Inntekt> {
-        val refusjonstidslinje = mutableMapOf<LocalDate, Inntekt>()
-
-        sykepengegrunnlag.inntekter
-            .filter { it.yrkesaktivitetId == yrkesaktivitetId }
-            .flatMap { inntekt ->
-                inntekt.refusjon.map { refusjon ->
-                    // Fyll tidslinjen for hver dag i refusjonsperioden
-                    // Hvis tom er null, bruk periodens tom (saksbehandlingsperioden.tom)
-                    val refusjonTom = refusjon.tom ?: saksbehandlingsperiode.tom
-                    refusjon.fom.datesUntil(refusjonTom.plusDays(1)).forEach { dato ->
-                        val dagligBeløpKroner = konverterMånedligØreTilDagligKroner(refusjon.beløpØre)
-                        val beløp = Inntekt.gjenopprett(InntektbeløpDto.DagligInt(dagligBeløpKroner))
-                        refusjonstidslinje[dato] = beløp
-                    }
-                }
-            }
-
-        return refusjonstidslinje
-    }
-
-    /**
-     * Konverterer månedlig beløp i øre til daglig beløp i kroner
-     *
-     * @param månedligBeløpØre Beløp per måned i øre
-     * @return Daglig beløp i kroner
-     */
-    private fun konverterMånedligØreTilDagligKroner(månedligBeløpØre: Long): Int {
-        // Konverter fra månedlig øre til daglig kroner (gange med 12 og dele på 260 arbeidsdager)
-        return (
-            (månedligBeløpØre * UtbetalingsberegningKonfigurasjon.MÅNEDLIG_TIL_ÅRLIG_FAKTOR) /
-                UtbetalingsberegningKonfigurasjon.STANDARD_ÅRLIGE_ARBEIDSDAGER /
-                UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR
-        ).toInt()
+        return beregnRefusjonstidslinjeFunksjonell(sykepengegrunnlag, yrkesaktivitetId, saksbehandlingsperiode)
     }
 }
