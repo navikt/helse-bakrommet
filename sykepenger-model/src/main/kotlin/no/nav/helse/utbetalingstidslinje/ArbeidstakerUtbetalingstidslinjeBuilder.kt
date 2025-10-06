@@ -31,6 +31,7 @@ class ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
     private val refusjonstidslinje: Beløpstidslinje,
     private val fastsattÅrsinntekt: Inntekt,
     private val inntektjusteringer: Beløpstidslinje,
+    private val dekningsgrad: Prosentdel,
 ) {
     internal fun medInntektHvisFinnes(
         dato: LocalDate,
@@ -46,7 +47,7 @@ class ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
         return Økonomi.inntekt(
             sykdomsgrad = grad,
             aktuellDagsinntekt = fastsattÅrsinntekt,
-            dekningsgrad = 100.prosent,
+            dekningsgrad = dekningsgrad,
             refusjonsbeløp = (refusjonstidslinje[dato] as? Beløpsdag)?.beløp ?: INGEN,
             inntektjustering = (inntektjusteringer[dato] as? Beløpsdag)?.beløp ?: INGEN,
         )

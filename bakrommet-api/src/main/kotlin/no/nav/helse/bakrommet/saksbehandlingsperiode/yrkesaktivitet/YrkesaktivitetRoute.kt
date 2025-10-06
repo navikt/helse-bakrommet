@@ -26,7 +26,6 @@ data class YrkesaktivitetDTO(
     val kategorisering: Map<String, String>,
     val dagoversikt: List<Dag>?,
     val generertFraDokumenter: List<UUID>,
-    val dekningsgrad: Int,
     val perioder: Perioder?,
 )
 
@@ -36,9 +35,7 @@ fun Yrkesaktivitet.tilDto() =
         kategorisering = kategorisering,
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
-        dekningsgrad = hentDekningsgrad().verdi.prosentDesimal.toInt(),
         perioder = perioder,
-        // TODO ikke returner denne, vis fra beregning istedenfor
     )
 
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: YrkesaktivitetService) {

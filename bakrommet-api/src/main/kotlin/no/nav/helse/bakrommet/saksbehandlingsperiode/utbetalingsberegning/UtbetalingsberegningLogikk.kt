@@ -74,7 +74,6 @@ object UtbetalingsberegningLogikk {
 
                 if (ya.kategorisering["INNTEKTSKATEGORI"] == "INAKTIV") {
                     return@map InaktivUtbetalingstidslinjeBuilder(
-                        // TODO : Sporbar dekningsgrad
                         fastsattÅrsinntekt = fastsattÅrsinntekt,
                         dekningsgrad = dekningsgrad.verdi.tilProsentdel(),
                         inntektjusteringer = inntektjusteringer,
@@ -84,7 +83,6 @@ object UtbetalingsberegningLogikk {
 
                 if (ya.kategorisering["INNTEKTSKATEGORI"] == "SELVSTENDIG_NÆRINGSDRIVENDE") {
                     return@map SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
-                        // TODO : Sporbar dekningsgrad
                         fastsattÅrsinntekt = fastsattÅrsinntekt,
                         dekningsgrad = dekningsgrad.verdi.tilProsentdel(),
                         ventetid = ya.hentPerioderForType(Periodetype.VENTETID),
@@ -96,6 +94,7 @@ object UtbetalingsberegningLogikk {
                 return@map ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
                     // TODO : Dekningsgrad er hardkodet til 100% inni Buildern (i og med "Arbeidstaker...Builder")
                     arbeidsgiverperiode = arbeidsgiverperiode,
+                    dekningsgrad = dekningsgrad.verdi.tilProsentdel(),
                     dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
                     refusjonstidslinje = refusjonstidslinje,
                     fastsattÅrsinntekt = fastsattÅrsinntekt,
