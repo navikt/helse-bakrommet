@@ -1,90 +1,60 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
 import no.nav.helse.bakrommet.util.toJsonNode
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class UtbetalingViaSpleisKodeTest {
-    fun Int.krSomØre() = this * 100L
-
     @Test
     fun `to yrkesaktiviteter`() {
         val førsteDag = LocalDate.of(2024, 1, 1)
+        val yrkesaktivitet1Id = UUID.randomUUID()
+        val yrkesaktivitet2Id = UUID.randomUUID()
 
-        val saksbehandlingsperiode =
-            Saksbehandlingsperiode(
-                fom = førsteDag,
-                tom = førsteDag.plusDays(13),
-            )
-        val saksbehandlingsperiodeId = UUID.randomUUID()
-
-        val yrkesaktivitet1 =
-            lagYrkesaktivitet(
-                saksbehandlingsperiodeId = saksbehandlingsperiodeId,
-                dagoversikt =
-                    DagListeBuilder(førsteDag).apply {
-                        repeat(14) {
-                            syk(grad = 100)
-                        }
-                    }.dager,
-            )
-
-        val yrkesaktivitet2 =
-            lagYrkesaktivitet(
-                saksbehandlingsperiodeId = saksbehandlingsperiodeId,
-                dagoversikt =
-                    DagListeBuilder(førsteDag).apply {
-                        repeat(14) {
-                            syk(grad = 50)
-                        }
-                    }.dager,
-            )
-
-        val sykepengegrunnlag =
-            sykepengegrunnlag(
-                inntekter =
-                    listOf(
-                        Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet1.id,
-                            beløpPerMånedØre = 50_000.krSomØre(),
-                            kilde = Inntektskilde.AINNTEKT,
-                            refusjon =
-                                listOf(
-                                    Refusjonsperiode(
-                                        fom = førsteDag,
-                                        tom = førsteDag.plusDays(7),
-                                        // Lukket periode
-                                        beløpØre = 50_000.krSomØre(),
-                                    ),
-                                    Refusjonsperiode(
-                                        fom = førsteDag.plusDays(8),
-                                        tom = null,
-                                        // Åpen periode
-                                        beløpØre = 10_000.krSomØre(),
-                                    ),
-                                ),
-                        ),
-                        Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet2.id,
-                            beløpPerMånedØre = 50_000.krSomØre(),
-                            kilde = Inntektskilde.AINNTEKT,
-                            refusjon = emptyList(),
-                        ),
-                    ),
-            )
         val input =
-            UtbetalingsberegningInput(
-                sykepengegrunnlag = sykepengegrunnlag,
-                yrkesaktivitet = listOf(yrkesaktivitet1, yrkesaktivitet2),
-                saksbehandlingsperiode = saksbehandlingsperiode,
-            )
+            utbetalingsberegningTest {
+                periode(fom = førsteDag, tom = førsteDag.plusDays(13))
 
-        val res2 = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+                yrkesaktivitet {
+                    id(yrkesaktivitet1Id)
+                    arbeidstaker()
+                    fra(førsteDag)
+                    syk(grad = 100, antallDager = 14)
+                }
 
-        println(res2.toJsonNode().toPrettyString())
+                yrkesaktivitet {
+                    id(yrkesaktivitet2Id)
+                    arbeidstaker()
+                    fra(førsteDag)
+                    syk(grad = 50, antallDager = 14)
+                }
+
+                inntekt {
+                    yrkesaktivitetId(yrkesaktivitet1Id)
+                    beløp(50000) // 50 000 kr/mnd
+                    kilde(Inntektskilde.AINNTEKT)
+                    refusjon {
+                        fra(førsteDag)
+                        til(førsteDag.plusDays(7))
+                        beløp(50000) // 50 000 kr/mnd refusjon
+                    }
+                    refusjon {
+                        fra(førsteDag.plusDays(8))
+                        åpen()
+                        beløp(10000) // 10 000 kr/mnd refusjon
+                    }
+                }
+
+                inntekt {
+                    yrkesaktivitetId(yrkesaktivitet2Id)
+                    beløp(50000) // 50 000 kr/mnd
+                    kilde(Inntektskilde.AINNTEKT)
+                }
+            }
+
+        val resultat = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
+        println(resultat.toJsonNode().toPrettyString())
     }
 }

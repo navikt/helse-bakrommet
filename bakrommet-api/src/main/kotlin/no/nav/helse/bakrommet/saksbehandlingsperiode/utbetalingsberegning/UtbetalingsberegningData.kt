@@ -27,6 +27,7 @@ data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
     val yrkesaktivitet: List<Yrkesaktivitet>,
     val saksbehandlingsperiode: Saksbehandlingsperiode,
+    val arbeidsgiverperiode: Saksbehandlingsperiode? = null,
 )
 
 data class Saksbehandlingsperiode(
