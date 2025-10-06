@@ -20,7 +20,7 @@ internal fun Route.demoUtbetalingsberegningRoute() {
                 // Parse input til objekt
                 val input = objectMapper.readValue(rawInput, UtbetalingsberegningInput::class.java)
                 val beregnet = UtbetalingsberegningLogikk.beregnAlaSpleis(input)
-                val oppdrag = byggOppdragFraBeregning(beregnet)
+                val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, "NATURLIG_IDENT_DEMO")
                 val beregningData = BeregningData(beregnet, oppdrag)
                 val beregningDataDto = beregningData.tilBeregningDataUtDto()
 

@@ -58,6 +58,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                     override val yrkesaktivitetDao = yrkesaktivitetDao
                     override val sykepengegrunnlagDao = sykepengegrunnlagDao
                     override val beregningDao = beregningDao
+                    override val personDao = personDao
                 },
                 TransactionalSessionFactory(dataSource) { session ->
                     object : YrkesaktivitetServiceDaoer {
@@ -65,6 +66,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                         override val yrkesaktivitetDao = YrkesaktivitetDao(session)
                         override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
                         override val beregningDao = UtbetalingsberegningDao(session)
+                        override val personDao = PersonDao(session)
                     }
                 },
             )
@@ -76,6 +78,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                     override val yrkesaktivitetDao = yrkesaktivitetDao
                     override val sykepengegrunnlagDao = sykepengegrunnlagDao
                     override val beregningDao = beregningDao
+                    override val personDao = personDao
                 },
                 TransactionalSessionFactory(dataSource) { session ->
                     object : SykepengegrunnlagServiceDaoer {
@@ -83,6 +86,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                         override val yrkesaktivitetDao = YrkesaktivitetDao(session)
                         override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
                         override val beregningDao = UtbetalingsberegningDao(session)
+                        override val personDao = PersonDao(session)
                     }
                 },
             )

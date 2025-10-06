@@ -1,13 +1,16 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.utbetalingslinjer.Klassekode
+import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingslinjer.UtbetalingkladdBuilder
 import java.time.LocalDateTime
 import java.util.*
@@ -17,6 +20,7 @@ class UtbetalingsBeregningHjelper(
     private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
+    private val personDao: PersonDao,
 ) {
     fun settBeregning(
         referanse: SaksbehandlingsperiodeReferanse,
@@ -24,7 +28,9 @@ class UtbetalingsBeregningHjelper(
     ) {
         // Hent nødvendige data for beregningen
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
-
+        val ident =
+            personDao.finnNaturligIdent(periode.spilleromPersonId)
+                ?: throw RuntimeException("Fant ikke person for spilleromId ${periode.spilleromPersonId}")
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
             sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
@@ -49,7 +55,7 @@ class UtbetalingsBeregningHjelper(
         val beregnet = UtbetalingsberegningLogikk.beregnAlaSpleis(beregningInput)
 
         // Bygg oppdrag for hver yrkesaktivitet
-        val oppdrag = byggOppdragFraBeregning(beregnet)
+        val oppdrag = byggOppdragFraBeregning(beregnet, yrkesaktiviteter, ident)
 
         val beregningData = BeregningData(beregnet, oppdrag)
 
@@ -75,13 +81,20 @@ class UtbetalingsBeregningHjelper(
 /**
  * Bygger oppdrag fra en liste av yrkesaktivitet-beregninger
  */
-fun byggOppdragFraBeregning(beregnet: List<YrkesaktivitetUtbetalingsberegning>): List<no.nav.helse.utbetalingslinjer.Oppdrag> {
-    val oppdrag = mutableListOf<no.nav.helse.utbetalingslinjer.Oppdrag>()
+fun byggOppdragFraBeregning(
+    beregnet: List<YrkesaktivitetUtbetalingsberegning>,
+    yrkesaktiviteter: List<Yrkesaktivitet>,
+    ident: String,
+): List<Oppdrag> {
+    val oppdrag = mutableListOf<Oppdrag>()
 
     beregnet.forEach { yrkesaktivitetBeregning ->
-        // TODO: Hent riktig mottaker og klassekode basert på yrkesaktivitet
-        val mottakerRefusjon = "TODO" // Hent fra yrkesaktivitet
-        val mottakerBruker = "TODO" // Hent fra yrkesaktivitet
+        val yrkesaktivitet = yrkesaktiviteter.first { it.id == yrkesaktivitetBeregning.yrkesaktivitetId }
+        val mottakerRefusjon =
+            yrkesaktivitet.kategorisering["ORGNUMMER"] ?: yrkesaktivitet.kategorisering["INNTEKTSKATEGORI"]
+                ?: throw RuntimeException("Mangler orgnummer eller inntektskategori for yrkesaktivitet ${yrkesaktivitet.id}")
+
+        val mottakerBruker = ident
         val klassekodeBruker = Klassekode.SykepengerArbeidstakerOrdinær
 
         val utbetalingkladdBuilder =
@@ -93,8 +106,12 @@ fun byggOppdragFraBeregning(beregnet: List<YrkesaktivitetUtbetalingsberegning>):
             )
 
         val utbetalingkladd = utbetalingkladdBuilder.build()
-        oppdrag.add(utbetalingkladd.arbeidsgiveroppdrag)
-        oppdrag.add(utbetalingkladd.personoppdrag)
+        if (utbetalingkladd.arbeidsgiveroppdrag.linjer.isNotEmpty()) {
+            oppdrag.add(utbetalingkladd.arbeidsgiveroppdrag)
+        }
+        if (utbetalingkladd.personoppdrag.linjer.isNotEmpty()) {
+            oppdrag.add(utbetalingkladd.personoppdrag)
+        }
     }
 
     return oppdrag

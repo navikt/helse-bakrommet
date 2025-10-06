@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
+import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
@@ -31,6 +32,7 @@ interface YrkesaktivitetServiceDaoer {
     val yrkesaktivitetDao: YrkesaktivitetDao
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val beregningDao: UtbetalingsberegningDao
+    val personDao: PersonDao
 }
 
 typealias YrkesaktivitetKategorisering = Map<String, String>
@@ -202,6 +204,7 @@ class YrkesaktivitetService(
                     saksbehandlingsperiodeDao,
                     sykepengegrunnlagDao,
                     yrkesaktivitetDao,
+                    personDao,
                 )
             beregningshjelperISammeTransaksjon.settBeregning(ref.saksbehandlingsperiodeReferanse, saksbehandler)
 
@@ -227,6 +230,7 @@ class YrkesaktivitetService(
                     saksbehandlingsperiodeDao,
                     sykepengegrunnlagDao,
                     yrkesaktivitetDao,
+                    personDao,
                 )
             beregningshjelperISammeTransaksjon.settBeregning(ref.saksbehandlingsperiodeReferanse, saksbehandler)
         }
