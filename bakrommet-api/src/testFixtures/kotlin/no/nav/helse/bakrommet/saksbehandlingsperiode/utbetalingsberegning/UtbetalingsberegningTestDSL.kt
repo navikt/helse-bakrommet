@@ -415,7 +415,7 @@ private fun fyllUtManglendeDagerSomArbeidsdager(
 
 private fun lagSykepengegrunnlag(inntekter: List<Inntekt>): SykepengegrunnlagResponse {
     val totalInntektØre = 12 * inntekter.sumOf { it.beløpPerMånedØre }
-    val grunnbeløpØre = 12402800L
+    val grunnbeløpØre = 10000000L
     val grunnbeløp6GØre = 6 * grunnbeløpØre
 
     return SykepengegrunnlagResponse(
@@ -498,9 +498,16 @@ class YrkesaktivitetAssertionBuilder(
 class DagAssertionBuilder(
     private val dag: no.nav.helse.utbetalingstidslinje.Utbetalingsdag,
 ) {
-    fun harGrad(grad: Int) {
-        val faktiskGrad = dag.økonomi.brukTotalGrad { it }
-        assert(faktiskGrad == grad) {
+    fun harTotalGrad(grad: Int) {
+        val faktiskGrad = dag.økonomi.totalSykdomsgrad?.toDouble()
+        assert(faktiskGrad == grad.toDouble()) {
+            "Forventet totalgrad $grad, men fikk $faktiskGrad for dato ${dag.dato}"
+        }
+    }
+
+    fun harSykdomsGrad(grad: Int) {
+        val faktiskGrad = (dag.økonomi.sykdomsgrad?.dto()?.prosentDesimal ?: 0.0) * 100
+        assert(faktiskGrad.toInt() == grad) {
             "Forventet grad $grad, men fikk $faktiskGrad for dato ${dag.dato}"
         }
     }
@@ -591,8 +598,8 @@ class OppdragMatcherBuilder(
     }
 
     fun harTotalbeløp(beløp: Int) {
-        assert(oppdrag.nettoBeløp == beløp) {
-            "Forventet netto beløp $beløp, men fikk ${oppdrag.nettoBeløp}"
+        assert(oppdrag.totalbeløp() == beløp) {
+            "Forventet netto beløp $beløp, men fikk ${oppdrag.totalbeløp()}"
         }
     }
 

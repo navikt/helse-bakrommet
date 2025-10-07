@@ -57,7 +57,7 @@ class KombinertBeregningTest {
                 harDekningsgrad(80)
                 harDekningsgradBegrunnelse(ORDINAER_SELVSTENDIG_80)
                 dag(1.januar(2024)) {
-                    harGrad(100)
+                    harTotalGrad(100)
                     harIngenRefusjon()
                     harUtbetaling(800)
                 }
@@ -68,7 +68,7 @@ class KombinertBeregningTest {
                 harDekningsgrad(100)
                 harDekningsgradBegrunnelse(ARBEIDSTAKER_100)
                 dag(1.januar(2024)) {
-                    harGrad(100)
+                    harTotalGrad(100)
                     harIngenUtbetaling()
                     harRefusjon(1000)
                 }

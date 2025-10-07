@@ -39,12 +39,12 @@ class ArbeidsledigBeregningTest {
                 harDekningsgrad(100)
                 harDekningsgradBegrunnelse(DAGPENGEMOTTAKER_100)
                 dag(1.januar(2024)) {
-                    harGrad(50)
+                    harTotalGrad(50)
                     harIngenRefusjon()
                     harUtbetaling(500)
                 }
                 dag(16.januar(2024)) {
-                    harGrad(100)
+                    harTotalGrad(100)
                     harIngenRefusjon()
                     harUtbetaling(1000)
                 }

@@ -46,15 +46,15 @@ class UtbetalingsberegningForbedretTest {
             haYrkesaktivitet(yrkesaktivitetId) {
                 harAntallDager(31) // Hele januar
                 dag(1.januar(2024)) {
-                    harGrad(100)
+                    harTotalGrad(100)
                     harRefusjon()
                 }
                 dag(2.januar(2024)) {
-                    harGrad(100)
+                    harTotalGrad(100)
                     harRefusjon()
                 }
                 dag(3.januar(2024)) {
-                    harGrad(0)
+                    harTotalGrad(0)
                     harIngenRefusjon()
                 }
             }
@@ -166,7 +166,7 @@ class UtbetalingsberegningForbedretTest {
             haYrkesaktivitet(yrkesaktivitetId) {
                 harAntallDager(31) // Hele januar
                 dag(LocalDate.of(2024, 1, 1)) {
-                    harGrad(100)
+                    harTotalGrad(100)
                 }
             }
 

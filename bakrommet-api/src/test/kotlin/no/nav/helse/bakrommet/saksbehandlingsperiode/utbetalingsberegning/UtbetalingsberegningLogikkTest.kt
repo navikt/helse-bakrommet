@@ -40,11 +40,11 @@ class UtbetalingsberegningLogikkTest {
             haYrkesaktivitet(yrkesaktivitetId) {
                 harAntallDager(31) // Hele januar
                 dag(LocalDate.of(2024, 1, 1)) {
-                    harGrad(100)
+                    harTotalGrad(100)
                     harRefusjon()
                 }
                 dag(LocalDate.of(2024, 1, 2)) {
-                    harGrad(100)
+                    harTotalGrad(100)
                     harRefusjon()
                 }
             }
