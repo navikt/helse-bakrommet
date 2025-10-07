@@ -7,10 +7,12 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.dto.PeriodeDto
+import no.nav.helse.utbetalingslinjer.Oppdrag
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -52,7 +54,7 @@ class UtbetalingsberegningTestBuilder {
 
     fun build(): UtbetalingsberegningInput {
         val periode = saksbehandlingsperiode ?: throw IllegalStateException("Saksbehandlingsperiode må være satt")
-        val yrkesaktivitetListe = yrkesaktiviteter.map { it.build() }
+        val yrkesaktivitetListe = yrkesaktiviteter.map { it.build(periode) }
         val sykepengegrunnlag = lagSykepengegrunnlag(inntekter.map { it.build() })
 
         return UtbetalingsberegningInput(
@@ -223,7 +225,7 @@ class YrkesaktivitetBuilder {
         }
     }
 
-    fun build(): Yrkesaktivitet {
+    fun build(saksbehandlingsperiode: Saksbehandlingsperiode): Yrkesaktivitet {
         val perioder =
             arbeidsgiverperiode?.let { (fom, tom) ->
                 Perioder(
@@ -234,11 +236,14 @@ class YrkesaktivitetBuilder {
 
         kategorisering["INNTEKTSKATEGORI"] = inntektskategori
 
+        // Fyll ut manglende dager som arbeidsdager
+        val fullstendigDagoversikt = fyllUtManglendeDagerSomArbeidsdager(dagoversikt, saksbehandlingsperiode)
+
         return Yrkesaktivitet(
             id = id,
             kategorisering = kategorisering,
             kategoriseringGenerert = null,
-            dagoversikt = dagoversikt,
+            dagoversikt = fullstendigDagoversikt,
             dagoversiktGenerert = null,
             saksbehandlingsperiodeId = saksbehandlingsperiodeId,
             opprettet = OffsetDateTime.now(),
@@ -327,7 +332,62 @@ fun utbetalingsberegningTest(init: UtbetalingsberegningTestBuilder.() -> Unit): 
     return builder.build()
 }
 
+/**
+ * Helper-funksjon som kaller beregnUtbetalingerForAlleYrkesaktiviteter og byggOppdragFraBeregning
+ */
+fun beregnOgByggOppdrag(
+    input: UtbetalingsberegningInput,
+    ident: String = "TESTIDENT",
+): BeregningResultat {
+    val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
+    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, ident)
+    return BeregningResultat(beregnet, oppdrag)
+}
+
+/**
+ * Kombinert DSL som setter opp testdata og beregner resultatet i ett steg
+ */
+fun utbetalingsberegningTestOgBeregn(
+    ident: String = "TESTIDENT",
+    init: UtbetalingsberegningTestBuilder.() -> Unit,
+): BeregningResultat {
+    val input = utbetalingsberegningTest(init)
+    return beregnOgByggOppdrag(input, ident)
+}
+
+/**
+ * Data class for å holde beregning og oppdrag sammen
+ */
+data class BeregningResultat(
+    val beregnet: List<YrkesaktivitetUtbetalingsberegning>,
+    val oppdrag: List<Oppdrag>,
+)
+
 // Hjelpefunksjoner for å lage sykepengegrunnlag
+private fun fyllUtManglendeDagerSomArbeidsdager(
+    eksisterendeDager: List<Dag>,
+    saksbehandlingsperiode: Saksbehandlingsperiode,
+): List<Dag> {
+    val dagerMap = eksisterendeDager.associateBy { it.dato }.toMutableMap()
+
+    var aktuellDato = saksbehandlingsperiode.fom
+    while (!aktuellDato.isAfter(saksbehandlingsperiode.tom)) {
+        if (!dagerMap.containsKey(aktuellDato)) {
+            dagerMap[aktuellDato] =
+                Dag(
+                    dato = aktuellDato,
+                    dagtype = Dagtype.Arbeidsdag,
+                    grad = null,
+                    avslåttBegrunnelse = emptyList(),
+                    kilde = Kilde.Saksbehandler,
+                )
+        }
+        aktuellDato = aktuellDato.plusDays(1)
+    }
+
+    return dagerMap.values.sortedBy { it.dato }
+}
+
 private fun lagSykepengegrunnlag(inntekter: List<Inntekt>): SykepengegrunnlagResponse {
     val totalInntektØre = 12 * inntekter.sumOf { it.beløpPerMånedØre }
     val grunnbeløpØre = 12402800L
@@ -347,4 +407,139 @@ private fun lagSykepengegrunnlag(inntekter: List<Inntekt>): SykepengegrunnlagRes
         opprettetAv = "test",
         sistOppdatert = "2024-01-01T00:00:00Z",
     )
+}
+
+/**
+ * DSL for å asserte beregning og oppdrag resultater
+ */
+class BeregningAssertionBuilder(
+    private val resultat: BeregningResultat,
+) {
+    fun yrkesaktivitet(
+        yrkesaktivitetId: UUID,
+        init: YrkesaktivitetAssertionBuilder.() -> Unit,
+    ) {
+        val yrkesaktivitetResultat =
+            resultat.beregnet.find { it.yrkesaktivitetId == yrkesaktivitetId }
+                ?: throw AssertionError("Fant ikke yrkesaktivitet med id $yrkesaktivitetId")
+
+        val builder = YrkesaktivitetAssertionBuilder(yrkesaktivitetResultat)
+        builder.init()
+    }
+
+    fun oppdrag(init: OppdragAssertionBuilder.() -> Unit) {
+        val builder = OppdragAssertionBuilder(resultat.oppdrag)
+        builder.init()
+    }
+}
+
+class YrkesaktivitetAssertionBuilder(
+    private val yrkesaktivitetResultat: YrkesaktivitetUtbetalingsberegning,
+) {
+    fun harAntallDager(antall: Int) {
+        val faktiskAntall = yrkesaktivitetResultat.utbetalingstidslinje.size
+        assert(faktiskAntall == antall) {
+            "Forventet $antall dager, men fikk $faktiskAntall dager"
+        }
+    }
+
+    fun dag(
+        dato: LocalDate,
+        init: DagAssertionBuilder.() -> Unit,
+    ) {
+        val dag =
+            yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == dato }
+                ?: throw AssertionError("Fant ikke dag for dato $dato")
+
+        val builder = DagAssertionBuilder(dag)
+        builder.init()
+    }
+}
+
+class DagAssertionBuilder(
+    private val dag: no.nav.helse.utbetalingstidslinje.Utbetalingsdag,
+) {
+    fun harGrad(grad: Int) {
+        val faktiskGrad = dag.økonomi.brukTotalGrad { it }
+        assert(faktiskGrad == grad) {
+            "Forventet grad $grad, men fikk $faktiskGrad for dato ${dag.dato}"
+        }
+    }
+
+    fun harRefusjon() {
+        val harRefusjon = dag.økonomi.arbeidsgiverbeløp != null && dag.økonomi.arbeidsgiverbeløp!!.dagligInt > 0
+        assert(harRefusjon) {
+            "Forventet refusjon for dato ${dag.dato}, men fikk ingen refusjon"
+        }
+    }
+
+    fun harIngenRefusjon() {
+        val harRefusjon = dag.økonomi.arbeidsgiverbeløp != null && dag.økonomi.arbeidsgiverbeløp!!.dagligInt > 0
+        assert(!harRefusjon) {
+            "Forventet ingen refusjon for dato ${dag.dato}, men fikk refusjon"
+        }
+    }
+}
+
+class OppdragAssertionBuilder(
+    private val oppdrag: List<Oppdrag>,
+) {
+    fun harAntallOppdrag(antall: Int) {
+        val faktiskAntall = oppdrag.size
+        assert(faktiskAntall == antall) {
+            "Forventet $antall oppdrag, men fikk $faktiskAntall oppdrag"
+        }
+    }
+
+    fun oppdrag(
+        index: Int,
+        init: OppdragMatcherBuilder.() -> Unit,
+    ) {
+        if (index >= oppdrag.size) {
+            throw AssertionError("Oppdrag $index finnes ikke. Total antall oppdrag: ${oppdrag.size}")
+        }
+
+        val builder = OppdragMatcherBuilder(oppdrag[index])
+        builder.init()
+    }
+
+    fun oppdragMedMottaker(
+        mottaker: String,
+        init: OppdragMatcherBuilder.() -> Unit,
+    ) {
+        val oppdragMedMottaker =
+            oppdrag.find { it.mottaker == mottaker }
+                ?: throw AssertionError("Fant ikke oppdrag med mottaker $mottaker")
+
+        val builder = OppdragMatcherBuilder(oppdragMedMottaker)
+        builder.init()
+    }
+}
+
+class OppdragMatcherBuilder(
+    private val oppdrag: Oppdrag,
+) {
+    fun harMottaker(mottaker: String) {
+        assert(oppdrag.mottaker == mottaker) {
+            "Forventet mottaker $mottaker, men fikk ${oppdrag.mottaker}"
+        }
+    }
+
+    fun harNettoBeløp(beløp: Int) {
+        assert(oppdrag.nettoBeløp == beløp) {
+            "Forventet netto beløp $beløp, men fikk ${oppdrag.nettoBeløp}"
+        }
+    }
+
+    fun harFagområde(fagområde: String) {
+        assert(oppdrag.fagområde.verdi == fagområde) {
+            "Forventet fagområde $fagområde, men fikk ${oppdrag.fagområde.verdi}"
+        }
+    }
+}
+
+// Extension functions for enklere bruk av matcher-DSL
+fun BeregningResultat.skal(init: BeregningAssertionBuilder.() -> Unit) {
+    val builder = BeregningAssertionBuilder(this)
+    builder.init()
 }
