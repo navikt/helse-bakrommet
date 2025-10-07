@@ -13,6 +13,11 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.fail
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -446,9 +451,9 @@ class BeregningAssertionBuilder(
     ) {
         val yrkesaktivitetResultat =
             resultat.beregnet.find { it.yrkesaktivitetId == yrkesaktivitetId }
-                ?: throw AssertionError("Fant ikke yrkesaktivitet med id $yrkesaktivitetId")
+        assertNotNull(yrkesaktivitetResultat, "Fant ikke yrkesaktivitet med id $yrkesaktivitetId")
 
-        val builder = YrkesaktivitetAssertionBuilder(yrkesaktivitetResultat)
+        val builder = YrkesaktivitetAssertionBuilder(yrkesaktivitetResultat!!)
         builder.init()
     }
 
@@ -463,23 +468,17 @@ class YrkesaktivitetAssertionBuilder(
 ) {
     fun harAntallDager(antall: Int) {
         val faktiskAntall = yrkesaktivitetResultat.utbetalingstidslinje.size
-        assert(faktiskAntall == antall) {
-            "Forventet $antall dager, men fikk $faktiskAntall dager"
-        }
+        assertEquals(antall, faktiskAntall, "Forventet $antall dager, men fikk $faktiskAntall dager")
     }
 
     fun harDekningsgrad(grad: Int) {
         val deknignsgrad = yrkesaktivitetResultat.dekningsgrad?.verdi?.prosentDesimal ?: 0.0
-        assert((deknignsgrad * 100).toInt() == grad) {
-            "Forventet $grad, men fikk dekningsgrad $deknignsgrad"
-        }
+        assertEquals(grad, (deknignsgrad * 100).toInt(), "Forventet $grad, men fikk dekningsgrad $deknignsgrad")
     }
 
     fun harDekningsgradBegrunnelse(begrunnelse: Beregningssporing) {
         val sporing = yrkesaktivitetResultat.dekningsgrad?.sporing
-        assert(sporing == begrunnelse) {
-            "Forventet $begrunnelse, men fikk $sporing"
-        }
+        assertEquals(begrunnelse, sporing, "Forventet $begrunnelse, men fikk $sporing")
     }
 
     fun dag(
@@ -488,9 +487,9 @@ class YrkesaktivitetAssertionBuilder(
     ) {
         val dag =
             yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == dato }
-                ?: throw AssertionError("Fant ikke dag for dato $dato")
+        assertNotNull(dag, "Fant ikke dag for dato $dato")
 
-        val builder = DagAssertionBuilder(dag)
+        val builder = DagAssertionBuilder(dag!!)
         builder.init()
     }
 }
@@ -500,50 +499,36 @@ class DagAssertionBuilder(
 ) {
     fun harTotalGrad(grad: Int) {
         val faktiskGrad = dag.økonomi.totalSykdomsgrad?.toDouble()
-        assert(faktiskGrad == grad.toDouble()) {
-            "Forventet totalgrad $grad, men fikk $faktiskGrad for dato ${dag.dato}"
-        }
+        assertEquals(grad.toDouble(), faktiskGrad, "Forventet totalgrad $grad, men fikk $faktiskGrad for dato ${dag.dato}")
     }
 
     fun harSykdomsGrad(grad: Int) {
         val faktiskGrad = (dag.økonomi.sykdomsgrad?.dto()?.prosentDesimal ?: 0.0) * 100
-        assert(faktiskGrad.toInt() == grad) {
-            "Forventet grad $grad, men fikk $faktiskGrad for dato ${dag.dato}"
-        }
+        assertEquals(grad, faktiskGrad.toInt(), "Forventet grad $grad, men fikk $faktiskGrad for dato ${dag.dato}")
     }
 
     fun harIngenUtbetaling() {
         val harUtbetaling = dag.økonomi.personbeløp != null && dag.økonomi.personbeløp!!.dagligInt > 0
-        assert(!harUtbetaling) {
-            "Forventet ingen utbetaling for dato ${dag.dato}, men fikk utbetaling"
-        }
+        assertFalse(harUtbetaling, "Forventet ingen utbetaling for dato ${dag.dato}, men fikk utbetaling")
     }
 
     fun harUtbetaling(beløp: Int) {
         val faktiskUtbetaling = dag.økonomi.personbeløp?.dagligInt
-        assert(faktiskUtbetaling == beløp) {
-            "Forventet utbetaling $beløp for dato ${dag.dato}, men fikk $faktiskUtbetaling"
-        }
+        assertEquals(beløp, faktiskUtbetaling, "Forventet utbetaling $beløp for dato ${dag.dato}, men fikk $faktiskUtbetaling")
     }
 
     fun harRefusjon(beløp: Int? = null) {
         val harRefusjon = dag.økonomi.arbeidsgiverbeløp != null && dag.økonomi.arbeidsgiverbeløp!!.dagligInt > 0
-        assert(harRefusjon) {
-            "Forventet refusjon for dato ${dag.dato}, men fikk ingen refusjon"
-        }
+        assertTrue(harRefusjon, "Forventet refusjon for dato ${dag.dato}, men fikk ingen refusjon")
         if (beløp != null) {
             val faktiskRefusjon = dag.økonomi.arbeidsgiverbeløp?.dagligInt
-            assert(faktiskRefusjon == beløp) {
-                "Forventet refusjon $beløp for dato ${dag.dato}, men fikk $faktiskRefusjon"
-            }
+            assertEquals(beløp, faktiskRefusjon, "Forventet refusjon $beløp for dato ${dag.dato}, men fikk $faktiskRefusjon")
         }
     }
 
     fun harIngenRefusjon() {
         val harRefusjon = dag.økonomi.arbeidsgiverbeløp != null && dag.økonomi.arbeidsgiverbeløp!!.dagligInt > 0
-        assert(!harRefusjon) {
-            "Forventet ingen refusjon for dato ${dag.dato}, men fikk refusjon"
-        }
+        assertFalse(harRefusjon, "Forventet ingen refusjon for dato ${dag.dato}, men fikk refusjon")
     }
 }
 
@@ -552,9 +537,7 @@ class OppdragAssertionBuilder(
 ) {
     fun harAntallOppdrag(antall: Int) {
         val faktiskAntall = oppdrag.size
-        assert(faktiskAntall == antall) {
-            "Forventet $antall oppdrag, men fikk $faktiskAntall oppdrag."
-        }
+        assertEquals(antall, faktiskAntall, "Forventet $antall oppdrag, men fikk $faktiskAntall oppdrag.")
     }
 
     fun oppdrag(
@@ -562,7 +545,7 @@ class OppdragAssertionBuilder(
         init: OppdragMatcherBuilder.() -> Unit,
     ) {
         if (index >= oppdrag.size) {
-            throw AssertionError("Oppdrag $index finnes ikke. Total antall oppdrag: ${oppdrag.size}")
+            fail<Nothing>("Oppdrag $index finnes ikke. Total antall oppdrag: ${oppdrag.size}")
         }
 
         val builder = OppdragMatcherBuilder(oppdrag[index])
@@ -575,9 +558,9 @@ class OppdragAssertionBuilder(
     ) {
         val oppdragMedMottaker =
             oppdrag.find { it.mottaker == mottaker }
-                ?: throw AssertionError("Fant ikke oppdrag med mottaker $mottaker")
+        assertNotNull(oppdragMedMottaker, "Fant ikke oppdrag med mottaker $mottaker")
 
-        val builder = OppdragMatcherBuilder(oppdragMedMottaker)
+        val builder = OppdragMatcherBuilder(oppdragMedMottaker!!)
         builder.init()
     }
 }
@@ -586,27 +569,19 @@ class OppdragMatcherBuilder(
     private val oppdrag: Oppdrag,
 ) {
     fun harMottaker(mottaker: String) {
-        assert(oppdrag.mottaker == mottaker) {
-            "Forventet mottaker $mottaker, men fikk ${oppdrag.mottaker}"
-        }
+        assertEquals(mottaker, oppdrag.mottaker, "Forventet mottaker $mottaker, men fikk ${oppdrag.mottaker}")
     }
 
     fun harNettoBeløp(beløp: Int) {
-        assert(oppdrag.nettoBeløp == beløp) {
-            "Forventet netto beløp $beløp, men fikk ${oppdrag.nettoBeløp}"
-        }
+        assertEquals(beløp, oppdrag.nettoBeløp, "Forventet netto beløp $beløp, men fikk ${oppdrag.nettoBeløp}")
     }
 
     fun harTotalbeløp(beløp: Int) {
-        assert(oppdrag.totalbeløp() == beløp) {
-            "Forventet netto beløp $beløp, men fikk ${oppdrag.totalbeløp()}"
-        }
+        assertEquals(beløp, oppdrag.totalbeløp(), "Forventet netto beløp $beløp, men fikk ${oppdrag.totalbeløp()}")
     }
 
     fun harFagområde(fagområde: String) {
-        assert(oppdrag.fagområde.verdi == fagområde) {
-            "Forventet fagområde $fagområde, men fikk ${oppdrag.fagområde.verdi}"
-        }
+        assertEquals(fagområde, oppdrag.fagområde.verdi, "Forventet fagområde $fagområde, men fikk ${oppdrag.fagområde.verdi}")
     }
 }
 
