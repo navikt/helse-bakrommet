@@ -16,19 +16,22 @@ class UtbetalingViaSpleisKodeTest {
 
         val input =
             utbetalingsberegningTest {
-                periode(fom = førsteDag, tom = førsteDag.plusDays(13))
+                periode {
+                    fra(førsteDag)
+                    til(førsteDag.plusDays(13))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet1Id)
                     arbeidstaker()
-                    fra(førsteDag)
+                    this.fra(førsteDag)
                     syk(grad = 100, antallDager = 14)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet2Id)
                     arbeidstaker()
-                    fra(førsteDag)
+                    this.fra(førsteDag)
                     syk(grad = 50, antallDager = 14)
                 }
 

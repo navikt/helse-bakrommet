@@ -12,12 +12,15 @@ class UtbetalingsberegningLogikkTest {
 
         val resultat =
             utbetalingsberegningTestOgBeregn {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 31))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 1, 31))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 100, antallDager = 2)
                 }
 
@@ -34,7 +37,7 @@ class UtbetalingsberegningLogikkTest {
             }
 
         resultat.skal {
-            yrkesaktivitet(yrkesaktivitetId) {
+            haYrkesaktivitet(yrkesaktivitetId) {
                 harAntallDager(31) // Hele januar
                 dag(LocalDate.of(2024, 1, 1)) {
                     harGrad(100)
@@ -54,16 +57,19 @@ class UtbetalingsberegningLogikkTest {
 
         val resultat =
             utbetalingsberegningTestOgBeregn {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 3, 31))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 3, 31))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 10))
+                    this.fra(LocalDate.of(2024, 1, 10))
                     syk(grad = 100, antallDager = 1)
-                    fra(LocalDate.of(2024, 2, 10))
+                    this.fra(LocalDate.of(2024, 2, 10))
                     syk(grad = 100, antallDager = 1)
-                    fra(LocalDate.of(2024, 3, 10))
+                    this.fra(LocalDate.of(2024, 3, 10))
                     syk(grad = 100, antallDager = 1)
                 }
 
@@ -85,7 +91,7 @@ class UtbetalingsberegningLogikkTest {
             }
 
         resultat.skal {
-            yrkesaktivitet(yrkesaktivitetId) {
+            haYrkesaktivitet(yrkesaktivitetId) {
                 harAntallDager(91) // Jan-mars 2024
                 dag(LocalDate.of(2024, 1, 10)) {
                     harRefusjon() // Dag i lukket refusjonsperiode skal ha refusjon

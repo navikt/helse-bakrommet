@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.util.toJsonNode
+import no.nav.helse.januar
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
@@ -17,12 +18,15 @@ class UtbetalingsberegningForbedretTest {
 
         val resultat =
             utbetalingsberegningTestOgBeregn {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 31))
+                periode {
+                    fra(1.januar(2024))
+                    til(31.januar(2024))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
+                    arbeidstaker("999333444")
+                    fra(1.januar(2024))
                     syk(grad = 100, antallDager = 2)
                 }
 
@@ -31,31 +35,32 @@ class UtbetalingsberegningForbedretTest {
                     beløp(50000) // 50 000 kr/mnd
                     kilde(Inntektskilde.AINNTEKT)
                     refusjon {
-                        fra(LocalDate.of(2024, 1, 1))
+                        fra(1.januar(2024))
                         åpen()
-                        beløp(10000) // 10 000 kr/mnd refusjon
+                        beløp(10000)
                     }
                 }
             }
 
         resultat.skal {
-            yrkesaktivitet(yrkesaktivitetId) {
+            haYrkesaktivitet(yrkesaktivitetId) {
                 harAntallDager(31) // Hele januar
-                dag(LocalDate.of(2024, 1, 1)) {
+                dag(1.januar(2024)) {
                     harGrad(100)
                     harRefusjon()
                 }
-                dag(LocalDate.of(2024, 1, 2)) {
+                dag(2.januar(2024)) {
                     harGrad(100)
                     harRefusjon()
                 }
             }
 
-            oppdrag {
+            haOppdrag {
                 harAntallOppdrag(2) // Refusjon og person
                 oppdrag(0) {
                     harFagområde("SPREF")
                     harNettoBeløp(922)
+                    harMottaker("999333444")
                 }
                 oppdrag(1) {
                     harFagområde("SP")
@@ -71,16 +76,19 @@ class UtbetalingsberegningForbedretTest {
 
         val resultat =
             utbetalingsberegningTestOgBeregn {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 3, 31))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 3, 31))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 10))
+                    this.fra(LocalDate.of(2024, 1, 10))
                     syk(grad = 100, antallDager = 1)
-                    fra(LocalDate.of(2024, 2, 10))
+                    this.fra(LocalDate.of(2024, 2, 10))
                     syk(grad = 100, antallDager = 1)
-                    fra(LocalDate.of(2024, 3, 10))
+                    this.fra(LocalDate.of(2024, 3, 10))
                     syk(grad = 100, antallDager = 1)
                 }
 
@@ -102,14 +110,14 @@ class UtbetalingsberegningForbedretTest {
             }
 
         resultat.skal {
-            yrkesaktivitet(yrkesaktivitetId) {
+            haYrkesaktivitet(yrkesaktivitetId) {
                 harAntallDager(91) // Jan-mars 2024
                 dag(LocalDate.of(2024, 1, 10)) {
                     harRefusjon() // Dag i lukket refusjonsperiode skal ha refusjon
                 }
             }
 
-            oppdrag {
+            haOppdrag {
                 harAntallOppdrag(2)
                 oppdrag(0) {
                     harNettoBeløp(461)
@@ -129,12 +137,15 @@ class UtbetalingsberegningForbedretTest {
 
         val resultat =
             utbetalingsberegningTestOgBeregn {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 31))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 1, 31))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     inaktiv(variant = "INAKTIV_VARIANT_A")
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 100, antallDager = 5)
                 }
 
@@ -146,14 +157,14 @@ class UtbetalingsberegningForbedretTest {
             }
 
         resultat.skal {
-            yrkesaktivitet(yrkesaktivitetId) {
+            haYrkesaktivitet(yrkesaktivitetId) {
                 harAntallDager(31) // Hele januar
                 dag(LocalDate.of(2024, 1, 1)) {
                     harGrad(100)
                 }
             }
 
-            oppdrag {
+            haOppdrag {
                 harAntallOppdrag(1)
                 oppdrag(0) {
                     harNettoBeløp(4500)
@@ -169,12 +180,15 @@ class UtbetalingsberegningForbedretTest {
 
         val input =
             utbetalingsberegningTest {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 31))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 1, 31))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     næringsdrivende(forsikringstype = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 100, antallDager = 5)
                 }
 
@@ -205,19 +219,22 @@ class UtbetalingsberegningForbedretTest {
 
         val input =
             utbetalingsberegningTest {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 14))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 1, 14))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet1Id)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 100, antallDager = 14)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet2Id)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 50, antallDager = 14)
                 }
 
@@ -263,13 +280,19 @@ class UtbetalingsberegningForbedretTest {
 
         val input =
             utbetalingsberegningTest {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 29))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 1, 29))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
-                    arbeidsgiverperiode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 16))
+                    this.fra(LocalDate.of(2024, 1, 1))
+                    arbeidsgiverperiode {
+                        this.fra(LocalDate.of(2024, 1, 1))
+                        til(LocalDate.of(2024, 1, 16))
+                    }
                     syk(grad = 100, antallDager = 2)
                     arbeidsdag(antallDager = 1)
                     sykNav(grad = 100, antallDager = 2)
@@ -313,12 +336,15 @@ class UtbetalingsberegningForbedretTest {
 
         val input =
             utbetalingsberegningTest {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 10))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 1, 10))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 50, antallDager = 5)
                     syk(grad = 25, antallDager = 3)
                     arbeidsdag(antallDager = 2)
@@ -354,12 +380,15 @@ class UtbetalingsberegningForbedretTest {
 
         val input =
             utbetalingsberegningTest {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 10))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 1, 10))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     avslått(begrunnelse = listOf("Ikke oppfylt krav om medlemskap"), antallDager = 10)
                 }
 
@@ -408,19 +437,22 @@ class UtbetalingsberegningForbedretTest {
 
         val input =
             utbetalingsberegningTest {
-                periode(fom = LocalDate.of(2024, 1, 1), tom = LocalDate.of(2024, 1, 14))
+                periode {
+                    fra(LocalDate.of(2024, 1, 1))
+                    til(LocalDate.of(2024, 1, 14))
+                }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet1Id)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 100, antallDager = 14)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet2Id)
                     arbeidstaker()
-                    fra(LocalDate.of(2024, 1, 1))
+                    this.fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 50, antallDager = 14)
                 }
 

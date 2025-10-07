@@ -26,11 +26,10 @@ class UtbetalingsberegningTestBuilder {
     private val yrkesaktiviteter = mutableListOf<YrkesaktivitetBuilder>()
     private val inntekter = mutableListOf<InntektBuilder>()
 
-    fun periode(
-        fom: LocalDate,
-        tom: LocalDate,
-    ) {
-        saksbehandlingsperiode = Saksbehandlingsperiode(fom = fom, tom = tom)
+    fun periode(init: PeriodeBuilder.() -> Unit) {
+        val builder = PeriodeBuilder()
+        builder.init()
+        saksbehandlingsperiode = builder.build()
     }
 
     fun arbeidsgiverperiode(
@@ -66,6 +65,25 @@ class UtbetalingsberegningTestBuilder {
     }
 }
 
+class PeriodeBuilder {
+    private var fom: LocalDate? = null
+    private var tom: LocalDate? = null
+
+    fun fra(dato: LocalDate) {
+        this.fom = dato
+    }
+
+    fun til(dato: LocalDate) {
+        this.tom = dato
+    }
+
+    fun build(): Saksbehandlingsperiode {
+        val fomDato = fom ?: throw IllegalStateException("Periode må ha fom-dato")
+        val tomDato = tom ?: throw IllegalStateException("Periode må ha tom-dato")
+        return Saksbehandlingsperiode(fom = fomDato, tom = tomDato)
+    }
+}
+
 class YrkesaktivitetBuilder {
     private var id: UUID = UUID.randomUUID()
     private var saksbehandlingsperiodeId: UUID = UUID.randomUUID()
@@ -83,8 +101,11 @@ class YrkesaktivitetBuilder {
         this.saksbehandlingsperiodeId = id
     }
 
-    fun arbeidstaker() {
+    fun arbeidstaker(orgnummer: String? = null) {
         inntektskategori = "ARBEIDSTAKER"
+        orgnummer?.let {
+            kategorisering["ORGNUMMER"] = it
+        }
     }
 
     fun inaktiv(variant: String = "INAKTIV_VARIANT_A") {
@@ -101,11 +122,11 @@ class YrkesaktivitetBuilder {
         gjeldendeDato = dato
     }
 
-    fun arbeidsgiverperiode(
-        fom: LocalDate,
-        tom: LocalDate,
-    ) {
-        arbeidsgiverperiode = Pair(fom, tom)
+    fun arbeidsgiverperiode(init: PeriodeBuilder.() -> Unit) {
+        val builder = PeriodeBuilder()
+        builder.init()
+        val periode = builder.build()
+        arbeidsgiverperiode = Pair(periode.fom, periode.tom)
     }
 
     fun syk(
@@ -415,7 +436,7 @@ private fun lagSykepengegrunnlag(inntekter: List<Inntekt>): SykepengegrunnlagRes
 class BeregningAssertionBuilder(
     private val resultat: BeregningResultat,
 ) {
-    fun yrkesaktivitet(
+    fun haYrkesaktivitet(
         yrkesaktivitetId: UUID,
         init: YrkesaktivitetAssertionBuilder.() -> Unit,
     ) {
@@ -427,7 +448,7 @@ class BeregningAssertionBuilder(
         builder.init()
     }
 
-    fun oppdrag(init: OppdragAssertionBuilder.() -> Unit) {
+    fun haOppdrag(init: OppdragAssertionBuilder.() -> Unit) {
         val builder = OppdragAssertionBuilder(resultat.oppdrag)
         builder.init()
     }
