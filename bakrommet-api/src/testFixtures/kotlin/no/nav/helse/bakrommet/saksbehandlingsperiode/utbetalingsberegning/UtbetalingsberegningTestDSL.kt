@@ -505,6 +505,13 @@ class DagAssertionBuilder(
         }
     }
 
+    fun harIngenUtbetaling() {
+        val harUtbetaling = dag.økonomi.personbeløp != null && dag.økonomi.personbeløp!!.dagligInt > 0
+        assert(!harUtbetaling) {
+            "Forventet ingen utbetaling for dato ${dag.dato}, men fikk utbetaling"
+        }
+    }
+
     fun harUtbetaling(beløp: Int) {
         val faktiskUtbetaling = dag.økonomi.personbeløp?.dagligInt
         assert(faktiskUtbetaling == beløp) {
@@ -512,10 +519,16 @@ class DagAssertionBuilder(
         }
     }
 
-    fun harRefusjon() {
+    fun harRefusjon(beløp: Int? = null) {
         val harRefusjon = dag.økonomi.arbeidsgiverbeløp != null && dag.økonomi.arbeidsgiverbeløp!!.dagligInt > 0
         assert(harRefusjon) {
             "Forventet refusjon for dato ${dag.dato}, men fikk ingen refusjon"
+        }
+        if (beløp != null) {
+            val faktiskRefusjon = dag.økonomi.arbeidsgiverbeløp?.dagligInt
+            assert(faktiskRefusjon == beløp) {
+                "Forventet refusjon $beløp for dato ${dag.dato}, men fikk $faktiskRefusjon"
+            }
         }
     }
 
@@ -533,7 +546,7 @@ class OppdragAssertionBuilder(
     fun harAntallOppdrag(antall: Int) {
         val faktiskAntall = oppdrag.size
         assert(faktiskAntall == antall) {
-            "Forventet $antall oppdrag, men fikk $faktiskAntall oppdrag"
+            "Forventet $antall oppdrag, men fikk $faktiskAntall oppdrag."
         }
     }
 

@@ -51,7 +51,7 @@ class ArbeidsledigBeregningTest {
             }
 
             haOppdrag {
-                harAntallOppdrag(1) // Refusjon og person
+                harAntallOppdrag(1)
                 oppdrag {
                     harFagområde("SP")
                     harNettoBeløp(17500)
