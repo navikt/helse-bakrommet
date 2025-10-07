@@ -15,7 +15,7 @@ class UtbetalingViaSpleisKodeTest {
         val yrkesaktivitet2Id = UUID.randomUUID()
 
         val input =
-            utbetalingsberegningTest {
+            utbetalingsberegningTestdata {
                 periode {
                     fra(førsteDag)
                     til(førsteDag.plusDays(13))

@@ -44,6 +44,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("no.nav.security:mock-oauth2-server")
+    testImplementation(testFixtures(project(":bakrommet-api")))
 
     testFixturesImplementation("io.ktor:ktor-server-test-host")
     testFixturesImplementation("org.testcontainers:postgresql")
@@ -54,4 +55,6 @@ dependencies {
     testFixturesImplementation(testFixtures(project(":bakrommet-client-inntektsmelding")))
     testFixturesImplementation(testFixtures(project(":bakrommet-client-sigrun")))
     testFixturesImplementation(testFixtures(project(":bakrommet-client-sykepengesoknad")))
+    testFixturesImplementation(project(":sykepenger-model"))
+    testFixturesImplementation("com.github.navikt.spleis:sykepenger-okonomi")
 }

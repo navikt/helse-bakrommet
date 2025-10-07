@@ -179,7 +179,7 @@ class UtbetalingsberegningForbedretTest {
         val yrkesaktivitetId = UUID.randomUUID()
 
         val input =
-            utbetalingsberegningTest {
+            utbetalingsberegningTestdata {
                 periode {
                     fra(LocalDate.of(2024, 1, 1))
                     til(LocalDate.of(2024, 1, 31))
@@ -218,7 +218,7 @@ class UtbetalingsberegningForbedretTest {
         val yrkesaktivitet2Id = UUID.randomUUID()
 
         val input =
-            utbetalingsberegningTest {
+            utbetalingsberegningTestdata {
                 periode {
                     fra(LocalDate.of(2024, 1, 1))
                     til(LocalDate.of(2024, 1, 14))
@@ -279,7 +279,7 @@ class UtbetalingsberegningForbedretTest {
         val yrkesaktivitetId = UUID.randomUUID()
 
         val input =
-            utbetalingsberegningTest {
+            utbetalingsberegningTestdata {
                 periode {
                     fra(LocalDate.of(2024, 1, 1))
                     til(LocalDate.of(2024, 1, 29))
@@ -335,7 +335,7 @@ class UtbetalingsberegningForbedretTest {
         val yrkesaktivitetId = UUID.randomUUID()
 
         val input =
-            utbetalingsberegningTest {
+            utbetalingsberegningTestdata {
                 periode {
                     fra(LocalDate.of(2024, 1, 1))
                     til(LocalDate.of(2024, 1, 10))
@@ -379,7 +379,7 @@ class UtbetalingsberegningForbedretTest {
         val yrkesaktivitetId = UUID.randomUUID()
 
         val input =
-            utbetalingsberegningTest {
+            utbetalingsberegningTestdata {
                 periode {
                     fra(LocalDate.of(2024, 1, 1))
                     til(LocalDate.of(2024, 1, 10))
@@ -436,7 +436,7 @@ class UtbetalingsberegningForbedretTest {
         val yrkesaktivitet2Id = UUID.randomUUID()
 
         val input =
-            utbetalingsberegningTest {
+            utbetalingsberegningTestdata {
                 periode {
                     fra(LocalDate.of(2024, 1, 1))
                     til(LocalDate.of(2024, 1, 14))

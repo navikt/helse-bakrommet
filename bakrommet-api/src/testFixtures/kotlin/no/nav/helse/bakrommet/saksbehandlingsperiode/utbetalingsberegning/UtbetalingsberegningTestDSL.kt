@@ -347,7 +347,7 @@ class RefusjonBuilder {
 }
 
 // Extension functions for enklere bruk
-fun utbetalingsberegningTest(init: UtbetalingsberegningTestBuilder.() -> Unit): UtbetalingsberegningInput {
+fun utbetalingsberegningTestdata(init: UtbetalingsberegningTestBuilder.() -> Unit): UtbetalingsberegningInput {
     val builder = UtbetalingsberegningTestBuilder()
     builder.init()
     return builder.build()
@@ -372,7 +372,7 @@ fun utbetalingsberegningTestOgBeregn(
     ident: String = "TESTIDENT",
     init: UtbetalingsberegningTestBuilder.() -> Unit,
 ): BeregningResultat {
-    val input = utbetalingsberegningTest(init)
+    val input = utbetalingsberegningTestdata(init)
     return beregnOgByggOppdrag(input, ident)
 }
 
