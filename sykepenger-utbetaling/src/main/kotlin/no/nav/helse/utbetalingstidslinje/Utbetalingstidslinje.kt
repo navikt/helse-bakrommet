@@ -302,6 +302,7 @@ sealed class Begrunnelse {
             Over70 -> BegrunnelseDto.Over70
             SykepengedagerOppbrukt -> BegrunnelseDto.SykepengedagerOppbrukt
             SykepengedagerOppbruktOver67 -> BegrunnelseDto.SykepengedagerOppbruktOver67
+            AvslåttSpillerom -> BegrunnelseDto.AvslåttSpillerom
         }
 
     data object SykepengedagerOppbrukt : Begrunnelse()
@@ -327,6 +328,7 @@ sealed class Begrunnelse {
     data object AndreYtelserOpplaringspenger : Begrunnelse()
 
     data object AndreYtelserDagpenger : Begrunnelse()
+    data object AvslåttSpillerom : Begrunnelse()
 
     data object MinimumSykdomsgrad : Begrunnelse() {
         override fun skalAvvises(utbetalingsdag: Utbetalingsdag) = utbetalingsdag is NavDag || utbetalingsdag is ArbeidsgiverperiodedagNav
@@ -363,6 +365,7 @@ sealed class Begrunnelse {
                 BegrunnelseDto.NyVilkårsprøvingNødvendig -> NyVilkårsprøvingNødvendig
                 BegrunnelseDto.Over70 -> Over70
                 BegrunnelseDto.SykepengedagerOppbruktOver67 -> SykepengedagerOppbruktOver67
+                BegrunnelseDto.AvslåttSpillerom -> AvslåttSpillerom
             }
         }
     }

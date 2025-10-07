@@ -11,6 +11,7 @@ import no.nav.helse.hendelser.Periode
 import no.nav.helse.person.beløp.Beløpsdag
 import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.person.beløp.Kilde
+import no.nav.helse.utbetalingstidslinje.ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode
 import no.nav.helse.utbetalingstidslinje.ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode
 import no.nav.helse.utbetalingstidslinje.InaktivUtbetalingstidslinjeBuilder
 import no.nav.helse.utbetalingstidslinje.SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode
@@ -57,6 +58,12 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 yrkesaktivitet = yrkesaktivitet,
                 sykdomstidslinje = sykdomstidslinje,
             )
+        "ARBEIDSLEDIG" ->
+            byggArbeidsledigtidslinje(
+                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                dekningsgrad = dekningsgrad,
+                sykdomstidslinje = sykdomstidslinje,
+            )
         else ->
             byggArbeidstakerUtbetalingstidslinje(
                 arbeidsgiverperiode = arbeidsgiverperiode,
@@ -101,6 +108,20 @@ private fun byggSelvstendigUtbetalingstidslinje(
         fastsattÅrsinntekt = fastsattÅrsinntekt,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         ventetid = yrkesaktivitet.hentPerioderForType(Periodetype.VENTETID),
+    ).result(sykdomstidslinje)
+}
+
+/**
+ * Bygger selvstendig utbetalingstidslinje
+ */
+private fun byggArbeidsledigtidslinje(
+    fastsattÅrsinntekt: Inntekt,
+    dekningsgrad: ProsentdelDto,
+    sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
+): Utbetalingstidslinje {
+    return ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode(
+        fastsattÅrsinntekt = fastsattÅrsinntekt,
+        dekningsgrad = dekningsgrad.tilProsentdel(),
     ).result(sykdomstidslinje)
 }
 

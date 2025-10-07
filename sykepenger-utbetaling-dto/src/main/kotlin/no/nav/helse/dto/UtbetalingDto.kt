@@ -98,6 +98,7 @@ sealed class BegrunnelseDto {
     data object SykepengedagerOppbrukt : BegrunnelseDto()
 
     data object SykepengedagerOppbruktOver67 : BegrunnelseDto()
+    data object AvslåttSpillerom : BegrunnelseDto()
 
     data object MinimumInntekt : BegrunnelseDto()
 

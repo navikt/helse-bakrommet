@@ -1,5 +1,6 @@
 package no.nav.helse.sykdomstidslinje
 
+import no.nav.helse.dto.BegrunnelseDto
 import no.nav.helse.dto.SykdomstidslinjeDto
 import no.nav.helse.erHelg
 import no.nav.helse.erRettFør
@@ -25,6 +26,7 @@ import no.nav.helse.sykdomstidslinje.Dag.ProblemDag
 import no.nav.helse.sykdomstidslinje.Dag.SykHelgedag
 import no.nav.helse.sykdomstidslinje.Dag.Sykedag
 import no.nav.helse.sykdomstidslinje.Dag.UkjentDag
+import no.nav.helse.utbetalingstidslinje.Begrunnelse
 import no.nav.helse.økonomi.Prosentdel
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -184,12 +186,12 @@ class Sykdomstidslinje private constructor(
                     is FriskHelgedag -> "R"
                     is ForeldetSykedag -> "K"
                     is AndreYtelser -> "Y"
+                    is Dag.Avslått -> "*"
                 }
         }?.trim() ?: "Tom tidslinje"
     }
 
     internal companion object {
-        internal fun beregnSkjæringstidspunkt(tidslinjer: List<Sykdomstidslinje>) = Skjæringstidspunkt(samletTidslinje(tidslinjer))
 
         private fun samletTidslinje(tidslinjer: List<Sykdomstidslinje>) =
             tidslinjer

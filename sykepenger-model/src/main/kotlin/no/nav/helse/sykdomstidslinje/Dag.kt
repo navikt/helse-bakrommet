@@ -87,6 +87,7 @@ sealed class Dag(
                 is SykdomstidslinjeDagDto.SykHelgedagDto -> SykHelgedag.gjenopprett(dag)
                 is SykdomstidslinjeDagDto.SykedagDto -> Sykedag.gjenopprett(dag)
                 is SykdomstidslinjeDagDto.UkjentDagDto -> UkjentDag.gjenopprett(dag)
+                is SykdomstidslinjeDagDto.AvslåttDagDto -> Avslått.gjenopprett(dag)
             }
         }
     }
@@ -124,6 +125,28 @@ sealed class Dag(
             }
         }
     }
+
+    class Avslått(
+        dato: LocalDate,
+        kilde: Hendelseskilde,
+        val begrunnelse: List<String>
+    ) : Dag(dato, kilde) {
+         override fun dto(
+            dato: LocalDate,
+            kilde: HendelseskildeDto,
+        ) = SykdomstidslinjeDagDto.AvslåttDagDto(dato, kilde, this.begrunnelse)
+
+        internal companion object {
+            fun gjenopprett(dto: SykdomstidslinjeDagDto.AvslåttDagDto): Avslått {
+                return Avslått(
+                    dato = dto.dato,
+                    kilde = Hendelseskilde.gjenopprett(dto.kilde),
+                    begrunnelse = dto.begrunnelse
+                )
+            }
+        }
+    }
+
 
     class Arbeidsdag(
         dato: LocalDate,

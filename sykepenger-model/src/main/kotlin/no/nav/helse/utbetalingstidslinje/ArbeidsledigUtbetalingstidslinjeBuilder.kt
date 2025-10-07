@@ -1,6 +1,5 @@
 package no.nav.helse.utbetalingstidslinje
 
-import no.nav.helse.hendelser.Periode
 import no.nav.helse.sykdomstidslinje.Dag
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
 import no.nav.helse.økonomi.Inntekt
@@ -10,10 +9,9 @@ import no.nav.helse.økonomi.Prosentdel.Companion.prosent
 import no.nav.helse.økonomi.Økonomi
 import java.time.LocalDate
 
-class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
+class ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode(
     private val fastsattÅrsinntekt: Inntekt,
     private val dekningsgrad: Prosentdel,
-    private val ventetid: List<Periode>,
 ) {
     private fun medInntektHvisFinnes(grad: Prosentdel): Økonomi {
         return medInntekt(grad)
@@ -29,41 +27,19 @@ class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         )
     }
 
-    private fun LocalDate.erVentetid() = ventetid.any { this in it }
-
 
     fun result(
         sykdomstidslinje: Sykdomstidslinje,
-        ): Utbetalingstidslinje {
+    ): Utbetalingstidslinje {
         val builder = Utbetalingstidslinje.Builder()
         sykdomstidslinje.forEach { dag ->
             when (dag) {
                 is Dag.Arbeidsdag -> arbeidsdag(builder, dag.dato)
                 is Dag.ForeldetSykedag -> foreldetdag(builder, dag.dato, dag.grad)
                 is Dag.FriskHelgedag -> arbeidsdag(builder, dag.dato)
+                is Dag.SykHelgedag -> helg(builder, dag.dato, dag.grad)
+                is Dag.Sykedag -> navDag(builder, dag.dato, dag.grad)
                 is Dag.Avslått -> avvistDag(builder, dag.dato, Prosentdel.NullProsent, Begrunnelse.AvslåttSpillerom)
-
-                is Dag.SykHelgedag ->
-                    if (dag.dato.erVentetid()) {
-                        ventetidsdag(
-                            builder,
-                            dag.dato,
-                            dag.grad,
-                        )
-                    } else {
-                        helg(builder, dag.dato, dag.grad)
-                    }
-
-                is Dag.Sykedag ->
-                    if (dag.dato.erVentetid()) {
-                        ventetidsdag(
-                            builder,
-                            dag.dato,
-                            dag.grad,
-                        )
-                    } else {
-                        navDag(builder, dag.dato, dag.grad)
-                    }
 
                 is Dag.AndreYtelser -> {
                     val begrunnelse =

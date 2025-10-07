@@ -12,7 +12,6 @@ import no.nav.helse.sykdomstidslinje.Dag.Feriedag
 import no.nav.helse.sykdomstidslinje.Dag.FriskHelgedag
 import no.nav.helse.sykdomstidslinje.Dag.SykHelgedag
 import no.nav.helse.sykdomstidslinje.Dag.Sykedag
-import no.nav.helse.sykdomstidslinje.Dag.UkjentDag
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
 import no.nav.helse.økonomi.Prosentdel
 import no.nav.helse.økonomi.Prosentdel.Companion.NullProsent
@@ -53,7 +52,7 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
             when (spilleromDag.dagtype) {
                 Dagtype.Syk,
                 Dagtype.SykNav,
-                    ->
+                ->
                     if (spilleromDag.dato.erAGP()) {
                         Arbeidsgiverdag(
                             dato = spilleromDag.dato,
@@ -89,9 +88,10 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                 Dagtype.Avslått ->
                     // TODO eller bruke en felles avslått-dag i Sykdomstidslinje?
                     // TODO eller bare ikke ha dagen i tidslinjen?
-                    UkjentDag(
+                    no.nav.helse.sykdomstidslinje.Dag.Avslått(
                         dato = spilleromDag.dato,
                         kilde = kilde_HARDKODET,
+                        begrunnelse = spilleromDag.avslåttBegrunnelse ?: emptyList(),
                     )
 
                 Dagtype.AndreYtelser ->
