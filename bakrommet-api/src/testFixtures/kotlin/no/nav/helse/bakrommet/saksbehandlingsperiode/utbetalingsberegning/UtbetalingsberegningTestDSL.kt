@@ -108,6 +108,10 @@ class YrkesaktivitetBuilder {
         }
     }
 
+    fun arbeidsledig() {
+        inntektskategori = "ARBEIDSLEDIG"
+    }
+
     fun inaktiv(variant: String = "INAKTIV_VARIANT_A") {
         inntektskategori = "INAKTIV"
         kategorisering["VARIANT_AV_INAKTIV"] = variant
@@ -464,6 +468,20 @@ class YrkesaktivitetAssertionBuilder(
         }
     }
 
+    fun harDekningsgrad(grad: Int) {
+        val deknignsgrad = yrkesaktivitetResultat.dekningsgrad?.verdi?.prosentDesimal ?: 0.0
+        assert((deknignsgrad * 100).toInt() == grad) {
+            "Forventet $grad, men fikk dekningsgrad $deknignsgrad"
+        }
+    }
+
+    fun harDekningsgradBegrunnelse(begrunnelse: Beregningssporing) {
+        val sporing = yrkesaktivitetResultat.dekningsgrad?.sporing
+        assert(sporing == begrunnelse) {
+            "Forventet $begrunnelse, men fikk $sporing"
+        }
+    }
+
     fun dag(
         dato: LocalDate,
         init: DagAssertionBuilder.() -> Unit,
@@ -484,6 +502,13 @@ class DagAssertionBuilder(
         val faktiskGrad = dag.økonomi.brukTotalGrad { it }
         assert(faktiskGrad == grad) {
             "Forventet grad $grad, men fikk $faktiskGrad for dato ${dag.dato}"
+        }
+    }
+
+    fun harUtbetaling(beløp: Int) {
+        val faktiskUtbetaling = dag.økonomi.personbeløp?.dagligInt
+        assert(faktiskUtbetaling == beløp) {
+            "Forventet utbetaling $beløp for dato ${dag.dato}, men fikk $faktiskUtbetaling"
         }
     }
 
@@ -513,7 +538,7 @@ class OppdragAssertionBuilder(
     }
 
     fun oppdrag(
-        index: Int,
+        index: Int = 0,
         init: OppdragMatcherBuilder.() -> Unit,
     ) {
         if (index >= oppdrag.size) {
