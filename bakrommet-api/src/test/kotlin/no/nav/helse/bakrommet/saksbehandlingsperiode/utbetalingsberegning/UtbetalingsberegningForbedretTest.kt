@@ -25,14 +25,14 @@ class UtbetalingsberegningForbedretTest {
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker("999333444")
+                    arbeidstaker(orgnummer = "999333444")
                     fra(1.januar(2024))
                     syk(grad = 100, antallDager = 2)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000) // 50 000 kr/mnd
+                    beløp(50000)
                     kilde(Inntektskilde.AINNTEKT)
                     refusjon {
                         fra(1.januar(2024))
@@ -53,6 +53,10 @@ class UtbetalingsberegningForbedretTest {
                     harGrad(100)
                     harRefusjon()
                 }
+                dag(3.januar(2024)) {
+                    harGrad(0)
+                    harIngenRefusjon()
+                }
             }
 
             haOppdrag {
@@ -60,11 +64,13 @@ class UtbetalingsberegningForbedretTest {
                 oppdrag(0) {
                     harFagområde("SPREF")
                     harNettoBeløp(922)
+                    harTotalbeløp(922)
                     harMottaker("999333444")
                 }
                 oppdrag(1) {
                     harFagområde("SP")
                     harNettoBeløp(3694)
+                    harTotalbeløp(3694)
                 }
             }
         }

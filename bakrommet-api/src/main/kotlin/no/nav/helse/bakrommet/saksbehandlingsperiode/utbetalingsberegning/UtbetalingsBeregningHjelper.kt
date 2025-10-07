@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Klassekode
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingslinjer.UtbetalingkladdBuilder
@@ -46,7 +47,7 @@ class UtbetalingsBeregningHjelper(
                 sykepengegrunnlag = sykepengegrunnlag,
                 yrkesaktivitet = yrkesaktiviteter,
                 saksbehandlingsperiode =
-                    Saksbehandlingsperiode(
+                    PeriodeDto(
                         fom = periode.fom,
                         tom = periode.tom,
                     ),

@@ -2,14 +2,14 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.bereg
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningFeil
+import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.hendelser.Periode
 import java.time.LocalDate
 
 fun fyllUtManglendeDager(
     eksisterendeDager: List<Dag>,
-    saksbehandlingsperiode: Saksbehandlingsperiode,
+    saksbehandlingsperiode: PeriodeDto,
 ): List<Dag> {
     validerPeriode(saksbehandlingsperiode)
 
@@ -68,7 +68,7 @@ fun List<Dag>?.tilDagerNavOvertarAnsvar(): List<Periode> {
 /**
  * Validerer at en saksbehandlingsperiode er gyldig
  */
-private fun validerPeriode(saksbehandlingsperiode: Saksbehandlingsperiode) {
+private fun validerPeriode(saksbehandlingsperiode: PeriodeDto) {
     if (saksbehandlingsperiode.fom.isAfter(saksbehandlingsperiode.tom)) {
         throw UtbetalingsberegningFeil.UgyldigPeriode(
             saksbehandlingsperiode.fom,

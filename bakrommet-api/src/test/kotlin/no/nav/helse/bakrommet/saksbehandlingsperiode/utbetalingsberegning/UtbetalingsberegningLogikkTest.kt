@@ -20,7 +20,7 @@ class UtbetalingsberegningLogikkTest {
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 1))
+                    fra(LocalDate.of(2024, 1, 1))
                     syk(grad = 100, antallDager = 2)
                 }
 
@@ -65,11 +65,11 @@ class UtbetalingsberegningLogikkTest {
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 10))
+                    fra(LocalDate.of(2024, 1, 10))
                     syk(grad = 100, antallDager = 1)
-                    this.fra(LocalDate.of(2024, 2, 10))
+                    fra(LocalDate.of(2024, 2, 10))
                     syk(grad = 100, antallDager = 1)
-                    this.fra(LocalDate.of(2024, 3, 10))
+                    fra(LocalDate.of(2024, 3, 10))
                     syk(grad = 100, antallDager = 1)
                 }
 

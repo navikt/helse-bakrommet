@@ -1,9 +1,9 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningKonfigurasjon
 import no.nav.helse.dto.InntektbeløpDto
+import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.økonomi.Inntekt
 import java.time.LocalDate
 import java.util.UUID
@@ -14,7 +14,7 @@ import java.util.UUID
 fun beregnRefusjonstidslinje(
     sykepengegrunnlag: SykepengegrunnlagResponse,
     yrkesaktivitetId: UUID,
-    saksbehandlingsperiode: Saksbehandlingsperiode,
+    saksbehandlingsperiode: PeriodeDto,
 ): Map<LocalDate, Inntekt> {
     val refusjonstidslinje = mutableMapOf<LocalDate, Inntekt>()
 
@@ -41,7 +41,7 @@ fun beregnRefusjonstidslinje(
 fun beregnAlleRefusjonstidslinjer(
     sykepengegrunnlag: SykepengegrunnlagResponse,
     yrkesaktivitetIds: List<UUID>,
-    saksbehandlingsperiode: Saksbehandlingsperiode,
+    saksbehandlingsperiode: PeriodeDto,
 ): Map<UUID, Map<LocalDate, Inntekt>> {
     return yrkesaktivitetIds.associateWith { yrkesaktivitetId ->
         beregnRefusjonstidslinje(sykepengegrunnlag, yrkesaktivitetId, saksbehandlingsperiode)

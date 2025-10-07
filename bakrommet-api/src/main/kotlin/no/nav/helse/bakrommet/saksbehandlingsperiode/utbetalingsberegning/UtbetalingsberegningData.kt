@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.dto.deserialisering.OppdragInnDto
 import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
@@ -9,7 +10,6 @@ import no.nav.helse.dto.serialisering.OppdragUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
-import java.time.LocalDate
 import java.util.UUID
 
 enum class Beregningssporing {
@@ -26,13 +26,8 @@ enum class Beregningssporing {
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
     val yrkesaktivitet: List<Yrkesaktivitet>,
-    val saksbehandlingsperiode: Saksbehandlingsperiode,
-    val arbeidsgiverperiode: Saksbehandlingsperiode? = null,
-)
-
-data class Saksbehandlingsperiode(
-    val fom: LocalDate,
-    val tom: LocalDate,
+    val saksbehandlingsperiode: PeriodeDto,
+    val arbeidsgiverperiode: PeriodeDto? = null,
 )
 
 data class Sporbar<T>(

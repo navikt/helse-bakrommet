@@ -21,8 +21,8 @@ import java.util.UUID
  * Kotlin DSL for å lage testdata for utbetalingsberegning
  */
 class UtbetalingsberegningTestBuilder {
-    private var saksbehandlingsperiode: Saksbehandlingsperiode? = null
-    private var arbeidsgiverperiode: Saksbehandlingsperiode? = null
+    private var saksbehandlingsperiode: PeriodeDto? = null
+    private var arbeidsgiverperiode: PeriodeDto? = null
     private val yrkesaktiviteter = mutableListOf<YrkesaktivitetBuilder>()
     private val inntekter = mutableListOf<InntektBuilder>()
 
@@ -36,7 +36,7 @@ class UtbetalingsberegningTestBuilder {
         fom: LocalDate,
         tom: LocalDate,
     ) {
-        arbeidsgiverperiode = Saksbehandlingsperiode(fom = fom, tom = tom)
+        arbeidsgiverperiode = PeriodeDto(fom = fom, tom = tom)
     }
 
     fun yrkesaktivitet(init: YrkesaktivitetBuilder.() -> Unit) {
@@ -77,10 +77,10 @@ class PeriodeBuilder {
         this.tom = dato
     }
 
-    fun build(): Saksbehandlingsperiode {
+    fun build(): PeriodeDto {
         val fomDato = fom ?: throw IllegalStateException("Periode må ha fom-dato")
         val tomDato = tom ?: throw IllegalStateException("Periode må ha tom-dato")
-        return Saksbehandlingsperiode(fom = fomDato, tom = tomDato)
+        return PeriodeDto(fom = fomDato, tom = tomDato)
     }
 }
 
@@ -246,7 +246,7 @@ class YrkesaktivitetBuilder {
         }
     }
 
-    fun build(saksbehandlingsperiode: Saksbehandlingsperiode): Yrkesaktivitet {
+    fun build(saksbehandlingsperiode: PeriodeDto): Yrkesaktivitet {
         val perioder =
             arbeidsgiverperiode?.let { (fom, tom) ->
                 Perioder(
@@ -387,7 +387,7 @@ data class BeregningResultat(
 // Hjelpefunksjoner for å lage sykepengegrunnlag
 private fun fyllUtManglendeDagerSomArbeidsdager(
     eksisterendeDager: List<Dag>,
-    saksbehandlingsperiode: Saksbehandlingsperiode,
+    saksbehandlingsperiode: PeriodeDto,
 ): List<Dag> {
     val dagerMap = eksisterendeDager.associateBy { it.dato }.toMutableMap()
 
@@ -547,6 +547,12 @@ class OppdragMatcherBuilder(
     }
 
     fun harNettoBeløp(beløp: Int) {
+        assert(oppdrag.nettoBeløp == beløp) {
+            "Forventet netto beløp $beløp, men fikk ${oppdrag.nettoBeløp}"
+        }
+    }
+
+    fun harTotalbeløp(beløp: Int) {
         assert(oppdrag.nettoBeløp == beløp) {
             "Forventet netto beløp $beløp, men fikk ${oppdrag.nettoBeløp}"
         }
