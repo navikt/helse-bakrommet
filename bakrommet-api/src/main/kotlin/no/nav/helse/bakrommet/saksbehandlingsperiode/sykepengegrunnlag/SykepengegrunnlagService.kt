@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.økonomi.Grunnbeløp
 import java.time.LocalDateTime
@@ -38,11 +39,19 @@ class SykepengegrunnlagService(
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
         return db.transactional {
-            validerSykepengegrunnlagRequest(this, request, referanse, saksbehandler)
             val periode =
                 saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+            val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
+            validerSykepengegrunnlagRequest(this, request, referanse, saksbehandler, yrkesaktiviteter)
 
-            val beregning = beregnSykepengegrunnlag(periode, request.inntekter, request.begrunnelse, saksbehandler)
+            val beregning =
+                beregnSykepengegrunnlag(
+                    periode,
+                    request.inntekter,
+                    request.begrunnelse,
+                    saksbehandler,
+                    yrkesaktiviteter,
+                )
             // Sett sykepengegrunnlag og beregning i samme transaksjon
             val sykepengegrunnlagResponse =
                 sykepengegrunnlagDao.settSykepengegrunnlag(
@@ -77,6 +86,7 @@ class SykepengegrunnlagService(
         request: SykepengegrunnlagRequest,
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
+        yrkesaktiviteter: List<Yrkesaktivitet>,
     ) {
         if (request.inntekter.isEmpty()) {
             throw InputValideringException("Må ha minst én inntekt")
@@ -85,8 +95,7 @@ class SykepengegrunnlagService(
         // Hent inntektsforhold for behandlingen
         val periode =
             daoer.saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
-        val inntektsforhold = daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
-        val yrkesaktivitetIds = inntektsforhold.map { it.id }.toSet()
+        val yrkesaktivitetIds = yrkesaktiviteter.map { it.id }.toSet()
         val requestYrkesaktivitetIds = request.inntekter.map { it.yrkesaktivitetId }.toSet()
 
         // Valider at alle inntekter i requesten eksisterer som inntektsforhold på behandlingen
@@ -142,6 +151,7 @@ class SykepengegrunnlagService(
         inntekter: List<Inntekt>,
         begrunnelse: String?,
         saksbehandler: Bruker,
+        yrkesaktiviteter: List<Yrkesaktivitet>,
     ): SykepengegrunnlagResponse {
         // Hent perioden og skjæringstidspunkt
         val skjæringstidspunkt =
@@ -160,12 +170,35 @@ class SykepengegrunnlagService(
         // Begrens til 6G - konverter fra kroner til øre (1 krone = 100 øre)
         val seksGØre = (seksG.årlig * 100).toLong()
 
+        // Summer opp alle inntekter som kommer fra arbeidstaker ved å se om yrkesaktivteten er arbeidstaker
+
+        val sumAvArbeidstakerInntekterØre =
+            inntekter
+                .filter { inntekt ->
+                    val yrkesaktivitet = yrkesaktiviteter.first { it.id == inntekt.yrkesaktivitetId }
+                    yrkesaktivitet.kategorisering["INNTEKTSKATEGORI"] == "ARBEIDSTAKER"
+                }.sumOf { it.beløpPerMånedØre }
+
         val inntekterBeregnet =
             inntekter.map { inntekt ->
+
+                val yrkesaktivitet = yrkesaktiviteter.first { it.id == inntekt.yrkesaktivitetId }
+                yrkesaktivitet.kategorisering["INNTEKTSKATEGORI"] == "ARBEIDSTAKER"
+
+                fun finnGrunnlag(): Long {
+                    if (yrkesaktivitet.kategorisering["INNTEKTSKATEGORI"] == "SELVSTENDIG_NÆRINGSDRIVENDE") {
+                        val pensjonsgivendeCappet6g = sumAvArbeidstakerInntekterØre.coerceAtMost(seksGØre)
+                        val næringsinntekt = pensjonsgivendeCappet6g - sumAvArbeidstakerInntekterØre
+                        // returner næringsinntekt hvis større enn 0, eller snull
+                        return næringsinntekt.coerceAtLeast(0L)
+                    } else {
+                        return inntekt.beløpPerMånedØre
+                    }
+                }
                 InntektBeregnet(
                     yrkesaktivitetId = inntekt.yrkesaktivitetId,
                     inntektMånedligØre = inntekt.beløpPerMånedØre,
-                    grunnlagMånedligØre = inntekt.beløpPerMånedØre,
+                    grunnlagMånedligØre = finnGrunnlag(),
                     kilde = inntekt.kilde,
                     refusjon = inntekt.refusjon,
                 )
