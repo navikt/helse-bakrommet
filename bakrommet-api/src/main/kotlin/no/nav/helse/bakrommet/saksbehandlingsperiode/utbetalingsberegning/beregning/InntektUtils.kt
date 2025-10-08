@@ -20,7 +20,7 @@ fun finnInntektForYrkesaktivitet(
 
     return Inntekt.gjenopprett(
         InntektbeløpDto.Årlig(
-            inntekt.inntektMånedligØre * UtbetalingsberegningKonfigurasjon.MÅNEDLIG_TIL_ÅRLIG_FAKTOR / UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR,
+            inntekt.grunnlagMånedligØre * UtbetalingsberegningKonfigurasjon.MÅNEDLIG_TIL_ÅRLIG_FAKTOR / UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR,
         ),
     )
 }
