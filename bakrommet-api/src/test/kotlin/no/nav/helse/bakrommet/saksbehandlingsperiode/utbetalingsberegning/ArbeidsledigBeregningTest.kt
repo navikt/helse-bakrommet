@@ -14,48 +14,48 @@ class ArbeidsledigBeregningTest {
         val resultat =
             utbetalingsberegningTestOgBeregn {
                 periode {
-                    fra(1.januar(2024))
-                    til(31.januar(2024))
+                    `fra dato`(1.januar(2024))
+                    `til dato`(31.januar(2024))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidsledig()
-                    fra(1.januar(2024))
-                    syk(grad = 50, antallDager = 15)
-                    syk(grad = 100, antallDager = 16)
+                    `som arbeidsledig`()
+                    `fra dato`(1.januar(2024))
+                    `er syk`(grad = 50, antallDager = 15)
+                    `er syk`(grad = 100, antallDager = 16)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(21666)
-                    kilde(Inntektskilde.AINNTEKT)
+                    `med beløp`(21666)
+                    `fra kilde`(Inntektskilde.AINNTEKT)
                 }
             }
 
         resultat.skal {
-            haYrkesaktivitet(yrkesaktivitetId) {
-                harAntallDager(31) // Hele januar
-                harDekningsgrad(100)
-                harDekningsgradBegrunnelse(DAGPENGEMOTTAKER_100)
-                dag(1.januar(2024)) {
-                    harTotalGrad(50)
-                    harIngenRefusjon()
-                    harUtbetaling(500)
+            `ha yrkesaktivitet`(yrkesaktivitetId) {
+                `skal ha antall dager`(31) // Hele januar
+                `skal ha dekningsgrad`(100)
+                `skal ha dekningsgrad begrunnelse`(DAGPENGEMOTTAKER_100)
+                `på dato`(1.januar(2024)) {
+                    `skal ha total grad`(50)
+                    `skal ha ingen refusjon`()
+                    `skal ha utbetaling`(500)
                 }
-                dag(16.januar(2024)) {
-                    harTotalGrad(100)
-                    harIngenRefusjon()
-                    harUtbetaling(1000)
+                `på dato`(16.januar(2024)) {
+                    `skal ha total grad`(100)
+                    `skal ha ingen refusjon`()
+                    `skal ha utbetaling`(1000)
                 }
             }
 
-            haOppdrag {
-                harAntallOppdrag(1)
-                oppdrag {
-                    harFagområde("SP")
-                    harNettoBeløp(17500)
-                    harTotalbeløp(17500)
+            `har oppdrag` {
+                `skal ha antall oppdrag`(1)
+                `oppdrag nummer` {
+                    `skal ha fagområde`("SP")
+                    `skal ha netto beløp`(17500)
+                    `skal ha total beløp`(17500)
                 }
             }
         }

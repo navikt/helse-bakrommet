@@ -17,22 +17,22 @@ class BeregnRefusjonstidslinjeTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(1.januar(2024))
-                    til(31.mars(2024))
+                    `fra dato`(1.januar(2024))
+                    `til dato`(31.mars(2024))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker("999333444")
+                    `som arbeidstaker`("999333444")
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000) // 50 000 kr/mnd
-                    refusjon {
-                        fra(1.januar(2024))
-                        til(31.januar(2024))
-                        beløp(10000) // 10 000 kr/mnd
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `med refusjon` {
+                        `fra dato`(1.januar(2024))
+                        `til dato`(31.januar(2024))
+                        `med beløp`(10000) // 10 000 kr/mnd
                     }
                 }
             }
@@ -65,22 +65,22 @@ class BeregnRefusjonstidslinjeTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(1.januar(2024))
-                    til(31.mars(2024))
+                    `fra dato`(1.januar(2024))
+                    `til dato`(31.mars(2024))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker("999333444")
+                    `som arbeidstaker`("999333444")
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000) // 50 000 kr/mnd
-                    refusjon {
-                        fra(1.januar(2024))
-                        åpen() // Åpen refusjonsperiode
-                        beløp(10000) // 10 000 kr/mnd
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `med refusjon` {
+                        `fra dato`(1.januar(2024))
+                        `er åpen`() // Åpen refusjonsperiode
+                        `med beløp`(10000) // 10 000 kr/mnd
                     }
                 }
             }
@@ -111,27 +111,27 @@ class BeregnRefusjonstidslinjeTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(1.januar(2024))
-                    til(31.mars(2024))
+                    `fra dato`(1.januar(2024))
+                    `til dato`(31.mars(2024))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker("999333444")
+                    `som arbeidstaker`("999333444")
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000) // 50 000 kr/mnd
-                    refusjon {
-                        fra(1.januar(2024))
-                        til(15.januar(2024))
-                        beløp(10000) // 10 000 kr/mnd
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `med refusjon` {
+                        `fra dato`(1.januar(2024))
+                        `til dato`(15.januar(2024))
+                        `med beløp`(10000) // 10 000 kr/mnd
                     }
-                    refusjon {
-                        fra(1.februar(2024))
-                        åpen() // Åpen periode
-                        beløp(20000) // 20 000 kr/mnd
+                    `med refusjon` {
+                        `fra dato`(1.februar(2024))
+                        `er åpen`() // Åpen periode
+                        `med beløp`(20000) // 20 000 kr/mnd
                     }
                 }
             }

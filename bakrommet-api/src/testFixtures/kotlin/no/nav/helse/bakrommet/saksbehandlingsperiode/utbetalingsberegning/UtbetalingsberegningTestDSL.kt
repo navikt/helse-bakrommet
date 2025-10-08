@@ -577,7 +577,7 @@ class BeregningAssertionBuilder(
         builder.init()
     }
 
-    fun `oppdrag`(init: OppdragAssertionBuilder.() -> Unit) {
+    fun `har oppdrag`(init: OppdragAssertionBuilder.() -> Unit) {
         haOppdrag(init)
     }
 }

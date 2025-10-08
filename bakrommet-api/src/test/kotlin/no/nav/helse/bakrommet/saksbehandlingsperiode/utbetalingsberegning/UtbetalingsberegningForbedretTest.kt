@@ -19,58 +19,58 @@ class UtbetalingsberegningForbedretTest {
         val resultat =
             utbetalingsberegningTestOgBeregn {
                 periode {
-                    fra(1.januar(2024))
-                    til(31.januar(2024))
+                    `fra dato`(1.januar(2024))
+                    `til dato`(31.januar(2024))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker(orgnummer = "999333444")
-                    fra(1.januar(2024))
-                    syk(grad = 100, antallDager = 2)
+                    `som arbeidstaker`(orgnummer = "999333444")
+                    `fra dato`(1.januar(2024))
+                    `er syk`(grad = 100, antallDager = 2)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000)
-                    kilde(Inntektskilde.AINNTEKT)
-                    refusjon {
-                        fra(1.januar(2024))
-                        åpen()
-                        beløp(10000)
+                    `med beløp`(50000)
+                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med refusjon` {
+                        `fra dato`(1.januar(2024))
+                        `er åpen`()
+                        `med beløp`(10000)
                     }
                 }
             }
 
         resultat.skal {
-            haYrkesaktivitet(yrkesaktivitetId) {
-                harAntallDager(31) // Hele januar
-                dag(1.januar(2024)) {
-                    harTotalGrad(100)
-                    harRefusjon()
+            `ha yrkesaktivitet`(yrkesaktivitetId) {
+                `skal ha antall dager`(31) // Hele januar
+                `på dato`(1.januar(2024)) {
+                    `skal ha total grad`(100)
+                    `skal ha refusjon`()
                 }
-                dag(2.januar(2024)) {
-                    harTotalGrad(100)
-                    harRefusjon()
+                `på dato`(2.januar(2024)) {
+                    `skal ha total grad`(100)
+                    `skal ha refusjon`()
                 }
-                dag(3.januar(2024)) {
-                    harTotalGrad(0)
-                    harIngenRefusjon()
+                `på dato`(3.januar(2024)) {
+                    `skal ha total grad`(0)
+                    `skal ha ingen refusjon`()
                 }
             }
 
-            haOppdrag {
-                harAntallOppdrag(2) // Refusjon og person
-                oppdrag(0) {
-                    harFagområde("SPREF")
-                    harNettoBeløp(922)
-                    harTotalbeløp(922)
-                    harMottaker("999333444")
+            `har oppdrag` {
+                `skal ha antall oppdrag`(2) // Refusjon og person
+                `oppdrag nummer`(0) {
+                    `skal ha fagområde`("SPREF")
+                    `skal ha netto beløp`(922)
+                    `skal ha total beløp`(922)
+                    `skal ha mottaker`("999333444")
                 }
-                oppdrag(1) {
-                    harFagområde("SP")
-                    harNettoBeløp(3694)
-                    harTotalbeløp(3694)
+                `oppdrag nummer`(1) {
+                    `skal ha fagområde`("SP")
+                    `skal ha netto beløp`(3694)
+                    `skal ha total beløp`(3694)
                 }
             }
         }
@@ -83,55 +83,55 @@ class UtbetalingsberegningForbedretTest {
         val resultat =
             utbetalingsberegningTestOgBeregn {
                 periode {
-                    fra(LocalDate.of(2024, 1, 1))
-                    til(LocalDate.of(2024, 3, 31))
+                    `fra dato`(LocalDate.of(2024, 1, 1))
+                    `til dato`(LocalDate.of(2024, 3, 31))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 10))
-                    syk(grad = 100, antallDager = 1)
-                    this.fra(LocalDate.of(2024, 2, 10))
-                    syk(grad = 100, antallDager = 1)
-                    this.fra(LocalDate.of(2024, 3, 10))
-                    syk(grad = 100, antallDager = 1)
+                    `som arbeidstaker`()
+                    this.`fra dato`(LocalDate.of(2024, 1, 10))
+                    `er syk`(grad = 100, antallDager = 1)
+                    this.`fra dato`(LocalDate.of(2024, 2, 10))
+                    `er syk`(grad = 100, antallDager = 1)
+                    this.`fra dato`(LocalDate.of(2024, 3, 10))
+                    `er syk`(grad = 100, antallDager = 1)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
-                    refusjon {
-                        fra(LocalDate.of(2024, 1, 1))
-                        til(LocalDate.of(2024, 1, 15))
-                        beløp(10000) // 10 000 kr/mnd refusjon
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 1, 1))
+                        `til dato`(LocalDate.of(2024, 1, 15))
+                        `med beløp`(10000) // 10 000 kr/mnd refusjon
                     }
-                    refusjon {
-                        fra(LocalDate.of(2024, 2, 1))
-                        åpen()
-                        beløp(20000) // 20 000 kr/mnd refusjon
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 2, 1))
+                        `er åpen`()
+                        `med beløp`(20000) // 20 000 kr/mnd refusjon
                     }
                 }
             }
 
         resultat.skal {
-            haYrkesaktivitet(yrkesaktivitetId) {
-                harAntallDager(91) // Jan-mars 2024
-                dag(LocalDate.of(2024, 1, 10)) {
-                    harRefusjon() // Dag i lukket refusjonsperiode skal ha refusjon
+            `ha yrkesaktivitet`(yrkesaktivitetId) {
+                `skal ha antall dager`(91) // Jan-mars 2024
+                `på dato`(LocalDate.of(2024, 1, 10)) {
+                    `skal ha refusjon`() // Dag i lukket refusjonsperiode skal ha refusjon
                 }
             }
 
-            haOppdrag {
-                harAntallOppdrag(2)
-                oppdrag(0) {
-                    harNettoBeløp(461)
-                    harFagområde("SPREF")
+            `har oppdrag` {
+                `skal ha antall oppdrag`(2)
+                `oppdrag nummer`(0) {
+                    `skal ha netto beløp`(461)
+                    `skal ha fagområde`("SPREF")
                 }
-                oppdrag(1) {
-                    harNettoBeløp(1847)
-                    harFagområde("SP")
+                `oppdrag nummer`(1) {
+                    `skal ha netto beløp`(1847)
+                    `skal ha fagområde`("SP")
                 }
             }
         }
@@ -144,37 +144,37 @@ class UtbetalingsberegningForbedretTest {
         val resultat =
             utbetalingsberegningTestOgBeregn {
                 periode {
-                    fra(LocalDate.of(2024, 1, 1))
-                    til(LocalDate.of(2024, 1, 31))
+                    `fra dato`(LocalDate.of(2024, 1, 1))
+                    `til dato`(LocalDate.of(2024, 1, 31))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    inaktiv(variant = "INAKTIV_VARIANT_A")
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    syk(grad = 100, antallDager = 5)
+                    `som inaktiv`(variant = "INAKTIV_VARIANT_A")
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `er syk`(grad = 100, antallDager = 5)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(30001) // 30 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
+                    `med beløp`(30001) // 30 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
                 }
             }
 
         resultat.skal {
-            haYrkesaktivitet(yrkesaktivitetId) {
-                harAntallDager(31) // Hele januar
-                dag(LocalDate.of(2024, 1, 1)) {
-                    harTotalGrad(100)
+            `ha yrkesaktivitet`(yrkesaktivitetId) {
+                `skal ha antall dager`(31) // Hele januar
+                `på dato`(LocalDate.of(2024, 1, 1)) {
+                    `skal ha total grad`(100)
                 }
             }
 
-            haOppdrag {
-                harAntallOppdrag(1)
-                oppdrag(0) {
-                    harNettoBeløp(4500)
-                    harFagområde("SP")
+            `har oppdrag` {
+                `skal ha antall oppdrag`(1)
+                `oppdrag nummer`(0) {
+                    `skal ha netto beløp`(4500)
+                    `skal ha fagområde`("SP")
                 }
             }
         }
@@ -187,21 +187,21 @@ class UtbetalingsberegningForbedretTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(LocalDate.of(2024, 1, 1))
-                    til(LocalDate.of(2024, 1, 31))
+                    `fra dato`(LocalDate.of(2024, 1, 1))
+                    `til dato`(LocalDate.of(2024, 1, 31))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    næringsdrivende(forsikringstype = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    syk(grad = 100, antallDager = 5)
+                    `som næringsdrivende`(forsikringstype = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `er syk`(grad = 100, antallDager = 5)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(40000) // 40 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
+                    `med beløp`(40000) // 40 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
                 }
             }
 
@@ -226,44 +226,44 @@ class UtbetalingsberegningForbedretTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(LocalDate.of(2024, 1, 1))
-                    til(LocalDate.of(2024, 1, 14))
+                    `fra dato`(LocalDate.of(2024, 1, 1))
+                    `til dato`(LocalDate.of(2024, 1, 14))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet1Id)
-                    arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    syk(grad = 100, antallDager = 14)
+                    `som arbeidstaker`()
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `er syk`(grad = 100, antallDager = 14)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet2Id)
-                    arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    syk(grad = 50, antallDager = 14)
+                    `som arbeidstaker`()
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `er syk`(grad = 50, antallDager = 14)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitet1Id)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
-                    refusjon {
-                        fra(LocalDate.of(2024, 1, 1))
-                        til(LocalDate.of(2024, 1, 7))
-                        beløp(50000) // 50 000 kr/mnd refusjon
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 1, 1))
+                        `til dato`(LocalDate.of(2024, 1, 7))
+                        `med beløp`(50000) // 50 000 kr/mnd refusjon
                     }
-                    refusjon {
-                        fra(LocalDate.of(2024, 1, 8))
-                        åpen()
-                        beløp(10000) // 10 000 kr/mnd refusjon
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 1, 8))
+                        `er åpen`()
+                        `med beløp`(10000) // 10 000 kr/mnd refusjon
                     }
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitet2Id)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
                 }
             }
 
@@ -287,36 +287,36 @@ class UtbetalingsberegningForbedretTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(LocalDate.of(2024, 1, 1))
-                    til(LocalDate.of(2024, 1, 29))
+                    `fra dato`(LocalDate.of(2024, 1, 1))
+                    `til dato`(LocalDate.of(2024, 1, 29))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    arbeidsgiverperiode {
-                        this.fra(LocalDate.of(2024, 1, 1))
-                        til(LocalDate.of(2024, 1, 16))
+                    `som arbeidstaker`()
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `med arbeidsgiverperiode` {
+                        this.`fra dato`(LocalDate.of(2024, 1, 1))
+                        `til dato`(LocalDate.of(2024, 1, 16))
                     }
-                    syk(grad = 100, antallDager = 2)
-                    arbeidsdag(antallDager = 1)
-                    sykNav(grad = 100, antallDager = 2)
-                    ferie(antallDager = 1)
-                    permisjon(antallDager = 1)
-                    avslått(begrunnelse = listOf("Ikke oppfylt krav"), antallDager = 1)
-                    andreYtelser(begrunnelse = listOf("Dagpenger"), antallDager = 1)
-                    syk(grad = 100, antallDager = 20)
+                    `er syk`(grad = 100, antallDager = 2)
+                    `har arbeidsdager`(antallDager = 1)
+                    `er syk nav`(grad = 100, antallDager = 2)
+                    `har ferie`(antallDager = 1)
+                    `har permisjon`(antallDager = 1)
+                    `er avslått`(begrunnelse = listOf("Ikke oppfylt krav"), antallDager = 1)
+                    `har andre ytelser`(begrunnelse = listOf("Dagpenger"), antallDager = 1)
+                    `er syk`(grad = 100, antallDager = 20)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
-                    refusjon {
-                        fra(LocalDate.of(2024, 1, 1))
-                        åpen()
-                        beløp(10000) // 10 000 kr/mnd refusjon
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 1, 1))
+                        `er åpen`()
+                        `med beløp`(10000) // 10 000 kr/mnd refusjon
                     }
                 }
             }
@@ -343,27 +343,27 @@ class UtbetalingsberegningForbedretTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(LocalDate.of(2024, 1, 1))
-                    til(LocalDate.of(2024, 1, 10))
+                    `fra dato`(LocalDate.of(2024, 1, 1))
+                    `til dato`(LocalDate.of(2024, 1, 10))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    syk(grad = 50, antallDager = 5)
-                    syk(grad = 25, antallDager = 3)
-                    arbeidsdag(antallDager = 2)
+                    `som arbeidstaker`()
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `er syk`(grad = 50, antallDager = 5)
+                    `er syk`(grad = 25, antallDager = 3)
+                    `har arbeidsdager`(antallDager = 2)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
-                    refusjon {
-                        fra(LocalDate.of(2024, 1, 1))
-                        åpen()
-                        beløp(10000) // 10 000 kr/mnd refusjon
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 1, 1))
+                        `er åpen`()
+                        `med beløp`(10000) // 10 000 kr/mnd refusjon
                     }
                 }
             }
@@ -387,25 +387,25 @@ class UtbetalingsberegningForbedretTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(LocalDate.of(2024, 1, 1))
-                    til(LocalDate.of(2024, 1, 10))
+                    `fra dato`(LocalDate.of(2024, 1, 1))
+                    `til dato`(LocalDate.of(2024, 1, 10))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
-                    arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    avslått(begrunnelse = listOf("Ikke oppfylt krav om medlemskap"), antallDager = 10)
+                    `som arbeidstaker`()
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `er avslått`(begrunnelse = listOf("Ikke oppfylt krav om medlemskap"), antallDager = 10)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetId)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
-                    refusjon {
-                        fra(LocalDate.of(2024, 1, 1))
-                        åpen()
-                        beløp(10000) // 10 000 kr/mnd refusjon
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 1, 1))
+                        `er åpen`()
+                        `med beløp`(10000) // 10 000 kr/mnd refusjon
                     }
                 }
             }
@@ -444,44 +444,44 @@ class UtbetalingsberegningForbedretTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(LocalDate.of(2024, 1, 1))
-                    til(LocalDate.of(2024, 1, 14))
+                    `fra dato`(LocalDate.of(2024, 1, 1))
+                    `til dato`(LocalDate.of(2024, 1, 14))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet1Id)
-                    arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    syk(grad = 100, antallDager = 14)
+                    `som arbeidstaker`()
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `er syk`(grad = 100, antallDager = 14)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet2Id)
-                    arbeidstaker()
-                    this.fra(LocalDate.of(2024, 1, 1))
-                    syk(grad = 50, antallDager = 14)
+                    `som arbeidstaker`()
+                    this.`fra dato`(LocalDate.of(2024, 1, 1))
+                    `er syk`(grad = 50, antallDager = 14)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitet1Id)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
-                    refusjon {
-                        fra(LocalDate.of(2024, 1, 1))
-                        til(LocalDate.of(2024, 1, 7))
-                        beløp(50000) // 50 000 kr/mnd refusjon
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 1, 1))
+                        `til dato`(LocalDate.of(2024, 1, 7))
+                        `med beløp`(50000) // 50 000 kr/mnd refusjon
                     }
-                    refusjon {
-                        fra(LocalDate.of(2024, 1, 8))
-                        åpen()
-                        beløp(10000) // 10 000 kr/mnd refusjon
+                    `med refusjon` {
+                        `fra dato`(LocalDate.of(2024, 1, 8))
+                        `er åpen`()
+                        `med beløp`(10000) // 10 000 kr/mnd refusjon
                     }
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitet2Id)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
                 }
             }
 

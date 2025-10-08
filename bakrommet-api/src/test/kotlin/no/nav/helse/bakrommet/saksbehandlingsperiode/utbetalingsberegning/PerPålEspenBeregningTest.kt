@@ -80,7 +80,7 @@ class PerPålEspenBeregningTest {
                 }
             }
 
-            `oppdrag` {
+            `har oppdrag` {
                 `skal ha antall oppdrag`(1)
                 `oppdrag nummer`(0) {
                     `skal ha fagområde`("SP")
@@ -162,7 +162,7 @@ class PerPålEspenBeregningTest {
                 }
             }
 
-            `oppdrag` {
+            `har oppdrag` {
                 `skal ha antall oppdrag`(1)
                 `oppdrag nummer`(0) {
                     `skal ha fagområde`("SP")
@@ -244,7 +244,7 @@ class PerPålEspenBeregningTest {
                 }
             }
 
-            `oppdrag` {
+            `har oppdrag` {
                 `skal ha antall oppdrag`(1)
                 `oppdrag nummer`(0) {
                     `skal ha fagområde`("SP")

@@ -17,44 +17,44 @@ class UtbetalingViaSpleisKodeTest {
         val input =
             utbetalingsberegningTestdata {
                 periode {
-                    fra(førsteDag)
-                    til(førsteDag.plusDays(13))
+                    `fra dato`(førsteDag)
+                    `til dato`(førsteDag.plusDays(13))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet1Id)
-                    arbeidstaker()
-                    this.fra(førsteDag)
-                    syk(grad = 100, antallDager = 14)
+                    `som arbeidstaker`()
+                    this.`fra dato`(førsteDag)
+                    `er syk`(grad = 100, antallDager = 14)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitet2Id)
-                    arbeidstaker()
-                    this.fra(førsteDag)
-                    syk(grad = 50, antallDager = 14)
+                    `som arbeidstaker`()
+                    this.`fra dato`(førsteDag)
+                    `er syk`(grad = 50, antallDager = 14)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitet1Id)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
-                    refusjon {
-                        fra(førsteDag)
-                        til(førsteDag.plusDays(7))
-                        beløp(50000) // 50 000 kr/mnd refusjon
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med refusjon` {
+                        `fra dato`(førsteDag)
+                        `til dato`(førsteDag.plusDays(7))
+                        `med beløp`(50000) // 50 000 kr/mnd refusjon
                     }
-                    refusjon {
-                        fra(førsteDag.plusDays(8))
-                        åpen()
-                        beløp(10000) // 10 000 kr/mnd refusjon
+                    `med refusjon` {
+                        `fra dato`(førsteDag.plusDays(8))
+                        `er åpen`()
+                        `med beløp`(10000) // 10 000 kr/mnd refusjon
                     }
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitet2Id)
-                    beløp(50000) // 50 000 kr/mnd
-                    kilde(Inntektskilde.AINNTEKT)
+                    `med beløp`(50000) // 50 000 kr/mnd
+                    `fra kilde`(Inntektskilde.AINNTEKT)
                 }
             }
 
