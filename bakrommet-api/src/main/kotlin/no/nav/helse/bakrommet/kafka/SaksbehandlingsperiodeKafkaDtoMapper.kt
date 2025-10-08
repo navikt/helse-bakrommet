@@ -114,7 +114,7 @@ private fun SykepengegrunnlagResponse?.tilSykepengegrunnlagKafkaDto(): Sykepenge
             this.inntekter.map {
                 InntektKafkaDto(
                     yrkesaktivitetId = it.yrkesaktivitetId,
-                    beløpPerMånedØre = it.beløpPerMånedØre,
+                    beløpPerMånedØre = it.inntektMånedligØre,
                     kilde = it.kilde,
                     refusjon =
                         it.refusjon.map { ref ->

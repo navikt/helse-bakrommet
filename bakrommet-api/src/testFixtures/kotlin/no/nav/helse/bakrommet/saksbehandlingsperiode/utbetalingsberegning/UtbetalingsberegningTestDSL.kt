@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.InntektBeregnet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
@@ -399,10 +399,11 @@ class InntektBuilder {
         refusjon(init)
     }
 
-    fun build(): Inntekt {
-        return Inntekt(
+    fun build(): InntektBeregnet {
+        return InntektBeregnet(
             yrkesaktivitetId = yrkesaktivitetId,
-            beløpPerMånedØre = beløpPerMånedØre,
+            inntektMånedligØre = beløpPerMånedØre,
+            grunnlagMånedligØre = beløpPerMånedØre,
             kilde = kilde,
             refusjon = refusjon,
         )
@@ -526,8 +527,8 @@ private fun fyllUtManglendeDagerSomArbeidsdager(
     return dagerMap.values.sortedBy { it.dato }
 }
 
-private fun lagSykepengegrunnlag(inntekter: List<Inntekt>): SykepengegrunnlagResponse {
-    val totalInntektØre = 12 * inntekter.sumOf { it.beløpPerMånedØre }
+private fun lagSykepengegrunnlag(inntekter: List<InntektBeregnet>): SykepengegrunnlagResponse {
+    val totalInntektØre = 12 * inntekter.sumOf { it.inntektMånedligØre }
     val grunnbeløpØre = 10000000L
     val grunnbeløp6GØre = 6 * grunnbeløpØre
 

@@ -7,7 +7,7 @@ import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.InntektBeregnet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
@@ -68,9 +68,10 @@ class DemoUtbetalingsberegningRouteTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 inntekter =
                     listOf(
-                        Inntekt(
+                        InntektBeregnet(
                             yrkesaktivitetId = yrkesaktivitetId,
-                            beløpPerMånedØre = 500000L,
+                            inntektMånedligØre = 500000L,
+                            grunnlagMånedligØre = 500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon =
                                 listOf(),

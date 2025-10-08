@@ -157,19 +157,30 @@ class SykepengegrunnlagService(
 
         // Beregn 1G i øre
         val grunnbeløpØre = (grunnbeløpsBeløp.årlig * 100).toLong()
-
-        // Summer opp alle månedlige inntekter og konverter til årsinntekt (i øre)
-        val totalInntektØre = inntekter.sumOf { it.beløpPerMånedØre } * 12L
-
         // Begrens til 6G - konverter fra kroner til øre (1 krone = 100 øre)
         val seksGØre = (seksG.årlig * 100).toLong()
+
+        val inntekterBeregnet =
+            inntekter.map { inntekt ->
+                InntektBeregnet(
+                    yrkesaktivitetId = inntekt.yrkesaktivitetId,
+                    inntektMånedligØre = inntekt.beløpPerMånedØre,
+                    grunnlagMånedligØre = inntekt.beløpPerMånedØre,
+                    kilde = inntekt.kilde,
+                    refusjon = inntekt.refusjon,
+                )
+            }
+
+        // Summer opp alle månedlige inntekter og konverter til årsinntekt (i øre)
+        val totalInntektØre = inntekterBeregnet.sumOf { it.grunnlagMånedligØre } * 12L
+
         val begrensetTil6G = totalInntektØre > seksGØre
         val sykepengegrunnlagØre = if (begrensetTil6G) seksGØre else totalInntektØre
 
         return SykepengegrunnlagResponse(
             id = UUID.randomUUID(),
             saksbehandlingsperiodeId = periode.id,
-            inntekter = inntekter,
+            inntekter = inntekterBeregnet,
             totalInntektØre = totalInntektØre,
             grunnbeløpØre = grunnbeløpØre,
             grunnbeløp6GØre = seksGØre,

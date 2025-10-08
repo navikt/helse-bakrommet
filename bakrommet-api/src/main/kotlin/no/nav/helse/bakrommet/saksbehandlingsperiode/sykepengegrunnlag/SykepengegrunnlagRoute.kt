@@ -20,6 +20,14 @@ data class Inntekt(
     val refusjon: List<Refusjonsperiode> = emptyList(),
 )
 
+data class InntektBeregnet(
+    val yrkesaktivitetId: UUID,
+    val inntektMånedligØre: Long,
+    val grunnlagMånedligØre: Long,
+    val kilde: Inntektskilde,
+    val refusjon: List<Refusjonsperiode> = emptyList(),
+)
+
 data class Refusjonsperiode(
     val fom: LocalDate,
     val tom: LocalDate?,
@@ -43,15 +51,13 @@ data class SykepengegrunnlagRequest(
 data class SykepengegrunnlagResponse(
     val id: UUID,
     val saksbehandlingsperiodeId: UUID,
-    val inntekter: List<Inntekt>,
+    val inntekter: List<InntektBeregnet>,
     val totalInntektØre: Long,
     val grunnbeløpØre: Long,
     val grunnbeløp6GØre: Long,
     val begrensetTil6G: Boolean,
-    // Endelig grunnlag i øre
     val sykepengegrunnlagØre: Long,
     val begrunnelse: String? = null,
-    // New field for the virkningstidspunkt of the Grunnbeløp
     val grunnbeløpVirkningstidspunkt: LocalDate,
     val opprettet: String,
     val opprettetAv: String,

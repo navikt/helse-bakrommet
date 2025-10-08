@@ -109,7 +109,7 @@ class SykepengegrunnlagDao private constructor(private val db: QueryRunner) {
         val inntekter =
             objectMapper.readValue(
                 inntekterJson,
-                object : TypeReference<List<Inntekt>>() {},
+                object : TypeReference<List<InntektBeregnet>>() {},
             )
 
         // For backward compatibility - default to the current date if the column is null
