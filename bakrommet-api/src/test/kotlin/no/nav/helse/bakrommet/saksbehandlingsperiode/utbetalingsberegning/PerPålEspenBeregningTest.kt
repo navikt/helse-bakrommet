@@ -25,67 +25,67 @@ class PerPålEspenBeregningTest {
         val resultat =
             utbetalingsberegningTestOgBeregn {
                 periode {
-                    fra(1.januar(2024))
-                    til(30.desember(2024))
+                    `fra dato`(1.januar(2024))
+                    `til dato`(30.desember(2024))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdArbeidstaker)
-                    arbeidstaker("999999999")
-                    fra(1.januar(2024))
-                    syk(grad = 50, antallDager = 365)
+                    `som arbeidstaker`("999999999")
+                    `fra dato`(1.januar(2024))
+                    `er syk`(grad = 50, antallDager = 365)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdNæring)
-                    næringsdrivende()
-                    fra(1.januar(2024))
-                    arbeidsdag(365)
+                    `som næringsdrivende`()
+                    `fra dato`(1.januar(2024))
+                    `har arbeidsdager`(365)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetIdArbeidstaker)
-                    beløp(100000)
-                    kilde(Inntektskilde.INNTEKTSMELDING)
+                    `med beløp`(100000)
+                    `fra kilde`(Inntektskilde.INNTEKTSMELDING)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetIdNæring)
-                    beløp(0)
-                    kilde(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
+                    `med beløp`(0)
+                    `fra kilde`(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
                 }
             }
 
         resultat.skal {
-            haYrkesaktivitet(yrkesaktivitetIdNæring) {
-                harAntallDager(365)
-                harDekningsgrad(80)
-                harDekningsgradBegrunnelse(ORDINAER_SELVSTENDIG_80)
-                dag(1.januar(2024)) {
-                    harTotalGrad(50)
-                    harSykdomsGrad(0)
-                    harIngenRefusjon()
-                    harIngenUtbetaling()
+            `ha yrkesaktivitet`(yrkesaktivitetIdNæring) {
+                `skal ha antall dager`(365)
+                `skal ha dekningsgrad`(80)
+                `skal ha dekningsgrad begrunnelse`(ORDINAER_SELVSTENDIG_80)
+                `på dato`(1.januar(2024)) {
+                    `skal ha total grad`(50)
+                    `skal ha sykdoms grad`(0)
+                    `skal ha ingen refusjon`()
+                    `skal ha ingen utbetaling`()
                 }
             }
 
-            haYrkesaktivitet(yrkesaktivitetIdArbeidstaker) {
-                harAntallDager(365) // Hele januar
-                harDekningsgrad(100)
-                harDekningsgradBegrunnelse(ARBEIDSTAKER_100)
-                dag(1.januar(2024)) {
-                    harTotalGrad(50)
-                    harUtbetaling(1154)
-                    harSykdomsGrad(50)
+            `ha yrkesaktivitet`(yrkesaktivitetIdArbeidstaker) {
+                `skal ha antall dager`(365)
+                `skal ha dekningsgrad`(100)
+                `skal ha dekningsgrad begrunnelse`(ARBEIDSTAKER_100)
+                `på dato`(1.januar(2024)) {
+                    `skal ha total grad`(50)
+                    `skal ha utbetaling`(1154)
+                    `skal ha sykdoms grad`(50)
                 }
             }
 
-            haOppdrag {
-                harAntallOppdrag(1)
-                oppdrag(0) {
-                    harFagområde("SP")
-                    harNettoBeløp(301194)
-                    harTotalbeløp(301194)
+            `oppdrag` {
+                `skal ha antall oppdrag`(1)
+                `oppdrag nummer`(0) {
+                    `skal ha fagområde`("SP")
+                    `skal ha netto beløp`(301194)
+                    `skal ha total beløp`(301194)
                 }
             }
         }
@@ -107,67 +107,67 @@ class PerPålEspenBeregningTest {
         val resultat =
             utbetalingsberegningTestOgBeregn {
                 periode {
-                    fra(1.januar(2024))
-                    til(30.desember(2024))
+                    `fra dato`(1.januar(2024))
+                    `til dato`(30.desember(2024))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdArbeidstaker)
-                    arbeidstaker("999999999")
-                    fra(1.januar(2024))
-                    syk(grad = 100, antallDager = 365)
+                    `som arbeidstaker`("999999999")
+                    `fra dato`(1.januar(2024))
+                    `er syk`(grad = 100, antallDager = 365)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdNæring)
-                    næringsdrivende()
-                    fra(1.januar(2024))
-                    arbeidsdag(365)
+                    `som næringsdrivende`()
+                    `fra dato`(1.januar(2024))
+                    `har arbeidsdager`(365)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetIdArbeidstaker)
-                    beløp(50000)
-                    kilde(Inntektskilde.INNTEKTSMELDING)
+                    `med beløp`(50000)
+                    `fra kilde`(Inntektskilde.INNTEKTSMELDING)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetIdNæring)
-                    beløp(50000)
-                    kilde(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
+                    `med beløp`(50000)
+                    `fra kilde`(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
                 }
             }
 
         resultat.skal {
-            haYrkesaktivitet(yrkesaktivitetIdNæring) {
-                harAntallDager(365)
-                harDekningsgrad(80)
-                harDekningsgradBegrunnelse(ORDINAER_SELVSTENDIG_80)
-                dag(1.januar(2024)) {
-                    harTotalGrad(50)
-                    harSykdomsGrad(0)
-                    harIngenRefusjon()
-                    harIngenUtbetaling()
+            `ha yrkesaktivitet`(yrkesaktivitetIdNæring) {
+                `skal ha antall dager`(365)
+                `skal ha dekningsgrad`(80)
+                `skal ha dekningsgrad begrunnelse`(ORDINAER_SELVSTENDIG_80)
+                `på dato`(1.januar(2024)) {
+                    `skal ha total grad`(50)
+                    `skal ha sykdoms grad`(0)
+                    `skal ha ingen refusjon`()
+                    `skal ha ingen utbetaling`()
                 }
             }
 
-            haYrkesaktivitet(yrkesaktivitetIdArbeidstaker) {
-                harAntallDager(365) // Hele januar
-                harDekningsgrad(100)
-                harDekningsgradBegrunnelse(ARBEIDSTAKER_100)
-                dag(1.januar(2024)) {
-                    harTotalGrad(50)
-                    harUtbetaling(1154)
-                    harSykdomsGrad(100)
+            `ha yrkesaktivitet`(yrkesaktivitetIdArbeidstaker) {
+                `skal ha antall dager`(365)
+                `skal ha dekningsgrad`(100)
+                `skal ha dekningsgrad begrunnelse`(ARBEIDSTAKER_100)
+                `på dato`(1.januar(2024)) {
+                    `skal ha total grad`(50)
+                    `skal ha utbetaling`(1154)
+                    `skal ha sykdoms grad`(100)
                 }
             }
 
-            haOppdrag {
-                harAntallOppdrag(1)
-                oppdrag(0) {
-                    harFagområde("SP")
-                    harNettoBeløp(301194) // TODO denne blir feil, skal være 600.000
-                    harTotalbeløp(301194)
+            `oppdrag` {
+                `skal ha antall oppdrag`(1)
+                `oppdrag nummer`(0) {
+                    `skal ha fagområde`("SP")
+                    `skal ha netto beløp`(301194) // TODO denne blir feil, skal være 600.000
+                    `skal ha total beløp`(301194)
                 }
             }
         }
@@ -189,67 +189,67 @@ class PerPålEspenBeregningTest {
         val resultat =
             utbetalingsberegningTestOgBeregn {
                 periode {
-                    fra(1.januar(2024))
-                    til(30.desember(2024))
+                    `fra dato`(1.januar(2024))
+                    `til dato`(30.desember(2024))
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdArbeidstaker)
-                    arbeidstaker("999999999")
-                    fra(1.januar(2024))
-                    arbeidsdag(365)
+                    `som arbeidstaker`("999999999")
+                    `fra dato`(1.januar(2024))
+                    `har arbeidsdager`(365)
                 }
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdNæring)
-                    næringsdrivende()
-                    fra(1.januar(2024))
-                    syk(grad = 100, antallDager = 365)
+                    `som næringsdrivende`()
+                    `fra dato`(1.januar(2024))
+                    `er syk`(grad = 100, antallDager = 365)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetIdArbeidstaker)
-                    beløp(50000)
-                    kilde(Inntektskilde.INNTEKTSMELDING)
+                    `med beløp`(50000)
+                    `fra kilde`(Inntektskilde.INNTEKTSMELDING)
                 }
 
                 inntekt {
                     yrkesaktivitetId(yrkesaktivitetIdNæring)
-                    beløp(50000)
-                    kilde(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
+                    `med beløp`(50000)
+                    `fra kilde`(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
                 }
             }
 
         resultat.skal {
-            haYrkesaktivitet(yrkesaktivitetIdNæring) {
-                harAntallDager(365)
-                harDekningsgrad(80)
-                harDekningsgradBegrunnelse(ORDINAER_SELVSTENDIG_80)
-                dag(1.januar(2024)) {
-                    harTotalGrad(50)
-                    harSykdomsGrad(100)
-                    harIngenRefusjon()
-                    harUtbetaling(923)
+            `ha yrkesaktivitet`(yrkesaktivitetIdNæring) {
+                `skal ha antall dager`(365)
+                `skal ha dekningsgrad`(80)
+                `skal ha dekningsgrad begrunnelse`(ORDINAER_SELVSTENDIG_80)
+                `på dato`(1.januar(2024)) {
+                    `skal ha total grad`(50)
+                    `skal ha sykdoms grad`(100)
+                    `skal ha ingen refusjon`()
+                    `skal ha utbetaling`(923)
                 }
             }
 
-            haYrkesaktivitet(yrkesaktivitetIdArbeidstaker) {
-                harAntallDager(365) // Hele januar
-                harDekningsgrad(100)
-                harDekningsgradBegrunnelse(ARBEIDSTAKER_100)
-                dag(1.januar(2024)) {
-                    harTotalGrad(50)
-                    harSykdomsGrad(0)
-                    harIngenUtbetaling()
+            `ha yrkesaktivitet`(yrkesaktivitetIdArbeidstaker) {
+                `skal ha antall dager`(365)
+                `skal ha dekningsgrad`(100)
+                `skal ha dekningsgrad begrunnelse`(ARBEIDSTAKER_100)
+                `på dato`(1.januar(2024)) {
+                    `skal ha total grad`(50)
+                    `skal ha sykdoms grad`(0)
+                    `skal ha ingen utbetaling`()
                 }
             }
 
-            haOppdrag {
-                harAntallOppdrag(1)
-                oppdrag(0) {
-                    harFagområde("SP")
-                    harNettoBeløp(240903) // TODO denne blir feil, skal være null
-                    harTotalbeløp(240903)
+            `oppdrag` {
+                `skal ha antall oppdrag`(1)
+                `oppdrag nummer`(0) {
+                    `skal ha fagområde`("SP")
+                    `skal ha netto beløp`(240903) // TODO denne blir feil, skal være null
+                    `skal ha total beløp`(240903)
                 }
             }
         }

@@ -78,8 +78,16 @@ class PeriodeBuilder {
         this.fom = dato
     }
 
+    fun `fra dato`(dato: LocalDate) {
+        fra(dato)
+    }
+
     fun til(dato: LocalDate) {
         this.tom = dato
+    }
+
+    fun `til dato`(dato: LocalDate) {
+        til(dato)
     }
 
     fun build(): PeriodeDto {
@@ -113,8 +121,16 @@ class YrkesaktivitetBuilder {
         }
     }
 
+    fun `som arbeidstaker`(orgnummer: String? = null) {
+        arbeidstaker(orgnummer)
+    }
+
     fun arbeidsledig() {
         inntektskategori = "ARBEIDSLEDIG"
+    }
+
+    fun `som arbeidsledig`() {
+        arbeidsledig()
     }
 
     fun inaktiv(variant: String = "INAKTIV_VARIANT_A") {
@@ -122,13 +138,25 @@ class YrkesaktivitetBuilder {
         kategorisering["VARIANT_AV_INAKTIV"] = variant
     }
 
+    fun `som inaktiv`(variant: String = "INAKTIV_VARIANT_A") {
+        inaktiv(variant)
+    }
+
     fun næringsdrivende(forsikringstype: String = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG") {
         inntektskategori = "SELVSTENDIG_NÆRINGSDRIVENDE"
         kategorisering["SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING"] = forsikringstype
     }
 
+    fun `som næringsdrivende`(forsikringstype: String = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG") {
+        næringsdrivende(forsikringstype)
+    }
+
     fun fra(dato: LocalDate) {
         gjeldendeDato = dato
+    }
+
+    fun `fra dato`(dato: LocalDate) {
+        fra(dato)
     }
 
     fun arbeidsgiverperiode(init: PeriodeBuilder.() -> Unit) {
@@ -136,6 +164,10 @@ class YrkesaktivitetBuilder {
         builder.init()
         val periode = builder.build()
         arbeidsgiverperiode = Pair(periode.fom, periode.tom)
+    }
+
+    fun `med arbeidsgiverperiode`(init: PeriodeBuilder.() -> Unit) {
+        arbeidsgiverperiode(init)
     }
 
     fun syk(
@@ -156,6 +188,13 @@ class YrkesaktivitetBuilder {
         }
     }
 
+    fun `er syk`(
+        grad: Int = 100,
+        antallDager: Int = 1,
+    ) {
+        syk(grad, antallDager)
+    }
+
     fun sykNav(
         grad: Int = 100,
         antallDager: Int = 1,
@@ -174,6 +213,13 @@ class YrkesaktivitetBuilder {
         }
     }
 
+    fun `er syk nav`(
+        grad: Int = 100,
+        antallDager: Int = 1,
+    ) {
+        sykNav(grad, antallDager)
+    }
+
     fun arbeidsdag(antallDager: Int = 1) {
         repeat(antallDager) {
             dagoversikt.add(
@@ -187,6 +233,10 @@ class YrkesaktivitetBuilder {
             )
             gjeldendeDato = gjeldendeDato!!.plusDays(1)
         }
+    }
+
+    fun `har arbeidsdager`(antallDager: Int = 1) {
+        arbeidsdag(antallDager)
     }
 
     fun ferie(antallDager: Int = 1) {
@@ -204,6 +254,10 @@ class YrkesaktivitetBuilder {
         }
     }
 
+    fun `har ferie`(antallDager: Int = 1) {
+        ferie(antallDager)
+    }
+
     fun permisjon(antallDager: Int = 1) {
         repeat(antallDager) {
             dagoversikt.add(
@@ -217,6 +271,10 @@ class YrkesaktivitetBuilder {
             )
             gjeldendeDato = gjeldendeDato!!.plusDays(1)
         }
+    }
+
+    fun `har permisjon`(antallDager: Int = 1) {
+        permisjon(antallDager)
     }
 
     fun avslått(
@@ -237,6 +295,13 @@ class YrkesaktivitetBuilder {
         }
     }
 
+    fun `er avslått`(
+        begrunnelse: List<String> = emptyList(),
+        antallDager: Int = 1,
+    ) {
+        avslått(begrunnelse, antallDager)
+    }
+
     fun andreYtelser(
         begrunnelse: List<String> = emptyList(),
         antallDager: Int = 1,
@@ -253,6 +318,13 @@ class YrkesaktivitetBuilder {
             )
             gjeldendeDato = gjeldendeDato!!.plusDays(1)
         }
+    }
+
+    fun `har andre ytelser`(
+        begrunnelse: List<String> = emptyList(),
+        antallDager: Int = 1,
+    ) {
+        andreYtelser(begrunnelse, antallDager)
     }
 
     fun build(saksbehandlingsperiode: PeriodeDto): Yrkesaktivitet {
@@ -297,11 +369,23 @@ class InntektBuilder {
         this.beløpPerMånedØre = krPerMåned * 100L
     }
 
+    fun `med beløp`(krPerMåned: Int) {
+        beløp(krPerMåned)
+    }
+
     fun beløpØre(ørePerMåned: Long) {
         this.beløpPerMånedØre = ørePerMåned
     }
 
+    fun `med beløp i øre`(ørePerMåned: Long) {
+        beløpØre(ørePerMåned)
+    }
+
     fun kilde(kilde: Inntektskilde) {
+        this.kilde = kilde
+    }
+
+    fun `fra kilde`(kilde: Inntektskilde) {
         this.kilde = kilde
     }
 
@@ -309,6 +393,10 @@ class InntektBuilder {
         val builder = RefusjonBuilder()
         builder.init()
         refusjon.add(builder.build())
+    }
+
+    fun `med refusjon`(init: RefusjonBuilder.() -> Unit) {
+        refusjon(init)
     }
 
     fun build(): Inntekt {
@@ -330,20 +418,40 @@ class RefusjonBuilder {
         this.fom = dato
     }
 
+    fun `fra dato`(dato: LocalDate) {
+        fra(dato)
+    }
+
     fun til(dato: LocalDate) {
         this.tom = dato
+    }
+
+    fun `til dato`(dato: LocalDate) {
+        til(dato)
     }
 
     fun åpen() {
         this.tom = null
     }
 
+    fun `er åpen`() {
+        åpen()
+    }
+
     fun beløp(krPerMåned: Int) {
         this.beløpØre = krPerMåned * 100L
     }
 
+    fun `med beløp`(krPerMåned: Int) {
+        beløp(krPerMåned)
+    }
+
     fun beløpØre(ørePerMåned: Long) {
         this.beløpØre = ørePerMåned
+    }
+
+    fun `med beløp i øre`(ørePerMåned: Long) {
+        beløpØre(ørePerMåned)
     }
 
     fun build(): Refusjonsperiode {
@@ -457,9 +565,20 @@ class BeregningAssertionBuilder(
         builder.init()
     }
 
+    fun `ha yrkesaktivitet`(
+        yrkesaktivitetId: UUID,
+        init: YrkesaktivitetAssertionBuilder.() -> Unit,
+    ) {
+        haYrkesaktivitet(yrkesaktivitetId, init)
+    }
+
     fun haOppdrag(init: OppdragAssertionBuilder.() -> Unit) {
         val builder = OppdragAssertionBuilder(resultat.oppdrag)
         builder.init()
+    }
+
+    fun `oppdrag`(init: OppdragAssertionBuilder.() -> Unit) {
+        haOppdrag(init)
     }
 }
 
@@ -471,14 +590,26 @@ class YrkesaktivitetAssertionBuilder(
         assertEquals(antall, faktiskAntall, "Forventet $antall dager, men fikk $faktiskAntall dager")
     }
 
+    fun `skal ha antall dager`(antall: Int) {
+        harAntallDager(antall)
+    }
+
     fun harDekningsgrad(grad: Int) {
         val deknignsgrad = yrkesaktivitetResultat.dekningsgrad?.verdi?.prosentDesimal ?: 0.0
         assertEquals(grad, (deknignsgrad * 100).toInt(), "Forventet $grad, men fikk dekningsgrad $deknignsgrad")
     }
 
+    fun `skal ha dekningsgrad`(grad: Int) {
+        harDekningsgrad(grad)
+    }
+
     fun harDekningsgradBegrunnelse(begrunnelse: Beregningssporing) {
         val sporing = yrkesaktivitetResultat.dekningsgrad?.sporing
         assertEquals(begrunnelse, sporing, "Forventet $begrunnelse, men fikk $sporing")
+    }
+
+    fun `skal ha dekningsgrad begrunnelse`(begrunnelse: Beregningssporing) {
+        harDekningsgradBegrunnelse(begrunnelse)
     }
 
     fun dag(
@@ -492,6 +623,13 @@ class YrkesaktivitetAssertionBuilder(
         val builder = DagAssertionBuilder(dag!!)
         builder.init()
     }
+
+    fun `på dato`(
+        dato: LocalDate,
+        init: DagAssertionBuilder.() -> Unit,
+    ) {
+        dag(dato, init)
+    }
 }
 
 class DagAssertionBuilder(
@@ -502,9 +640,17 @@ class DagAssertionBuilder(
         assertEquals(grad.toDouble(), faktiskGrad, "Forventet totalgrad $grad, men fikk $faktiskGrad for dato ${dag.dato}")
     }
 
+    fun `skal ha total grad`(grad: Int) {
+        harTotalGrad(grad)
+    }
+
     fun harSykdomsGrad(grad: Int) {
         val faktiskGrad = (dag.økonomi.sykdomsgrad?.dto()?.prosentDesimal ?: 0.0) * 100
         assertEquals(grad, faktiskGrad.toInt(), "Forventet grad $grad, men fikk $faktiskGrad for dato ${dag.dato}")
+    }
+
+    fun `skal ha sykdoms grad`(grad: Int) {
+        harSykdomsGrad(grad)
     }
 
     fun harIngenUtbetaling() {
@@ -512,9 +658,17 @@ class DagAssertionBuilder(
         assertFalse(harUtbetaling, "Forventet ingen utbetaling for dato ${dag.dato}, men fikk utbetaling")
     }
 
+    fun `skal ha ingen utbetaling`() {
+        harIngenUtbetaling()
+    }
+
     fun harUtbetaling(beløp: Int) {
         val faktiskUtbetaling = dag.økonomi.personbeløp?.dagligInt
         assertEquals(beløp, faktiskUtbetaling, "Forventet utbetaling $beløp for dato ${dag.dato}, men fikk $faktiskUtbetaling")
+    }
+
+    fun `skal ha utbetaling`(beløp: Int) {
+        harUtbetaling(beløp)
     }
 
     fun harRefusjon(beløp: Int? = null) {
@@ -526,9 +680,17 @@ class DagAssertionBuilder(
         }
     }
 
+    fun `skal ha refusjon`(beløp: Int? = null) {
+        harRefusjon(beløp)
+    }
+
     fun harIngenRefusjon() {
         val harRefusjon = dag.økonomi.arbeidsgiverbeløp != null && dag.økonomi.arbeidsgiverbeløp!!.dagligInt > 0
         assertFalse(harRefusjon, "Forventet ingen refusjon for dato ${dag.dato}, men fikk refusjon")
+    }
+
+    fun `skal ha ingen refusjon`() {
+        harIngenRefusjon()
     }
 }
 
@@ -538,6 +700,10 @@ class OppdragAssertionBuilder(
     fun harAntallOppdrag(antall: Int) {
         val faktiskAntall = oppdrag.size
         assertEquals(antall, faktiskAntall, "Forventet $antall oppdrag, men fikk $faktiskAntall oppdrag.")
+    }
+
+    fun `skal ha antall oppdrag`(antall: Int) {
+        harAntallOppdrag(antall)
     }
 
     fun oppdrag(
@@ -552,6 +718,13 @@ class OppdragAssertionBuilder(
         builder.init()
     }
 
+    fun `oppdrag nummer`(
+        index: Int = 0,
+        init: OppdragMatcherBuilder.() -> Unit,
+    ) {
+        oppdrag(index, init)
+    }
+
     fun oppdragMedMottaker(
         mottaker: String,
         init: OppdragMatcherBuilder.() -> Unit,
@@ -563,6 +736,13 @@ class OppdragAssertionBuilder(
         val builder = OppdragMatcherBuilder(oppdragMedMottaker!!)
         builder.init()
     }
+
+    fun `oppdrag med mottaker`(
+        mottaker: String,
+        init: OppdragMatcherBuilder.() -> Unit,
+    ) {
+        oppdragMedMottaker(mottaker, init)
+    }
 }
 
 class OppdragMatcherBuilder(
@@ -572,16 +752,32 @@ class OppdragMatcherBuilder(
         assertEquals(mottaker, oppdrag.mottaker, "Forventet mottaker $mottaker, men fikk ${oppdrag.mottaker}")
     }
 
+    fun `skal ha mottaker`(mottaker: String) {
+        harMottaker(mottaker)
+    }
+
     fun harNettoBeløp(beløp: Int) {
         assertEquals(beløp, oppdrag.nettoBeløp, "Forventet netto beløp $beløp, men fikk ${oppdrag.nettoBeløp}")
+    }
+
+    fun `skal ha netto beløp`(beløp: Int) {
+        harNettoBeløp(beløp)
     }
 
     fun harTotalbeløp(beløp: Int) {
         assertEquals(beløp, oppdrag.totalbeløp(), "Forventet netto beløp $beløp, men fikk ${oppdrag.totalbeløp()}")
     }
 
+    fun `skal ha total beløp`(beløp: Int) {
+        harTotalbeløp(beløp)
+    }
+
     fun harFagområde(fagområde: String) {
         assertEquals(fagområde, oppdrag.fagområde.verdi, "Forventet fagområde $fagområde, men fikk ${oppdrag.fagområde.verdi}")
+    }
+
+    fun `skal ha fagområde`(fagområde: String) {
+        harFagområde(fagområde)
     }
 }
 
