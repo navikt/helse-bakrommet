@@ -11,9 +11,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class UtbetalingsberegningForbedretTest {
+class ArbeidstakerBeregningTest {
     @Test
-    fun `beregner utbetaling med åpen refusjonsperiode for arbeidstaker`() {
+    fun `beregner utbetaling for arbeidstaker med åpen refusjonsperiode`() {
         val yrkesaktivitetId = UUID.randomUUID()
 
         val resultat =
@@ -77,7 +77,7 @@ class UtbetalingsberegningForbedretTest {
     }
 
     @Test
-    fun `beregner utbetaling med blandet refusjon (lukket og åpen)`() {
+    fun `beregner utbetaling for arbeidstaker med blandet refusjon (lukket og åpen)`() {
         val yrkesaktivitetId = UUID.randomUUID()
 
         val resultat =
@@ -138,88 +138,7 @@ class UtbetalingsberegningForbedretTest {
     }
 
     @Test
-    fun `beregner utbetaling for inaktiv person`() {
-        val yrkesaktivitetId = UUID.randomUUID()
-
-        val resultat =
-            utbetalingsberegningTestOgBeregn {
-                periode {
-                    `fra dato`(LocalDate.of(2024, 1, 1))
-                    `til dato`(LocalDate.of(2024, 1, 31))
-                }
-
-                yrkesaktivitet {
-                    id(yrkesaktivitetId)
-                    `som inaktiv`(variant = "INAKTIV_VARIANT_A")
-                    this.`fra dato`(LocalDate.of(2024, 1, 1))
-                    `er syk`(grad = 100, antallDager = 5)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(30001) // 30 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                }
-            }
-
-        resultat.skal {
-            `ha yrkesaktivitet`(yrkesaktivitetId) {
-                `skal ha antall dager`(31) // Hele januar
-                `på dato`(LocalDate.of(2024, 1, 1)) {
-                    `skal ha total grad`(100)
-                }
-            }
-
-            `har oppdrag` {
-                `skal ha antall oppdrag`(1)
-                `oppdrag nummer`(0) {
-                    `skal ha netto beløp`(4500)
-                    `skal ha fagområde`("SP")
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `beregner utbetaling for næringsdrivende`() {
-        val yrkesaktivitetId = UUID.randomUUID()
-
-        val input =
-            utbetalingsberegningTestdata {
-                periode {
-                    `fra dato`(LocalDate.of(2024, 1, 1))
-                    `til dato`(LocalDate.of(2024, 1, 31))
-                }
-
-                yrkesaktivitet {
-                    id(yrkesaktivitetId)
-                    `som næringsdrivende`(forsikringstype = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
-                    this.`fra dato`(LocalDate.of(2024, 1, 1))
-                    `er syk`(grad = 100, antallDager = 5)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(40000) // 40 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                }
-            }
-
-        val resultat = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-        val oppdrage = resultat
-        assertEquals(1, resultat.size)
-        val yrkesaktivitetResultat = resultat.first()
-        assertEquals(yrkesaktivitetId, yrkesaktivitetResultat.yrkesaktivitetId)
-        assertEquals(31, yrkesaktivitetResultat.utbetalingstidslinje.size)
-
-        // Sjekk at sykedagene er beregnet for næringsdrivende
-        val sykedag = yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 1) }
-        assertNotNull(sykedag)
-        assertEquals(100, sykedag.økonomi.brukTotalGrad { it })
-    }
-
-    @Test
-    fun `beregner utbetaling med flere arbeidsforhold`() {
+    fun `beregner utbetaling for arbeidstaker med flere arbeidsforhold`() {
         val yrkesaktivitet1Id = UUID.randomUUID()
         val yrkesaktivitet2Id = UUID.randomUUID()
 
@@ -281,7 +200,7 @@ class UtbetalingsberegningForbedretTest {
     }
 
     @Test
-    fun `beregner utbetaling med blandet dagtyper`() {
+    fun `beregner utbetaling for arbeidstaker med blandet dagtyper`() {
         val yrkesaktivitetId = UUID.randomUUID()
 
         val input =
@@ -337,7 +256,7 @@ class UtbetalingsberegningForbedretTest {
     }
 
     @Test
-    fun `beregner utbetaling med delvis sykefravær`() {
+    fun `beregner utbetaling for arbeidstaker med delvis sykefravær`() {
         val yrkesaktivitetId = UUID.randomUUID()
 
         val input =
@@ -437,7 +356,7 @@ class UtbetalingsberegningForbedretTest {
     }
 
     @Test
-    fun `debug test for å se JSON output`() {
+    fun `debug test for å se JSON output med to arbeidsforhold`() {
         val yrkesaktivitet1Id = UUID.randomUUID()
         val yrkesaktivitet2Id = UUID.randomUUID()
 
