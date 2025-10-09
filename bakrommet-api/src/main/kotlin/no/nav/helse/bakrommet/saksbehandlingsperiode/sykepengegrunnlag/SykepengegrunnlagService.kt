@@ -187,7 +187,7 @@ class SykepengegrunnlagService(
 
                 fun finnGrunnlag(): Long {
                     if (yrkesaktivitet.kategorisering["INNTEKTSKATEGORI"] == "SELVSTENDIG_NÆRINGSDRIVENDE") {
-                        val pensjonsgivendeCappet6g = sumAvArbeidstakerInntekterØre.coerceAtMost(seksGØre)
+                        val pensjonsgivendeCappet6g = inntekt.beløpPerMånedØre.coerceAtMost(seksGØre)
                         val næringsinntekt = pensjonsgivendeCappet6g - sumAvArbeidstakerInntekterØre
                         // returner næringsinntekt hvis større enn 0, eller snull
                         return næringsinntekt.coerceAtLeast(0L)
