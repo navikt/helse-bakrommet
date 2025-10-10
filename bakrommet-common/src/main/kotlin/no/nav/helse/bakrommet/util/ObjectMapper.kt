@@ -22,37 +22,29 @@ fun Any.serialisertTilString(): String = objectMapper.writeValueAsString(this)
 
 fun <T> T.tilJsonNode(): JsonNode = objectMapper.valueToTree(this)
 
-fun String.asJsonNode(): JsonNode {
-    return objectMapper.readTree(this)
-}
+fun String.asJsonNode(): JsonNode = objectMapper.readTree(this)
 
-fun String.asStringStringMap(): Map<String, String> {
-    return objectMapper.readValue(this)
-}
+fun String.asStringStringMap(): Map<String, String> = objectMapper.readValue(this)
 
-fun Any.toJsonNode(): JsonNode {
-    return objectMapper.valueToTree(this)
-}
+fun Any.toJsonNode(): JsonNode = objectMapper.valueToTree(this)
 
-inline fun <reified T> String.somListe(): List<T> {
-    return objectMapper.readValue(
+inline fun <reified T> String.somListe(): List<T> =
+    objectMapper.readValue(
         this,
         objectMapper.typeFactory.constructCollectionType(
             List::class.java,
             T::class.java,
         ),
     )
-}
 
-inline fun <reified T> JsonNode.somListe(): List<T> {
-    return objectMapper.convertValue(
+inline fun <reified T> JsonNode.somListe(): List<T> =
+    objectMapper.convertValue(
         this,
         objectMapper.typeFactory.constructCollectionType(
             List::class.java,
             T::class.java,
         ),
     )
-}
 
 inline fun <reified T> JsonNode.deserialize(): T = objectMapper.convertValue(this, T::class.java)
 

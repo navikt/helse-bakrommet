@@ -64,20 +64,21 @@ class DokumentHenter(
         val søknader: List<Dokument> =
             søknadsIder.map { søknadId ->
                 logg.info("Henter søknad med id={} for periode={}", søknadId, periode.id)
-                soknadClient.hentSoknadMedSporing(
-                    saksbehandlerToken = saksbehandler.token,
-                    id = søknadId.toString(),
-                ).let { (søknadDto, kildespor) ->
-                    dokumentDao.opprettDokument(
-                        Dokument(
-                            dokumentType = DokumentType.søknad,
-                            eksternId = søknadId.toString(),
-                            innhold = søknadDto.serialisertTilString(),
-                            request = kildespor,
-                            opprettetForBehandling = periode.id,
-                        ),
-                    )
-                }
+                soknadClient
+                    .hentSoknadMedSporing(
+                        saksbehandlerToken = saksbehandler.token,
+                        id = søknadId.toString(),
+                    ).let { (søknadDto, kildespor) ->
+                        dokumentDao.opprettDokument(
+                            Dokument(
+                                dokumentType = DokumentType.søknad,
+                                eksternId = søknadId.toString(),
+                                innhold = søknadDto.serialisertTilString(),
+                                request = kildespor,
+                                opprettetForBehandling = periode.id,
+                            ),
+                        )
+                    }
             }
 
         return søknader
@@ -91,23 +92,24 @@ class DokumentHenter(
     ): Dokument {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
         val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
-        return aInntektClient.hentInntekterForMedSporing(
-            fnr = fnr,
-            maanedFom = fom,
-            maanedTom = tom,
-            saksbehandlerToken = saksbehandler.token,
-        ).let { (inntekter, kildespor) ->
-            // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?
-            dokumentDao.opprettDokument(
-                Dokument(
-                    dokumentType = DokumentType.aInntekt828,
-                    eksternId = null,
-                    innhold = inntekter.serialisertTilString(),
-                    request = kildespor,
-                    opprettetForBehandling = periode.id,
-                ),
-            )
-        }
+        return aInntektClient
+            .hentInntekterForMedSporing(
+                fnr = fnr,
+                maanedFom = fom,
+                maanedTom = tom,
+                saksbehandlerToken = saksbehandler.token,
+            ).let { (inntekter, kildespor) ->
+                // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?
+                dokumentDao.opprettDokument(
+                    Dokument(
+                        dokumentType = DokumentType.aInntekt828,
+                        eksternId = null,
+                        innhold = inntekter.serialisertTilString(),
+                        request = kildespor,
+                        opprettetForBehandling = periode.id,
+                    ),
+                )
+            }
     }
 
     suspend fun hentOgLagreArbeidsforhold(
@@ -117,21 +119,22 @@ class DokumentHenter(
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
         val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
         logg.info("Henter aareg for periode={}", periode.id)
-        return aaRegClient.hentArbeidsforholdForMedSporing(
-            fnr = fnr,
-            saksbehandlerToken = saksbehandler.token,
-        ).let { (arbeidsforholdRes, kildespor) ->
-            // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?
-            dokumentDao.opprettDokument(
-                Dokument(
-                    dokumentType = DokumentType.arbeidsforhold,
-                    eksternId = null,
-                    innhold = arbeidsforholdRes.serialisertTilString(),
-                    request = kildespor,
-                    opprettetForBehandling = periode.id,
-                ),
-            )
-        }
+        return aaRegClient
+            .hentArbeidsforholdForMedSporing(
+                fnr = fnr,
+                saksbehandlerToken = saksbehandler.token,
+            ).let { (arbeidsforholdRes, kildespor) ->
+                // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?
+                dokumentDao.opprettDokument(
+                    Dokument(
+                        dokumentType = DokumentType.arbeidsforhold,
+                        eksternId = null,
+                        innhold = arbeidsforholdRes.serialisertTilString(),
+                        request = kildespor,
+                        opprettetForBehandling = periode.id,
+                    ),
+                )
+            }
     }
 
     suspend fun hentOgLagrePensjonsgivendeInntekt(
@@ -143,24 +146,25 @@ class DokumentHenter(
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
         val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
 
-        return sigrunClient.hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
-            fnr = fnr,
-            senesteÅrTom = senesteÅrTom,
-            antallÅrBakover = antallÅrBakover,
-            saksbehandlerToken = saksbehandler.token,
-        ).let { reponsMedSporing ->
-            reponsMedSporing.joinSigrunResponserTilEttDokument().let { (innhold, kildespor) ->
-                dokumentDao.opprettDokument(
-                    Dokument(
-                        dokumentType = DokumentType.pensjonsgivendeinntekt,
-                        eksternId = null,
-                        innhold = innhold.serialisertTilString(),
-                        request = kildespor,
-                        opprettetForBehandling = periode.id,
-                    ),
-                )
+        return sigrunClient
+            .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
+                fnr = fnr,
+                senesteÅrTom = senesteÅrTom,
+                antallÅrBakover = antallÅrBakover,
+                saksbehandlerToken = saksbehandler.token,
+            ).let { reponsMedSporing ->
+                reponsMedSporing.joinSigrunResponserTilEttDokument().let { (innhold, kildespor) ->
+                    dokumentDao.opprettDokument(
+                        Dokument(
+                            dokumentType = DokumentType.pensjonsgivendeinntekt,
+                            eksternId = null,
+                            innhold = innhold.serialisertTilString(),
+                            request = kildespor,
+                            opprettetForBehandling = periode.id,
+                        ),
+                    )
+                }
             }
-        }
     }
 }
 

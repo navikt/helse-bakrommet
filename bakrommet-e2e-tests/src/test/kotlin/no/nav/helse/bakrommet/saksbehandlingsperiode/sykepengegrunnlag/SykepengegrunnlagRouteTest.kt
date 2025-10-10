@@ -42,10 +42,11 @@ class SykepengegrunnlagRouteTest {
         assertEquals(201, saksperiodeResponse.status.value)
 
         val saksbehandlingsperiode: Saksbehandlingsperiode =
-            objectMapper.readValue(
-                saksperiodeResponse.bodyAsText(),
-                Saksbehandlingsperiode::class.java,
-            ).truncateTidspunkt()
+            objectMapper
+                .readValue(
+                    saksperiodeResponse.bodyAsText(),
+                    Saksbehandlingsperiode::class.java,
+                ).truncateTidspunkt()
 
         // Opprett inntektsforhold
         val yrkesaktivitet =

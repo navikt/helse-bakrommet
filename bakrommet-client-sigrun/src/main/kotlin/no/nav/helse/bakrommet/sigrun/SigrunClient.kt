@@ -38,8 +38,7 @@ class SigrunClient(
             }
         },
 ) {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
-        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     companion object {
         val INNTEKTSAAR_MIN = 2017
@@ -86,13 +85,12 @@ class SigrunClient(
         fnr: String,
         inntektsAar: Int,
         saksbehandlerToken: SpilleromBearerToken,
-    ): PensjonsgivendeInntektÅr {
-        return hentPensjonsgivendeInntektMedSporing(
+    ): PensjonsgivendeInntektÅr =
+        hentPensjonsgivendeInntektMedSporing(
             fnr = fnr,
             inntektsAar = inntektsAar,
             saksbehandlerToken = saksbehandlerToken,
         ).first
-    }
 
     suspend fun hentPensjonsgivendeInntektMedSporing(
         fnr: String,
@@ -175,8 +173,7 @@ private fun tomResponsFor(
  * Avgjør om repons betyr Ingen Pensjonsgivende Inntekt Funnet...
  * Ref: https://skatteetaten.github.io/api-dokumentasjon/api/pgi_folketrygden?tab=Feilkoder
  */
-private suspend fun HttpResponse.betyrIngenPensjonsgivendeInntektFunnet() =
-    (this.status == HttpStatusCode.NotFound) && (this.bodyAsText().contains("PGIF-008"))
+private suspend fun HttpResponse.betyrIngenPensjonsgivendeInntektFunnet() = (this.status == HttpStatusCode.NotFound) && (this.bodyAsText().contains("PGIF-008"))
 
 private class Timer {
     val startMS: Long = System.currentTimeMillis()

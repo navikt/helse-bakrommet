@@ -41,17 +41,15 @@ class SykepengesoknadBackendClient(
         fnr: String,
         fom: LocalDate,
         medSporsmal: Boolean,
-    ): String {
-        return HentSoknaderRequest(
+    ): String =
+        HentSoknaderRequest(
             fnr = fnr,
             fom = fom,
             tom = LocalDate.now().plusDays(100),
             medSporsmal = medSporsmal,
         ).serialisertTilString()
-    }
 
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
-        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     suspend fun hentSoknader(
         saksbehandlerToken: SpilleromBearerToken,
@@ -78,9 +76,7 @@ class SykepengesoknadBackendClient(
     suspend fun hentSoknad(
         saksbehandlerToken: SpilleromBearerToken,
         id: String,
-    ): SykepengesoknadDTO {
-        return hentSoknadMedSporing(saksbehandlerToken, id).first
-    }
+    ): SykepengesoknadDTO = hentSoknadMedSporing(saksbehandlerToken, id).first
 
     suspend fun hentSoknadMedSporing(
         saksbehandlerToken: SpilleromBearerToken,

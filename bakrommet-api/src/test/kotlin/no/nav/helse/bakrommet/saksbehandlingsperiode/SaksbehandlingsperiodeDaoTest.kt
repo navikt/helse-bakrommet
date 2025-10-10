@@ -99,13 +99,13 @@ internal class SaksbehandlingsperiodeDaoTest {
         fun finnOverlappende(
             fom: String,
             tom: String,
-        ): Set<Saksbehandlingsperiode> {
-            return dao.finnPerioderForPersonSomOverlapper(
-                Companion.personId,
-                fom.toLocalDate(),
-                tom.toLocalDate(),
-            ).toSet()
-        }
+        ): Set<Saksbehandlingsperiode> =
+            dao
+                .finnPerioderForPersonSomOverlapper(
+                    Companion.personId,
+                    fom.toLocalDate(),
+                    tom.toLocalDate(),
+                ).toSet()
 
         val p1 = opprettPeriode("2024-01-01", "2024-02-01")
         val p2 = opprettPeriode("2024-02-15", "2024-02-25")

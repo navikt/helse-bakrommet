@@ -399,15 +399,14 @@ class InntektBuilder {
         refusjon(init)
     }
 
-    fun build(): InntektBeregnet {
-        return InntektBeregnet(
+    fun build(): InntektBeregnet =
+        InntektBeregnet(
             yrkesaktivitetId = yrkesaktivitetId,
             inntektMånedligØre = beløpPerMånedØre,
             grunnlagMånedligØre = beløpPerMånedØre,
             kilde = kilde,
             refusjon = refusjon,
         )
-    }
 }
 
 class RefusjonBuilder {
@@ -455,13 +454,12 @@ class RefusjonBuilder {
         beløpØre(ørePerMåned)
     }
 
-    fun build(): Refusjonsperiode {
-        return Refusjonsperiode(
+    fun build(): Refusjonsperiode =
+        Refusjonsperiode(
             fom = fom ?: throw IllegalStateException("Refusjonsperiode må ha fom-dato"),
             tom = tom,
             beløpØre = beløpØre,
         )
-    }
 }
 
 // Extension functions for enklere bruk
@@ -646,7 +644,12 @@ class DagAssertionBuilder(
     }
 
     fun harSykdomsGrad(grad: Int) {
-        val faktiskGrad = (dag.økonomi.sykdomsgrad?.dto()?.prosentDesimal ?: 0.0) * 100
+        val faktiskGrad =
+            (
+                dag.økonomi.sykdomsgrad
+                    ?.dto()
+                    ?.prosentDesimal ?: 0.0
+            ) * 100
         assertEquals(grad, faktiskGrad.toInt(), "Forventet grad $grad, men fikk $faktiskGrad for dato ${dag.dato}")
     }
 

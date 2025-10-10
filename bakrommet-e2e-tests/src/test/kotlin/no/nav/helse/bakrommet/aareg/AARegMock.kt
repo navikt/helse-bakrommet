@@ -13,7 +13,11 @@ object AARegMock {
 
     object Person1 {
         val fnr = "08088811111"
-        val respV2 = AARegMock::class.java.getResource("/aareg_v2_eksempel_respons.json")!!.readText().trim()
+        val respV2 =
+            AARegMock::class.java
+                .getResource("/aareg_v2_eksempel_respons.json")!!
+                .readText()
+                .trim()
     }
 
     fun aaregMockHttpClient(fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.respV2)) =

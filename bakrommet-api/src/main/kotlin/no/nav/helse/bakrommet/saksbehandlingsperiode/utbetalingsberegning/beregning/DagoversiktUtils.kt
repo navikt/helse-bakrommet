@@ -80,12 +80,11 @@ private fun validerPeriode(saksbehandlingsperiode: PeriodeDto) {
 /**
  * Oppretter en arbeidsdag for en gitt dato
  */
-private fun opprettArbeidsdag(dato: LocalDate): Dag {
-    return Dag(
+private fun opprettArbeidsdag(dato: LocalDate): Dag =
+    Dag(
         dato = dato,
         dagtype = Dagtype.Arbeidsdag,
         grad = null,
         avslåttBegrunnelse = emptyList(),
         kilde = null,
     )
-}

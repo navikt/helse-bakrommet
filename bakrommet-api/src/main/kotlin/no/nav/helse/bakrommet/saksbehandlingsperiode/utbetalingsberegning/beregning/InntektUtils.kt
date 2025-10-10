@@ -28,8 +28,8 @@ fun finnInntektForYrkesaktivitet(
 /**
  * Beregner 6G-begrenset sykepengegrunnlag
  */
-fun beregn6GBegrensetSykepengegrunnlag(sykepengegrunnlag: SykepengegrunnlagResponse): Inntekt {
-    return Inntekt.gjenopprett(
+fun beregn6GBegrensetSykepengegrunnlag(sykepengegrunnlag: SykepengegrunnlagResponse): Inntekt =
+    Inntekt.gjenopprett(
         InntektbeløpDto.Årlig(
             beløp =
                 minOf(
@@ -38,4 +38,3 @@ fun beregn6GBegrensetSykepengegrunnlag(sykepengegrunnlag: SykepengegrunnlagRespo
                 ) / 100.0,
         ),
     )
-}

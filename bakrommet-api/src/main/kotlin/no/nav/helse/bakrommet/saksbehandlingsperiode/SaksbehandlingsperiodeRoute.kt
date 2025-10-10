@@ -129,13 +129,14 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
         put {
             val body = call.receive<OppdaterSkjæringstidspunktRequest>()
             val skjæringstidspunkt = body.skjaeringstidspunkt?.let { LocalDate.parse(it) }
-            service.oppdaterSkjæringstidspunkt(
-                periodeRef = call.periodeReferanse(),
-                skjæringstidspunkt = skjæringstidspunkt,
-                saksbehandler = call.saksbehandler(),
-            ).let { oppdatertPeriode ->
-                call.respondPeriode(oppdatertPeriode)
-            }
+            service
+                .oppdaterSkjæringstidspunkt(
+                    periodeRef = call.periodeReferanse(),
+                    skjæringstidspunkt = skjæringstidspunkt,
+                    saksbehandler = call.saksbehandler(),
+                ).let { oppdatertPeriode ->
+                    call.respondPeriode(oppdatertPeriode)
+                }
         }
     }
 }

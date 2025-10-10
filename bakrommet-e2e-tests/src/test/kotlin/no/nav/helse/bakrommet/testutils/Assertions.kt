@@ -9,5 +9,4 @@ infix fun <T> T.`should not equal`(other: T) = assertNotEquals(other, this, "Exp
 
 infix fun <T> Iterable<T>.`should contain`(element: T) = assertTrue(this.contains(element), "Expected <$this> to contain <$element>")
 
-infix fun <T> Iterable<T>.`should not contain`(element: T) =
-    assertFalse(this.contains(element), "Expected <$this> not to contain <$element>")
+infix fun <T> Iterable<T>.`should not contain`(element: T) = assertFalse(this.contains(element), "Expected <$this> not to contain <$element>")

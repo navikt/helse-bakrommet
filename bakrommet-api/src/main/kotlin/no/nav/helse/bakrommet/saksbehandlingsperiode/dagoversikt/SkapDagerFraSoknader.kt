@@ -20,8 +20,8 @@ fun skapDagoversiktFraSoknader(
 fun initialiserDager(
     fom: LocalDate,
     tom: LocalDate,
-): List<Dag> {
-    return generateSequence(fom) { it.plusDays(1) }
+): List<Dag> =
+    generateSequence(fom) { it.plusDays(1) }
         .takeWhile { !it.isAfter(tom) }
         .map { dato ->
             Dag(
@@ -31,9 +31,7 @@ fun initialiserDager(
                 avslåttBegrunnelse = emptyList(),
                 kilde = Kilde.Saksbehandler,
             )
-        }
-        .toList()
-}
+        }.toList()
 
 private fun oppdaterDagerMedSøknadsdata(
     dager: List<Dag>,

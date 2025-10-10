@@ -41,8 +41,7 @@ class PdlClient(
             }
         },
 ) {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
-        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     private val hentPersonQuery =
         """
@@ -62,15 +61,17 @@ class PdlClient(
 
     private fun hentPersonRequest(ident: String): String {
         val m = jacksonObjectMapper()
-        return m.createObjectNode().apply {
-            put("query", hentPersonQuery)
-            set<ObjectNode>(
-                "variables",
-                m.createObjectNode().apply {
-                    put("ident", ident)
-                },
-            )
-        }.toString()
+        return m
+            .createObjectNode()
+            .apply {
+                put("query", hentPersonQuery)
+                set<ObjectNode>(
+                    "variables",
+                    m.createObjectNode().apply {
+                        put("ident", ident)
+                    },
+                )
+            }.toString()
     }
 
     private val hentIdenterMedHistorikkQuery =
@@ -87,15 +88,17 @@ class PdlClient(
 
     private fun hentIdenterRequest(ident: String): String {
         val m = jacksonObjectMapper()
-        return m.createObjectNode().apply {
-            put("query", hentIdenterMedHistorikkQuery)
-            set<ObjectNode>(
-                "variables",
-                m.createObjectNode().apply {
-                    put("ident", ident)
-                },
-            )
-        }.toString()
+        return m
+            .createObjectNode()
+            .apply {
+                put("query", hentIdenterMedHistorikkQuery)
+                set<ObjectNode>(
+                    "variables",
+                    m.createObjectNode().apply {
+                        put("ident", ident)
+                    },
+                )
+            }.toString()
     }
 
     suspend fun hentIdenterFor(
@@ -164,13 +167,20 @@ class PdlClient(
                 logg.warn("hentPersonInfo har ingen data")
                 throw RuntimeException("hentPersonInfo har ingen data")
             }
-            if (parsedResponse.data.hentPerson.navn.isEmpty()) {
+            if (parsedResponse.data.hentPerson.navn
+                    .isEmpty()
+            ) {
                 logg.warn("hentPersonInfo har ingen navn")
                 throw RuntimeException("hentPersonInfo har ingen navn")
             }
             return PersonInfo(
-                navn = parsedResponse.data.hentPerson.navn.first(),
-                fodselsdato = parsedResponse.data.hentPerson.foedselsdato?.firstOrNull()?.foedselsdato,
+                navn =
+                    parsedResponse.data.hentPerson.navn
+                        .first(),
+                fodselsdato =
+                    parsedResponse.data.hentPerson.foedselsdato
+                        ?.firstOrNull()
+                        ?.foedselsdato,
             )
         } else {
             logg.warn("hentPersonInfo statusCode={}", response.status.value)

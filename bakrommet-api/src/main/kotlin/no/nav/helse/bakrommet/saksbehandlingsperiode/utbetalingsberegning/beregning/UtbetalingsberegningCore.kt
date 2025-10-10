@@ -44,14 +44,15 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
     val sykepengegrunnlagBegrenset6G = beregn6GBegrensetSykepengegrunnlag(input.sykepengegrunnlag)
     val utbetalingstidslinjerMed6GBegrensning = Utbetalingstidslinje.betale(sykepengegrunnlagBegrenset6G, utbetalingstidslinjerMedTotalGrad)
 
-    return yrkesaktivitetMedDekningsgrad.zip(
-        utbetalingstidslinjerMed6GBegrensning,
-    ).map { (yrkesaktivitetMedDekningsgrad, utbetalingstidslinje) ->
-        val (yrkesaktivitet, dekningsgrad) = yrkesaktivitetMedDekningsgrad
-        YrkesaktivitetUtbetalingsberegning(
-            yrkesaktivitetId = yrkesaktivitet.id,
-            utbetalingstidslinje = utbetalingstidslinje,
-            dekningsgrad = dekningsgrad,
-        )
-    }
+    return yrkesaktivitetMedDekningsgrad
+        .zip(
+            utbetalingstidslinjerMed6GBegrensning,
+        ).map { (yrkesaktivitetMedDekningsgrad, utbetalingstidslinje) ->
+            val (yrkesaktivitet, dekningsgrad) = yrkesaktivitetMedDekningsgrad
+            YrkesaktivitetUtbetalingsberegning(
+                yrkesaktivitetId = yrkesaktivitet.id,
+                utbetalingstidslinje = utbetalingstidslinje,
+                dekningsgrad = dekningsgrad,
+            )
+        }
 }

@@ -9,7 +9,8 @@ import java.util.concurrent.CompletableFuture
 class KafkaProducerImpl : KafkaProducerInterface {
     private val producer: KafkaProducer<String, String> =
         KafkaProducer<String, String>(
-            KafkaUtils.getAivenKafkaConfig("helse-bakrommet-kafka-producer")
+            KafkaUtils
+                .getAivenKafkaConfig("helse-bakrommet-kafka-producer")
                 .toProducerConfig(StringSerializer::class, StringSerializer::class),
         )
 

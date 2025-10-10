@@ -25,11 +25,14 @@ object AppEnvironment {
                         it.toString().let { str ->
                             str.contains(".kt:") && str.contains("no.nav.helse.bakrommet")
                         }
-                    }.take(3).toString(),
+                    }.take(3)
+                    .toString(),
             )
 }
 
-data class Kildespor(val kilde: String) {
+data class Kildespor(
+    val kilde: String,
+) {
     companion object {
         fun fraHer(
             t: Throwable,
@@ -43,9 +46,7 @@ data class Kildespor(val kilde: String) {
         )
     }
 
-    fun medTillegg(data: Map<String, String>): Kildespor {
-        return Kildespor(this.kilde + "," + data.toString())
-    }
+    fun medTillegg(data: Map<String, String>): Kildespor = Kildespor(this.kilde + "," + data.toString())
 }
 
 private fun systemEnvOrDefault(

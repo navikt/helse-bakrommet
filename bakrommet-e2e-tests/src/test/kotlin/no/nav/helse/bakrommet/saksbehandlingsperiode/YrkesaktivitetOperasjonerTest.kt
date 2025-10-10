@@ -37,9 +37,11 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             val periode =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<Saksbehandlingsperiode>>().first()
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<Saksbehandlingsperiode>>()
+                    .first()
 
             @Language("json")
             val kategorisering =
@@ -57,19 +59,20 @@ class YrkesaktivitetOperasjonerTest {
 
             // Opprett inntektsforhold
             val opprettetYrkesaktivitetId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(kategorisering)
-                }.let { response ->
-                    assertEquals(201, response.status.value)
-                    val body = response.body<JsonNode>()
-                    assertEquals(kategorisering.asJsonNode()["kategorisering"], body["kategorisering"])
-                    val id = body["id"].asText()
-                    assertDoesNotThrow { UUID.fromString(id) }
-                    assertDoesNotThrow { body.deserialize<YrkesaktivitetDTO>() }
-                    UUID.fromString(id)
-                }
+                client
+                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(kategorisering)
+                    }.let { response ->
+                        assertEquals(201, response.status.value)
+                        val body = response.body<JsonNode>()
+                        assertEquals(kategorisering.asJsonNode()["kategorisering"], body["kategorisering"])
+                        val id = body["id"].asText()
+                        assertDoesNotThrow { UUID.fromString(id) }
+                        assertDoesNotThrow { body.deserialize<YrkesaktivitetDTO>() }
+                        UUID.fromString(id)
+                    }
 
             val nyKategorisering =
                 HashMap<String, String>().apply {
@@ -78,13 +81,14 @@ class YrkesaktivitetOperasjonerTest {
                 }
 
             // Oppdater kategorisering
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$opprettetYrkesaktivitetId/kategorisering") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(nyKategorisering)
-            }.let { response ->
-                assertEquals(204, response.status.value)
-            }
+            client
+                .put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$opprettetYrkesaktivitetId/kategorisering") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(nyKategorisering)
+                }.let { response ->
+                    assertEquals(204, response.status.value)
+                }
 
             // Verifiser at kategorisering ble oppdatert
             daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
@@ -112,9 +116,11 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             val periode =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<Saksbehandlingsperiode>>().first()
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<Saksbehandlingsperiode>>()
+                    .first()
 
             // Opprett inntektsforhold med dagoversikt
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
@@ -124,9 +130,12 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             val yrkesaktivitetId =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<YrkesaktivitetDTO>>().first().id
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<YrkesaktivitetDTO>>()
+                    .first()
+                    .id
 
             // Oppdater dagoversikt med array av spesifikke dager
             val oppdateringer = """[
@@ -157,13 +166,14 @@ class YrkesaktivitetOperasjonerTest {
                 }
             assertEquals(HttpStatusCode.NoContent, response.status)
 
-            client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                bearerAuth(TestOppsett.userToken)
-            }.also {
-                assertEquals(HttpStatusCode.OK, it.status)
-                val body = it.bodyAsText()
-                print(body)
-            }
+            client
+                .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    bearerAuth(TestOppsett.userToken)
+                }.also {
+                    assertEquals(HttpStatusCode.OK, it.status)
+                    val body = it.bodyAsText()
+                    print(body)
+                }
             // Verifiser at dagoversikten er oppdatert korrekt
             val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
             val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
@@ -207,9 +217,11 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             val periode =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<Saksbehandlingsperiode>>().first()
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<Saksbehandlingsperiode>>()
+                    .first()
 
             // Opprett inntektsforhold med dagoversikt
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
@@ -219,9 +231,12 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             val yrkesaktivitetId =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<YrkesaktivitetDTO>>().first().id
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<YrkesaktivitetDTO>>()
+                    .first()
+                    .id
 
             // Oppdater dagoversikt med nytt format (objekt med dager og notat)
             val oppdateringer = """{
@@ -305,9 +320,11 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             val periode =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<Saksbehandlingsperiode>>().first()
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<Saksbehandlingsperiode>>()
+                    .first()
 
             // Opprett inntektsforhold
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
@@ -317,9 +334,12 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             val yrkesaktivitetId =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<YrkesaktivitetDTO>>().first().id
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<YrkesaktivitetDTO>>()
+                    .first()
+                    .id
 
             // Oppdater perioder med ARBEIDSGIVERPERIODE
             val perioder = """{
@@ -349,8 +369,20 @@ class YrkesaktivitetOperasjonerTest {
             assertTrue(oppdatertYrkesaktivitet.perioder != null)
             assertEquals("ARBEIDSGIVERPERIODE", oppdatertYrkesaktivitet.perioder!!.type.name)
             assertEquals(2, oppdatertYrkesaktivitet.perioder!!.perioder.size)
-            assertEquals("2023-01-01", oppdatertYrkesaktivitet.perioder!!.perioder[0].fom.toString())
-            assertEquals("2023-01-15", oppdatertYrkesaktivitet.perioder!!.perioder[0].tom.toString())
+            assertEquals(
+                "2023-01-01",
+                oppdatertYrkesaktivitet.perioder!!
+                    .perioder[0]
+                    .fom
+                    .toString(),
+            )
+            assertEquals(
+                "2023-01-15",
+                oppdatertYrkesaktivitet.perioder!!
+                    .perioder[0]
+                    .tom
+                    .toString(),
+            )
 
             // Oppdater perioder med VENTETID
             val ventetidPerioder = """{
@@ -363,13 +395,14 @@ class YrkesaktivitetOperasjonerTest {
                 ]
             }"""
 
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(ventetidPerioder)
-            }.let { response ->
-                assertEquals(HttpStatusCode.NoContent, response.status)
-            }
+            client
+                .put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(ventetidPerioder)
+                }.let { response ->
+                    assertEquals(HttpStatusCode.NoContent, response.status)
+                }
 
             // Verifiser at perioder ble oppdatert
             val oppdatertYrkesaktivitet2 = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
@@ -377,13 +410,14 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals(1, oppdatertYrkesaktivitet2.perioder!!.perioder.size)
 
             // Slett perioder ved å sende null
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("null")
-            }.let { response ->
-                assertEquals(HttpStatusCode.NoContent, response.status)
-            }
+            client
+                .put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody("null")
+                }.let { response ->
+                    assertEquals(HttpStatusCode.NoContent, response.status)
+                }
 
             // Verifiser at perioder ble slettet
             val oppdatertYrkesaktivitet3 = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!

@@ -37,8 +37,8 @@ class SykepengegrunnlagService(
         referanse: SaksbehandlingsperiodeReferanse,
         request: SykepengegrunnlagRequest,
         saksbehandler: Bruker,
-    ): SykepengegrunnlagResponse {
-        return db.transactional {
+    ): SykepengegrunnlagResponse =
+        db.transactional {
             val periode =
                 saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
             val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
@@ -72,14 +72,12 @@ class SykepengegrunnlagService(
             beregningshjelperISammeTransaksjon.settBeregning(referanse, saksbehandler)
             sykepengegrunnlagResponse
         }
-    }
 
-    fun slettSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse) {
-        return db.transactional {
+    fun slettSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse) =
+        db.transactional {
             sykepengegrunnlagDao.slettSykepengegrunnlag(referanse.periodeUUID)
             beregningDao.slettBeregning(referanse.periodeUUID)
         }
-    }
 
     private fun validerSykepengegrunnlagRequest(
         daoer: SykepengegrunnlagServiceDaoer,

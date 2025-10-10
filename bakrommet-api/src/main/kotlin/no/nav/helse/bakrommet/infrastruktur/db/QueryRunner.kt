@@ -35,11 +35,15 @@ sealed class QueryRunner protected constructor() {
     protected abstract fun <A> run(action: QueryAction<A>): A
 }
 
-class MedSession(private val session: Session) : QueryRunner() {
+class MedSession(
+    private val session: Session,
+) : QueryRunner() {
     override fun <A> run(action: QueryAction<A>): A = action.runWithSession(session)
 }
 
-class MedDataSource(private val dataSource: DataSource) : QueryRunner() {
+class MedDataSource(
+    private val dataSource: DataSource,
+) : QueryRunner() {
     override fun <A> run(action: QueryAction<A>): A =
         sessionOf(dataSource = dataSource, strict = true).use { session ->
             action.runWithSession(session)

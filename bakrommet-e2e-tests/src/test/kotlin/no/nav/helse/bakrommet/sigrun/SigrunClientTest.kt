@@ -16,9 +16,10 @@ class SigrunClientTest {
 
         fun fnrÅrTilSvar2010to2050(fnr: String) =
             mapOf(
-                *(2010..2100).map { år ->
-                    (fnr to år.toString()) to sigrunÅr(fnr, år, næring = år * 100)
-                }.toTypedArray(),
+                *(2010..2100)
+                    .map { år ->
+                        (fnr to år.toString()) to sigrunÅr(fnr, år, næring = år * 100)
+                    }.toTypedArray(),
             )
 
         fun clientMedManglendeÅr(

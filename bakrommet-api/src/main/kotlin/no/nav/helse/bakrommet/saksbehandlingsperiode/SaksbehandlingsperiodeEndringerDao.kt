@@ -31,7 +31,9 @@ data class SaksbehandlingsperiodeEndring(
     val endringKommentar: String? = null,
 )
 
-class SaksbehandlingsperiodeEndringerDao private constructor(private val db: QueryRunner) {
+class SaksbehandlingsperiodeEndringerDao private constructor(
+    private val db: QueryRunner,
+) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
@@ -53,8 +55,8 @@ class SaksbehandlingsperiodeEndringerDao private constructor(private val db: Que
         )
     }
 
-    fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring> {
-        return db.list(
+    fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring> =
+        db.list(
             """
             select *
               from saksbehandlingsperiode_endringer
@@ -63,7 +65,6 @@ class SaksbehandlingsperiodeEndringerDao private constructor(private val db: Que
             """.trimIndent(),
             "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
         ) { rowTilHistorikk(it) }
-    }
 
     private fun rowTilHistorikk(row: Row) =
         SaksbehandlingsperiodeEndring(

@@ -2,7 +2,9 @@ package no.nav.helse.bakrommet.auth
 
 import io.ktor.server.routing.*
 
-class SpilleromBearerToken(private val token: String) {
+class SpilleromBearerToken(
+    private val token: String,
+) {
     suspend fun exchangeWithObo(
         oboClient: OboClient,
         scope: OAuthScope,
@@ -12,16 +14,16 @@ class SpilleromBearerToken(private val token: String) {
     }
 }
 
-class OAuthScope(val baseValue: String) {
+class OAuthScope(
+    val baseValue: String,
+) {
     init {
         require(!baseValue.contains("api://") && !baseValue.contains("/.default")) {
             "Vennligst oppgi scope uten 'api://' og '/.default'"
         }
     }
 
-    fun asDefaultScope(): String {
-        return "api://$baseValue/.default"
-    }
+    fun asDefaultScope(): String = "api://$baseValue/.default"
 }
 
 fun RoutingRequest.bearerToken(): SpilleromBearerToken {

@@ -24,7 +24,9 @@ import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
 import javax.sql.DataSource
 
-class UtbetalingsberegningDao private constructor(private val db: QueryRunner) {
+class UtbetalingsberegningDao private constructor(
+    private val db: QueryRunner,
+) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
@@ -110,8 +112,8 @@ class UtbetalingsberegningDao private constructor(private val db: QueryRunner) {
     }
 }
 
-internal fun BeregningData.tilBeregningDataUtDto(): BeregningDataUtDto {
-    return BeregningDataUtDto(
+internal fun BeregningData.tilBeregningDataUtDto(): BeregningDataUtDto =
+    BeregningDataUtDto(
         yrkesaktiviteter =
             yrkesaktiviteter.map {
                 YrkesaktivitetUtbetalingsberegningUtDto(
@@ -122,10 +124,9 @@ internal fun BeregningData.tilBeregningDataUtDto(): BeregningDataUtDto {
             },
         oppdrag = oppdrag.map { it.dto() },
     )
-}
 
-private fun BeregningDataInnDto.tilBeregningData(): BeregningData {
-    return BeregningData(
+private fun BeregningDataInnDto.tilBeregningData(): BeregningData =
+    BeregningData(
         yrkesaktiviteter =
             yrkesaktiviteter.map {
                 YrkesaktivitetUtbetalingsberegning(
@@ -136,10 +137,9 @@ private fun BeregningDataInnDto.tilBeregningData(): BeregningData {
             },
         oppdrag = oppdrag.map { Oppdrag.gjenopprett(it) },
     )
-}
 
-internal fun BeregningResponse.tilBeregningResponseUtDto(): BeregningResponseUtDto {
-    return BeregningResponseUtDto(
+internal fun BeregningResponse.tilBeregningResponseUtDto(): BeregningResponseUtDto =
+    BeregningResponseUtDto(
         id = id,
         saksbehandlingsperiodeId = saksbehandlingsperiodeId,
         beregningData = beregningData.tilBeregningDataUtDto(),
@@ -147,13 +147,12 @@ internal fun BeregningResponse.tilBeregningResponseUtDto(): BeregningResponseUtD
         opprettetAv = opprettetAv,
         sistOppdatert = sistOppdatert,
     )
-}
 
 // Converter funksjoner for å konvertere UtDto til InnDto format for lagring
 private fun InntektDto.tilDagligDouble(): InntektbeløpDto.DagligDouble = this.dagligDouble
 
-private fun ØkonomiUtDto.tilØkonomiInnDto(): ØkonomiInnDto {
-    return ØkonomiInnDto(
+private fun ØkonomiUtDto.tilØkonomiInnDto(): ØkonomiInnDto =
+    ØkonomiInnDto(
         grad = grad,
         totalGrad = totalGrad,
         utbetalingsgrad = utbetalingsgrad,
@@ -166,10 +165,9 @@ private fun ØkonomiUtDto.tilØkonomiInnDto(): ØkonomiInnDto {
         reservertArbeidsgiverbeløp = reservertArbeidsgiverbeløp?.tilDagligDouble(),
         reservertPersonbeløp = reservertPersonbeløp?.tilDagligDouble(),
     )
-}
 
-private fun UtbetalingsdagUtDto.tilUtbetalingsdagInnDto(): UtbetalingsdagInnDto {
-    return when (this) {
+private fun UtbetalingsdagUtDto.tilUtbetalingsdagInnDto(): UtbetalingsdagInnDto =
+    when (this) {
         is UtbetalingsdagUtDto.NavDagDto -> UtbetalingsdagInnDto.NavDagDto(dato, økonomi.tilØkonomiInnDto())
         is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto -> UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(dato, økonomi.tilØkonomiInnDto())
         is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto ->
@@ -185,31 +183,27 @@ private fun UtbetalingsdagUtDto.tilUtbetalingsdagInnDto(): UtbetalingsdagInnDto 
         is UtbetalingsdagUtDto.UkjentDagDto -> UtbetalingsdagInnDto.UkjentDagDto(dato, økonomi.tilØkonomiInnDto())
         is UtbetalingsdagUtDto.VentetidsdagDto -> UtbetalingsdagInnDto.VentetidsdagDto(dato, økonomi.tilØkonomiInnDto())
     }
-}
 
-private fun UtbetalingstidslinjeUtDto.tilUtbetalingstidslinjeInnDto(): UtbetalingstidslinjeInnDto {
-    return UtbetalingstidslinjeInnDto(
+private fun UtbetalingstidslinjeUtDto.tilUtbetalingstidslinjeInnDto(): UtbetalingstidslinjeInnDto =
+    UtbetalingstidslinjeInnDto(
         dager = dager.map { it.tilUtbetalingsdagInnDto() },
     )
-}
 
-private fun YrkesaktivitetUtbetalingsberegningUtDto.tilYrkesaktivitetUtbetalingsberegningInnDto(): YrkesaktivitetUtbetalingsberegningInnDto {
-    return YrkesaktivitetUtbetalingsberegningInnDto(
+private fun YrkesaktivitetUtbetalingsberegningUtDto.tilYrkesaktivitetUtbetalingsberegningInnDto(): YrkesaktivitetUtbetalingsberegningInnDto =
+    YrkesaktivitetUtbetalingsberegningInnDto(
         yrkesaktivitetId = yrkesaktivitetId,
         utbetalingstidslinje = utbetalingstidslinje.tilUtbetalingstidslinjeInnDto(),
         dekningsgrad = dekningsgrad,
     )
-}
 
-private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto {
-    return BeregningDataInnDto(
+private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto =
+    BeregningDataInnDto(
         yrkesaktiviteter = yrkesaktiviteter.map { it.tilYrkesaktivitetUtbetalingsberegningInnDto() },
         oppdrag = oppdrag.map { it.tilOppdragInnDto() },
     )
-}
 
-private fun OppdragUtDto.tilOppdragInnDto(): OppdragInnDto {
-    return OppdragInnDto(
+private fun OppdragUtDto.tilOppdragInnDto(): OppdragInnDto =
+    OppdragInnDto(
         mottaker = mottaker,
         fagområde = fagområde,
         linjer = linjer.map { it.tilUtbetalingslinjeInnDto() },
@@ -223,10 +217,9 @@ private fun OppdragUtDto.tilOppdragInnDto(): OppdragInnDto {
         erSimulert = erSimulert,
         simuleringsResultat = simuleringsResultat,
     )
-}
 
-private fun UtbetalingslinjeUtDto.tilUtbetalingslinjeInnDto(): UtbetalingslinjeInnDto {
-    return UtbetalingslinjeInnDto(
+private fun UtbetalingslinjeUtDto.tilUtbetalingslinjeInnDto(): UtbetalingslinjeInnDto =
+    UtbetalingslinjeInnDto(
         fom = fom,
         tom = tom,
         beløp = beløp,
@@ -238,4 +231,3 @@ private fun UtbetalingslinjeUtDto.tilUtbetalingslinjeInnDto(): UtbetalingslinjeI
         klassekode = klassekode,
         datoStatusFom = datoStatusFom,
     )
-}

@@ -34,7 +34,9 @@ data class Dokument(
     }
 }
 
-class DokumentDao private constructor(private val db: QueryRunner) {
+class DokumentDao private constructor(
+    private val db: QueryRunner,
+) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 

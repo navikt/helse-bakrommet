@@ -16,8 +16,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import javax.sql.DataSource
 
-class DaoerFelles(dataSource: DataSource) :
-    SaksbehandlingsperiodeServiceDaoer,
+class DaoerFelles(
+    dataSource: DataSource,
+) : SaksbehandlingsperiodeServiceDaoer,
     YrkesaktivitetServiceDaoer,
     SykepengegrunnlagServiceDaoer,
     VilkårServiceDaoer {
@@ -32,8 +33,9 @@ class DaoerFelles(dataSource: DataSource) :
     override val outboxDao = OutboxDao(dataSource)
 }
 
-class SessionDaoerFelles(session: Session) :
-    SaksbehandlingsperiodeServiceDaoer,
+class SessionDaoerFelles(
+    session: Session,
+) : SaksbehandlingsperiodeServiceDaoer,
     YrkesaktivitetServiceDaoer,
     SykepengegrunnlagServiceDaoer,
     VilkårServiceDaoer {

@@ -22,7 +22,12 @@ fun Application.azureAdAppAuthentication(
                     navn = credentials.payload.getClaim("name").asString(),
                     navIdent = credentials.payload.getClaim("NAVident").asString(),
                     preferredUsername = credentials.payload.getClaim("preferred_username").asString(),
-                    roller = credentials.payload.getClaim("groups").asList(String::class.java).toSet().tilRoller(rolleconfig),
+                    roller =
+                        credentials.payload
+                            .getClaim("groups")
+                            .asList(String::class.java)
+                            .toSet()
+                            .tilRoller(rolleconfig),
                 )
             }
         }

@@ -31,16 +31,17 @@ class OutboxService(
                 try {
                     logger.debug("Prosesserer melding med id=${entry.id}, key=${entry.kafkaKey}")
 
-                    kafkaProducer.send(
-                        topic = "speilvendt.spillerom-behandlinger",
-                        key = entry.kafkaKey,
-                        value = entry.kafkaPayload,
-                        headers =
-                            mapOf(
-                                "outbox-id" to entry.id.toString(),
-                                "outbox-opprettet" to entry.opprettet.toString(),
-                            ),
-                    ).get() // Blokkerer til meldingen er sendt
+                    kafkaProducer
+                        .send(
+                            topic = "speilvendt.spillerom-behandlinger",
+                            key = entry.kafkaKey,
+                            value = entry.kafkaPayload,
+                            headers =
+                                mapOf(
+                                    "outbox-id" to entry.id.toString(),
+                                    "outbox-opprettet" to entry.opprettet.toString(),
+                                ),
+                        ).get() // Blokkerer til meldingen er sendt
 
                     outboxDao.markerSomPublisert(entry.id)
                     logger.debug("Melding med id=${entry.id} sendt til Kafka og markert som publisert")

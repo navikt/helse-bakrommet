@@ -18,12 +18,13 @@ class InntektsmeldingRouteTest {
             val personId = "a0001"
             it.personDao.opprettPerson(InntektsmeldingApiMock.Person1.fnr, personId)
 
-            client.get("/v1/$personId/inntektsmeldinger?fom=2020-01-01&tom=2025-06-01") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(200, status.value)
-                assertEquals(InntektsmeldingApiMock.Person1.resp.asJsonNode(), bodyAsText().asJsonNode())
-            }
+            client
+                .get("/v1/$personId/inntektsmeldinger?fom=2020-01-01&tom=2025-06-01") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals(InntektsmeldingApiMock.Person1.resp.asJsonNode(), bodyAsText().asJsonNode())
+                }
         }
 
     @Test
@@ -34,11 +35,12 @@ class InntektsmeldingRouteTest {
             val personIdUnknown = "abcde"
             it.personDao.opprettPerson("9999999999", personIdUnknown)
 
-            client.get("/v1/$personIdUnknown/inntektsmeldinger?fom=2020-01-01&tom=2025-06-01") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(200, status.value)
-                assertEquals("[]".asJsonNode(), bodyAsText().asJsonNode())
-            }
+            client
+                .get("/v1/$personIdUnknown/inntektsmeldinger?fom=2020-01-01&tom=2025-06-01") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals("[]".asJsonNode(), bodyAsText().asJsonNode())
+                }
         }
 }

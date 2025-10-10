@@ -11,9 +11,7 @@ data class Bruker(
     val roller: Set<Rolle>,
 )
 
-fun ApplicationCall.brukerPrincipal(): Bruker? {
-    return principal<Bruker>()
-}
+fun ApplicationCall.brukerPrincipal(): Bruker? = principal<Bruker>()
 
 class BrukerOgToken(
     val bruker: Bruker,

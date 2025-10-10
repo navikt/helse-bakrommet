@@ -69,8 +69,8 @@ data class Configuration(
     companion object {
         private fun String.asSet() = this.split(",").map { it.trim() }.toSet()
 
-        fun fromEnv(env: Map<String, String> = System.getenv()): Configuration {
-            return Configuration(
+        fun fromEnv(env: Map<String, String> = System.getenv()): Configuration =
+            Configuration(
                 roller =
                     Roller(
                         les = env.getValue("ROLLE_GRUPPER_LES").asSet(),
@@ -118,6 +118,5 @@ data class Configuration(
                     ),
                 naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
             )
-        }
     }
 }

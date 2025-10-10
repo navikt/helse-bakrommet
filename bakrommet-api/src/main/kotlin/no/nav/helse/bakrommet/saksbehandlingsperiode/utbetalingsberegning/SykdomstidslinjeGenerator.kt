@@ -24,88 +24,87 @@ val annenytelse_HARDKODET = no.nav.helse.sykdomstidslinje.Dag.AndreYtelser.Annen
 internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): Sykdomstidslinje {
     fun Int.somProsentdel() = Prosentdel.gjenopprett(ProsentdelDto(this.toDouble() / 100))
 
-    fun LocalDate.erAGP(): Boolean {
-        return arbeidsgiverperiode.any { agp -> agp.contains(this) }
-    }
+    fun LocalDate.erAGP(): Boolean = arbeidsgiverperiode.any { agp -> agp.contains(this) }
 
     val spleisDagerMap =
-        this.map { spilleromDag ->
+        this
+            .map { spilleromDag ->
 
-            if (spilleromDag.dato.erHelg()) {
-                if (spilleromDag.dagtype == Dagtype.Syk || spilleromDag.dagtype == Dagtype.SykNav) {
-                    return@map SykHelgedag(
+                if (spilleromDag.dato.erHelg()) {
+                    if (spilleromDag.dagtype == Dagtype.Syk || spilleromDag.dagtype == Dagtype.SykNav) {
+                        return@map SykHelgedag(
+                            dato = spilleromDag.dato,
+                            grad = spilleromDag.grad?.somProsentdel() ?: NullProsent,
+                            kilde = kilde_HARDKODET,
+                        ).let { spleisDag ->
+                            spilleromDag.dato to spleisDag
+                        }
+                    }
+                    return@map FriskHelgedag(
                         dato = spilleromDag.dato,
-                        grad = spilleromDag.grad?.somProsentdel() ?: NullProsent,
                         kilde = kilde_HARDKODET,
                     ).let { spleisDag ->
                         spilleromDag.dato to spleisDag
                     }
                 }
-                return@map FriskHelgedag(
-                    dato = spilleromDag.dato,
-                    kilde = kilde_HARDKODET,
-                ).let { spleisDag ->
+
+                when (spilleromDag.dagtype) {
+                    Dagtype.Syk,
+                    Dagtype.SykNav,
+                    ->
+                        if (spilleromDag.dato.erAGP()) {
+                            Arbeidsgiverdag(
+                                dato = spilleromDag.dato,
+                                grad = spilleromDag.grad!!.somProsentdel(),
+                                kilde = kilde_HARDKODET,
+                            )
+                        } else {
+                            Sykedag(
+                                dato = spilleromDag.dato,
+                                grad = spilleromDag.grad!!.somProsentdel(),
+                                kilde = kilde_HARDKODET,
+                            )
+                        }
+
+                    Dagtype.Arbeidsdag ->
+                        Arbeidsdag(
+                            dato = spilleromDag.dato,
+                            kilde = kilde_HARDKODET,
+                        )
+
+                    Dagtype.Ferie ->
+                        Feriedag(
+                            dato = spilleromDag.dato,
+                            kilde = kilde_HARDKODET,
+                        )
+
+                    Dagtype.Permisjon ->
+                        no.nav.helse.sykdomstidslinje.Dag.Permisjonsdag(
+                            dato = spilleromDag.dato,
+                            kilde = kilde_HARDKODET,
+                        )
+
+                    Dagtype.Avslått ->
+                        // TODO eller bruke en felles avslått-dag i Sykdomstidslinje?
+                        // TODO eller bare ikke ha dagen i tidslinjen?
+                        no.nav.helse.sykdomstidslinje.Dag.Avslått(
+                            dato = spilleromDag.dato,
+                            kilde = kilde_HARDKODET,
+                            begrunnelse = spilleromDag.avslåttBegrunnelse ?: emptyList(),
+                        )
+
+                    Dagtype.AndreYtelser ->
+                        no.nav.helse.sykdomstidslinje.Dag.AndreYtelser(
+                            dato = spilleromDag.dato,
+                            kilde = kilde_HARDKODET,
+                            ytelse = annenytelse_HARDKODET,
+                        )
+                }.let { spleisDag ->
                     spilleromDag.dato to spleisDag
                 }
+            }.let {
+                mapOf(*it.toTypedArray())
             }
-
-            when (spilleromDag.dagtype) {
-                Dagtype.Syk,
-                Dagtype.SykNav,
-                ->
-                    if (spilleromDag.dato.erAGP()) {
-                        Arbeidsgiverdag(
-                            dato = spilleromDag.dato,
-                            grad = spilleromDag.grad!!.somProsentdel(),
-                            kilde = kilde_HARDKODET,
-                        )
-                    } else {
-                        Sykedag(
-                            dato = spilleromDag.dato,
-                            grad = spilleromDag.grad!!.somProsentdel(),
-                            kilde = kilde_HARDKODET,
-                        )
-                    }
-
-                Dagtype.Arbeidsdag ->
-                    Arbeidsdag(
-                        dato = spilleromDag.dato,
-                        kilde = kilde_HARDKODET,
-                    )
-
-                Dagtype.Ferie ->
-                    Feriedag(
-                        dato = spilleromDag.dato,
-                        kilde = kilde_HARDKODET,
-                    )
-
-                Dagtype.Permisjon ->
-                    no.nav.helse.sykdomstidslinje.Dag.Permisjonsdag(
-                        dato = spilleromDag.dato,
-                        kilde = kilde_HARDKODET,
-                    )
-
-                Dagtype.Avslått ->
-                    // TODO eller bruke en felles avslått-dag i Sykdomstidslinje?
-                    // TODO eller bare ikke ha dagen i tidslinjen?
-                    no.nav.helse.sykdomstidslinje.Dag.Avslått(
-                        dato = spilleromDag.dato,
-                        kilde = kilde_HARDKODET,
-                        begrunnelse = spilleromDag.avslåttBegrunnelse ?: emptyList(),
-                    )
-
-                Dagtype.AndreYtelser ->
-                    no.nav.helse.sykdomstidslinje.Dag.AndreYtelser(
-                        dato = spilleromDag.dato,
-                        kilde = kilde_HARDKODET,
-                        ytelse = annenytelse_HARDKODET,
-                    )
-            }.let { spleisDag ->
-                spilleromDag.dato to spleisDag
-            }
-        }.let {
-            mapOf(*it.toTypedArray())
-        }
 
     return Sykdomstidslinje(spleisDagerMap)
 }

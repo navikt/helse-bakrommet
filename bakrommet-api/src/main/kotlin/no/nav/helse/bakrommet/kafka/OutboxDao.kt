@@ -20,7 +20,9 @@ data class KafkaMelding(
     val kafkaPayload: String,
 )
 
-class OutboxDao private constructor(private val db: QueryRunner) {
+class OutboxDao private constructor(
+    private val db: QueryRunner,
+) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
@@ -50,8 +52,8 @@ class OutboxDao private constructor(private val db: QueryRunner) {
         )
     }
 
-    fun hentAlleUpubliserteEntries(): List<OutboxEntry> {
-        return db.list(
+    fun hentAlleUpubliserteEntries(): List<OutboxEntry> =
+        db.list(
             """
             select id, kafka_key, kafka_payload, opprettet, publisert
             from kafka_outbox
@@ -67,5 +69,4 @@ class OutboxDao private constructor(private val db: QueryRunner) {
                 publisert = row.instantOrNull("publisert"),
             )
         }
-    }
 }

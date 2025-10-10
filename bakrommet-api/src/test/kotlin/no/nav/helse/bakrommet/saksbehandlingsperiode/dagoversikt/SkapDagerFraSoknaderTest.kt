@@ -243,8 +243,8 @@ private fun lagSøknad(
     permisjon: List<Pair<LocalDate, LocalDate>> = emptyList(),
     arbeidGjenopptatt: LocalDate? = null,
     ventetid: Pair<LocalDate, LocalDate>? = null,
-): SykepengesoknadDTO {
-    return SykepengesoknadDTO(
+): SykepengesoknadDTO =
+    SykepengesoknadDTO(
         id = "test-soknad",
         fnr = "12345678910",
         fom = fom,
@@ -292,4 +292,3 @@ private fun lagSøknad(
                 )
             },
     )
-}

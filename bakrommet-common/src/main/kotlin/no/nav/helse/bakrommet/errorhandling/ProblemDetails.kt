@@ -20,4 +20,5 @@ interface ProblemDetailsAware {
 
 abstract class ProblemDetailsException(
     message: String? = null,
-) : RuntimeException(message), ProblemDetailsAware
+) : RuntimeException(message),
+    ProblemDetailsAware

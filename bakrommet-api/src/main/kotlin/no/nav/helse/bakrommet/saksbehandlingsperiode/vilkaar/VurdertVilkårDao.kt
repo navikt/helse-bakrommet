@@ -16,7 +16,9 @@ data class VurdertVilkår(
     val vurdering: JsonNode,
 )
 
-class VurdertVilkårDao private constructor(private val db: QueryRunner) {
+class VurdertVilkårDao private constructor(
+    private val db: QueryRunner,
+) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
@@ -58,8 +60,8 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
     fun slettVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
-    ): Int {
-        return db.update(
+    ): Int =
+        db.update(
             """
             DELETE FROM vurdert_vilkaar
             where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
@@ -68,13 +70,12 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
             "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
             "kode" to kode,
         )
-    }
 
     fun eksisterer(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
-    ): Boolean {
-        return db.single(
+    ): Boolean =
+        db.single(
             """
             select * from vurdert_vilkaar 
             where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
@@ -84,14 +85,13 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
             "kode" to kode.kode,
             mapper = { true },
         ) ?: false
-    }
 
     fun oppdater(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         oppdatertVurdering: JsonNode,
-    ): Int {
-        return db.update(
+    ): Int =
+        db.update(
             """
             update vurdert_vilkaar 
             set vurdering = :vurdering,
@@ -104,14 +104,13 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
             "saksbehandlingsperiode_id" to behandling.id,
             "kode" to kode.kode,
         )
-    }
 
     fun leggTil(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         vurdering: JsonNode,
-    ): Int {
-        return db.update(
+    ): Int =
+        db.update(
             """
             insert into vurdert_vilkaar
              (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
@@ -122,5 +121,4 @@ class VurdertVilkårDao private constructor(private val db: QueryRunner) {
             "saksbehandlingsperiode_id" to behandling.id,
             "kode" to kode.kode,
         )
-    }
 }

@@ -148,45 +148,43 @@ class SaksbehandlingsperiodeService(
         return nyPeriode
     }
 
-    fun finnPerioderForPerson(spilleromPersonId: SpilleromPersonId): List<Saksbehandlingsperiode> {
-        return db.nonTransactional { saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId) }
-    }
+    fun finnPerioderForPerson(spilleromPersonId: SpilleromPersonId): List<Saksbehandlingsperiode> = db.nonTransactional { saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId) }
 
     fun sendTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         individuellBegrunnelse: String?,
         saksbehandler: Bruker,
-    ): Saksbehandlingsperiode {
-        return db.transactional {
-            saksbehandlingsperiodeDao.let { dao ->
-                val periode = dao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
+    ): Saksbehandlingsperiode =
+        db.transactional {
+            saksbehandlingsperiodeDao
+                .let { dao ->
+                    val periode = dao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
 
-                fun Saksbehandlingsperiode.harAlleredeBeslutter() = this.beslutterNavIdent != null
-                val nyStatus =
-                    if (periode.harAlleredeBeslutter()) {
-                        SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
-                    } else {
-                        SaksbehandlingsperiodeStatus.TIL_BESLUTNING
-                    }
-                periode.verifiserNyStatusGyldighet(nyStatus)
-                dao.endreStatusOgIndividuellBegrunnelse(periode, nyStatus = nyStatus, individuellBegrunnelse)
-                dao.reload(periode)
-            }.also { oppdatertPeriode ->
-                saksbehandlingsperiodeEndringerDao.leggTilEndring(
-                    oppdatertPeriode.endring(
-                        endringType = SaksbehandlingsperiodeEndringType.SENDT_TIL_BESLUTNING,
-                        saksbehandler = saksbehandler,
-                    ),
-                )
-            }
+                    fun Saksbehandlingsperiode.harAlleredeBeslutter() = this.beslutterNavIdent != null
+                    val nyStatus =
+                        if (periode.harAlleredeBeslutter()) {
+                            SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
+                        } else {
+                            SaksbehandlingsperiodeStatus.TIL_BESLUTNING
+                        }
+                    periode.verifiserNyStatusGyldighet(nyStatus)
+                    dao.endreStatusOgIndividuellBegrunnelse(periode, nyStatus = nyStatus, individuellBegrunnelse)
+                    dao.reload(periode)
+                }.also { oppdatertPeriode ->
+                    saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                        oppdatertPeriode.endring(
+                            endringType = SaksbehandlingsperiodeEndringType.SENDT_TIL_BESLUTNING,
+                            saksbehandler = saksbehandler,
+                        ),
+                    )
+                }
         }
-    }
 
     fun taTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
-    ): Saksbehandlingsperiode {
-        return db.transactional {
+    ): Saksbehandlingsperiode =
+        db.transactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = null)
             // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
             val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
@@ -205,14 +203,13 @@ class SaksbehandlingsperiodeService(
                 )
             }
         }
-    }
 
     fun sendTilbakeFraBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
         kommentar: String,
-    ): Saksbehandlingsperiode {
-        return db.transactional {
+    ): Saksbehandlingsperiode =
+        db.transactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
             val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
             periode.verifiserNyStatusGyldighet(nyStatus)
@@ -230,7 +227,6 @@ class SaksbehandlingsperiodeService(
                 )
             }
         }
-    }
 
     fun godkjennPeriode(
         periodeRef: SaksbehandlingsperiodeReferanse,
@@ -267,8 +263,8 @@ class SaksbehandlingsperiodeService(
         periodeRef: SaksbehandlingsperiodeReferanse,
         skjæringstidspunkt: LocalDate?,
         saksbehandler: Bruker,
-    ): Saksbehandlingsperiode {
-        return db.transactional {
+    ): Saksbehandlingsperiode =
+        db.transactional {
             val periode =
                 saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
             saksbehandlingsperiodeDao.oppdaterSkjæringstidspunkt(periode.id, skjæringstidspunkt)
@@ -281,7 +277,6 @@ class SaksbehandlingsperiodeService(
                 )
             }
         }
-    }
 }
 
 private fun Saksbehandlingsperiode.endring(
@@ -307,8 +302,8 @@ private fun Saksbehandlingsperiode.verifiserNyStatusGyldighet(nyStatus: Saksbeha
     }
 }
 
-fun SykepengesoknadDTO.kategorisering(): Map<String, String> {
-    return HashMap<String, String>().apply {
+fun SykepengesoknadDTO.kategorisering(): Map<String, String> =
+    HashMap<String, String>().apply {
         val soknad = this@kategorisering
         val inntektskategori = soknad.bestemInntektskategori()
         put("INNTEKTSKATEGORI", inntektskategori)
@@ -333,7 +328,6 @@ fun SykepengesoknadDTO.kategorisering(): Map<String, String> {
             }
         }
     }
-}
 
 fun lagYrkesaktivitetFraSøknader(
     sykepengesoknader: Iterable<Dokument>,

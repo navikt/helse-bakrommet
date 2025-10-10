@@ -24,9 +24,8 @@ fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestDa
 
 suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)
 
-suspend fun HttpResponse.tilProblemDetails(): ProblemDetails {
-    return objectMapper.readValue(
+suspend fun HttpResponse.tilProblemDetails(): ProblemDetails =
+    objectMapper.readValue(
         bodyAsText(),
         ProblemDetails::class.java,
     )
-}

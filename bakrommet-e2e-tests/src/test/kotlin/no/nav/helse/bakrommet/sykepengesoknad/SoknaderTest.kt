@@ -23,16 +23,24 @@ class SoknaderTest {
     val mockSoknaderClient =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer " + TestOppsett.configuration.sykepengesoknadBackend.scope.oboTokenFor()) {
+            if (auth != "Bearer " +
+                TestOppsett.configuration.sykepengesoknadBackend.scope
+                    .oboTokenFor()
+            ) {
                 logg.error("feil header: $auth")
                 respondError(HttpStatusCode.Unauthorized)
             } else {
                 if (request.url.toString().contains("/api/v3/soknader/") &&
-                    !request.url.toString()
+                    !request.url
+                        .toString()
                         .endsWith("/api/v3/soknader")
                 ) {
                     // Single søknad request
-                    val soknadId = request.url.toString().split("/").last()
+                    val soknadId =
+                        request.url
+                            .toString()
+                            .split("/")
+                            .last()
                     if (soknadId == "b8079801-ff72-3e31-ad48-118df088343b") {
                         respond(
                             status = HttpStatusCode.OK,
@@ -79,19 +87,21 @@ class SoknaderTest {
         ) {
             it.personDao.opprettPerson(fnr, personId)
 
-            client.get("/v1/$personId/soknader/b8079801-ff72-3e31-ad48-118df088343b") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(200, status.value)
-                assertEquals(enSøknad().asJsonNode(), bodyAsText().asJsonNode())
-            }
+            client
+                .get("/v1/$personId/soknader/b8079801-ff72-3e31-ad48-118df088343b") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals(enSøknad().asJsonNode(), bodyAsText().asJsonNode())
+                }
 
             // Test not found case
-            client.get("/v1/$personId/soknader/non-existent-id") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(404, status.value)
-            }
+            client
+                .get("/v1/$personId/soknader/non-existent-id") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(404, status.value)
+                }
         }
 
     @Test
@@ -106,12 +116,13 @@ class SoknaderTest {
         ) {
             it.personDao.opprettPerson(fnr, personId)
 
-            client.get("/v1/$personId/soknader") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(200, status.value)
-                assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
-            }
+            client
+                .get("/v1/$personId/soknader") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
+                }
         }
 
     @Test
@@ -126,26 +137,31 @@ class SoknaderTest {
         ) {
             it.personDao.opprettPerson(fnr, personId)
 
-            client.get("/v1/$personId/soknader?fom=2025-04-01") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(200, status.value)
-                assertEquals("[]", bodyAsText())
-            }
+            client
+                .get("/v1/$personId/soknader?fom=2025-04-01") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals("[]", bodyAsText())
+                }
 
-            client.get("/v1/$personId/soknader?fom=2025-01-01") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(200, status.value)
-                assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
-            }
+            client
+                .get("/v1/$personId/soknader?fom=2025-01-01") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
+                }
         }
 }
 
-data class Arbeidsgiverinfo(val identifikator: String, val navn: String) {
+data class Arbeidsgiverinfo(
+    val identifikator: String,
+    val navn: String,
+) {
     companion object {
-        fun Arbeidsgiverinfo?.tilJson(): String {
-            return if (this == null) {
+        fun Arbeidsgiverinfo?.tilJson(): String =
+            if (this == null) {
                 "null"
             } else {
                 """
@@ -155,7 +171,6 @@ data class Arbeidsgiverinfo(val identifikator: String, val navn: String) {
                 }
                 """.trimIndent()
             }
-        }
     }
 }
 

@@ -53,15 +53,16 @@ class DagoversiktLogikkTest {
                 """.trimIndent()
 
             val inntektsforholdMedSykmeldtId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(kategoriseringMedSykmeldt)
-                }.let { response ->
-                    assertEquals(201, response.status.value)
-                    val body = response.body<JsonNode>()
-                    UUID.fromString(body["id"].asText())
-                }
+                client
+                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(kategoriseringMedSykmeldt)
+                    }.let { response ->
+                        assertEquals(201, response.status.value)
+                        val body = response.body<JsonNode>()
+                        UUID.fromString(body["id"].asText())
+                    }
 
             // Test 2: ER_SYKMELDT mangler - skal opprette dagoversikt
             @Language("json")
@@ -77,15 +78,16 @@ class DagoversiktLogikkTest {
                 """.trimIndent()
 
             val inntektsforholdUtenSykmeldtId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(kategoriseringUtenSykmeldt)
-                }.let { response ->
-                    assertEquals(201, response.status.value)
-                    val body = response.body<JsonNode>()
-                    UUID.fromString(body["id"].asText())
-                }
+                client
+                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(kategoriseringUtenSykmeldt)
+                    }.let { response ->
+                        assertEquals(201, response.status.value)
+                        val body = response.body<JsonNode>()
+                        UUID.fromString(body["id"].asText())
+                    }
 
             // Test 3: ER_SYKMELDT er "ER_SYKMELDT_NEI" - skal IKKE opprette dagoversikt
             @Language("json")
@@ -101,15 +103,16 @@ class DagoversiktLogikkTest {
                 """.trimIndent()
 
             val inntektsforholdIkkeSykmeldtId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(kategoriseringIkkeSykmeldt)
-                }.let { response ->
-                    assertEquals(201, response.status.value)
-                    val body = response.body<JsonNode>()
-                    UUID.fromString(body["id"].asText())
-                }
+                client
+                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(kategoriseringIkkeSykmeldt)
+                    }.let { response ->
+                        assertEquals(201, response.status.value)
+                        val body = response.body<JsonNode>()
+                        UUID.fromString(body["id"].asText())
+                    }
 
             // Verifiser at dagoversikt ble opprettet for de to første, men ikke den siste
             daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
@@ -143,18 +146,21 @@ class DagoversiktLogikkTest {
             }
 
             val periode =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<Saksbehandlingsperiode>>().first()
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<Saksbehandlingsperiode>>()
+                    .first()
 
             val yrkesaktivitetId =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
-                }.let { response ->
-                    UUID.fromString(response.body<JsonNode>()["id"].asText())
-                }
+                client
+                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+                    }.let { response ->
+                        UUID.fromString(response.body<JsonNode>()["id"].asText())
+                    }
 
             // Verifiser at dagoversikt har 28 dager for februar 2023
             daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->

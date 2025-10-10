@@ -6,7 +6,9 @@ import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import javax.sql.DataSource
 
-class PersonDao private constructor(private val db: QueryRunner) {
+class PersonDao private constructor(
+    private val db: QueryRunner,
+) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
@@ -39,10 +41,9 @@ class PersonDao private constructor(private val db: QueryRunner) {
         )
     }
 
-    fun finnNaturligIdent(spilleromId: String): String? {
-        return db.single(
+    fun finnNaturligIdent(spilleromId: String): String? =
+        db.single(
             "select naturlig_ident from ident where spillerom_id = :spillerom_id",
             "spillerom_id" to spilleromId,
         ) { it.string(1) }
-    }
 }

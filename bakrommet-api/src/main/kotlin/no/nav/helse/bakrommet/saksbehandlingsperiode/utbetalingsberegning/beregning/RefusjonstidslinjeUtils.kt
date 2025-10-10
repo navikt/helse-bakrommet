@@ -42,19 +42,17 @@ fun beregnAlleRefusjonstidslinjer(
     sykepengegrunnlag: SykepengegrunnlagResponse,
     yrkesaktivitetIds: List<UUID>,
     saksbehandlingsperiode: PeriodeDto,
-): Map<UUID, Map<LocalDate, Inntekt>> {
-    return yrkesaktivitetIds.associateWith { yrkesaktivitetId ->
+): Map<UUID, Map<LocalDate, Inntekt>> =
+    yrkesaktivitetIds.associateWith { yrkesaktivitetId ->
         beregnRefusjonstidslinje(sykepengegrunnlag, yrkesaktivitetId, saksbehandlingsperiode)
     }
-}
 
 /**
  * Konverterer månedlig beløp i øre til daglig beløp i kroner
  */
-private fun konverterMånedligØreTilDagligKroner(månedligBeløpØre: Long): Int {
-    return (
+private fun konverterMånedligØreTilDagligKroner(månedligBeløpØre: Long): Int =
+    (
         (månedligBeløpØre * UtbetalingsberegningKonfigurasjon.MÅNEDLIG_TIL_ÅRLIG_FAKTOR) /
             UtbetalingsberegningKonfigurasjon.STANDARD_ÅRLIGE_ARBEIDSDAGER /
             UtbetalingsberegningKonfigurasjon.ØRE_TIL_KRONER_FAKTOR
     ).toInt()
-}

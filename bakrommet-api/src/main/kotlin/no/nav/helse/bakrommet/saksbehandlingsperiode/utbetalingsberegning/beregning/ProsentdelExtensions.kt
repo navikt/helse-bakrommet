@@ -6,6 +6,4 @@ import no.nav.helse.økonomi.Prosentdel
 /**
  * Konverterer ProsentdelDto til Prosentdel
  */
-fun ProsentdelDto.tilProsentdel(): Prosentdel {
-    return Prosentdel.gjenopprett(this)
-}
+fun ProsentdelDto.tilProsentdel(): Prosentdel = Prosentdel.gjenopprett(this)

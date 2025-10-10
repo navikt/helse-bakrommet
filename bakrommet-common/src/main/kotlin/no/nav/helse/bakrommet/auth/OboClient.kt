@@ -28,11 +28,13 @@ class OboClient(
             oboClient.post(configuration.url) {
                 contentType(ContentType.Application.Json)
                 setBody(
-                    jacksonObjectMapper().createObjectNode().apply {
-                        put("identity_provider", "azuread")
-                        put("target", scope.asDefaultScope())
-                        put("user_token", bearerToken)
-                    }.toString(),
+                    jacksonObjectMapper()
+                        .createObjectNode()
+                        .apply {
+                            put("identity_provider", "azuread")
+                            put("target", scope.asDefaultScope())
+                            put("user_token", bearerToken)
+                        }.toString(),
                 )
             }
         if (!oboTokenResponse.status.isSuccess()) {
@@ -44,6 +46,8 @@ class OboClient(
     }
 }
 
-class OboToken(private val value: String) {
+class OboToken(
+    private val value: String,
+) {
     fun somBearerHeader() = "Bearer $value"
 }

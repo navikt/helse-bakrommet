@@ -24,16 +24,17 @@ class OAuthMock {
         grupper: List<String> = listOf("GRUPPE_SAKSBEHANDLER"),
         navIdent: String = "tullebruker",
     ): String =
-        mockOAuth2Server.issueToken(
-            issuerId = issuerId,
-            audience = audience,
-            subject = "tullesubjekt",
-            claims =
-                mapOf(
-                    "NAVident" to navIdent,
-                    "name" to "Tulla Bruker",
-                    "groups" to grupper,
-                    "preferred_username" to "tullabruker@nav.no",
-                ),
-        ).serialize()
+        mockOAuth2Server
+            .issueToken(
+                issuerId = issuerId,
+                audience = audience,
+                subject = "tullesubjekt",
+                claims =
+                    mapOf(
+                        "NAVident" to navIdent,
+                        "name" to "Tulla Bruker",
+                        "groups" to grupper,
+                        "preferred_username" to "tullabruker@nav.no",
+                    ),
+            ).serialize()
 }

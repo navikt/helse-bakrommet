@@ -59,7 +59,11 @@ object SykepengesoknadMock {
                     )
                 fnrTilSvar[hentSøknadRequest.fnr].returner()
             } else if (request.method == HttpMethod.Get) {
-                val søknadId = request.url.toString().split("/").last()
+                val søknadId =
+                    request.url
+                        .toString()
+                        .split("/")
+                        .last()
                 søknadIdTilSvar[søknadId]?.serialisertTilString().returner()
             } else {
                 throw IllegalArgumentException("Uhåndtert metode: ${request.method}")

@@ -90,7 +90,12 @@ object TestOppsett {
                 navn = payload.getClaim("name").asString(),
                 navIdent = payload.getClaim("NAVident").asString(),
                 preferredUsername = payload.getClaim("preferred_username").asString(),
-                roller = payload.getClaim("groups").asList(String::class.java).toSet().tilRoller(configuration.roller),
+                roller =
+                    payload
+                        .getClaim("groups")
+                        .asList(String::class.java)
+                        .toSet()
+                        .tilRoller(configuration.roller),
             )
         }
 
@@ -132,15 +137,14 @@ class Daoer(
     val outboxDao: OutboxDao,
 ) {
     companion object {
-        fun instansier(dataSource: DataSource): Daoer {
-            return Daoer(
+        fun instansier(dataSource: DataSource): Daoer =
+            Daoer(
                 PersonDao(dataSource),
                 SaksbehandlingsperiodeDao(dataSource),
                 DokumentDao(dataSource),
                 YrkesaktivitetDao(dataSource),
                 OutboxDao(dataSource),
             )
-        }
     }
 }
 

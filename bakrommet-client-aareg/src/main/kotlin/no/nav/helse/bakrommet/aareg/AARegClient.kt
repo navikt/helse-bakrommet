@@ -30,18 +30,16 @@ class AARegClient(
             }
         },
 ) {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
-        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     suspend fun hentArbeidsforholdFor(
         fnr: String,
         saksbehandlerToken: SpilleromBearerToken,
-    ): Arbeidsforholdoppslag {
-        return hentArbeidsforholdForMedSporing(
+    ): Arbeidsforholdoppslag =
+        hentArbeidsforholdForMedSporing(
             fnr = fnr,
             saksbehandlerToken = saksbehandlerToken,
         ).first
-    }
 
     suspend fun hentArbeidsforholdForMedSporing(
         fnr: String,

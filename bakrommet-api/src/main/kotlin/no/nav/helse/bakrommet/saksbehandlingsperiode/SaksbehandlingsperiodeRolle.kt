@@ -7,9 +7,7 @@ private fun krevAtBrukerErBeslutterFor(
     bruker: Bruker,
     periode: Saksbehandlingsperiode,
 ) {
-    fun Bruker.erBeslutterFor(periode: Saksbehandlingsperiode): Boolean {
-        return periode.beslutterNavIdent == this.navIdent
-    }
+    fun Bruker.erBeslutterFor(periode: Saksbehandlingsperiode): Boolean = periode.beslutterNavIdent == this.navIdent
 
     if (!bruker.erBeslutterFor(periode)) {
         throw ForbiddenException("Ikke beslutter for periode")
@@ -20,9 +18,7 @@ private fun krevAtBrukerErSaksbehandlerFor(
     bruker: Bruker,
     periode: Saksbehandlingsperiode,
 ) {
-    fun Bruker.erSaksbehandlerFor(periode: Saksbehandlingsperiode): Boolean {
-        return periode.opprettetAvNavIdent == this.navIdent
-    }
+    fun Bruker.erSaksbehandlerFor(periode: Saksbehandlingsperiode): Boolean = periode.opprettetAvNavIdent == this.navIdent
 
     if (!bruker.erSaksbehandlerFor(periode)) {
         throw ForbiddenException("Ikke saksbehandler for periode")

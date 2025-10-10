@@ -10,8 +10,8 @@ import kotlin.reflect.KClass
 
 class KafkaUtils {
     companion object {
-        fun getAivenKafkaConfig(clientId: String): Properties {
-            return Properties().also {
+        fun getAivenKafkaConfig(clientId: String): Properties =
+            Properties().also {
                 val kafkaEnv = KafkaEnvironment()
                 it[CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG] = kafkaEnv.KAFKA_BROKERS
                 it[CommonClientConfigs.SECURITY_PROTOCOL_CONFIG] = "SSL"
@@ -27,7 +27,6 @@ class KafkaUtils {
                 it[ProducerConfig.ACKS_CONFIG] = "all"
                 it[ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG] = "true"
             }
-        }
     }
 }
 

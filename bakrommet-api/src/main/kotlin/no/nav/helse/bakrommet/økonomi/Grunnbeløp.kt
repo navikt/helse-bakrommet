@@ -12,7 +12,9 @@ import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.årlig
 import java.time.LocalDate
 
-class Grunnbeløp private constructor(private val multiplier: Double) {
+class Grunnbeløp private constructor(
+    private val multiplier: Double,
+) {
     private val grunnbeløp =
         listOf(
             130160.årlig.gyldigFra(1.mai(2025), gyldigSomMinsteinntektKrav = 2.juni(2025)),
@@ -117,11 +119,10 @@ class Grunnbeløp private constructor(private val multiplier: Double) {
             gyldigSomMinsteinntektKrav,
         )
 
-        fun virkningstidspunktFor(beløp: Inntekt): LocalDate {
-            return `1G`.grunnbeløp.find { it.beløp(1.0) == beløp }?.virkningstidspunkt() ?: throw kotlin.IllegalArgumentException(
+        fun virkningstidspunktFor(beløp: Inntekt): LocalDate =
+            `1G`.grunnbeløp.find { it.beløp(1.0) == beløp }?.virkningstidspunkt() ?: throw kotlin.IllegalArgumentException(
                 "$beløp er ikke et Grunnbeløp",
             )
-        }
     }
 
     private class HistoriskGrunnbeløp(

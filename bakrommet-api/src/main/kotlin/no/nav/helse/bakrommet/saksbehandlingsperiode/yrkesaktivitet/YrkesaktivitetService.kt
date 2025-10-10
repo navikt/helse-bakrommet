@@ -161,9 +161,10 @@ class YrkesaktivitetService(
 
             // Opprett map for enkel oppslag basert på dato
             val eksisterendeDagerMap =
-                eksisterendeDagoversikt.associateBy { dag ->
-                    dag.dato.toString()
-                }.toMutableMap()
+                eksisterendeDagoversikt
+                    .associateBy { dag ->
+                        dag.dato.toString()
+                    }.toMutableMap()
 
             // Oppdater kun dagene som finnes i input, ignorer helgedager
             dagerSomSkalOppdateresArray.forEach { oppdatertDagJson ->
@@ -240,15 +241,16 @@ class YrkesaktivitetService(
 private fun YrkesaktivitetServiceDaoer.hentYrkesaktivitet(
     ref: YrkesaktivitetReferanse,
     krav: BrukerHarRollePåSakenKrav?,
-) = saksbehandlingsperiodeDao.hentPeriode(
-    ref = ref.saksbehandlingsperiodeReferanse,
-    krav = krav,
-).let { periode ->
-    val inntektsforhold =
-        yrkesaktivitetDao.hentYrkesaktivitet(ref.inntektsforholdUUID)
-            ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
-    require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
-        "Yrkesaktivitet (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
+) = saksbehandlingsperiodeDao
+    .hentPeriode(
+        ref = ref.saksbehandlingsperiodeReferanse,
+        krav = krav,
+    ).let { periode ->
+        val inntektsforhold =
+            yrkesaktivitetDao.hentYrkesaktivitet(ref.inntektsforholdUUID)
+                ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
+        require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
+            "Yrkesaktivitet (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
+        }
+        inntektsforhold
     }
-    inntektsforhold
-}

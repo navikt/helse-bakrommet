@@ -37,22 +37,20 @@ class AInntektClient(
             }
         },
 ) {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
-        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     suspend fun hentInntekterFor(
         fnr: String,
         maanedFom: YearMonth,
         maanedTom: YearMonth,
         saksbehandlerToken: SpilleromBearerToken,
-    ): Inntektoppslag {
-        return hentInntekterForMedSporing(
+    ): Inntektoppslag =
+        hentInntekterForMedSporing(
             fnr = fnr,
             maanedFom = maanedFom,
             maanedTom = maanedTom,
             saksbehandlerToken = saksbehandlerToken,
         ).first
-    }
 
     suspend fun hentInntekterForMedSporing(
         fnr: String,

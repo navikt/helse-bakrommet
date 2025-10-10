@@ -62,14 +62,13 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         val sykepengegrunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
         val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
 
-        fun Yrkesaktivitet.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto {
-            return YrkesaktivitetKafkaDto(
+        fun Yrkesaktivitet.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto =
+            YrkesaktivitetKafkaDto(
                 id = id,
                 kategorisering = kategorisering,
                 dagoversikt = emptyList(),
                 // TODO
             )
-        }
 
         val saksbehandlingsperiodeKafkaDto =
             SaksbehandlingsperiodeKafkaDto(

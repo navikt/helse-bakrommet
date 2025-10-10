@@ -87,7 +87,12 @@ class SealedClassSerializationTest {
 
         // Assert - sjekk at vi får tilbake riktig antall dager
         assertEquals(1, deserialisertData.yrkesaktiviteter.size, "Skal ha én yrkesaktivitet")
-        assertEquals(3, deserialisertData.yrkesaktiviteter[0].utbetalingstidslinje.dager.size, "Skal ha tre dager")
+        assertEquals(
+            3,
+            deserialisertData.yrkesaktiviteter[0]
+                .utbetalingstidslinje.dager.size,
+            "Skal ha tre dager",
+        )
 
         // Konverter tilbake til domain model
         val gjenopprettetTidslinje =

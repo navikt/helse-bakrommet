@@ -25,16 +25,17 @@ data class Yrkesaktivitet(
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
 ) {
-    fun hentPerioderForType(periodetype: Periodetype): List<Periode> {
-        return if (this.perioder?.type == periodetype) {
+    fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
+        if (this.perioder?.type == periodetype) {
             this.perioder.perioder.map { Periode(it.fom, it.tom) }
         } else {
             emptyList()
         }
-    }
 }
 
-class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
+class YrkesaktivitetDao private constructor(
+    private val db: QueryRunner,
+) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
@@ -92,7 +93,8 @@ class YrkesaktivitetDao private constructor(private val db: QueryRunner) {
             opprettet = row.offsetDateTime("opprettet"),
             generertFraDokumenter =
                 row
-                    .stringOrNull("generert_fra_dokumenter")?.somListe<UUID>() ?: emptyList(),
+                    .stringOrNull("generert_fra_dokumenter")
+                    ?.somListe<UUID>() ?: emptyList(),
             perioder = row.stringOrNull("perioder")?.let { objectMapper.readValue(it, Perioder::class.java) },
         )
 

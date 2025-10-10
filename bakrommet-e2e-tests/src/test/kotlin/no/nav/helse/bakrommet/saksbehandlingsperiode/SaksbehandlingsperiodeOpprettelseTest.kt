@@ -65,17 +65,18 @@ class SaksbehandlingsperiodeOpprettelseTest {
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """
-                    { "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.søknadId}", "${søknad2.søknadId}", "${søknad3.søknadId}", "${søknad3b.søknadId}"] }
-                    """.trimIndent(),
-                )
-            }.let { response ->
-                assertEquals(201, response.status.value)
-            }
+            client
+                .post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        { "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.søknadId}", "${søknad2.søknadId}", "${søknad3.søknadId}", "${søknad3b.søknadId}"] }
+                        """.trimIndent(),
+                    )
+                }.let { response ->
+                    assertEquals(201, response.status.value)
+                }
 
             // Hent alle perioder
             val allePerioder =
@@ -109,9 +110,10 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
             // Verifiser API for dokumenter
             val dokumenter: List<DokumentDto> =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body()
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body()
             assertEquals(dokumenterFraDB.map { it.tilDto() }.toSet(), dokumenter.toSet())
         }
     }
@@ -149,15 +151,18 @@ class SaksbehandlingsperiodeOpprettelseTest {
             }
 
             val periode =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<Saksbehandlingsperiode>>().first()
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<Saksbehandlingsperiode>>()
+                    .first()
 
             // Verifiser inntektsforhold
             val inntektsforhold =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                    bearerAuth(TestOppsett.userToken)
-                }.body<List<YrkesaktivitetDTO>>()
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<YrkesaktivitetDTO>>()
 
             assertEquals(3, inntektsforhold.size)
             assertEquals(

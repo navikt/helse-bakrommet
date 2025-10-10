@@ -21,12 +21,11 @@ data class Navn(
     val etternavn: String,
 )
 
-fun Navn.formattert(): String {
-    return when {
+fun Navn.formattert(): String =
+    when {
         mellomnavn.isNullOrBlank() -> "$fornavn $etternavn"
         else -> "$fornavn $mellomnavn $etternavn"
     }
-}
 
 data class PersonInfo(
     val navn: Navn,

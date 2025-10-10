@@ -49,25 +49,29 @@ enum class SaksbehandlingsperiodeStatus {
     }
 }
 
-class SaksbehandlingsperiodeDao private constructor(private val db: QueryRunner) {
+class SaksbehandlingsperiodeDao private constructor(
+    private val db: QueryRunner,
+) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
     fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode> {
         val limitEnnSåLenge = 100
-        return db.list(
-            """
-            select *
-              from saksbehandlingsperiode
-             
-              LIMIT $limitEnnSåLenge 
-            """.trimIndent(),
-        ) { rowTilPeriode(it) }.also { perioderIRetur ->
-            if (perioderIRetur.size >= limitEnnSåLenge) {
-                // TODO: Det må inn noe WHERE-kriterer og paginering her ...
-                appLogger.error("hentSaksbehandlingsperioder out of limit")
+        return db
+            .list(
+                """
+                select *
+                  from saksbehandlingsperiode
+                 
+                  LIMIT $limitEnnSåLenge 
+                """.trimIndent(),
+            ) { rowTilPeriode(it) }
+            .also { perioderIRetur ->
+                if (perioderIRetur.size >= limitEnnSåLenge) {
+                    // TODO: Det må inn noe WHERE-kriterer og paginering her ...
+                    appLogger.error("hentSaksbehandlingsperioder out of limit")
+                }
             }
-        }
     }
 
     fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =

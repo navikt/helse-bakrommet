@@ -31,8 +31,7 @@ class InntektsmeldingClient(
             }
         },
 ) {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String =
-        this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     suspend fun hentInntektsmeldinger(
         fnr: String,

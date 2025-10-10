@@ -4,7 +4,10 @@ import kotliquery.Session
 import kotliquery.sessionOf
 import javax.sql.DataSource
 
-class TransactionalSessionFactory<out SessionDaosType>(private val dataSource: DataSource, private val daosCreatorFunction: (Session) -> SessionDaosType) {
+class TransactionalSessionFactory<out SessionDaosType>(
+    private val dataSource: DataSource,
+    private val daosCreatorFunction: (Session) -> SessionDaosType,
+) {
     fun <RET> transactionalSessionScope(transactionalBlock: (SessionDaosType) -> RET): RET =
         sessionOf(dataSource, returnGeneratedKey = true).use { session ->
             session.transaction { transactionalSession ->
@@ -19,14 +22,14 @@ class TransactionalSessionFactory<out SessionDaosType>(private val dataSource: D
  * av et Daoer-interface av gangen (per kode-blokk), ved at riktig versjon av DAO-samlingen tilgjengeliggjøres som "this"
  * (og ved at "daoer" og "sessionFactory" da ikke trenger være tilgjengelig i Servicen som "val"-verdier).
  */
-class DbDaoer<DaosType>(private val daoer: DaosType, private val sessionFactory: TransactionalSessionFactory<DaosType>) {
-    fun <RET> nonTransactional(block: (DaosType.() -> RET)): RET {
-        return block(daoer)
-    }
+class DbDaoer<DaosType>(
+    private val daoer: DaosType,
+    private val sessionFactory: TransactionalSessionFactory<DaosType>,
+) {
+    fun <RET> nonTransactional(block: (DaosType.() -> RET)): RET = block(daoer)
 
-    fun <RET> transactional(block: (DaosType.() -> RET)): RET {
-        return sessionFactory.transactionalSessionScope { session ->
+    fun <RET> transactional(block: (DaosType.() -> RET)): RET =
+        sessionFactory.transactionalSessionScope { session ->
             block(session)
         }
-    }
 }

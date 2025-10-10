@@ -11,7 +11,9 @@ import javax.sql.DataSource
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class DataSourceBuilder(configuration: Configuration.DB) {
+class DataSourceBuilder(
+    configuration: Configuration.DB,
+) {
     private val hikariConfig =
         HikariConfig().apply {
             jdbcUrl = configuration.jdbcUrl

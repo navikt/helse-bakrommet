@@ -86,14 +86,13 @@ private fun byggInaktivUtbetalingstidslinje(
     inntektjusteringer: Beløpstidslinje,
     yrkesaktivitet: Yrkesaktivitet,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
-): Utbetalingstidslinje {
-    return InaktivUtbetalingstidslinjeBuilder(
+): Utbetalingstidslinje =
+    InaktivUtbetalingstidslinjeBuilder(
         fastsattÅrsinntekt = fastsattÅrsinntekt,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         inntektjusteringer = inntektjusteringer,
         venteperiode = yrkesaktivitet.hentPerioderForType(Periodetype.VENTETID_INAKTIV),
     ).result(sykdomstidslinje)
-}
 
 /**
  * Bygger selvstendig utbetalingstidslinje
@@ -103,13 +102,12 @@ private fun byggSelvstendigUtbetalingstidslinje(
     dekningsgrad: ProsentdelDto,
     yrkesaktivitet: Yrkesaktivitet,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
-): Utbetalingstidslinje {
-    return SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
+): Utbetalingstidslinje =
+    SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         fastsattÅrsinntekt = fastsattÅrsinntekt,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         ventetid = yrkesaktivitet.hentPerioderForType(Periodetype.VENTETID),
     ).result(sykdomstidslinje)
-}
 
 /**
  * Bygger selvstendig utbetalingstidslinje
@@ -118,12 +116,11 @@ private fun byggArbeidsledigtidslinje(
     fastsattÅrsinntekt: Inntekt,
     dekningsgrad: ProsentdelDto,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
-): Utbetalingstidslinje {
-    return ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode(
+): Utbetalingstidslinje =
+    ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode(
         fastsattÅrsinntekt = fastsattÅrsinntekt,
         dekningsgrad = dekningsgrad.tilProsentdel(),
     ).result(sykdomstidslinje)
-}
 
 /**
  * Bygger arbeidstaker utbetalingstidslinje
@@ -136,8 +133,8 @@ private fun byggArbeidstakerUtbetalingstidslinje(
     fastsattÅrsinntekt: Inntekt,
     inntektjusteringer: Beløpstidslinje,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
-): Utbetalingstidslinje {
-    return ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
+): Utbetalingstidslinje =
+    ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
         arbeidsgiverperiode = arbeidsgiverperiode,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
@@ -145,7 +142,6 @@ private fun byggArbeidstakerUtbetalingstidslinje(
         fastsattÅrsinntekt = fastsattÅrsinntekt,
         inntektjusteringer = inntektjusteringer,
     ).result(sykdomstidslinje)
-}
 
 /**
  * Oppretter refusjonstidslinje fra refusjonsdata

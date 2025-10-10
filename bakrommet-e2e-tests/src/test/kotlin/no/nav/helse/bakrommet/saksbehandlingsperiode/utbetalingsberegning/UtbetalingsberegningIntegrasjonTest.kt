@@ -99,9 +99,7 @@ class UtbetalingsberegningIntegrasjonTest {
         }
     }
 
-    private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto {
-        return objectMapper.readValue(this)
-    }
+    private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto = objectMapper.readValue(this)
 
     private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Saksbehandlingsperiode {
         client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
@@ -265,36 +263,37 @@ class UtbetalingsberegningIntegrasjonTest {
                 innDto.yrkesaktiviteter.map {
                     YrkesaktivitetUtbetalingsberegning(
                         yrkesaktivitetId = it.yrkesaktivitetId,
-                        utbetalingstidslinje = no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje.gjenopprett(it.utbetalingstidslinje),
+                        utbetalingstidslinje =
+                            no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
+                                .gjenopprett(it.utbetalingstidslinje),
                         dekningsgrad = it.dekningsgrad,
                     )
                 },
         )
     }
 
-    private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto {
-        return BeregningDataInnDto(
+    private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto =
+        BeregningDataInnDto(
             yrkesaktiviteter = yrkesaktiviteter.map { it.tilInnDto() },
         )
-    }
 
-    private fun YrkesaktivitetUtbetalingsberegningUtDto.tilInnDto(): YrkesaktivitetUtbetalingsberegningInnDto {
-        return YrkesaktivitetUtbetalingsberegningInnDto(
+    private fun YrkesaktivitetUtbetalingsberegningUtDto.tilInnDto(): YrkesaktivitetUtbetalingsberegningInnDto =
+        YrkesaktivitetUtbetalingsberegningInnDto(
             yrkesaktivitetId = yrkesaktivitetId,
             utbetalingstidslinje = utbetalingstidslinje.tilInnDto(),
             dekningsgrad = dekningsgrad,
         )
-    }
 
-    private fun UtbetalingstidslinjeUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto {
-        return no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto(
+    private fun UtbetalingstidslinjeUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto =
+        no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto(
             dager = dager.map { it.tilInnDto() },
         )
-    }
 
-    private fun UtbetalingsdagUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto {
-        return when (this) {
-            is UtbetalingsdagUtDto.NavDagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.NavDagDto(dato, økonomi.tilInnDto())
+    private fun UtbetalingsdagUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto =
+        when (this) {
+            is UtbetalingsdagUtDto.NavDagDto ->
+                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
+                    .NavDagDto(dato, økonomi.tilInnDto())
             is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(
                     dato,
@@ -315,7 +314,9 @@ class UtbetalingsberegningIntegrasjonTest {
                     dato,
                     økonomi.tilInnDto(),
                 )
-            is UtbetalingsdagUtDto.FridagDto -> no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.FridagDto(dato, økonomi.tilInnDto())
+            is UtbetalingsdagUtDto.FridagDto ->
+                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
+                    .FridagDto(dato, økonomi.tilInnDto())
             is UtbetalingsdagUtDto.AvvistDagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.AvvistDagDto(
                     dato,
@@ -338,10 +339,9 @@ class UtbetalingsberegningIntegrasjonTest {
                     økonomi.tilInnDto(),
                 )
         }
-    }
 
-    private fun ØkonomiUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.ØkonomiInnDto {
-        return no.nav.helse.dto.deserialisering.ØkonomiInnDto(
+    private fun ØkonomiUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.ØkonomiInnDto =
+        no.nav.helse.dto.deserialisering.ØkonomiInnDto(
             grad = grad,
             totalGrad = totalGrad,
             utbetalingsgrad = utbetalingsgrad,
@@ -354,7 +354,6 @@ class UtbetalingsberegningIntegrasjonTest {
             reservertArbeidsgiverbeløp = reservertArbeidsgiverbeløp?.dagligDouble,
             reservertPersonbeløp = reservertPersonbeløp?.dagligDouble,
         )
-    }
 
     private fun verifiserBeregning(beregning: BeregningResponse) {
         assertEquals(1, beregning.beregningData.yrkesaktiviteter.size)

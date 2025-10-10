@@ -7,7 +7,9 @@ import org.flywaydb.core.Flyway
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class FlywayMigrator(configuration: Configuration.DB) {
+class FlywayMigrator(
+    configuration: Configuration.DB,
+) {
     private val hikariConfig =
         HikariConfig().apply {
             jdbcUrl = configuration.jdbcUrl
@@ -18,7 +20,8 @@ class FlywayMigrator(configuration: Configuration.DB) {
 
     fun migrate() {
         HikariDataSource(hikariConfig).use { dataSource ->
-            Flyway.configure()
+            Flyway
+                .configure()
                 .validateMigrationNaming(true)
                 .dataSource(dataSource)
                 .lockRetryCount(-1)

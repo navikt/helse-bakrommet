@@ -61,15 +61,16 @@ class SaksbehandlingsperiodeTest {
             it.personDao.opprettPerson(fnr2, personId2)
 
             suspend fun lagPeriodePåPerson(personId: String) =
-                client.post("/v1/$personId/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "fom": "2023-01-01", "tom": "2023-01-31" }
-                        """.trimIndent(),
-                    )
-                }.body<Saksbehandlingsperiode>()
+                client
+                    .post("/v1/$personId/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(
+                            """
+                            { "fom": "2023-01-01", "tom": "2023-01-31" }
+                            """.trimIndent(),
+                        )
+                    }.body<Saksbehandlingsperiode>()
             val periode1 =
                 lagPeriodePåPerson(personId).also {
                     assertEquals(personId, it.spilleromPersonId)
@@ -80,12 +81,13 @@ class SaksbehandlingsperiodeTest {
                 }
 
             val absoluttAllePerioder: List<Saksbehandlingsperiode> =
-                client.get("/v1/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }.let { resp ->
-                    assertEquals(200, resp.status.value)
-                    resp.bodyAsText().somListe()
-                }
+                client
+                    .get("/v1/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.let { resp ->
+                        assertEquals(200, resp.status.value)
+                        resp.bodyAsText().somListe()
+                    }
             assertEquals(
                 listOf(periode1, periode2).tidsstuttet().toSet(),
                 absoluttAllePerioder.tidsstuttet().toSet(),
@@ -98,42 +100,45 @@ class SaksbehandlingsperiodeTest {
         runApplicationTest {
             it.personDao.opprettPerson(fnr, personId)
             val opprettetPeriode =
-                client.post("/v1/$personId/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "fom": "2023-01-01", "tom": "2023-01-31" }
-                        """.trimIndent(),
-                    )
-                }.body<Saksbehandlingsperiode>()
+                client
+                    .post("/v1/$personId/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(
+                            """
+                            { "fom": "2023-01-01", "tom": "2023-01-31" }
+                            """.trimIndent(),
+                        )
+                    }.body<Saksbehandlingsperiode>()
 
             // Oppdater skjæringstidspunkt
             val nyttSkjæringstidspunkt = "2023-01-15"
             val oppdatertPeriode =
-                client.put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/skjaeringstidspunkt") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "skjaeringstidspunkt": "$nyttSkjæringstidspunkt" }
-                        """.trimIndent(),
-                    )
-                }.body<Saksbehandlingsperiode>()
+                client
+                    .put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/skjaeringstidspunkt") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(
+                            """
+                            { "skjaeringstidspunkt": "$nyttSkjæringstidspunkt" }
+                            """.trimIndent(),
+                        )
+                    }.body<Saksbehandlingsperiode>()
 
             assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt.toString())
 
             // Nullstill skjæringstidspunkt
             val nullstiltPeriode =
-                client.put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/skjaeringstidspunkt") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "skjaeringstidspunkt": null }
-                        """.trimIndent(),
-                    )
-                }.body<Saksbehandlingsperiode>()
+                client
+                    .put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/skjaeringstidspunkt") {
+                        bearerAuth(TestOppsett.userToken)
+                        contentType(ContentType.Application.Json)
+                        setBody(
+                            """
+                            { "skjaeringstidspunkt": null }
+                            """.trimIndent(),
+                        )
+                    }.body<Saksbehandlingsperiode>()
 
             assertEquals(null, nullstiltPeriode.skjæringstidspunkt)
         }

@@ -36,10 +36,11 @@ class VilkårRouteTest {
             assertEquals(201, response.status.value)
 
             val saksbehandlingsperiode: Saksbehandlingsperiode =
-                objectMapper.readValue(
-                    response.bodyAsText(),
-                    Saksbehandlingsperiode::class.java,
-                ).truncateTidspunkt()
+                objectMapper
+                    .readValue(
+                        response.bodyAsText(),
+                        Saksbehandlingsperiode::class.java,
+                    ).truncateTidspunkt()
 
             this.testBlock(it to saksbehandlingsperiode)
         }
@@ -75,144 +76,153 @@ class VilkårRouteTest {
     fun `oppretter, endrer, legger til, henter og sletter vurdert vilkår på saksbehandlingsperiode`() =
         vilkårAppTest { (daoer, saksbehandlingsperiode) ->
             saksbehandlingsperiode.id
-            client.put(
-                "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """
-                    {
+            client
+                .put(
+                    "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                            
+                                "vurdering": "OPPFYLT",
+                                "årsak": "derfor"
+                            
+                        }
+                        """.trimIndent(),
+                    )
+                }.apply {
+                    assertEquals(HttpStatusCode.Created, status)
+                    assertEquals(
+                        """{"vurdering":"OPPFYLT","årsak":"derfor","hovedspørsmål":"BOR_I_NORGE"}""",
+                        bodyAsText(),
+                    )
+                }
+
+            client
+                .get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    assertEquals(
+                        """[{"vurdering":"OPPFYLT","årsak":"derfor","hovedspørsmål":"BOR_I_NORGE"}]""",
+                        bodyAsText(),
+                    )
+                }
+
+            client
+                .put(
+                    "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                          
+                                "vurdering": "IKKE_OPPFYLT",
+                                "årsak": "BOR_IKKE_I_NORGE"
+                            
+                        }
+                        """.trimIndent(),
+                    )
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    assertEquals(
+                        """{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}""",
+                        bodyAsText(),
+                    )
+                }
+
+            client
+                .get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    assertEquals(
+                        """[{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}]""",
+                        bodyAsText(),
+                    )
+                }
+
+            client
+                .put(
+                    "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/ET_VILKÅR_TIL",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
                         
-                            "vurdering": "OPPFYLT",
-                            "årsak": "derfor"
-                        
-                    }
-                    """.trimIndent(),
-                )
-            }.apply {
-                assertEquals(HttpStatusCode.Created, status)
-                assertEquals(
-                    """{"vurdering":"OPPFYLT","årsak":"derfor","hovedspørsmål":"BOR_I_NORGE"}""",
-                    bodyAsText(),
-                )
-            }
+                                "vurdering": "IKKE_AKTUELT"
+                            
+                        }
+                        """.trimIndent(),
+                    )
+                }.apply {
+                    assertEquals(HttpStatusCode.Created, status)
+                    assertEquals(
+                        """{"vurdering":"IKKE_AKTUELT","hovedspørsmål":"ET_VILKÅR_TIL"}""",
+                        bodyAsText(),
+                    )
+                }
 
-            client.get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                assertEquals(
-                    """[{"vurdering":"OPPFYLT","årsak":"derfor","hovedspørsmål":"BOR_I_NORGE"}]""",
-                    bodyAsText(),
-                )
-            }
-
-            client.put(
-                "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """
-                    {
-                      
-                            "vurdering": "IKKE_OPPFYLT",
-                            "årsak": "BOR_IKKE_I_NORGE"
-                        
-                    }
-                    """.trimIndent(),
-                )
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                assertEquals(
-                    """{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}""",
-                    bodyAsText(),
-                )
-            }
-
-            client.get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                assertEquals(
-                    """[{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}]""",
-                    bodyAsText(),
-                )
-            }
-
-            client.put(
-                "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/ET_VILKÅR_TIL",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """
-                    {
-                    
-                            "vurdering": "IKKE_AKTUELT"
-                        
-                    }
-                    """.trimIndent(),
-                )
-            }.apply {
-                assertEquals(HttpStatusCode.Created, status)
-                assertEquals(
-                    """{"vurdering":"IKKE_AKTUELT","hovedspørsmål":"ET_VILKÅR_TIL"}""",
-                    bodyAsText(),
-                )
-            }
-
-            client.get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                assertEquals(
-                    setOf(
-                        mapOf(
-                            "vurdering" to "IKKE_OPPFYLT",
-                            "årsak" to "BOR_IKKE_I_NORGE",
-                            "hovedspørsmål" to "BOR_I_NORGE",
+            client
+                .get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    assertEquals(
+                        setOf(
+                            mapOf(
+                                "vurdering" to "IKKE_OPPFYLT",
+                                "årsak" to "BOR_IKKE_I_NORGE",
+                                "hovedspørsmål" to "BOR_I_NORGE",
+                            ),
+                            mapOf(
+                                "vurdering" to "IKKE_AKTUELT",
+                                "hovedspørsmål" to "ET_VILKÅR_TIL",
+                            ),
                         ),
-                        mapOf(
-                            "vurdering" to "IKKE_AKTUELT",
-                            "hovedspørsmål" to "ET_VILKÅR_TIL",
+                        bodyAsText().somListe<Map<String, String>>().toSet(),
+                    )
+                }
+
+            client
+                .delete(
+                    "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.NoContent, status, "skal gi 204 når koden fantes og er blitt slettet")
+                }
+
+            client
+                .delete(
+                    "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.NotFound, status, "skal gi 404 når koden ikke fantes")
+                }
+
+            client
+                .get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    assertEquals(
+                        setOf(
+                            mapOf(
+                                "hovedspørsmål" to "ET_VILKÅR_TIL",
+                                "vurdering" to "IKKE_AKTUELT",
+                            ),
                         ),
-                    ),
-                    bodyAsText().somListe<Map<String, String>>().toSet(),
-                )
-            }
-
-            client.delete(
-                "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.NoContent, status, "skal gi 204 når koden fantes og er blitt slettet")
-            }
-
-            client.delete(
-                "/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.NotFound, status, "skal gi 404 når koden ikke fantes")
-            }
-
-            client.get("/v1/$personId/saksbehandlingsperioder/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                assertEquals(
-                    setOf(
-                        mapOf(
-                            "hovedspørsmål" to "ET_VILKÅR_TIL",
-                            "vurdering" to "IKKE_AKTUELT",
-                        ),
-                    ),
-                    bodyAsText().somListe<Map<String, String>>().toSet(),
-                )
-            }
+                        bodyAsText().somListe<Map<String, String>>().toSet(),
+                    )
+                }
         }
 
     @Test
@@ -264,66 +274,73 @@ class VilkårRouteTest {
 
             daoer.personDao.opprettPerson("0101018888", annenPersonId)
 
-            client.put(
-                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(someBody)
-            }.apply {
-                assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
-            }
+            client
+                .put(
+                    "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(someBody)
+                }.apply {
+                    assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
+                }
 
-            client.put(
-                "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(someBody)
-            }.apply {
-                assertEquals(HttpStatusCode.Created, status)
-            }
+            client
+                .put(
+                    "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(someBody)
+                }.apply {
+                    assertEquals(HttpStatusCode.Created, status)
+                }
 
-            client.put(
-                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(someBody)
-            }.apply {
-                assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
-            }
+            client
+                .put(
+                    "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(someBody)
+                }.apply {
+                    assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
+                }
 
-            client.get("/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.BadRequest, status)
-            }
+            client
+                .get("/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.BadRequest, status)
+                }
 
-            client.delete(
-                "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
-            }
+            client
+                .delete(
+                    "/v1/$annenPersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
+                }
 
-            client.get("/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering") {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                assertEquals(
-                    """[{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}]""",
-                    bodyAsText(),
-                )
-            }
+            client
+                .get("/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    assertEquals(
+                        """[{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}]""",
+                        bodyAsText(),
+                    )
+                }
 
-            client.delete(
-                "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-            ) {
-                bearerAuth(TestOppsett.userToken)
-            }.apply {
-                assertEquals(HttpStatusCode.NoContent, status)
-            }
+            client
+                .delete(
+                    "/v1/$dennePersonId/saksbehandlingsperioder/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                ) {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(HttpStatusCode.NoContent, status)
+                }
         }
 }

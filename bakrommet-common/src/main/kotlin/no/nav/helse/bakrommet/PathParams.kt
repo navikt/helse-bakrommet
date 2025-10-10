@@ -10,12 +10,10 @@ const val PARAM_PERIODEUUID = "periodeUUID"
 const val PARAM_PERSONID = "personId"
 const val PARAM_INNTEKTSFORHOLDUUID = "inntektsforholdUUID"
 
-fun ApplicationCall.personId(): SpilleromPersonId {
-    return parameters[PARAM_PERSONID]?.let { SpilleromPersonId(it) }
+fun ApplicationCall.personId(): SpilleromPersonId =
+    parameters[PARAM_PERSONID]?.let { SpilleromPersonId(it) }
         ?: throw InputValideringException("Mangler personId i path")
-}
 
-fun ApplicationCall.periodeUUID(): UUID {
-    return parameters[PARAM_PERIODEUUID]?.somGyldigUUID()
+fun ApplicationCall.periodeUUID(): UUID =
+    parameters[PARAM_PERIODEUUID]?.somGyldigUUID()
         ?: throw InputValideringException("Mangler periodeUUID i path")
-}

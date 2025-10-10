@@ -6,7 +6,9 @@ import no.nav.helse.økonomi.Prosentdel
 /**
  * Value object for arbeidsdager med standard verdier
  */
-data class Arbeidsdager(val antall: Int) {
+data class Arbeidsdager(
+    val antall: Int,
+) {
     init {
         require(antall > 0) { "Arbeidsdager må være større enn 0" }
     }
@@ -19,7 +21,9 @@ data class Arbeidsdager(val antall: Int) {
 /**
  * Value object for sykdomsgrad med validering
  */
-data class Sykdomsgrad(val prosent: Int) {
+data class Sykdomsgrad(
+    val prosent: Int,
+) {
     init {
         require(prosent in 0..100) { "Sykdomsgrad må være mellom 0 og 100" }
     }
@@ -35,7 +39,9 @@ data class Sykdomsgrad(val prosent: Int) {
 /**
  * Value object for daglig inntekt med konvertering til økonomi-objekt
  */
-data class DagligInntekt(val beløpØre: Long) {
+data class DagligInntekt(
+    val beløpØre: Long,
+) {
     init {
         require(beløpØre >= 0) { "Inntekt kan ikke være negativ" }
     }
