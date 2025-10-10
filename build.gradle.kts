@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.2.20"
     id("java-test-fixtures")
-    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
+    id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
 }
 
 val githubPassword: String by project
