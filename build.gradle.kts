@@ -40,7 +40,7 @@ allprojects {
 
         dependencies {
             constraints {
-                implementation("org.apache.commons:commons-compress:1.27.1") {
+                implementation("org.apache.commons:commons-compress:1.28.0") {
                     because("org.testcontainers:postgresql:1.21.0 -> 1.24.0 har en sårbarhet")
                 }
             }
