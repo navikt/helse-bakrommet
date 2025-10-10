@@ -116,9 +116,9 @@ class YrkesaktivitetBuilder {
 
     fun arbeidstaker(orgnummer: String? = null) {
         inntektskategori = "ARBEIDSTAKER"
-        orgnummer?.let {
-            kategorisering["ORGNUMMER"] = it
-        }
+        kategorisering["ORGNUMMER"] = orgnummer ?: "123456789"
+        kategorisering["ER_SYKMELDT"] = "ER_SYKMELDT_JA"
+        kategorisering["TYPE_ARBEIDSTAKER"] = "ORDINÆRT_ARBEIDSFORHOLD"
     }
 
     fun `som arbeidstaker`(orgnummer: String? = null) {
@@ -144,6 +144,8 @@ class YrkesaktivitetBuilder {
 
     fun næringsdrivende(forsikringstype: String = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG") {
         inntektskategori = "SELVSTENDIG_NÆRINGSDRIVENDE"
+        kategorisering["ER_SYKMELDT"] = "ER_SYKMELDT_JA"
+        kategorisering["TYPE_SELVSTENDIG_NÆRINGSDRIVENDE"] = "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE"
         kategorisering["SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING"] = forsikringstype
     }
 

@@ -59,7 +59,7 @@ class YrkesaktivitetDaoTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
             )
-        val ekko = dao.opprettYrkesaktivitet(yrkesaktivitet)
+        val ekko = dao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
         assertEquals(yrkesaktivitet.tidsstuttet(), ekko.tidsstuttet())
 
         assertEquals(ekko, dao.hentYrkesaktivitet(ekko.id))
@@ -87,7 +87,7 @@ class YrkesaktivitetDaoTest {
             )
 
         assertThrows<SQLException> {
-            dao.opprettYrkesaktivitet(yrkesaktivitet)
+            dao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
         }
     }
 
@@ -109,7 +109,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = emptyList(),
                 perioder = null,
             )
-        val opprettetYrkesaktivitet = dao.opprettYrkesaktivitet(yrkesaktivitet)
+        val opprettetYrkesaktivitet = dao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
 
         // Oppdater perioder
         val perioder =

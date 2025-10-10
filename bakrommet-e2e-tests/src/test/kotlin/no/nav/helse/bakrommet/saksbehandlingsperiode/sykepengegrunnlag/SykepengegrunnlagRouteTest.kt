@@ -52,7 +52,13 @@ class SykepengegrunnlagRouteTest {
         val yrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering = mapOf("INNTEKTSKATEGORI" to "ARBEIDSTAKER", "orgnummer" to "123456789"),
+                kategorisering =
+                    mapOf(
+                        "INNTEKTSKATEGORI" to "ARBEIDSTAKER",
+                        "ORGNUMMER" to "123456789",
+                        "ER_SYKMELDT" to "ER_SYKMELDT_JA",
+                        "TYPE_ARBEIDSTAKER" to "ORDINÆRT_ARBEIDSFORHOLD",
+                    ),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
@@ -60,7 +66,7 @@ class SykepengegrunnlagRouteTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
             )
-        val lagretYrkesaktivitet = it.yrkesaktivitetDao.opprettYrkesaktivitet(yrkesaktivitet)
+        val lagretYrkesaktivitet = it.yrkesaktivitetDao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
 
         this.testBlock(Triple(it, saksbehandlingsperiode, lagretYrkesaktivitet))
     }

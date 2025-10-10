@@ -120,7 +120,7 @@ class SaksbehandlingsperiodeService(
                     saksbehandlingsperiode = nyPeriode,
                     tidligereYrkesaktiviteter = tidligereYrkesaktiviteter,
                 )
-            yrkesaktiviteter.forEach(yrkesaktivitetDao::opprettYrkesaktivitet)
+            yrkesaktiviteter.forEach(yrkesaktivitetDao::opprettYrkesaktivitetMedMap)
 
             tidligerePeriodeInntilNyPeriode?.let {
                 sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->

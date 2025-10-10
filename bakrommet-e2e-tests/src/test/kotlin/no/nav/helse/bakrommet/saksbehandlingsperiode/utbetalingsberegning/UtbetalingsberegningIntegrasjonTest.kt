@@ -129,8 +129,9 @@ class UtbetalingsberegningIntegrasjonTest {
             {
                 "kategorisering": {
                     "INNTEKTSKATEGORI": "ARBEIDSTAKER",
+                    "ORGNUMMER": "$ARBEIDSGIVER_ORGNR",
                     "ER_SYKMELDT": "ER_SYKMELDT_JA",
-                    "ORGNUMMER": "$ARBEIDSGIVER_ORGNR"
+                    "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"
                 }
             }
             """.trimIndent()

@@ -101,10 +101,14 @@ class YrkesaktivitetSykepengegrunnlagTest {
     @Test
     fun `sykepengegrunnlag slettes når inntektsforhold opprettes`() {
         // Given - opprett inntektsforhold først
-        val kategorisering =
+        val kategoriseringMap =
             HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                put("ORGNUMMER", "123456789")
+                put("ER_SYKMELDT", "ER_SYKMELDT_JA")
+                put("TYPE_ARBEIDSTAKER", "ORDINÆRT_ARBEIDSFORHOLD")
             }
+        val kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(kategoriseringMap)
         val inntektsforhold = inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), kategorisering, saksbehandler)
 
         // Opprett sykepengegrunnlag
@@ -129,10 +133,14 @@ class YrkesaktivitetSykepengegrunnlagTest {
         assertNotNull(grunnlagFør)
 
         // When - opprett nytt inntektsforhold
-        val nyKategorisering =
+        val nyKategoriseringMap =
             HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "FRILANSER")
+                put("ORGNUMMER", "987654321")
+                put("ER_SYKMELDT", "ER_SYKMELDT_JA")
+                put("FRILANSER_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG")
             }
+        val nyKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(nyKategoriseringMap)
         inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), nyKategorisering, saksbehandler)
 
         // Then - sykepengegrunnlag skal være slettet
@@ -143,10 +151,14 @@ class YrkesaktivitetSykepengegrunnlagTest {
     @Test
     fun `utbetalingsberegning slettes når inntektsforhold endres`() {
         // Given - opprett inntektsforhold først
-        val kategorisering =
+        val kategoriseringMap =
             HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                put("ORGNUMMER", "123456789")
+                put("ER_SYKMELDT", "ER_SYKMELDT_JA")
+                put("TYPE_ARBEIDSTAKER", "ORDINÆRT_ARBEIDSFORHOLD")
             }
+        val kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(kategoriseringMap)
         val inntektsforhold = inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), kategorisering, saksbehandler)
 
         // Opprett sykepengegrunnlag (som også oppretter utbetalingsberegning)
@@ -172,10 +184,14 @@ class YrkesaktivitetSykepengegrunnlagTest {
         assertNotNull(beregningFør)
 
         // When - opprett nytt inntektsforhold
-        val nyKategorisering =
+        val nyKategoriseringMap =
             HashMap<String, String>().apply {
                 put("INNTEKTSKATEGORI", "FRILANSER")
+                put("ORGNUMMER", "987654321")
+                put("ER_SYKMELDT", "ER_SYKMELDT_JA")
+                put("FRILANSER_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG")
             }
+        val nyKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(nyKategoriseringMap)
         inntektsforholdService.opprettYrkesaktivitet(periodeReferanse(), nyKategorisering, saksbehandler)
 
         // Then - utbetalingsberegning skal være slettet

@@ -10,7 +10,6 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
@@ -19,7 +18,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import java.time.OffsetDateTime
 import java.util.*
 
 data class YrkesaktivitetReferanse(
@@ -35,7 +33,6 @@ interface YrkesaktivitetServiceDaoer {
     val personDao: PersonDao
 }
 
-typealias YrkesaktivitetKategorisering = Map<String, String>
 typealias DagerSomSkalOppdateres = JsonNode
 
 class YrkesaktivitetService(
@@ -44,25 +41,7 @@ class YrkesaktivitetService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    private fun YrkesaktivitetKategorisering.tilDatabaseType(
-        behandlingsperiodeId: UUID,
-        dagoversikt: List<Dag>?,
-    ) = Yrkesaktivitet(
-        id = UUID.randomUUID(),
-        kategorisering = this,
-        kategoriseringGenerert = null,
-        dagoversikt = dagoversikt,
-        dagoversiktGenerert = null,
-        saksbehandlingsperiodeId = behandlingsperiodeId,
-        opprettet = OffsetDateTime.now(),
-        generertFraDokumenter = emptyList(),
-        perioder = null,
-    )
-
-    private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean {
-        val erSykmeldt = this["ER_SYKMELDT"]
-        return erSykmeldt == "ER_SYKMELDT_JA" || erSykmeldt == null
-    }
+    private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean = this.sykmeldt
 
     fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<Yrkesaktivitet> =
         db.nonTransactional {
@@ -87,7 +66,13 @@ class YrkesaktivitetService(
                 } else {
                     null
                 }
-            val inntektsforhold = yrkesaktivitetDao.opprettYrkesaktivitet(kategorisering.tilDatabaseType(periode.id, dagoversikt))
+            val inntektsforhold =
+                yrkesaktivitetDao.opprettYrkesaktivitet(
+                    id = UUID.randomUUID(),
+                    kategorisering = kategorisering,
+                    dagoversikt = dagoversikt,
+                    saksbehandlingsperiodeId = periode.id,
+                )
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
             sykepengegrunnlagDao.slettSykepengegrunnlag(ref.periodeUUID)
