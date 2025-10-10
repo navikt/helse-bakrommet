@@ -39,7 +39,40 @@ class YrkesaktivitetDao private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun opprettYrkesaktivitet(yrkesaktivitet: Yrkesaktivitet): Yrkesaktivitet {
+    /**
+     * Oppretter yrkesaktivitet med type-sikker kategorisering.
+     * Mapper sealed class til Map internt før lagring.
+     */
+    fun opprettYrkesaktivitet(
+        id: UUID,
+        kategorisering: YrkesaktivitetKategorisering,
+        dagoversikt: List<Dag>?,
+        saksbehandlingsperiodeId: UUID,
+        opprettet: OffsetDateTime = OffsetDateTime.now(),
+        generertFraDokumenter: List<UUID> = emptyList(),
+        perioder: Perioder? = null,
+    ): Yrkesaktivitet {
+        val kategoriseringMap = YrkesaktivitetKategoriseringMapper.toMap(kategorisering)
+        val yrkesaktivitet =
+            Yrkesaktivitet(
+                id = id,
+                kategorisering = kategoriseringMap,
+                kategoriseringGenerert = null,
+                dagoversikt = dagoversikt,
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+                opprettet = opprettet,
+                generertFraDokumenter = generertFraDokumenter,
+                perioder = perioder,
+            )
+        return opprettYrkesaktivitetMedMap(yrkesaktivitet)
+    }
+
+    /**
+     * Intern funksjon for å opprette med Map.
+     * Brukes av den type-sikre funksjonen og i tester.
+     */
+    fun opprettYrkesaktivitetMedMap(yrkesaktivitet: Yrkesaktivitet): Yrkesaktivitet {
         db.update(
             """
             insert into yrkesaktivitet
@@ -98,16 +131,21 @@ class YrkesaktivitetDao private constructor(
             perioder = row.stringOrNull("perioder")?.let { objectMapper.readValue(it, Perioder::class.java) },
         )
 
+    /**
+     * Oppdaterer kategorisering med type-sikker sealed class.
+     * Mapper til Map internt før lagring.
+     */
     fun oppdaterKategorisering(
         yrkesaktivitet: Yrkesaktivitet,
-        kategorisering: Map<String, String>,
+        kategorisering: YrkesaktivitetKategorisering,
     ): Yrkesaktivitet {
+        val kategoriseringMap = YrkesaktivitetKategoriseringMapper.toMap(kategorisering)
         db.update(
             """
             update yrkesaktivitet set kategorisering = :kategorisering where id = :id
             """.trimIndent(),
             "id" to yrkesaktivitet.id,
-            "kategorisering" to kategorisering.serialisertTilString(),
+            "kategorisering" to kategoriseringMap.serialisertTilString(),
         )
         return hentYrkesaktivitet(yrkesaktivitet.id)!!
     }

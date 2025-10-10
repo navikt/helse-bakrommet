@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -29,20 +30,20 @@ class YrkesaktivitetExtensionsTest {
             )
 
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<InputValideringException> {
                 yrkesaktivitet.hentDekningsgrad()
             }
 
-        assertEquals("Ukjent forsikringstype for selvstendig næringsdrivende: null", exception.message)
+        assertEquals("ER_SYKMELDT mangler for SELVSTENDIG_NÆRINGSDRIVENDE", exception.message)
     }
 
     @Test
     fun `skal returnere 100 prosent for selvstendig næringsdrivende med 100 prosent fra første sykedag`() {
         val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
-                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG")
-            }
+            selvstendigNæringsdrivendeKategorisering(
+                type = "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
+                forsikring = "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG",
+            )
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -65,10 +66,10 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 100 prosent for selvstendig næringsdrivende med 100 prosent fra 17 sykedag`() {
         val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
-                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_17_SYKEDAG")
-            }
+            selvstendigNæringsdrivendeKategorisering(
+                type = "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
+                forsikring = "FORSIKRING_100_PROSENT_FRA_17_SYKEDAG",
+            )
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -91,10 +92,10 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 80 prosent for selvstendig næringsdrivende med 80 prosent fra første sykedag`() {
         val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
-                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
-            }
+            selvstendigNæringsdrivendeKategorisering(
+                type = "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
+                forsikring = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG",
+            )
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -117,10 +118,10 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 80 prosent for selvstendig næringsdrivende med ingen forsikring`() {
         val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
-                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "INGEN_FORSIKRING")
-            }
+            selvstendigNæringsdrivendeKategorisering(
+                type = "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
+                forsikring = "INGEN_FORSIKRING",
+            )
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -143,10 +144,9 @@ class YrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 100 prosent for fisker på blad b`() {
         val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
-                put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "FISKER")
-            }
+            selvstendigNæringsdrivendeKategorisering(
+                type = "FISKER",
+            )
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -186,20 +186,16 @@ class YrkesaktivitetExtensionsTest {
             )
 
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<InputValideringException> {
                 yrkesaktivitet.hentDekningsgrad()
             }
 
-        assertEquals("Ukjent variant for inaktiv: null", exception.message)
+        assertEquals("VARIANT_AV_INAKTIV mangler for INAKTIV", exception.message)
     }
 
     @Test
     fun `skal returnere 65 prosent for inaktiv variant A`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "INAKTIV")
-                put("VARIANT_AV_INAKTIV", "INAKTIV_VARIANT_A")
-            }
+        val kategorisering = inaktivKategorisering(variant = "INAKTIV_VARIANT_A")
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -221,11 +217,7 @@ class YrkesaktivitetExtensionsTest {
 
     @Test
     fun `skal returnere 100 prosent for inaktiv variant B`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "INAKTIV")
-                put("VARIANT_AV_INAKTIV", "INAKTIV_VARIANT_B")
-            }
+        val kategorisering = inaktivKategorisering(variant = "INAKTIV_VARIANT_B")
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -247,10 +239,7 @@ class YrkesaktivitetExtensionsTest {
 
     @Test
     fun `skal returnere Prosentdel for arbeidstaker`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
-            }
+        val kategorisering = arbeidstakerKategorisering()
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -272,10 +261,7 @@ class YrkesaktivitetExtensionsTest {
 
     @Test
     fun `skal returnere Prosentdel for frilanser`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "FRILANSER")
-            }
+        val kategorisering = frilanserKategorisering()
 
         val yrkesaktivitet =
             Yrkesaktivitet(
@@ -341,11 +327,11 @@ class YrkesaktivitetExtensionsTest {
             )
 
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<InputValideringException> {
                 yrkesaktivitet.hentDekningsgrad()
             }
 
-        assertEquals("Ukjent forsikringstype for selvstendig næringsdrivende: UKJENT_FORSIKRING", exception.message)
+        assertEquals("ER_SYKMELDT mangler for SELVSTENDIG_NÆRINGSDRIVENDE", exception.message)
     }
 
     @Test
@@ -369,11 +355,11 @@ class YrkesaktivitetExtensionsTest {
             )
 
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<InputValideringException> {
                 yrkesaktivitet.hentDekningsgrad()
             }
 
-        assertEquals("Ukjent variant for inaktiv: UKJENT_VARIANT", exception.message)
+        assertEquals("Ugyldig VARIANT_AV_INAKTIV: UKJENT_VARIANT", exception.message)
     }
 
     @Test
@@ -396,11 +382,11 @@ class YrkesaktivitetExtensionsTest {
             )
 
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<InputValideringException> {
                 yrkesaktivitet.hentDekningsgrad()
             }
 
-        assertEquals("Ukjent inntektskategori: UKJENT_KATEGORI", exception.message)
+        assertEquals("Ugyldig INNTEKTSKATEGORI: UKJENT_KATEGORI", exception.message)
     }
 
     @Test
@@ -420,24 +406,21 @@ class YrkesaktivitetExtensionsTest {
             )
 
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<InputValideringException> {
                 yrkesaktivitet.hentDekningsgrad()
             }
 
-        assertEquals("Ukjent inntektskategori: null", exception.message)
+        assertEquals("INNTEKTSKATEGORI mangler", exception.message)
     }
 
     @Test
     fun `skal returnere forskjellige Prosentdel-objekter for ulike kategorier`() {
         val selvstendigKategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
-                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG")
-            }
-        val arbeidstakerKategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
-            }
+            selvstendigNæringsdrivendeKategorisering(
+                type = "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
+                forsikring = "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG",
+            )
+        val arbeidstakerKategorisering = arbeidstakerKategorisering()
 
         val selvstendigYrkesaktivitet =
             Yrkesaktivitet(

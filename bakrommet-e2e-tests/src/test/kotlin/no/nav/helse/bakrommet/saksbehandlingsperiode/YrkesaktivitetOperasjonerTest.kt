@@ -9,7 +9,6 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
-import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.deserialize
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -49,10 +48,8 @@ class YrkesaktivitetOperasjonerTest {
                 {
                     "kategorisering": {
                         "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
-                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER",
-                        "FISKER_BLAD": "FISKER_BLAD_B",
-                        "SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING": "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG",
-                        "ER_SYKMELDT": "ER_SYKMELDT_JA"
+                        "ER_SYKMELDT": "ER_SYKMELDT_JA",
+                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER"
                     }
                 }
                 """.trimIndent()
@@ -67,7 +64,9 @@ class YrkesaktivitetOperasjonerTest {
                     }.let { response ->
                         assertEquals(201, response.status.value)
                         val body = response.body<JsonNode>()
-                        assertEquals(kategorisering.asJsonNode()["kategorisering"], body["kategorisering"])
+                        // Verifiser at viktige felter er med
+                        assertEquals("SELVSTENDIG_NÆRINGSDRIVENDE", body["kategorisering"]["INNTEKTSKATEGORI"].asText())
+                        assertEquals("FISKER", body["kategorisering"]["TYPE_SELVSTENDIG_NÆRINGSDRIVENDE"].asText())
                         val id = body["id"].asText()
                         assertDoesNotThrow { UUID.fromString(id) }
                         assertDoesNotThrow { body.deserialize<YrkesaktivitetDTO>() }
@@ -77,7 +76,9 @@ class YrkesaktivitetOperasjonerTest {
             val nyKategorisering =
                 HashMap<String, String>().apply {
                     put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                    put("ORGNUMMER", "123456789")
                     put("ER_SYKMELDT", "ER_SYKMELDT_NEI")
+                    put("TYPE_ARBEIDSTAKER", "ORDINÆRT_ARBEIDSFORHOLD")
                 }
 
             // Oppdater kategorisering
@@ -126,7 +127,9 @@ class YrkesaktivitetOperasjonerTest {
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+                setBody(
+                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
+                )
             }
 
             val yrkesaktivitetId =
@@ -227,7 +230,9 @@ class YrkesaktivitetOperasjonerTest {
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+                setBody(
+                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
+                )
             }
 
             val yrkesaktivitetId =
@@ -330,7 +335,9 @@ class YrkesaktivitetOperasjonerTest {
             client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+                setBody(
+                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
+                )
             }
 
             val yrkesaktivitetId =

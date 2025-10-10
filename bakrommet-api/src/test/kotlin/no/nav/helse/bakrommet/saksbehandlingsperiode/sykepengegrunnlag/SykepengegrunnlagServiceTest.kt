@@ -12,6 +12,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeRefer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.arbeidstakerKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.frilanserKategorisering
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -42,7 +44,7 @@ class SykepengegrunnlagServiceTest {
     val yrkesaktivitet =
         Yrkesaktivitet(
             id = UUID.randomUUID(),
-            kategorisering = mapOf("INNTEKTSKATEGORI" to "ARBEIDSTAKER"),
+            kategorisering = arbeidstakerKategorisering(),
             kategoriseringGenerert = null,
             dagoversikt = emptyList(),
             dagoversiktGenerert = null,
@@ -61,7 +63,7 @@ class SykepengegrunnlagServiceTest {
         val behandlingDao = SaksbehandlingsperiodeDao(dataSource)
         behandlingDao.opprettPeriode(periode)
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
-        yrkesaktivitetDao.opprettYrkesaktivitet(yrkesaktivitet)
+        yrkesaktivitetDao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
 
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
         val beregningDao = UtbetalingsberegningDao(dataSource)
@@ -161,7 +163,7 @@ class SykepengegrunnlagServiceTest {
         val yrkesaktivitet2 =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering = mapOf("INNTEKTSKATEGORI" to "FRILANSER"),
+                kategorisering = frilanserKategorisering(),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
@@ -170,7 +172,7 @@ class SykepengegrunnlagServiceTest {
                 generertFraDokumenter = emptyList(),
             )
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
-        yrkesaktivitetDao.opprettYrkesaktivitet(yrkesaktivitet2)
+        yrkesaktivitetDao.opprettYrkesaktivitetMedMap(yrkesaktivitet2)
 
         val request =
             SykepengegrunnlagRequest(
@@ -471,7 +473,7 @@ class SykepengegrunnlagServiceTest {
         val ekstraYrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering = mapOf("INNTEKTSKATEGORI" to "FRILANSER"),
+                kategorisering = frilanserKategorisering(),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
@@ -480,7 +482,7 @@ class SykepengegrunnlagServiceTest {
                 generertFraDokumenter = emptyList(),
             )
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
-        yrkesaktivitetDao.opprettYrkesaktivitet(ekstraYrkesaktivitet)
+        yrkesaktivitetDao.opprettYrkesaktivitetMedMap(ekstraYrkesaktivitet)
 
         val request =
             SykepengegrunnlagRequest(

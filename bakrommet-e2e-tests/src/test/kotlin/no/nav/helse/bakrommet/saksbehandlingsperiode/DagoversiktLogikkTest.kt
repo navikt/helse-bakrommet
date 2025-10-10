@@ -46,6 +46,7 @@ class DagoversiktLogikkTest {
                 {
                     "kategorisering": {
                         "INNTEKTSKATEGORI": "ARBEIDSTAKER",
+                        "ORGNUMMER": "123456789",
                         "ER_SYKMELDT": "ER_SYKMELDT_JA",
                         "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"
                     }
@@ -64,15 +65,15 @@ class DagoversiktLogikkTest {
                         UUID.fromString(body["id"].asText())
                     }
 
-            // Test 2: ER_SYKMELDT mangler - skal opprette dagoversikt
+            // Test 2: ER_SYKMELDT er "ER_SYKMELDT_JA" for SELVSTENDIG_NÆRINGSDRIVENDE - skal opprette dagoversikt
             @Language("json")
             val kategoriseringUtenSykmeldt =
                 """
                 {
                     "kategorisering": {
                         "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
-                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER",
-                        "SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING": "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG"
+                        "ER_SYKMELDT": "ER_SYKMELDT_JA",
+                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER"
                     }
                 }
                 """.trimIndent()
@@ -96,6 +97,7 @@ class DagoversiktLogikkTest {
                 {
                     "kategorisering": {
                         "INNTEKTSKATEGORI": "ARBEIDSTAKER",
+                        "ORGNUMMER": "987654321",
                         "ER_SYKMELDT": "ER_SYKMELDT_NEI",
                         "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"
                     }
@@ -157,7 +159,9 @@ class DagoversiktLogikkTest {
                     .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                         contentType(ContentType.Application.Json)
-                        setBody("""{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ER_SYKMELDT": "ER_SYKMELDT_JA"}}""")
+                        setBody(
+                            """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
+                        )
                     }.let { response ->
                         UUID.fromString(response.body<JsonNode>()["id"].asText())
                     }

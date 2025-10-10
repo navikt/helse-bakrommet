@@ -123,6 +123,9 @@ class DemoUtbetalingsberegningRouteTest {
                 kategorisering =
                     HashMap<String, String>().apply {
                         put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
+                        put("ORGNUMMER", "123456789")
+                        put("ER_SYKMELDT", "ER_SYKMELDT_JA")
+                        put("TYPE_ARBEIDSTAKER", "ORDINÆRT_ARBEIDSFORHOLD")
                     },
                 kategoriseringGenerert = null,
                 dagoversikt = dagoversikt,

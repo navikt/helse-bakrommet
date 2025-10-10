@@ -51,10 +51,14 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: Yrkesaktiv
 
         post {
             val inntektsforholdRequest = call.receive<YrkesaktivitetCreateRequest>()
+
+            // Valider og konverter til sealed class
+            val validertKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(inntektsforholdRequest.kategorisering)
+
             val inntektsforhold =
                 service.opprettYrkesaktivitet(
                     call.periodeReferanse(),
-                    inntektsforholdRequest.kategorisering,
+                    validertKategorisering,
                     call.saksbehandler(),
                 )
             call.respondText(
@@ -75,8 +79,12 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: Yrkesaktiv
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/kategorisering") {
-                val kategorisering = call.receive<YrkesaktivitetKategorisering>()
-                service.oppdaterKategorisering(call.inntektsforholdReferanse(), kategorisering, call.saksbehandler())
+                val kategoriseringMap = call.receive<Map<String, String>>()
+
+                // Valider og konverter til sealed class
+                val validertKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(kategoriseringMap)
+
+                service.oppdaterKategorisering(call.inntektsforholdReferanse(), validertKategorisering, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/perioder") {
