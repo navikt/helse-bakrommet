@@ -12,6 +12,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeRefer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.arbeidstakerKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.frilanserKategorisering
 import org.junit.jupiter.api.BeforeEach
@@ -63,7 +64,15 @@ class SykepengegrunnlagServiceTest {
         val behandlingDao = SaksbehandlingsperiodeDao(dataSource)
         behandlingDao.opprettPeriode(periode)
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
-        yrkesaktivitetDao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
+        yrkesaktivitetDao.opprettYrkesaktivitet(
+            id = yrkesaktivitet.id,
+            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
+            dagoversikt = yrkesaktivitet.dagoversikt,
+            saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
+            opprettet = yrkesaktivitet.opprettet,
+            generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
+            perioder = yrkesaktivitet.perioder,
+        )
 
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
         val beregningDao = UtbetalingsberegningDao(dataSource)
@@ -172,7 +181,15 @@ class SykepengegrunnlagServiceTest {
                 generertFraDokumenter = emptyList(),
             )
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
-        yrkesaktivitetDao.opprettYrkesaktivitetMedMap(yrkesaktivitet2)
+        yrkesaktivitetDao.opprettYrkesaktivitet(
+            id = yrkesaktivitet2.id,
+            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet2.kategorisering),
+            dagoversikt = yrkesaktivitet2.dagoversikt,
+            saksbehandlingsperiodeId = yrkesaktivitet2.saksbehandlingsperiodeId,
+            opprettet = yrkesaktivitet2.opprettet,
+            generertFraDokumenter = yrkesaktivitet2.generertFraDokumenter,
+            perioder = yrkesaktivitet2.perioder,
+        )
 
         val request =
             SykepengegrunnlagRequest(
@@ -482,7 +499,15 @@ class SykepengegrunnlagServiceTest {
                 generertFraDokumenter = emptyList(),
             )
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
-        yrkesaktivitetDao.opprettYrkesaktivitetMedMap(ekstraYrkesaktivitet)
+        yrkesaktivitetDao.opprettYrkesaktivitet(
+            id = ekstraYrkesaktivitet.id,
+            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(ekstraYrkesaktivitet.kategorisering),
+            dagoversikt = ekstraYrkesaktivitet.dagoversikt,
+            saksbehandlingsperiodeId = ekstraYrkesaktivitet.saksbehandlingsperiodeId,
+            opprettet = ekstraYrkesaktivitet.opprettet,
+            generertFraDokumenter = ekstraYrkesaktivitet.generertFraDokumenter,
+            perioder = ekstraYrkesaktivitet.perioder,
+        )
 
         val request =
             SykepengegrunnlagRequest(

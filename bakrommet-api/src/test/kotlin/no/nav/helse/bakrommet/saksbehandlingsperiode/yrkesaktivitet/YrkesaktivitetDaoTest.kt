@@ -5,6 +5,8 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.arbeidstakerKategorisering
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.BeforeEach
@@ -48,10 +50,7 @@ class YrkesaktivitetDaoTest {
         val yrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering =
-                    HashMap<String, String>().apply {
-                        put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
-                    },
+                kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
@@ -59,7 +58,16 @@ class YrkesaktivitetDaoTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
             )
-        val ekko = dao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
+        val ekko =
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitet.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
+                dagoversikt = yrkesaktivitet.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitet.opprettet,
+                generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
+                perioder = yrkesaktivitet.perioder,
+            )
         assertEquals(yrkesaktivitet.tidsstuttet(), ekko.tidsstuttet())
 
         assertEquals(ekko, dao.hentYrkesaktivitet(ekko.id))
@@ -74,10 +82,7 @@ class YrkesaktivitetDaoTest {
         val yrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering =
-                    HashMap<String, String>().apply {
-                        put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
-                    },
+                kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
@@ -87,7 +92,15 @@ class YrkesaktivitetDaoTest {
             )
 
         assertThrows<SQLException> {
-            dao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitet.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
+                dagoversikt = yrkesaktivitet.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitet.opprettet,
+                generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
+                perioder = yrkesaktivitet.perioder,
+            )
         }
     }
 
@@ -97,10 +110,7 @@ class YrkesaktivitetDaoTest {
         val yrkesaktivitet =
             Yrkesaktivitet(
                 id = UUID.randomUUID(),
-                kategorisering =
-                    HashMap<String, String>().apply {
-                        put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
-                    },
+                kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
                 dagoversikt = emptyList(),
                 dagoversiktGenerert = null,
@@ -109,7 +119,16 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = emptyList(),
                 perioder = null,
             )
-        val opprettetYrkesaktivitet = dao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
+        val opprettetYrkesaktivitet =
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitet.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
+                dagoversikt = yrkesaktivitet.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitet.opprettet,
+                generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
+                perioder = yrkesaktivitet.perioder,
+            )
 
         // Oppdater perioder
         val perioder =
