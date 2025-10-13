@@ -175,6 +175,8 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 HashMap<String, String>().apply {
                     put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
                     put("ORGNUMMER", "123321123")
+                    put("ER_SYKMELDT", "ER_SYKMELDT_JA")
+                    put("TYPE_ARBEIDSTAKER", "ORDINÆRT_ARBEIDSFORHOLD")
                 }
 
             assertEquals(forventetKategorisering, arbgiver1Yrkesaktivitet.kategorisering)

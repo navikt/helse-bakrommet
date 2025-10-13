@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -66,7 +67,16 @@ class SykepengegrunnlagRouteTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
             )
-        val lagretYrkesaktivitet = it.yrkesaktivitetDao.opprettYrkesaktivitetMedMap(yrkesaktivitet)
+        val lagretYrkesaktivitet =
+            it.yrkesaktivitetDao.opprettYrkesaktivitet(
+                id = yrkesaktivitet.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
+                dagoversikt = yrkesaktivitet.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitet.opprettet,
+                generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
+                perioder = yrkesaktivitet.perioder,
+            )
 
         this.testBlock(Triple(it, saksbehandlingsperiode, lagretYrkesaktivitet))
     }

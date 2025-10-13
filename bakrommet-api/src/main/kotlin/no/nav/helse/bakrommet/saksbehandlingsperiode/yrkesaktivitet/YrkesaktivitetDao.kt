@@ -65,14 +65,6 @@ class YrkesaktivitetDao private constructor(
                 generertFraDokumenter = generertFraDokumenter,
                 perioder = perioder,
             )
-        return opprettYrkesaktivitetMedMap(yrkesaktivitet)
-    }
-
-    /**
-     * Intern funksjon for å opprette med Map.
-     * Brukes av den type-sikre funksjonen og i tester.
-     */
-    fun opprettYrkesaktivitetMedMap(yrkesaktivitet: Yrkesaktivitet): Yrkesaktivitet {
         db.update(
             """
             insert into yrkesaktivitet
@@ -96,6 +88,11 @@ class YrkesaktivitetDao private constructor(
         )
         return hentYrkesaktivitet(yrkesaktivitet.id)!!
     }
+
+    /**
+     * Intern funksjon for å opprette med Map.
+     * Brukes av den type-sikre funksjonen og i tester.
+     */
 
     fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
         db.single(

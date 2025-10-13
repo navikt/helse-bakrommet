@@ -13,7 +13,14 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversikt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.FrilanserForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeSelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.VariantAvInaktiv
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -120,7 +127,19 @@ class SaksbehandlingsperiodeService(
                     saksbehandlingsperiode = nyPeriode,
                     tidligereYrkesaktiviteter = tidligereYrkesaktiviteter,
                 )
-            yrkesaktiviteter.forEach(yrkesaktivitetDao::opprettYrkesaktivitetMedMap)
+            yrkesaktiviteter.forEach { yrkesaktivitet ->
+                // Konverter til sealed class og bruk den nye DAO-funksjonen
+                val kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering)
+                yrkesaktivitetDao.opprettYrkesaktivitet(
+                    id = yrkesaktivitet.id,
+                    kategorisering = kategorisering,
+                    dagoversikt = yrkesaktivitet.dagoversikt,
+                    saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
+                    opprettet = yrkesaktivitet.opprettet,
+                    generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
+                    perioder = yrkesaktivitet.perioder,
+                )
+            }
 
             tidligerePeriodeInntilNyPeriode?.let {
                 sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
@@ -302,32 +321,74 @@ private fun Saksbehandlingsperiode.verifiserNyStatusGyldighet(nyStatus: Saksbeha
     }
 }
 
-fun SykepengesoknadDTO.kategorisering(): Map<String, String> =
-    HashMap<String, String>().apply {
-        val soknad = this@kategorisering
-        val inntektskategori = soknad.bestemInntektskategori()
-        put("INNTEKTSKATEGORI", inntektskategori)
-        val orgnummer = soknad.arbeidsgiver?.orgnummer
-        if (orgnummer != null) {
-            put("ORGNUMMER", orgnummer)
+fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
+    val soknad = this@kategorisering
+    val orgnummer = soknad.arbeidsgiver?.orgnummer ?: "000000000" // Default orgnummer
+
+    return when (soknad.arbeidssituasjon) {
+        ArbeidssituasjonDTO.ARBEIDSTAKER -> {
+            YrkesaktivitetKategorisering.Arbeidstaker(
+                orgnummer = orgnummer,
+                sykmeldt = true, // Anta at søknad betyr sykmeldt
+                typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+            )
         }
-
-        // Legg til påkrevde felter for selvstendig næringsdrivende
-        if (inntektskategori == "SELVSTENDIG_NÆRINGSDRIVENDE") {
-            put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "INGEN_FORSIKRING")
-            when (soknad.arbeidssituasjon) {
-                ArbeidssituasjonDTO.FISKER -> put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "FISKER")
-                ArbeidssituasjonDTO.JORDBRUKER -> put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "JORDBRUKER")
-                ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE ->
-                    put(
-                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE",
-                        "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
-                    )
-
-                else -> put("TYPE_SELVSTENDIG_NÆRINGSDRIVENDE", "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE")
-            }
+        ArbeidssituasjonDTO.FRILANSER -> {
+            YrkesaktivitetKategorisering.Frilanser(
+                orgnummer = orgnummer,
+                sykmeldt = true,
+                forsikring = FrilanserForsikring.INGEN_FORSIKRING,
+            )
+        }
+        ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> {
+            YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+                sykmeldt = true,
+                type =
+                    TypeSelvstendigNæringsdrivende.Ordinær(
+                        forsikring = SelvstendigForsikring.INGEN_FORSIKRING,
+                    ),
+            )
+        }
+        ArbeidssituasjonDTO.FISKER -> {
+            YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+                sykmeldt = true,
+                type = TypeSelvstendigNæringsdrivende.Fisker(),
+            )
+        }
+        ArbeidssituasjonDTO.JORDBRUKER -> {
+            YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+                sykmeldt = true,
+                type =
+                    TypeSelvstendigNæringsdrivende.Jordbruker(
+                        forsikring = SelvstendigForsikring.INGEN_FORSIKRING,
+                    ),
+            )
+        }
+        ArbeidssituasjonDTO.BARNEPASSER -> {
+            YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+                sykmeldt = true,
+                type =
+                    TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem(
+                        forsikring = SelvstendigForsikring.INGEN_FORSIKRING,
+                    ),
+            )
+        }
+        ArbeidssituasjonDTO.ARBEIDSLEDIG -> {
+            YrkesaktivitetKategorisering.Arbeidsledig()
+        }
+        ArbeidssituasjonDTO.ANNET -> {
+            YrkesaktivitetKategorisering.Inaktiv(
+                variant = VariantAvInaktiv.INAKTIV_VARIANT_A,
+            )
+        }
+        null -> {
+            logg.warn("'null'-verdi for arbeidssituasjon for søknad med id={}", id)
+            YrkesaktivitetKategorisering.Inaktiv(
+                variant = VariantAvInaktiv.INAKTIV_VARIANT_A,
+            )
         }
     }
+}
 
 fun lagYrkesaktivitetFraSøknader(
     sykepengesoknader: Iterable<Dokument>,
@@ -345,8 +406,8 @@ fun lagYrkesaktivitetFraSøknader(
             )
         Yrkesaktivitet(
             id = UUID.randomUUID(),
-            kategorisering = kategorisering,
-            kategoriseringGenerert = kategorisering,
+            kategorisering = YrkesaktivitetKategoriseringMapper.toMap(kategorisering),
+            kategoriseringGenerert = YrkesaktivitetKategoriseringMapper.toMap(kategorisering),
             dagoversikt = dagoversikt,
             dagoversiktGenerert = dagoversikt,
             saksbehandlingsperiodeId = saksbehandlingsperiode.id,
@@ -363,13 +424,20 @@ fun lagYrkesaktiviteter(
 ): Pair<List<Yrkesaktivitet>, Map<UUID, UUID>> {
     val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
     val søknaderPerKategori = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
-    val kategorier = tidligereMap.keys + søknaderPerKategori.keys
+
+    // Konverter søknad-kategorier til Map for sammenligning
+    val søknadKategorierMap =
+        søknaderPerKategori.mapKeys { (kategori, _) ->
+            YrkesaktivitetKategoriseringMapper.toMap(kategori)
+        }
+
+    val kategorier = tidligereMap.keys + søknadKategorierMap.keys
 
     val gammelTilNyIdMap = mutableMapOf<UUID, UUID>()
 
     val result =
-        kategorier.mapNotNull { kategori ->
-            søknaderPerKategori[kategori]?.let { søknader ->
+        kategorier.mapNotNull { kategoriMap ->
+            søknadKategorierMap[kategoriMap]?.let { søknader ->
                 val dagoversikt =
                     skapDagoversiktFraSoknader(
                         søknader.map { it.somSøknad() },
@@ -378,15 +446,15 @@ fun lagYrkesaktiviteter(
                     )
                 Yrkesaktivitet(
                     id = UUID.randomUUID(),
-                    kategorisering = kategori,
-                    kategoriseringGenerert = kategori,
+                    kategorisering = kategoriMap,
+                    kategoriseringGenerert = kategoriMap,
                     dagoversikt = dagoversikt,
                     dagoversiktGenerert = dagoversikt,
                     saksbehandlingsperiodeId = saksbehandlingsperiode.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
                 )
-            } ?: tidligereMap[kategori]?.let { tidligere ->
+            } ?: tidligereMap[kategoriMap]?.let { tidligere ->
                 val nyId = UUID.randomUUID()
                 gammelTilNyIdMap[tidligere.id] = nyId
                 tidligere.copy(
@@ -401,29 +469,4 @@ fun lagYrkesaktiviteter(
         }
 
     return result to gammelTilNyIdMap
-}
-
-private fun SykepengesoknadDTO.bestemInntektskategori() =
-    when (arbeidssituasjon) {
-        ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
-        ArbeidssituasjonDTO.FISKER -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
-        ArbeidssituasjonDTO.JORDBRUKER -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
-        ArbeidssituasjonDTO.BARNEPASSER -> YrkesaktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE
-        ArbeidssituasjonDTO.FRILANSER -> YrkesaktivitetType.FRILANSER
-        ArbeidssituasjonDTO.ARBEIDSTAKER -> YrkesaktivitetType.ARBEIDSTAKER
-        ArbeidssituasjonDTO.ARBEIDSLEDIG -> YrkesaktivitetType.INAKTIV
-        ArbeidssituasjonDTO.ANNET -> YrkesaktivitetType.ANNET
-        null -> {
-            logg.warn("'null'-verdi for arbeidssituasjon for søknad med id={}", id)
-            "IKKE SATT"
-        }
-    }.toString()
-
-// kopiert fra frontend:
-private enum class YrkesaktivitetType {
-    ARBEIDSTAKER,
-    FRILANSER,
-    SELVSTENDIG_NÆRINGSDRIVENDE,
-    INAKTIV,
-    ANNET,
 }
