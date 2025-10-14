@@ -11,47 +11,59 @@ import java.time.LocalDate
     JsonSubTypes.Type(value = ArbeidstakerInntektRequest.Inntektsmelding::class, name = "INNTEKTSMELDING"),
     JsonSubTypes.Type(value = ArbeidstakerInntektRequest.Ainntekt::class, name = "AINNTEKT"),
     JsonSubTypes.Type(value = ArbeidstakerInntektRequest.Skjønnsfastsatt::class, name = "SKJONNSFASTSETTELSE"),
-    JsonSubTypes.Type(value = ArbeidstakerInntektRequest.ManueltBeregnet::class, name = "MANUELLT_BEREGNET"),
+    JsonSubTypes.Type(value = ArbeidstakerInntektRequest.ManueltBeregnet::class, name = "MANUELT_BEREGNET"),
 )
 sealed class ArbeidstakerInntektRequest {
+    abstract val begrunnelse: String?
+
     data class Inntektsmelding(
         val inntektsmeldingId: String,
+        override val begrunnelse: String,
     ) : ArbeidstakerInntektRequest()
 
-    class Ainntekt : ArbeidstakerInntektRequest()
+    class Ainntekt(
+        override val begrunnelse: String,
+    ) : ArbeidstakerInntektRequest()
 
     data class Skjønnsfastsatt(
         val månedsbeløp: InntektbeløpDto.MånedligDouble,
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsak,
-        val begrunnelse: String,
+        override val begrunnelse: String,
         val refusjon: RefusjonInfo? = null,
     ) : ArbeidstakerInntektRequest()
 
     data class ManueltBeregnet(
         val månedsbeløp: InntektbeløpDto.MånedligDouble,
-        val begrunnelse: String,
+        override val begrunnelse: String,
     ) : ArbeidstakerInntektRequest()
 }
 
 enum class ArbeidstakerSkjønnsfastsettelseÅrsak {
     AVVIK_25_PROSENT,
-    MANGFULL_RAPPORTERING,
+    MANGELFULL_RAPPORTERING,
     TIDSAVGRENSET,
 }
 
 // SELVSTENDIG_NÆRINGSDRIVENDE / INAKTIV
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(value = PensjonsgivendeInntektRequest.PensjonsgivendeInntekt::class, name = "PENSJONSGIVENDE_INNTEKT"),
+    JsonSubTypes.Type(
+        value = PensjonsgivendeInntektRequest.PensjonsgivendeInntekt::class,
+        name = "PENSJONSGIVENDE_INNTEKT",
+    ),
     JsonSubTypes.Type(value = PensjonsgivendeInntektRequest.Skjønnsfastsatt::class, name = "SKJONNSFASTSETTELSE"),
 )
 sealed class PensjonsgivendeInntektRequest {
-    class PensjonsgivendeInntekt : PensjonsgivendeInntektRequest()
+    abstract val begrunnelse: String?
+
+    class PensjonsgivendeInntekt(
+        override val begrunnelse: String,
+    ) : PensjonsgivendeInntektRequest()
 
     data class Skjønnsfastsatt(
         val årsinntekt: InntektbeløpDto.Årlig,
         val årsak: PensjonsgivendeSkjønnsfastsettelseÅrsak,
-        val begrunnelse: String,
+        override val begrunnelse: String,
     ) : PensjonsgivendeInntektRequest()
 }
 
@@ -67,22 +79,27 @@ enum class PensjonsgivendeSkjønnsfastsettelseÅrsak {
     JsonSubTypes.Type(value = FrilanserInntektRequest.Skjønnsfastsatt::class, name = "SKJONNSFASTSETTELSE"),
 )
 sealed class FrilanserInntektRequest {
-    class Ainntekt : FrilanserInntektRequest()
+    abstract val begrunnelse: String?
+
+    class Ainntekt(
+        override val begrunnelse: String,
+    ) : FrilanserInntektRequest()
 
     data class Skjønnsfastsatt(
         val månedsbeløp: InntektbeløpDto.MånedligDouble,
         val årsak: FrilanserSkjønnsfastsettelseÅrsak,
-        val begrunnelse: String,
+        override val begrunnelse: String,
     ) : FrilanserInntektRequest()
 }
 
 enum class FrilanserSkjønnsfastsettelseÅrsak {
     AVVIK_25_PROSENT,
-    MANGFULL_RAPPORTERING,
+    MANGELFULL_RAPPORTERING,
 }
 
 // ARBEIDSLEDIG
 data class ArbeidsledigInntektRequest(
+    val begrunnelse: String?,
     val type: ArbeidsledigInntektType,
     val månedligBeløp: InntektbeløpDto.MånedligDouble,
 )
