@@ -93,6 +93,13 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: Yrkesaktiv
                 service.oppdaterPerioder(call.inntektsforholdReferanse(), perioder, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
+            put("/inntekt") {
+                val inntektRequestJson = call.receiveText()
+                val inntektRequest = inntektRequestJson.deserializeToInntektRequest()
+
+                service.oppdaterInntekt(call.inntektsforholdReferanse(), inntektRequest, call.saksbehandler())
+                call.respond(HttpStatusCode.NoContent)
+            }
         }
     }
 }

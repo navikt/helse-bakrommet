@@ -43,6 +43,26 @@ class YrkesaktivitetService(
 
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean = this.sykmeldt
 
+    private fun hentYrkesaktivitet(
+        ref: YrkesaktivitetReferanse,
+        krav: BrukerHarRollePåSakenKrav?,
+    ): Yrkesaktivitet =
+        db.nonTransactional {
+            saksbehandlingsperiodeDao
+                .hentPeriode(
+                    ref = ref.saksbehandlingsperiodeReferanse,
+                    krav = krav,
+                ).let { periode ->
+                    val inntektsforhold =
+                        yrkesaktivitetDao.hentYrkesaktivitet(ref.inntektsforholdUUID)
+                            ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
+                    require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
+                        "Yrkesaktivitet (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
+                    }
+                    inntektsforhold
+                }
+        }
+
     fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<Yrkesaktivitet> =
         db.nonTransactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
@@ -86,12 +106,8 @@ class YrkesaktivitetService(
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
     ) {
+        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.nonTransactional {
-            val inntektsforhold =
-                hentYrkesaktivitet(
-                    ref = ref,
-                    krav = saksbehandler.erSaksbehandlerPåSaken(),
-                )
             yrkesaktivitetDao.oppdaterKategorisering(inntektsforhold, kategorisering)
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
@@ -104,12 +120,8 @@ class YrkesaktivitetService(
         ref: YrkesaktivitetReferanse,
         saksbehandler: Bruker,
     ) {
+        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.nonTransactional {
-            val inntektsforhold =
-                hentYrkesaktivitet(
-                    ref = ref,
-                    krav = saksbehandler.erSaksbehandlerPåSaken(),
-                )
             yrkesaktivitetDao.slettYrkesaktivitet(inntektsforhold.id)
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
@@ -122,13 +134,9 @@ class YrkesaktivitetService(
         ref: YrkesaktivitetReferanse,
         dagerSomSkalOppdateres: DagerSomSkalOppdateres,
         saksbehandler: Bruker,
-    ): Yrkesaktivitet =
-        db.transactional {
-            val inntektsforhold =
-                hentYrkesaktivitet(
-                    ref = ref,
-                    krav = saksbehandler.erSaksbehandlerPåSaken(),
-                )
+    ): Yrkesaktivitet {
+        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        return db.transactional {
             val dagerSomSkalOppdateresJson = dagerSomSkalOppdateres
 
             // Håndter både gammelt format (array av dager) og nytt format (objekt med dager og notat)
@@ -196,18 +204,15 @@ class YrkesaktivitetService(
 
             oppdatertYrkesaktivitet
         }
+    }
 
     fun oppdaterPerioder(
         ref: YrkesaktivitetReferanse,
         perioder: Perioder?,
         saksbehandler: Bruker,
     ) {
+        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.transactional {
-            val inntektsforhold =
-                hentYrkesaktivitet(
-                    ref = ref,
-                    krav = saksbehandler.erSaksbehandlerPåSaken(),
-                )
             yrkesaktivitetDao.oppdaterPerioder(inntektsforhold, perioder)
 
             val beregningshjelperISammeTransaksjon =
@@ -221,21 +226,75 @@ class YrkesaktivitetService(
             beregningshjelperISammeTransaksjon.settBeregning(ref.saksbehandlingsperiodeReferanse, saksbehandler)
         }
     }
-}
 
-private fun YrkesaktivitetServiceDaoer.hentYrkesaktivitet(
-    ref: YrkesaktivitetReferanse,
-    krav: BrukerHarRollePåSakenKrav?,
-) = saksbehandlingsperiodeDao
-    .hentPeriode(
-        ref = ref.saksbehandlingsperiodeReferanse,
-        krav = krav,
-    ).let { periode ->
-        val inntektsforhold =
-            yrkesaktivitetDao.hentYrkesaktivitet(ref.inntektsforholdUUID)
-                ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
-        require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
-            "Yrkesaktivitet (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
+    fun oppdaterInntekt(
+        ref: YrkesaktivitetReferanse,
+        request: InntektRequest,
+        saksbehandler: Bruker,
+    ) {
+        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        db.transactional {
+            // TODO: Implementer lagring av inntekt request og eksterne data
+            // For nå bare logg at vi mottok requesten
+            when (request.inntektskategori) {
+                Inntektskategori.ARBEIDSTAKER -> {
+                    val arbeidstakerData = request.data as ArbeidstakerInntektRequest
+                    when (arbeidstakerData) {
+                        is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
+                            // Logg skjønnsfastsatt inntekt
+                        }
+                        is ArbeidstakerInntektRequest.Ainntekt -> {
+                            // TODO: Hent A-inntekt data
+                        }
+                        is ArbeidstakerInntektRequest.Inntektsmelding -> {
+                            // TODO: Hent inntektsmelding data
+                        }
+                        is ArbeidstakerInntektRequest.ManueltBeregnet -> {
+                            // Logg manuelt beregnet inntekt
+                        }
+                    }
+                }
+                Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.INAKTIV -> {
+                    val pensjonsgivendeData = request.data as PensjonsgivendeInntektRequest
+                    when (pensjonsgivendeData) {
+                        is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
+                            // TODO: Hent pensjonsgivende inntekt data
+                        }
+                        is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
+                            // Logg skjønnsfastsatt pensjonsgivende inntekt
+                        }
+                    }
+                }
+                Inntektskategori.FRILANSER -> {
+                    val frilanserData = request.data as FrilanserInntektRequest
+                    when (frilanserData) {
+                        is FrilanserInntektRequest.Ainntekt -> {
+                            // TODO: Hent A-inntekt data
+                        }
+                        is FrilanserInntektRequest.Skjønnsfastsatt -> {
+                            // Logg skjønnsfastsatt frilanser inntekt
+                        }
+                    }
+                }
+                Inntektskategori.ARBEIDSLEDIG -> {
+                    val arbeidsledigData = request.data as ArbeidsledigInntektRequest
+                    when (arbeidsledigData.type) {
+                        ArbeidsledigInntektType.DAGPENGER -> {
+                            // Logg dagpenger: månedligBeløp = ${arbeidsledigData.månedligBeløp}
+                        }
+                        ArbeidsledigInntektType.VENTELONN -> {
+                            // Logg ventelønn: månedligBeløp = ${arbeidsledigData.månedligBeløp}
+                        }
+                        ArbeidsledigInntektType.VARTPENGER -> {
+                            // Logg vartpenger: månedligBeløp = ${arbeidsledigData.månedligBeløp}
+                        }
+                    }
+                }
+            }
+
+            // Slett sykepengegrunnlag og utbetalingsberegning når inntekt endres
+            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
         }
-        inntektsforhold
     }
+}
