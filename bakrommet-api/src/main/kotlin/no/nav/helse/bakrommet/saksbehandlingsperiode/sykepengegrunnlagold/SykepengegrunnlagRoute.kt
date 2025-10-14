@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
+package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold
 
 import io.ktor.http.*
 import io.ktor.server.request.*

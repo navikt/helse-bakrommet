@@ -13,7 +13,7 @@ import no.nav.helse.bakrommet.godkjenn
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagRequest
 import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -22,9 +22,6 @@ import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
-import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
-import no.nav.helse.dto.deserialisering.ØkonomiInnDto
 import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.dto.serialisering.ØkonomiUtDto
@@ -155,13 +152,13 @@ class UtbetalingsberegningIntegrasjonTest {
             SykepengegrunnlagRequest(
                 inntekter =
                     listOf(
-                        no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntekt(
+                        no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntekt(
                             yrkesaktivitetId = yrkesaktivitetId,
                             beløpPerMånedØre = 5_000_000L,
-                            kilde = no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Inntektskilde.AINNTEKT,
+                            kilde = no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde.AINNTEKT,
                             refusjon =
                                 listOf(
-                                    no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Refusjonsperiode(
+                                    no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Refusjonsperiode(
                                         fom = LocalDate.of(2024, 1, 1),
                                         tom = LocalDate.of(2024, 1, 31),
                                         beløpØre = 1_000_000L,

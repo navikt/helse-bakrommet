@@ -6,7 +6,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.ArbeidsledigInntektType
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.ArbeidstakerInntektRequest
@@ -15,7 +15,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektReque
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
-import java.util.*
 
 interface InntektServiceDaoer {
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao

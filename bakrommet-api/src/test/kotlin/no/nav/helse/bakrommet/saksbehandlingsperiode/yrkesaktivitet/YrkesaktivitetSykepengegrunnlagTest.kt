@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.*
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

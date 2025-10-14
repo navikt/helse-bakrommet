@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
+package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException

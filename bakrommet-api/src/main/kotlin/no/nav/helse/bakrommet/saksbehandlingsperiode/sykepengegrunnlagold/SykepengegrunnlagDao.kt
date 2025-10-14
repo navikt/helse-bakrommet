@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
+package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold
 
 import com.fasterxml.jackson.core.type.TypeReference
 import kotliquery.Row
