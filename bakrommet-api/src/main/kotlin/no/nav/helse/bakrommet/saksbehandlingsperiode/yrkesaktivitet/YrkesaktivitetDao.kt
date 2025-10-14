@@ -25,6 +25,7 @@ data class YrkesaktivitetDbRecord(
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
+    val inntektRequest: InntektRequest? = null,
 ) {
     fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
         if (this.perioder?.type == periodetype) {
@@ -44,6 +45,7 @@ data class Yrkesaktivitet(
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
+    val inntektRequest: InntektRequest? = null,
 )
 
 class YrkesaktivitetDao private constructor(
@@ -105,7 +107,7 @@ class YrkesaktivitetDao private constructor(
     fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
         db.single(
             """
-            select * from yrkesaktivitet where id = :id
+            select *, inntekt_request from yrkesaktivitet where id = :id
             """.trimIndent(),
             "id" to id,
             mapper = ::yrkesaktivitetFraRow,
@@ -123,13 +125,14 @@ class YrkesaktivitetDao private constructor(
                 opprettet = dbRecord.opprettet,
                 generertFraDokumenter = dbRecord.generertFraDokumenter,
                 perioder = dbRecord.perioder,
+                inntektRequest = dbRecord.inntektRequest,
             )
         }
 
     fun hentYrkesaktivitetFor(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
-            select * from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
+            select *, inntekt_request from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
             """.trimIndent(),
             "behandling_id" to periode.id,
             mapper = ::yrkesaktivitetFraRow,
@@ -149,6 +152,7 @@ class YrkesaktivitetDao private constructor(
                     .stringOrNull("generert_fra_dokumenter")
                     ?.somListe<UUID>() ?: emptyList(),
             perioder = row.stringOrNull("perioder")?.let { objectMapper.readValue(it, Perioder::class.java) },
+            inntektRequest = row.stringOrNull("inntekt_request")?.let { objectMapper.readValue(it, InntektRequest::class.java) },
         )
 
     /**
