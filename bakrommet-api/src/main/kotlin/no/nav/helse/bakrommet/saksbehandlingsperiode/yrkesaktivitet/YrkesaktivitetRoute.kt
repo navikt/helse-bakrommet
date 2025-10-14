@@ -28,6 +28,7 @@ data class YrkesaktivitetDTO(
     val dagoversikt: List<Dag>?,
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder?,
+    val inntektRequest: InntektRequest?,
 )
 
 fun YrkesaktivitetDbRecord.tilDto() =
@@ -37,6 +38,7 @@ fun YrkesaktivitetDbRecord.tilDto() =
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
         perioder = perioder,
+        inntektRequest = inntektRequest,
     )
 
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
@@ -45,28 +47,29 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
 ) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
-            val inntektsforhold = service.hentYrkesaktivitetFor(call.periodeReferanse())
+            val yreksaktiviteter = service.hentYrkesaktivitetFor(call.periodeReferanse())
             call.respondText(
-                inntektsforhold.map { it.tilDto() }.serialisertTilString(),
+                yreksaktiviteter.map { it.tilDto() }.serialisertTilString(),
                 ContentType.Application.Json,
                 HttpStatusCode.OK,
             )
         }
 
         post {
-            val inntektsforholdRequest = call.receive<YrkesaktivitetCreateRequest>()
+            val yrkesaktivitetCreateRequest = call.receive<YrkesaktivitetCreateRequest>()
 
             // Valider og konverter til sealed class
-            val validertKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(inntektsforholdRequest.kategorisering)
+            val validertKategorisering =
+                YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetCreateRequest.kategorisering)
 
-            val inntektsforhold =
+            val yrkesaktivitet =
                 service.opprettYrkesaktivitet(
                     call.periodeReferanse(),
                     validertKategorisering,
                     call.saksbehandler(),
                 )
             call.respondText(
-                inntektsforhold.tilDto().serialisertTilString(),
+                yrkesaktivitet.tilDto().serialisertTilString(),
                 ContentType.Application.Json,
                 HttpStatusCode.Created,
             )
@@ -79,7 +82,11 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
             }
             put("/dagoversikt") {
                 val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
-                service.oppdaterDagoversiktDager(call.yrkesaktivitetReferanse(), dagerSomSkalOppdateres, call.saksbehandler())
+                service.oppdaterDagoversiktDager(
+                    call.yrkesaktivitetReferanse(),
+                    dagerSomSkalOppdateres,
+                    call.saksbehandler(),
+                )
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/kategorisering") {
@@ -88,12 +95,17 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                 // Valider og konverter til sealed class
                 val validertKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(kategoriseringMap)
 
-                service.oppdaterKategorisering(call.yrkesaktivitetReferanse(), validertKategorisering, call.saksbehandler())
+                service.oppdaterKategorisering(
+                    call.yrkesaktivitetReferanse(),
+                    validertKategorisering,
+                    call.saksbehandler(),
+                )
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/perioder") {
                 val perioderJson = call.receiveText()
-                val perioder: Perioder? = if (perioderJson == "null") null else objectMapper.readValue(perioderJson, Perioder::class.java)
+                val perioder: Perioder? =
+                    if (perioderJson == "null") null else objectMapper.readValue(perioderJson, Perioder::class.java)
                 service.oppdaterPerioder(call.yrkesaktivitetReferanse(), perioder, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
