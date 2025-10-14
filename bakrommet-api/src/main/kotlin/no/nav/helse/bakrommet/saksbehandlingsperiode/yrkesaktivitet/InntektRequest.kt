@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import no.nav.helse.dto.InntektbeløpDto
 import java.time.LocalDate
 
 // ARBEIDSTAKER
@@ -20,14 +21,14 @@ sealed class ArbeidstakerInntektRequest {
     class Ainntekt : ArbeidstakerInntektRequest()
 
     data class Skjønnsfastsatt(
-        val månedsbeløp: Int,
+        val månedsbeløp: InntektbeløpDto.MånedligDouble,
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsak,
         val begrunnelse: String,
         val refusjon: RefusjonInfo? = null,
     ) : ArbeidstakerInntektRequest()
 
     data class ManueltBeregnet(
-        val månedsbeløp: Int,
+        val månedsbeløp: InntektbeløpDto.MånedligDouble,
         val begrunnelse: String,
     ) : ArbeidstakerInntektRequest()
 }
@@ -48,7 +49,7 @@ sealed class PensjonsgivendeInntektRequest {
     class PensjonsgivendeInntekt : PensjonsgivendeInntektRequest()
 
     data class Skjønnsfastsatt(
-        val årsinntekt: Int,
+        val årsinntekt: InntektbeløpDto.Årlig,
         val årsak: PensjonsgivendeSkjønnsfastsettelseÅrsak,
         val begrunnelse: String,
     ) : PensjonsgivendeInntektRequest()
@@ -69,7 +70,7 @@ sealed class FrilanserInntektRequest {
     class Ainntekt : FrilanserInntektRequest()
 
     data class Skjønnsfastsatt(
-        val månedsbeløp: Int,
+        val månedsbeløp: InntektbeløpDto.MånedligDouble,
         val årsak: FrilanserSkjønnsfastsettelseÅrsak,
         val begrunnelse: String,
     ) : FrilanserInntektRequest()
@@ -83,7 +84,7 @@ enum class FrilanserSkjønnsfastsettelseÅrsak {
 // ARBEIDSLEDIG
 data class ArbeidsledigInntektRequest(
     val type: ArbeidsledigInntektType,
-    val månedligBeløp: Int,
+    val månedligBeløp: InntektbeløpDto.MånedligDouble,
 )
 
 enum class ArbeidsledigInntektType {
@@ -92,49 +93,35 @@ enum class ArbeidsledigInntektType {
     VARTPENGER,
 }
 
-// Union av alle requests
-data class InntektRequest(
-    val inntektskategori: Inntektskategori,
-    val data: Any, // Kan være ArbeidstakerInntektRequest, PensjonsgivendeInntektRequest, FrilanserInntektRequest, eller ArbeidsledigInntektRequest
+// Union av alle requests med Jackson discriminator
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "inntektskategori")
+@JsonSubTypes(
+    JsonSubTypes.Type(value = InntektRequest.Arbeidstaker::class, name = "ARBEIDSTAKER"),
+    JsonSubTypes.Type(value = InntektRequest.SelvstendigNæringsdrivende::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE"),
+    JsonSubTypes.Type(value = InntektRequest.Inaktiv::class, name = "INAKTIV"),
+    JsonSubTypes.Type(value = InntektRequest.Frilanser::class, name = "FRILANSER"),
+    JsonSubTypes.Type(value = InntektRequest.Arbeidsledig::class, name = "ARBEIDSLEDIG"),
 )
+sealed class InntektRequest {
+    data class Arbeidstaker(
+        val data: ArbeidstakerInntektRequest,
+    ) : InntektRequest()
 
-/**
- * Extension funksjon som deserialiserer JSON til riktig InntektRequest basert på inntektskategori feltet.
- * Først leser den inntektskategori, deretter deserialiserer data-feltet til riktig type.
- */
-fun String.deserializeToInntektRequest(): InntektRequest {
-    val jsonNode =
-        com.fasterxml.jackson.databind
-            .ObjectMapper()
-            .readTree(this)
-    val inntektskategori = Inntektskategori.valueOf(jsonNode.get("inntektskategori").asText())
-    val dataNode = jsonNode.get("data")
+    data class SelvstendigNæringsdrivende(
+        val data: PensjonsgivendeInntektRequest,
+    ) : InntektRequest()
 
-    val data =
-        when (inntektskategori) {
-            Inntektskategori.ARBEIDSTAKER -> {
-                com.fasterxml.jackson.databind
-                    .ObjectMapper()
-                    .treeToValue(dataNode, ArbeidstakerInntektRequest::class.java)
-            }
-            Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.INAKTIV -> {
-                com.fasterxml.jackson.databind
-                    .ObjectMapper()
-                    .treeToValue(dataNode, PensjonsgivendeInntektRequest::class.java)
-            }
-            Inntektskategori.FRILANSER -> {
-                com.fasterxml.jackson.databind
-                    .ObjectMapper()
-                    .treeToValue(dataNode, FrilanserInntektRequest::class.java)
-            }
-            Inntektskategori.ARBEIDSLEDIG -> {
-                com.fasterxml.jackson.databind
-                    .ObjectMapper()
-                    .treeToValue(dataNode, ArbeidsledigInntektRequest::class.java)
-            }
-        }
+    data class Inaktiv(
+        val data: PensjonsgivendeInntektRequest,
+    ) : InntektRequest()
 
-    return InntektRequest(inntektskategori, data)
+    data class Frilanser(
+        val data: FrilanserInntektRequest,
+    ) : InntektRequest()
+
+    data class Arbeidsledig(
+        val data: ArbeidsledigInntektRequest,
+    ) : InntektRequest()
 }
 
 // Hjelpeklasser

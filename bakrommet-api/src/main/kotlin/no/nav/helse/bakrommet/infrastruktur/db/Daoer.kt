@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringerDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
@@ -21,6 +22,7 @@ class DaoerFelles(
 ) : SaksbehandlingsperiodeServiceDaoer,
     YrkesaktivitetServiceDaoer,
     SykepengegrunnlagServiceDaoer,
+    InntektServiceDaoer,
     VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(dataSource)
@@ -38,6 +40,7 @@ class SessionDaoerFelles(
 ) : SaksbehandlingsperiodeServiceDaoer,
     YrkesaktivitetServiceDaoer,
     SykepengegrunnlagServiceDaoer,
+    InntektServiceDaoer,
     VilkårServiceDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(session)

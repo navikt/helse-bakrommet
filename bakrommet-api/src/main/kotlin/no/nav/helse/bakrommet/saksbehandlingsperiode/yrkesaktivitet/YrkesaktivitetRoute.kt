@@ -9,13 +9,14 @@ import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.UUID
 
-fun RoutingCall.inntektsforholdReferanse() =
+fun RoutingCall.yrkesaktivitetReferanse() =
     YrkesaktivitetReferanse(
         saksbehandlingsperiodeReferanse = periodeReferanse(),
         inntektsforholdUUID = parameters[PARAM_INNTEKTSFORHOLDUUID].somGyldigUUID(),
@@ -38,7 +39,10 @@ fun Yrkesaktivitet.tilDto() =
         perioder = perioder,
     )
 
-internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: YrkesaktivitetService) {
+internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
+    service: YrkesaktivitetService,
+    inntektservice: InntektService,
+) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
             val inntektsforhold = service.hentYrkesaktivitetFor(call.periodeReferanse())
@@ -70,12 +74,12 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: Yrkesaktiv
 
         route("/{$PARAM_INNTEKTSFORHOLDUUID}") {
             delete {
-                service.slettYrkesaktivitet(call.inntektsforholdReferanse(), call.saksbehandler())
+                service.slettYrkesaktivitet(call.yrkesaktivitetReferanse(), call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/dagoversikt") {
                 val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
-                service.oppdaterDagoversiktDager(call.inntektsforholdReferanse(), dagerSomSkalOppdateres, call.saksbehandler())
+                service.oppdaterDagoversiktDager(call.yrkesaktivitetReferanse(), dagerSomSkalOppdateres, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/kategorisering") {
@@ -84,21 +88,23 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(service: Yrkesaktiv
                 // Valider og konverter til sealed class
                 val validertKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(kategoriseringMap)
 
-                service.oppdaterKategorisering(call.inntektsforholdReferanse(), validertKategorisering, call.saksbehandler())
+                service.oppdaterKategorisering(call.yrkesaktivitetReferanse(), validertKategorisering, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/perioder") {
                 val perioderJson = call.receiveText()
                 val perioder: Perioder? = if (perioderJson == "null") null else objectMapper.readValue(perioderJson, Perioder::class.java)
-                service.oppdaterPerioder(call.inntektsforholdReferanse(), perioder, call.saksbehandler())
+                service.oppdaterPerioder(call.yrkesaktivitetReferanse(), perioder, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
-            put("/inntekt") {
-                val inntektRequestJson = call.receiveText()
-                val inntektRequest = inntektRequestJson.deserializeToInntektRequest()
+            route("/inntekt") {
+                put {
+                    val inntektRequest = call.receive<InntektRequest>()
+                    val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
 
-                service.oppdaterInntekt(call.inntektsforholdReferanse(), inntektRequest, call.saksbehandler())
-                call.respond(HttpStatusCode.NoContent)
+                    inntektservice.oppdaterInntekt(yrkesaktivitetRef, inntektRequest, call.saksbehandler())
+                    call.respond(HttpStatusCode.NoContent)
+                }
             }
         }
     }
