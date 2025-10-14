@@ -31,7 +31,7 @@ class SykepengegrunnlagDao private constructor(
             // Oppdater eksisterende
             db.update(
                 """
-                UPDATE sykepengegrunnlag 
+                UPDATE sykepengegrunnlag_old 
                 SET 
                     inntekter = :inntekter,
                     total_inntekt_ore = :total_inntekt_ore,
@@ -60,7 +60,7 @@ class SykepengegrunnlagDao private constructor(
             // Opprett nytt
             db.update(
                 """
-                INSERT INTO sykepengegrunnlag 
+                INSERT INTO sykepengegrunnlag_old 
                     (id, saksbehandlingsperiode_id, total_inntekt_ore, grunnbelop_ore, grunnbelop_6g_ore, 
                      begrenset_til_6g, sykepengegrunnlag_ore, begrunnelse, inntekter,
                      grunnbelop_virkningstidspunkt, opprettet, opprettet_av_nav_ident, sist_oppdatert)
@@ -89,7 +89,7 @@ class SykepengegrunnlagDao private constructor(
     fun hentSykepengegrunnlag(saksbehandlingsperiodeId: UUID): SykepengegrunnlagResponse? =
         db.single(
             """
-            SELECT * FROM sykepengegrunnlag 
+            SELECT * FROM sykepengegrunnlag_old 
             WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
             """.trimIndent(),
             "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
@@ -99,7 +99,7 @@ class SykepengegrunnlagDao private constructor(
     fun slettSykepengegrunnlag(saksbehandlingsperiodeId: UUID) {
         db.update(
             """
-            DELETE FROM sykepengegrunnlag 
+            DELETE FROM sykepengegrunnlag_old 
             WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
             """.trimIndent(),
             "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,

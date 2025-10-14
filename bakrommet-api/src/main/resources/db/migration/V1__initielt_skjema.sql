@@ -50,7 +50,10 @@ CREATE TABLE IF NOT EXISTS yrkesaktivitet
     saksbehandlingsperiode_id UUID                        NOT NULL REFERENCES saksbehandlingsperiode (id),
     opprettet                 TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     generert_fra_dokumenter   TEXT                        NULL,
-    perioder TEXT NULL
+    perioder                  TEXT                        NULL,
+    inntekt_request           TEXT                        NULL,
+    inntekt_data              TEXT                        NULL,
+    refusjon_data             TEXT                        NULL
 );
 
 
@@ -66,7 +69,7 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode_endringer
     endring_kommentar         TEXT                        NULL
 );
 
-CREATE TABLE IF NOT EXISTS sykepengegrunnlag
+CREATE TABLE IF NOT EXISTS sykepengegrunnlag_old
 (
     id                            UUID PRIMARY KEY,
     saksbehandlingsperiode_id     UUID                     NOT NULL REFERENCES saksbehandlingsperiode (id) UNIQUE,
