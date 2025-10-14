@@ -100,7 +100,7 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             // Verifiser at dekningsgrad er riktig etter oppdatering
-            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(opprettetYrkesaktivitetId)!!
+            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitetId)!!
             assertEquals(1.0, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.prosentDesimal)
         }
     }
@@ -178,7 +178,7 @@ class YrkesaktivitetOperasjonerTest {
                     print(body)
                 }
             // Verifiser at dagoversikten er oppdatert korrekt
-            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
             val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
             assertTrue(dagoversikt.isNotEmpty())
 
@@ -273,7 +273,7 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             // Verifiser at dagoversikten er oppdatert korrekt
-            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
             val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
             assertTrue(dagoversikt.isNotEmpty())
 
@@ -372,7 +372,7 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             // Verifiser at perioder ble lagret
-            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
             assertTrue(oppdatertYrkesaktivitet.perioder != null)
             assertEquals("ARBEIDSGIVERPERIODE", oppdatertYrkesaktivitet.perioder!!.type.name)
             assertEquals(2, oppdatertYrkesaktivitet.perioder!!.perioder.size)
@@ -412,7 +412,7 @@ class YrkesaktivitetOperasjonerTest {
                 }
 
             // Verifiser at perioder ble oppdatert
-            val oppdatertYrkesaktivitet2 = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            val oppdatertYrkesaktivitet2 = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
             assertEquals("VENTETID", oppdatertYrkesaktivitet2.perioder!!.type.name)
             assertEquals(1, oppdatertYrkesaktivitet2.perioder!!.perioder.size)
 
@@ -427,7 +427,7 @@ class YrkesaktivitetOperasjonerTest {
                 }
 
             // Verifiser at perioder ble slettet
-            val oppdatertYrkesaktivitet3 = daoer.yrkesaktivitetDao.hentYrkesaktivitet(yrkesaktivitetId)!!
+            val oppdatertYrkesaktivitet3 = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
             assertEquals(null, oppdatertYrkesaktivitet3.perioder)
         }
     }

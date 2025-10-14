@@ -17,8 +17,8 @@ class YrkesaktivitetExtensionsTest {
                 put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
             }
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -31,7 +31,7 @@ class YrkesaktivitetExtensionsTest {
 
         val exception =
             assertThrows<InputValideringException> {
-                yrkesaktivitet.hentDekningsgrad()
+                yrkesaktivitetDbRecord.hentDekningsgrad()
             }
 
         assertEquals("ER_SYKMELDT mangler for SELVSTENDIG_NÆRINGSDRIVENDE", exception.message)
@@ -45,8 +45,8 @@ class YrkesaktivitetExtensionsTest {
                 forsikring = "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG",
             )
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -57,7 +57,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
@@ -71,8 +71,8 @@ class YrkesaktivitetExtensionsTest {
                 forsikring = "FORSIKRING_100_PROSENT_FRA_17_SYKEDAG",
             )
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -83,7 +83,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
@@ -97,8 +97,8 @@ class YrkesaktivitetExtensionsTest {
                 forsikring = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG",
             )
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -109,7 +109,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 0.8
         dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_80
@@ -123,8 +123,8 @@ class YrkesaktivitetExtensionsTest {
                 forsikring = "INGEN_FORSIKRING",
             )
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -135,7 +135,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 0.8
         dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_80
@@ -148,8 +148,8 @@ class YrkesaktivitetExtensionsTest {
                 type = "FISKER",
             )
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -160,7 +160,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.SELVSTENDIG_KOLLEKTIVFORSIKRING_100
@@ -173,8 +173,8 @@ class YrkesaktivitetExtensionsTest {
                 put("INNTEKTSKATEGORI", "INAKTIV")
             }
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -187,7 +187,7 @@ class YrkesaktivitetExtensionsTest {
 
         val exception =
             assertThrows<InputValideringException> {
-                yrkesaktivitet.hentDekningsgrad()
+                yrkesaktivitetDbRecord.hentDekningsgrad()
             }
 
         assertEquals("VARIANT_AV_INAKTIV mangler for INAKTIV", exception.message)
@@ -197,8 +197,8 @@ class YrkesaktivitetExtensionsTest {
     fun `skal returnere 65 prosent for inaktiv variant A`() {
         val kategorisering = inaktivKategorisering(variant = "INAKTIV_VARIANT_A")
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -209,7 +209,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 0.65
         dekningsgrad.sporing `should equal` Beregningssporing.INAKTIV_65
@@ -219,8 +219,8 @@ class YrkesaktivitetExtensionsTest {
     fun `skal returnere 100 prosent for inaktiv variant B`() {
         val kategorisering = inaktivKategorisering(variant = "INAKTIV_VARIANT_B")
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -231,7 +231,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.INAKTIV_100
@@ -241,8 +241,8 @@ class YrkesaktivitetExtensionsTest {
     fun `skal returnere Prosentdel for arbeidstaker`() {
         val kategorisering = arbeidstakerKategorisering()
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -253,7 +253,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.ARBEIDSTAKER_100
@@ -263,8 +263,8 @@ class YrkesaktivitetExtensionsTest {
     fun `skal returnere Prosentdel for frilanser`() {
         val kategorisering = frilanserKategorisering()
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -275,7 +275,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.FRILANSER_100
@@ -288,8 +288,8 @@ class YrkesaktivitetExtensionsTest {
                 put("INNTEKTSKATEGORI", "ARBEIDSLEDIG")
             }
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -300,7 +300,7 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val dekningsgrad = yrkesaktivitet.hentDekningsgrad()
+        val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.DAGPENGEMOTTAKER_100
@@ -314,8 +314,8 @@ class YrkesaktivitetExtensionsTest {
                 put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "UKJENT_FORSIKRING")
             }
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -328,7 +328,7 @@ class YrkesaktivitetExtensionsTest {
 
         val exception =
             assertThrows<InputValideringException> {
-                yrkesaktivitet.hentDekningsgrad()
+                yrkesaktivitetDbRecord.hentDekningsgrad()
             }
 
         assertEquals("ER_SYKMELDT mangler for SELVSTENDIG_NÆRINGSDRIVENDE", exception.message)
@@ -342,8 +342,8 @@ class YrkesaktivitetExtensionsTest {
                 put("VARIANT_AV_INAKTIV", "UKJENT_VARIANT")
             }
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -356,7 +356,7 @@ class YrkesaktivitetExtensionsTest {
 
         val exception =
             assertThrows<InputValideringException> {
-                yrkesaktivitet.hentDekningsgrad()
+                yrkesaktivitetDbRecord.hentDekningsgrad()
             }
 
         assertEquals("Ugyldig VARIANT_AV_INAKTIV: UKJENT_VARIANT", exception.message)
@@ -369,8 +369,8 @@ class YrkesaktivitetExtensionsTest {
                 put("INNTEKTSKATEGORI", "UKJENT_KATEGORI")
             }
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -383,7 +383,7 @@ class YrkesaktivitetExtensionsTest {
 
         val exception =
             assertThrows<InputValideringException> {
-                yrkesaktivitet.hentDekningsgrad()
+                yrkesaktivitetDbRecord.hentDekningsgrad()
             }
 
         assertEquals("Ugyldig INNTEKTSKATEGORI: UKJENT_KATEGORI", exception.message)
@@ -393,8 +393,8 @@ class YrkesaktivitetExtensionsTest {
     fun `skal kaste feil når INNTEKTSKATEGORI ikke er satt`() {
         val kategorisering = HashMap<String, String>()
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -407,7 +407,7 @@ class YrkesaktivitetExtensionsTest {
 
         val exception =
             assertThrows<InputValideringException> {
-                yrkesaktivitet.hentDekningsgrad()
+                yrkesaktivitetDbRecord.hentDekningsgrad()
             }
 
         assertEquals("INNTEKTSKATEGORI mangler", exception.message)
@@ -422,8 +422,8 @@ class YrkesaktivitetExtensionsTest {
             )
         val arbeidstakerKategorisering = arbeidstakerKategorisering()
 
-        val selvstendigYrkesaktivitet =
-            Yrkesaktivitet(
+        val selvstendigYrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = selvstendigKategorisering,
                 kategoriseringGenerert = null,
@@ -434,8 +434,8 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val arbeidstakerYrkesaktivitet =
-            Yrkesaktivitet(
+        val arbeidstakerYrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering,
                 kategoriseringGenerert = null,
@@ -446,8 +446,8 @@ class YrkesaktivitetExtensionsTest {
                 generertFraDokumenter = emptyList(),
             )
 
-        val selvstendigDekningsgrad = selvstendigYrkesaktivitet.hentDekningsgrad()
-        val arbeidstakerDekningsgrad = arbeidstakerYrkesaktivitet.hentDekningsgrad()
+        val selvstendigDekningsgrad = selvstendigYrkesaktivitetDbRecord.hentDekningsgrad()
+        val arbeidstakerDekningsgrad = arbeidstakerYrkesaktivitetDbRecord.hentDekningsgrad()
 
         selvstendigDekningsgrad.verdi.prosentDesimal `should equal` 1.0
         selvstendigDekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100

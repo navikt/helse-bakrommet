@@ -14,8 +14,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntek
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.util.HashUtils
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.LocalDate
@@ -62,7 +62,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         val sykepengegrunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
         val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
 
-        fun Yrkesaktivitet.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto =
+        fun YrkesaktivitetDbRecord.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto =
             YrkesaktivitetKafkaDto(
                 id = id,
                 kategorisering = kategorisering,

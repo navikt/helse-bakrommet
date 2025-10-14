@@ -1,17 +1,20 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
-import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
+import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.ArbeidsledigInntektType
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.FrilanserInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
@@ -23,8 +26,6 @@ interface InntektServiceDaoer {
     val beregningDao: UtbetalingsberegningDao
     val personDao: PersonDao
 }
-
-typealias DagerSomSkalOppdateres = JsonNode
 
 class InntektService(
     daoer: InntektServiceDaoer,
@@ -38,24 +39,61 @@ class InntektService(
         saksbehandler: Bruker,
     ) {
         db.transactional {
-            // TODO: Implementer lagring av inntekt request og eksterne data
-            // For nå bare logg at vi mottok requesten
+            val yrkesaktivitet =
+                saksbehandlingsperiodeDao
+                    .hentPeriode(
+                        ref = ref.saksbehandlingsperiodeReferanse,
+                        krav = saksbehandler.erSaksbehandlerPåSaken(),
+                    ).let { periode ->
+                        val yrkesaktivitet =
+                            yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
+                                ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
+                        require(yrkesaktivitet.saksbehandlingsperiodeId == periode.id) {
+                            "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
+                        }
+                        yrkesaktivitet
+                    }
+
+            fun validerInntektskategori(forventet: Inntektskategori) {
+                if (yrkesaktivitet.kategorisering.inntektskategori != forventet) {
+                    throw IllegalStateException("Kan kun oppdatere ${forventet.name} inntekt på yrkesaktivitet med inntektskategori ${forventet.name}")
+                }
+            }
+
             when (request) {
-                is InntektRequest.Arbeidstaker ->
+                is InntektRequest.Arbeidstaker -> validerInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                is InntektRequest.SelvstendigNæringsdrivende -> validerInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
+                is InntektRequest.Frilanser -> validerInntektskategori(Inntektskategori.FRILANSER)
+                is InntektRequest.Inaktiv -> validerInntektskategori(Inntektskategori.INAKTIV)
+                is InntektRequest.Arbeidsledig -> validerInntektskategori(Inntektskategori.ARBEIDSLEDIG)
+            }
+
+            yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
+
+            when (request) {
+                is InntektRequest.Arbeidstaker -> {
+                    if (yrkesaktivitet.kategorisering.inntektskategori == Inntektskategori.ARBEIDSTAKER) {
+                        throw IllegalStateException("Kan kun oppdatere arbeidstaker inntekt på yrkesaktivitet med inntektskategori ARBEIDSTAKER")
+                    }
+
                     when (request.data) {
                         is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
                             // Logg skjønnsfastsatt inntekt
                         }
+
                         is ArbeidstakerInntektRequest.Ainntekt -> {
                             // TODO: Hent A-inntekt data
                         }
+
                         is ArbeidstakerInntektRequest.Inntektsmelding -> {
                             // TODO: Hent inntektsmelding data
                         }
+
                         is ArbeidstakerInntektRequest.ManueltBeregnet -> {
                             // Logg manuelt beregnet inntekt
                         }
                     }
+                }
                 is InntektRequest.SelvstendigNæringsdrivende ->
                     when (request.data) {
                         is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {

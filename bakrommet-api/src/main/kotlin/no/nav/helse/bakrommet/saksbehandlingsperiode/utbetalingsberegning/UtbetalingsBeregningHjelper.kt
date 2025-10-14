@@ -8,8 +8,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Klassekode
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -45,7 +45,7 @@ class UtbetalingsBeregningHjelper(
         val beregningInput =
             UtbetalingsberegningInput(
                 sykepengegrunnlag = sykepengegrunnlag,
-                yrkesaktivitet = yrkesaktiviteter,
+                yrkesaktivitetDbRecord = yrkesaktiviteter,
                 saksbehandlingsperiode =
                     PeriodeDto(
                         fom = periode.fom,
@@ -85,7 +85,7 @@ class UtbetalingsBeregningHjelper(
  */
 fun byggOppdragFraBeregning(
     beregnet: List<YrkesaktivitetUtbetalingsberegning>,
-    yrkesaktiviteter: List<Yrkesaktivitet>,
+    yrkesaktiviteter: List<YrkesaktivitetDbRecord>,
     ident: String,
 ): List<Oppdrag> {
     val oppdrag = mutableListOf<Oppdrag>()

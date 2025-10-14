@@ -18,7 +18,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigF
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.VariantAvInaktiv
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
 import no.nav.helse.bakrommet.util.logg
@@ -393,7 +393,7 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
 fun lagYrkesaktivitetFraSøknader(
     sykepengesoknader: Iterable<Dokument>,
     saksbehandlingsperiode: Saksbehandlingsperiode,
-): List<Yrkesaktivitet> {
+): List<YrkesaktivitetDbRecord> {
     val kategorierOgSøknader =
         sykepengesoknader
             .groupBy { dokument -> dokument.somSøknad().kategorisering() }
@@ -404,7 +404,7 @@ fun lagYrkesaktivitetFraSøknader(
                 saksbehandlingsperiode.fom,
                 saksbehandlingsperiode.tom,
             )
-        Yrkesaktivitet(
+        YrkesaktivitetDbRecord(
             id = UUID.randomUUID(),
             kategorisering = YrkesaktivitetKategoriseringMapper.toMap(kategorisering),
             kategoriseringGenerert = YrkesaktivitetKategoriseringMapper.toMap(kategorisering),
@@ -420,8 +420,8 @@ fun lagYrkesaktivitetFraSøknader(
 fun lagYrkesaktiviteter(
     sykepengesoknader: Iterable<Dokument>,
     saksbehandlingsperiode: Saksbehandlingsperiode,
-    tidligereYrkesaktiviteter: List<Yrkesaktivitet>,
-): Pair<List<Yrkesaktivitet>, Map<UUID, UUID>> {
+    tidligereYrkesaktiviteter: List<YrkesaktivitetDbRecord>,
+): Pair<List<YrkesaktivitetDbRecord>, Map<UUID, UUID>> {
     val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
     val søknaderPerKategori = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
 
@@ -444,7 +444,7 @@ fun lagYrkesaktiviteter(
                         saksbehandlingsperiode.fom,
                         saksbehandlingsperiode.tom,
                     )
-                Yrkesaktivitet(
+                YrkesaktivitetDbRecord(
                     id = UUID.randomUUID(),
                     kategorisering = kategoriMap,
                     kategoriseringGenerert = kategoriMap,

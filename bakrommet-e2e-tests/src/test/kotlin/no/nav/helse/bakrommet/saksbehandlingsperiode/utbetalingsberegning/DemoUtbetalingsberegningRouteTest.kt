@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.InntektBeregnet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagResponse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -117,8 +117,8 @@ class DemoUtbetalingsberegningRouteTest {
                 ),
             )
 
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = yrkesaktivitetId,
                 kategorisering =
                     HashMap<String, String>().apply {
@@ -137,7 +137,7 @@ class DemoUtbetalingsberegningRouteTest {
 
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
-            yrkesaktivitet = listOf(yrkesaktivitet),
+            yrkesaktivitetDbRecord = listOf(yrkesaktivitetDbRecord),
             saksbehandlingsperiode =
                 PeriodeDto(
                     fom = LocalDate.of(2024, 1, 1),

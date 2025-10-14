@@ -22,7 +22,7 @@ import java.util.*
 
 data class YrkesaktivitetReferanse(
     val saksbehandlingsperiodeReferanse: SaksbehandlingsperiodeReferanse,
-    val inntektsforholdUUID: UUID,
+    val yrkesaktivitetUUID: UUID,
 )
 
 interface YrkesaktivitetServiceDaoer {
@@ -46,24 +46,24 @@ class YrkesaktivitetService(
     private fun hentYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
         krav: BrukerHarRollePåSakenKrav?,
-    ): Yrkesaktivitet =
+    ): YrkesaktivitetDbRecord =
         db.nonTransactional {
             saksbehandlingsperiodeDao
                 .hentPeriode(
                     ref = ref.saksbehandlingsperiodeReferanse,
                     krav = krav,
                 ).let { periode ->
-                    val inntektsforhold =
-                        yrkesaktivitetDao.hentYrkesaktivitet(ref.inntektsforholdUUID)
+                    val yrkesaktivitet =
+                        yrkesaktivitetDao.hentYrkesaktivitetDbRecord(ref.yrkesaktivitetUUID)
                             ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
-                    require(inntektsforhold.saksbehandlingsperiodeId == periode.id) {
-                        "Yrkesaktivitet (id=${ref.inntektsforholdUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
+                    require(yrkesaktivitet.saksbehandlingsperiodeId == periode.id) {
+                        "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
                     }
-                    inntektsforhold
+                    yrkesaktivitet
                 }
         }
 
-    fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<Yrkesaktivitet> =
+    fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<YrkesaktivitetDbRecord> =
         db.nonTransactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
             yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
@@ -73,7 +73,7 @@ class YrkesaktivitetService(
         ref: SaksbehandlingsperiodeReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
-    ): Yrkesaktivitet =
+    ): YrkesaktivitetDbRecord =
         db.nonTransactional {
             val periode =
                 saksbehandlingsperiodeDao.hentPeriode(
@@ -134,7 +134,7 @@ class YrkesaktivitetService(
         ref: YrkesaktivitetReferanse,
         dagerSomSkalOppdateres: DagerSomSkalOppdateres,
         saksbehandler: Bruker,
-    ): Yrkesaktivitet {
+    ): YrkesaktivitetDbRecord {
         val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         return db.transactional {
             val dagerSomSkalOppdateresJson = dagerSomSkalOppdateres

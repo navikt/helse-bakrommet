@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.bereg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.tilSykdomstidslinje
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
 import no.nav.helse.hendelser.MeldingsreferanseId
@@ -25,14 +25,14 @@ import java.util.UUID
  * Bygger utbetalingstidslinje for en yrkesaktivitet basert på kategorisering
  */
 fun byggUtbetalingstidslinjeForYrkesaktivitet(
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
     dekningsgrad: ProsentdelDto,
     input: UtbetalingsberegningInput,
     refusjonstidslinje: Beløpstidslinje,
     fastsattÅrsinntekt: Inntekt,
 ): Utbetalingstidslinje {
-    val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
-    val arbeidsgiverperiode = yrkesaktivitet.hentPerioderForType(Periodetype.ARBEIDSGIVERPERIODE)
+    val dager = fyllUtManglendeDager(yrkesaktivitetDbRecord.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
+    val arbeidsgiverperiode = yrkesaktivitetDbRecord.hentPerioderForType(Periodetype.ARBEIDSGIVERPERIODE)
     val dagerNavOvertarAnsvar = dager.tilDagerNavOvertarAnsvar()
     val sykdomstidslinje = dager.tilSykdomstidslinje(arbeidsgiverperiode)
     val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO: Dette er tilkommen inntekt?
@@ -42,20 +42,20 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
         throw IllegalArgumentException("Ugyldig input: dagerNavOvertarAnsvar må være innenfor arbeidsgiverperioden")
     }
 
-    return when (yrkesaktivitet.kategorisering["INNTEKTSKATEGORI"]) {
+    return when (yrkesaktivitetDbRecord.kategorisering["INNTEKTSKATEGORI"]) {
         "INAKTIV" ->
             byggInaktivUtbetalingstidslinje(
                 fastsattÅrsinntekt = fastsattÅrsinntekt,
                 dekningsgrad = dekningsgrad,
                 inntektjusteringer = inntektjusteringer,
-                yrkesaktivitet = yrkesaktivitet,
+                yrkesaktivitetDbRecord = yrkesaktivitetDbRecord,
                 sykdomstidslinje = sykdomstidslinje,
             )
         "SELVSTENDIG_NÆRINGSDRIVENDE" ->
             byggSelvstendigUtbetalingstidslinje(
                 fastsattÅrsinntekt = fastsattÅrsinntekt,
                 dekningsgrad = dekningsgrad,
-                yrkesaktivitet = yrkesaktivitet,
+                yrkesaktivitetDbRecord = yrkesaktivitetDbRecord,
                 sykdomstidslinje = sykdomstidslinje,
             )
         "ARBEIDSLEDIG" ->
@@ -84,14 +84,14 @@ private fun byggInaktivUtbetalingstidslinje(
     fastsattÅrsinntekt: Inntekt,
     dekningsgrad: ProsentdelDto,
     inntektjusteringer: Beløpstidslinje,
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     InaktivUtbetalingstidslinjeBuilder(
         fastsattÅrsinntekt = fastsattÅrsinntekt,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         inntektjusteringer = inntektjusteringer,
-        venteperiode = yrkesaktivitet.hentPerioderForType(Periodetype.VENTETID_INAKTIV),
+        venteperiode = yrkesaktivitetDbRecord.hentPerioderForType(Periodetype.VENTETID_INAKTIV),
     ).result(sykdomstidslinje)
 
 /**
@@ -100,13 +100,13 @@ private fun byggInaktivUtbetalingstidslinje(
 private fun byggSelvstendigUtbetalingstidslinje(
     fastsattÅrsinntekt: Inntekt,
     dekningsgrad: ProsentdelDto,
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         fastsattÅrsinntekt = fastsattÅrsinntekt,
         dekningsgrad = dekningsgrad.tilProsentdel(),
-        ventetid = yrkesaktivitet.hentPerioderForType(Periodetype.VENTETID),
+        ventetid = yrkesaktivitetDbRecord.hentPerioderForType(Periodetype.VENTETID),
     ).result(sykdomstidslinje)
 
 /**

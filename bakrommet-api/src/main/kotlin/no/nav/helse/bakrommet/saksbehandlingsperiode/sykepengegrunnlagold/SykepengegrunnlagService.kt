@@ -8,8 +8,8 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.økonomi.Grunnbeløp
 import java.time.LocalDateTime
 import java.util.*
@@ -84,7 +84,7 @@ class SykepengegrunnlagService(
         request: SykepengegrunnlagRequest,
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
-        yrkesaktiviteter: List<Yrkesaktivitet>,
+        yrkesaktiviteter: List<YrkesaktivitetDbRecord>,
     ) {
         if (request.inntekter.isEmpty()) {
             throw InputValideringException("Må ha minst én inntekt")
@@ -149,7 +149,7 @@ class SykepengegrunnlagService(
         inntekter: List<Inntekt>,
         begrunnelse: String?,
         saksbehandler: Bruker,
-        yrkesaktiviteter: List<Yrkesaktivitet>,
+        yrkesaktiviteter: List<YrkesaktivitetDbRecord>,
     ): SykepengegrunnlagResponse {
         // Hent perioden og skjæringstidspunkt
         val skjæringstidspunkt =

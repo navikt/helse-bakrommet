@@ -14,7 +14,7 @@ val SEKSTIFEM_PROSENT = ProsentdelDto(0.65)
  * Henter dekningsgrad basert på yrkesaktivitetstype og forsikring
  * @return Prosentdel som representerer dekningsgraden
  */
-fun Yrkesaktivitet.hentDekningsgrad(): Sporbar<ProsentdelDto> {
+fun YrkesaktivitetDbRecord.hentDekningsgrad(): Sporbar<ProsentdelDto> {
     // Konverter til type-sikker sealed class for lettere håndtering
     val typeSikkerKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(kategorisering)
     return typeSikkerKategorisering.hentDekningsgrad()

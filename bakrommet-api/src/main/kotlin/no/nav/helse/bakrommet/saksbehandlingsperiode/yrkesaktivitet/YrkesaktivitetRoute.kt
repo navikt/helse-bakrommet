@@ -19,7 +19,7 @@ import java.util.UUID
 fun RoutingCall.yrkesaktivitetReferanse() =
     YrkesaktivitetReferanse(
         saksbehandlingsperiodeReferanse = periodeReferanse(),
-        inntektsforholdUUID = parameters[PARAM_INNTEKTSFORHOLDUUID].somGyldigUUID(),
+        yrkesaktivitetUUID = parameters[PARAM_INNTEKTSFORHOLDUUID].somGyldigUUID(),
     )
 
 data class YrkesaktivitetDTO(
@@ -30,7 +30,7 @@ data class YrkesaktivitetDTO(
     val perioder: Perioder?,
 )
 
-fun Yrkesaktivitet.tilDto() =
+fun YrkesaktivitetDbRecord.tilDto() =
     YrkesaktivitetDTO(
         id = id,
         kategorisering = kategorisering,

@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
@@ -25,7 +25,7 @@ class SykepengegrunnlagRouteTest {
     }
 
     fun sykepengegrunnlagAppTest(
-        testBlock: suspend ApplicationTestBuilder.(Triple<Daoer, Saksbehandlingsperiode, Yrkesaktivitet>) -> Unit,
+        testBlock: suspend ApplicationTestBuilder.(Triple<Daoer, Saksbehandlingsperiode, YrkesaktivitetDbRecord>) -> Unit,
     ) = runApplicationTest {
         it.personDao.opprettPerson(fnr, personId)
 
@@ -50,8 +50,8 @@ class SykepengegrunnlagRouteTest {
                 ).truncateTidspunkt()
 
         // Opprett inntektsforhold
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering =
                     mapOf(
@@ -69,13 +69,13 @@ class SykepengegrunnlagRouteTest {
             )
         val lagretYrkesaktivitet =
             it.yrkesaktivitetDao.opprettYrkesaktivitet(
-                id = yrkesaktivitet.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
-                dagoversikt = yrkesaktivitet.dagoversikt,
-                saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
-                opprettet = yrkesaktivitet.opprettet,
-                generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
-                perioder = yrkesaktivitet.perioder,
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
             )
 
         this.testBlock(Triple(it, saksbehandlingsperiode, lagretYrkesaktivitet))

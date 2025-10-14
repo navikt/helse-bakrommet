@@ -14,7 +14,8 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
 
-data class Yrkesaktivitet(
+// Intensjon om at denne kun lever i daoen
+data class YrkesaktivitetDbRecord(
     val id: UUID,
     val kategorisering: Map<String, String>,
     val kategoriseringGenerert: Map<String, String>?,
@@ -32,6 +33,18 @@ data class Yrkesaktivitet(
             emptyList()
         }
 }
+
+data class Yrkesaktivitet(
+    val id: UUID,
+    val kategorisering: YrkesaktivitetKategorisering,
+    val kategoriseringGenerert: YrkesaktivitetKategorisering?,
+    val dagoversikt: List<Dag>?,
+    val dagoversiktGenerert: List<Dag>?,
+    val saksbehandlingsperiodeId: UUID,
+    val opprettet: OffsetDateTime,
+    val generertFraDokumenter: List<UUID>,
+    val perioder: Perioder? = null,
+)
 
 class YrkesaktivitetDao private constructor(
     private val db: QueryRunner,
@@ -51,10 +64,10 @@ class YrkesaktivitetDao private constructor(
         opprettet: OffsetDateTime = OffsetDateTime.now(),
         generertFraDokumenter: List<UUID> = emptyList(),
         perioder: Perioder? = null,
-    ): Yrkesaktivitet {
+    ): YrkesaktivitetDbRecord {
         val kategoriseringMap = YrkesaktivitetKategoriseringMapper.toMap(kategorisering)
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = id,
                 kategorisering = kategoriseringMap,
                 kategoriseringGenerert = null,
@@ -76,25 +89,20 @@ class YrkesaktivitetDao private constructor(
                 :dagoversikt, :dagoversikt_generert,
                 :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder)
             """.trimIndent(),
-            "id" to yrkesaktivitet.id,
-            "kategorisering" to yrkesaktivitet.kategorisering.serialisertTilString(),
-            "kategorisering_generert" to yrkesaktivitet.kategoriseringGenerert?.serialisertTilString(),
-            "dagoversikt" to yrkesaktivitet.dagoversikt?.serialisertTilString(),
-            "dagoversikt_generert" to yrkesaktivitet.dagoversiktGenerert?.serialisertTilString(),
-            "saksbehandlingsperiode_id" to yrkesaktivitet.saksbehandlingsperiodeId,
-            "opprettet" to yrkesaktivitet.opprettet,
-            "generert_fra_dokumenter" to yrkesaktivitet.generertFraDokumenter.serialisertTilString(),
-            "perioder" to yrkesaktivitet.perioder?.serialisertTilString(),
+            "id" to yrkesaktivitetDbRecord.id,
+            "kategorisering" to yrkesaktivitetDbRecord.kategorisering.serialisertTilString(),
+            "kategorisering_generert" to yrkesaktivitetDbRecord.kategoriseringGenerert?.serialisertTilString(),
+            "dagoversikt" to yrkesaktivitetDbRecord.dagoversikt?.serialisertTilString(),
+            "dagoversikt_generert" to yrkesaktivitetDbRecord.dagoversiktGenerert?.serialisertTilString(),
+            "saksbehandlingsperiode_id" to yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+            "opprettet" to yrkesaktivitetDbRecord.opprettet,
+            "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
+            "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
         )
-        return hentYrkesaktivitet(yrkesaktivitet.id)!!
+        return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    /**
-     * Intern funksjon for å opprette med Map.
-     * Brukes av den type-sikre funksjonen og i tester.
-     */
-
-    fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
+    fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
         db.single(
             """
             select * from yrkesaktivitet where id = :id
@@ -103,7 +111,22 @@ class YrkesaktivitetDao private constructor(
             mapper = ::yrkesaktivitetFraRow,
         )
 
-    fun hentYrkesaktivitetFor(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
+    fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
+        hentYrkesaktivitetDbRecord(id)?.let { dbRecord ->
+            Yrkesaktivitet(
+                id = dbRecord.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(dbRecord.kategorisering),
+                kategoriseringGenerert = dbRecord.kategoriseringGenerert?.let { YrkesaktivitetKategoriseringMapper.fromMap(it) },
+                dagoversikt = dbRecord.dagoversikt,
+                dagoversiktGenerert = dbRecord.dagoversiktGenerert,
+                saksbehandlingsperiodeId = dbRecord.saksbehandlingsperiodeId,
+                opprettet = dbRecord.opprettet,
+                generertFraDokumenter = dbRecord.generertFraDokumenter,
+                perioder = dbRecord.perioder,
+            )
+        }
+
+    fun hentYrkesaktivitetFor(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
             select * from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
@@ -113,7 +136,7 @@ class YrkesaktivitetDao private constructor(
         )
 
     private fun yrkesaktivitetFraRow(row: Row) =
-        Yrkesaktivitet(
+        YrkesaktivitetDbRecord(
             id = row.uuid("id"),
             kategorisering = row.string("kategorisering").asStringStringMap(),
             kategoriseringGenerert = row.stringOrNull("kategorisering_generert")?.asStringStringMap(),
@@ -133,46 +156,46 @@ class YrkesaktivitetDao private constructor(
      * Mapper til Map internt før lagring.
      */
     fun oppdaterKategorisering(
-        yrkesaktivitet: Yrkesaktivitet,
+        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
-    ): Yrkesaktivitet {
+    ): YrkesaktivitetDbRecord {
         val kategoriseringMap = YrkesaktivitetKategoriseringMapper.toMap(kategorisering)
         db.update(
             """
             update yrkesaktivitet set kategorisering = :kategorisering where id = :id
             """.trimIndent(),
-            "id" to yrkesaktivitet.id,
+            "id" to yrkesaktivitetDbRecord.id,
             "kategorisering" to kategoriseringMap.serialisertTilString(),
         )
-        return hentYrkesaktivitet(yrkesaktivitet.id)!!
+        return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
     fun oppdaterDagoversikt(
-        yrkesaktivitet: Yrkesaktivitet,
+        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: List<Dag>,
-    ): Yrkesaktivitet {
+    ): YrkesaktivitetDbRecord {
         db.update(
             """
             update yrkesaktivitet set dagoversikt = :dagoversikt where id = :id
             """.trimIndent(),
-            "id" to yrkesaktivitet.id,
+            "id" to yrkesaktivitetDbRecord.id,
             "dagoversikt" to oppdatertDagoversikt.serialisertTilString(),
         )
-        return hentYrkesaktivitet(yrkesaktivitet.id)!!
+        return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
     fun oppdaterPerioder(
-        yrkesaktivitet: Yrkesaktivitet,
+        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         perioder: Perioder?,
-    ): Yrkesaktivitet {
+    ): YrkesaktivitetDbRecord {
         db.update(
             """
             update yrkesaktivitet set perioder = :perioder where id = :id
             """.trimIndent(),
-            "id" to yrkesaktivitet.id,
+            "id" to yrkesaktivitetDbRecord.id,
             "perioder" to perioder?.serialisertTilString(),
         )
-        return hentYrkesaktivitet(yrkesaktivitet.id)!!
+        return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
     fun slettYrkesaktivitet(id: UUID) {
@@ -182,5 +205,19 @@ class YrkesaktivitetDao private constructor(
             """.trimIndent(),
             "id" to id,
         )
+    }
+
+    fun oppdaterInntektrequest(
+        yrkesaktivitet: Yrkesaktivitet,
+        request: InntektRequest,
+    ): YrkesaktivitetDbRecord {
+        db.update(
+            """
+            update yrkesaktivitet set inntekt_request = :inntekt_request where id = :id
+            """.trimIndent(),
+            "id" to yrkesaktivitet.id,
+            "inntekt_request" to request.serialisertTilString(),
+        )
+        return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
 }

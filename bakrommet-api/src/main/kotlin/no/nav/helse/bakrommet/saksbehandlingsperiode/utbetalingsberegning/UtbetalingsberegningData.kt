@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagResponse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.dto.deserialisering.OppdragInnDto
@@ -25,7 +25,7 @@ enum class Beregningssporing {
 
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
-    val yrkesaktivitet: List<Yrkesaktivitet>,
+    val yrkesaktivitetDbRecord: List<YrkesaktivitetDbRecord>,
     val saksbehandlingsperiode: PeriodeDto,
     val arbeidsgiverperiode: PeriodeDto? = null,
 )

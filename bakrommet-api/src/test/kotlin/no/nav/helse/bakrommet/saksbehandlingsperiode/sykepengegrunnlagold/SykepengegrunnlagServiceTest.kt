@@ -10,8 +10,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.arbeidstakerKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.frilanserKategorisering
@@ -42,8 +42,8 @@ class SykepengegrunnlagServiceTest {
             tom = LocalDate.now().minusDays(1),
             skjæringstidspunkt = LocalDate.now().minusMonths(1),
         )
-    val yrkesaktivitet =
-        Yrkesaktivitet(
+    val yrkesaktivitetDbRecord =
+        YrkesaktivitetDbRecord(
             id = UUID.randomUUID(),
             kategorisering = arbeidstakerKategorisering(),
             kategoriseringGenerert = null,
@@ -65,13 +65,13 @@ class SykepengegrunnlagServiceTest {
         behandlingDao.opprettPeriode(periode)
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
         yrkesaktivitetDao.opprettYrkesaktivitet(
-            id = yrkesaktivitet.id,
-            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
-            dagoversikt = yrkesaktivitet.dagoversikt,
-            saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
-            opprettet = yrkesaktivitet.opprettet,
-            generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
-            perioder = yrkesaktivitet.perioder,
+            id = yrkesaktivitetDbRecord.id,
+            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+            dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+            saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+            opprettet = yrkesaktivitetDbRecord.opprettet,
+            generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+            perioder = yrkesaktivitetDbRecord.perioder,
         )
 
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
@@ -111,7 +111,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             // 45 000 kr/måned
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
@@ -144,7 +144,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             // 80 000 kr/måned
                             beløpPerMånedØre = 8000000L,
                             kilde = Inntektskilde.AINNTEKT,
@@ -169,8 +169,8 @@ class SykepengegrunnlagServiceTest {
     @Test
     fun `beregner sykepengegrunnlag med flere inntektsforhold`() {
         // Opprett et andre inntektsforhold
-        val yrkesaktivitet2 =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord2 =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = frilanserKategorisering(),
                 kategoriseringGenerert = null,
@@ -182,13 +182,13 @@ class SykepengegrunnlagServiceTest {
             )
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
         yrkesaktivitetDao.opprettYrkesaktivitet(
-            id = yrkesaktivitet2.id,
-            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet2.kategorisering),
-            dagoversikt = yrkesaktivitet2.dagoversikt,
-            saksbehandlingsperiodeId = yrkesaktivitet2.saksbehandlingsperiodeId,
-            opprettet = yrkesaktivitet2.opprettet,
-            generertFraDokumenter = yrkesaktivitet2.generertFraDokumenter,
-            perioder = yrkesaktivitet2.perioder,
+            id = yrkesaktivitetDbRecord2.id,
+            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord2.kategorisering),
+            dagoversikt = yrkesaktivitetDbRecord2.dagoversikt,
+            saksbehandlingsperiodeId = yrkesaktivitetDbRecord2.saksbehandlingsperiodeId,
+            opprettet = yrkesaktivitetDbRecord2.opprettet,
+            generertFraDokumenter = yrkesaktivitetDbRecord2.generertFraDokumenter,
+            perioder = yrkesaktivitetDbRecord2.perioder,
         )
 
         val request =
@@ -196,14 +196,14 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             // 30 000 kr/måned
                             beløpPerMånedØre = 3000000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
                         ),
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet2.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord2.id,
                             // 25 000 kr/måned
                             beløpPerMånedØre = 2500000L,
                             kilde = Inntektskilde.AINNTEKT,
@@ -238,7 +238,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             // 50 000 kr/måned
                             beløpPerMånedØre = 5000000L,
                             kilde = Inntektskilde.SKJONNSFASTSETTELSE,
@@ -280,7 +280,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             // 50 000 kr/måned
                             beløpPerMånedØre = 5000000L,
                             kilde = Inntektskilde.AINNTEKT,
@@ -318,7 +318,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             beløpPerMånedØre = 5000000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = refusjon,
@@ -338,7 +338,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -362,7 +362,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             beløpPerMånedØre = 4000000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -378,7 +378,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             beløpPerMånedØre = 5500000L,
                             kilde = Inntektskilde.SKJONNSFASTSETTELSE,
                             refusjon = emptyList(),
@@ -403,7 +403,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -442,7 +442,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             beløpPerMånedØre = eksakt6G,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -487,8 +487,8 @@ class SykepengegrunnlagServiceTest {
     @Test
     fun `kaster feil når inntektsforhold mangler inntekt i requesten`() {
         // Opprett et ekstra inntektsforhold som ikke vil ha inntekt i requesten
-        val ekstraYrkesaktivitet =
-            Yrkesaktivitet(
+        val ekstraYrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = frilanserKategorisering(),
                 kategoriseringGenerert = null,
@@ -500,13 +500,13 @@ class SykepengegrunnlagServiceTest {
             )
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
         yrkesaktivitetDao.opprettYrkesaktivitet(
-            id = ekstraYrkesaktivitet.id,
-            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(ekstraYrkesaktivitet.kategorisering),
-            dagoversikt = ekstraYrkesaktivitet.dagoversikt,
-            saksbehandlingsperiodeId = ekstraYrkesaktivitet.saksbehandlingsperiodeId,
-            opprettet = ekstraYrkesaktivitet.opprettet,
-            generertFraDokumenter = ekstraYrkesaktivitet.generertFraDokumenter,
-            perioder = ekstraYrkesaktivitet.perioder,
+            id = ekstraYrkesaktivitetDbRecord.id,
+            kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(ekstraYrkesaktivitetDbRecord.kategorisering),
+            dagoversikt = ekstraYrkesaktivitetDbRecord.dagoversikt,
+            saksbehandlingsperiodeId = ekstraYrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+            opprettet = ekstraYrkesaktivitetDbRecord.opprettet,
+            generertFraDokumenter = ekstraYrkesaktivitetDbRecord.generertFraDokumenter,
+            perioder = ekstraYrkesaktivitetDbRecord.perioder,
         )
 
         val request =
@@ -514,7 +514,7 @@ class SykepengegrunnlagServiceTest {
                 inntekter =
                     listOf(
                         Inntekt(
-                            yrkesaktivitetId = yrkesaktivitet.id,
+                            yrkesaktivitetId = yrkesaktivitetDbRecord.id,
                             beløpPerMånedØre = 4500000L,
                             kilde = Inntektskilde.AINNTEKT,
                             refusjon = emptyList(),
@@ -528,6 +528,6 @@ class SykepengegrunnlagServiceTest {
             }
 
         assertTrue(exception.message!!.contains("mangler inntekt i requesten"))
-        assertTrue(exception.message!!.contains(ekstraYrkesaktivitet.id.toString()))
+        assertTrue(exception.message!!.contains(ekstraYrkesaktivitetDbRecord.id.toString()))
     }
 }

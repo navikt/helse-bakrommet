@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Sykepe
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -63,7 +63,7 @@ class UtbetalingsberegningTestBuilder {
 
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
-            yrkesaktivitet = yrkesaktivitetListe,
+            yrkesaktivitetDbRecord = yrkesaktivitetListe,
             saksbehandlingsperiode = periode,
             arbeidsgiverperiode = arbeidsgiverperiode,
         )
@@ -329,7 +329,7 @@ class YrkesaktivitetBuilder {
         andreYtelser(begrunnelse, antallDager)
     }
 
-    fun build(saksbehandlingsperiode: PeriodeDto): Yrkesaktivitet {
+    fun build(saksbehandlingsperiode: PeriodeDto): YrkesaktivitetDbRecord {
         val perioder =
             arbeidsgiverperiode?.let { (fom, tom) ->
                 Perioder(
@@ -343,7 +343,7 @@ class YrkesaktivitetBuilder {
         // Fyll ut manglende dager som arbeidsdager
         val fullstendigDagoversikt = fyllUtManglendeDagerSomArbeidsdager(dagoversikt, saksbehandlingsperiode)
 
-        return Yrkesaktivitet(
+        return YrkesaktivitetDbRecord(
             id = id,
             kategorisering = kategorisering,
             kategoriseringGenerert = null,
@@ -479,7 +479,7 @@ fun beregnOgByggOppdrag(
     ident: String = "TESTIDENT",
 ): BeregningResultat {
     val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, ident)
+    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitetDbRecord, ident)
     return BeregningResultat(beregnet, oppdrag)
 }
 

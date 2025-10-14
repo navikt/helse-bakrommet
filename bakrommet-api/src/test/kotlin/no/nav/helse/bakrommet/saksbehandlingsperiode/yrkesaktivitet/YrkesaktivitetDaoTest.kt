@@ -5,8 +5,6 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.arbeidstakerKategorisering
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.BeforeEach
@@ -47,8 +45,8 @@ class YrkesaktivitetDaoTest {
     @Test
     fun `oppretter og henter inntektsforhold`() {
         val dao = YrkesaktivitetDao(dataSource)
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
@@ -60,17 +58,17 @@ class YrkesaktivitetDaoTest {
             )
         val ekko =
             dao.opprettYrkesaktivitet(
-                id = yrkesaktivitet.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
-                dagoversikt = yrkesaktivitet.dagoversikt,
-                saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
-                opprettet = yrkesaktivitet.opprettet,
-                generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
-                perioder = yrkesaktivitet.perioder,
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
             )
-        assertEquals(yrkesaktivitet.tidsstuttet(), ekko.tidsstuttet())
+        assertEquals(yrkesaktivitetDbRecord.tidsstuttet(), ekko.tidsstuttet())
 
-        assertEquals(ekko, dao.hentYrkesaktivitet(ekko.id))
+        assertEquals(ekko, dao.hentYrkesaktivitetDbRecord(ekko.id))
 
         assertEquals(listOf(ekko), dao.hentYrkesaktivitetFor(periode))
     }
@@ -79,8 +77,8 @@ class YrkesaktivitetDaoTest {
     fun `inntektsforhold må referere gyldig saksbehandlingsperiode`() {
         val dao = YrkesaktivitetDao(dataSource)
         val ugyldigPeriodeId = UUID.randomUUID()
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
@@ -93,13 +91,13 @@ class YrkesaktivitetDaoTest {
 
         assertThrows<SQLException> {
             dao.opprettYrkesaktivitet(
-                id = yrkesaktivitet.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
-                dagoversikt = yrkesaktivitet.dagoversikt,
-                saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
-                opprettet = yrkesaktivitet.opprettet,
-                generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
-                perioder = yrkesaktivitet.perioder,
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
             )
         }
     }
@@ -107,8 +105,8 @@ class YrkesaktivitetDaoTest {
     @Test
     fun `oppdaterer perioder for inntektsforhold`() {
         val dao = YrkesaktivitetDao(dataSource)
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
@@ -121,13 +119,13 @@ class YrkesaktivitetDaoTest {
             )
         val opprettetYrkesaktivitet =
             dao.opprettYrkesaktivitet(
-                id = yrkesaktivitet.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering),
-                dagoversikt = yrkesaktivitet.dagoversikt,
-                saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
-                opprettet = yrkesaktivitet.opprettet,
-                generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
-                perioder = yrkesaktivitet.perioder,
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
             )
 
         // Oppdater perioder
