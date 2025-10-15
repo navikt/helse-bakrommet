@@ -148,16 +148,10 @@ class InntektService(
                             }
                         }
                     is InntektRequest.Arbeidsledig -> {
-                        when (request.data.type) {
-                            ArbeidsledigInntektType.DAGPENGER -> {
-                                throw RuntimeException("Dagpenger er ikke implementert ennå")
-                            }
-                            ArbeidsledigInntektType.VENTELONN -> {
-                                throw RuntimeException("Ventelønn er ikke implementert ennå")
-                            }
-                            ArbeidsledigInntektType.VARTPENGER -> {
-                                throw RuntimeException("Vartpenger er ikke implementert ennå")
-                            }
+                        when (request.data) {
+                            is ArbeidsledigInntektRequest.Dagpenger -> TODO()
+                            is ArbeidsledigInntektRequest.Vartpenger -> TODO()
+                            is ArbeidsledigInntektRequest.Ventelønn -> TODO()
                         }
                     }
                 }

@@ -98,16 +98,29 @@ enum class FrilanserSkjønnsfastsettelseÅrsak {
 }
 
 // ARBEIDSLEDIG
-data class ArbeidsledigInntektRequest(
-    val begrunnelse: String?,
-    val type: ArbeidsledigInntektType,
-    val månedligBeløp: InntektbeløpDto.MånedligDouble,
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(value = ArbeidsledigInntektRequest.Dagpenger::class, name = "DAGPENGER"),
+    JsonSubTypes.Type(value = ArbeidsledigInntektRequest.Ventelønn::class, name = "VENTELONN"),
+    JsonSubTypes.Type(value = ArbeidsledigInntektRequest.Vartpenger::class, name = "VARTPENGER"),
 )
+sealed class ArbeidsledigInntektRequest {
+    abstract val begrunnelse: String?
 
-enum class ArbeidsledigInntektType {
-    DAGPENGER,
-    VENTELONN,
-    VARTPENGER,
+    data class Dagpenger(
+        val dagbeløp: InntektbeløpDto.DagligInt,
+        override val begrunnelse: String,
+    ) : ArbeidsledigInntektRequest()
+
+    data class Ventelønn(
+        val månedsbeløp: InntektbeløpDto.MånedligDouble,
+        override val begrunnelse: String,
+    ) : ArbeidsledigInntektRequest()
+
+    data class Vartpenger(
+        val månedsbeløp: InntektbeløpDto.MånedligDouble,
+        override val begrunnelse: String,
+    ) : ArbeidsledigInntektRequest()
 }
 
 // Union av alle requests med Jackson discriminator
