@@ -118,7 +118,7 @@ class SaksbehandlingsperiodeService(
         db.nonTransactional {
             val tidligereYrkesaktiviteter =
                 tidligerePeriodeInntilNyPeriode
-                    ?.let { yrkesaktivitetDao.hentYrkesaktivitetFor(it) }
+                    ?.let { yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(it) }
                     ?: emptyList()
 
             val (yrkesaktiviteter, gammelTilNyIdMap) =

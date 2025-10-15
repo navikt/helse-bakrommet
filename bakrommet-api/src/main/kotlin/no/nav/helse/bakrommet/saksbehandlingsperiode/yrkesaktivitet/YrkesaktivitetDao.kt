@@ -137,7 +137,24 @@ class YrkesaktivitetDao private constructor(
             )
         }
 
-    fun hentYrkesaktivitetFor(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
+    fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
+        hentYrkesaktiviteterDbRecord(periode).map {
+            Yrkesaktivitet(
+                id = it.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(it.kategorisering),
+                kategoriseringGenerert = it.kategoriseringGenerert?.let { map -> YrkesaktivitetKategoriseringMapper.fromMap(map) },
+                dagoversikt = it.dagoversikt,
+                dagoversiktGenerert = it.dagoversiktGenerert,
+                saksbehandlingsperiodeId = it.saksbehandlingsperiodeId,
+                opprettet = it.opprettet,
+                generertFraDokumenter = it.generertFraDokumenter,
+                perioder = it.perioder,
+                inntektRequest = it.inntektRequest,
+                inntektData = it.inntektData,
+            )
+        }
+
+    fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
             select *, inntekt_request, inntekt_data from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id

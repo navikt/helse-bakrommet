@@ -7,12 +7,20 @@ import java.util.UUID
 
 data class Sykepengegrunnlag(
     val grunnbeløp: InntektbeløpDto.Årlig,
+    val totaltInntektsgrunnlag: InntektbeløpDto.Årlig,
     val sykepengegrunnlag: InntektbeløpDto.Årlig,
     val seksG: InntektbeløpDto.Årlig,
     val begrensetTil6G: Boolean,
     val grunnbeløpVirkningstidspunkt: LocalDate,
-    val opprettet: String,
-    val opprettetAv: String,
+    val næringsdel: Næringsdel?,
+)
+
+data class Næringsdel(
+    val pensjonsgivendeÅrsinntekt: InntektbeløpDto.Årlig,
+    val pensjonsgivendeÅrsinntekt6GBegrenset: InntektbeløpDto.Årlig,
+    val pensjonsgivendeÅrsinntektBegrensetTil6G: Boolean,
+    val næringsdel: InntektbeløpDto.Årlig,
+    val sumAvArbeidsinntekt: InntektbeløpDto.Årlig,
 )
 
 data class SykepengegrunnlagDbRecord(

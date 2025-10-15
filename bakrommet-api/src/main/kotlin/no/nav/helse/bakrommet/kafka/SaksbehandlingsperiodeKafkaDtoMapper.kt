@@ -56,7 +56,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
 ) {
     fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): KafkaMelding {
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, null)
-        val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
+        val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent =
             personDao.finnNaturligIdent(periode.spilleromPersonId) ?: throw IllegalStateException("Fant ikke fnr")
         val sykepengegrunnlag = sykepengegrunnlagDaoOld.hentSykepengegrunnlag(referanse.periodeUUID)

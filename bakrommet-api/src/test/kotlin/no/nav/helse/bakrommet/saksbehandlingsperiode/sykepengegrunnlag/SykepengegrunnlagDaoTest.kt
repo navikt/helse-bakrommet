@@ -5,7 +5,6 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 import kotlin.test.assertEquals
@@ -28,12 +27,12 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(124028.0),
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(744168.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
                 seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                opprettet = Instant.now().toString(),
-                opprettetAv = saksbehandler.navIdent,
+                næringsdel = null,
             )
 
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
@@ -42,7 +41,6 @@ class SykepengegrunnlagDaoTest {
         assertEquals(744168.0, lagretGrunnlag.sykepengegrunnlag!!.seksG.beløp)
         assertEquals(false, lagretGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
         assertEquals(saksbehandler.navIdent, lagretGrunnlag.opprettetAv)
-        assertEquals(saksbehandler.navIdent, lagretGrunnlag.sykepengegrunnlag!!.opprettetAv)
 
         // Verifiser at opprettet og oppdatert er like ved opprettelse
         assertEquals(lagretGrunnlag.opprettet, lagretGrunnlag.oppdatert)
@@ -59,12 +57,12 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(900000.0), // Høyere enn 6G
                 sykepengegrunnlag = InntektbeløpDto.Årlig(780960.0), // Begrenset til 6G
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = true,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                opprettet = Instant.now().toString(),
-                opprettetAv = saksbehandler.navIdent,
+                næringsdel = null,
             )
 
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
@@ -81,12 +79,12 @@ class SykepengegrunnlagDaoTest {
         val opprinneligGrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(480000.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(480000.0),
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                opprettet = Instant.now().toString(),
-                opprettetAv = saksbehandler.navIdent,
+                næringsdel = null,
             )
 
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(opprinneligGrunnlag, saksbehandler)
@@ -94,15 +92,15 @@ class SykepengegrunnlagDaoTest {
         val oppdatertGrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(660000.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(660000.0),
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                opprettet = lagretGrunnlag.sykepengegrunnlag!!.opprettet,
-                opprettetAv = saksbehandler.navIdent,
+                næringsdel = null,
             )
 
-        val oppdatertResultat = dao.oppdaterSykepengrgrunnlag(lagretGrunnlag.id, oppdatertGrunnlag)
+        val oppdatertResultat = dao.oppdaterSykepengegrunnlag(lagretGrunnlag.id, oppdatertGrunnlag)
 
         assertEquals(660000.0, oppdatertResultat.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(lagretGrunnlag.id, oppdatertResultat.id)
@@ -118,12 +116,12 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(540000.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                opprettet = Instant.now().toString(),
-                opprettetAv = saksbehandler.navIdent,
+                næringsdel = null,
             )
 
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
@@ -157,12 +155,12 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(124028.0),
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(744168.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
                 seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                opprettet = Instant.now().toString(),
-                opprettetAv = saksbehandler.navIdent,
+                næringsdel = null,
             )
 
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
@@ -170,10 +168,11 @@ class SykepengegrunnlagDaoTest {
 
         // Verifiser at alle felter er korrekt deserialisert
         assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag!!.grunnbeløp.beløp)
+        assertEquals(sykepengegrunnlag.totaltInntektsgrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.totaltInntektsgrunnlag.beløp)
         assertEquals(sykepengegrunnlag.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(sykepengegrunnlag.seksG.beløp, hentetGrunnlag.sykepengegrunnlag!!.seksG.beløp)
         assertEquals(sykepengegrunnlag.begrensetTil6G, hentetGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
         assertEquals(sykepengegrunnlag.grunnbeløpVirkningstidspunkt, hentetGrunnlag.sykepengegrunnlag!!.grunnbeløpVirkningstidspunkt)
-        assertEquals(sykepengegrunnlag.opprettetAv, hentetGrunnlag.sykepengegrunnlag!!.opprettetAv)
+        assertEquals(sykepengegrunnlag.næringsdel, hentetGrunnlag.sykepengegrunnlag!!.næringsdel)
     }
 }

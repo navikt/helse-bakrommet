@@ -10,7 +10,6 @@ import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
-import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -198,8 +197,8 @@ internal class SaksbehandlingsperiodeDaoTest {
                 seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                opprettet = Instant.now().toString(),
-                opprettetAv = saksbehandler.navIdent,
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(540000.0),
+                næringsdel = null,
             )
         val lagretGrunnlag = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
 

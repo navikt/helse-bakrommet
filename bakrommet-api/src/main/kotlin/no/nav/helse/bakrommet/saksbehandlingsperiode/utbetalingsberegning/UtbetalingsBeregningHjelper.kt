@@ -39,7 +39,7 @@ class UtbetalingsBeregningHjelper(
                 ?: return
 
         // Hent inntektsforhold
-        val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
+        val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
 
         // Opprett input for beregning
         val beregningInput =

@@ -92,7 +92,7 @@ class YrkesaktivitetOperasjonerTest {
                 }
 
             // Verifiser at kategorisering ble oppdatert
-            daoer.yrkesaktivitetDao.hentYrkesaktivitetFor(periode).also { inntektsforholdFraDB ->
+            daoer.yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode).also { inntektsforholdFraDB ->
                 inntektsforholdFraDB.filter { it.id == opprettetYrkesaktivitetId }.also {
                     assertEquals(1, it.size)
                     assertEquals(nyKategorisering, it.first().kategorisering)

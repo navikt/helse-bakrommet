@@ -57,7 +57,7 @@ class SykepengegrunnlagDao private constructor(
                 mapper = ::sykepengegrunnlagFraRow,
             ).firstOrNull()
 
-    fun oppdaterSykepengrgrunnlag(
+    fun oppdaterSykepengegrunnlag(
         saksbehandlingsperiodeId: UUID,
         sykepengegrunnlag: Sykepengegrunnlag?,
     ): SykepengegrunnlagDbRecord {

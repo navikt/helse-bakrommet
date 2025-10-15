@@ -77,7 +77,7 @@ class YrkesaktivitetDaoTest {
 
         assertEquals(ekko, dao.hentYrkesaktivitetDbRecord(ekko.id))
 
-        assertEquals(listOf(ekko), dao.hentYrkesaktivitetFor(periode))
+        assertEquals(listOf(ekko), dao.hentYrkesaktiviteterDbRecord(periode))
     }
 
     @Test

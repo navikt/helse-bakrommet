@@ -189,7 +189,7 @@ class InntektService(
                 saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
                 sykepengegrunnlagDao = sykepengegrunnlagDao,
                 yrkesaktivitetDao = yrkesaktivitetDao,
-            ).beregnSykepengegrunnlag(
+            ).beregnOgLagreSykepengegrunnlag(
                 referanse = ref.saksbehandlingsperiodeReferanse,
                 saksbehandler = saksbehandler,
             )

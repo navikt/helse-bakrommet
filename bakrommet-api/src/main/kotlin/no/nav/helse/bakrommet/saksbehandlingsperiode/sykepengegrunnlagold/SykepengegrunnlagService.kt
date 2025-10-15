@@ -41,7 +41,7 @@ class SykepengegrunnlagService(
         db.transactional {
             val periode =
                 saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
-            val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
+            val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
             validerSykepengegrunnlagRequest(this, request, referanse, saksbehandler, yrkesaktiviteter)
 
             val beregning =
