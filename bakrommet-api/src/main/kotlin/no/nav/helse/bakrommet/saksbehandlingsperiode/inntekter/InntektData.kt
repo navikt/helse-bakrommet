@@ -72,7 +72,8 @@ sealed class InntektData {
     ) : InntektData()
 
     data class SelvstendigNæringsdrivendePensjonsgivende(
-        override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
+        override val omregnetÅrsinntekt: InntektbeløpDto.Årlig, // Denne oppdaterer seg ved at vi trekker arbeidstaker og frilans inntekt fra beregnetPensjonsgivendeInntekt ved beregning av sp grunnlaget
+        val beregnetPensjonsgivendeInntekt: InntektbeløpDto.Årlig, // Dette er orginalen vi har beregnet fra sigrun data
         override val sporing: String = "BEREGNINGSSPORINGVERDI",
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : InntektData()

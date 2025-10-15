@@ -59,10 +59,10 @@ class SykepengegrunnlagDao private constructor(
 
     fun oppdaterSykepengrgrunnlag(
         saksbehandlingsperiodeId: UUID,
-        sykepengegrunnlag: Sykepengegrunnlag,
+        sykepengegrunnlag: Sykepengegrunnlag?,
     ): SykepengegrunnlagDbRecord {
         val nå = java.time.Instant.now()
-        val sykepengegrunnlagJson = objectMapper.writeValueAsString(sykepengegrunnlag)
+        val sykepengegrunnlagJson = sykepengegrunnlag?.let { objectMapper.writeValueAsString(it) }
 
         db.update(
             """

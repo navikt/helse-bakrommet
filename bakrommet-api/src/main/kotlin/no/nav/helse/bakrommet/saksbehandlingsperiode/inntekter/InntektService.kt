@@ -108,34 +108,40 @@ class InntektService(
                             }
                         }
                     }
+
                     is InntektRequest.SelvstendigNæringsdrivende ->
                         when (request.data) {
                             is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
                                 InntektData.SelvstendigNæringsdrivendePensjonsgivende(
                                     omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    beregnetPensjonsgivendeInntekt = InntektbeløpDto.Årlig(800000.0),
                                     pensjonsgivendeInntekt = PensjonsgivendeInntekt(emptyList()), // TODO dette skal hentes,
                                 )
                             }
+
                             is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
                                 InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt(
                                     omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
                                 )
                             }
                         }
+
                     is InntektRequest.Inaktiv ->
                         when (request.data) {
                             is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
-                                InntektData.SelvstendigNæringsdrivendePensjonsgivende(
+                                InntektData.InaktivPensjonsgivende(
                                     omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
                                     pensjonsgivendeInntekt = PensjonsgivendeInntekt(emptyList()), // TODO dette skal hentes,
                                 )
                             }
+
                             is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
                                 InntektData.InaktivSkjønnsfastsatt(
                                     omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
                                 )
                             }
                         }
+
                     is InntektRequest.Frilanser ->
                         when (request.data) {
                             is FrilanserInntektRequest.Ainntekt -> {
@@ -144,6 +150,7 @@ class InntektService(
                                     sporing = "A-inntekt TODO",
                                 )
                             }
+
                             is FrilanserInntektRequest.Skjønnsfastsatt -> {
                                 InntektData.FrilanserSkjønnsfastsatt(
                                     omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
@@ -151,11 +158,24 @@ class InntektService(
                                 )
                             }
                         }
+
                     is InntektRequest.Arbeidsledig -> {
                         when (request.data) {
-                            is ArbeidsledigInntektRequest.Dagpenger -> TODO()
-                            is ArbeidsledigInntektRequest.Vartpenger -> TODO()
-                            is ArbeidsledigInntektRequest.Ventelønn -> TODO()
+                            is ArbeidsledigInntektRequest.Dagpenger -> {
+                                InntektData.Arbeidsledig(
+                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.dagbeløp).dto().årlig,
+                                )
+                            }
+
+                            is ArbeidsledigInntektRequest.Vartpenger ->
+                                InntektData.Arbeidsledig(
+                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.månedsbeløp).dto().årlig,
+                                )
+
+                            is ArbeidsledigInntektRequest.Ventelønn ->
+                                InntektData.Arbeidsledig(
+                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.månedsbeløp).dto().årlig,
+                                )
                         }
                     }
                 }

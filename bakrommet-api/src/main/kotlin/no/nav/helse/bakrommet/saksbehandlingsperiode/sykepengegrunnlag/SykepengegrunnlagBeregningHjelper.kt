@@ -24,7 +24,16 @@ class SykepengegrunnlagBeregningHjelper(
         // TODO valider at sb på saken? Eller anta at det skjer senere
 
         // Hent sykepengegrunnlag
-        val sykepengegrunnlag =
+        val eksisterendeSykepengegrunnlag =
             periode.sykepengegrunnlagId?.let { sykepengegrunnlagDao.hentSykepengegrunnlag(it) }
+
+        val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktivitetFor(periode)
+        val harFullInnntektsdata = yrkesaktiviteter.all { it.inntektData != null }
+        if (!harFullInnntektsdata && (eksisterendeSykepengegrunnlag != null) && (eksisterendeSykepengegrunnlag.sykepengegrunnlag != null)) {
+            sykepengegrunnlagDao.oppdaterSykepengrgrunnlag(eksisterendeSykepengegrunnlag.id, null)
+        }
+
+        // Vi har full data og kan beregne.
+        // Først så beregnerer vi rariteten på næringsdrivende ved å trekke fra de andre årsinntektene fra pensjonsgivende inntekt
     }
 }
