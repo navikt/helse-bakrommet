@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.util.objectMapper
 import java.util.UUID
 import javax.sql.DataSource
 
-class SykepengegrunnlagDao private constructor(
+class SykepengegrunnlagDaoOld private constructor(
     private val db: QueryRunner,
 ) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))

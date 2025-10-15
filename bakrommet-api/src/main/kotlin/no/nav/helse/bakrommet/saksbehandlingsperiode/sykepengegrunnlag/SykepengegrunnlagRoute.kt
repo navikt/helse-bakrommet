@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold
+package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -6,7 +6,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
-import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.LocalDate
@@ -64,9 +63,8 @@ data class SykepengegrunnlagResponse(
     val sistOppdatert: String,
 )
 
-internal fun Route.sykepengegrunnlagOldRoute(service: SykepengegrunnlagService) {
+internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
-        /** Hent eksisterende sykepengegrunnlag */
         get {
             val grunnlag = service.hentSykepengegrunnlag(call.periodeReferanse())
             call.respondText(
@@ -74,28 +72,6 @@ internal fun Route.sykepengegrunnlagOldRoute(service: SykepengegrunnlagService) 
                 ContentType.Application.Json,
                 HttpStatusCode.OK,
             )
-        }
-
-        /** Sett sykepengegrunnlag (opprett eller oppdater) */
-        put {
-            val request = call.receive<SykepengegrunnlagRequest>()
-            val grunnlag =
-                service.settSykepengegrunnlag(
-                    call.periodeReferanse(),
-                    request,
-                    call.saksbehandler(),
-                )
-            call.respondText(
-                grunnlag.serialisertTilString(),
-                ContentType.Application.Json,
-                HttpStatusCode.OK,
-            )
-        }
-
-        /** Slett sykepengegrunnlag */
-        delete {
-            service.slettSykepengegrunnlag(call.periodeReferanse())
-            call.respond(HttpStatusCode.NoContent)
         }
     }
 }

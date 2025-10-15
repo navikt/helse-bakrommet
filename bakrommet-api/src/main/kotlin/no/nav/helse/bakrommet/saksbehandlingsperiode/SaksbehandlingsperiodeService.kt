@@ -142,8 +142,8 @@ class SaksbehandlingsperiodeService(
             }
 
             tidligerePeriodeInntilNyPeriode?.let {
-                sykepengegrunnlagDao.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
-                    sykepengegrunnlagDao.settSykepengegrunnlag(
+                sykepengegrunnlagDaoOld.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
+                    sykepengegrunnlagDaoOld.settSykepengegrunnlag(
                         saksbehandlingsperiodeId = nyPeriode.id,
                         beregning =
                             grunnlag.copy(

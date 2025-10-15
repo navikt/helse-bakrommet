@@ -15,7 +15,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDaoOld
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import java.util.*
@@ -28,7 +28,7 @@ data class YrkesaktivitetReferanse(
 interface YrkesaktivitetServiceDaoer {
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
     val yrkesaktivitetDao: YrkesaktivitetDao
-    val sykepengegrunnlagDao: SykepengegrunnlagDao
+    val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld
     val beregningDao: UtbetalingsberegningDao
     val personDao: PersonDao
 }
@@ -95,7 +95,7 @@ class YrkesaktivitetService(
                 )
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.periodeUUID)
+            sykepengegrunnlagDaoOld.slettSykepengegrunnlag(ref.periodeUUID)
             beregningDao.slettBeregning(ref.periodeUUID)
 
             inntektsforhold
@@ -111,7 +111,7 @@ class YrkesaktivitetService(
             yrkesaktivitetDao.oppdaterKategorisering(inntektsforhold, kategorisering)
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            sykepengegrunnlagDaoOld.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
             beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
         }
     }
@@ -125,7 +125,7 @@ class YrkesaktivitetService(
             yrkesaktivitetDao.slettYrkesaktivitet(inntektsforhold.id)
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            sykepengegrunnlagDaoOld.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
             beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
         }
     }
@@ -196,7 +196,7 @@ class YrkesaktivitetService(
                 UtbetalingsBeregningHjelper(
                     beregningDao,
                     saksbehandlingsperiodeDao,
-                    sykepengegrunnlagDao,
+                    sykepengegrunnlagDaoOld,
                     yrkesaktivitetDao,
                     personDao,
                 )
@@ -219,7 +219,7 @@ class YrkesaktivitetService(
                 UtbetalingsBeregningHjelper(
                     beregningDao,
                     saksbehandlingsperiodeDao,
-                    sykepengegrunnlagDao,
+                    sykepengegrunnlagDaoOld,
                     yrkesaktivitetDao,
                     personDao,
                 )

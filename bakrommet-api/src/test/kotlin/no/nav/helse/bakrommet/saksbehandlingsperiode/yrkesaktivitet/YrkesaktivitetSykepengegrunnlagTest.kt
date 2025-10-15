@@ -47,7 +47,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
         behandlingDao.opprettPeriode(periode)
 
         val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
-        val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
+        val sykepengegrunnlagDaoOld = SykepengegrunnlagDaoOld(dataSource)
 
         val beregningDao = UtbetalingsberegningDao(dataSource)
 
@@ -56,7 +56,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                 object : YrkesaktivitetServiceDaoer {
                     override val saksbehandlingsperiodeDao = behandlingDao
                     override val yrkesaktivitetDao = yrkesaktivitetDao
-                    override val sykepengegrunnlagDao = sykepengegrunnlagDao
+                    override val sykepengegrunnlagDaoOld = sykepengegrunnlagDaoOld
                     override val beregningDao = beregningDao
                     override val personDao = personDao
                 },
@@ -64,7 +64,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                     object : YrkesaktivitetServiceDaoer {
                         override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
                         override val yrkesaktivitetDao = YrkesaktivitetDao(session)
-                        override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
+                        override val sykepengegrunnlagDaoOld = SykepengegrunnlagDaoOld(session)
                         override val beregningDao = UtbetalingsberegningDao(session)
                         override val personDao = PersonDao(session)
                     }
@@ -76,7 +76,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                 object : SykepengegrunnlagServiceDaoer {
                     override val saksbehandlingsperiodeDao = behandlingDao
                     override val yrkesaktivitetDao = yrkesaktivitetDao
-                    override val sykepengegrunnlagDao = sykepengegrunnlagDao
+                    override val sykepengegrunnlagDaoOld = sykepengegrunnlagDaoOld
                     override val beregningDao = beregningDao
                     override val personDao = personDao
                 },
@@ -84,7 +84,7 @@ class YrkesaktivitetSykepengegrunnlagTest {
                     object : SykepengegrunnlagServiceDaoer {
                         override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
                         override val yrkesaktivitetDao = YrkesaktivitetDao(session)
-                        override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
+                        override val sykepengegrunnlagDaoOld = SykepengegrunnlagDaoOld(session)
                         override val beregningDao = UtbetalingsberegningDao(session)
                         override val personDao = PersonDao(session)
                     }

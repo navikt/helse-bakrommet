@@ -4,11 +4,23 @@ CREATE TABLE IF NOT EXISTS ident
     naturlig_ident TEXT NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS sykepengegrunnlag
+(
+    id                        UUID PRIMARY KEY,
+    sykepengegrunnlag         TEXT                        NOT NULL,
+    opprettet_av_nav_ident    TEXT                        NOT NULL,
+    opprettet                 TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    oppdatert                 TIMESTAMP(6) WITH TIME ZONE NOT NULL
+);
+
+
 CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
 (
     id                      UUID                        NOT NULL PRIMARY KEY,
     spillerom_personid      TEXT                        NOT NULL
         REFERENCES ident (spillerom_id),
+    sykepengegrunnlag_id    UUID                        NULL
+        REFERENCES sykepengegrunnlag (id),
     opprettet               TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     opprettet_av_nav_ident  TEXT                        NOT NULL,
     opprettet_av_navn       TEXT                        NOT NULL,

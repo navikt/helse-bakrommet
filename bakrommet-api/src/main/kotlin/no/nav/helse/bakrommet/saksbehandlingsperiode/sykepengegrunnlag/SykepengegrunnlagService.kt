@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold
+package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
@@ -6,16 +6,17 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.*
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
+// import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.økonomi.Grunnbeløp
+import no.nav.helse.dto.InntektbeløpDto
 import java.time.LocalDateTime
 import java.util.*
 
 interface SykepengegrunnlagServiceDaoer {
-    val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld
+    val sykepengegrunnlagDao: SykepengegrunnlagDao
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val beregningDao: UtbetalingsberegningDao
@@ -30,7 +31,8 @@ class SykepengegrunnlagService(
 
     fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? =
         db.nonTransactional {
-            sykepengegrunnlagDaoOld.hentSykepengegrunnlag(referanse.periodeUUID)
+            val dbRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
+            dbRecord?.let { konverterTilResponse(it, referanse.periodeUUID) }
         }
 
     fun settSykepengegrunnlag(
@@ -53,29 +55,27 @@ class SykepengegrunnlagService(
                     yrkesaktiviteter,
                 )
             // Sett sykepengegrunnlag og beregning i samme transaksjon
-            val sykepengegrunnlagResponse =
-                sykepengegrunnlagDaoOld.settSykepengegrunnlag(
-                    referanse.periodeUUID,
-                    beregning,
-                    saksbehandler,
-                )
+            val sykepengegrunnlagFraBeregning = konverterFraResponse(beregning, saksbehandler)
+            val dbRecord = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlagFraBeregning, saksbehandler)
+            val sykepengegrunnlagResponse = konverterTilResponse(dbRecord, referanse.periodeUUID)
 
-            // Oppdater beregning basert på det nye sykepengegrunnlaget
-            val beregningshjelperISammeTransaksjon =
-                UtbetalingsBeregningHjelper(
-                    beregningDao,
-                    saksbehandlingsperiodeDao,
-                    sykepengegrunnlagDaoOld,
-                    yrkesaktivitetDao,
-                    personDao,
-                )
-            beregningshjelperISammeTransaksjon.settBeregning(referanse, saksbehandler)
+            // TODO: Oppdater beregning basert på det nye sykepengegrunnlaget
+            // Dette krever at UtbetalingsBeregningHjelper oppdateres til å bruke den nye DAO-en
+            // val beregningshjelperISammeTransaksjon =
+            //     UtbetalingsBeregningHjelper(
+            //         beregningDao,
+            //         saksbehandlingsperiodeDao,
+            //         sykepengegrunnlagDao,
+            //         yrkesaktivitetDao,
+            //         personDao,
+            //     )
+            // beregningshjelperISammeTransaksjon.settBeregning(referanse, saksbehandler)
             sykepengegrunnlagResponse
         }
 
     fun slettSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse) =
         db.transactional {
-            sykepengegrunnlagDaoOld.slettSykepengegrunnlag(referanse.periodeUUID)
+            sykepengegrunnlagDao.slettSykepengegrunnlag(referanse.periodeUUID)
             beregningDao.slettBeregning(referanse.periodeUUID)
         }
 
@@ -222,6 +222,42 @@ class SykepengegrunnlagService(
             opprettet = LocalDateTime.now().toString(),
             opprettetAv = saksbehandler.navIdent,
             sistOppdatert = LocalDateTime.now().toString(),
+        )
+    }
+
+    private fun konverterFraResponse(
+        response: SykepengegrunnlagResponse,
+        saksbehandler: Bruker,
+    ): Sykepengegrunnlag =
+        Sykepengegrunnlag(
+            grunnbeløp = InntektbeløpDto.Årlig(response.grunnbeløpØre / 100.0), // Konverter fra øre til kroner
+            sykepengegrunnlag = InntektbeløpDto.Årlig(response.sykepengegrunnlagØre / 100.0),
+            seksG = InntektbeløpDto.Årlig(response.grunnbeløp6GØre / 100.0),
+            begrensetTil6G = response.begrensetTil6G,
+            grunnbeløpVirkningstidspunkt = response.grunnbeløpVirkningstidspunkt,
+            opprettet = response.opprettet,
+            opprettetAv = response.opprettetAv,
+        )
+
+    private fun konverterTilResponse(
+        dbRecord: SykepengegrunnlagDbRecord,
+        saksbehandlingsperiodeId: UUID,
+    ): SykepengegrunnlagResponse {
+        val sykepengegrunnlag = dbRecord.sykepengegrunnlag
+        return SykepengegrunnlagResponse(
+            id = dbRecord.id,
+            saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+            inntekter = emptyList(), // TODO: Implementer inntekter hvis nødvendig
+            totalInntektØre = (sykepengegrunnlag.sykepengegrunnlag.beløp * 100).toLong(), // Konverter fra kroner til øre
+            grunnbeløpØre = (sykepengegrunnlag.grunnbeløp.beløp * 100).toLong(),
+            grunnbeløp6GØre = (sykepengegrunnlag.seksG.beløp * 100).toLong(),
+            begrensetTil6G = sykepengegrunnlag.begrensetTil6G,
+            sykepengegrunnlagØre = (sykepengegrunnlag.sykepengegrunnlag.beløp * 100).toLong(),
+            begrunnelse = null, // TODO: Legg til begrunnelse hvis nødvendig
+            grunnbeløpVirkningstidspunkt = sykepengegrunnlag.grunnbeløpVirkningstidspunkt,
+            opprettet = sykepengegrunnlag.opprettet,
+            opprettetAv = sykepengegrunnlag.opprettetAv,
+            sistOppdatert = dbRecord.oppdatert.toString(),
         )
     }
 }

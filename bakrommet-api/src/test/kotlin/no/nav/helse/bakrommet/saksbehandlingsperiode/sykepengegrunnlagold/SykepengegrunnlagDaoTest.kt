@@ -43,7 +43,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppretter og henter sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoOld(dataSource)
 
         val beregning =
             SykepengegrunnlagResponse(
@@ -82,7 +82,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppretter sykepengegrunnlag med 6G-begrensning`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoOld(dataSource)
 
         val beregning =
             SykepengegrunnlagResponse(
@@ -113,7 +113,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppdaterer eksisterende sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoOld(dataSource)
 
         val opprinneligBeregning =
             SykepengegrunnlagResponse(
@@ -169,7 +169,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `sletter sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoOld(dataSource)
 
         val beregning =
             SykepengegrunnlagResponse(
@@ -205,7 +205,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `returnerer null for periode uten sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoOld(dataSource)
         val annenPeriode = UUID.randomUUID()
 
         val grunnlag = dao.hentSykepengegrunnlag(annenPeriode)
@@ -215,7 +215,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `henter siste versjon ved flere versjoner`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoOld(dataSource)
 
         // Opprett første versjon
         val versjon1 =

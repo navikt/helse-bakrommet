@@ -6,7 +6,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDaoOld
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
@@ -20,7 +20,7 @@ import java.util.*
 class UtbetalingsBeregningHjelper(
     private val beregningDao: UtbetalingsberegningDao,
     private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    private val sykepengegrunnlagDao: SykepengegrunnlagDao,
+    private val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
 ) {
@@ -35,7 +35,7 @@ class UtbetalingsBeregningHjelper(
                 ?: throw RuntimeException("Fant ikke person for spilleromId ${periode.spilleromPersonId}")
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
-            sykepengegrunnlagDao.hentSykepengegrunnlag(referanse.periodeUUID)
+            sykepengegrunnlagDaoOld.hentSykepengegrunnlag(referanse.periodeUUID)
                 ?: return
 
         // Hent inntektsforhold

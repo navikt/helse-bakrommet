@@ -8,7 +8,10 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagBeregningHjelper
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDaoOld
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
@@ -20,6 +23,7 @@ interface InntektServiceDaoer {
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val sykepengegrunnlagDao: SykepengegrunnlagDao
+    val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld
     val beregningDao: UtbetalingsberegningDao
     val personDao: PersonDao
 }
@@ -158,8 +162,30 @@ class InntektService(
 
             yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
             // Slett sykepengegrunnlag og utbetalingsberegning når inntekt endres
-            sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            // TODO reberegn etter sp grunnlagsendring
+
+            SykepengegrunnlagBeregningHjelper(
+                beregningDao = beregningDao,
+                saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
+                sykepengegrunnlagDao = sykepengegrunnlagDao,
+                yrkesaktivitetDao = yrkesaktivitetDao,
+            ).beregnSykepengegrunnlag(
+                referanse = ref.saksbehandlingsperiodeReferanse,
+                saksbehandler = saksbehandler,
+            )
+
             beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+
+            UtbetalingsBeregningHjelper(
+                beregningDao = beregningDao,
+                saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
+                sykepengegrunnlagDaoOld = sykepengegrunnlagDaoOld,
+                yrkesaktivitetDao = yrkesaktivitetDao,
+                personDao = personDao,
+            ).settBeregning(
+                referanse = ref.saksbehandlingsperiodeReferanse,
+                saksbehandler = saksbehandler,
+            )
         }
     }
 }

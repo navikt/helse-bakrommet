@@ -75,7 +75,7 @@ class SykepengegrunnlagServiceTest {
             inntektData = null,
         )
 
-        val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
+        val sykepengegrunnlagDaoOld = SykepengegrunnlagDaoOld(dataSource)
         val beregningDao = UtbetalingsberegningDao(dataSource)
 
         service =
@@ -83,7 +83,7 @@ class SykepengegrunnlagServiceTest {
                 object : SykepengegrunnlagServiceDaoer {
                     override val saksbehandlingsperiodeDao = behandlingDao
                     override val yrkesaktivitetDao = yrkesaktivitetDao
-                    override val sykepengegrunnlagDao = sykepengegrunnlagDao
+                    override val sykepengegrunnlagDaoOld = sykepengegrunnlagDaoOld
                     override val beregningDao = beregningDao
                     override val personDao = personDao
                 },
@@ -91,7 +91,7 @@ class SykepengegrunnlagServiceTest {
                     object : SykepengegrunnlagServiceDaoer {
                         override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
                         override val yrkesaktivitetDao = YrkesaktivitetDao(session)
-                        override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
+                        override val sykepengegrunnlagDaoOld = SykepengegrunnlagDaoOld(session)
                         override val beregningDao = UtbetalingsberegningDao(session)
                         override val personDao = PersonDao(session)
                     }
