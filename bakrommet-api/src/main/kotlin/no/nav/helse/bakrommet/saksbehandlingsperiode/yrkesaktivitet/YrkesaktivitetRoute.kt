@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
@@ -30,6 +31,7 @@ data class YrkesaktivitetDTO(
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder?,
     val inntektRequest: InntektRequest?,
+    val inntektData: InntektData?,
 )
 
 fun YrkesaktivitetDbRecord.tilDto() =
@@ -40,6 +42,7 @@ fun YrkesaktivitetDbRecord.tilDto() =
         generertFraDokumenter = generertFraDokumenter,
         perioder = perioder,
         inntektRequest = inntektRequest,
+        inntektData = inntektData,
     )
 
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(

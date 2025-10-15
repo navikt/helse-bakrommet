@@ -6,8 +6,10 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.testutils.tidsstuttet
+import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -58,6 +60,7 @@ class YrkesaktivitetDaoTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
                 inntektRequest = null,
+                inntektData = null,
             )
         val ekko =
             dao.opprettYrkesaktivitet(
@@ -68,6 +71,7 @@ class YrkesaktivitetDaoTest {
                 opprettet = yrkesaktivitetDbRecord.opprettet,
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
             )
         assertEquals(yrkesaktivitetDbRecord.tidsstuttet(), ekko.tidsstuttet())
 
@@ -91,6 +95,7 @@ class YrkesaktivitetDaoTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
                 inntektRequest = null,
+                inntektData = null,
             )
 
         assertThrows<SQLException> {
@@ -102,6 +107,7 @@ class YrkesaktivitetDaoTest {
                 opprettet = yrkesaktivitetDbRecord.opprettet,
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
             )
         }
     }
@@ -121,6 +127,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = emptyList(),
                 perioder = null,
                 inntektRequest = null,
+                inntektData = null,
             )
         val opprettetYrkesaktivitet =
             dao.opprettYrkesaktivitet(
@@ -131,6 +138,7 @@ class YrkesaktivitetDaoTest {
                 opprettet = yrkesaktivitetDbRecord.opprettet,
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
             )
 
         // Oppdater perioder
@@ -168,6 +176,7 @@ class YrkesaktivitetDaoTest {
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
                 inntektRequest = null,
+                inntektData = null,
             )
 
         // Opprett yrkesaktivitet
@@ -180,6 +189,7 @@ class YrkesaktivitetDaoTest {
                 opprettet = yrkesaktivitetDbRecord.opprettet,
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
             )
 
         // Verifiser at inntektRequest er null ved opprettelse
@@ -209,6 +219,7 @@ class YrkesaktivitetDaoTest {
                     generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
                     perioder = opprettetYrkesaktivitet.perioder,
                     inntektRequest = null,
+                    inntektData = null,
                 ),
                 inntektRequest,
             )
@@ -223,5 +234,77 @@ class YrkesaktivitetDaoTest {
         // Hent via hentYrkesaktivitetDbRecord og verifiser
         val hentetDbRecord = dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id)
         assertEquals(inntektRequest, hentetDbRecord?.inntektRequest)
+    }
+
+    @Test
+    fun `oppdaterer og henter inntektData for yrkesaktivitet`() {
+        val dao = YrkesaktivitetDao(dataSource)
+        val yrkesaktivitetDbRecord =
+            YrkesaktivitetDbRecord(
+                id = UUID.randomUUID(),
+                kategorisering = arbeidstakerKategorisering(),
+                kategoriseringGenerert = null,
+                dagoversikt = emptyList(),
+                dagoversiktGenerert = null,
+                saksbehandlingsperiodeId = periode.id,
+                opprettet = OffsetDateTime.now(),
+                generertFraDokumenter = emptyList(),
+                inntektRequest = null,
+                inntektData = null,
+            )
+
+        // Opprett yrkesaktivitet
+        val opprettetYrkesaktivitet =
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
+            )
+
+        // Verifiser at inntektData er null ved opprettelse
+        assertEquals(null, opprettetYrkesaktivitet.inntektData)
+
+        // Opprett en InntektData
+        val inntektData =
+            InntektData.ArbeidstakerInntektsmelding(
+                inntektsmeldingId = "123456",
+                omregnetÅrsinntekt = InntektbeløpDto.Årlig(500000.0),
+                sporing = "TEST_SPORING",
+            )
+
+        // Oppdater inntektData
+        val oppdatertYrkesaktivitet =
+            dao.oppdaterInntektData(
+                Yrkesaktivitet(
+                    id = opprettetYrkesaktivitet.id,
+                    kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(opprettetYrkesaktivitet.kategorisering),
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert?.let { YrkesaktivitetKategoriseringMapper.fromMap(it) },
+                    dagoversikt = opprettetYrkesaktivitet.dagoversikt,
+                    dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
+                    saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
+                    opprettet = opprettetYrkesaktivitet.opprettet,
+                    generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
+                    perioder = opprettetYrkesaktivitet.perioder,
+                    inntektRequest = null,
+                    inntektData = null,
+                ),
+                inntektData,
+            )
+
+        // Verifiser at inntektData er oppdatert
+        assertEquals(inntektData, oppdatertYrkesaktivitet.inntektData)
+
+        // Hent yrkesaktivitet og verifiser at inntektData er lagret
+        val hentetYrkesaktivitet = dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id)
+        assertEquals(inntektData, hentetYrkesaktivitet?.inntektData)
+
+        // Hent via hentYrkesaktivitetDbRecord og verifiser
+        val hentetDbRecord = dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id)
+        assertEquals(inntektData, hentetDbRecord?.inntektData)
     }
 }

@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.util.*
 import no.nav.helse.hendelser.Periode
@@ -27,6 +28,7 @@ data class YrkesaktivitetDbRecord(
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
+    val inntektData: InntektData? = null,
 ) {
     fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
         if (this.perioder?.type == periodetype) {
@@ -47,6 +49,7 @@ data class Yrkesaktivitet(
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
+    val inntektData: InntektData? = null,
 )
 
 class YrkesaktivitetDao private constructor(
@@ -67,6 +70,7 @@ class YrkesaktivitetDao private constructor(
         opprettet: OffsetDateTime = OffsetDateTime.now(),
         generertFraDokumenter: List<UUID> = emptyList(),
         perioder: Perioder? = null,
+        inntektData: InntektData? = null,
     ): YrkesaktivitetDbRecord {
         val kategoriseringMap = YrkesaktivitetKategoriseringMapper.toMap(kategorisering)
         val yrkesaktivitetDbRecord =
@@ -80,17 +84,18 @@ class YrkesaktivitetDao private constructor(
                 opprettet = opprettet,
                 generertFraDokumenter = generertFraDokumenter,
                 perioder = perioder,
+                inntektData = inntektData,
             )
         db.update(
             """
             insert into yrkesaktivitet
                 (id, kategorisering, kategorisering_generert,
                 dagoversikt, dagoversikt_generert,
-                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter, perioder)
+                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data)
             values
                 (:id, :kategorisering, :kategorisering_generert,
                 :dagoversikt, :dagoversikt_generert,
-                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder)
+                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data)
             """.trimIndent(),
             "id" to yrkesaktivitetDbRecord.id,
             "kategorisering" to yrkesaktivitetDbRecord.kategorisering.serialisertTilString(),
@@ -101,6 +106,7 @@ class YrkesaktivitetDao private constructor(
             "opprettet" to yrkesaktivitetDbRecord.opprettet,
             "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
             "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
+            "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.serialisertTilString(),
         )
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
@@ -108,7 +114,7 @@ class YrkesaktivitetDao private constructor(
     fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
         db.single(
             """
-            select *, inntekt_request from yrkesaktivitet where id = :id
+            select *, inntekt_request, inntekt_data from yrkesaktivitet where id = :id
             """.trimIndent(),
             "id" to id,
             mapper = ::yrkesaktivitetFraRow,
@@ -127,13 +133,14 @@ class YrkesaktivitetDao private constructor(
                 generertFraDokumenter = dbRecord.generertFraDokumenter,
                 perioder = dbRecord.perioder,
                 inntektRequest = dbRecord.inntektRequest,
+                inntektData = dbRecord.inntektData,
             )
         }
 
     fun hentYrkesaktivitetFor(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
-            select *, inntekt_request from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
+            select *, inntekt_request, inntekt_data from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
             """.trimIndent(),
             "behandling_id" to periode.id,
             mapper = ::yrkesaktivitetFraRow,
@@ -154,6 +161,7 @@ class YrkesaktivitetDao private constructor(
                     ?.somListe<UUID>() ?: emptyList(),
             perioder = row.stringOrNull("perioder")?.let { objectMapper.readValue(it, Perioder::class.java) },
             inntektRequest = row.stringOrNull("inntekt_request")?.let { objectMapper.readValue(it, InntektRequest::class.java) },
+            inntektData = row.stringOrNull("inntekt_data")?.let { objectMapper.readValue(it, InntektData::class.java) },
         )
 
     /**
@@ -222,6 +230,20 @@ class YrkesaktivitetDao private constructor(
             """.trimIndent(),
             "id" to yrkesaktivitet.id,
             "inntekt_request" to request.serialisertTilString(),
+        )
+        return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
+    }
+
+    fun oppdaterInntektData(
+        yrkesaktivitet: Yrkesaktivitet,
+        inntektData: InntektData,
+    ): YrkesaktivitetDbRecord {
+        db.update(
+            """
+            update yrkesaktivitet set inntekt_data = :inntekt_data where id = :id
+            """.trimIndent(),
+            "id" to yrkesaktivitet.id,
+            "inntekt_data" to inntektData.serialisertTilString(),
         )
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }

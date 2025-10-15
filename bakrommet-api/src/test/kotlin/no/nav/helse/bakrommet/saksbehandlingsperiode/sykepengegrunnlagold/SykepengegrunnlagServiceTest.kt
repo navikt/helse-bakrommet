@@ -72,6 +72,7 @@ class SykepengegrunnlagServiceTest {
             opprettet = yrkesaktivitetDbRecord.opprettet,
             generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
             perioder = yrkesaktivitetDbRecord.perioder,
+            inntektData = null,
         )
 
         val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
