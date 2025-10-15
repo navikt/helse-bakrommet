@@ -25,7 +25,7 @@ enum class Beregningssporing {
 
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagResponse,
-    val yrkesaktivitetDbRecord: List<YrkesaktivitetDbRecord>,
+    val yrkesaktivitet: List<YrkesaktivitetDbRecord>,
     val saksbehandlingsperiode: PeriodeDto,
     val arbeidsgiverperiode: PeriodeDto? = null,
 )

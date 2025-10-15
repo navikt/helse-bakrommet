@@ -63,7 +63,7 @@ class UtbetalingsberegningTestBuilder {
 
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
-            yrkesaktivitetDbRecord = yrkesaktivitetListe,
+            yrkesaktivitet = yrkesaktivitetListe,
             saksbehandlingsperiode = periode,
             arbeidsgiverperiode = arbeidsgiverperiode,
         )
@@ -479,7 +479,7 @@ fun beregnOgByggOppdrag(
     ident: String = "TESTIDENT",
 ): BeregningResultat {
     val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitetDbRecord, ident)
+    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, ident)
     return BeregningResultat(beregnet, oppdrag)
 }
 

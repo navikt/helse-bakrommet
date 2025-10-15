@@ -15,12 +15,12 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
     val refusjonstidslinjer =
         beregnAlleRefusjonstidslinjer(
             input.sykepengegrunnlag,
-            input.yrkesaktivitetDbRecord.map { it.id },
+            input.yrkesaktivitet.map { it.id },
             input.saksbehandlingsperiode,
         )
 
     val yrkesaktivitetMedDekningsgrad =
-        input.yrkesaktivitetDbRecord.map { ya ->
+        input.yrkesaktivitet.map { ya ->
             ya to ya.hentDekningsgrad()
         }
 

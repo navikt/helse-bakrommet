@@ -45,7 +45,7 @@ class UtbetalingsBeregningHjelper(
         val beregningInput =
             UtbetalingsberegningInput(
                 sykepengegrunnlag = sykepengegrunnlag,
-                yrkesaktivitetDbRecord = yrkesaktiviteter,
+                yrkesaktivitet = yrkesaktiviteter,
                 saksbehandlingsperiode =
                     PeriodeDto(
                         fom = periode.fom,

@@ -21,7 +21,7 @@ internal fun Route.demoUtbetalingsberegningRoute() {
                 // Parse input til objekt
                 val input = objectMapper.readValue(rawInput, UtbetalingsberegningInput::class.java)
                 val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-                val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitetDbRecord, "NATURLIG_IDENT_DEMO")
+                val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, "NATURLIG_IDENT_DEMO")
                 val beregningData = BeregningData(beregnet, oppdrag)
                 val beregningDataDto = beregningData.tilBeregningDataUtDto()
 
