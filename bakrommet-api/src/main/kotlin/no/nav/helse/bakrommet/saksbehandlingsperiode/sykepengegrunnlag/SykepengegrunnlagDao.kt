@@ -89,8 +89,11 @@ class SykepengegrunnlagDao private constructor(
     }
 
     private fun sykepengegrunnlagFraRow(row: Row): SykepengegrunnlagDbRecord {
-        val sykepengegrunnlagJson = row.string("sykepengegrunnlag")
-        val sykepengegrunnlag = objectMapper.readValue(sykepengegrunnlagJson, Sykepengegrunnlag::class.java)
+        val sykepengegrunnlagJson = row.stringOrNull("sykepengegrunnlag")
+        val sykepengegrunnlag =
+            sykepengegrunnlagJson?.let {
+                objectMapper.readValue(sykepengegrunnlagJson, Sykepengegrunnlag::class.java)
+            }
         val opprettet = row.instant("opprettet")
         val oppdatert = row.instant("oppdatert")
 

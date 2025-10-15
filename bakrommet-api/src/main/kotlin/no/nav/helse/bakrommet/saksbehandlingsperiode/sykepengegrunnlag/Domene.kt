@@ -16,7 +16,7 @@ data class Sykepengegrunnlag(
 )
 
 data class SykepengegrunnlagDbRecord(
-    val sykepengegrunnlag: Sykepengegrunnlag,
+    val sykepengegrunnlag: Sykepengegrunnlag?,
     val id: UUID,
     val opprettetAv: String,
     val opprettet: Instant,

@@ -16,5 +16,15 @@ class SykepengegrunnlagBeregningHjelper(
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ) {
+        // Hent nødvendige data for beregningen
+        val periode =
+            saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(referanse.periodeUUID)
+                ?: throw RuntimeException("Fant ikke saksbehandlingsperiode for id ${referanse.periodeUUID}")
+
+        // TODO valider at sb på saken? Eller anta at det skjer senere
+
+        // Hent sykepengegrunnlag
+        val sykepengegrunnlag =
+            periode.sykepengegrunnlagId?.let { sykepengegrunnlagDao.hentSykepengegrunnlag(it) }
     }
 }

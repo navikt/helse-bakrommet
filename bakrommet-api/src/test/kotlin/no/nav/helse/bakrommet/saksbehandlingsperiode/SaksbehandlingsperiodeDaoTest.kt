@@ -3,10 +3,14 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
+import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
+import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -57,6 +61,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                 tom = tom,
                 skjæringstidspunkt = fom,
                 individuellBegrunnelse = null,
+                sykepengegrunnlagId = null,
             ).truncateTidspunkt()
         dao.opprettPeriode(periode)
 
@@ -91,6 +96,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                     fom = fom.toLocalDate(),
                     tom = tom.toLocalDate(),
                     skjæringstidspunkt = fom.toLocalDate(),
+                    sykepengegrunnlagId = null,
                 ).truncateTidspunkt()
             dao.opprettPeriode(periode)
             return dao.finnSaksbehandlingsperiode(id)!!
@@ -141,6 +147,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                 tom = tom,
                 skjæringstidspunkt = fom,
                 individuellBegrunnelse = null,
+                sykepengegrunnlagId = null,
             ).truncateTidspunkt()
         dao.opprettPeriode(periode)
 
@@ -156,5 +163,56 @@ internal class SaksbehandlingsperiodeDaoTest {
 
         val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
         assertNull(nullstiltPeriode.skjæringstidspunkt)
+    }
+
+    @Test
+    fun `kan oppdatere sykepengegrunnlag_id`() {
+        val id = UUID.randomUUID()
+        val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
+        val now = OffsetDateTime.now()
+        val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
+        val fom = LocalDate.of(2021, 1, 1)
+        val tom = LocalDate.of(2021, 1, 31)
+
+        val periode =
+            Saksbehandlingsperiode(
+                id = id,
+                spilleromPersonId = personId,
+                opprettet = now,
+                opprettetAvNavIdent = saksbehandler.navIdent,
+                opprettetAvNavn = saksbehandler.navn,
+                fom = fom,
+                tom = tom,
+                skjæringstidspunkt = fom,
+                individuellBegrunnelse = null,
+                sykepengegrunnlagId = null,
+            ).truncateTidspunkt()
+        dao.opprettPeriode(periode)
+
+        // Opprett et gyldig sykepengegrunnlag først
+        val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
+        val sykepengegrunnlag =
+            Sykepengegrunnlag(
+                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
+                seksG = InntektbeløpDto.Årlig(744168.0),
+                begrensetTil6G = false,
+                grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
+                opprettet = Instant.now().toString(),
+                opprettetAv = saksbehandler.navIdent,
+            )
+        val lagretGrunnlag = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
+
+        // Oppdater sykepengegrunnlag_id med gyldig ID
+        dao.oppdaterSykepengegrunnlagId(id, lagretGrunnlag.id)
+
+        val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        assertEquals(lagretGrunnlag.id, oppdatertPeriode.sykepengegrunnlagId)
+
+        // Nullstill sykepengegrunnlag_id
+        dao.oppdaterSykepengegrunnlagId(id, null)
+
+        val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        assertNull(nullstiltPeriode.sykepengegrunnlagId)
     }
 }

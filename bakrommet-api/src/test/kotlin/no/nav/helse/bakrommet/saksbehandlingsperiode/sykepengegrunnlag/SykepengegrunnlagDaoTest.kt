@@ -38,18 +38,18 @@ class SykepengegrunnlagDaoTest {
 
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
 
-        assertEquals(540000.0, lagretGrunnlag.sykepengegrunnlag.sykepengegrunnlag.beløp)
-        assertEquals(744168.0, lagretGrunnlag.sykepengegrunnlag.seksG.beløp)
-        assertEquals(false, lagretGrunnlag.sykepengegrunnlag.begrensetTil6G)
+        assertEquals(540000.0, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
+        assertEquals(744168.0, lagretGrunnlag.sykepengegrunnlag!!.seksG.beløp)
+        assertEquals(false, lagretGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
         assertEquals(saksbehandler.navIdent, lagretGrunnlag.opprettetAv)
-        assertEquals(saksbehandler.navIdent, lagretGrunnlag.sykepengegrunnlag.opprettetAv)
+        assertEquals(saksbehandler.navIdent, lagretGrunnlag.sykepengegrunnlag!!.opprettetAv)
 
         // Verifiser at opprettet og oppdatert er like ved opprettelse
         assertEquals(lagretGrunnlag.opprettet, lagretGrunnlag.oppdatert)
 
         val hentetGrunnlag = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
         assertEquals(lagretGrunnlag.id, hentetGrunnlag!!.id)
-        assertEquals(lagretGrunnlag.sykepengegrunnlag.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag.sykepengegrunnlag.beløp)
+        assertEquals(lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
     }
 
     @Test
@@ -69,9 +69,9 @@ class SykepengegrunnlagDaoTest {
 
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
 
-        assertEquals(780960.0, lagretGrunnlag.sykepengegrunnlag.sykepengegrunnlag.beløp)
-        assertEquals(true, lagretGrunnlag.sykepengegrunnlag.begrensetTil6G)
-        assertEquals(lagretGrunnlag.sykepengegrunnlag.seksG.beløp, lagretGrunnlag.sykepengegrunnlag.sykepengegrunnlag.beløp)
+        assertEquals(780960.0, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
+        assertEquals(true, lagretGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
+        assertEquals(lagretGrunnlag.sykepengegrunnlag!!.seksG.beløp, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
     }
 
     @Test
@@ -98,13 +98,13 @@ class SykepengegrunnlagDaoTest {
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                opprettet = lagretGrunnlag.sykepengegrunnlag.opprettet,
+                opprettet = lagretGrunnlag.sykepengegrunnlag!!.opprettet,
                 opprettetAv = saksbehandler.navIdent,
             )
 
         val oppdatertResultat = dao.oppdaterSykepengrgrunnlag(lagretGrunnlag.id, oppdatertGrunnlag)
 
-        assertEquals(660000.0, oppdatertResultat.sykepengegrunnlag.sykepengegrunnlag.beløp)
+        assertEquals(660000.0, oppdatertResultat.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(lagretGrunnlag.id, oppdatertResultat.id)
 
         // Verifiser at oppdatert tidspunkt er endret
@@ -130,7 +130,7 @@ class SykepengegrunnlagDaoTest {
 
         // Verifiser at grunnlaget finnes
         val hentetFørSletting = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
-        assertEquals(540000.0, hentetFørSletting!!.sykepengegrunnlag.sykepengegrunnlag.beløp)
+        assertEquals(540000.0, hentetFørSletting!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
 
         // Slett grunnlaget
         dao.slettSykepengegrunnlag(lagretGrunnlag.id)
@@ -169,11 +169,11 @@ class SykepengegrunnlagDaoTest {
         val hentetGrunnlag = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
 
         // Verifiser at alle felter er korrekt deserialisert
-        assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag.grunnbeløp.beløp)
-        assertEquals(sykepengegrunnlag.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag.sykepengegrunnlag.beløp)
-        assertEquals(sykepengegrunnlag.seksG.beløp, hentetGrunnlag.sykepengegrunnlag.seksG.beløp)
-        assertEquals(sykepengegrunnlag.begrensetTil6G, hentetGrunnlag.sykepengegrunnlag.begrensetTil6G)
-        assertEquals(sykepengegrunnlag.grunnbeløpVirkningstidspunkt, hentetGrunnlag.sykepengegrunnlag.grunnbeløpVirkningstidspunkt)
-        assertEquals(sykepengegrunnlag.opprettetAv, hentetGrunnlag.sykepengegrunnlag.opprettetAv)
+        assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag!!.grunnbeløp.beløp)
+        assertEquals(sykepengegrunnlag.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
+        assertEquals(sykepengegrunnlag.seksG.beløp, hentetGrunnlag.sykepengegrunnlag!!.seksG.beløp)
+        assertEquals(sykepengegrunnlag.begrensetTil6G, hentetGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
+        assertEquals(sykepengegrunnlag.grunnbeløpVirkningstidspunkt, hentetGrunnlag.sykepengegrunnlag!!.grunnbeløpVirkningstidspunkt)
+        assertEquals(sykepengegrunnlag.opprettetAv, hentetGrunnlag.sykepengegrunnlag!!.opprettetAv)
     }
 }

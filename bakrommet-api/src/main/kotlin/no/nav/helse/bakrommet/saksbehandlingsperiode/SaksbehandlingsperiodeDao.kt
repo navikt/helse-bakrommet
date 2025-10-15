@@ -25,6 +25,7 @@ data class Saksbehandlingsperiode(
     val beslutterNavIdent: String? = null,
     val skjæringstidspunkt: LocalDate? = null,
     val individuellBegrunnelse: String? = null,
+    val sykepengegrunnlagId: UUID? = null,
 )
 
 enum class SaksbehandlingsperiodeStatus {
@@ -125,6 +126,7 @@ class SaksbehandlingsperiodeDao private constructor(
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
             skjæringstidspunkt = row.localDateOrNull("skjaeringstidspunkt"),
             individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
+            sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id"),
         )
 
     fun endreStatus(
@@ -180,9 +182,9 @@ class SaksbehandlingsperiodeDao private constructor(
         db.update(
             """
             insert into saksbehandlingsperiode
-                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse)
+                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse, sykepengegrunnlag_id)
             values
-                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse)
+                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id)
             """.trimIndent(),
             "id" to periode.id,
             "spillerom_personid" to periode.spilleromPersonId,
@@ -195,6 +197,7 @@ class SaksbehandlingsperiodeDao private constructor(
             "beslutter_nav_ident" to periode.beslutterNavIdent,
             "skjaeringstidspunkt" to periode.skjæringstidspunkt,
             "individuell_begrunnelse" to periode.individuellBegrunnelse,
+            "sykepengegrunnlag_id" to periode.sykepengegrunnlagId,
         )
     }
 
@@ -210,6 +213,21 @@ class SaksbehandlingsperiodeDao private constructor(
             """.trimIndent(),
             "id" to periodeId,
             "skjaeringstidspunkt" to skjæringstidspunkt,
+        )
+    }
+
+    fun oppdaterSykepengegrunnlagId(
+        periodeId: UUID,
+        sykepengegrunnlagId: UUID?,
+    ) {
+        db.update(
+            """
+            UPDATE saksbehandlingsperiode 
+            SET sykepengegrunnlag_id = :sykepengegrunnlag_id
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to periodeId,
+            "sykepengegrunnlag_id" to sykepengegrunnlagId,
         )
     }
 }
