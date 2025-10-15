@@ -28,6 +28,11 @@ sealed class InntektData {
         override val sporing: String = "BEREGNINGSSPORINGVERDI",
     ) : InntektData()
 
+    data class ArbeidstakerManueltBeregnet(
+        override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
+        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+    ) : InntektData()
+
     data class ArbeidstakerAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: String = "BEREGNINGSSPORINGVERDI",

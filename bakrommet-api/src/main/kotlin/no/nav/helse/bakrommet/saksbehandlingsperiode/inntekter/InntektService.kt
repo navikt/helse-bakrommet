@@ -13,6 +13,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Utbeta
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.dto.InntektbeløpDto
+import no.nav.helse.økonomi.Inntekt
 
 interface InntektServiceDaoer {
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
@@ -65,72 +67,102 @@ class InntektService(
 
             yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
 
-            when (request) {
-                is InntektRequest.Arbeidstaker -> {
-                    if (yrkesaktivitet.kategorisering.inntektskategori == Inntektskategori.ARBEIDSTAKER) {
-                        throw IllegalStateException("Kan kun oppdatere arbeidstaker inntekt på yrkesaktivitet med inntektskategori ARBEIDSTAKER")
+            val inntektData =
+                when (request) {
+                    is InntektRequest.Arbeidstaker -> {
+                        if (yrkesaktivitet.kategorisering.inntektskategori == Inntektskategori.ARBEIDSTAKER) {
+                            throw IllegalStateException("Kan kun oppdatere arbeidstaker inntekt på yrkesaktivitet med inntektskategori ARBEIDSTAKER")
+                        }
+
+                        when (request.data) {
+                            is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
+                                InntektData.ArbeidstakerSkjønnsfastsatt(
+                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.månedsbeløp).dto().årlig,
+                                    sporing = "SKJØNNSFASTSATT_${request.data.årsak.name} TODO",
+                                )
+                            }
+
+                            is ArbeidstakerInntektRequest.Ainntekt -> {
+                                InntektData.ArbeidstakerAinntekt(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    sporing = "A-inntekt TODO",
+                                )
+                            }
+
+                            is ArbeidstakerInntektRequest.Inntektsmelding -> {
+                                // TODO: Hent inntektsmelding data
+                                InntektData.ArbeidstakerInntektsmelding(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    inntektsmeldingId = request.data.inntektsmeldingId,
+                                )
+                            }
+
+                            is ArbeidstakerInntektRequest.ManueltBeregnet -> {
+                                InntektData.ArbeidstakerManueltBeregnet(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                )
+                            }
+                        }
                     }
-
-                    when (request.data) {
-                        is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
-                            // Logg skjønnsfastsatt inntekt
+                    is InntektRequest.SelvstendigNæringsdrivende ->
+                        when (request.data) {
+                            is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
+                                InntektData.SelvstendigNæringsdrivendePensjonsgivende(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    pensjonsgivendeInntekt = PensjonsgivendeInntekt(emptyList()), // TODO dette skal hentes,
+                                )
+                            }
+                            is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
+                                InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                )
+                            }
                         }
-
-                        is ArbeidstakerInntektRequest.Ainntekt -> {
-                            // TODO: Hent A-inntekt data
+                    is InntektRequest.Inaktiv ->
+                        when (request.data) {
+                            is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
+                                InntektData.SelvstendigNæringsdrivendePensjonsgivende(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    pensjonsgivendeInntekt = PensjonsgivendeInntekt(emptyList()), // TODO dette skal hentes,
+                                )
+                            }
+                            is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
+                                InntektData.InaktivSkjønnsfastsatt(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                )
+                            }
                         }
-
-                        is ArbeidstakerInntektRequest.Inntektsmelding -> {
-                            // TODO: Hent inntektsmelding data
+                    is InntektRequest.Frilanser ->
+                        when (request.data) {
+                            is FrilanserInntektRequest.Ainntekt -> {
+                                InntektData.FrilanserAinntekt(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    sporing = "A-inntekt TODO",
+                                )
+                            }
+                            is FrilanserInntektRequest.Skjønnsfastsatt -> {
+                                InntektData.FrilanserSkjønnsfastsatt(
+                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    sporing = "A-inntekt TODO",
+                                )
+                            }
                         }
-
-                        is ArbeidstakerInntektRequest.ManueltBeregnet -> {
-                            // Logg manuelt beregnet inntekt
+                    is InntektRequest.Arbeidsledig -> {
+                        when (request.data.type) {
+                            ArbeidsledigInntektType.DAGPENGER -> {
+                                throw RuntimeException("Dagpenger er ikke implementert ennå")
+                            }
+                            ArbeidsledigInntektType.VENTELONN -> {
+                                throw RuntimeException("Ventelønn er ikke implementert ennå")
+                            }
+                            ArbeidsledigInntektType.VARTPENGER -> {
+                                throw RuntimeException("Vartpenger er ikke implementert ennå")
+                            }
                         }
                     }
                 }
-                is InntektRequest.SelvstendigNæringsdrivende ->
-                    when (request.data) {
-                        is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
-                            // TODO: Hent pensjonsgivende inntekt data
-                        }
-                        is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
-                            // Logg skjønnsfastsatt pensjonsgivende inntekt
-                        }
-                    }
-                is InntektRequest.Inaktiv ->
-                    when (request.data) {
-                        is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
-                            // TODO: Hent pensjonsgivende inntekt data
-                        }
-                        is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
-                            // Logg skjønnsfastsatt pensjonsgivende inntekt
-                        }
-                    }
-                is InntektRequest.Frilanser ->
-                    when (request.data) {
-                        is FrilanserInntektRequest.Ainntekt -> {
-                            // TODO: Hent A-inntekt data
-                        }
-                        is FrilanserInntektRequest.Skjønnsfastsatt -> {
-                            // Logg skjønnsfastsatt frilanser inntekt
-                        }
-                    }
-                is InntektRequest.Arbeidsledig -> {
-                    when (request.data.type) {
-                        ArbeidsledigInntektType.DAGPENGER -> {
-                            // Logg dagpenger: månedligBeløp = ${request.data.månedligBeløp}
-                        }
-                        ArbeidsledigInntektType.VENTELONN -> {
-                            // Logg ventelønn: månedligBeløp = ${request.data.månedligBeløp}
-                        }
-                        ArbeidsledigInntektType.VARTPENGER -> {
-                            // Logg vartpenger: månedligBeløp = ${request.data.månedligBeløp}
-                        }
-                    }
-                }
-            }
 
+            yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
             // Slett sykepengegrunnlag og utbetalingsberegning når inntekt endres
             sykepengegrunnlagDao.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
             beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
