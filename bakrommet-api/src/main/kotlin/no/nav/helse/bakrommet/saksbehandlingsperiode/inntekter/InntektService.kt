@@ -10,12 +10,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.ArbeidsledigInntektType
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.FrilanserInntektRequest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
 
