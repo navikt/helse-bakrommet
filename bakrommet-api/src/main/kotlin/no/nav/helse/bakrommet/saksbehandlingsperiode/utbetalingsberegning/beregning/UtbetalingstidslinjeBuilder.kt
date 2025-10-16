@@ -4,7 +4,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Utbeta
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.tilSykdomstidslinje
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
@@ -70,27 +69,27 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
             )
 
         // TODO egen frilanser builder
-        is YrkesaktivitetKategorisering.Frilanser -> byggArbeidstakerUtbetalingstidslinje(
-            arbeidsgiverperiode = arbeidsgiverperiode,
-            dekningsgrad = dekningsgrad,
-            dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
-            refusjonstidslinje = refusjonstidslinje,
-            fastsattÅrsinntekt = fastsattÅrsinntekt,
-            inntektjusteringer = inntektjusteringer,
-            sykdomstidslinje = sykdomstidslinje,
-        )
+        is YrkesaktivitetKategorisering.Frilanser ->
+            byggArbeidstakerUtbetalingstidslinje(
+                arbeidsgiverperiode = arbeidsgiverperiode,
+                dekningsgrad = dekningsgrad,
+                dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
+                refusjonstidslinje = refusjonstidslinje,
+                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                inntektjusteringer = inntektjusteringer,
+                sykdomstidslinje = sykdomstidslinje,
+            )
 
-        is YrkesaktivitetKategorisering.Arbeidstaker -> byggArbeidstakerUtbetalingstidslinje(
-            arbeidsgiverperiode = arbeidsgiverperiode,
-            dekningsgrad = dekningsgrad,
-            dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
-            refusjonstidslinje = refusjonstidslinje,
-            fastsattÅrsinntekt = fastsattÅrsinntekt,
-            inntektjusteringer = inntektjusteringer,
-            sykdomstidslinje = sykdomstidslinje,
-        )
-
-
+        is YrkesaktivitetKategorisering.Arbeidstaker ->
+            byggArbeidstakerUtbetalingstidslinje(
+                arbeidsgiverperiode = arbeidsgiverperiode,
+                dekningsgrad = dekningsgrad,
+                dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
+                refusjonstidslinje = refusjonstidslinje,
+                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                inntektjusteringer = inntektjusteringer,
+                sykdomstidslinje = sykdomstidslinje,
+            )
     }
 }
 

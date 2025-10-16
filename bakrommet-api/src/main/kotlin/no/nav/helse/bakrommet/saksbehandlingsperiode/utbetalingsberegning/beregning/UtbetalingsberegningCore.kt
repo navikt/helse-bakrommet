@@ -42,10 +42,11 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
 
     val utbetalingstidslinjerMedTotalGrad = Utbetalingstidslinje.totalSykdomsgrad(utbetalingstidslinjer)
     val sykepengegrunnlag = input.sykepengegrunnlag.sykepengegrunnlag.tilInntekt()
-    val utbetalingstidslinjerBetalt = Utbetalingstidslinje.betale(
-        sykepengegrunnlagBegrenset6G = sykepengegrunnlag,
-        tidslinjer = utbetalingstidslinjerMedTotalGrad
-    )
+    val utbetalingstidslinjerBetalt =
+        Utbetalingstidslinje.betale(
+            sykepengegrunnlagBegrenset6G = sykepengegrunnlag,
+            tidslinjer = utbetalingstidslinjerMedTotalGrad,
+        )
 
     return yrkesaktivitetMedDekningsgrad
         .zip(

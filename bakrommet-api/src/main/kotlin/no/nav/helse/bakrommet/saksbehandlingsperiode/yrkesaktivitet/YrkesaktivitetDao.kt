@@ -33,13 +33,11 @@ data class YrkesaktivitetDbRecord(
     val inntektData: InntektData? = null,
 )
 
-
 data class Refusjonsperiode(
     val fom: LocalDate,
     val tom: LocalDate?,
     val beløp: InntektbeløpDto.MånedligDouble,
 )
-
 
 data class Yrkesaktivitet(
     val id: UUID,
@@ -54,7 +52,7 @@ data class Yrkesaktivitet(
     val inntektRequest: InntektRequest? = null,
     val inntektData: InntektData? = null,
     val refusjonsdata: List<Refusjonsperiode>? = null,
-){
+) {
     fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
         if (this.perioder?.type == periodetype) {
             this.perioder.perioder.map { Periode(it.fom, it.tom) }

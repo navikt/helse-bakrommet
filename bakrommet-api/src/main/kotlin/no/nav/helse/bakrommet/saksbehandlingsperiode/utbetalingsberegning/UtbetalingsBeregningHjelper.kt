@@ -10,7 +10,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Klassekode
@@ -93,11 +92,12 @@ fun byggOppdragFraBeregning(
 
     beregnet.forEach { yrkesaktivitetBeregning ->
         val yrkesaktivitet = yrkesaktiviteter.first { it.id == yrkesaktivitetBeregning.yrkesaktivitetId }
-        val mottakerRefusjon = if(yrkesaktivitet.kategorisering is YrkesaktivitetKategorisering.Arbeidstaker){
-            yrkesaktivitet.kategorisering.orgnummer
-        } else {
-            "TODO_INGEN_REFUSJON" // Dette er en hack vi bør fikse en gang
-        }
+        val mottakerRefusjon =
+            if (yrkesaktivitet.kategorisering is YrkesaktivitetKategorisering.Arbeidstaker) {
+                yrkesaktivitet.kategorisering.orgnummer
+            } else {
+                "TODO_INGEN_REFUSJON" // Dette er en hack vi bør fikse en gang
+            }
 
         val mottakerBruker = ident
         val klassekodeBruker = Klassekode.SykepengerArbeidstakerOrdinær

@@ -4,7 +4,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.økonomi.tilInntekt
-import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
 /**
@@ -15,7 +14,7 @@ fun finnInntektForYrkesaktivitet(
     yrkesaktivitet: Yrkesaktivitet,
 ): Inntekt {
     // Hvis næringsdrivende og næringsdel, returner næringsdel.
-    if(yrkesaktivitet.kategorisering is SelvstendigNæringsdrivende){
+    if (yrkesaktivitet.kategorisering is SelvstendigNæringsdrivende) {
         sykepengegrunnlag.næringsdel?.let {
             return it.næringsdel.tilInntekt()
         }
@@ -23,4 +22,3 @@ fun finnInntektForYrkesaktivitet(
     requireNotNull(yrkesaktivitet.inntektData)
     return yrkesaktivitet.inntektData.omregnetÅrsinntekt.tilInntekt()
 }
-

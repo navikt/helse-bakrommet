@@ -10,14 +10,15 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.Beregningsdaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregnSykepengegrunnlagOgUtbetaling
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDaoOld
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import java.util.*
 
@@ -26,12 +27,12 @@ data class YrkesaktivitetReferanse(
     val yrkesaktivitetUUID: UUID,
 )
 
-interface YrkesaktivitetServiceDaoer {
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
-    val yrkesaktivitetDao: YrkesaktivitetDao
-    val beregningDao: UtbetalingsberegningDao
-    val personDao: PersonDao
-    val sykepengegrunnlagDao: SykepengegrunnlagDao
+interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
+    override val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    override val yrkesaktivitetDao: YrkesaktivitetDao
+    override val beregningDao: UtbetalingsberegningDao
+    override val personDao: PersonDao
+    override val sykepengegrunnlagDao: SykepengegrunnlagDao
 }
 
 typealias DagerSomSkalOppdateres = JsonNode
@@ -122,12 +123,12 @@ class YrkesaktivitetService(
         saksbehandler: Bruker,
     ) {
         val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        db.nonTransactional {
+        db.transactional {
             yrkesaktivitetDao.slettYrkesaktivitet(inntektsforhold.id)
-
-            // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            sykepengegrunnlagDaoOld.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
-            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            beregnSykepengegrunnlagOgUtbetaling(
+                ref.saksbehandlingsperiodeReferanse,
+                saksbehandler = saksbehandler,
+            )
         }
     }
 
@@ -144,9 +145,15 @@ class YrkesaktivitetService(
             val dagerSomSkalOppdateresArray =
                 when {
                     dagerSomSkalOppdateresJson.isArray -> dagerSomSkalOppdateresJson
-                    dagerSomSkalOppdateresJson.isObject && dagerSomSkalOppdateresJson.has("dager") && dagerSomSkalOppdateresJson.get("dager").isArray -> {
+                    dagerSomSkalOppdateresJson.isObject &&
+                        dagerSomSkalOppdateresJson.has("dager") &&
+                        dagerSomSkalOppdateresJson
+                            .get(
+                                "dager",
+                            ).isArray -> {
                         dagerSomSkalOppdateresJson.get("dager")
                     }
+
                     else -> throw InputValideringException("Body must be an array of days or an object with dager field")
                 }
 
@@ -193,16 +200,7 @@ class YrkesaktivitetService(
 
             val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
 
-            val beregningshjelperISammeTransaksjon =
-                UtbetalingsBeregningHjelper(
-                    beregningDao,
-                    saksbehandlingsperiodeDao,
-                    sykepengegrunnlagDaoOld,
-                    yrkesaktivitetDao,
-                    personDao,
-                )
-            beregningshjelperISammeTransaksjon.settBeregning(ref.saksbehandlingsperiodeReferanse, saksbehandler)
-
+            beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
             oppdatertYrkesaktivitet
         }
     }
@@ -215,16 +213,7 @@ class YrkesaktivitetService(
         val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.transactional {
             yrkesaktivitetDao.oppdaterPerioder(inntektsforhold, perioder)
-
-            val beregningshjelperISammeTransaksjon =
-                UtbetalingsBeregningHjelper(
-                    beregningDao,
-                    saksbehandlingsperiodeDao,
-                    sykepengegrunnlagDaoOld,
-                    yrkesaktivitetDao,
-                    personDao,
-                )
-            beregningshjelperISammeTransaksjon.settBeregning(ref.saksbehandlingsperiodeReferanse, saksbehandler)
+            beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
         }
     }
 }

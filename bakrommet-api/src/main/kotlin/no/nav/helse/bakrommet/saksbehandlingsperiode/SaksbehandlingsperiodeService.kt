@@ -25,7 +25,6 @@ import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -142,24 +141,8 @@ class SaksbehandlingsperiodeService(
             }
 
             tidligerePeriodeInntilNyPeriode?.let {
-                sykepengegrunnlagDaoOld.hentSykepengegrunnlag(it.id)?.let { grunnlag ->
-                    sykepengegrunnlagDaoOld.settSykepengegrunnlag(
-                        saksbehandlingsperiodeId = nyPeriode.id,
-                        beregning =
-                            grunnlag.copy(
-                                id = UUID.randomUUID(),
-                                saksbehandlingsperiodeId = nyPeriode.id,
-                                opprettet = LocalDateTime.now().toString(),
-                                opprettetAv = saksbehandler.bruker.navIdent,
-                                sistOppdatert = LocalDateTime.now().toString(),
-                                inntekter =
-                                    grunnlag.inntekter.map { inntekt ->
-                                        val nyId = gammelTilNyIdMap[inntekt.yrkesaktivitetId] ?: UUID.randomUUID()
-                                        inntekt.copy(yrkesaktivitetId = nyId)
-                                    },
-                            ),
-                        saksbehandler = saksbehandler.bruker,
-                    )
+                it.sykepengegrunnlagId?.let { spgid ->
+                    saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(nyPeriode.id, spgid)
                 }
             }
         }
@@ -333,6 +316,7 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
                 typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
             )
         }
+
         ArbeidssituasjonDTO.FRILANSER -> {
             YrkesaktivitetKategorisering.Frilanser(
                 orgnummer = orgnummer,
@@ -340,6 +324,7 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
                 forsikring = FrilanserForsikring.INGEN_FORSIKRING,
             )
         }
+
         ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
@@ -349,12 +334,14 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
                     ),
             )
         }
+
         ArbeidssituasjonDTO.FISKER -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
                 type = TypeSelvstendigNæringsdrivende.Fisker(),
             )
         }
+
         ArbeidssituasjonDTO.JORDBRUKER -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
@@ -364,6 +351,7 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
                     ),
             )
         }
+
         ArbeidssituasjonDTO.BARNEPASSER -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
@@ -373,14 +361,17 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
                     ),
             )
         }
+
         ArbeidssituasjonDTO.ARBEIDSLEDIG -> {
             YrkesaktivitetKategorisering.Arbeidsledig()
         }
+
         ArbeidssituasjonDTO.ANNET -> {
             YrkesaktivitetKategorisering.Inaktiv(
                 variant = VariantAvInaktiv.INAKTIV_VARIANT_A,
             )
         }
+
         null -> {
             logg.warn("'null'-verdi for arbeidssituasjon for søknad med id={}", id)
             YrkesaktivitetKategorisering.Inaktiv(

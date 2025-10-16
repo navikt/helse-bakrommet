@@ -102,8 +102,6 @@ data class DagKafkaDto(
     val kilde: Kilde?,
 )
 
-
-
 data class SaksbehandlingsperiodeKafkaDto(
     val id: UUID,
     val spilleromPersonId: String,
@@ -125,4 +123,3 @@ data class YrkesaktivitetKafkaDto(
     val kategorisering: Map<String, String>,
     val dagoversikt: List<DagKafkaDto>?,
 )
-

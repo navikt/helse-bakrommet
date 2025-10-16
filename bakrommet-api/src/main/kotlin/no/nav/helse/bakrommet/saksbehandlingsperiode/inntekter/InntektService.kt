@@ -6,12 +6,11 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.Beregningsdaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDaoOld
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
@@ -19,13 +18,12 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
-interface InntektServiceDaoer {
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
-    val yrkesaktivitetDao: YrkesaktivitetDao
-    val sykepengegrunnlagDao: SykepengegrunnlagDao
-    val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld
-    val beregningDao: UtbetalingsberegningDao
-    val personDao: PersonDao
+interface InntektServiceDaoer : Beregningsdaoer {
+    override val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    override val yrkesaktivitetDao: YrkesaktivitetDao
+    override val sykepengegrunnlagDao: SykepengegrunnlagDao
+    override val beregningDao: UtbetalingsberegningDao
+    override val personDao: PersonDao
 }
 
 class InntektService(
@@ -181,31 +179,7 @@ class InntektService(
                 }
 
             yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
-            // Slett sykepengegrunnlag og utbetalingsberegning når inntekt endres
-            // TODO reberegn etter sp grunnlagsendring
-
-            SykepengegrunnlagBeregningHjelper(
-                beregningDao = beregningDao,
-                saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
-                sykepengegrunnlagDao = sykepengegrunnlagDao,
-                yrkesaktivitetDao = yrkesaktivitetDao,
-            ).beregnOgLagreSykepengegrunnlag(
-                referanse = ref.saksbehandlingsperiodeReferanse,
-                saksbehandler = saksbehandler,
-            )
-
-            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
-
-            UtbetalingsBeregningHjelper(
-                beregningDao = beregningDao,
-                saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
-                sykepengegrunnlagDao = sykepengegrunnlagDao,
-                yrkesaktivitetDao = yrkesaktivitetDao,
-                personDao = personDao,
-            ).settBeregning(
-                referanse = ref.saksbehandlingsperiodeReferanse,
-                saksbehandler = saksbehandler,
-            )
+            beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
         }
     }
 }
