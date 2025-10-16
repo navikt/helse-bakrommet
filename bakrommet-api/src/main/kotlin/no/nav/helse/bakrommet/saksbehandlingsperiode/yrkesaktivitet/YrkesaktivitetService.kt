@@ -15,6 +15,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDaoOld
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
@@ -28,9 +29,9 @@ data class YrkesaktivitetReferanse(
 interface YrkesaktivitetServiceDaoer {
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
     val yrkesaktivitetDao: YrkesaktivitetDao
-    val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld
     val beregningDao: UtbetalingsberegningDao
     val personDao: PersonDao
+    val sykepengegrunnlagDao: SykepengegrunnlagDao
 }
 
 typealias DagerSomSkalOppdateres = JsonNode
@@ -95,7 +96,7 @@ class YrkesaktivitetService(
                 )
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            sykepengegrunnlagDaoOld.slettSykepengegrunnlag(ref.periodeUUID)
+            // TODO slett sp grunnlag fra ny sykepengegrunnlagdao
             beregningDao.slettBeregning(ref.periodeUUID)
 
             inntektsforhold
@@ -111,7 +112,7 @@ class YrkesaktivitetService(
             yrkesaktivitetDao.oppdaterKategorisering(inntektsforhold, kategorisering)
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            sykepengegrunnlagDaoOld.slettSykepengegrunnlag(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            // TODO slett sp grunnlag fra ny sykepengegrunnlagdao
             beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
         }
     }

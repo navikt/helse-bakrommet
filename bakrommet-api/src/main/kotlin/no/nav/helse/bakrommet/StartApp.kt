@@ -39,8 +39,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.sykepengegrunnlagOldRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregningRoute
@@ -195,13 +193,6 @@ internal fun Application.appModul(
                     ),
                 inntektservice =
                     InntektService(
-                        daoerFelles,
-                        sessionFactoryFelles,
-                    ),
-            )
-            sykepengegrunnlagOldRoute(
-                service =
-                    SykepengegrunnlagService(
                         daoerFelles,
                         sessionFactoryFelles,
                     ),

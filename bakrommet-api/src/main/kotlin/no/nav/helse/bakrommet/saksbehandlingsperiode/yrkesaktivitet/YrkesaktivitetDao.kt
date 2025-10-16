@@ -11,7 +11,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.util.*
+import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.hendelser.Periode
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
@@ -29,14 +31,15 @@ data class YrkesaktivitetDbRecord(
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
     val inntektData: InntektData? = null,
-) {
-    fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
-        if (this.perioder?.type == periodetype) {
-            this.perioder.perioder.map { Periode(it.fom, it.tom) }
-        } else {
-            emptyList()
-        }
-}
+)
+
+
+data class Refusjonsperiode(
+    val fom: LocalDate,
+    val tom: LocalDate?,
+    val beløp: InntektbeløpDto.MånedligDouble,
+)
+
 
 data class Yrkesaktivitet(
     val id: UUID,
@@ -50,7 +53,15 @@ data class Yrkesaktivitet(
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
     val inntektData: InntektData? = null,
-)
+    val refusjonsdata: List<Refusjonsperiode>? = null,
+){
+    fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
+        if (this.perioder?.type == periodetype) {
+            this.perioder.perioder.map { Periode(it.fom, it.tom) }
+        } else {
+            emptyList()
+        }
+}
 
 class YrkesaktivitetDao private constructor(
     private val db: QueryRunner,

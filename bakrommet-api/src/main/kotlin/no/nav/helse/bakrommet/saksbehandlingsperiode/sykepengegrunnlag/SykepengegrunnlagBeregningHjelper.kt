@@ -8,8 +8,10 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Utbeta
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.util.singleOrNone
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.økonomi.Inntekt
+import no.nav.helse.økonomi.Inntekt.Companion.summer
 import java.time.LocalDate
 
 class SykepengegrunnlagBeregningHjelper(
@@ -67,10 +69,9 @@ fun beregnSykepengegrunnlag(
     val harFullInnntektsdata = yrkesaktiviteter.all { it.inntektData != null }
     if (!harFullInnntektsdata) return null
 
-    val næringsdrivende = yrkesaktiviteter.find { it.kategorisering is SelvstendigNæringsdrivende }
+    val næringsdrivende = yrkesaktiviteter.singleOrNone { it.kategorisering is SelvstendigNæringsdrivende }
 
     val kombinert = næringsdrivende != null && yrkesaktiviteter.size > 1
-    val renNæringsdrivende = næringsdrivende != null && yrkesaktiviteter.size == 1
     val næringsdel =
         if (!kombinert) {
             null
@@ -99,18 +100,17 @@ fun beregnSykepengegrunnlag(
 
     val totaltInntektsgrunnlag =
         when {
-            renNæringsdrivende -> næringsdrivende.inntektData!!.omregnetÅrsinntekt.tilInntekt()
             kombinert ->
                 yrkesaktiviteter
                     .filter { it.kategorisering !is SelvstendigNæringsdrivende }
                     .map { it.inntektData!!.omregnetÅrsinntekt.tilInntekt() }
-                    .fold(Inntekt.INGEN) { acc, inntekt -> acc + inntekt }
+                    .summer()
                     .plus(næringsdel!!.næringsdel.tilInntekt())
 
             else ->
                 yrkesaktiviteter
                     .map { it.inntektData!!.omregnetÅrsinntekt.tilInntekt() }
-                    .fold(Inntekt.INGEN) { acc, inntekt -> acc + inntekt }
+                    .summer()
         }
 
     val sykepengegrunnlag = minOf(totaltInntektsgrunnlag, grunnbeløp6G)

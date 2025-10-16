@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.bereg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
+import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 
@@ -14,25 +15,24 @@ import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput): List<YrkesaktivitetUtbetalingsberegning> {
     val refusjonstidslinjer =
         beregnAlleRefusjonstidslinjer(
-            input.sykepengegrunnlag,
-            input.yrkesaktivitet.map { it.id },
+            input.yrkesaktivitet,
             input.saksbehandlingsperiode,
         )
 
     val yrkesaktivitetMedDekningsgrad =
         input.yrkesaktivitet.map { ya ->
-            ya to ya.hentDekningsgrad()
+            ya to ya.kategorisering.hentDekningsgrad()
         }
 
     val utbetalingstidslinjer =
         yrkesaktivitetMedDekningsgrad.map { (yrkesaktivitet, dekningsgrad) ->
-            val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet.id] ?: emptyMap()
+            val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet] ?: emptyMap()
             val refusjonstidslinje = opprettRefusjonstidslinjeFraData(refusjonstidslinjeData)
-            val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, yrkesaktivitet.id)
+            val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, yrkesaktivitet)
             val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO: Dette er tilkommen inntekt?
 
             byggUtbetalingstidslinjeForYrkesaktivitet(
-                yrkesaktivitetDbRecord = yrkesaktivitet,
+                yrkesaktivitet = yrkesaktivitet,
                 dekningsgrad = dekningsgrad.verdi,
                 input = input,
                 refusjonstidslinje = refusjonstidslinje,
@@ -41,12 +41,15 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
         }
 
     val utbetalingstidslinjerMedTotalGrad = Utbetalingstidslinje.totalSykdomsgrad(utbetalingstidslinjer)
-    val sykepengegrunnlagBegrenset6G = beregn6GBegrensetSykepengegrunnlag(input.sykepengegrunnlag)
-    val utbetalingstidslinjerMed6GBegrensning = Utbetalingstidslinje.betale(sykepengegrunnlagBegrenset6G, utbetalingstidslinjerMedTotalGrad)
+    val sykepengegrunnlag = input.sykepengegrunnlag.sykepengegrunnlag.tilInntekt()
+    val utbetalingstidslinjerBetalt = Utbetalingstidslinje.betale(
+        sykepengegrunnlagBegrenset6G = sykepengegrunnlag,
+        tidslinjer = utbetalingstidslinjerMedTotalGrad
+    )
 
     return yrkesaktivitetMedDekningsgrad
         .zip(
-            utbetalingstidslinjerMed6GBegrensning,
+            utbetalingstidslinjerBetalt,
         ).map { (yrkesaktivitetMedDekningsgrad, utbetalingstidslinje) ->
             val (yrkesaktivitet, dekningsgrad) = yrkesaktivitetMedDekningsgrad
             YrkesaktivitetUtbetalingsberegning(

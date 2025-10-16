@@ -199,7 +199,7 @@ class InntektService(
             UtbetalingsBeregningHjelper(
                 beregningDao = beregningDao,
                 saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
-                sykepengegrunnlagDaoOld = sykepengegrunnlagDaoOld,
+                sykepengegrunnlagDao = sykepengegrunnlagDao,
                 yrkesaktivitetDao = yrkesaktivitetDao,
                 personDao = personDao,
             ).settBeregning(

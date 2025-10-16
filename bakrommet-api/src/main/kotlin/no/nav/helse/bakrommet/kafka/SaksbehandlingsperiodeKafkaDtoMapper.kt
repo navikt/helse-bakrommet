@@ -10,9 +10,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDaoOld
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
@@ -25,7 +23,7 @@ import java.util.*
 interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val beregningDao: UtbetalingsberegningDao
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
-    val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld
+    val sykepengegrunnlagDao: SykepengegrunnlagDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personDao: PersonDao
     val outboxDao: OutboxDao
@@ -40,7 +38,7 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: Saksbehandlings
         SaksbehandlingsperiodeKafkaDtoMapper(
             beregningDao = beregningDao,
             saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
-            sykepengegrunnlagDaoOld = sykepengegrunnlagDaoOld,
+            sykepengegrunnlagDao = sykepengegrunnlagDao,
             yrkesaktivitetDao = yrkesaktivitetDao,
             personDao = personDao,
         ).genererKafkaMelding(referanse)
@@ -50,7 +48,7 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: Saksbehandlings
 class SaksbehandlingsperiodeKafkaDtoMapper(
     private val beregningDao: UtbetalingsberegningDao,
     private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    private val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld,
+    private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
 ) {
@@ -59,7 +57,6 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent =
             personDao.finnNaturligIdent(periode.spilleromPersonId) ?: throw IllegalStateException("Fant ikke fnr")
-        val sykepengegrunnlag = sykepengegrunnlagDaoOld.hentSykepengegrunnlag(referanse.periodeUUID)
         val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
 
         fun YrkesaktivitetDbRecord.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto =
@@ -84,7 +81,6 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                 beslutterNavIdent = periode.beslutterNavIdent,
                 skjæringstidspunkt = periode.skjæringstidspunkt,
                 yrkesaktiviteter = yrkesaktivitet.map { it.tilYrkesaktivitetKafkaDto() },
-                sykepengegrunnlag = sykepengegrunnlag.tilSykepengegrunnlagKafkaDto(),
             )
 
         // Lag sha256 hash av spilleromPersonId som key
@@ -106,36 +102,7 @@ data class DagKafkaDto(
     val kilde: Kilde?,
 )
 
-private fun SykepengegrunnlagResponse?.tilSykepengegrunnlagKafkaDto(): SykepengegrunnlagKafkaDto? {
-    if (this == null) return null
-    return SykepengegrunnlagKafkaDto(
-        inntekter =
-            this.inntekter.map {
-                InntektKafkaDto(
-                    yrkesaktivitetId = it.yrkesaktivitetId,
-                    beløpPerMånedØre = it.inntektMånedligØre,
-                    kilde = it.kilde,
-                    refusjon =
-                        it.refusjon.map { ref ->
-                            RefusjonsperiodeKafkaDto(
-                                fom = ref.fom,
-                                tom = ref.tom,
-                                beløpØre = ref.beløpØre,
-                            )
-                        },
-                )
-            },
-        totalInntektØre = this.totalInntektØre,
-        grunnbeløpØre = this.grunnbeløpØre,
-        grunnbeløp6GØre = this.grunnbeløp6GØre,
-        begrensetTil6G = this.begrensetTil6G,
-        sykepengegrunnlagØre = this.sykepengegrunnlagØre,
-        begrunnelse = this.begrunnelse,
-        grunnbeløpVirkningstidspunkt = this.grunnbeløpVirkningstidspunkt,
-        opprettet = this.opprettet,
-        opprettetAv = this.opprettetAv,
-    )
-}
+
 
 data class SaksbehandlingsperiodeKafkaDto(
     val id: UUID,
@@ -150,7 +117,6 @@ data class SaksbehandlingsperiodeKafkaDto(
     val beslutterNavIdent: String?,
     val skjæringstidspunkt: LocalDate?,
     val yrkesaktiviteter: List<YrkesaktivitetKafkaDto>,
-    val sykepengegrunnlag: SykepengegrunnlagKafkaDto?,
 )
 
 // TODO typ strengt når landet
@@ -160,28 +126,3 @@ data class YrkesaktivitetKafkaDto(
     val dagoversikt: List<DagKafkaDto>?,
 )
 
-data class InntektKafkaDto(
-    val yrkesaktivitetId: UUID,
-    val beløpPerMånedØre: Long,
-    val kilde: Inntektskilde,
-    val refusjon: List<RefusjonsperiodeKafkaDto> = emptyList(),
-)
-
-data class RefusjonsperiodeKafkaDto(
-    val fom: LocalDate,
-    val tom: LocalDate?,
-    val beløpØre: Long,
-)
-
-data class SykepengegrunnlagKafkaDto(
-    val inntekter: List<InntektKafkaDto>,
-    val totalInntektØre: Long,
-    val grunnbeløpØre: Long,
-    val grunnbeløp6GØre: Long,
-    val begrensetTil6G: Boolean,
-    val sykepengegrunnlagØre: Long,
-    val begrunnelse: String? = null,
-    val grunnbeløpVirkningstidspunkt: LocalDate,
-    val opprettet: String,
-    val opprettetAv: String,
-)

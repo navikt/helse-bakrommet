@@ -6,10 +6,12 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagDaoOld
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Klassekode
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -20,7 +22,7 @@ import java.util.*
 class UtbetalingsBeregningHjelper(
     private val beregningDao: UtbetalingsberegningDao,
     private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    private val sykepengegrunnlagDaoOld: SykepengegrunnlagDaoOld,
+    private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
 ) {
@@ -35,11 +37,10 @@ class UtbetalingsBeregningHjelper(
                 ?: throw RuntimeException("Fant ikke person for spilleromId ${periode.spilleromPersonId}")
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
-            sykepengegrunnlagDaoOld.hentSykepengegrunnlag(referanse.periodeUUID)
-                ?: return
+            sykepengegrunnlagDao.hentSykepengegrunnlag(periode.sykepengegrunnlagId ?: return)?.sykepengegrunnlag ?: return
 
         // Hent inntektsforhold
-        val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
+        val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
 
         // Opprett input for beregning
         val beregningInput =
@@ -85,16 +86,18 @@ class UtbetalingsBeregningHjelper(
  */
 fun byggOppdragFraBeregning(
     beregnet: List<YrkesaktivitetUtbetalingsberegning>,
-    yrkesaktiviteter: List<YrkesaktivitetDbRecord>,
+    yrkesaktiviteter: List<Yrkesaktivitet>,
     ident: String,
 ): List<Oppdrag> {
     val oppdrag = mutableListOf<Oppdrag>()
 
     beregnet.forEach { yrkesaktivitetBeregning ->
         val yrkesaktivitet = yrkesaktiviteter.first { it.id == yrkesaktivitetBeregning.yrkesaktivitetId }
-        val mottakerRefusjon =
-            yrkesaktivitet.kategorisering["ORGNUMMER"] ?: yrkesaktivitet.kategorisering["INNTEKTSKATEGORI"]
-                ?: throw RuntimeException("Mangler orgnummer eller inntektskategori for yrkesaktivitet ${yrkesaktivitet.id}")
+        val mottakerRefusjon = if(yrkesaktivitet.kategorisering is YrkesaktivitetKategorisering.Arbeidstaker){
+            yrkesaktivitet.kategorisering.orgnummer
+        } else {
+            "TODO_INGEN_REFUSJON" // Dette er en hack vi bør fikse en gang
+        }
 
         val mottakerBruker = ident
         val klassekodeBruker = Klassekode.SykepengerArbeidstakerOrdinær
