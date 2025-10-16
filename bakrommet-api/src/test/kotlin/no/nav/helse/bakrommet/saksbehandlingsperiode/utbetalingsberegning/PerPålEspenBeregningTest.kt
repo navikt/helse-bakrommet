@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.ARBEIDSTAKER_100
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.ORDINAER_SELVSTENDIG_80
 import no.nav.helse.desember
@@ -28,12 +27,16 @@ class PerPålEspenBeregningTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(30.desember(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdArbeidstaker)
                     `som arbeidstaker`("999999999")
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 50, antallDager = 365)
+                    `med inntektData` {
+                        `med beløp`(100000)
+                    }
                 }
 
                 yrkesaktivitet {
@@ -41,18 +44,9 @@ class PerPålEspenBeregningTest {
                     `som næringsdrivende`()
                     `fra dato`(1.januar(2024))
                     `har arbeidsdager`(365)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetIdArbeidstaker)
-                    `med beløp`(100000)
-                    `fra kilde`(Inntektskilde.INNTEKTSMELDING)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetIdNæring)
-                    `med beløp`(0)
-                    `fra kilde`(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
+                    `med inntektData` {
+                        `med beløp`(0)
+                    }
                 }
             }
 
@@ -110,12 +104,16 @@ class PerPålEspenBeregningTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(30.desember(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdArbeidstaker)
                     `som arbeidstaker`("999999999")
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 100, antallDager = 365)
+                    `med inntektData` {
+                        `med beløp`(50000)
+                    }
                 }
 
                 yrkesaktivitet {
@@ -123,18 +121,9 @@ class PerPålEspenBeregningTest {
                     `som næringsdrivende`()
                     `fra dato`(1.januar(2024))
                     `har arbeidsdager`(365)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetIdArbeidstaker)
-                    `med beløp`(50000)
-                    `fra kilde`(Inntektskilde.INNTEKTSMELDING)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetIdNæring)
-                    `med beløp`(50000)
-                    `fra kilde`(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
+                    `med inntektData` {
+                        `med beløp`(50000)
+                    }
                 }
             }
 
@@ -192,12 +181,16 @@ class PerPålEspenBeregningTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(30.desember(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdArbeidstaker)
                     `som arbeidstaker`("999999999")
                     `fra dato`(1.januar(2024))
                     `har arbeidsdager`(365)
+                    `med inntektData` {
+                        `med beløp`(50000)
+                    }
                 }
 
                 yrkesaktivitet {
@@ -205,18 +198,9 @@ class PerPålEspenBeregningTest {
                     `som næringsdrivende`()
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 100, antallDager = 365)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetIdArbeidstaker)
-                    `med beløp`(50000)
-                    `fra kilde`(Inntektskilde.INNTEKTSMELDING)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetIdNæring)
-                    `med beløp`(50000)
-                    `fra kilde`(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
+                    `med inntektData` {
+                        `med beløp`(50000)
+                    }
                 }
             }
 

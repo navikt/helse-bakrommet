@@ -1,8 +1,9 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.DAGPENGEMOTTAKER_100
 import no.nav.helse.januar
+import no.nav.helse.økonomi.Inntekt.Companion.årlig
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -24,12 +25,11 @@ class ArbeidsledigBeregningTest {
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 50, antallDager = 15)
                     `er syk`(grad = 100, antallDager = 16)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(21666)
-                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    inntektData(
+                        InntektData.Arbeidsledig(
+                            omregnetÅrsinntekt = 21666.0.årlig.dto().årlig,
+                        ),
+                    )
                 }
             }
 

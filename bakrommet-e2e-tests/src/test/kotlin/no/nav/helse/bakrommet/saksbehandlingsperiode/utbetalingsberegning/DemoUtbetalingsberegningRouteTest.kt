@@ -7,10 +7,11 @@ import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.InntektBeregnet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagResponse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -62,82 +63,69 @@ class DemoUtbetalingsberegningRouteTest {
         }
 
     private fun lagTestInput(yrkesaktivitetId: UUID): UtbetalingsberegningInput {
+        // Opprett sykepengegrunnlag med ny struktur
         val sykepengegrunnlag =
-            SykepengegrunnlagResponse(
-                id = UUID.randomUUID(),
-                saksbehandlingsperiodeId = UUID.randomUUID(),
-                inntekter =
-                    listOf(
-                        InntektBeregnet(
-                            yrkesaktivitetId = yrkesaktivitetId,
-                            inntektMånedligØre = 500000L,
-                            grunnlagMånedligØre = 500000L,
-                            kilde = Inntektskilde.AINNTEKT,
-                            refusjon =
-                                listOf(),
-                        ),
-                    ),
-                totalInntektØre = 500000L,
-                grunnbeløpØre = 100000L,
-                grunnbeløp6GØre = 600000L,
+            Sykepengegrunnlag(
+                grunnbeløp = InntektbeløpDto.Årlig(100000.0),
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(500000.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(500000.0),
+                seksG = InntektbeløpDto.Årlig(600000.0),
                 begrensetTil6G = false,
-                sykepengegrunnlagØre = 500000L,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 1, 1),
-                opprettet = "2024-01-01T10:00:00Z",
-                opprettetAv = "test",
-                sistOppdatert = "2024-01-01T10:00:00Z",
+                næringsdel = null,
             )
 
-        // Opprett dagoversikt som List<Dag>
-        val dagoversikt =
-            listOf(
-                Dag(
-                    dato = LocalDate.of(2024, 1, 1),
-                    dagtype = Dagtype.Syk,
-                    grad = 100,
-                    avslåttBegrunnelse = emptyList(),
-                    andreYtelserBegrunnelse = null,
-                    kilde = Kilde.Søknad,
-                ),
-                Dag(
-                    dato = LocalDate.of(2024, 1, 2),
-                    dagtype = Dagtype.Syk,
-                    grad = 100,
-                    avslåttBegrunnelse = emptyList(),
-                    andreYtelserBegrunnelse = null,
-                    kilde = Kilde.Søknad,
-                ),
-                Dag(
-                    dato = LocalDate.of(2024, 1, 3),
-                    dagtype = Dagtype.Arbeidsdag,
-                    grad = null,
-                    avslåttBegrunnelse = emptyList(),
-                    andreYtelserBegrunnelse = null,
-                    kilde = Kilde.Søknad,
-                ),
-            )
-
-        val yrkesaktivitetDbRecord =
-            YrkesaktivitetDbRecord(
+        // Opprett yrkesaktivitet med ny struktur
+        val yrkesaktivitet =
+            Yrkesaktivitet(
                 id = yrkesaktivitetId,
                 kategorisering =
-                    HashMap<String, String>().apply {
-                        put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
-                        put("ORGNUMMER", "123456789")
-                        put("ER_SYKMELDT", "ER_SYKMELDT_JA")
-                        put("TYPE_ARBEIDSTAKER", "ORDINÆRT_ARBEIDSFORHOLD")
-                    },
+                    YrkesaktivitetKategorisering.Arbeidstaker(
+                        sykmeldt = true,
+                        orgnummer = "123456789",
+                        typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    ),
                 kategoriseringGenerert = null,
-                dagoversikt = dagoversikt,
+                dagoversikt =
+                    listOf(
+                        Dag(
+                            dato = LocalDate.of(2024, 1, 1),
+                            dagtype = Dagtype.Syk,
+                            grad = 100,
+                            avslåttBegrunnelse = emptyList(),
+                            andreYtelserBegrunnelse = null,
+                            kilde = Kilde.Søknad,
+                        ),
+                        Dag(
+                            dato = LocalDate.of(2024, 1, 2),
+                            dagtype = Dagtype.Syk,
+                            grad = 100,
+                            avslåttBegrunnelse = emptyList(),
+                            andreYtelserBegrunnelse = null,
+                            kilde = Kilde.Søknad,
+                        ),
+                        Dag(
+                            dato = LocalDate.of(2024, 1, 3),
+                            dagtype = Dagtype.Arbeidsdag,
+                            grad = null,
+                            avslåttBegrunnelse = emptyList(),
+                            andreYtelserBegrunnelse = null,
+                            kilde = Kilde.Søknad,
+                        ),
+                    ),
                 dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
+                perioder = null,
+                inntektRequest = null,
+                inntektData = null,
+                refusjonsdata = null,
             )
 
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
-            yrkesaktivitet = listOf(yrkesaktivitetDbRecord),
+            yrkesaktivitet = listOf(yrkesaktivitet),
             saksbehandlingsperiode =
                 PeriodeDto(
                     fom = LocalDate.of(2024, 1, 1),

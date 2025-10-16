@@ -20,27 +20,24 @@ class BeregnRefusjonstidslinjeTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(31.mars(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     `som arbeidstaker`("999333444")
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `med refusjon` {
-                        `fra dato`(1.januar(2024))
-                        `til dato`(31.januar(2024))
-                        `med beløp`(10000) // 10 000 kr/mnd
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(1.januar(2024), 31.januar(2024), 10000) // 10 000 kr/mnd
                     }
                 }
             }
 
+        val yrkesaktivitet = input.yrkesaktivitet.first { it.id == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
-                input.sykepengegrunnlag,
-                yrkesaktivitetId,
+                yrkesaktivitet,
                 input.saksbehandlingsperiode,
             )
 
@@ -68,27 +65,24 @@ class BeregnRefusjonstidslinjeTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(31.mars(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     `som arbeidstaker`("999333444")
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `med refusjon` {
-                        `fra dato`(1.januar(2024))
-                        `er åpen`() // Åpen refusjonsperiode
-                        `med beløp`(10000) // 10 000 kr/mnd
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(1.januar(2024), null, 10000) // Åpen refusjonsperiode, 10 000 kr/mnd
                     }
                 }
             }
 
+        val yrkesaktivitet = input.yrkesaktivitet.first { it.id == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
-                input.sykepengegrunnlag,
-                yrkesaktivitetId,
+                yrkesaktivitet,
                 input.saksbehandlingsperiode,
             )
 
@@ -114,32 +108,25 @@ class BeregnRefusjonstidslinjeTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(31.mars(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     `som arbeidstaker`("999333444")
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `med refusjon` {
-                        `fra dato`(1.januar(2024))
-                        `til dato`(15.januar(2024))
-                        `med beløp`(10000) // 10 000 kr/mnd
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
                     }
-                    `med refusjon` {
-                        `fra dato`(1.februar(2024))
-                        `er åpen`() // Åpen periode
-                        `med beløp`(20000) // 20 000 kr/mnd
+                    `med refusjonsdata` {
+                        `med periode`(1.januar(2024), 15.januar(2024), 10000) // 10 000 kr/mnd
+                        `med periode`(1.februar(2024), null, 20000) // Åpen periode, 20 000 kr/mnd
                     }
                 }
             }
 
+        val yrkesaktivitet = input.yrkesaktivitet.first { it.id == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
-                input.sykepengegrunnlag,
-                yrkesaktivitetId,
+                yrkesaktivitet,
                 input.saksbehandlingsperiode,
             )
 

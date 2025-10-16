@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -19,18 +18,16 @@ class NæringsdrivendeBeregningTest {
                     `fra dato`(LocalDate.of(2024, 1, 1))
                     `til dato`(LocalDate.of(2024, 1, 31))
                 }
+                skjæringstidspunkt(LocalDate.of(2024, 1, 1))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     `som næringsdrivende`(forsikringstype = "FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
                     this.`fra dato`(LocalDate.of(2024, 1, 1))
                     `er syk`(grad = 100, antallDager = 5)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(40000) // 40 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
+                    `med inntektData` {
+                        `med beløp`(40000) // 40 000 kr/mnd
+                    }
                 }
             }
 

@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.ARBEIDSTAKER_100
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.ORDINAER_SELVSTENDIG_80
 import no.nav.helse.januar
@@ -19,12 +18,16 @@ class KombinertBeregningTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(31.januar(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetIdNæring)
                     `som næringsdrivende`("FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG")
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 100, antallDager = 31)
+                    `med inntektData` {
+                        `med beløp`(21666)
+                    }
                 }
 
                 yrkesaktivitet {
@@ -32,21 +35,11 @@ class KombinertBeregningTest {
                     `som arbeidstaker`("999999999")
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 100, antallDager = 31)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetIdNæring)
-                    `med beløp`(21666)
-                    `fra kilde`(Inntektskilde.PENSJONSGIVENDE_INNTEKT)
-                }
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetIdArbeidstaker)
-                    `med beløp`(21666)
-                    `fra kilde`(Inntektskilde.INNTEKTSMELDING)
-                    `med refusjon` {
-                        `fra dato`(1.januar(2024))
-                        `til dato`(31.januar(2024))
-                        `med beløp`(21667) // Full refusjon
+                    `med inntektData` {
+                        `med beløp`(21666)
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(1.januar(2024), 31.januar(2024), 21667) // Full refusjon
                     }
                 }
             }

@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.util.toJsonNode
 import no.nav.helse.januar
@@ -22,22 +21,18 @@ class ArbeidstakerBeregningTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(31.januar(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     `som arbeidstaker`(orgnummer = "999333444")
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 100, antallDager = 2)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(50000)
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                    `med refusjon` {
-                        `fra dato`(1.januar(2024))
-                        `er åpen`()
-                        `med beløp`(10000)
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(1.januar(2024), 2.januar(2024), 30000) // 30 000 kr/mnd refusjon
                     }
                 }
             }
@@ -86,31 +81,31 @@ class ArbeidstakerBeregningTest {
                     `fra dato`(LocalDate.of(2024, 1, 1))
                     `til dato`(LocalDate.of(2024, 3, 31))
                 }
+                skjæringstidspunkt(LocalDate.of(2024, 1, 1))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     `som arbeidstaker`()
-                    this.`fra dato`(LocalDate.of(2024, 1, 10))
+                    `fra dato`(LocalDate.of(2024, 1, 10))
                     `er syk`(grad = 100, antallDager = 1)
-                    this.`fra dato`(LocalDate.of(2024, 2, 10))
+                    `fra dato`(LocalDate.of(2024, 2, 10))
                     `er syk`(grad = 100, antallDager = 1)
-                    this.`fra dato`(LocalDate.of(2024, 3, 10))
+                    `fra dato`(LocalDate.of(2024, 3, 10))
                     `er syk`(grad = 100, antallDager = 1)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 1, 1))
-                        `til dato`(LocalDate.of(2024, 1, 15))
-                        `med beløp`(10000) // 10 000 kr/mnd refusjon
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
                     }
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 2, 1))
-                        `er åpen`()
-                        `med beløp`(20000) // 20 000 kr/mnd refusjon
+                    `med refusjonsdata` {
+                        `med periode`(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = LocalDate.of(2024, 1, 15),
+                            beløp = 10000, // 10 000 kr/mnd refusjon
+                        )
+                        `med periode`(
+                            fom = LocalDate.of(2024, 2, 1),
+                            tom = null, // Åpen periode
+                            beløp = 20000, // 20 000 kr/mnd refusjon
+                        )
                     }
                 }
             }
@@ -148,12 +143,28 @@ class ArbeidstakerBeregningTest {
                     `fra dato`(LocalDate.of(2024, 1, 1))
                     `til dato`(LocalDate.of(2024, 1, 14))
                 }
+                skjæringstidspunkt(LocalDate.of(2024, 1, 1))
 
                 yrkesaktivitet {
                     id(yrkesaktivitet1Id)
                     `som arbeidstaker`()
                     this.`fra dato`(LocalDate.of(2024, 1, 1))
                     `er syk`(grad = 100, antallDager = 14)
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = LocalDate.of(2024, 1, 7),
+                            beløp = 50000, // 50 000 kr/mnd refusjon
+                        )
+                        `med periode`(
+                            fom = LocalDate.of(2024, 1, 8),
+                            tom = null, // Åpen periode
+                            beløp = 10000, // 10 000 kr/mnd refusjon
+                        )
+                    }
                 }
 
                 yrkesaktivitet {
@@ -161,28 +172,9 @@ class ArbeidstakerBeregningTest {
                     `som arbeidstaker`()
                     this.`fra dato`(LocalDate.of(2024, 1, 1))
                     `er syk`(grad = 50, antallDager = 14)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitet1Id)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 1, 1))
-                        `til dato`(LocalDate.of(2024, 1, 7))
-                        `med beløp`(50000) // 50 000 kr/mnd refusjon
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
                     }
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 1, 8))
-                        `er åpen`()
-                        `med beløp`(10000) // 10 000 kr/mnd refusjon
-                    }
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitet2Id)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
                 }
             }
 
@@ -209,6 +201,7 @@ class ArbeidstakerBeregningTest {
                     `fra dato`(LocalDate.of(2024, 1, 1))
                     `til dato`(LocalDate.of(2024, 1, 29))
                 }
+                skjæringstidspunkt(LocalDate.of(2024, 1, 1))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
@@ -226,16 +219,15 @@ class ArbeidstakerBeregningTest {
                     `er avslått`(begrunnelse = listOf("Ikke oppfylt krav"), antallDager = 1)
                     `har andre ytelser`(begrunnelse = listOf("Dagpenger"), antallDager = 1)
                     `er syk`(grad = 100, antallDager = 20)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 1, 1))
-                        `er åpen`()
-                        `med beløp`(10000) // 10 000 kr/mnd refusjon
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = null, // Åpen periode
+                            beløp = 10000, // 10 000 kr/mnd refusjon
+                        )
                     }
                 }
             }
@@ -265,6 +257,7 @@ class ArbeidstakerBeregningTest {
                     `fra dato`(LocalDate.of(2024, 1, 1))
                     `til dato`(LocalDate.of(2024, 1, 10))
                 }
+                skjæringstidspunkt(LocalDate.of(2024, 1, 1))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
@@ -273,16 +266,15 @@ class ArbeidstakerBeregningTest {
                     `er syk`(grad = 50, antallDager = 5)
                     `er syk`(grad = 25, antallDager = 3)
                     `har arbeidsdager`(antallDager = 2)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 1, 1))
-                        `er åpen`()
-                        `med beløp`(10000) // 10 000 kr/mnd refusjon
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = null, // Åpen periode
+                            beløp = 10000, // 10 000 kr/mnd refusjon
+                        )
                     }
                 }
             }
@@ -309,22 +301,22 @@ class ArbeidstakerBeregningTest {
                     `fra dato`(LocalDate.of(2024, 1, 1))
                     `til dato`(LocalDate.of(2024, 1, 10))
                 }
+                skjæringstidspunkt(LocalDate.of(2024, 1, 1))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
                     `som arbeidstaker`()
                     this.`fra dato`(LocalDate.of(2024, 1, 1))
                     `er avslått`(begrunnelse = listOf("Ikke oppfylt krav om medlemskap"), antallDager = 10)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitetId)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 1, 1))
-                        `er åpen`()
-                        `med beløp`(10000) // 10 000 kr/mnd refusjon
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = null, // Åpen periode
+                            beløp = 10000, // 10 000 kr/mnd refusjon
+                        )
                     }
                 }
             }
@@ -366,12 +358,28 @@ class ArbeidstakerBeregningTest {
                     `fra dato`(LocalDate.of(2024, 1, 1))
                     `til dato`(LocalDate.of(2024, 1, 14))
                 }
+                skjæringstidspunkt(LocalDate.of(2024, 1, 1))
 
                 yrkesaktivitet {
                     id(yrkesaktivitet1Id)
                     `som arbeidstaker`()
                     this.`fra dato`(LocalDate.of(2024, 1, 1))
                     `er syk`(grad = 100, antallDager = 14)
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
+                    }
+                    `med refusjonsdata` {
+                        `med periode`(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = LocalDate.of(2024, 1, 7),
+                            beløp = 50000, // 50 000 kr/mnd refusjon
+                        )
+                        `med periode`(
+                            fom = LocalDate.of(2024, 1, 8),
+                            tom = null, // Åpen periode
+                            beløp = 10000, // 10 000 kr/mnd refusjon
+                        )
+                    }
                 }
 
                 yrkesaktivitet {
@@ -379,28 +387,9 @@ class ArbeidstakerBeregningTest {
                     `som arbeidstaker`()
                     this.`fra dato`(LocalDate.of(2024, 1, 1))
                     `er syk`(grad = 50, antallDager = 14)
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitet1Id)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 1, 1))
-                        `til dato`(LocalDate.of(2024, 1, 7))
-                        `med beløp`(50000) // 50 000 kr/mnd refusjon
+                    `med inntektData` {
+                        `med beløp`(50000) // 50 000 kr/mnd
                     }
-                    `med refusjon` {
-                        `fra dato`(LocalDate.of(2024, 1, 8))
-                        `er åpen`()
-                        `med beløp`(10000) // 10 000 kr/mnd refusjon
-                    }
-                }
-
-                inntekt {
-                    yrkesaktivitetId(yrkesaktivitet2Id)
-                    `med beløp`(50000) // 50 000 kr/mnd
-                    `fra kilde`(Inntektskilde.AINNTEKT)
                 }
             }
 

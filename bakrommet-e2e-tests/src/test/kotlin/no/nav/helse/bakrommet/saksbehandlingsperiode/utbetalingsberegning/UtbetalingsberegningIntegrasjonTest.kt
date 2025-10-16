@@ -13,7 +13,6 @@ import no.nav.helse.bakrommet.godkjenn
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.SykepengegrunnlagRequest
 import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -70,8 +69,8 @@ class UtbetalingsberegningIntegrasjonTest {
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId = opprettYrkesaktivitet(periode.id)
 
-            // Sett sykepengegrunnlag (dette trigger automatisk utbetalingsberegning)
-            settSykepengegrunnlag(periode.id, yrkesaktivitetId)
+            // Sett inntekt på yrkesaktivitet (dette trigger automatisk utbetalingsberegning)
+            settInntektPåYrkesaktivitet(periode.id, yrkesaktivitetId)
 
             // Sett dagoversikt med forskjellige dagtyper (dette trigger også utbetalingsberegning)
             settDagoversikt(periode.id, yrkesaktivitetId)
@@ -143,39 +142,36 @@ class UtbetalingsberegningIntegrasjonTest {
         return UUID.fromString(response.body<JsonNode>()["id"].asText())
     }
 
-    private suspend fun ApplicationTestBuilder.settSykepengegrunnlag(
+    private suspend fun ApplicationTestBuilder.settInntektPåYrkesaktivitet(
         periodeId: UUID,
         yrkesaktivitetId: UUID,
     ) {
-        // Månedsinntekt på 50 000 kr (5 000 000 øre)
-        val sykepengegrunnlagRequest =
-            SykepengegrunnlagRequest(
-                inntekter =
-                    listOf(
-                        no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntekt(
-                            yrkesaktivitetId = yrkesaktivitetId,
-                            beløpPerMånedØre = 5_000_000L,
-                            kilde = no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Inntektskilde.AINNTEKT,
-                            refusjon =
-                                listOf(
-                                    no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlagold.Refusjonsperiode(
-                                        fom = LocalDate.of(2024, 1, 1),
-                                        tom = LocalDate.of(2024, 1, 31),
-                                        beløpØre = 1_000_000L,
-                                    ),
-                                ),
-                        ),
-                    ),
-                begrunnelse = "Test sykepengegrunnlag",
-            )
+        // Månedsinntekt på 50 000 kr (5 000 000 øre) med skjønnsfastsettelse
+        val inntektRequest =
+            """
+            {
+                "inntektskategori": "ARBEIDSTAKER",
+                "data": {
+                    "type": "SKJONNSFASTSETTELSE",
+                    "månedsbeløp": 50000.0,
+                    "årsak": "MANGELFULL_RAPPORTERING",
+                    "begrunnelse": "Test skjønnsfastsettelse",
+                    "refusjon": {
+                        "fra": "2024-01-01",
+                        "til": "2024-01-31",
+                        "beløp": 10000
+                    }
+                }
+            }
+            """.trimIndent()
 
         val response =
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/$periodeId/sykepengegrunnlag") {
+            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody(sykepengegrunnlagRequest)
+                setBody(inntektRequest)
             }
-        assertEquals(200, response.status.value)
+        assertEquals(204, response.status.value)
     }
 
     private suspend fun ApplicationTestBuilder.settDagoversikt(

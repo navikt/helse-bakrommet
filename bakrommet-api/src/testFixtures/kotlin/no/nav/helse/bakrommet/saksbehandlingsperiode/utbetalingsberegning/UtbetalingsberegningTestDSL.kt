@@ -3,10 +3,19 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.beregnSykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeSelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.VariantAvInaktiv
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -20,12 +29,43 @@ import java.util.UUID
 
 /**
  * Kotlin DSL for å lage testdata for utbetalingsberegning
+ *
+ * OPPDATERING: Denne DSL-en er oppdatert til å bruke den nye Sykepengegrunnlag-klassen
+ * og beregner sykepengegrunnlaget automatisk basert på yrkesaktivitetene.
+ *
+ * Endringer:
+ * - Lagt til skjæringstidspunkt() metode som må settes
+ * - Fjernet inntekt() metode - bruk inntektData() på yrkesaktivitet i stedet
+ * - Sykepengegrunnlag beregnes nå automatisk med beregnSykepengegrunnlag()
+ *
+ * Eksempel på bruk:
+ * ```
+ * val resultat = utbetalingsberegningTestOgBeregn {
+ *     periode {
+ *         fra dato(1.januar(2024))
+ *         til dato(31.januar(2024))
+ *     }
+ *     skjæringstidspunkt(1.januar(2024))
+ *
+ *     yrkesaktivitet {
+ *         som arbeidstaker("123456789")
+ *         fra dato(1.januar(2024))
+ *         er syk(grad = 100, antallDager = 5)
+ *         med inntektData {
+ *             med beløp(50000) // 50 000 kr/mnd
+ *         }
+ *         med refusjonsdata {
+ *             med periode(1.januar(2024), 5.januar(2024), 30000) // 30 000 kr/mnd refusjon
+ *         }
+ *     }
+ * }
+ * ```
  */
 class UtbetalingsberegningTestBuilder {
     private var saksbehandlingsperiode: PeriodeDto? = null
     private var arbeidsgiverperiode: PeriodeDto? = null
+    private var skjæringstidspunkt: LocalDate? = null
     private val yrkesaktiviteter = mutableListOf<YrkesaktivitetBuilder>()
-    private val inntekter = mutableListOf<InntektBuilder>()
 
     fun periode(init: PeriodeBuilder.() -> Unit) {
         val builder = PeriodeBuilder()
@@ -40,22 +80,27 @@ class UtbetalingsberegningTestBuilder {
         arbeidsgiverperiode = PeriodeDto(fom = fom, tom = tom)
     }
 
+    fun skjæringstidspunkt(dato: LocalDate) {
+        this.skjæringstidspunkt = dato
+    }
+
+    fun `med skjæringstidspunkt`(dato: LocalDate) {
+        skjæringstidspunkt(dato)
+    }
+
     fun yrkesaktivitet(init: YrkesaktivitetBuilder.() -> Unit) {
         val builder = YrkesaktivitetBuilder()
         builder.init()
         yrkesaktiviteter.add(builder)
     }
 
-    fun inntekt(init: InntektBuilder.() -> Unit) {
-        val builder = InntektBuilder()
-        builder.init()
-        inntekter.add(builder)
-    }
-
     fun build(): UtbetalingsberegningInput {
         val periode = saksbehandlingsperiode ?: throw IllegalStateException("Saksbehandlingsperiode må være satt")
+        val skjæringstidspunktDato = skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt")
         val yrkesaktivitetListe = yrkesaktiviteter.map { it.build(periode) }
-        val sykepengegrunnlag = lagSykepengegrunnlag(inntekter.map { it.build() })
+        val sykepengegrunnlag =
+            beregnSykepengegrunnlag(yrkesaktivitetListe, skjæringstidspunktDato)
+                ?: throw IllegalStateException("Kunne ikke beregne sykepengegrunnlag")
 
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
@@ -101,6 +146,8 @@ class YrkesaktivitetBuilder {
     private val dagoversikt = mutableListOf<Dag>()
     private var gjeldendeDato: LocalDate? = null
     private var arbeidsgiverperiode: Pair<LocalDate, LocalDate>? = null
+    private var inntektData: InntektData? = null
+    private var refusjonsdata: List<Refusjonsperiode>? = null
 
     fun id(id: UUID) {
         this.id = id
@@ -166,6 +213,34 @@ class YrkesaktivitetBuilder {
 
     fun `med arbeidsgiverperiode`(init: PeriodeBuilder.() -> Unit) {
         arbeidsgiverperiode(init)
+    }
+
+    fun inntektData(data: InntektData) {
+        this.inntektData = data
+    }
+
+    fun `med inntektData`(data: InntektData) {
+        inntektData(data)
+    }
+
+    fun `med inntektData`(init: InntektDataBuilder.() -> Unit) {
+        val builder = InntektDataBuilder()
+        builder.init()
+        this.inntektData = builder.build()
+    }
+
+    fun refusjonsdata(data: List<Refusjonsperiode>) {
+        this.refusjonsdata = data
+    }
+
+    fun `med refusjonsdata`(data: List<Refusjonsperiode>) {
+        refusjonsdata(data)
+    }
+
+    fun `med refusjonsdata`(init: RefusjonsdataBuilder.() -> Unit) {
+        val builder = RefusjonsdataBuilder()
+        builder.init()
+        this.refusjonsdata = builder.build()
     }
 
     fun syk(
@@ -325,7 +400,7 @@ class YrkesaktivitetBuilder {
         andreYtelser(begrunnelse, antallDager)
     }
 
-    fun build(saksbehandlingsperiode: PeriodeDto): YrkesaktivitetDbRecord {
+    fun build(saksbehandlingsperiode: PeriodeDto): Yrkesaktivitet {
         val perioder =
             arbeidsgiverperiode?.let { (fom, tom) ->
                 Perioder(
@@ -339,9 +414,12 @@ class YrkesaktivitetBuilder {
         // Fyll ut manglende dager som arbeidsdager
         val fullstendigDagoversikt = fyllUtManglendeDagerSomArbeidsdager(dagoversikt, saksbehandlingsperiode)
 
-        return YrkesaktivitetDbRecord(
+        // Konverter kategorisering til YrkesaktivitetKategorisering
+        val yrkesaktivitetKategorisering = lagYrkesaktivitetKategorisering()
+
+        return Yrkesaktivitet(
             id = id,
-            kategorisering = kategorisering,
+            kategorisering = yrkesaktivitetKategorisering,
             kategoriseringGenerert = null,
             dagoversikt = fullstendigDagoversikt,
             dagoversiktGenerert = null,
@@ -349,15 +427,72 @@ class YrkesaktivitetBuilder {
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = emptyList(),
             perioder = perioder,
+            inntektRequest = null,
+            inntektData = inntektData,
+            refusjonsdata = refusjonsdata,
         )
     }
+
+    private fun lagYrkesaktivitetKategorisering(): YrkesaktivitetKategorisering =
+        when (inntektskategori) {
+            "ARBEIDSTAKER" -> {
+                val orgnummer = kategorisering["ORGNUMMER"] ?: "123456789"
+                val erSykmeldt = kategorisering["ER_SYKMELDT"] == "ER_SYKMELDT_JA"
+                val typeArbeidstaker =
+                    when (kategorisering["TYPE_ARBEIDSTAKER"]) {
+                        "ORDINÆRT_ARBEIDSFORHOLD" -> TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD
+                        else -> TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD
+                    }
+                YrkesaktivitetKategorisering.Arbeidstaker(
+                    sykmeldt = erSykmeldt,
+                    orgnummer = orgnummer,
+                    typeArbeidstaker = typeArbeidstaker,
+                )
+            }
+            "ARBEIDSLEDIG" -> {
+                YrkesaktivitetKategorisering.Arbeidsledig()
+            }
+            "INAKTIV" -> {
+                val variant =
+                    when (kategorisering["VARIANT_AV_INAKTIV"]) {
+                        "INAKTIV_VARIANT_B" -> VariantAvInaktiv.INAKTIV_VARIANT_B
+                        else -> VariantAvInaktiv.INAKTIV_VARIANT_A
+                    }
+                YrkesaktivitetKategorisering.Inaktiv(variant = variant)
+            }
+            "SELVSTENDIG_NÆRINGSDRIVENDE" -> {
+                val erSykmeldt = kategorisering["ER_SYKMELDT"] == "ER_SYKMELDT_JA"
+                val forsikring =
+                    when (kategorisering["SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING"]) {
+                        "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG" -> SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG
+                        "FORSIKRING_100_PROSENT_FRA_17_SYKEDAG" -> SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG
+                        "INGEN_FORSIKRING" -> SelvstendigForsikring.INGEN_FORSIKRING
+                        else -> SelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG
+                    }
+                val type =
+                    when (kategorisering["TYPE_SELVSTENDIG_NÆRINGSDRIVENDE"]) {
+                        "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE" -> TypeSelvstendigNæringsdrivende.Ordinær(forsikring)
+                        else -> TypeSelvstendigNæringsdrivende.Ordinær(forsikring)
+                    }
+                YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+                    sykmeldt = erSykmeldt,
+                    type = type,
+                )
+            }
+            else -> {
+                YrkesaktivitetKategorisering.Arbeidstaker(
+                    sykmeldt = true,
+                    orgnummer = "123456789",
+                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                )
+            }
+        }
 }
 
-class InntektBuilder {
+// Hjelpeklasse for å lage InntektData
+class InntektDataBuilder {
     private var yrkesaktivitetId: UUID = UUID.randomUUID()
     private var beløpPerMånedØre: Long = 5000000L // 50 000 kr/mnd
-    private var kilde: Inntektskilde = Inntektskilde.AINNTEKT
-    private val refusjon = mutableListOf<Refusjonsperiode>()
 
     fun yrkesaktivitetId(id: UUID) {
         this.yrkesaktivitetId = id
@@ -379,85 +514,80 @@ class InntektBuilder {
         beløpØre(ørePerMåned)
     }
 
-    fun kilde(kilde: Inntektskilde) {
-        this.kilde = kilde
-    }
-
-    fun `fra kilde`(kilde: Inntektskilde) {
-        this.kilde = kilde
-    }
-
-    fun refusjon(init: RefusjonBuilder.() -> Unit) {
-        val builder = RefusjonBuilder()
-        builder.init()
-        refusjon.add(builder.build())
-    }
-
-    fun `med refusjon`(init: RefusjonBuilder.() -> Unit) {
-        refusjon(init)
-    }
-
-    fun build(): InntektBeregnet =
-        InntektBeregnet(
-            yrkesaktivitetId = yrkesaktivitetId,
-            inntektMånedligØre = beløpPerMånedØre,
-            grunnlagMånedligØre = beløpPerMånedØre,
-            kilde = kilde,
-            refusjon = refusjon,
+    fun build(): InntektData {
+        val årligInntekt = InntektbeløpDto.Årlig((beløpPerMånedØre * 12).toDouble())
+        return InntektData.ArbeidstakerAinntekt(
+            omregnetÅrsinntekt = årligInntekt,
+            sporing = "TEST_BEREGNING",
         )
+    }
 }
 
-class RefusjonBuilder {
-    private var fom: LocalDate? = null
-    private var tom: LocalDate? = null
-    private var beløpØre: Long = 0L
+// Hjelpeklasse for å lage Refusjonsdata
+class RefusjonsdataBuilder {
+    private val refusjonsperioder = mutableListOf<Refusjonsperiode>()
 
-    fun fra(dato: LocalDate) {
-        this.fom = dato
-    }
-
-    fun `fra dato`(dato: LocalDate) {
-        fra(dato)
-    }
-
-    fun til(dato: LocalDate) {
-        this.tom = dato
-    }
-
-    fun `til dato`(dato: LocalDate) {
-        til(dato)
-    }
-
-    fun åpen() {
-        this.tom = null
-    }
-
-    fun `er åpen`() {
-        åpen()
-    }
-
-    fun beløp(krPerMåned: Int) {
-        this.beløpØre = krPerMåned * 100L
-    }
-
-    fun `med beløp`(krPerMåned: Int) {
-        beløp(krPerMåned)
-    }
-
-    fun beløpØre(ørePerMåned: Long) {
-        this.beløpØre = ørePerMåned
-    }
-
-    fun `med beløp i øre`(ørePerMåned: Long) {
-        beløpØre(ørePerMåned)
-    }
-
-    fun build(): Refusjonsperiode =
-        Refusjonsperiode(
-            fom = fom ?: throw IllegalStateException("Refusjonsperiode må ha fom-dato"),
-            tom = tom,
-            beløpØre = beløpØre,
+    fun periode(
+        fom: LocalDate,
+        tom: LocalDate? = null,
+        beløp: Int, // kr per måned
+    ) {
+        val månedligBeløp = InntektbeløpDto.MånedligDouble(beløp.toDouble())
+        refusjonsperioder.add(
+            Refusjonsperiode(
+                fom = fom,
+                tom = tom,
+                beløp = månedligBeløp,
+            ),
         )
+    }
+
+    fun `med periode`(
+        fom: LocalDate,
+        tom: LocalDate? = null,
+        beløp: Int,
+    ) {
+        periode(fom, tom, beløp)
+    }
+
+    fun periode(
+        fom: LocalDate,
+        tom: LocalDate? = null,
+        beløpØre: Long, // øre per måned
+    ) {
+        val månedligBeløp = InntektbeløpDto.MånedligDouble(beløpØre.toDouble() / 100.0)
+        refusjonsperioder.add(
+            Refusjonsperiode(
+                fom = fom,
+                tom = tom,
+                beløp = månedligBeløp,
+            ),
+        )
+    }
+
+    fun `med periode i øre`(
+        fom: LocalDate,
+        tom: LocalDate? = null,
+        beløpØre: Long,
+    ) {
+        periode(fom, tom, beløpØre)
+    }
+
+    fun build(): List<Refusjonsperiode> = refusjonsperioder.toList()
+}
+
+// Extension function for å lage InntektData
+fun inntektData(init: InntektDataBuilder.() -> Unit): InntektData {
+    val builder = InntektDataBuilder()
+    builder.init()
+    return builder.build()
+}
+
+// Extension function for å lage Refusjonsdata
+fun refusjonsdata(init: RefusjonsdataBuilder.() -> Unit): List<Refusjonsperiode> {
+    val builder = RefusjonsdataBuilder()
+    builder.init()
+    return builder.build()
 }
 
 // Extension functions for enklere bruk
@@ -521,27 +651,6 @@ private fun fyllUtManglendeDagerSomArbeidsdager(
     }
 
     return dagerMap.values.sortedBy { it.dato }
-}
-
-private fun lagSykepengegrunnlag(inntekter: List<InntektBeregnet>): SykepengegrunnlagResponse {
-    val totalInntektØre = 12 * inntekter.sumOf { it.inntektMånedligØre }
-    val grunnbeløpØre = 10000000L
-    val grunnbeløp6GØre = 6 * grunnbeløpØre
-
-    return SykepengegrunnlagResponse(
-        id = UUID.randomUUID(),
-        saksbehandlingsperiodeId = UUID.randomUUID(),
-        inntekter = inntekter,
-        totalInntektØre = totalInntektØre,
-        grunnbeløpØre = grunnbeløpØre,
-        grunnbeløp6GØre = grunnbeløp6GØre,
-        begrensetTil6G = totalInntektØre > grunnbeløp6GØre,
-        sykepengegrunnlagØre = minOf(totalInntektØre, grunnbeløp6GØre),
-        grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-        opprettet = "2024-01-01T00:00:00Z",
-        opprettetAv = "test",
-        sistOppdatert = "2024-01-01T00:00:00Z",
-    )
 }
 
 /**
