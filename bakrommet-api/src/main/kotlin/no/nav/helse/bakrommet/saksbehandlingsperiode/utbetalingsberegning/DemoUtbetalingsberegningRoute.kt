@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.tilYrkesaktivitet
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.objectMapperWithDeserializer
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
 
@@ -20,7 +20,7 @@ internal fun Route.demoUtbetalingsberegningRoute() {
             val rawInput = call.receiveText()
             try {
                 // Parse input til objekt
-                val input = objectMapper.readValue(rawInput, DemoUtbetalingsberegningInput::class.java)
+                val input = objectMapperWithDeserializer.readValue(rawInput, DemoUtbetalingsberegningInput::class.java)
                 val inputTransformert = input.tilUtbetalingsberegningInput()
                 val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(inputTransformert)
                 val oppdrag = byggOppdragFraBeregning(beregnet, inputTransformert.yrkesaktivitet, "NATURLIG_IDENT_DEMO")
