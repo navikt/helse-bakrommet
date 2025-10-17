@@ -4,6 +4,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.beregnSykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder
@@ -492,30 +493,22 @@ class YrkesaktivitetBuilder {
 // Hjelpeklasse for å lage InntektData
 class InntektDataBuilder {
     private var yrkesaktivitetId: UUID = UUID.randomUUID()
-    private var beløpPerMånedØre: Long = 5000000L // 50 000 kr/mnd
+    private var beløpPerMåned: Int = 5000000 // 50 000 kr/mnd
 
     fun yrkesaktivitetId(id: UUID) {
         this.yrkesaktivitetId = id
     }
 
     fun beløp(krPerMåned: Int) {
-        this.beløpPerMånedØre = krPerMåned * 100L
+        this.beløpPerMåned = krPerMåned
     }
 
     fun `med beløp`(krPerMåned: Int) {
         beløp(krPerMåned)
     }
 
-    fun beløpØre(ørePerMåned: Long) {
-        this.beløpPerMånedØre = ørePerMåned
-    }
-
-    fun `med beløp i øre`(ørePerMåned: Long) {
-        beløpØre(ørePerMåned)
-    }
-
     fun build(): InntektData {
-        val årligInntekt = InntektbeløpDto.Årlig((beløpPerMånedØre * 12).toDouble())
+        val årligInntekt = InntektbeløpDto.Årlig((beløpPerMåned * 12).toDouble())
         return InntektData.ArbeidstakerAinntekt(
             omregnetÅrsinntekt = årligInntekt,
             sporing = "TEST_BEREGNING",
@@ -606,7 +599,7 @@ fun beregnOgByggOppdrag(
 ): BeregningResultat {
     val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
     val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, ident)
-    return BeregningResultat(beregnet, oppdrag)
+    return BeregningResultat(beregnet, oppdrag, input.sykepengegrunnlag)
 }
 
 /**
@@ -626,6 +619,7 @@ fun utbetalingsberegningTestOgBeregn(
 data class BeregningResultat(
     val beregnet: List<YrkesaktivitetUtbetalingsberegning>,
     val oppdrag: List<Oppdrag>,
+    val sykepengegrunnlag: Sykepengegrunnlag,
 )
 
 // Hjelpefunksjoner for å lage sykepengegrunnlag

@@ -11,12 +11,12 @@ class PerPålEspenBeregningTest {
     @Test
     fun `Per`() {
         /**
-         * Arbeidstaker: kr 1.200.000
+         * Arbeidstaker: kr 120.000
          * Næring: kr 0
-         * Total inntekt: kr 1.200.000
+         * Total inntekt: kr 120.000
          * 50% syk
-         * Inntektstap: kr 600.000
-         * Får sykepenger: kr 300.000
+         * Inntektstap: kr 60.000
+         * Får sykepenger: kr 30.000
          */
         val yrkesaktivitetIdArbeidstaker = UUID.randomUUID()
         val yrkesaktivitetIdNæring = UUID.randomUUID()
@@ -35,7 +35,7 @@ class PerPålEspenBeregningTest {
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 50, antallDager = 365)
                     `med inntektData` {
-                        `med beløp`(100000)
+                        `med beløp`(10000)
                     }
                 }
 
@@ -69,7 +69,7 @@ class PerPålEspenBeregningTest {
                 `skal ha dekningsgrad begrunnelse`(ARBEIDSTAKER_100)
                 `på dato`(1.januar(2024)) {
                     `skal ha total grad`(50)
-                    `skal ha utbetaling`(1154)
+                    `skal ha utbetaling`(231)
                     `skal ha sykdoms grad`(50)
                 }
             }
@@ -78,8 +78,8 @@ class PerPålEspenBeregningTest {
                 `skal ha antall oppdrag`(1)
                 `oppdrag nummer`(0) {
                     `skal ha fagområde`("SP")
-                    `skal ha netto beløp`(301194)
-                    `skal ha total beløp`(301194)
+                    `skal ha netto beløp`(60291)
+                    `skal ha total beløp`(60291)
                 }
             }
         }
@@ -88,12 +88,12 @@ class PerPålEspenBeregningTest {
     @Test
     fun `Pål`() {
         /**
-         * Arbeidstaker: kr 600.000
-         * Næring: kr 600.000
-         * Total inntekt: kr 1.200.000
+         * Arbeidstaker: kr 60.000
+         * Næring: kr 60.000
+         * Total inntekt: kr 120.000
          * 100% syk som arbeidstaker
-         * Inntektstap: kr 600.000
-         * Får sykepenger: kr 600.000
+         * Inntektstap: kr 60.000
+         * Får sykepenger: kr 60.000
          */
         val yrkesaktivitetIdArbeidstaker = UUID.randomUUID()
         val yrkesaktivitetIdNæring = UUID.randomUUID()
@@ -112,7 +112,7 @@ class PerPålEspenBeregningTest {
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 100, antallDager = 365)
                     `med inntektData` {
-                        `med beløp`(50000)
+                        `med beløp`(5000)
                     }
                 }
 
@@ -122,7 +122,7 @@ class PerPålEspenBeregningTest {
                     `fra dato`(1.januar(2024))
                     `har arbeidsdager`(365)
                     `med inntektData` {
-                        `med beløp`(50000)
+                        `med beløp`(5000)
                     }
                 }
             }
@@ -133,7 +133,7 @@ class PerPålEspenBeregningTest {
                 `skal ha dekningsgrad`(80)
                 `skal ha dekningsgrad begrunnelse`(ORDINAER_SELVSTENDIG_80)
                 `på dato`(1.januar(2024)) {
-                    `skal ha total grad`(50)
+                    `skal ha total grad`(100)
                     `skal ha sykdoms grad`(0)
                     `skal ha ingen refusjon`()
                     `skal ha ingen utbetaling`()
@@ -145,8 +145,8 @@ class PerPålEspenBeregningTest {
                 `skal ha dekningsgrad`(100)
                 `skal ha dekningsgrad begrunnelse`(ARBEIDSTAKER_100)
                 `på dato`(1.januar(2024)) {
-                    `skal ha total grad`(50)
-                    `skal ha utbetaling`(1154)
+                    `skal ha total grad`(100)
+                    `skal ha utbetaling`(231)
                     `skal ha sykdoms grad`(100)
                 }
             }
@@ -155,8 +155,8 @@ class PerPålEspenBeregningTest {
                 `skal ha antall oppdrag`(1)
                 `oppdrag nummer`(0) {
                     `skal ha fagområde`("SP")
-                    `skal ha netto beløp`(301194) // TODO denne blir feil, skal være 600.000
-                    `skal ha total beløp`(301194)
+                    `skal ha netto beløp`(60291) // TODO denne blir feil, skal være 60.000
+                    `skal ha total beløp`(60291)
                 }
             }
         }
@@ -165,11 +165,11 @@ class PerPålEspenBeregningTest {
     @Test
     fun `Espen`() {
         /**
-         * Arbeidstaker: kr 600.000
-         * Næring: kr 600.000
-         * Total inntekt: kr 1.200.000
+         * Arbeidstaker: kr 60.000
+         * Næring: kr 60.000
+         * Total inntekt: kr 120.000
          * 100% syk som næringsdrivende
-         * Inntektstap: kr 600.000
+         * Inntektstap: kr 60.000
          * Får sykepenger: kr 0
          */
         val yrkesaktivitetIdArbeidstaker = UUID.randomUUID()
@@ -189,7 +189,7 @@ class PerPålEspenBeregningTest {
                     `fra dato`(1.januar(2024))
                     `har arbeidsdager`(365)
                     `med inntektData` {
-                        `med beløp`(50000)
+                        `med beløp`(5000)
                     }
                 }
 
@@ -199,7 +199,7 @@ class PerPålEspenBeregningTest {
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 100, antallDager = 365)
                     `med inntektData` {
-                        `med beløp`(50000)
+                        `med beløp`(5000)
                     }
                 }
             }
@@ -210,10 +210,10 @@ class PerPålEspenBeregningTest {
                 `skal ha dekningsgrad`(80)
                 `skal ha dekningsgrad begrunnelse`(ORDINAER_SELVSTENDIG_80)
                 `på dato`(1.januar(2024)) {
-                    `skal ha total grad`(50)
+                    `skal ha total grad`(0)
                     `skal ha sykdoms grad`(100)
                     `skal ha ingen refusjon`()
-                    `skal ha utbetaling`(923)
+                    `skal ha utbetaling`(0)
                 }
             }
 
@@ -222,19 +222,14 @@ class PerPålEspenBeregningTest {
                 `skal ha dekningsgrad`(100)
                 `skal ha dekningsgrad begrunnelse`(ARBEIDSTAKER_100)
                 `på dato`(1.januar(2024)) {
-                    `skal ha total grad`(50)
+                    `skal ha total grad`(0)
                     `skal ha sykdoms grad`(0)
                     `skal ha ingen utbetaling`()
                 }
             }
 
             `har oppdrag` {
-                `skal ha antall oppdrag`(1)
-                `oppdrag nummer`(0) {
-                    `skal ha fagområde`("SP")
-                    `skal ha netto beløp`(240903) // TODO denne blir feil, skal være null
-                    `skal ha total beløp`(240903)
-                }
+                `skal ha antall oppdrag`(0)
             }
         }
     }

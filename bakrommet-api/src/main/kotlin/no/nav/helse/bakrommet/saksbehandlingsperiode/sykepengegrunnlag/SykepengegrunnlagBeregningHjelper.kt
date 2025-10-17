@@ -77,8 +77,8 @@ fun beregnSykepengegrunnlag(
             null
         } else {
             val pensjonsgivendeÅrsinntekt = Inntekt.gjenopprett(næringsdrivende.inntektData!!.omregnetÅrsinntekt)
-            val pensjonsgivendeÅrsinntekt6GBegrenset = minOf(pensjonsgivendeÅrsinntekt, grunnbeløp)
-            val pensjonsgivendeÅrsinntektBegrensetTil6G = pensjonsgivendeÅrsinntekt > grunnbeløp
+            val pensjonsgivendeÅrsinntekt6GBegrenset = minOf(pensjonsgivendeÅrsinntekt, grunnbeløp6G)
+            val pensjonsgivendeÅrsinntektBegrensetTil6G = pensjonsgivendeÅrsinntekt > grunnbeløp6G
             val andreYrkesaktiviteter =
                 yrkesaktiviteter
                     .filter { it.id != næringsdrivende.id }

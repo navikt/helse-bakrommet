@@ -133,19 +133,23 @@ val regler =
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/dagoversikt/(method:PUT)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/dagoversikt/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/kategorisering/(method:PUT)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/kategorisering/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/perioder/(method:PUT)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/perioder/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{inntektsforholdUUID}/(method:DELETE)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/inntekt/(method:PUT)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/(method:DELETE)",
             role = setOf(SAKSBEHANDLER),
         ),
         // Dokumenter - relaterte ruter

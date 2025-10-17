@@ -4,14 +4,12 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.*
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 
 interface SykepengegrunnlagServiceDaoer {
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
     val yrkesaktivitetDao: YrkesaktivitetDao
-    val beregningDao: UtbetalingsberegningDao
     val personDao: PersonDao
 }
 

@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.ARBEIDSTAKER_100
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.ORDINAER_SELVSTENDIG_80
+import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -26,7 +27,7 @@ class KombinertBeregningTest {
                     `fra dato`(1.januar(2024))
                     `er syk`(grad = 100, antallDager = 31)
                     `med inntektData` {
-                        `med beløp`(21666)
+                        `med beløp`(43332)
                     }
                 }
 
@@ -43,7 +44,8 @@ class KombinertBeregningTest {
                     }
                 }
             }
-
+        val sykepengegrunnlag = resultat.sykepengegrunnlag.sykepengegrunnlag
+        sykepengegrunnlag.beløp `should equal` 519984.0
         resultat.skal {
             `ha yrkesaktivitet`(yrkesaktivitetIdNæring) {
                 `skal ha antall dager`(31) // Hele januar

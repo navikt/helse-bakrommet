@@ -13,6 +13,10 @@ import no.nav.helse.bakrommet.godkjenn
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -21,6 +25,8 @@ import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.dto.serialisering.ØkonomiUtDto
@@ -148,28 +154,27 @@ class UtbetalingsberegningIntegrasjonTest {
     ) {
         // Månedsinntekt på 50 000 kr (5 000 000 øre) med skjønnsfastsettelse
         val inntektRequest =
-            """
-            {
-                "inntektskategori": "ARBEIDSTAKER",
-                "data": {
-                    "type": "SKJONNSFASTSETTELSE",
-                    "månedsbeløp": 50000.0,
-                    "årsak": "MANGELFULL_RAPPORTERING",
-                    "begrunnelse": "Test skjønnsfastsettelse",
-                    "refusjon": {
-                        "fra": "2024-01-01",
-                        "til": "2024-01-31",
-                        "beløp": 10000
-                    }
-                }
-            }
-            """.trimIndent()
+            InntektRequest.Arbeidstaker(
+                ArbeidstakerInntektRequest.Skjønnsfastsatt(
+                    månedsbeløp = InntektbeløpDto.MånedligDouble(50000.0),
+                    årsak = ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING,
+                    begrunnelse = "Test skjønnsfastsettelse",
+                    refusjon =
+                        listOf(
+                            Refusjonsperiode(
+                                fom = LocalDate.of(2024, 1, 1),
+                                tom = LocalDate.of(2024, 1, 31),
+                                beløp = InntektbeløpDto.MånedligDouble(10000.0),
+                            ),
+                        ),
+                ),
+            )
 
         val response =
             client.put("/v1/$PERSON_ID/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
-                setBody(inntektRequest)
+                setBody(inntektRequest.serialisertTilString())
             }
         assertEquals(204, response.status.value)
     }
@@ -288,45 +293,54 @@ class UtbetalingsberegningIntegrasjonTest {
             is UtbetalingsdagUtDto.NavDagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
                     .NavDagDto(dato, økonomi.tilInnDto())
+
             is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(
                     dato,
                     økonomi.tilInnDto(),
                 )
+
             is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsgiverperiodeDagNavDto(
                     dato,
                     økonomi.tilInnDto(),
                 )
+
             is UtbetalingsdagUtDto.NavHelgDagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.NavHelgDagDto(
                     dato,
                     økonomi.tilInnDto(),
                 )
+
             is UtbetalingsdagUtDto.ArbeidsdagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsdagDto(
                     dato,
                     økonomi.tilInnDto(),
                 )
+
             is UtbetalingsdagUtDto.FridagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
                     .FridagDto(dato, økonomi.tilInnDto())
+
             is UtbetalingsdagUtDto.AvvistDagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.AvvistDagDto(
                     dato,
                     økonomi.tilInnDto(),
                     begrunnelser,
                 )
+
             is UtbetalingsdagUtDto.ForeldetDagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ForeldetDagDto(
                     dato,
                     økonomi.tilInnDto(),
                 )
+
             is UtbetalingsdagUtDto.UkjentDagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.UkjentDagDto(
                     dato,
                     økonomi.tilInnDto(),
                 )
+
             is UtbetalingsdagUtDto.VentetidsdagDto ->
                 no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.VentetidsdagDto(
                     dato,
@@ -359,28 +373,28 @@ class UtbetalingsberegningIntegrasjonTest {
         // Dag 1: 100% syk - skal ha refusjon
         val dag1 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 1) }!!
         assertEquals(
-            184700,
-            (dag1.økonomi.personbeløp?.dagligInt ?: 0) * 100,
+            1846,
+            dag1.økonomi.personbeløp?.dagligInt,
             "Dag 1 skal ha personutbetaling siden refusjon ikke dekker alt",
         )
         assertEquals(
-            46100,
-            (dag1.økonomi.arbeidsgiverbeløp?.dagligInt ?: 0) * 100,
-            "Dag 1 skal ha 46100 øre refusjon (10000 kr * 12 / 260 dager)",
+            462,
+            dag1.økonomi.arbeidsgiverbeløp?.dagligInt,
+            "Dag 1 skal ha 462 i refusjon",
         )
         assertEquals(100, dag1.økonomi.brukTotalGrad { it }, "Dag 1 skal ha 100% total grad")
 
         // Dag 2: 70% syk - skal ha 70% refusjon
         val dag2 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 2) }!!
         assertEquals(
-            129300,
-            (dag2.økonomi.personbeløp?.dagligInt ?: 0) * 100,
+            1292,
+            dag2.økonomi.personbeløp?.dagligInt,
             "Dag 2 skal ha personutbetaling siden refusjon ikke dekker alt",
         )
         assertEquals(
-            32300,
-            (dag2.økonomi.arbeidsgiverbeløp?.dagligInt ?: 0) * 100,
-            "Dag 2 skal ha 32300 øre refusjon (70% av dag 1, avrundet)",
+            323,
+            dag2.økonomi.arbeidsgiverbeløp?.dagligInt,
+            "Dag 2 skal ha 323 kr refusjon (70% av dag 1, avrundet)",
         )
         assertEquals(70, dag2.økonomi.brukTotalGrad { it }, "Dag 2 skal ha 70% total grad")
 
@@ -392,14 +406,26 @@ class UtbetalingsberegningIntegrasjonTest {
 
         // Dag 4: 100% syk - skal ha samme refusjon som dag 1
         val dag4 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 4) }!!
-        assertEquals(184700, (dag4.økonomi.personbeløp?.dagligInt ?: 0) * 100, "Dag 4 skal ha samme personutbetaling som dag 1")
-        assertEquals(46100, (dag4.økonomi.arbeidsgiverbeløp?.dagligInt ?: 0) * 100, "Dag 4 skal ha samme refusjon som dag 1")
+        assertEquals(
+            1846,
+            dag4.økonomi.personbeløp?.dagligInt,
+            "Dag 4 skal ha samme personutbetaling som dag 1",
+        )
+        assertEquals(
+            462,
+            dag4.økonomi.arbeidsgiverbeløp?.dagligInt,
+            "Dag 4 skal ha samme refusjon som dag 1",
+        )
         assertEquals(100, dag4.økonomi.brukTotalGrad { it }, "Dag 4 skal ha 100% total grad")
 
         // Dag 5: Arbeidsdag - skal ikke ha utbetaling
         val dag5 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 5) }!!
         assertEquals(0, (dag5.økonomi.personbeløp?.dagligInt ?: 0) * 100, "Dag 5 (Arbeidsdag) skal ikke ha utbetaling")
-        assertEquals(0, (dag5.økonomi.arbeidsgiverbeløp?.dagligInt ?: 0) * 100, "Dag 5 (Arbeidsdag) skal inte ha refusjon")
+        assertEquals(
+            0,
+            dag5.økonomi.arbeidsgiverbeløp?.dagligInt,
+            "Dag 5 (Arbeidsdag) skal ikke ha refusjon",
+        )
         assertEquals(0, dag5.økonomi.brukTotalGrad { it }, "Dag 5 (Arbeidsdag) skal ha 0% total grad")
     }
 }

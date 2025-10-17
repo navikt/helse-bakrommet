@@ -31,6 +31,7 @@ data class YrkesaktivitetDbRecord(
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
     val inntektData: InntektData? = null,
+    val refusjonsdata: List<Refusjonsperiode>? = null,
 )
 
 data class Refusjonsperiode(
@@ -61,6 +62,48 @@ data class Yrkesaktivitet(
         }
 }
 
+fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): Yrkesaktivitet =
+    Yrkesaktivitet(
+        id = this.id,
+        kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(this.kategorisering),
+        kategoriseringGenerert =
+            this.kategoriseringGenerert?.let { map ->
+                YrkesaktivitetKategoriseringMapper.fromMap(
+                    map,
+                )
+            },
+        dagoversikt = this.dagoversikt,
+        dagoversiktGenerert = this.dagoversiktGenerert,
+        saksbehandlingsperiodeId = this.saksbehandlingsperiodeId,
+        opprettet = this.opprettet,
+        generertFraDokumenter = this.generertFraDokumenter,
+        perioder = this.perioder,
+        inntektRequest = this.inntektRequest,
+        inntektData = this.inntektData,
+        refusjonsdata = this.refusjonsdata,
+    )
+
+fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
+    YrkesaktivitetDbRecord(
+        id = this.id,
+        kategorisering = YrkesaktivitetKategoriseringMapper.toMap(this.kategorisering),
+        kategoriseringGenerert =
+            this.kategoriseringGenerert?.let { map ->
+                YrkesaktivitetKategoriseringMapper.toMap(
+                    map,
+                )
+            },
+        dagoversikt = this.dagoversikt,
+        dagoversiktGenerert = this.dagoversiktGenerert,
+        saksbehandlingsperiodeId = this.saksbehandlingsperiodeId,
+        opprettet = this.opprettet,
+        generertFraDokumenter = this.generertFraDokumenter,
+        perioder = this.perioder,
+        inntektRequest = this.inntektRequest,
+        inntektData = this.inntektData,
+        refusjonsdata = this.refusjonsdata,
+    )
+
 class YrkesaktivitetDao private constructor(
     private val db: QueryRunner,
 ) {
@@ -80,6 +123,7 @@ class YrkesaktivitetDao private constructor(
         generertFraDokumenter: List<UUID> = emptyList(),
         perioder: Perioder? = null,
         inntektData: InntektData? = null,
+        refusjonsdata: List<Refusjonsperiode>? = null,
     ): YrkesaktivitetDbRecord {
         val kategoriseringMap = YrkesaktivitetKategoriseringMapper.toMap(kategorisering)
         val yrkesaktivitetDbRecord =
@@ -94,17 +138,18 @@ class YrkesaktivitetDao private constructor(
                 generertFraDokumenter = generertFraDokumenter,
                 perioder = perioder,
                 inntektData = inntektData,
+                refusjonsdata = refusjonsdata,
             )
         db.update(
             """
             insert into yrkesaktivitet
                 (id, kategorisering, kategorisering_generert,
                 dagoversikt, dagoversikt_generert,
-                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data)
+                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon_data)
             values
                 (:id, :kategorisering, :kategorisering_generert,
                 :dagoversikt, :dagoversikt_generert,
-                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data)
+                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon_data)
             """.trimIndent(),
             "id" to yrkesaktivitetDbRecord.id,
             "kategorisering" to yrkesaktivitetDbRecord.kategorisering.serialisertTilString(),
@@ -116,6 +161,7 @@ class YrkesaktivitetDao private constructor(
             "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
             "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
             "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.serialisertTilString(),
+            "refusjon_data" to yrkesaktivitetDbRecord.refusjonsdata?.serialisertTilString(),
         )
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
@@ -123,7 +169,7 @@ class YrkesaktivitetDao private constructor(
     fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
         db.single(
             """
-            select *, inntekt_request, inntekt_data from yrkesaktivitet where id = :id
+            select *, inntekt_request, inntekt_data, refusjon_data from yrkesaktivitet where id = :id
             """.trimIndent(),
             "id" to id,
             mapper = ::yrkesaktivitetFraRow,
@@ -134,7 +180,12 @@ class YrkesaktivitetDao private constructor(
             Yrkesaktivitet(
                 id = dbRecord.id,
                 kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(dbRecord.kategorisering),
-                kategoriseringGenerert = dbRecord.kategoriseringGenerert?.let { YrkesaktivitetKategoriseringMapper.fromMap(it) },
+                kategoriseringGenerert =
+                    dbRecord.kategoriseringGenerert?.let {
+                        YrkesaktivitetKategoriseringMapper.fromMap(
+                            it,
+                        )
+                    },
                 dagoversikt = dbRecord.dagoversikt,
                 dagoversiktGenerert = dbRecord.dagoversiktGenerert,
                 saksbehandlingsperiodeId = dbRecord.saksbehandlingsperiodeId,
@@ -143,30 +194,19 @@ class YrkesaktivitetDao private constructor(
                 perioder = dbRecord.perioder,
                 inntektRequest = dbRecord.inntektRequest,
                 inntektData = dbRecord.inntektData,
+                refusjonsdata = dbRecord.refusjonsdata,
             )
         }
 
     fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
         hentYrkesaktiviteterDbRecord(periode).map {
-            Yrkesaktivitet(
-                id = it.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(it.kategorisering),
-                kategoriseringGenerert = it.kategoriseringGenerert?.let { map -> YrkesaktivitetKategoriseringMapper.fromMap(map) },
-                dagoversikt = it.dagoversikt,
-                dagoversiktGenerert = it.dagoversiktGenerert,
-                saksbehandlingsperiodeId = it.saksbehandlingsperiodeId,
-                opprettet = it.opprettet,
-                generertFraDokumenter = it.generertFraDokumenter,
-                perioder = it.perioder,
-                inntektRequest = it.inntektRequest,
-                inntektData = it.inntektData,
-            )
+            it.tilYrkesaktivitet()
         }
 
     fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
-            select *, inntekt_request, inntekt_data from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
+            select *, inntekt_request, inntekt_data, refusjon_data from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
             """.trimIndent(),
             "behandling_id" to periode.id,
             mapper = ::yrkesaktivitetFraRow,
@@ -186,8 +226,18 @@ class YrkesaktivitetDao private constructor(
                     .stringOrNull("generert_fra_dokumenter")
                     ?.somListe<UUID>() ?: emptyList(),
             perioder = row.stringOrNull("perioder")?.let { objectMapper.readValue(it, Perioder::class.java) },
-            inntektRequest = row.stringOrNull("inntekt_request")?.let { objectMapper.readValue(it, InntektRequest::class.java) },
+            inntektRequest =
+                row
+                    .stringOrNull("inntekt_request")
+                    ?.let { objectMapper.readValue(it, InntektRequest::class.java) },
             inntektData = row.stringOrNull("inntekt_data")?.let { objectMapper.readValue(it, InntektData::class.java) },
+            refusjonsdata =
+                row.stringOrNull("refusjon_data")?.let {
+                    objectMapper.readValue(
+                        it,
+                        object : com.fasterxml.jackson.core.type.TypeReference<List<Refusjonsperiode>>() {},
+                    )
+                },
         )
 
     /**
@@ -270,6 +320,20 @@ class YrkesaktivitetDao private constructor(
             """.trimIndent(),
             "id" to yrkesaktivitet.id,
             "inntekt_data" to inntektData.serialisertTilString(),
+        )
+        return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
+    }
+
+    fun oppdaterRefusjonsdata(
+        yrkesaktivitet: Yrkesaktivitet,
+        refusjonsdata: List<Refusjonsperiode>?,
+    ): YrkesaktivitetDbRecord {
+        db.update(
+            """
+            update yrkesaktivitet set refusjon_data = :refusjon_data where id = :id
+            """.trimIndent(),
+            "id" to yrkesaktivitet.id,
+            "refusjon_data" to refusjonsdata?.serialisertTilString(),
         )
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }

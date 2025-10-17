@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.dto.InntektbeløpDto
-import java.time.LocalDate
 
 // ARBEIDSTAKER
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -29,7 +29,7 @@ sealed class ArbeidstakerInntektRequest {
         val månedsbeløp: InntektbeløpDto.MånedligDouble,
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
-        val refusjon: RefusjonInfo? = null,
+        val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 
     data class ManueltBeregnet(
@@ -153,10 +153,3 @@ sealed class InntektRequest {
         val data: ArbeidsledigInntektRequest,
     ) : InntektRequest()
 }
-
-// Hjelpeklasser
-data class RefusjonInfo(
-    val fra: LocalDate,
-    val til: LocalDate,
-    val beløp: Int,
-)

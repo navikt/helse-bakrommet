@@ -58,14 +58,14 @@ class ArbeidstakerBeregningTest {
                 `skal ha antall oppdrag`(2) // Refusjon og person
                 `oppdrag nummer`(0) {
                     `skal ha fagområde`("SPREF")
-                    `skal ha netto beløp`(922)
-                    `skal ha total beløp`(922)
+                    `skal ha netto beløp`(2770)
+                    `skal ha total beløp`(2770)
                     `skal ha mottaker`("999333444")
                 }
                 `oppdrag nummer`(1) {
                     `skal ha fagområde`("SP")
-                    `skal ha netto beløp`(3694)
-                    `skal ha total beløp`(3694)
+                    `skal ha netto beløp`(1846)
+                    `skal ha total beløp`(1846)
                 }
             }
         }
@@ -121,11 +121,11 @@ class ArbeidstakerBeregningTest {
             `har oppdrag` {
                 `skal ha antall oppdrag`(2)
                 `oppdrag nummer`(0) {
-                    `skal ha netto beløp`(461)
+                    `skal ha netto beløp`(462)
                     `skal ha fagområde`("SPREF")
                 }
                 `oppdrag nummer`(1) {
-                    `skal ha netto beløp`(1847)
+                    `skal ha netto beløp`(1846)
                     `skal ha fagområde`("SP")
                 }
             }

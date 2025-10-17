@@ -72,12 +72,9 @@ class InntektService(
             val inntektData =
                 when (request) {
                     is InntektRequest.Arbeidstaker -> {
-                        if (yrkesaktivitet.kategorisering.inntektskategori == Inntektskategori.ARBEIDSTAKER) {
-                            throw IllegalStateException("Kan kun oppdatere arbeidstaker inntekt på yrkesaktivitet med inntektskategori ARBEIDSTAKER")
-                        }
-
                         when (request.data) {
                             is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
+                                yrkesaktivitetDao.oppdaterRefusjonsdata(yrkesaktivitet, request.data.refusjon)
                                 InntektData.ArbeidstakerSkjønnsfastsatt(
                                     omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.månedsbeløp).dto().årlig,
                                     sporing = "SKJØNNSFASTSATT_${request.data.årsak.name} TODO",

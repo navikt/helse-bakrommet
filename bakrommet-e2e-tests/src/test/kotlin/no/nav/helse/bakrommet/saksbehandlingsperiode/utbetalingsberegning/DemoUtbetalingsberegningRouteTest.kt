@@ -7,10 +7,12 @@ import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.tilYrkesaktivitetDbRecord
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -62,7 +64,7 @@ class DemoUtbetalingsberegningRouteTest {
             assertTrue(responseBody.contains("error"))
         }
 
-    private fun lagTestInput(yrkesaktivitetId: UUID): UtbetalingsberegningInput {
+    private fun lagTestInput(yrkesaktivitetId: UUID): DemoUtbetalingsberegningInput {
         // Opprett sykepengegrunnlag med ny struktur
         val sykepengegrunnlag =
             Sykepengegrunnlag(
@@ -119,13 +121,16 @@ class DemoUtbetalingsberegningRouteTest {
                 generertFraDokumenter = emptyList(),
                 perioder = null,
                 inntektRequest = null,
-                inntektData = null,
+                inntektData =
+                    InntektData.ArbeidstakerManueltBeregnet(
+                        omregnetÅrsinntekt = InntektbeløpDto.Årlig(500000.0),
+                    ),
                 refusjonsdata = null,
             )
 
-        return UtbetalingsberegningInput(
+        return DemoUtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
-            yrkesaktivitet = listOf(yrkesaktivitet),
+            yrkesaktivitet = listOf(yrkesaktivitet.tilYrkesaktivitetDbRecord()),
             saksbehandlingsperiode =
                 PeriodeDto(
                     fom = LocalDate.of(2024, 1, 1),

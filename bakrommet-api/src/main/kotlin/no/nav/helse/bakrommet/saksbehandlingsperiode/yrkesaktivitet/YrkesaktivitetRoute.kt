@@ -4,9 +4,9 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.PARAM_INNTEKTSFORHOLDUUID
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
+import no.nav.helse.bakrommet.PARAM_YRKESAKTIVITETUUID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
@@ -21,7 +21,7 @@ import java.util.UUID
 fun RoutingCall.yrkesaktivitetReferanse() =
     YrkesaktivitetReferanse(
         saksbehandlingsperiodeReferanse = periodeReferanse(),
-        yrkesaktivitetUUID = parameters[PARAM_INNTEKTSFORHOLDUUID].somGyldigUUID(),
+        yrkesaktivitetUUID = parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID(),
     )
 
 data class YrkesaktivitetDTO(
@@ -79,7 +79,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
             )
         }
 
-        route("/{$PARAM_INNTEKTSFORHOLDUUID}") {
+        route("/{$PARAM_YRKESAKTIVITETUUID}") {
             delete {
                 service.slettYrkesaktivitet(call.yrkesaktivitetReferanse(), call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)

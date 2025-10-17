@@ -5,6 +5,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.tilYrkesaktivitet
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
@@ -19,9 +20,10 @@ internal fun Route.demoUtbetalingsberegningRoute() {
             val rawInput = call.receiveText()
             try {
                 // Parse input til objekt
-                val input = objectMapper.readValue(rawInput, UtbetalingsberegningInput::class.java)
-                val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-                val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, "NATURLIG_IDENT_DEMO")
+                val input = objectMapper.readValue(rawInput, DemoUtbetalingsberegningInput::class.java)
+                val inputTransformert = input.tilUtbetalingsberegningInput()
+                val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(inputTransformert)
+                val oppdrag = byggOppdragFraBeregning(beregnet, inputTransformert.yrkesaktivitet, "NATURLIG_IDENT_DEMO")
                 val beregningData = BeregningData(beregnet, oppdrag)
                 val beregningDataDto = beregningData.tilBeregningDataUtDto()
 
@@ -43,3 +45,10 @@ internal fun Route.demoUtbetalingsberegningRoute() {
         }
     }
 }
+
+private fun DemoUtbetalingsberegningInput.tilUtbetalingsberegningInput(): UtbetalingsberegningInput =
+    UtbetalingsberegningInput(
+        saksbehandlingsperiode = this.saksbehandlingsperiode,
+        sykepengegrunnlag = this.sykepengegrunnlag,
+        yrkesaktivitet = this.yrkesaktivitet.map { it.tilYrkesaktivitet() },
+    )

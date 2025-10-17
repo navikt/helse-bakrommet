@@ -2,7 +2,9 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.DAGPENGEMOTTAKER_100
+import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
+import no.nav.helse.økonomi.Inntekt.Companion.månedlig
 import no.nav.helse.økonomi.Inntekt.Companion.årlig
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -18,6 +20,7 @@ class ArbeidsledigBeregningTest {
                     `fra dato`(1.januar(2024))
                     `til dato`(31.januar(2024))
                 }
+                skjæringstidspunkt(1.januar(2024))
 
                 yrkesaktivitet {
                     id(yrkesaktivitetId)
@@ -27,11 +30,13 @@ class ArbeidsledigBeregningTest {
                     `er syk`(grad = 100, antallDager = 16)
                     inntektData(
                         InntektData.Arbeidsledig(
-                            omregnetÅrsinntekt = 21666.0.årlig.dto().årlig,
+                            omregnetÅrsinntekt = 21666.0.månedlig.dto().årlig,
                         ),
                     )
                 }
             }
+
+        resultat.sykepengegrunnlag.sykepengegrunnlag.beløp `should equal` 259992.0
 
         resultat.skal {
             `ha yrkesaktivitet`(yrkesaktivitetId) {
