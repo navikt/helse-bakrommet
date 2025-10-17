@@ -94,5 +94,5 @@ data class InntektAar(
     val rapportertinntekt: InntektbeløpDto.Årlig,
     val inntektGrunnbelopsbegrenset: InntektbeløpDto.Årlig,
     val grunnbeløpAar: Year,
-    val grunnbeløp: InntektbeløpDto,
+    val grunnbeløp: InntektbeløpDto.Årlig,
 )
