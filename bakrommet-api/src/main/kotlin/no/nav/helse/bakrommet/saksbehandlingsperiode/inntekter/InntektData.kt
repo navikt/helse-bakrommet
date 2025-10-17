@@ -15,6 +15,7 @@ import java.time.Year
     JsonSubTypes.Type(value = InntektData.Arbeidsledig::class, name = "ARBEIDSLEDIG"),
     JsonSubTypes.Type(value = InntektData.InaktivPensjonsgivende::class, name = "INAKTIV_PENSJONSGIVENDE"),
     JsonSubTypes.Type(value = InntektData.InaktivSkjønnsfastsatt::class, name = "INAKTIV_SKJØNNSFASTSATT"),
+    JsonSubTypes.Type(value = InntektData.ArbeidstakerManueltBeregnet::class, name = "ARBEIDSTAKER_MANUELT_BEREGNET"),
     JsonSubTypes.Type(value = InntektData.SelvstendigNæringsdrivendePensjonsgivende::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_PENSJONSGIVENDE"),
     JsonSubTypes.Type(value = InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_SKJØNNSFASTSATT"),
 )
