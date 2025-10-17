@@ -24,6 +24,9 @@ val objectMapperWithDeserializer: ObjectMapper =
                 ).addDeserializer(
                     InntektbeløpDto.MånedligDouble::class.java,
                     InntektbeløpDtoMånedligDoubleDeserializer(),
+                ).addDeserializer(
+                    InntektbeløpDto.DagligInt::class.java,
+                    InntektbeløpDtoDagligIntDeserializer(),
                 ),
         ).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
