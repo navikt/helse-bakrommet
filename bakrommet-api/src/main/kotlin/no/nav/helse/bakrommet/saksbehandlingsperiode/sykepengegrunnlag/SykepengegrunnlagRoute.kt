@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 
 internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
+    route("/v2/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
         get {
             val grunnlag = service.hentSykepengegrunnlag(call.periodeReferanse())
             call.respondText(

@@ -67,16 +67,8 @@ val regler =
         ),
         // Sykepengegrunnlag
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:GET)",
+            path = "/v2/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
-        ),
-        Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:PUT)",
-            role = setOf(SAKSBEHANDLER),
-        ),
-        Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:DELETE)",
-            role = setOf(SAKSBEHANDLER),
         ),
         Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/(method:GET)",

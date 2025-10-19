@@ -39,6 +39,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.sykepengegrunnlagRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregningRoute
@@ -156,6 +158,11 @@ internal fun Application.appModul(
             sessionFactory = sessionFactoryFelles,
             dokumentHenter = dokumentHenter,
         ),
+    sykepengegrunnlagService: SykepengegrunnlagService =
+        SykepengegrunnlagService(
+            daoer = daoerFelles,
+            sessionFactory = sessionFactoryFelles,
+        ),
 ) {
     install(ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter(objectMapper))
@@ -179,6 +186,7 @@ internal fun Application.appModul(
             personsøkRoute(pdlClient, personDao)
             personinfoRoute(pdlClient, personDao)
             soknaderRoute(sykepengesoknadBackendClient, personDao)
+            sykepengegrunnlagRoute(sykepengegrunnlagService)
             saksbehandlingsperiodeRoute(service = saksbehandlingsperiodeService)
             dokumenterRoute(dokumentHenter = dokumentHenter)
             saksbehandlingsperiodeVilkårRoute(
