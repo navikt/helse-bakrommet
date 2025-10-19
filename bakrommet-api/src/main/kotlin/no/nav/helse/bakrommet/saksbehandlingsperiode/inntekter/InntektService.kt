@@ -76,7 +76,7 @@ class InntektService(
                             is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
                                 yrkesaktivitetDao.oppdaterRefusjonsdata(yrkesaktivitet, request.data.refusjon)
                                 InntektData.ArbeidstakerSkjønnsfastsatt(
-                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.månedsbeløp).dto().årlig,
+                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.årsinntekt).dto().årlig,
                                     sporing = "SKJØNNSFASTSATT_${request.data.årsak.name} TODO",
                                 )
                             }
@@ -164,12 +164,12 @@ class InntektService(
 
                             is ArbeidsledigInntektRequest.Vartpenger ->
                                 InntektData.Arbeidsledig(
-                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.månedsbeløp).dto().årlig,
+                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.årsinntekt).dto().årlig,
                                 )
 
                             is ArbeidsledigInntektRequest.Ventelønn ->
                                 InntektData.Arbeidsledig(
-                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.månedsbeløp).dto().årlig,
+                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.årsinntekt).dto().årlig,
                                 )
                         }
                     }

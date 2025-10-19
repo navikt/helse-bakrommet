@@ -26,7 +26,7 @@ sealed class ArbeidstakerInntektRequest {
     ) : ArbeidstakerInntektRequest()
 
     data class Skjønnsfastsatt(
-        val månedsbeløp: InntektbeløpDto.MånedligDouble,
+        val årsinntekt: InntektbeløpDto.Årlig,
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
         val refusjon: List<Refusjonsperiode>? = null,
@@ -86,7 +86,7 @@ sealed class FrilanserInntektRequest {
     ) : FrilanserInntektRequest()
 
     data class Skjønnsfastsatt(
-        val månedsbeløp: InntektbeløpDto.MånedligDouble,
+        val årsinntekt: InntektbeløpDto.Årlig,
         val årsak: FrilanserSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
     ) : FrilanserInntektRequest()
@@ -113,12 +113,12 @@ sealed class ArbeidsledigInntektRequest {
     ) : ArbeidsledigInntektRequest()
 
     data class Ventelønn(
-        val månedsbeløp: InntektbeløpDto.MånedligDouble,
+        val årsinntekt: InntektbeløpDto.Årlig,
         override val begrunnelse: String,
     ) : ArbeidsledigInntektRequest()
 
     data class Vartpenger(
-        val månedsbeløp: InntektbeløpDto.MånedligDouble,
+        val årsinntekt: InntektbeløpDto.Årlig,
         override val begrunnelse: String,
     ) : ArbeidsledigInntektRequest()
 }

@@ -156,7 +156,7 @@ class UtbetalingsberegningIntegrasjonTest {
         val inntektRequest =
             InntektRequest.Arbeidstaker(
                 ArbeidstakerInntektRequest.Skjønnsfastsatt(
-                    månedsbeløp = InntektbeløpDto.MånedligDouble(50000.0),
+                    årsinntekt = InntektbeløpDto.Årlig(50000.0 * 12),
                     årsak = ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING,
                     begrunnelse = "Test skjønnsfastsettelse",
                     refusjon =
