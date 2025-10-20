@@ -7,11 +7,14 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.PARAM_YRKESAKTIVITETUUID
+import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.auth.saksbehandler
+import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsmelding.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
@@ -50,6 +53,7 @@ fun YrkesaktivitetDbRecord.tilDto() =
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
     service: YrkesaktivitetService,
     inntektservice: InntektService,
+    inntektsmeldingMatcherService: InntektsmeldingMatcherService,
 ) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
@@ -123,6 +127,24 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
 
                     inntektservice.oppdaterInntekt(yrkesaktivitetRef, inntektRequest, call.saksbehandler())
                     call.respond(HttpStatusCode.NoContent)
+                }
+            }
+            get("/inntektsmeldinger") {
+                call.medIdent(inntektsmeldingMatcherService.personDao) { fnr, personId ->
+                    val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
+
+                    val inntektsmeldinger =
+                        inntektsmeldingMatcherService.hentInntektsmeldingerForYrkesaktivitet(
+                            ref = yrkesaktivitetRef,
+                            fnr = fnr,
+                            saksbehandlerToken = call.request.bearerToken(),
+                        )
+
+                    call.respondText(
+                        inntektsmeldinger.serialisertTilString(),
+                        ContentType.Application.Json,
+                        HttpStatusCode.OK,
+                    )
                 }
             }
         }

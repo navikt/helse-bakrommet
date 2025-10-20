@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
+import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.deserialize
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -429,6 +430,112 @@ class YrkesaktivitetOperasjonerTest {
             // Verifiser at perioder ble slettet
             val oppdatertYrkesaktivitet3 = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
             assertEquals(null, oppdatertYrkesaktivitet3.perioder)
+        }
+    }
+
+    @Test
+    fun `henter inntektsmeldinger for yrkesaktivitet`() {
+        runApplicationTest { daoer ->
+            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+
+            // Opprett saksbehandlingsperiode
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
+            }
+
+            val periode =
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<Saksbehandlingsperiode>>()
+                    .first()
+
+            // Sett skjæringstidspunkt for perioden
+            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/skjaeringstidspunkt") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "skjaeringstidspunkt": "2023-01-15" }""")
+            }
+
+            // Opprett yrkesaktivitet
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
+                )
+            }
+
+            val yrkesaktivitetId =
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<YrkesaktivitetDTO>>()
+                    .first()
+                    .id
+
+            // Hent inntektsmeldinger for yrkesaktivitet
+            val response =
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntektsmeldinger") {
+                    bearerAuth(TestOppsett.userToken)
+                }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+
+            // Verifiser at responsen er en gyldig JSON-array
+            val inntektsmeldinger = response.body<JsonNode>()
+            assertTrue(inntektsmeldinger.isArray, "Responsen skal være en JSON-array")
+        }
+    }
+
+    @Test
+    fun `henter inntektsmeldinger feiler når skjæringstidspunkt ikke er satt`() {
+        runApplicationTest { daoer ->
+            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+
+            // Opprett saksbehandlingsperiode uten skjæringstidspunkt
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
+            }
+
+            val periode =
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<Saksbehandlingsperiode>>()
+                    .first()
+
+            // Opprett yrkesaktivitet
+            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                bearerAuth(TestOppsett.userToken)
+                contentType(ContentType.Application.Json)
+                setBody(
+                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
+                )
+            }
+
+            val yrkesaktivitetId =
+                client
+                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                        bearerAuth(TestOppsett.userToken)
+                    }.body<List<YrkesaktivitetDTO>>()
+                    .first()
+                    .id
+
+            // Hent inntektsmeldinger for yrkesaktivitet
+            val response =
+                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntektsmeldinger") {
+                    bearerAuth(TestOppsett.userToken)
+                }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+
+            val errorResponse = response.bodyAsText()
+            errorResponse `should equal` "[]"
         }
     }
 }

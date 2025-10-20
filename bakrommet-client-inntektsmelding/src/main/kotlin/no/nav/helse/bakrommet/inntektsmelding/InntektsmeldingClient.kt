@@ -35,8 +35,8 @@ class InntektsmeldingClient(
 
     suspend fun hentInntektsmeldinger(
         fnr: String,
-        fom: LocalDate,
-        tom: LocalDate,
+        fom: LocalDate?,
+        tom: LocalDate?,
         saksbehandlerToken: SpilleromBearerToken,
     ): JsonNode {
         val callId: String = UUID.randomUUID().toString()
@@ -53,8 +53,8 @@ class InntektsmeldingClient(
                 setBody(
                     buildJsonObject {
                         put("fnr", fnr)
-                        put("fom", fom.toString())
-                        put("tom", tom.toString())
+                        fom?.let { put("fom", fom.toString()) }
+                        tom?.let { put("tom", tom.toString()) }
                     }.toString(),
                 )
             }

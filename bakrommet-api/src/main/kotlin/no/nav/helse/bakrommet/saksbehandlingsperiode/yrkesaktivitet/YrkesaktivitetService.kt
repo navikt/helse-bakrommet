@@ -71,6 +71,11 @@ class YrkesaktivitetService(
             yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         }
 
+    fun hentPeriodeForYrkesaktivitet(ref: SaksbehandlingsperiodeReferanse) =
+        db.nonTransactional {
+            saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+        }
+
     fun opprettYrkesaktivitet(
         ref: SaksbehandlingsperiodeReferanse,
         kategorisering: YrkesaktivitetKategorisering,
