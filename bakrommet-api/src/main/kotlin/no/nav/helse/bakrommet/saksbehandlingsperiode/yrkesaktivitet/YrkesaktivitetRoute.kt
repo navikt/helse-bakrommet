@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.PARAM_YRKESAKTIVITETUUID
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.auth.saksbehandler
+import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
@@ -125,7 +126,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                     val inntektRequest = call.receiveWithCustomMapper<InntektRequest>(objectMapperCustomSerde)
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
 
-                    inntektservice.oppdaterInntekt(yrkesaktivitetRef, inntektRequest, call.saksbehandler())
+                    inntektservice.oppdaterInntekt(yrkesaktivitetRef, inntektRequest, call.saksbehandlerOgToken())
                     call.respond(HttpStatusCode.NoContent)
                 }
             }

@@ -203,6 +203,7 @@ internal fun Application.appModul(
                 inntektservice =
                     InntektService(
                         daoerFelles,
+                        inntektsmeldingClient,
                         sessionFactoryFelles,
                     ),
                 inntektsmeldingMatcherService =

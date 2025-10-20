@@ -1,9 +1,11 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
-import no.nav.helse.bakrommet.auth.Bruker
+import kotlinx.coroutines.runBlocking
+import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.Beregningsdaoer
@@ -15,6 +17,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Utbeta
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
@@ -28,6 +31,7 @@ interface InntektServiceDaoer : Beregningsdaoer {
 
 class InntektService(
     daoer: InntektServiceDaoer,
+    val inntektsmeldingClient: InntektsmeldingClient,
     sessionFactory: TransactionalSessionFactory<InntektServiceDaoer>,
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
@@ -35,14 +39,14 @@ class InntektService(
     fun oppdaterInntekt(
         ref: YrkesaktivitetReferanse,
         request: InntektRequest,
-        saksbehandler: Bruker,
+        saksbehandler: BrukerOgToken,
     ) {
         db.transactional {
             val yrkesaktivitet =
                 saksbehandlingsperiodeDao
                     .hentPeriode(
                         ref = ref.saksbehandlingsperiodeReferanse,
-                        krav = saksbehandler.erSaksbehandlerPåSaken(),
+                        krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
                     ).let { periode ->
                         val yrkesaktivitet =
                             yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
@@ -90,9 +94,25 @@ class InntektService(
 
                             is ArbeidstakerInntektRequest.Inntektsmelding -> {
                                 // TODO: Hent inntektsmelding data
+                                val inntektsmelding =
+                                    runBlocking {
+                                        inntektsmeldingClient.hentInntektsmelding(
+                                            inntektsmeldingId = request.data.inntektsmeldingId,
+                                            saksbehandlerToken = saksbehandler.token,
+                                        )
+                                    }
+                                // TODO valider at fnr og arbeidsgiver stemmer med yrkesaktivitet og person
+                                // TODO lagre som dokument
                                 InntektData.ArbeidstakerInntektsmelding(
-                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    omregnetÅrsinntekt =
+                                        InntektbeløpDto
+                                            .MånedligDouble(
+                                                inntektsmelding.get("beregnetInntekt").asDouble(),
+                                            ).tilInntekt()
+                                            .dto()
+                                            .årlig,
                                     inntektsmeldingId = request.data.inntektsmeldingId,
+                                    inntektsmelding = inntektsmelding,
                                 )
                             }
 
@@ -176,7 +196,7 @@ class InntektService(
                 }
 
             yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
-            beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
+            beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)
         }
     }
 }

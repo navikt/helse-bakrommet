@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Year
 
@@ -25,6 +26,7 @@ sealed class InntektData {
 
     data class ArbeidstakerInntektsmelding(
         val inntektsmeldingId: String,
+        val inntektsmelding: JsonNode,
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: String = "BEREGNINGSSPORINGVERDI",
     ) : InntektData()

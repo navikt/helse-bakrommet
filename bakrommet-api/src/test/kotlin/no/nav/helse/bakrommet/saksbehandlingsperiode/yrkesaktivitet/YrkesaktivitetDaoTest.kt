@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDao
@@ -285,6 +286,7 @@ class YrkesaktivitetDaoTest {
                 inntektsmeldingId = "123456",
                 omregnetÅrsinntekt = InntektbeløpDto.Årlig(500000.0),
                 sporing = "TEST_SPORING",
+                inntektsmelding = JsonNodeFactory.instance.objectNode(),
             )
 
         // Oppdater inntektData

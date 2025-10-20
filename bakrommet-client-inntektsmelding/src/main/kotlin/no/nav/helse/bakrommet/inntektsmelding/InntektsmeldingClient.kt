@@ -78,4 +78,37 @@ class InntektsmeldingClient(
             )
         }
     }
+
+    suspend fun hentInntektsmelding(
+        inntektsmeldingId: String,
+        saksbehandlerToken: SpilleromBearerToken,
+    ): JsonNode {
+        val callId: String = UUID.randomUUID().toString()
+        val callIdDesc = " callId=$callId"
+        val response =
+            httpClient.get("${configuration.baseUrl}/api/v1/inntektsmelding/$inntektsmeldingId") {
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                header("Nav-Consumer-Id", "bakrommet-speilvendt")
+                header("no.nav.consumer.id", "bakrommet-speilvendt")
+                header("Nav-Call-Id", callId)
+                header("no.nav.callid", callId)
+                accept(ContentType.Application.Json)
+            }
+        if (response.status == HttpStatusCode.OK) {
+            logg.info("Got response from inntektsmelding-API $callIdDesc")
+            // TODO: Benytt https://github.com/navikt/inntektsmelding-kontrakt ?
+            return response.body<JsonNode>()
+        } else if (response.status == HttpStatusCode.NotFound) {
+            throw RuntimeException("Inntektsmelding med id $inntektsmeldingId ikke funnet, callId=$callId")
+        } else {
+            logg.error("Feil under henting av inntektsmelding: ${response.status}, Se secureLog for detaljer $callIdDesc")
+            sikkerLogger.error("Feil under henting av inntektsmelding: ${response.status} - ${response.bodyAsText()} $callIdDesc")
+            if (response.status == HttpStatusCode.Forbidden) {
+                throw ForbiddenException("Ikke tilstrekkelig tilgang til inntektsmelding")
+            }
+            throw RuntimeException(
+                "Feil ved henting av inntektsmelding, status=${response.status.value}, callId=$callId",
+            )
+        }
+    }
 }
