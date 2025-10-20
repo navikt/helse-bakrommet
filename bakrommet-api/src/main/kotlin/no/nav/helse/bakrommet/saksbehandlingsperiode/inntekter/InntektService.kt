@@ -86,9 +86,6 @@ class InntektService(
                             }
 
                             is ArbeidstakerInntektRequest.Ainntekt -> {
-
-
-
                                 InntektData.ArbeidstakerAinntekt(
                                     omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
                                     sporing = "A-inntekt TODO",
@@ -116,7 +113,7 @@ class InntektService(
                                             .årlig,
                                     inntektsmeldingId = request.data.inntektsmeldingId,
                                     inntektsmelding = inntektsmelding,
-                                    sporing = "ARB_SPG_HOVEDREGEL"
+                                    sporing = "ARB_SPG_HOVEDREGEL",
                                 )
                             }
 
@@ -131,8 +128,6 @@ class InntektService(
                     is InntektRequest.SelvstendigNæringsdrivende ->
                         when (request.data) {
                             is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
-                                sw
-
                                 InntektData.SelvstendigNæringsdrivendePensjonsgivende(
                                     omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
                                     beregnetPensjonsgivendeInntekt = InntektbeløpDto.Årlig(800000.0),
