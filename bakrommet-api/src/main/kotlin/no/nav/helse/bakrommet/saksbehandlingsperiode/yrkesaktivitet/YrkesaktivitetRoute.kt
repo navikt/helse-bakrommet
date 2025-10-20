@@ -14,6 +14,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
+import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
@@ -117,7 +118,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
             }
             route("/inntekt") {
                 put {
-                    val inntektRequest = call.receive<InntektRequest>()
+                    val inntektRequest = call.receiveWithCustomMapper<InntektRequest>(objectMapperCustomSerde)
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
 
                     inntektservice.oppdaterInntekt(yrkesaktivitetRef, inntektRequest, call.saksbehandler())
