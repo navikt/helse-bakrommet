@@ -28,6 +28,7 @@ fun Application.installErrorHandling(configuration: Configuration) {
         }
         exception<BadRequestException> { call, cause ->
             val status = HttpStatusCode.BadRequest
+            logg.error("Bad request", cause)
 
             val problem =
                 buildProblem(

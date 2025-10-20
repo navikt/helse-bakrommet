@@ -33,7 +33,7 @@ sealed class ArbeidstakerInntektRequest {
     ) : ArbeidstakerInntektRequest()
 
     data class ManueltBeregnet(
-        val månedsbeløp: InntektbeløpDto.MånedligDouble,
+        val årsinntekt: InntektbeløpDto.Årlig,
         override val begrunnelse: String,
     ) : ArbeidstakerInntektRequest()
 }
