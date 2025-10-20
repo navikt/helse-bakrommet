@@ -31,7 +31,7 @@ dependencies {
         api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
         // Logging
-        api("ch.qos.logback:logback-classic:1.5.18")
+        api("ch.qos.logback:logback-classic:1.5.20")
         api("org.slf4j:slf4j-api:2.0.17")
         api("net.logstash.logback:logstash-logback-encoder:8.1")
 
