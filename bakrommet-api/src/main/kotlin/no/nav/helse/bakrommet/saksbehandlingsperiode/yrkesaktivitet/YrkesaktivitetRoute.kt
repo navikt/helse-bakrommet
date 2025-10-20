@@ -13,6 +13,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
+import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
@@ -51,9 +52,10 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
 ) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
-            val yreksaktiviteter = service.hentYrkesaktivitetFor(call.periodeReferanse())
+            val yrkesaktiviteter = service.hentYrkesaktivitetFor(call.periodeReferanse())
+            val yrkesaktivitetDto = yrkesaktiviteter.map { it.tilDto() }
             call.respondText(
-                yreksaktiviteter.map { it.tilDto() }.serialisertTilString(),
+                objectMapperCustomSerde.writeValueAsString(yrkesaktivitetDto),
                 ContentType.Application.Json,
                 HttpStatusCode.OK,
             )

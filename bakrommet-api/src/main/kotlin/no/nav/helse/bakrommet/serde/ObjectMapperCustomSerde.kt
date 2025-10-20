@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.util
+package no.nav.helse.bakrommet.serde
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -9,10 +9,11 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.dto.InntektbeløpDto
 
 /**
- * ObjectMapper med custom deserializer for InntektbeløpDto.Årlig
- * som håndterer både int og double verdier fra frontend.
+ * ObjectMapper med custom deserializer og serializer for InntektbeløpDto
+ * som håndterer både int og double verdier fra frontend og serialiserer
+ * InntektbeløpDto objekter som bare tall i stedet for objekter med beløp-felt.
  */
-val objectMapperWithDeserializer: ObjectMapper =
+val objectMapperCustomSerde: ObjectMapper =
     ObjectMapper()
         .registerModule(JavaTimeModule())
         .registerKotlinModule()
@@ -27,6 +28,18 @@ val objectMapperWithDeserializer: ObjectMapper =
                 ).addDeserializer(
                     InntektbeløpDto.DagligInt::class.java,
                     InntektbeløpDtoDagligIntDeserializer(),
+                ).addSerializer(
+                    InntektbeløpDto.Årlig::class.java,
+                    InntektbeløpDtoÅrligSerializer(),
+                ).addSerializer(
+                    InntektbeløpDto.MånedligDouble::class.java,
+                    InntektbeløpDtoMånedligDoubleSerializer(),
+                ).addSerializer(
+                    InntektbeløpDto.DagligDouble::class.java,
+                    InntektbeløpDtoDagligDoubleSerializer(),
+                ).addSerializer(
+                    InntektbeløpDto.DagligInt::class.java,
+                    InntektbeløpDtoDagligIntSerializer(),
                 ),
         ).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)

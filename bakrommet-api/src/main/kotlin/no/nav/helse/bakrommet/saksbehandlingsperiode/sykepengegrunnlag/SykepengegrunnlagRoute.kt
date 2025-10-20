@@ -6,14 +6,14 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 
 internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
     route("/v2/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
         get {
             val grunnlag = service.hentSykepengegrunnlag(call.periodeReferanse())
             call.respondText(
-                grunnlag?.serialisertTilString() ?: "null",
+                grunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) } ?: "null",
                 ContentType.Application.Json,
                 HttpStatusCode.OK,
             )

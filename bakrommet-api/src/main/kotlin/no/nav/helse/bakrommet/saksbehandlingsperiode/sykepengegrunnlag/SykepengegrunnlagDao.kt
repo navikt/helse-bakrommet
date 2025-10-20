@@ -6,7 +6,7 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -22,7 +22,7 @@ class SykepengegrunnlagDao private constructor(
     ): SykepengegrunnlagDbRecord {
         val id = UUID.randomUUID()
         val nå = java.time.Instant.now()
-        val sykepengegrunnlagJson = objectMapper.writeValueAsString(sykepengegrunnlag)
+        val sykepengegrunnlagJson = objectMapperCustomSerde.writeValueAsString(sykepengegrunnlag)
 
         db.update(
             """
@@ -62,7 +62,7 @@ class SykepengegrunnlagDao private constructor(
         sykepengegrunnlag: Sykepengegrunnlag?,
     ): SykepengegrunnlagDbRecord {
         val nå = java.time.Instant.now()
-        val sykepengegrunnlagJson = sykepengegrunnlag?.let { objectMapper.writeValueAsString(it) }
+        val sykepengegrunnlagJson = sykepengegrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }
 
         db.update(
             """
@@ -92,7 +92,7 @@ class SykepengegrunnlagDao private constructor(
         val sykepengegrunnlagJson = row.stringOrNull("sykepengegrunnlag")
         val sykepengegrunnlag =
             sykepengegrunnlagJson?.let {
-                objectMapper.readValue(sykepengegrunnlagJson, Sykepengegrunnlag::class.java)
+                objectMapperCustomSerde.readValue(sykepengegrunnlagJson, Sykepengegrunnlag::class.java)
             }
         val opprettet = row.instant("opprettet")
         val oppdatert = row.instant("oppdatert")
