@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.inntektsmelding
 
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
@@ -8,6 +9,7 @@ import no.nav.helse.bakrommet.bodyToJson
 import no.nav.helse.bakrommet.mockHttpClient
 import org.junit.jupiter.api.assertNotNull
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicInteger
 
 object InntektsmeldingApiMock {
     private val log = LoggerFactory.getLogger(InntektsmeldingApiMock::class.java)
@@ -17,22 +19,25 @@ object InntektsmeldingApiMock {
         val resp = "[${enInntektsmelding()}]"
     }
 
-    fun inntektsmeldingMockHttpClient(fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.resp)) =
-        mockHttpClient { request ->
-            val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer ${TestOppsett.configuration.inntektsmelding.scope.oboTokenFor()}") {
-                respondError(HttpStatusCode.Unauthorized)
-            } else {
-                log.info("URL: " + request.url)
-                log.info("BODY: " + String(request.body.toByteArray()))
-                log.info("PARAMS: " + request.url.parameters)
-                log.info("HEADERS: " + request.headers)
+    fun inntektsmeldingMockHttpClient(
+        fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.resp),
+        inntektsmeldingIdTilSvar: Map<String, String> = emptyMap(),
+        callCounter: AtomicInteger? = null,
+    ) = mockHttpClient { request ->
+        callCounter?.incrementAndGet()
+        val auth = request.headers[HttpHeaders.Authorization]!!
+        if (auth != "Bearer ${TestOppsett.configuration.inntektsmelding.scope.oboTokenFor()}") {
+            respondError(HttpStatusCode.Unauthorized)
+        } else {
+            log.info("URL: " + request.url)
+            log.info("BODY: " + String(request.body.toByteArray()))
+            log.info("PARAMS: " + request.url.parameters)
+            log.info("HEADERS: " + request.headers)
 
+            if (request.method == HttpMethod.Post) {
                 val payload = request.bodyToJson()
                 assertNotNull(request.headers["Nav-Call-Id"])
-
                 val fnr = payload["fnr"].asText()
-
                 if (fnr.endsWith("400")) {
                     respond(
                         status = HttpStatusCode.BadRequest,
@@ -53,22 +58,45 @@ object InntektsmeldingApiMock {
                         )
                     }
                 }
+            } else if (request.method == HttpMethod.Get) {
+                val inntektsmeldingId =
+                    request.url
+                        .toString()
+                        .split('/')
+                        .last()
+                val svar = inntektsmeldingIdTilSvar[inntektsmeldingId]
+                if (svar == null) {
+                    respond(
+                        status = HttpStatusCode.NotFound,
+                        content = "404",
+                    )
+                } else {
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = svar,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                }
+            } else {
+                respond(status = HttpStatusCode.BadRequest, content = "400")
             }
         }
+    }
 
-    fun inntektsmeldingClientMock() =
+    fun inntektsmeldingClientMock(mockClient: HttpClient = inntektsmeldingMockHttpClient()) =
         InntektsmeldingClient(
             configuration = TestOppsett.configuration.inntektsmelding,
             oboClient = TestOppsett.oboClient,
-            httpClient = inntektsmeldingMockHttpClient(),
+            httpClient = mockClient,
         )
 
-    fun enInntektsmelding() =
-        """
+    fun enInntektsmelding(
+        inntektsmeldingId: String = "7371c1ab-ee9b-4fb3-b540-c360fb0156a0",
+        arbeidstakerFnr: String = "",
+    ) = """
         {
-            "inntektsmeldingId": "7371c1ab-ee9b-4fb3-b540-c360fb0156a0",
-            "vedtaksperiodeId": "19834fcc-859c-46c8-8552-c366e64a4109",
-            "arbeidstakerFnr": "",
+            "inntektsmeldingId": "$inntektsmeldingId",
+            "arbeidstakerFnr": "$arbeidstakerFnr",
             "arbeidstakerAktorId": "0000111122223",
             "virksomhetsnummer": "999888777",
             "arbeidsgiverFnr": null,

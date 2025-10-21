@@ -6,17 +6,26 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.enInntektsmelding
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.testutils.`should equal`
+import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.deserialize
+import no.nav.helse.bakrommet.util.serialisertTilString
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertNull
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 class YrkesaktivitetOperasjonerTest {
     private companion object {
@@ -434,8 +443,33 @@ class YrkesaktivitetOperasjonerTest {
     }
 
     @Test
-    fun `henter inntektsmeldinger for yrkesaktivitet`() {
-        runApplicationTest { daoer ->
+    fun `henter inntektsmeldinger, og velger en av de, for yrkesaktivitet`() {
+        val im1Id = UUID.randomUUID().toString()
+        val im2Id = UUID.randomUUID().toString()
+        val imFeilPersonId = UUID.randomUUID().toString()
+        val im1 = enInntektsmelding(arbeidstakerFnr = FNR, inntektsmeldingId = im1Id)
+        val im2 = enInntektsmelding(arbeidstakerFnr = FNR, inntektsmeldingId = im2Id)
+        val imFeilPerson = enInntektsmelding(arbeidstakerFnr = "00000011111", inntektsmeldingId = imFeilPersonId)
+        val antallKallTilInntektsmeldingAPI = AtomicInteger(0)
+        runApplicationTest(
+            inntektsmeldingClient =
+                InntektsmeldingApiMock.inntektsmeldingClientMock(
+                    mockClient =
+                        inntektsmeldingMockHttpClient(
+                            fnrTilSvar =
+                                mapOf(
+                                    FNR to "[$im1, $im2]",
+                                ),
+                            inntektsmeldingIdTilSvar =
+                                mapOf(
+                                    im1Id to im1,
+                                    im2Id to im2,
+                                    imFeilPersonId to imFeilPerson,
+                                ),
+                            callCounter = antallKallTilInntektsmeldingAPI,
+                        ),
+                ),
+        ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode
@@ -487,6 +521,58 @@ class YrkesaktivitetOperasjonerTest {
             // Verifiser at responsen er en gyldig JSON-array
             val inntektsmeldinger = response.body<JsonNode>()
             assertTrue(inntektsmeldinger.isArray, "Responsen skal være en JSON-array")
+            assertEquals("[$im1,$im2]".asJsonNode(), inntektsmeldinger)
+
+            suspend fun velgIm(inntektsmeldingId: String) =
+                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
+                    bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    val req =
+                        InntektRequest
+                            .Arbeidstaker(
+                                data =
+                                    ArbeidstakerInntektRequest.Inntektsmelding(
+                                        inntektsmeldingId = inntektsmeldingId,
+                                        begrunnelse = "derfor",
+                                        refusjon = listOf(),
+                                    ),
+                            ).serialisertTilString()
+                    setBody(req)
+                }
+            velgIm(im2Id).apply {
+                assertEquals(HttpStatusCode.NoContent, status)
+            }
+            assertEquals(2, antallKallTilInntektsmeldingAPI.get())
+
+            // TODO: Sjekk også at grunnlaget blir satt?
+
+            fun finnImDok(inntektsmeldingId: String) = daoer.dokumentDao.finnDokument(periode.id, "inntektsmelding", inntektsmeldingId)
+
+            assertNull(finnImDok(im1Id), "im1 skal ikke ha blitt lagret, siden den ikke er brukt til noe")
+            assertEquals(
+                im2.asJsonNode(),
+                finnImDok(im2Id)!!
+                    .innhold
+                    .asJsonNode(),
+            )
+
+            velgIm(im2Id).apply {
+                assertEquals(HttpStatusCode.NoContent, status)
+            }
+            assertEquals(2, antallKallTilInntektsmeldingAPI.get(), "Forespørsel om allerede lagret IM skal ikke gi nytt API-kall")
+
+            velgIm(imFeilPersonId).apply {
+                assertEquals(
+                    HttpStatusCode.InternalServerError,
+                    status,
+                    "Skal feile hvis FNR ikke stemmer overens",
+                )
+            }
+            assertEquals(3, antallKallTilInntektsmeldingAPI.get())
+            assertNull(
+                finnImDok(imFeilPersonId),
+                "Skal ikke lagre inntektsmelding som ikke stemmer",
+            )
         }
     }
 
