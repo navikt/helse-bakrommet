@@ -22,6 +22,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Utbeta
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.økonomi.tilInntekt
@@ -40,6 +41,7 @@ interface InntektServiceDaoer : Beregningsdaoer {
 class InntektService(
     daoer: InntektServiceDaoer,
     val inntektsmeldingClient: InntektsmeldingClient,
+    val sigrunClient: SigrunClient,
     sessionFactory: TransactionalSessionFactory<InntektServiceDaoer>,
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
@@ -55,6 +57,9 @@ class InntektService(
                     ref = ref.saksbehandlingsperiodeReferanse,
                     krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
                 )
+            if (periode.skjæringstidspunkt == null) {
+                throw IllegalStateException("Kan ikke oppdatere inntekt før skjæringstidspunkt er satt på saksbehandlingsperiode (id=${periode.id})")
+            }
             val yrkesaktivitet =
                 yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
                     ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
@@ -77,13 +82,16 @@ class InntektService(
             }
 
             yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
+            val fnr =
+                personDao.finnNaturligIdent(periode.spilleromPersonId)
+                    ?: throw IkkeFunnetException("Fant ikke person for spilleromPersonId=${periode.spilleromPersonId}")
 
             val inntektData =
                 when (request) {
                     is InntektRequest.Arbeidstaker -> {
+                        yrkesaktivitetDao.oppdaterRefusjonsdata(yrkesaktivitet, request.data.refusjon)
                         when (request.data) {
                             is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
-                                yrkesaktivitetDao.oppdaterRefusjonsdata(yrkesaktivitet, request.data.refusjon)
                                 InntektData.ArbeidstakerSkjønnsfastsatt(
                                     omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.årsinntekt).dto().årlig,
                                     sporing = "SKJØNNSFASTSATT_${request.data.årsak.name} TODO",
@@ -131,10 +139,17 @@ class InntektService(
                     is InntektRequest.SelvstendigNæringsdrivende ->
                         when (request.data) {
                             is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
+                                val pensjonsgivendeInntekt =
+                                    hentRelevantPensjonsgivendeInntekt(
+                                        fnr,
+                                        periode.skjæringstidspunkt,
+                                        saksbehandler.token,
+                                        sigrunClient,
+                                    )
                                 InntektData.SelvstendigNæringsdrivendePensjonsgivende(
-                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
-                                    beregnetPensjonsgivendeInntekt = InntektbeløpDto.Årlig(800000.0),
-                                    pensjonsgivendeInntekt = PensjonsgivendeInntekt(emptyList()), // TODO dette skal hentes,
+                                    omregnetÅrsinntekt = pensjonsgivendeInntekt.omregnetÅrsinntekt,
+                                    sporing = "BEREGNINGSSPORINGVERDI",
+                                    pensjonsgivendeInntekt = pensjonsgivendeInntekt,
                                 )
                             }
 
@@ -148,9 +163,17 @@ class InntektService(
                     is InntektRequest.Inaktiv ->
                         when (request.data) {
                             is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
+                                val pensjonsgivendeInntekt =
+                                    hentRelevantPensjonsgivendeInntekt(
+                                        fnr,
+                                        periode.skjæringstidspunkt,
+                                        saksbehandler.token,
+                                        sigrunClient,
+                                    )
                                 InntektData.InaktivPensjonsgivende(
-                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
-                                    pensjonsgivendeInntekt = PensjonsgivendeInntekt(emptyList()), // TODO dette skal hentes,
+                                    omregnetÅrsinntekt = pensjonsgivendeInntekt.omregnetÅrsinntekt,
+                                    sporing = "BEREGNINGSSPORINGVERDI",
+                                    pensjonsgivendeInntekt = pensjonsgivendeInntekt,
                                 )
                             }
 
@@ -229,7 +252,10 @@ private fun InntektServiceDaoer.lastInntektsmeldingDokument(
             )
         }
     val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)
-    require(fnr == inntektsmelding["arbeidstakerFnr"].asText(), { "arbeidstakerFnr i inntektsmelding må være lik sykmeldts naturligIdent" })
+    require(
+        fnr == inntektsmelding["arbeidstakerFnr"].asText(),
+        { "arbeidstakerFnr i inntektsmelding må være lik sykmeldts naturligIdent" },
+    )
     return dokumentDao.opprettDokument(
         Dokument(
             dokumentType = dokType,

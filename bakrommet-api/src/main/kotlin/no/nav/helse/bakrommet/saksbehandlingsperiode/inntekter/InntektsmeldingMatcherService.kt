@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsmelding
+package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.server.plugins.BadRequestException
@@ -44,7 +44,7 @@ class InntektsmeldingMatcherService(
         if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
             throw BadRequestException("Kategorisering er ikke Arbeidstaker, da henter vi ikke inntektsmeldinger")
         }
-// TODO noe filterering på datoer og orgnummer trengs
+        // TODO noe filterering på datoer og orgnummer trengs
 
         return inntektsmeldingClient.hentInntektsmeldinger(
             fnr = fnr,

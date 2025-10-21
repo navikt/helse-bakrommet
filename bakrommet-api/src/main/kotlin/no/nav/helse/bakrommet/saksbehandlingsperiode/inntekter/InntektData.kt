@@ -63,20 +63,25 @@ sealed class InntektData {
         override val sporing: String = "BEREGNINGSSPORINGVERDI",
     ) : InntektData()
 
+    data class InaktivSkjønnsfastsatt(
+        override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
+        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+    ) : InntektData()
+
+    data class PensjonsgivendeInntekt(
+        val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
+        val pensjonsgivendeInntekt: List<InntektAar>,
+        val anvendtGrunnbeløp: InntektbeløpDto.Årlig,
+    )
+
     data class InaktivPensjonsgivende(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: String = "BEREGNINGSSPORINGVERDI",
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : InntektData()
 
-    data class InaktivSkjønnsfastsatt(
-        override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
-    ) : InntektData()
-
     data class SelvstendigNæringsdrivendePensjonsgivende(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig, // Denne oppdaterer seg ved at vi trekker arbeidstaker og frilans inntekt fra beregnetPensjonsgivendeInntekt ved beregning av sp grunnlaget
-        val beregnetPensjonsgivendeInntekt: InntektbeløpDto.Årlig, // Dette er orginalen vi har beregnet fra sigrun data
         override val sporing: String = "BEREGNINGSSPORINGVERDI",
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : InntektData()
@@ -87,14 +92,10 @@ sealed class InntektData {
     ) : InntektData()
 }
 
-data class PensjonsgivendeInntekt(
-    val inntektAar: List<InntektAar>,
-)
-
 data class InntektAar(
-    val aar: Year,
+    val år: Year,
     val rapportertinntekt: InntektbeløpDto.Årlig,
-    val inntektGrunnbelopsbegrenset: InntektbeløpDto.Årlig,
-    val grunnbeløpAar: Year,
-    val grunnbeløp: InntektbeløpDto.Årlig,
+    val justertÅrsgrunnlag: InntektbeløpDto.Årlig,
+    val antallG: Double,
+    val snittG: InntektbeløpDto.Årlig,
 )

@@ -38,7 +38,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsmelding.InntektsmeldingMatcherService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.sykepengegrunnlagRoute
@@ -204,6 +204,7 @@ internal fun Application.appModul(
                     InntektService(
                         daoerFelles,
                         inntektsmeldingClient,
+                        sigrunClient,
                         sessionFactoryFelles,
                     ),
                 inntektsmeldingMatcherService =

@@ -15,7 +15,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntektsmelding.InntektsmeldingMatcherService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.serde.receiveWithCustomMapper

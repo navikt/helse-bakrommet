@@ -9,7 +9,7 @@ import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
 import no.nav.helse.økonomi.Inntekt.Companion.årlig
 
-internal data class SelvstendigFaktaavklartInntekt(
+data class SelvstendigFaktaavklartInntekt(
     val id: UUID,
     val inntektsdata: Inntektsdata,
     val pensjonsgivendeInntekter: List<PensjonsgivendeInntekt>,
@@ -54,7 +54,7 @@ internal data class SelvstendigFaktaavklartInntekt(
     fun beregnInntektsgrunnlag(anvendtGrunnbeløp: Inntekt) =
         Companion.beregnInntektsgrunnlag(pensjonsgivendeInntekter, anvendtGrunnbeløp)
 
-    internal companion object {
+     companion object {
         internal fun gjenopprett(dto: SelvstendigFaktaavklartInntektInnDto) = SelvstendigFaktaavklartInntekt(
             id = dto.id,
             inntektsdata = Inntektsdata.gjenopprett(dto.inntektsdata),
@@ -76,10 +76,10 @@ internal data class SelvstendigFaktaavklartInntekt(
     }
 
     data class PensjonsgivendeInntekt(val årstall: Year, val beløp: Inntekt) {
-        internal val snitt = `1G`.snitt(årstall.value)
+        val snitt = `1G`.snitt(årstall.value)
 
         // hvor mange G inntekten utgjør
-        private val antallG = beløp.årlig / snitt.årlig
+        val antallG = beløp.årlig / snitt.årlig
 
         // alle inntekter opp til 6g
         private val inntekterOppTil6g = antallG.coerceAtMost(SEKS_G)
