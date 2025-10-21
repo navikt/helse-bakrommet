@@ -14,6 +14,7 @@ import javax.sql.DataSource
 
 object DokumentType {
     val søknad = "søknad"
+    val inntektsmelding = "inntektsmelding"
     val aInntekt828 = "ainntekt828"
     val arbeidsforhold = "arbeidsforhold"
     val pensjonsgivendeinntekt = "pensjonsgivendeinntekt"
@@ -39,6 +40,24 @@ class DokumentDao private constructor(
 ) {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
+
+    fun finnDokument(
+        saksbehandlingsperiodeId: UUID,
+        dokumentType: String,
+        eksternId: String,
+    ): Dokument? =
+        db.single(
+            """
+            select * from dokument 
+            where opprettet_for_behandling = :opprettet_for_behandling
+            and dokument_type = :dokument_type
+            and ekstern_id = :ekstern_id
+            """.trimIndent(),
+            "opprettet_for_behandling" to saksbehandlingsperiodeId,
+            "dokument_type" to dokumentType,
+            "ekstern_id" to eksternId,
+            mapper = ::dokumentFraRow,
+        )
 
     fun opprettDokument(dokument: Dokument): Dokument {
         db.update(

@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
+import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
@@ -7,9 +8,13 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregnSykepengegrunnlagOgUtbetaling
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentType
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
@@ -17,6 +22,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Utbeta
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.bakrommet.util.asJsonNode
+import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
@@ -27,6 +34,7 @@ interface InntektServiceDaoer : Beregningsdaoer {
     override val sykepengegrunnlagDao: SykepengegrunnlagDao
     override val beregningDao: UtbetalingsberegningDao
     override val personDao: PersonDao
+    val dokumentDao: DokumentDao
 }
 
 class InntektService(
@@ -42,20 +50,17 @@ class InntektService(
         saksbehandler: BrukerOgToken,
     ) {
         db.transactional {
+            val periode =
+                saksbehandlingsperiodeDao.hentPeriode(
+                    ref = ref.saksbehandlingsperiodeReferanse,
+                    krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
+                )
             val yrkesaktivitet =
-                saksbehandlingsperiodeDao
-                    .hentPeriode(
-                        ref = ref.saksbehandlingsperiodeReferanse,
-                        krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
-                    ).let { periode ->
-                        val yrkesaktivitet =
-                            yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
-                                ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
-                        require(yrkesaktivitet.saksbehandlingsperiodeId == periode.id) {
-                            "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
-                        }
-                        yrkesaktivitet
-                    }
+                yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
+                    ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
+            require(yrkesaktivitet.saksbehandlingsperiodeId == periode.id) {
+                "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
+            }
 
             fun validerInntektskategori(forventet: Inntektskategori) {
                 if (yrkesaktivitet.kategorisering.inntektskategori != forventet) {
@@ -93,16 +98,14 @@ class InntektService(
                             }
 
                             is ArbeidstakerInntektRequest.Inntektsmelding -> {
-                                // TODO: Hent inntektsmelding data
                                 val inntektsmelding =
-                                    runBlocking {
-                                        inntektsmeldingClient.hentInntektsmelding(
-                                            inntektsmeldingId = request.data.inntektsmeldingId,
-                                            saksbehandlerToken = saksbehandler.token,
-                                        )
-                                    }
+                                    lastInntektsmeldingDokument(
+                                        periode = periode,
+                                        inntektsmeldingId = request.data.inntektsmeldingId,
+                                        inntektsmeldingClient = inntektsmeldingClient,
+                                        saksbehandler = saksbehandler,
+                                    ).somInntektsmelding()
                                 // TODO valider at fnr og arbeidsgiver stemmer med yrkesaktivitet og person
-                                // TODO lagre som dokument
                                 InntektData.ArbeidstakerInntektsmelding(
                                     omregnetÅrsinntekt =
                                         InntektbeløpDto
@@ -200,4 +203,45 @@ class InntektService(
             beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)
         }
     }
+}
+
+private fun InntektServiceDaoer.lastInntektsmeldingDokument(
+    periode: Saksbehandlingsperiode,
+    inntektsmeldingId: String,
+    inntektsmeldingClient: InntektsmeldingClient,
+    saksbehandler: BrukerOgToken,
+): Dokument {
+    val dokType = DokumentType.inntektsmelding
+    val alleredeLagret =
+        dokumentDao.finnDokument(
+            saksbehandlingsperiodeId = periode.id,
+            dokumentType = dokType,
+            eksternId = inntektsmeldingId,
+        )
+    if (alleredeLagret != null) {
+        return alleredeLagret
+    }
+    val (inntektsmelding, kildespor) =
+        runBlocking {
+            inntektsmeldingClient.hentInntektsmeldingMedSporing(
+                inntektsmeldingId = inntektsmeldingId,
+                saksbehandlerToken = saksbehandler.token,
+            )
+        }
+    val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)
+    require(fnr == inntektsmelding["arbeidstakerFnr"].asText(), { "arbeidstakerFnr i inntektsmelding må være lik sykmeldts naturligIdent" })
+    return dokumentDao.opprettDokument(
+        Dokument(
+            dokumentType = dokType,
+            eksternId = inntektsmeldingId,
+            innhold = inntektsmelding.serialisertTilString(),
+            request = kildespor,
+            opprettetForBehandling = periode.id,
+        ),
+    )
+}
+
+private fun Dokument.somInntektsmelding(): JsonNode {
+    require(dokumentType == DokumentType.inntektsmelding)
+    return this.innhold.asJsonNode()
 }

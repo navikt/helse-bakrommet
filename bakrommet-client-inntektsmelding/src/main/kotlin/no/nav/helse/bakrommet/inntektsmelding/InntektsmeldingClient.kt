@@ -16,6 +16,7 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.LocalDate
@@ -79,14 +80,22 @@ class InntektsmeldingClient(
         }
     }
 
-    suspend fun hentInntektsmelding(
+    suspend fun hentInntektsmeldingMedSporing(
         inntektsmeldingId: String,
         saksbehandlerToken: SpilleromBearerToken,
-    ): JsonNode {
+    ): Pair<JsonNode, Kildespor> {
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
+        val url = "${configuration.baseUrl}/api/v1/inntektsmelding/$inntektsmeldingId"
+        val kildespor =
+            Kildespor.fraHer(
+                Throwable(),
+                inntektsmeldingId,
+                url,
+                callId,
+            ) // Inkluder saksbehandlerident?
         val response =
-            httpClient.get("${configuration.baseUrl}/api/v1/inntektsmelding/$inntektsmeldingId") {
+            httpClient.get(url) {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
                 header("Nav-Consumer-Id", "bakrommet-speilvendt")
                 header("no.nav.consumer.id", "bakrommet-speilvendt")
@@ -97,7 +106,7 @@ class InntektsmeldingClient(
         if (response.status == HttpStatusCode.OK) {
             logg.info("Got response from inntektsmelding-API $callIdDesc")
             // TODO: Benytt https://github.com/navikt/inntektsmelding-kontrakt ?
-            return response.body<JsonNode>()
+            return response.body<JsonNode>() to kildespor
         } else if (response.status == HttpStatusCode.NotFound) {
             throw RuntimeException("Inntektsmelding med id $inntektsmeldingId ikke funnet, callId=$callId")
         } else {
