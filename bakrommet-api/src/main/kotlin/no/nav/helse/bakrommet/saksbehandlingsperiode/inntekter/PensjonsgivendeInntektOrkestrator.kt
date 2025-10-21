@@ -30,7 +30,9 @@ fun hentRelevantPensjonsgivendeInntekt(
             )
         }
 
-    return inntektData.map { it.first.tilHentPensjonsgivendeInntektResponse() }.tilPensjonsgivendeInntekt(skjæringstidspunkt)
+    return inntektData
+        .map { it.first.tilHentPensjonsgivendeInntektResponse() }
+        .tilPensjonsgivendeInntekt(skjæringstidspunkt)
 }
 
 fun JsonNode.tilHentPensjonsgivendeInntektResponse(): HentPensjonsgivendeInntektResponse = objectMapper.readValue(this.serialisertTilString())
@@ -66,7 +68,13 @@ fun List<HentPensjonsgivendeInntektResponse>.tilPensjonsgivendeInntekt(skjæring
             InntektAar(
                 år = it.årstall,
                 rapportertinntekt = it.beløp.dto().årlig,
-                justertÅrsgrunnlag = it.justertÅrsgrunnlag(anvendtGrunnbeløp).dto().årlig,
+                justertÅrsgrunnlag =
+                    it
+                        .justertÅrsgrunnlag(anvendtGrunnbeløp)
+                        .times(3)
+                        .dto()
+                        .årlig,
+                // ganger 3 fordi justert årsgrunnlag er allerede 3 års snitt
                 antallG = it.antallG,
                 snittG = it.snitt.dto().årlig,
             )
