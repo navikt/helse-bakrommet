@@ -15,26 +15,30 @@ import no.nav.helse.dto.InntektbeløpDto
 )
 sealed class ArbeidstakerInntektRequest {
     abstract val begrunnelse: String?
+    abstract val refusjon: List<Refusjonsperiode>?
 
     data class Inntektsmelding(
         val inntektsmeldingId: String,
         override val begrunnelse: String,
+        override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 
-    class Ainntekt(
+    data class Ainntekt(
         override val begrunnelse: String,
+        override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 
     data class Skjønnsfastsatt(
         val årsinntekt: InntektbeløpDto.Årlig,
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
-        val refusjon: List<Refusjonsperiode>? = null,
+        override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 
     data class ManueltBeregnet(
         val årsinntekt: InntektbeløpDto.Årlig,
         override val begrunnelse: String,
+        override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 }
 
@@ -54,9 +58,9 @@ enum class ArbeidstakerSkjønnsfastsettelseÅrsak {
     JsonSubTypes.Type(value = PensjonsgivendeInntektRequest.Skjønnsfastsatt::class, name = "SKJONNSFASTSETTELSE"),
 )
 sealed class PensjonsgivendeInntektRequest {
-    abstract val begrunnelse: String?
+    abstract val begrunnelse: String
 
-    class PensjonsgivendeInntekt(
+    data class PensjonsgivendeInntekt(
         override val begrunnelse: String,
     ) : PensjonsgivendeInntektRequest()
 
@@ -79,9 +83,9 @@ enum class PensjonsgivendeSkjønnsfastsettelseÅrsak {
     JsonSubTypes.Type(value = FrilanserInntektRequest.Skjønnsfastsatt::class, name = "SKJONNSFASTSETTELSE"),
 )
 sealed class FrilanserInntektRequest {
-    abstract val begrunnelse: String?
+    abstract val begrunnelse: String
 
-    class Ainntekt(
+    data class Ainntekt(
         override val begrunnelse: String,
     ) : FrilanserInntektRequest()
 
@@ -105,7 +109,7 @@ enum class FrilanserSkjønnsfastsettelseÅrsak {
     JsonSubTypes.Type(value = ArbeidsledigInntektRequest.Vartpenger::class, name = "VARTPENGER"),
 )
 sealed class ArbeidsledigInntektRequest {
-    abstract val begrunnelse: String?
+    abstract val begrunnelse: String
 
     data class Dagpenger(
         val dagbeløp: InntektbeløpDto.DagligInt,
