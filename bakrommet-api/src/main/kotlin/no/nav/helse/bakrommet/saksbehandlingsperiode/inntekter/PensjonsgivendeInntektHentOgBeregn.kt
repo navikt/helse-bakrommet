@@ -75,7 +75,7 @@ fun List<HentPensjonsgivendeInntektResponse>.tilPensjonsgivendeInntekt(skjæring
                         .dto()
                         .årlig,
                 // ganger 3 fordi justert årsgrunnlag er allerede 3 års snitt
-                antallG = it.antallG,
+                antallGKompensert = it.antallGKompensert,
                 snittG = it.snitt.dto().årlig,
             )
         }

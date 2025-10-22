@@ -79,7 +79,7 @@ data class SelvstendigFaktaavklartInntekt(
         val snitt = `1G`.snitt(årstall.value)
 
         // hvor mange G inntekten utgjør
-        val antallG = beløp.årlig / snitt.årlig
+        private val antallG = beløp.årlig / snitt.årlig
 
         // alle inntekter opp til 6g
         private val inntekterOppTil6g = antallG.coerceAtMost(SEKS_G)
@@ -87,7 +87,7 @@ data class SelvstendigFaktaavklartInntekt(
         // 1/3 av inntekter mellom 6g og 12g
         private val enTredjedelAvInntekterMellom6gOg12g = (antallG.coerceIn(SEKS_G, TOLV_G) - SEKS_G) * EN_TREDJEDEL
 
-        private val antallGKompensert = inntekterOppTil6g + enTredjedelAvInntekterMellom6gOg12g
+        val antallGKompensert = inntekterOppTil6g + enTredjedelAvInntekterMellom6gOg12g
 
         // snitter antall kompenserte G over tre år
         private val Q = antallGKompensert / 3.0

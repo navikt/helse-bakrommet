@@ -96,6 +96,6 @@ data class InntektAar(
     val år: Year,
     val rapportertinntekt: InntektbeløpDto.Årlig,
     val justertÅrsgrunnlag: InntektbeløpDto.Årlig,
-    val antallG: Double,
+    val antallGKompensert: Double,
     val snittG: InntektbeløpDto.Årlig,
 )
