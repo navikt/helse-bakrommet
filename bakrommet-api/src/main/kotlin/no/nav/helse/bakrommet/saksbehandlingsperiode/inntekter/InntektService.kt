@@ -137,7 +137,7 @@ class InntektService(
 
                             is ArbeidstakerInntektRequest.ManueltBeregnet -> {
                                 InntektData.ArbeidstakerManueltBeregnet(
-                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                                    omregnetÅrsinntekt = request.data.årsinntekt,
                                 )
                             }
                         }
