@@ -82,9 +82,7 @@ class InntektService(
             }
 
             yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
-            val fnr =
-                personDao.finnNaturligIdent(periode.spilleromPersonId)
-                    ?: throw IkkeFunnetException("Fant ikke person for spilleromPersonId=${periode.spilleromPersonId}")
+            val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
 
             val inntektData =
                 when (request) {
@@ -251,7 +249,7 @@ private fun InntektServiceDaoer.lastInntektsmeldingDokument(
                 saksbehandlerToken = saksbehandler.token,
             )
         }
-    val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)
+    val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
     require(
         fnr == inntektsmelding["arbeidstakerFnr"].asText(),
         { "arbeidstakerFnr i inntektsmelding må være lik sykmeldts naturligIdent" },

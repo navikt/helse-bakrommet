@@ -91,7 +91,7 @@ class DokumentHenter(
         saksbehandler: BrukerOgToken,
     ): Dokument {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
-        val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
+        val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
         return aInntektClient
             .hentInntekterForMedSporing(
                 fnr = fnr,
@@ -117,7 +117,7 @@ class DokumentHenter(
         saksbehandler: BrukerOgToken,
     ): Dokument {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
-        val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
+        val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
         logg.info("Henter aareg for periode={}", periode.id)
         return aaRegClient
             .hentArbeidsforholdForMedSporing(
@@ -144,7 +144,7 @@ class DokumentHenter(
         saksbehandler: BrukerOgToken,
     ): Dokument {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
-        val fnr = personDao.finnNaturligIdent(periode.spilleromPersonId)!!
+        val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
 
         return sigrunClient
             .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(

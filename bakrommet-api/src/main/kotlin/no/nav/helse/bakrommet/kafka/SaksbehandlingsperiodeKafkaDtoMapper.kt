@@ -56,7 +56,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, null)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent =
-            personDao.finnNaturligIdent(periode.spilleromPersonId) ?: throw IllegalStateException("Fant ikke fnr")
+            personDao.hentNaturligIdent(periode.spilleromPersonId)
         val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
 
         fun YrkesaktivitetDbRecord.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto =

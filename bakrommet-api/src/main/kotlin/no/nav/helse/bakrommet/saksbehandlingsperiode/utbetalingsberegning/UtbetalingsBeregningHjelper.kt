@@ -32,8 +32,7 @@ class UtbetalingsBeregningHjelper(
         // Hent nødvendige data for beregningen
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
         val ident =
-            personDao.finnNaturligIdent(periode.spilleromPersonId)
-                ?: throw RuntimeException("Fant ikke person for spilleromId ${periode.spilleromPersonId}")
+            personDao.hentNaturligIdent(periode.spilleromPersonId)
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
             sykepengegrunnlagDao.hentSykepengegrunnlag(periode.sykepengegrunnlagId ?: return)?.sykepengegrunnlag ?: return

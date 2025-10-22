@@ -46,4 +46,6 @@ class PersonDao private constructor(
             "select naturlig_ident from ident where spillerom_id = :spillerom_id",
             "spillerom_id" to spilleromId,
         ) { it.string(1) }
+
+    fun hentNaturligIdent(spilleromId: String): String = finnNaturligIdent(spilleromId) ?: throw RuntimeException("Fant ikke person med spilleromId $spilleromId")
 }
