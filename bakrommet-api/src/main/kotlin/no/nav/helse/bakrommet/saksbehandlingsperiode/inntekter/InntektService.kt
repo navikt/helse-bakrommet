@@ -84,6 +84,15 @@ class InntektService(
             yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
             val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
 
+            fun hentPensjonsgivende(): List<HentPensjonsgivendeInntektResponse> =
+                lastSigrunDokument(
+                    periode = periode,
+                    fnr = fnr,
+                    skjæringstidspunkt = periode.skjæringstidspunkt,
+                    saksbehandlerToken = saksbehandler.token,
+                    sigrunClient = sigrunClient,
+                ).somPensjonsgivendeInntekt()
+
             val inntektData =
                 when (request) {
                     is InntektRequest.Arbeidstaker -> {
@@ -137,18 +146,19 @@ class InntektService(
                     is InntektRequest.SelvstendigNæringsdrivende ->
                         when (request.data) {
                             is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
-                                val pensjonsgivendeInntekt =
-                                    hentRelevantPensjonsgivendeInntekt(
-                                        fnr,
-                                        periode.skjæringstidspunkt,
-                                        saksbehandler.token,
-                                        sigrunClient,
+                                val pensjonsgivendeInntekt = hentPensjonsgivende()
+
+                                if (pensjonsgivendeInntekt.kanBeregnesEtter835()) {
+                                    val beregnet = pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
+                                    InntektData.SelvstendigNæringsdrivendePensjonsgivende(
+                                        omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
+                                        sporing = "SN_SPG_HOVEDREGEL",
+                                        pensjonsgivendeInntekt = beregnet,
                                     )
-                                InntektData.SelvstendigNæringsdrivendePensjonsgivende(
-                                    omregnetÅrsinntekt = pensjonsgivendeInntekt.omregnetÅrsinntekt,
-                                    sporing = "BEREGNINGSSPORINGVERDI",
-                                    pensjonsgivendeInntekt = pensjonsgivendeInntekt,
-                                )
+                                } else {
+                                    // Oppdater yrkesaktiviteten med en slags warning
+                                    return@transactional
+                                }
                             }
 
                             is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
@@ -161,18 +171,19 @@ class InntektService(
                     is InntektRequest.Inaktiv ->
                         when (request.data) {
                             is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
-                                val pensjonsgivendeInntekt =
-                                    hentRelevantPensjonsgivendeInntekt(
-                                        fnr,
-                                        periode.skjæringstidspunkt,
-                                        saksbehandler.token,
-                                        sigrunClient,
+                                val pensjonsgivendeInntekt = hentPensjonsgivende()
+
+                                if (pensjonsgivendeInntekt.kanBeregnesEtter835()) {
+                                    val beregnet = pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
+                                    InntektData.InaktivPensjonsgivende(
+                                        omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
+                                        sporing = "BEREGNINGSSPORINGVERDI",
+                                        pensjonsgivendeInntekt = beregnet,
                                     )
-                                InntektData.InaktivPensjonsgivende(
-                                    omregnetÅrsinntekt = pensjonsgivendeInntekt.omregnetÅrsinntekt,
-                                    sporing = "BEREGNINGSSPORINGVERDI",
-                                    pensjonsgivendeInntekt = pensjonsgivendeInntekt,
-                                )
+                                } else {
+                                    // Oppdater yrkesaktiviteten med en slags warning
+                                    return@transactional
+                                }
                             }
 
                             is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
@@ -234,7 +245,7 @@ private fun InntektServiceDaoer.lastInntektsmeldingDokument(
 ): Dokument {
     val dokType = DokumentType.inntektsmelding
     val alleredeLagret =
-        dokumentDao.finnDokument(
+        dokumentDao.finnDokumentMedEksternId(
             saksbehandlingsperiodeId = periode.id,
             dokumentType = dokType,
             eksternId = inntektsmeldingId,
@@ -259,7 +270,7 @@ private fun InntektServiceDaoer.lastInntektsmeldingDokument(
             dokumentType = dokType,
             eksternId = inntektsmeldingId,
             innhold = inntektsmelding.serialisertTilString(),
-            request = kildespor,
+            sporing = kildespor,
             opprettetForBehandling = periode.id,
         ),
     )

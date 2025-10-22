@@ -103,8 +103,8 @@ class SaksbehandlingsperiodeOpprettelseTest {
                         "SykepengesoknadBackendClient.kt",
                         "DokumentHenter.kt",
                         "sykepengesoknad-backend/api/v3/soknader/${søknad2.søknadId}",
-                    ).all { spor -> dok.request.kilde.contains(spor) },
-                    "Fant ikke alt som var forventet i ${dok.request.kilde}",
+                    ).all { spor -> dok.sporing.kilde.contains(spor) },
+                    "Fant ikke alt som var forventet i ${dok.sporing.kilde}",
                 )
             }
 

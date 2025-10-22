@@ -26,7 +26,8 @@ data class Dokument(
     val eksternId: String?,
     val innhold: String,
     val opprettet: Instant = Instant.now(),
-    val request: Kildespor,
+    val sporing: Kildespor,
+    val forespurteData: String? = null,
     val opprettetForBehandling: UUID,
 ) {
     fun somSøknad(): SykepengesoknadDTO {
@@ -41,7 +42,7 @@ class DokumentDao private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun finnDokument(
+    fun finnDokumentMedEksternId(
         saksbehandlingsperiodeId: UUID,
         dokumentType: String,
         eksternId: String,
@@ -59,21 +60,40 @@ class DokumentDao private constructor(
             mapper = ::dokumentFraRow,
         )
 
+    fun finnDokumentForForespurteData(
+        saksbehandlingsperiodeId: UUID,
+        dokumentType: String,
+        forespurteData: String,
+    ): Dokument? =
+        db.single(
+            """
+            select * from dokument 
+            where opprettet_for_behandling = :opprettet_for_behandling
+            and dokument_type = :dokument_type
+            and forespurte_data = :forespurte_data
+            """.trimIndent(),
+            "opprettet_for_behandling" to saksbehandlingsperiodeId,
+            "dokument_type" to dokumentType,
+            "forespurte_data" to forespurteData,
+            mapper = ::dokumentFraRow,
+        )
+
     fun opprettDokument(dokument: Dokument): Dokument {
         db.update(
             """
             insert into dokument
-                (id, dokument_type, ekstern_id, innhold, opprettet, request, opprettet_for_behandling)
+                (id, dokument_type, ekstern_id, innhold, opprettet, sporing, opprettet_for_behandling, forespurte_data)
             values
-                (:id, :dokument_type, :ekstern_id, :innhold, :opprettet, :request, :opprettet_for_behandling)
+                (:id, :dokument_type, :ekstern_id, :innhold, :opprettet, :sporing, :opprettet_for_behandling, :forespurte_data)
             """.trimIndent(),
             "id" to dokument.id,
             "dokument_type" to dokument.dokumentType,
             "ekstern_id" to dokument.eksternId,
             "innhold" to dokument.innhold,
             "opprettet" to dokument.opprettet,
-            "request" to dokument.request.kilde,
+            "sporing" to dokument.sporing.kilde,
             "opprettet_for_behandling" to dokument.opprettetForBehandling,
+            "forespurte_data" to dokument.forespurteData,
         )
         return hentDokument(dokument.id)!!
     }
@@ -103,7 +123,8 @@ class DokumentDao private constructor(
             eksternId = row.stringOrNull("ekstern_id"),
             innhold = row.string("innhold"),
             opprettet = row.instant("opprettet"),
-            request = Kildespor(kilde = row.string("request")),
+            sporing = Kildespor(kilde = row.string("sporing")),
             opprettetForBehandling = row.uuid("opprettet_for_behandling"),
+            forespurteData = row.stringOrNull("forespurte_data"),
         )
 }

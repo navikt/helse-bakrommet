@@ -25,7 +25,7 @@ class PensjonsgivendeInntektHentOgBeregnTest {
 
         val exception =
             assertThrows<RuntimeException> {
-                responses.tilPensjonsgivendeInntekt(skjæringstidspunkt)
+                responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
             }
 
         assertEquals("For få år med pensjonsgivende inntekt fra sigrun. Må skjønnsfastsettes", exception.message)
@@ -41,7 +41,7 @@ class PensjonsgivendeInntektHentOgBeregnTest {
                 lagHentPensjonsgivendeInntektResponse("2023", 500000), // ~4,2G
             )
 
-        val result = responses.tilPensjonsgivendeInntekt(skjæringstidspunkt)
+        val result = responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
 
         result.omregnetÅrsinntekt.beløp `should equal` 446909.0
         result.pensjonsgivendeInntekt `should equal`
@@ -80,7 +80,7 @@ class PensjonsgivendeInntektHentOgBeregnTest {
                 lagHentPensjonsgivendeInntektResponse("2023", 1000000),
             )
 
-        val result = responses.tilPensjonsgivendeInntekt(skjæringstidspunkt)
+        val result = responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
         result.omregnetÅrsinntekt.beløp `should equal` 832925.0
         result.pensjonsgivendeInntekt[0] `should equal`
             InntektAar(
@@ -118,7 +118,7 @@ class PensjonsgivendeInntektHentOgBeregnTest {
                 lagHentPensjonsgivendeInntektResponse("2023", 1700000), // ~14,3G
             )
 
-        val result = responses.tilPensjonsgivendeInntekt(skjæringstidspunkt)
+        val result = responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
 
         // Verifiser at alle inntekter er 8G kompensert
         result.pensjonsgivendeInntekt.forEach { inntekt ->
@@ -177,7 +177,7 @@ class PensjonsgivendeInntektHentOgBeregnTest {
                 lagHentPensjonsgivendeInntektResponse("2023", 1500000), // ~13,5G (over 12G)
             )
 
-        val result = responses.tilPensjonsgivendeInntekt(skjæringstidspunkt)
+        val result = responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
 
         result.omregnetÅrsinntekt.beløp `should equal` 754456.0
         result.pensjonsgivendeInntekt[0] `should equal`
@@ -217,7 +217,7 @@ class PensjonsgivendeInntektHentOgBeregnTest {
 
         val exception =
             assertThrows<RuntimeException> {
-                responses.tilPensjonsgivendeInntekt(skjæringstidspunkt)
+                responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
             }
 
         assertEquals("For få år med pensjonsgivende inntekt fra sigrun. Må skjønnsfastsettes", exception.message)

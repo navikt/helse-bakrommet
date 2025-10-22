@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS dokument
     ekstern_id               TEXT                        NULL,
     innhold                  TEXT                        NOT NULL,
     opprettet                TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    request                  TEXT                        NOT NULL,
+    sporing                  TEXT                        NOT NULL,
+    forespurte_data          TEXT                        NULL,
     opprettet_for_behandling UUID                        NOT NULL REFERENCES saksbehandlingsperiode (id)
 );
 

@@ -51,7 +51,7 @@ class DokumentDaoTest {
                 eksternId = "søknad-1",
                 innhold = """{ "inntekter" : [] "}""",
                 opprettet = Instant.now(),
-                request = Kildespor("GET /søknader/søknad-1"),
+                sporing = Kildespor("GET /søknader/søknad-1"),
                 opprettetForBehandling = periode.id,
             )
         dao.opprettDokument(dok)

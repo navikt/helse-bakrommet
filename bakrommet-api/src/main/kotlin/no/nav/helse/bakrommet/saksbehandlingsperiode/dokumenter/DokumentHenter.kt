@@ -74,7 +74,7 @@ class DokumentHenter(
                                 dokumentType = DokumentType.søknad,
                                 eksternId = søknadId.toString(),
                                 innhold = søknadDto.serialisertTilString(),
-                                request = kildespor,
+                                sporing = kildespor,
                                 opprettetForBehandling = periode.id,
                             ),
                         )
@@ -105,7 +105,7 @@ class DokumentHenter(
                         dokumentType = DokumentType.aInntekt828,
                         eksternId = null,
                         innhold = inntekter.serialisertTilString(),
-                        request = kildespor,
+                        sporing = kildespor,
                         opprettetForBehandling = periode.id,
                     ),
                 )
@@ -130,7 +130,7 @@ class DokumentHenter(
                         dokumentType = DokumentType.arbeidsforhold,
                         eksternId = null,
                         innhold = arbeidsforholdRes.serialisertTilString(),
-                        request = kildespor,
+                        sporing = kildespor,
                         opprettetForBehandling = periode.id,
                     ),
                 )
@@ -159,7 +159,7 @@ class DokumentHenter(
                             dokumentType = DokumentType.pensjonsgivendeinntekt,
                             eksternId = null,
                             innhold = innhold.serialisertTilString(),
-                            request = kildespor,
+                            sporing = kildespor,
                             opprettetForBehandling = periode.id,
                         ),
                     )
@@ -168,7 +168,7 @@ class DokumentHenter(
     }
 }
 
-private fun List<PensjonsgivendeInntektÅrMedSporing>.joinSigrunResponserTilEttDokument(): Pair<JsonNode, Kildespor> {
+fun List<PensjonsgivendeInntektÅrMedSporing>.joinSigrunResponserTilEttDokument(): Pair<JsonNode, Kildespor> {
     require(this.isNotEmpty())
     val data = map { it.data() }
     val sporingMap = mapOf(*map { it.data().inntektsaar() to it.sporing().kilde }.toTypedArray())

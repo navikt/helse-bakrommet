@@ -22,5 +22,5 @@ fun Dokument.tilDto(): DokumentDto =
         eksternId = eksternId,
         innhold = innhold.asJsonNode(),
         opprettet = opprettet,
-        request = request,
+        request = sporing,
     )
