@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
@@ -13,21 +14,25 @@ import no.nav.helse.dto.InntektbeløpDto
     JsonSubTypes.Type(value = ArbeidstakerInntektRequest.Skjønnsfastsatt::class, name = "SKJONNSFASTSETTELSE"),
     JsonSubTypes.Type(value = ArbeidstakerInntektRequest.ManueltBeregnet::class, name = "MANUELT_BEREGNET"),
 )
+@JsonInclude(JsonInclude.Include.NON_NULL)
 sealed class ArbeidstakerInntektRequest {
     abstract val begrunnelse: String?
     abstract val refusjon: List<Refusjonsperiode>?
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     data class Inntektsmelding(
         val inntektsmeldingId: String,
         override val begrunnelse: String,
         override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     data class Ainntekt(
         override val begrunnelse: String,
         override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     data class Skjønnsfastsatt(
         val årsinntekt: InntektbeløpDto.Årlig,
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsak,
@@ -35,6 +40,7 @@ sealed class ArbeidstakerInntektRequest {
         override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     data class ManueltBeregnet(
         val årsinntekt: InntektbeløpDto.Årlig,
         override val begrunnelse: String,
