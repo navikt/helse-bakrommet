@@ -11,15 +11,14 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.HentPensjonsgiven
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
-import java.time.LocalDate
 
 fun DokumentInnhentingDaoer.lastSigrunDokument(
     periode: Saksbehandlingsperiode,
-    fnr: String,
-    skjæringstidspunkt: LocalDate,
     saksbehandlerToken: SpilleromBearerToken,
     sigrunClient: SigrunClient,
 ): Dokument {
+    val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
+    val skjæringstidspunkt = periode.skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt for å hente pensjonsgivende inntekt")
     val senesteÅrTom = skjæringstidspunkt.year - 1
     val antallÅrBakover = 3
     val dokType = DokumentType.pensjonsgivendeinntekt

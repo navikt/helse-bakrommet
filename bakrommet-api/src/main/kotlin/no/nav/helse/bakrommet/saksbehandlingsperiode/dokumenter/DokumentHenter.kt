@@ -8,6 +8,8 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.DokumentInnhentingDaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.lastSigrunDokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.sigrun.PensjonsgivendeInntektÅrMedSporing
@@ -24,14 +26,14 @@ import java.time.YearMonth
 import java.util.*
 
 class DokumentHenter(
-    private val personDao: PersonDao,
-    private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    private val dokumentDao: DokumentDao,
+    override val personDao: PersonDao,
+    override val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
+    override val dokumentDao: DokumentDao,
     private val soknadClient: SykepengesoknadBackendClient,
     private val aInntektClient: AInntektClient,
     private val aaRegClient: AARegClient,
     private val sigrunClient: SigrunClient,
-) {
+) : DokumentInnhentingDaoer {
     fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
         return dokumentDao.hentDokumenterFor(periode.id)
@@ -137,34 +139,17 @@ class DokumentHenter(
             }
     }
 
-    suspend fun hentOgLagrePensjonsgivendeInntekt(
+    fun hentOgLagrePensjonsgivendeInntekt(
         ref: SaksbehandlingsperiodeReferanse,
-        senesteÅrTom: Int,
-        antallÅrBakover: Int,
         saksbehandler: BrukerOgToken,
     ): Dokument {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
-        val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
 
-        return sigrunClient
-            .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
-                fnr = fnr,
-                senesteÅrTom = senesteÅrTom,
-                antallÅrBakover = antallÅrBakover,
-                saksbehandlerToken = saksbehandler.token,
-            ).let { reponsMedSporing ->
-                reponsMedSporing.joinSigrunResponserTilEttDokument().let { (innhold, kildespor) ->
-                    dokumentDao.opprettDokument(
-                        Dokument(
-                            dokumentType = DokumentType.pensjonsgivendeinntekt,
-                            eksternId = null,
-                            innhold = innhold.serialisertTilString(),
-                            sporing = kildespor,
-                            opprettetForBehandling = periode.id,
-                        ),
-                    )
-                }
-            }
+        return lastSigrunDokument(
+            periode = periode,
+            saksbehandlerToken = saksbehandler.token,
+            sigrunClient = sigrunClient,
+        )
     }
 }
 

@@ -102,12 +102,9 @@ internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
         route("/pensjonsgivendeinntekt") {
             route("/hent") {
                 post {
-                    val request = call.receive<PensjonsgivendeInntektHentRequest>()
                     val pensjonsgivendeinntektDokument =
                         dokumentHenter.hentOgLagrePensjonsgivendeInntekt(
                             ref = call.periodeReferanse(),
-                            senesteÅrTom = request.senesteÅrTom,
-                            antallÅrBakover = request.antallÅrBakover,
                             saksbehandler = call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(pensjonsgivendeinntektDokument))

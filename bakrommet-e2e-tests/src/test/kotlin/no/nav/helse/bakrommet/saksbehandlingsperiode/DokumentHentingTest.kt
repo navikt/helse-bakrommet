@@ -219,7 +219,6 @@ class DokumentHentingTest {
                 .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter/pensjonsgivendeinntekt/hent") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
-                    setBody("""{ "senesteÅrTom": 2025, "antallÅrBakover": 3 }""")
                 }.let { postResponse ->
                     val location = postResponse.headers["Location"]!!
                     val jsonPostResponse = postResponse.body<DokumentDto>()
@@ -228,7 +227,7 @@ class DokumentHentingTest {
                     assertEquals(201, postResponse.status.value)
 
                     val data = jsonPostResponse.innhold
-                    assertEquals(setOf(2023, 2024, 2025), data.map { it["inntektsaar"].asInt() }.toSet())
+                    assertEquals(setOf(2022, 2021, 2020), data.map { it["inntektsaar"].asInt() }.toSet())
 
                     // Verifiser at dokumentet kan hentes via location-header
                     client

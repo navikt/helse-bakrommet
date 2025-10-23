@@ -78,13 +78,10 @@ class InntektService(
             }
 
             yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
-            val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
 
             fun hentPensjonsgivende(): List<HentPensjonsgivendeInntektResponse> =
                 lastSigrunDokument(
                     periode = periode,
-                    fnr = fnr,
-                    skjæringstidspunkt = periode.skjæringstidspunkt,
                     saksbehandlerToken = saksbehandler.token,
                     sigrunClient = sigrunClient,
                 ).somPensjonsgivendeInntekt()
