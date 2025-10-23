@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.AInntektFilter
@@ -9,17 +10,22 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentType
 import no.nav.helse.bakrommet.util.asJsonNode
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.yearMonth
+import java.time.YearMonth
 
-fun Dokument.somAInntektSammenlikningsgrunnlag(): Inntektoppslag {
+fun Dokument.somAInntektSammenlikningsgrunnlag(): Pair<Inntektoppslag, AinntektPeriodeNøkkel> {
     require(dokumentType == DokumentType.aInntekt830)
-    return innhold.asJsonNode()
+    requireNotNull(forespurteData, { "Forespurte data må være satt for å kunne tolke a-inntekt dokumentet" })
+    return innhold.asJsonNode() to forespurteData.tilAinntektPeriodeNøkkel()
 }
 
-fun Dokument.somAInntektBeregningsgrunnlag(): Inntektoppslag {
+fun Dokument.somAInntektBeregningsgrunnlag(): Pair<Inntektoppslag, AinntektPeriodeNøkkel> {
     require(dokumentType == DokumentType.aInntekt828)
-    return innhold.asJsonNode()
+    requireNotNull(forespurteData, { "Forespurte data må være satt for å kunne tolke a-inntekt dokumentet" })
+
+    return innhold.asJsonNode() to forespurteData.tilAinntektPeriodeNøkkel()
 }
 
 fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
@@ -35,6 +41,13 @@ fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
         tomMinus = 1,
         saksbehandler = saksbehandler,
     )
+
+data class AinntektPeriodeNøkkel(
+    val fom: YearMonth,
+    val tom: YearMonth,
+)
+
+fun String.tilAinntektPeriodeNøkkel(): AinntektPeriodeNøkkel = objectMapper.readValue(this)
 
 fun DokumentInnhentingDaoer.lastAInntektBeregningsgrunnlag(
     periode: Saksbehandlingsperiode,
@@ -65,14 +78,15 @@ private fun DokumentInnhentingDaoer.lastAInntektDok(
     saksbehandler: BrukerOgToken,
 ): Dokument {
     val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
-    val skjæringstidspunkt = periode.skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt for å hente inntekt")
+    val skjæringstidspunkt =
+        periode.skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt for å hente inntekt")
 
     // TODO: Bør vi ha litt slack på fom/tom?
     val fom = skjæringstidspunkt.yearMonth.minusMonths(fomMinus)
     val tom = skjæringstidspunkt.yearMonth.minusMonths(tomMinus)
 
     val dokType = doktypeFraFilter(filter)
-    val forespurteDataNøkkel = "${fom}_$tom"
+    val forespurteDataNøkkel = AinntektPeriodeNøkkel(fom = fom, tom = tom).serialisertTilString()
 
     val alleredeLagret =
         dokumentDao.finnDokumentForForespurteData(

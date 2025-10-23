@@ -1,5 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
+import no.nav.helse.bakrommet.ainntekt.AInntektClient
+import no.nav.helse.bakrommet.ainntekt.Inntektoppslag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -17,11 +19,13 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
+import java.time.YearMonth
 
 interface InntektServiceDaoer :
     Beregningsdaoer,
@@ -38,6 +42,7 @@ class InntektService(
     daoer: InntektServiceDaoer,
     val inntektsmeldingClient: InntektsmeldingClient,
     val sigrunClient: SigrunClient,
+    val aInntektClient: AInntektClient,
     sessionFactory: TransactionalSessionFactory<InntektServiceDaoer>,
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
@@ -99,6 +104,13 @@ class InntektService(
                             }
 
                             is ArbeidstakerInntektRequest.Ainntekt -> {
+                                val beregningsgrunnlag =
+                                    lastAInntektBeregningsgrunnlag(
+                                        periode = periode,
+                                        aInntektClient = aInntektClient,
+                                        saksbehandler = saksbehandler,
+                                    ).somAInntektBeregningsgrunnlag()
+                                        .omregnetÅrsinntekt((yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer)
                                 InntektData.ArbeidstakerAinntekt(
                                     omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
                                     sporing = "A-inntekt TODO",
@@ -142,7 +154,8 @@ class InntektService(
                                 val pensjonsgivendeInntekt = hentPensjonsgivende()
 
                                 if (pensjonsgivendeInntekt.kanBeregnesEtter835()) {
-                                    val beregnet = pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
+                                    val beregnet =
+                                        pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
                                     InntektData.SelvstendigNæringsdrivendePensjonsgivende(
                                         omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
                                         sporing = "SN_SPG_HOVEDREGEL",
@@ -167,7 +180,8 @@ class InntektService(
                                 val pensjonsgivendeInntekt = hentPensjonsgivende()
 
                                 if (pensjonsgivendeInntekt.kanBeregnesEtter835()) {
-                                    val beregnet = pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
+                                    val beregnet =
+                                        pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
                                     InntektData.InaktivPensjonsgivende(
                                         omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
                                         sporing = "BEREGNINGSSPORINGVERDI",
@@ -228,4 +242,24 @@ class InntektService(
             beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)
         }
     }
+}
+
+private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.omregnetÅrsinntekt(orgnummer: String): InntektbeløpDto.Årlig {
+    val inntektResponse = first
+    val fom = second.fom
+    val tom = second.tom
+
+    // valider at det ikke er duplikate måneder
+    TODO("")
+}
+
+fun monthsBetween(
+    fom: YearMonth,
+    tom: YearMonth,
+): List<YearMonth> {
+    require(!tom.isBefore(fom)) { "tom ($tom) kan ikke være før fom ($fom)" }
+
+    return generateSequence(fom) { prev ->
+        if (prev.isBefore(tom)) prev.plusMonths(1) else null
+    }.toList()
 }
