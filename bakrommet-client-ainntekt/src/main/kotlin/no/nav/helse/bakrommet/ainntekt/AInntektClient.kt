@@ -23,6 +23,11 @@ import java.util.*
 
 typealias Inntektoppslag = JsonNode
 
+enum class AInntektFilter {
+    `8-28`,
+    `8-30`,
+}
+
 class AInntektClient(
     private val configuration: Configuration.AInntekt,
     private val oboClient: OboClient,
@@ -43,12 +48,14 @@ class AInntektClient(
         fnr: String,
         maanedFom: YearMonth,
         maanedTom: YearMonth,
+        filter: AInntektFilter,
         saksbehandlerToken: SpilleromBearerToken,
     ): Inntektoppslag =
         hentInntekterForMedSporing(
             fnr = fnr,
             maanedFom = maanedFom,
             maanedTom = maanedTom,
+            filter = filter,
             saksbehandlerToken = saksbehandlerToken,
         ).first
 
@@ -56,9 +63,10 @@ class AInntektClient(
         fnr: String,
         maanedFom: YearMonth,
         maanedTom: YearMonth,
+        filter: AInntektFilter,
         saksbehandlerToken: SpilleromBearerToken,
     ): Pair<Inntektoppslag, Kildespor> {
-        val ainntektsfilter = "8-28"
+        val ainntektsfilter = filter.name
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
         val url = "https://${configuration.hostname}/rs/api/v1/hentinntektliste"

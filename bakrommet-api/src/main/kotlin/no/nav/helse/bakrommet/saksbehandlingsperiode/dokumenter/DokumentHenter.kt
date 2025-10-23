@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
+import no.nav.helse.bakrommet.ainntekt.AInntektFilter
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonDao
@@ -99,6 +100,7 @@ class DokumentHenter(
                 fnr = fnr,
                 maanedFom = fom,
                 maanedTom = tom,
+                filter = AInntektFilter.`8-28`,
                 saksbehandlerToken = saksbehandler.token,
             ).let { (inntekter, kildespor) ->
                 // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?

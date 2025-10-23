@@ -16,6 +16,7 @@ object DokumentType {
     val søknad = "søknad"
     val inntektsmelding = "inntektsmelding"
     val aInntekt828 = "ainntekt828"
+    val aInntekt830 = "ainntekt830"
     val arbeidsforhold = "arbeidsforhold"
     val pensjonsgivendeinntekt = "pensjonsgivendeinntekt"
 }
