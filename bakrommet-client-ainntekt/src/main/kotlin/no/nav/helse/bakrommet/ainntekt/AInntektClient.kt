@@ -91,7 +91,7 @@ class AInntektClient(
                 setBody(
                     buildJsonObject {
                         put("personident", fnr)
-                        put("ainntektsfilter", ainntektsfilter)
+                        put("filter", ainntektsfilter)
                         put("formaal", "Sykepenger")
                         put("maanedFom", maanedFom.toString())
                         put("maanedTom", maanedTom.toString())
