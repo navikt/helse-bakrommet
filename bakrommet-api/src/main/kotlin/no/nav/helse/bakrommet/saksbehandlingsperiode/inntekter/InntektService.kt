@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.Inntektoppslag
+import no.nav.helse.bakrommet.ainntekt.tilInntektApiUt
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -25,6 +26,7 @@ import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
+import no.nav.helse.økonomi.Inntekt.Companion.summer
 import java.time.YearMonth
 
 interface InntektServiceDaoer :
@@ -104,7 +106,7 @@ class InntektService(
                             }
 
                             is ArbeidstakerInntektRequest.Ainntekt -> {
-                                val beregningsgrunnlag =
+                                val omregnetÅrsinntekt =
                                     lastAInntektBeregningsgrunnlag(
                                         periode = periode,
                                         aInntektClient = aInntektClient,
@@ -112,8 +114,9 @@ class InntektService(
                                     ).somAInntektBeregningsgrunnlag()
                                         .omregnetÅrsinntekt((yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer)
                                 InntektData.ArbeidstakerAinntekt(
-                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
-                                    sporing = "A-inntekt TODO",
+                                    omregnetÅrsinntekt = omregnetÅrsinntekt.first,
+                                    sporing = "ARB_SPG_HOVEDREGEL",
+                                    kildedata = omregnetÅrsinntekt.second,
                                 )
                             }
 
@@ -244,13 +247,31 @@ class InntektService(
     }
 }
 
-private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.omregnetÅrsinntekt(orgnummer: String): InntektbeløpDto.Årlig {
-    val inntektResponse = first
+private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.omregnetÅrsinntekt(orgnummer: String): Pair<InntektbeløpDto.Årlig, Map<YearMonth, InntektbeløpDto.MånedligDouble>> {
+    val inntektResponse = first.tilInntektApiUt()
     val fom = second.fom
     val tom = second.tom
 
-    // valider at det ikke er duplikate måneder
-    TODO("")
+    // map måned til 0 verdi
+    val månederOgInntekt = monthsBetween(fom, tom).associateWith { Inntekt.INGEN }.toMutableMap()
+
+    if (inntektResponse.data.any { !månederOgInntekt.contains(it.maaned) }) {
+        throw IllegalStateException("Inntektsdata inneholder måneder utenfor forventet intervall: $fom - $tom")
+    }
+
+    inntektResponse.data
+        .filter { it.underenhet == orgnummer }
+        .forEach {
+            it.inntektListe.forEach { inntekt ->
+                månederOgInntekt[it.maaned] =
+                    månederOgInntekt.getValue(it.maaned) + Inntekt.gjenopprett(InntektbeløpDto.MånedligDouble(inntekt.beloep.toDouble()))
+            }
+        }
+
+    val månedligSnitt = månederOgInntekt.values.summer().div(månederOgInntekt.size.toDouble())
+    val månederOgInntektDto = månederOgInntekt.mapValues { it.value.dto().månedligDouble }
+
+    return Pair(månedligSnitt.dto().årlig, månederOgInntektDto)
 }
 
 fun monthsBetween(

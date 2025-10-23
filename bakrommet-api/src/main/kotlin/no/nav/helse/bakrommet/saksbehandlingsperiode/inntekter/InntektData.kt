@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Year
+import java.time.YearMonth
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "inntektstype")
 @JsonSubTypes(
@@ -39,6 +40,7 @@ sealed class InntektData {
     data class ArbeidstakerAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
         // TODO legg med litt kilder
     ) : InntektData()
 

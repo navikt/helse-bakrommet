@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.ainntekt
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
@@ -17,6 +18,8 @@ import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.YearMonth
 import java.util.*
@@ -121,3 +124,5 @@ private class Timer {
     val millisekunder: Long
         get() = System.currentTimeMillis() - startMS
 }
+
+fun Inntektoppslag.tilInntektApiUt(): InntektApiUt = objectMapper.readValue(this.serialisertTilString())

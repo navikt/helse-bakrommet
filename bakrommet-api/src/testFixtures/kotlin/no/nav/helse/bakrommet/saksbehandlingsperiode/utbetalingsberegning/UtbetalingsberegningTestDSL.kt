@@ -512,6 +512,7 @@ class InntektDataBuilder {
         return InntektData.ArbeidstakerAinntekt(
             omregnetÅrsinntekt = årligInntekt,
             sporing = "TEST_BEREGNING",
+            kildedata = emptyMap(),
         )
     }
 }
