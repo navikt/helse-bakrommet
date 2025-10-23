@@ -46,7 +46,7 @@ class DokumentHentingTest {
 
             // Hent ainntekt dokument
             client
-                .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent") {
+                .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent-8-28") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "fom" : "2024-05", "tom" : "2025-06" }""")
@@ -95,7 +95,7 @@ class DokumentHentingTest {
 
             // Hent ainntekt dokument
             client
-                .post("/v1/$personIdForbidden/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent") {
+                .post("/v1/$personIdForbidden/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent-8-28") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "fom" : "2024-05", "tom" : "2025-06" }""")

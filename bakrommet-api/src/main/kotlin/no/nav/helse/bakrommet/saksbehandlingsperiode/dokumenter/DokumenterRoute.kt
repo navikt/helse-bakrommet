@@ -3,7 +3,6 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.request.receive
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -19,17 +18,6 @@ import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
-import java.time.YearMonth
-
-private data class AInntektHentRequest(
-    val fom: YearMonth,
-    val tom: YearMonth,
-)
-
-private data class PensjonsgivendeInntektHentRequest(
-    val senesteÅrTom: Int,
-    val antallÅrBakover: Int,
-)
 
 fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
     val periodeId = call.parameters[PARAM_PERIODEUUID].somGyldigUUID()
@@ -69,14 +57,22 @@ internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
         }
 
         route("/ainntekt") {
-            route("/hent") {
+            route("/hent-8-28") {
                 post {
-                    val request = call.receive<AInntektHentRequest>()
                     val inntektDokument =
-                        dokumentHenter.hentOgLagreAInntekt(
+                        dokumentHenter.hentOgLagreAInntekt828(
                             call.periodeReferanse(),
-                            request.fom,
-                            request.tom,
+                            call.saksbehandlerOgToken(),
+                        )
+                    call.response.headers.append(HttpHeaders.Location, dokumentUriFor(inntektDokument))
+                    call.respondDokument(inntektDokument, HttpStatusCode.Created)
+                }
+            }
+            route("/hent-8-30") {
+                post {
+                    val inntektDokument =
+                        dokumentHenter.hentOgLagreAInntekt830(
+                            call.periodeReferanse(),
                             call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(inntektDokument))

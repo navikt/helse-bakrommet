@@ -69,7 +69,7 @@ class AInntektClient(
         val ainntektsfilter = filter.name
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
-        val url = "https://${configuration.hostname}/rs/api/v1/hentinntektliste"
+        val url = "https://${configuration.hostname}/rest/v2/inntekt"
         val kildespor =
             Kildespor.fraHer(
                 Throwable(),
@@ -90,14 +90,8 @@ class AInntektClient(
                 accept(ContentType.Application.Json)
                 setBody(
                     buildJsonObject {
-                        put(
-                            "ident",
-                            buildJsonObject {
-                                put("identifikator", fnr)
-                                put("aktoerType", "NATURLIG_IDENT")
-                            },
-                        )
-                        put("ainntektsfilter", ainntektsfilter) // TODO: Ev. 8-30 eller annet ?
+                        put("personident", fnr)
+                        put("ainntektsfilter", ainntektsfilter)
                         put("formaal", "Sykepenger")
                         put("maanedFom", maanedFom.toString())
                         put("maanedTom", maanedTom.toString())

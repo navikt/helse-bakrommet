@@ -205,6 +205,7 @@ internal fun Application.appModul(
                         daoerFelles,
                         inntektsmeldingClient,
                         sigrunClient,
+                        aInntektClient,
                         sessionFactoryFelles,
                     ),
                 inntektsmeldingMatcherService =

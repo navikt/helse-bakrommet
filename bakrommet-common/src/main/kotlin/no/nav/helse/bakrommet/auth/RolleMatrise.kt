@@ -150,7 +150,11 @@ val regler =
         ),
         // Dokumenter - relaterte ruter
         Rule(
-            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/ainntekt/hent/(method:POST)",
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/ainntekt/hent-8-28/(method:POST)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/ainntekt/hent-8-30/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(

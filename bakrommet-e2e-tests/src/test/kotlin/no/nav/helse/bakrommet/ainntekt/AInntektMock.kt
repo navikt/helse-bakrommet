@@ -31,7 +31,7 @@ object AInntektMock {
                 val payload = request.bodyToJson()
                 assertNotNull(request.headers["Nav-Call-Id"])
 
-                val fnr = payload["ident"]["identifikator"].asText()
+                val fnr = payload["personident"].asText()
 
                 if (fnr.endsWith("403")) {
                     respond(
