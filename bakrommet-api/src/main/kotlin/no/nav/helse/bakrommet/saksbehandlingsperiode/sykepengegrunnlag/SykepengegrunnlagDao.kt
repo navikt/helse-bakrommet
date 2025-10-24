@@ -88,7 +88,7 @@ class SykepengegrunnlagDao private constructor(
             WHERE id = :id
             """.trimIndent(),
             "id" to sykepengegrunnlagId,
-            "sykepengegrunnlag" to sammenlikningsgrunnlagJson,
+            "sammenlikningsgrunnlag" to sammenlikningsgrunnlagJson,
             "oppdatert" to nå,
         )
 
