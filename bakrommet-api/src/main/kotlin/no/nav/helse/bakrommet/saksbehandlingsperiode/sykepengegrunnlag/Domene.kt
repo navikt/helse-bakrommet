@@ -23,8 +23,16 @@ data class Næringsdel(
     val sumAvArbeidsinntekt: InntektbeløpDto.Årlig,
 )
 
+data class Sammenlikningsgrunnlag(
+    val totaltSammenlikningsgrunnlag: InntektbeløpDto.Årlig,
+    val avvikProsent: Double,
+    val avvikMotInntektsgrunnlag: InntektbeløpDto.Årlig,
+    val basertPåDokumentId: UUID,
+)
+
 data class SykepengegrunnlagDbRecord(
     val sykepengegrunnlag: Sykepengegrunnlag?,
+    val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?, // null for rene næringsdrivende mm++(?)
     val id: UUID,
     val opprettetAv: String,
     val opprettet: Instant,

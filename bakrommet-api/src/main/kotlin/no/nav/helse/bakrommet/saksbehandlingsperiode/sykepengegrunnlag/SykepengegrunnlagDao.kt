@@ -36,24 +36,18 @@ class SykepengegrunnlagDao private constructor(
             "oppdatert" to nå,
         )
 
-        return SykepengegrunnlagDbRecord(
-            sykepengegrunnlag = sykepengegrunnlag,
-            id = id,
-            opprettetAv = saksbehandler.navIdent,
-            opprettet = nå,
-            oppdatert = nå,
-        )
+        return hentSykepengegrunnlag(id)!!
     }
 
-    fun hentSykepengegrunnlag(sykepengrgrunnlagId: UUID): SykepengegrunnlagDbRecord? =
+    fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? =
         db
             .list(
                 """
-                SELECT id, sykepengegrunnlag, opprettet_av_nav_ident, opprettet, oppdatert
+                SELECT *
                 FROM sykepengegrunnlag
                 WHERE id = :id
                 """.trimIndent(),
-                "id" to sykepengrgrunnlagId,
+                "id" to sykepengegrunnlagId,
                 mapper = ::sykepengegrunnlagFraRow,
             ).firstOrNull()
 
@@ -78,6 +72,29 @@ class SykepengegrunnlagDao private constructor(
         return hentSykepengegrunnlag(saksbehandlingsperiodeId)!!
     }
 
+    fun oppdaterSammenlikningsgrunnlag(
+        saksbehandlingsperiodeId: UUID,
+        sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
+    ): SykepengegrunnlagDbRecord {
+        require(hentSykepengegrunnlag(saksbehandlingsperiodeId)!!.sammenlikningsgrunnlag == null)
+
+        val nå = java.time.Instant.now()
+        val sammenlikningsgrunnlagJson = sammenlikningsgrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }
+
+        db.update(
+            """
+            UPDATE sykepengegrunnlag 
+            SET sammenlikningsgrunnlag = :sammenlikningsgrunnlag, oppdatert = :oppdatert
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to saksbehandlingsperiodeId,
+            "sykepengegrunnlag" to sammenlikningsgrunnlagJson,
+            "oppdatert" to nå,
+        )
+
+        return hentSykepengegrunnlag(saksbehandlingsperiodeId)!!
+    }
+
     fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
         db.update(
             """
@@ -94,6 +111,13 @@ class SykepengegrunnlagDao private constructor(
             sykepengegrunnlagJson?.let {
                 objectMapperCustomSerde.readValue(sykepengegrunnlagJson, Sykepengegrunnlag::class.java)
             }
+
+        val sammenlikningsgrunnlagJson = row.stringOrNull("sammenlikningsgrunnlag")
+        val sammenlikningsgrunnlag =
+            sammenlikningsgrunnlagJson?.let {
+                objectMapperCustomSerde.readValue(sammenlikningsgrunnlagJson, Sammenlikningsgrunnlag::class.java)
+            }
+
         val opprettet = row.instant("opprettet")
         val oppdatert = row.instant("oppdatert")
 
@@ -103,6 +127,7 @@ class SykepengegrunnlagDao private constructor(
             opprettetAv = row.string("opprettet_av_nav_ident"),
             opprettet = opprettet,
             oppdatert = oppdatert,
+            sammenlikningsgrunnlag = sammenlikningsgrunnlag,
         )
     }
 }

@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
@@ -23,7 +24,7 @@ interface Beregningsdaoer {
 fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     ref: SaksbehandlingsperiodeReferanse,
     saksbehandler: Bruker,
-) {
+): Sykepengegrunnlag? =
     SykepengegrunnlagBeregningHjelper(
         beregningDao = beregningDao,
         saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
@@ -32,10 +33,9 @@ fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     ).beregnOgLagreSykepengegrunnlag(
         referanse = ref,
         saksbehandler = saksbehandler,
-    )
-
-    beregnUtbetaling(ref, saksbehandler)
-}
+    ).also {
+        beregnUtbetaling(ref, saksbehandler)
+    }
 
 fun Beregningsdaoer.beregnUtbetaling(
     ref: SaksbehandlingsperiodeReferanse,
