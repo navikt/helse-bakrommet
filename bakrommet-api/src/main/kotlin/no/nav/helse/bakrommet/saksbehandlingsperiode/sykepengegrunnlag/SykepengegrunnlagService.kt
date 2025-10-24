@@ -19,10 +19,15 @@ class SykepengegrunnlagService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): Sykepengegrunnlag? =
+    fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? =
         db.nonTransactional {
-            saksbehandlingsperiodeDao.hentPeriode(referanse, krav = null).sykepengegrunnlagId?.let {
-                sykepengegrunnlagDao.hentSykepengegrunnlag(it)?.sykepengegrunnlag
+            saksbehandlingsperiodeDao.hentPeriode(referanse, krav = null).sykepengegrunnlagId?.let { sykepengegrunnlagId ->
+                sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)?.let { record ->
+                    SykepengegrunnlagResponse(
+                        sykepengegrunnlag = record.sykepengegrunnlag,
+                        sammenlikningsgrunnlag = record.sammenlikningsgrunnlag,
+                    )
+                }
             }
         }
 }

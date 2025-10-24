@@ -38,3 +38,8 @@ data class SykepengegrunnlagDbRecord(
     val opprettet: Instant,
     val oppdatert: Instant,
 )
+
+data class SykepengegrunnlagResponse(
+    val sykepengegrunnlag: Sykepengegrunnlag?,
+    val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
+)
