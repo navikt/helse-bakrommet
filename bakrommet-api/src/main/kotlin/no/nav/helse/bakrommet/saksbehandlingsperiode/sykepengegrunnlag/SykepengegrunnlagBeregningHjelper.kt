@@ -23,7 +23,7 @@ class SykepengegrunnlagBeregningHjelper(
     fun beregnOgLagreSykepengegrunnlag(
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
-    ): Sykepengegrunnlag? {
+    ): SykepengegrunnlagDbRecord? {
         // Hent nødvendige data for beregningen
         val periode =
             saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(referanse.periodeUUID)
@@ -44,7 +44,7 @@ class SykepengegrunnlagBeregningHjelper(
                     ?: throw RuntimeException("Mangler skjæringstidspunkt på periode ${periode.id}"),
             )
 
-        if (eksisterendeSykepengegrunnlag != null) {
+        return if (eksisterendeSykepengegrunnlag != null) {
             sykepengegrunnlagDao.oppdaterSykepengegrunnlag(eksisterendeSykepengegrunnlag.id, sykepengegrunnlag)
         } else {
             if (sykepengegrunnlag != null) {
@@ -52,9 +52,11 @@ class SykepengegrunnlagBeregningHjelper(
                 val lagret = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
                 // Knytt til saksbehandlingsperiode
                 saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(periode.id, lagret.id)
+                lagret
+            } else {
+                null
             }
         }
-        return sykepengegrunnlag
     }
 }
 

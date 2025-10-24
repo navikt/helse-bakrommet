@@ -16,6 +16,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
@@ -28,6 +29,7 @@ import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
 import java.time.YearMonth
+import kotlin.math.abs
 
 interface InntektServiceDaoer :
     Beregningsdaoer,
@@ -268,7 +270,35 @@ class InntektService(
                 }
 
             yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
-            beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)
+            beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)?.let { rec ->
+                requireNotNull(rec.sykepengegrunnlag)
+                if (rec.sammenlikningsgrunnlag == null) {
+                    val dokument =
+                        lastAInntektSammenlikningsgrunnlag(periode, aInntektClient, saksbehandler)
+                    val sammenlikningsgrunnlag = dokument.somAInntektSammenlikningsgrunnlag().sammenlikningsgrunnlag()
+
+                    val avvikProsent =
+                        if (sammenlikningsgrunnlag.beløp == 0.0) {
+                            100.0
+                        } else {
+                            (
+                                abs(rec.sykepengegrunnlag.totaltInntektsgrunnlag.beløp - sammenlikningsgrunnlag.beløp) /
+                                    sammenlikningsgrunnlag.beløp
+                            ) * 100.0
+                        }
+
+                    sykepengegrunnlagDao.oppdaterSammenlikningsgrunnlag(
+                        sykepengegrunnlagId = rec.id,
+                        sammenlikningsgrunnlag =
+                            Sammenlikningsgrunnlag(
+                                totaltSammenlikningsgrunnlag = sammenlikningsgrunnlag,
+                                avvikProsent = avvikProsent,
+                                avvikMotInntektsgrunnlag = rec.sykepengegrunnlag.totaltInntektsgrunnlag,
+                                basertPåDokumentId = dokument.id,
+                            ),
+                    )
+                }
+            }
         }
     }
 
@@ -466,6 +496,7 @@ private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.omregnetÅrsinntekt(org
 
     // map måned til 0 verdi
     val månederOgInntekt = monthsBetween(fom, tom).associateWith { Inntekt.INGEN }.toMutableMap()
+    require(månederOgInntekt.size == 3)
 
     if (inntektResponse.data.any { !månederOgInntekt.contains(it.maaned) }) {
         throw IllegalStateException("Inntektsdata inneholder måneder utenfor forventet intervall: $fom - $tom")
@@ -484,6 +515,24 @@ private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.omregnetÅrsinntekt(org
     val månederOgInntektDto = månederOgInntekt.mapValues { it.value.dto().månedligDouble }
 
     return Pair(månedligSnitt.dto().årlig, månederOgInntektDto)
+}
+
+private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.sammenlikningsgrunnlag(): InntektbeløpDto.Årlig {
+    val inntektResponse = first.tilInntektApiUt()
+    val fom = second.fom
+    val tom = second.tom
+
+    // map måned til 0 verdi
+    val månederOgInntekt = monthsBetween(fom, tom).associateWith { Inntekt.INGEN }.toMutableMap()
+    require(månederOgInntekt.size == 12)
+
+    if (inntektResponse.data.any { !månederOgInntekt.contains(it.maaned) }) {
+        throw IllegalStateException("Inntektsdata inneholder måneder utenfor forventet intervall: $fom - $tom")
+    }
+
+    val inntektSiste12Måneder = inntektResponse.data.flatMap { it.inntektListe.map { inntekt -> inntekt.beloep.toDouble() } }.sum()
+
+    return InntektbeløpDto.Årlig(inntektSiste12Måneder)
 }
 
 fun monthsBetween(

@@ -6,9 +6,9 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDbRecord
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
@@ -24,7 +24,7 @@ interface Beregningsdaoer {
 fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     ref: SaksbehandlingsperiodeReferanse,
     saksbehandler: Bruker,
-): Sykepengegrunnlag? =
+): SykepengegrunnlagDbRecord? =
     SykepengegrunnlagBeregningHjelper(
         beregningDao = beregningDao,
         saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,

@@ -52,7 +52,7 @@ class SykepengegrunnlagDao private constructor(
             ).firstOrNull()
 
     fun oppdaterSykepengegrunnlag(
-        saksbehandlingsperiodeId: UUID,
+        sykepengegrunnlagId: UUID,
         sykepengegrunnlag: Sykepengegrunnlag?,
     ): SykepengegrunnlagDbRecord {
         val nå = java.time.Instant.now()
@@ -64,19 +64,19 @@ class SykepengegrunnlagDao private constructor(
             SET sykepengegrunnlag = :sykepengegrunnlag, oppdatert = :oppdatert
             WHERE id = :id
             """.trimIndent(),
-            "id" to saksbehandlingsperiodeId,
+            "id" to sykepengegrunnlagId,
             "sykepengegrunnlag" to sykepengegrunnlagJson,
             "oppdatert" to nå,
         )
 
-        return hentSykepengegrunnlag(saksbehandlingsperiodeId)!!
+        return hentSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
     fun oppdaterSammenlikningsgrunnlag(
-        saksbehandlingsperiodeId: UUID,
+        sykepengegrunnlagId: UUID,
         sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     ): SykepengegrunnlagDbRecord {
-        require(hentSykepengegrunnlag(saksbehandlingsperiodeId)!!.sammenlikningsgrunnlag == null)
+        require(hentSykepengegrunnlag(sykepengegrunnlagId)!!.sammenlikningsgrunnlag == null)
 
         val nå = java.time.Instant.now()
         val sammenlikningsgrunnlagJson = sammenlikningsgrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }
@@ -87,12 +87,12 @@ class SykepengegrunnlagDao private constructor(
             SET sammenlikningsgrunnlag = :sammenlikningsgrunnlag, oppdatert = :oppdatert
             WHERE id = :id
             """.trimIndent(),
-            "id" to saksbehandlingsperiodeId,
+            "id" to sykepengegrunnlagId,
             "sykepengegrunnlag" to sammenlikningsgrunnlagJson,
             "oppdatert" to nå,
         )
 
-        return hentSykepengegrunnlag(saksbehandlingsperiodeId)!!
+        return hentSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
     fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
