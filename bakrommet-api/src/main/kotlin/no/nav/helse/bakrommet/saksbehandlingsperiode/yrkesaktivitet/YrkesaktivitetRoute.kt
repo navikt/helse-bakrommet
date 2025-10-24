@@ -156,27 +156,17 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                         saksbehandler = call.saksbehandlerOgToken(),
                     )
 
-                val json =
+                val responseDto =
                     when (response) {
                         is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektResponse.Suksess ->
-                            objectMapper.writeValueAsString(
-                                mapOf(
-                                    "success" to true,
-                                    "data" to response.data,
-                                ),
-                            )
+                            PensjonsgivendeInntektSuccessResponse(data = response.data)
 
                         is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektResponse.Feil ->
-                            objectMapper.writeValueAsString(
-                                mapOf(
-                                    "success" to false,
-                                    "feilmelding" to response.feilmelding,
-                                ),
-                            )
+                            PensjonsgivendeInntektFeilResponse(feilmelding = response.feilmelding)
                     }
 
                 call.respondText(
-                    json,
+                    objectMapperCustomSerde.writeValueAsString(responseDto),
                     ContentType.Application.Json,
                     HttpStatusCode.OK,
                 )
@@ -189,27 +179,17 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                         saksbehandler = call.saksbehandlerOgToken(),
                     )
 
-                val json =
+                val responseDto =
                     when (response) {
                         is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.AInntektResponse.Suksess ->
-                            objectMapper.writeValueAsString(
-                                mapOf(
-                                    "success" to true,
-                                    "data" to response.data,
-                                ),
-                            )
+                            AinntektSuccessResponse(data = response.data)
 
                         is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.AInntektResponse.Feil ->
-                            objectMapper.writeValueAsString(
-                                mapOf(
-                                    "success" to false,
-                                    "feilmelding" to response.feilmelding,
-                                ),
-                            )
+                            AinntektFeilResponse(feilmelding = response.feilmelding)
                     }
 
                 call.respondText(
-                    json,
+                    objectMapperCustomSerde.writeValueAsString(responseDto),
                     ContentType.Application.Json,
                     HttpStatusCode.OK,
                 )
@@ -220,4 +200,24 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
 
 data class YrkesaktivitetCreateRequest(
     val kategorisering: Map<String, String>,
+)
+
+data class PensjonsgivendeInntektSuccessResponse(
+    val success: Boolean = true,
+    val data: InntektData,
+)
+
+data class PensjonsgivendeInntektFeilResponse(
+    val success: Boolean = false,
+    val feilmelding: String,
+)
+
+data class AinntektSuccessResponse(
+    val success: Boolean = true,
+    val data: InntektData,
+)
+
+data class AinntektFeilResponse(
+    val success: Boolean = false,
+    val feilmelding: String,
 )
