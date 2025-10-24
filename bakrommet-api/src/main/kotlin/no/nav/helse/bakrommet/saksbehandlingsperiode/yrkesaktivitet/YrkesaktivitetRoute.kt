@@ -148,6 +148,72 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                     )
                 }
             }
+            get("/pensjonsgivendeinntekt") {
+                val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
+                val response =
+                    inntektservice.hentPensjonsgivendeInntektForYrkesaktivitet(
+                        ref = yrkesaktivitetRef,
+                        saksbehandler = call.saksbehandlerOgToken(),
+                    )
+
+                val json =
+                    when (response) {
+                        is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektResponse.Suksess ->
+                            objectMapper.writeValueAsString(
+                                mapOf(
+                                    "success" to true,
+                                    "data" to response.data,
+                                ),
+                            )
+
+                        is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektResponse.Feil ->
+                            objectMapper.writeValueAsString(
+                                mapOf(
+                                    "success" to false,
+                                    "feilmelding" to response.feilmelding,
+                                ),
+                            )
+                    }
+
+                call.respondText(
+                    json,
+                    ContentType.Application.Json,
+                    HttpStatusCode.OK,
+                )
+            }
+            get("/ainntekt") {
+                val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
+                val response =
+                    inntektservice.hentAInntektForYrkesaktivitet(
+                        ref = yrkesaktivitetRef,
+                        saksbehandler = call.saksbehandlerOgToken(),
+                    )
+
+                val json =
+                    when (response) {
+                        is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.AInntektResponse.Suksess ->
+                            objectMapper.writeValueAsString(
+                                mapOf(
+                                    "success" to true,
+                                    "data" to response.data,
+                                ),
+                            )
+
+                        is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.AInntektResponse.Feil ->
+                            objectMapper.writeValueAsString(
+                                mapOf(
+                                    "success" to false,
+                                    "feilmelding" to response.feilmelding,
+                                ),
+                            )
+                    }
+
+                call.respondText(
+                    json,
+                    ContentType.Application.Json,
+                    HttpStatusCode.OK,
+                )
+            }
         }
     }
 }

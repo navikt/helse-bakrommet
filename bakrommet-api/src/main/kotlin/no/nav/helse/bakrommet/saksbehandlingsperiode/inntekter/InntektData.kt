@@ -52,7 +52,7 @@ sealed class InntektData {
     data class FrilanserAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: String = "BEREGNINGSSPORINGVERDI",
-        // TODO legg med litt kilder
+        val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
     ) : InntektData()
 
     data class FrilanserSkjønnsfastsatt(
