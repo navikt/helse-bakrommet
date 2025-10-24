@@ -37,7 +37,7 @@ fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
         periode = periode,
         aInntektClient = aInntektClient,
         filter = AInntektFilter.`8-30`,
-        fomMinus = 13,
+        fomMinus = 12,
         tomMinus = 1,
         saksbehandler = saksbehandler,
     )
@@ -58,7 +58,7 @@ fun DokumentInnhentingDaoer.lastAInntektBeregningsgrunnlag(
         periode = periode,
         aInntektClient = aInntektClient,
         filter = AInntektFilter.`8-28`,
-        fomMinus = 4,
+        fomMinus = 3,
         tomMinus = 1,
         saksbehandler = saksbehandler,
     )
