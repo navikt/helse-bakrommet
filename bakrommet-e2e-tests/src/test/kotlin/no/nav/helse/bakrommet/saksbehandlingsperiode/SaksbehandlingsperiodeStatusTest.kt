@@ -6,6 +6,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
@@ -65,16 +66,15 @@ class SaksbehandlingsperiodeStatusTest {
                     )
                 }
 
-            client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
-                    bearerAuth(tokenSaksbehandler)
-                    contentType(ContentType.Application.Json)
-                    setBody("""{ "individuellBegrunnelse" : "En begrunnelse" }""".trimIndent())
-                }.let { response ->
-                    assertEquals(200, response.status.value)
-                    val periode = response.body<Saksbehandlingsperiode>()
-                    println(periode)
-                }
+            // Send til beslutning via action
+            val periode =
+                sendTilBeslutning(
+                    personId,
+                    periodeOpprinnelig.id,
+                    tokenSaksbehandler,
+                    "En begrunnelse",
+                )
+            println(periode)
 
             client
                 .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/tatilbeslutning") {

@@ -11,9 +11,11 @@ import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.sigrun.SigrunClientTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class DokumentHentingTest {
     private companion object {
@@ -30,19 +32,13 @@ class DokumentHentingTest {
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
-            // Opprett saksbehandlingsperiode
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-            }
-
+            // Opprett saksbehandlingsperiode via action
             val periode =
-                client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
-                    .first()
+                opprettSaksbehandlingsperiode(
+                    PERSON_ID,
+                    LocalDate.parse("2023-01-01"),
+                    LocalDate.parse("2023-01-31"),
+                )
 
             // Hent ainntekt dokument
             client
@@ -79,19 +75,13 @@ class DokumentHentingTest {
             val personIdForbidden = "ab403"
             it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
 
-            // Opprett saksbehandlingsperiode
-            client.post("/v1/$personIdForbidden/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-            }
-
+            // Opprett saksbehandlingsperiode via action
             val periode =
-                client
-                    .get("/v1/$personIdForbidden/saksbehandlingsperioder") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
-                    .first()
+                opprettSaksbehandlingsperiode(
+                    personIdForbidden,
+                    LocalDate.parse("2023-01-01"),
+                    LocalDate.parse("2023-01-31"),
+                )
 
             // Hent ainntekt dokument
             client
@@ -119,18 +109,13 @@ class DokumentHentingTest {
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-            }
-
+            // Opprett saksbehandlingsperiode via action
             val periode =
-                client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
-                    .first()
+                opprettSaksbehandlingsperiode(
+                    PERSON_ID,
+                    LocalDate.parse("2023-01-01"),
+                    LocalDate.parse("2023-01-31"),
+                )
 
             // Hent arbeidsforhold dokument
             client
@@ -165,19 +150,13 @@ class DokumentHentingTest {
             val personIdForbidden = "ab403"
             it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
 
-            // Opprett saksbehandlingsperiode
-            client.post("/v1/$personIdForbidden/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-            }
-
+            // Opprett saksbehandlingsperiode via action
             val periode =
-                client
-                    .get("/v1/$personIdForbidden/saksbehandlingsperioder") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
-                    .first()
+                opprettSaksbehandlingsperiode(
+                    personIdForbidden,
+                    LocalDate.parse("2023-01-01"),
+                    LocalDate.parse("2023-01-31"),
+                )
 
             // Hent arbeidsforhold dokument
             client
@@ -201,18 +180,13 @@ class DokumentHentingTest {
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-            }
-
+            // Opprett saksbehandlingsperiode via action
             val periode =
-                client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
-                    .first()
+                opprettSaksbehandlingsperiode(
+                    PERSON_ID,
+                    LocalDate.parse("2023-01-01"),
+                    LocalDate.parse("2023-01-31"),
+                )
 
             // Hent pensjonsgivendeinntekt dokument
             client

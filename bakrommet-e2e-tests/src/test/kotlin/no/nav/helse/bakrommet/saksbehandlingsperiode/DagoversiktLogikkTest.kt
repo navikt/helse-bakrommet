@@ -6,10 +6,12 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.*
 
 class DagoversiktLogikkTest {
@@ -23,21 +25,13 @@ class DagoversiktLogikkTest {
         runApplicationTest { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
-            // Opprett en saksbehandlingsperiode først
-            val periodeResponse =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-                }
-            assertEquals(201, periodeResponse.status.value)
-
-            val allePerioder =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }
-            val perioder: List<Saksbehandlingsperiode> = allePerioder.body()
-            val periode = perioder.first()
+            // Opprett saksbehandlingsperiode via action
+            val periode =
+                opprettSaksbehandlingsperiode(
+                    PERSON_ID,
+                    LocalDate.parse("2023-01-01"),
+                    LocalDate.parse("2023-01-31"),
+                )
 
             // Test 1: ER_SYKMELDT er "ER_SYKMELDT_JA" - skal opprette dagoversikt
             @Language("json")
