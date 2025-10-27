@@ -5,12 +5,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class SaksbehandlingsperiodeTest {
     private companion object {
@@ -22,19 +24,14 @@ class SaksbehandlingsperiodeTest {
     fun `oppretter saksbehandlingsperiode`() =
         runApplicationTest {
             it.personDao.opprettPerson(fnr, personId)
-            val response =
-                client.post("/v1/$personId/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "fom": "2023-01-01", "tom": "2023-01-31" }
-                        """.trimIndent(),
-                    )
-                }
-            assertEquals(201, response.status.value)
 
-            val saksbehandlingsperiode = response.body<Saksbehandlingsperiode>().truncateTidspunkt()
+            // Opprett saksbehandlingsperiode via action
+            val saksbehandlingsperiode =
+                opprettSaksbehandlingsperiode(
+                    personId,
+                    LocalDate.parse("2023-01-01"),
+                    LocalDate.parse("2023-01-31"),
+                ).truncateTidspunkt()
             saksbehandlingsperiode.fom.toString() `should equal` "2023-01-01"
             saksbehandlingsperiode.tom.toString() `should equal` "2023-01-31"
             saksbehandlingsperiode.spilleromPersonId `should equal` personId

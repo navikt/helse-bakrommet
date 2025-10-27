@@ -7,6 +7,7 @@ import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilbake
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
@@ -67,14 +68,13 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             // Send til beslutning via action
-            val periode =
+
                 sendTilBeslutning(
                     personId,
                     periodeOpprinnelig.id,
                     tokenSaksbehandler,
                     "En begrunnelse",
                 )
-            println(periode)
 
             client
                 .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/tatilbeslutning") {
@@ -109,25 +109,24 @@ class SaksbehandlingsperiodeStatusTest {
                     assertEquals(415, response.status.value, "Mangler POST-body som application/json")
                 }
 
-            client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbake") {
-                    bearerAuth(tokenBeslutter)
-                    contentType(ContentType.Application.Json)
-                    setBody("""{ "kommentar": "Dette blir litt feil" }""")
-                }.let { response ->
-                    assertEquals(200, response.status.value)
-                    val periode = response.body<Saksbehandlingsperiode>()
-                    assertEquals(
-                        periodeOpprinnelig
-                            .copy(
-                                status = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
-                                individuellBegrunnelse = "En begrunnelse",
-                                beslutterNavIdent = "B111111",
-                            ).truncateTidspunkt(),
-                        periode.truncateTidspunkt(),
-                        "Tilbake til 'under_behandling', men beslutter beholdes",
-                    )
-                }
+            // Send tilbake via action
+            val periode =
+                sendTilbake(
+                    personId,
+                    periodeOpprinnelig.id,
+                    tokenBeslutter,
+                    "Dette blir litt feil",
+                )
+            assertEquals(
+                periodeOpprinnelig
+                    .copy(
+                        status = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
+                        individuellBegrunnelse = "En begrunnelse",
+                        beslutterNavIdent = "B111111",
+                    ).truncateTidspunkt(),
+                periode.truncateTidspunkt(),
+                "Tilbake til 'under_behandling', men beslutter beholdes",
+            )
 
             client
                 .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
