@@ -69,12 +69,12 @@ class SaksbehandlingsperiodeStatusTest {
 
             // Send til beslutning via action
 
-                sendTilBeslutning(
-                    personId,
-                    periodeOpprinnelig.id,
-                    tokenSaksbehandler,
-                    "En begrunnelse",
-                )
+            sendTilBeslutning(
+                personId,
+                periodeOpprinnelig.id,
+                tokenSaksbehandler,
+                "En begrunnelse",
+            )
 
             client
                 .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/tatilbeslutning") {

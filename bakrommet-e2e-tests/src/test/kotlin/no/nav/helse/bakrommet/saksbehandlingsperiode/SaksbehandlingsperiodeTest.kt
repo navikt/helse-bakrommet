@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentAllePerioder
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.testutils.tidsstuttet
@@ -38,12 +39,8 @@ class SaksbehandlingsperiodeTest {
             saksbehandlingsperiode.opprettetAvNavIdent `should equal` "tullebruker"
             saksbehandlingsperiode.opprettetAvNavn `should equal` "Tulla Bruker"
 
-            val allePerioder =
-                client.get("/v1/$personId/saksbehandlingsperioder") {
-                    bearerAuth(TestOppsett.userToken)
-                }
-            assertEquals(200, allePerioder.status.value)
-            val perioder: List<Saksbehandlingsperiode> = allePerioder.bodyAsText().somListe()
+            // Hent alle perioder via action
+            val perioder = hentAllePerioder(personId)
             perioder.size `should equal` 1
             perioder.map { it.truncateTidspunkt() } `should equal` listOf(saksbehandlingsperiode)
             println(perioder)

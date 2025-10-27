@@ -1,15 +1,8 @@
 package no.nav.helse.bakrommet.testutils
 
-import io.ktor.client.call.body
-import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.client.request.put
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.Daoer
-import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.Inntekt
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
@@ -22,13 +15,14 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponseUtDto
-import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterInntekt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettArbeidstakerYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.math.BigDecimal
@@ -91,14 +85,8 @@ data class Scenario(
             val periode = opprettSaksbehandlingsperiode(personId, fom, tom)
 
             if (skjæringstidspunkt != fom) {
-                // Sett skjæringstidspunkt for perioden
-                val skjaeringstidspunktResponse =
-                    client.put("/v1/$personId/saksbehandlingsperioder/${periode.id}/skjaeringstidspunkt") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody("""{ "skjaeringstidspunkt": "$skjæringstidspunkt" }""")
-                    }
-                assertEquals(200, skjaeringstidspunktResponse.status.value, "Skjæringstidspunkt skal settes med status 200")
+                // Sett skjæringstidspunkt for perioden via action
+                settSkjaeringstidspunkt(personId, periode.id, skjæringstidspunkt)
             }
 
             val yaMedId =
@@ -110,13 +98,8 @@ data class Scenario(
                 }
 
             yaMedId.forEach { (ya, yrkesaktivitetId) ->
-                val response =
-                    client.put("/v1/$personId/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(objectMapperCustomSerde.writeValueAsString(ya.inntekt.request))
-                    }
-                assertEquals(204, response.status.value, "Inntektsoppdatering for arbeidstaker skal returnere status 204")
+                // Oppdater inntekt via action
+                oppdaterInntekt(personId, periode.id, yrkesaktivitetId, ya.inntekt.request)
             }
 
             yaMedId.forEach { (ya, yrkesaktivitetId) ->
@@ -130,13 +113,8 @@ data class Scenario(
                 }
             }
 
-            val sykepengegrunnlagStr =
-                client
-                    .get("/v2/${periode.spilleromPersonId}/saksbehandlingsperioder/${periode.id}/sykepengegrunnlag") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<String>()
-
-            val sykepengegrunnlag = objectMapperCustomSerde.readValue(sykepengegrunnlagStr, SykepengegrunnlagResponse::class.java)
+            // Hent sykepengegrunnlag via action
+            val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
 
             val beregning = hentUtbetalingsberegning(periode.id, periode.spilleromPersonId)
 
