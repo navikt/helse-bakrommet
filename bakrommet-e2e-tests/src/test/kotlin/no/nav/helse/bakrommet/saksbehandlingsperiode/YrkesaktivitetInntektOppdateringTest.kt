@@ -16,9 +16,11 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.sigrun.SigrunClientTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -90,37 +92,12 @@ class YrkesaktivitetInntektOppdateringTest {
         }
     }
 
-    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Saksbehandlingsperiode {
-        val response =
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-            }
-
-        assertEquals(201, response.status.value, "Saksbehandlingsperiode skal opprettes med status 201")
-
-        val responseBody = response.body<JsonNode>()
-        assertTrue(responseBody.has("id"), "Response skal inneholde periode ID")
-        val periodeId = UUID.fromString(responseBody["id"].asText())
-        assertTrue(periodeId != null, "Periode ID skal være gyldig UUID")
-
-        val getResponse =
-            client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-            }
-
-        assertEquals(200, getResponse.status.value, "Henting av saksbehandlingsperioder skal returnere status 200")
-
-        val json = getResponse.body<String>()
-        val perioder = objectMapperCustomSerde.readValue<List<Saksbehandlingsperiode>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, Saksbehandlingsperiode::class.java))
-
-        assertTrue(perioder.isNotEmpty(), "Det skal finnes minst én saksbehandlingsperiode")
-        val periode = perioder.first()
-        assertEquals(periodeId, periode.id, "Periode ID skal matche det som ble opprettet")
-
-        return periode
-    }
+    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Saksbehandlingsperiode =
+        opprettSaksbehandlingsperiode(
+            PERSON_ID,
+            LocalDate.parse("2023-01-01"),
+            LocalDate.parse("2023-01-31"),
+        )
 
     private suspend fun ApplicationTestBuilder.opprettArbeidstakerYrkesaktivitet(periodeId: UUID): UUID {
         val kategorisering =

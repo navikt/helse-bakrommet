@@ -134,19 +134,13 @@ class DagoversiktLogikkTest {
         runApplicationTest { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
-            // Test med februar (kortere måned)
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-02-01", "tom": "2023-02-28" }""")
-            }
-
+            // Test med februar (kortere måned) via action
             val periode =
-                client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
-                    .first()
+                opprettSaksbehandlingsperiode(
+                    PERSON_ID,
+                    LocalDate.parse("2023-02-01"),
+                    LocalDate.parse("2023-02-28"),
+                )
 
             val yrkesaktivitetId =
                 client

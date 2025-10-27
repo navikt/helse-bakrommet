@@ -21,10 +21,11 @@ internal suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(
     personId: String,
     fom: LocalDate,
     tom: LocalDate,
+    token: String = TestOppsett.userToken,
 ): Saksbehandlingsperiode {
     val response =
         client.post("/v1/$personId/saksbehandlingsperioder") {
-            bearerAuth(TestOppsett.userToken)
+            bearerAuth(token)
             contentType(ContentType.Application.Json)
             setBody("""{ "fom": "$fom", "tom": "$tom" }""")
         }

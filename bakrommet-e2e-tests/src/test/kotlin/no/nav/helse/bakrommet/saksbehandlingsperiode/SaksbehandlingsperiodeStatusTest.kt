@@ -6,6 +6,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilbake
 import no.nav.helse.bakrommet.testutils.`should equal`
@@ -13,6 +14,7 @@ import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class SaksbehandlingsperiodeStatusTest {
     private companion object {
@@ -31,22 +33,18 @@ class SaksbehandlingsperiodeStatusTest {
             val tokenBeslutter2 = oAuthMock.token(navIdent = "B222222", grupper = listOf("GRUPPE_BESLUTTER"))
 
             it.outboxDao.hentAlleUpubliserteEntries().size `should equal` 0
-            val createResponse =
-                client.post("/v1/$personId/saksbehandlingsperioder") {
-                    bearerAuth(tokenSaksbehandler)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "fom": "2023-01-01", "tom": "2023-01-31" }
-                        """.trimIndent(),
-                    )
-                }
-            assertEquals(201, createResponse.status.value)
+
+            // Opprett saksbehandlingsperiode via action
+            val periodeOpprinnelig =
+                opprettSaksbehandlingsperiode(
+                    personId,
+                    LocalDate.parse("2023-01-01"),
+                    LocalDate.parse("2023-01-31"),
+                    token = tokenSaksbehandler,
+                )
 
             val outboxAfterCreation = it.outboxDao.hentAlleUpubliserteEntries()
             assertEquals(1, outboxAfterCreation.size, "Det skal være én melding i outbox etter opprettelse av perioden")
-
-            val periodeOpprinnelig = createResponse.body<Saksbehandlingsperiode>().truncateTidspunkt()
 
             assertEquals(
                 SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
