@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.sigrun
 
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.asJsonNode
@@ -11,40 +10,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class SigrunClientTest {
-    companion object {
-        fun client2010to2050(fnr: String) = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSvar2010to2050(fnr))
-
-        fun fnrÅrTilSvar2010to2050(fnr: String) =
-            mapOf(
-                *(2010..2100)
-                    .map { år ->
-                        (fnr to år.toString()) to sigrunÅr(fnr, år, næring = år * 100)
-                    }.toTypedArray(),
-            )
-
-        fun clientMedManglendeÅr(
-            fnr: String,
-            vararg manglendeÅr: Int,
-        ): SigrunClient {
-            val manglendeÅrStr: List<String> = manglendeÅr.map { it.toString() }
-
-            val dataSomManglerNoenÅr =
-                fnrÅrTilSvar2010to2050(fnr).mapValues { (fnrÅr, data) ->
-                    if (fnrÅr.second in manglendeÅrStr) {
-                        sigrunErrorResponse(status = 404, kode = "PGIF-008")
-                    } else {
-                        data
-                    }
-                }
-            return SigrunMock.sigrunMockClient(fnrÅrTilSvar = dataSomManglerNoenÅr)
-        }
-    }
-
-    val token = SpilleromBearerToken(TestOppsett.userToken)
+    val token = SpilleromBearerToken("wsdfsdfsdf")
     val fnr = "01017099999"
 
     private fun clientMedManglendeÅr(vararg manglendeÅr: Int) =
-        Companion.clientMedManglendeÅr(
+        clientMedManglendeÅr(
             fnr = fnr,
             manglendeÅr = manglendeÅr,
         )
@@ -80,8 +50,9 @@ class SigrunClientTest {
             }""".asJsonNode()
             val resultat2024 = årTilResMap[2024]!!
             assertEquals(tom2024, resultat2024.data())
+            val kilde = resultat2024.sporing().kilde
             assertTrue(
-                resultat2024.sporing().kilde.contains(
+                kilde.contains(
                     """
                     "ske-message":{"kode":"PGIF-008","melding":"Fant ikke pensjonsgivende inntekt for oppgitt personidentifikator og inntektsår."
                     """.trimIndent(),
@@ -158,30 +129,3 @@ fun Pair<PensjonsgivendeInntektÅr, Kildespor>.data() = this.first
 fun Pair<PensjonsgivendeInntektÅr, Kildespor>.sporing() = this.second
 
 private fun PensjonsgivendeInntektÅr.inntektsaar() = this["inntektsaar"]!!.asText().toInt()
-
-private fun sigrunÅr(
-    fnr: String = "10419045026",
-    år: Int = 2022,
-    næring: Int = 350000,
-) = """
-    {"norskPersonidentifikator":"$fnr","inntektsaar":"$år",
-    "pensjonsgivendeInntekt":
-        [
-            {"skatteordning":"FASTLAND","datoForFastsetting":"2025-06-24T07:32:48.777Z",
-            "pensjonsgivendeInntektAvLoennsinntekt":null,
-            "pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel":null,
-            "pensjonsgivendeInntektAvNaeringsinntekt":"$næring",
-            "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":"10000"}
-        ]
-    }    
-    """.trimIndent()
-
-private fun sigrunErrorResponse(
-    status: Int = 404,
-    kode: String = "PGIF-008",
-) = """
-    {"timestamp":"2025-06-24T09:36:23.209+0200","status":$status,"error":"Not Found","source":"SKE",
-    "message":"Fant ikke pensjonsgivende inntekt for oppgitt personidentifikator og inntektsår..  Korrelasjonsid: bb918c1c1cfa10a396e723949ae25f80. Spurt på år 2021 og tjeneste Pensjonsgivende Inntekt For Folketrygden",
-    "path":"/api/v1/pensjonsgivendeinntektforfolketrygden",
-    "ske-message":{"kode":"$kode","melding":"Fant ikke pensjonsgivende inntekt for oppgitt personidentifikator og inntektsår.","korrelasjonsid":"bb918c1c1cfa10a396e723949ae25f80"}}    
-    """.trimIndent()

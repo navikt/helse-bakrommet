@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
-import no.nav.helse.bakrommet.sigrun.SigrunClientTest
+import no.nav.helse.bakrommet.sigrun.client2010to2050
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -177,7 +177,7 @@ class DokumentHentingTest {
     @Test
     fun `henter pensjonsgivende inntekt dokument`() {
         runApplicationTest(
-            sigrunClient = SigrunClientTest.client2010to2050(FNR),
+            sigrunClient = client2010to2050(FNR),
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 

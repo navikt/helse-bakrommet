@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.sigrun
 
-import io.ktor.client.HttpClient
+import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -9,9 +9,53 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
-// import org.junit.jupiter.api.assertNotNull
+
+fun client2010to2050(fnr: String) = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSvar2010to2050(fnr))
+
+fun fnrÅrTilSvar2010to2050(fnr: String): Map<Pair<String, String>, String> =
+    mapOf(
+        *(2010..2100)
+            .map { år ->
+                (fnr to år.toString()) to sigrunÅr(fnr, år, næring = år * 100)
+            }.toTypedArray(),
+    )
+
+fun clientMedManglendeÅr(
+    fnr: String,
+    vararg manglendeÅr: Int,
+): SigrunClient {
+    val manglendeÅrStr: List<String> = manglendeÅr.map { it.toString() }
+
+    val dataSomManglerNoenÅr =
+        fnrÅrTilSvar2010to2050(fnr).mapValues { (fnrÅr, data) ->
+            if (fnrÅr.second in manglendeÅrStr) {
+                sigrunErrorResponse(status = 404, kode = "PGIF-008")
+            } else {
+                data
+            }
+        }
+    return SigrunMock.sigrunMockClient(fnrÅrTilSvar = dataSomManglerNoenÅr)
+}
+
+private fun sigrunÅr(
+    fnr: String = "10419045026",
+    år: Int = 2022,
+    næring: Int = 350000,
+) = """
+    {"norskPersonidentifikator":"$fnr","inntektsaar":"$år",
+    "pensjonsgivendeInntekt":
+        [
+            {"skatteordning":"FASTLAND","datoForFastsetting":"2025-06-24T07:32:48.777Z",
+            "pensjonsgivendeInntektAvLoennsinntekt":null,
+            "pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel":null,
+            "pensjonsgivendeInntektAvNaeringsinntekt":"$næring",
+            "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":"10000"}
+        ]
+    }    
+    """.trimIndent()
 
 object SigrunMock {
     // Default test konfigurasjon
@@ -38,11 +82,10 @@ object SigrunMock {
 
     fun sigrunMockHttpClient(
         configuration: Configuration.Sigrun = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
         fnrÅrTilSvar: Map<Pair<String, String>, String> = mapOf(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
+        if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             // assertNotNull(request.headers["Nav-Call-Id"])
@@ -75,7 +118,7 @@ object SigrunMock {
     ) = SigrunClient(
         configuration = configuration,
         oboClient = oboClient,
-        httpClient = sigrunMockHttpClient(configuration, oboClient, fnrÅrTilSvar),
+        httpClient = sigrunMockHttpClient(configuration, fnrÅrTilSvar),
     )
 
     private fun statusFromResp(resp: String): Int? {
@@ -93,12 +136,12 @@ object SigrunMock {
         {"timestamp":"2025-06-24T09:36:23.209+0200","status":$status,"error":"Not Found","source":"SKE",
         "message":"Fant ikke pensjonsgivende inntekt for oppgitt personidentifikator og inntektsår..  Korrelasjonsid: bb918c1c1cfa10a396e723949ae25f80. Spurt på år 2021 og tjeneste Pensjonsgivende Inntekt For Folketrygden",
         "path":"/api/v1/pensjonsgivendeinntektforfolketrygden",
-        "ske-message":{"kode":"$kode-008","melding":"Fant ikke pensjonsgivende inntekt for oppgitt personidentifikator og inntektsår.","korrelasjonsid":"bb918c1c1cfa10a396e723949ae25f80"}}    
+        "ske-message":{"kode":"$kode","melding":"Fant ikke pensjonsgivende inntekt for oppgitt personidentifikator og inntektsår.","korrelasjonsid":"bb918c1c1cfa10a396e723949ae25f80"}}    
         """.trimIndent()
 }
 
 // Extension function for å lage OBO token
-fun OAuthScope.oboTokenFor(oboClient: OboClient): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
+fun OAuthScope.oboTokenFor(): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
 // Helper functions for mock HTTP client
 fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
@@ -112,5 +155,5 @@ fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestDa
     }
 
 suspend fun HttpRequestData.bodyToJson(): com.fasterxml.jackson.databind.JsonNode =
-    no.nav.helse.bakrommet.util.objectMapper
+    objectMapper
         .readValue(body.toByteArray(), com.fasterxml.jackson.databind.JsonNode::class.java)
