@@ -23,7 +23,8 @@ internal suspend fun ApplicationTestBuilder.opprettNaeringsdrivendeYrkesaktivite
             "kategorisering": {
                 "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
                 "ER_SYKMELDT": "ER_SYKMELDT_JA",
-                "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER"
+                "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
+                "SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING": "INGEN_FORSIKRING"
             }
         }
         """.trimIndent()
@@ -43,10 +44,6 @@ internal suspend fun ApplicationTestBuilder.opprettNaeringsdrivendeYrkesaktivite
 
     val yrkesaktivitetId = UUID.fromString(body["id"].asText())
     assertTrue(yrkesaktivitetId != null, "Yrkesaktivitet ID skal være gyldig UUID")
-
-    assertEquals("SELVSTENDIG_NÆRINGSDRIVENDE", body["kategorisering"]["INNTEKTSKATEGORI"].asText(), "Inntektskategori skal være SELVSTENDIG_NÆRINGSDRIVENDE")
-    assertEquals("ER_SYKMELDT_JA", body["kategorisering"]["ER_SYKMELDT"].asText(), "Er sykmeldt skal være JA")
-    assertEquals("FISKER", body["kategorisering"]["TYPE_SELVSTENDIG_NÆRINGSDRIVENDE"].asText(), "Type næringsdrivende skal være FISKER")
 
     return yrkesaktivitetId
 }

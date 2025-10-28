@@ -167,8 +167,8 @@ class InntektService(
                                         pensjonsgivendeInntekt = beregnet,
                                     )
                                 } else {
-                                    // Oppdater yrkesaktiviteten med en slags warning
-                                    return@transactional
+                                    // kast feil
+                                    throw RuntimeException("Kunne ikke beregne inntekt, todo lag spesifikk error")
                                 }
                             }
 

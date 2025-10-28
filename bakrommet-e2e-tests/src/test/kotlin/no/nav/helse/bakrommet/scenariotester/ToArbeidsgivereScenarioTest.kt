@@ -11,8 +11,8 @@ class ToArbeidsgivereScenarioTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    YA(YAType.ARBTAKER, "888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    YA(YAType.ARBTAKER, "999", inntekt = AInntekt(15000, 15000, 15000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("999", inntekt = AInntekt(15000, 15000, 15000), dagoversikt = SykAlleDager()),
                 ),
         ).run {
             it.apply {
@@ -30,9 +30,8 @@ class ToArbeidsgivereScenarioTest {
     fun `to arbeidsgivere med en ainntekt inntekt og en inntektsmelding med refusjon`() {
         Scenario(
             listOf(
-                YA(YAType.ARBTAKER, "888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                YA(
-                    YAType.ARBTAKER,
+                Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                Arbeidstaker(
                     "999",
                     inntekt =
                         Inntektsmelding(
@@ -63,9 +62,8 @@ class ToArbeidsgivereScenarioTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    YA(YAType.ARBTAKER, "999", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    YA(
-                        YAType.ARBTAKER,
+                    Arbeidstaker("999", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(
                         "888",
                         inntekt = SkjønnsfastsattManglendeRapportering(15000.0 * 12),
                         dagoversikt = SykAlleDager(),

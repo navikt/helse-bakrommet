@@ -8,12 +8,19 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.Year
 
 class SigrunClientTest {
     val token = SpilleromBearerToken("wsdfsdfsdf")
     val fnr = "01017099999"
 
-    private fun clientMedManglendeÅr(vararg manglendeÅr: Int) =
+    private fun clientMedManglendeÅrInt(vararg manglendeÅr: Int) =
+        clientMedManglendeÅr(
+            fnr = fnr,
+            manglendeÅr = manglendeÅr.map { Year.of(it) }.toTypedArray(),
+        )
+
+    private fun clientMedManglendeÅr(vararg manglendeÅr: Year) =
         clientMedManglendeÅr(
             fnr = fnr,
             manglendeÅr = manglendeÅr,
@@ -36,7 +43,7 @@ class SigrunClientTest {
 
     @Test
     fun `Hent 2024 og 3 tilbake, men 2024 mangler, gir 2023, 2022, 2021`() {
-        val client = clientMedManglendeÅr(2024)
+        val client = clientMedManglendeÅr(Year.of(2024))
         runBlocking {
             client
                 .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2024, 3, token)
@@ -76,7 +83,7 @@ class SigrunClientTest {
     @Test
     fun `diverse caser med manglende år`() {
         runBlocking {
-            clientMedManglendeÅr(2024)
+            clientMedManglendeÅr(Year.of(2024))
                 .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2024, 3, token)
         }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
             assertEquals(setOf(2024), tomme)
@@ -84,7 +91,7 @@ class SigrunClientTest {
         }
 
         runBlocking {
-            clientMedManglendeÅr(2023, 2024, 2025)
+            clientMedManglendeÅrInt(2023, 2024, 2025)
                 .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2025, 3, token)
         }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
             assertEquals(setOf(2023, 2024, 2025), tomme)
@@ -92,7 +99,7 @@ class SigrunClientTest {
         }
 
         runBlocking {
-            clientMedManglendeÅr(2022, 2023, 2024, 2025)
+            clientMedManglendeÅrInt(2022, 2023, 2024, 2025)
                 .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2025, 3, token)
         }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
             assertEquals(setOf(2022, 2023, 2024, 2025), tomme)
@@ -100,7 +107,7 @@ class SigrunClientTest {
         }
 
         runBlocking {
-            clientMedManglendeÅr(2022, 2024, 2025)
+            clientMedManglendeÅrInt(2022, 2024, 2025)
                 .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(fnr, 2025, 3, token)
         }.tommeOgEksisterndeÅr().also { (tomme, eksisterende) ->
             assertEquals(setOf(2022, 2024, 2025), tomme)

@@ -18,15 +18,21 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntekt
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponseUtDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
+import no.nav.helse.bakrommet.sigrun.SigrunMock
+import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
+import no.nav.helse.bakrommet.sigrun.sigrunÅr
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterInntekt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettArbeidstakerYrkesaktivitet
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettNaeringsdrivendeYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
@@ -36,6 +42,7 @@ import no.nav.helse.mai
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.Year
 import java.time.YearMonth
 import java.util.UUID
 
@@ -107,15 +114,28 @@ data class Scenario(
         val ainntekt828 =
             InntektApiUt(
                 data =
-                    yrkesaktiviteter.filter { it.inntekt is AInntekt }.flatMap {
-                        (it.inntekt as AInntekt).lagDelsvar(this@Scenario, it.orgnr)
-                    },
+                    yrkesaktiviteter
+                        .filter { it is Arbeidstaker }
+                        .map { it as Arbeidstaker }
+                        .filter { it.inntekt is AInntekt }
+                        .flatMap {
+                            (it.inntekt as AInntekt).lagDelsvar(this@Scenario, it.orgnr)
+                        },
             )
 
         val inntektmeldinger =
             yrkesaktiviteter
+                .filter { it is Arbeidstaker }
+                .map { it as Arbeidstaker }
                 .filter { it.inntekt is Inntektsmelding }
-                .map { (it.inntekt as Inntektsmelding).skapInntektsmelding(fnr, it.orgnr) }
+                .map { (it.inntekt as Inntektsmelding).skapInntektsmelding(fnr, (it).orgnr) }
+
+        val sigrunsvar =
+            yrkesaktiviteter
+                .filter { it.inntekt is SigrunInntekt }
+                .map { it.inntekt as SigrunInntekt }
+                .map { it.lagSigrunSvar(this@Scenario) }
+                .firstOrNull() ?: emptyMap()
 
         runApplicationTest(
             inntektsmeldingClient =
@@ -138,6 +158,7 @@ data class Scenario(
                             inntektsmeldingIdTilSvar = inntektmeldinger.toMap().mapKeys { (key) -> key.toString() },
                         ),
                 ),
+            sigrunClient = SigrunMock.sigrunMockClient(fnrÅrTilSvar = sigrunsvar),
             aInntektClient =
                 AInntektMock.aInntektClientMock(
                     fnrTilSvar = mapOf(fnr to ainntekt828.serialisertTilString()),
@@ -155,12 +176,18 @@ data class Scenario(
             val yaMedId =
                 yrkesaktiviteter.map { ya ->
                     ya to
-                        when (ya.type) {
-                            YAType.ARBTAKER ->
+                        when (ya) {
+                            is Arbeidstaker ->
                                 opprettArbeidstakerYrkesaktivitet(
                                     periode.id,
                                     personId = personId,
                                     orgnr = ya.orgnr,
+                                )
+
+                            is Selvstendig ->
+                                opprettNaeringsdrivendeYrkesaktivitet(
+                                    periode.id,
+                                    personId = personId,
                                 )
                         }
                 }
@@ -203,16 +230,21 @@ data class Scenario(
     }
 }
 
-enum class YAType {
-    ARBTAKER,
-}
-
-data class YA(
-    val type: YAType,
-    val orgnr: String,
+sealed class YA(
     val inntekt: YAInntekt,
     val dagoversikt: YADagoversikt? = null,
 )
+
+class Arbeidstaker(
+    val orgnr: String,
+    inntekt: YAInntekt,
+    dagoversikt: YADagoversikt? = null,
+) : YA(inntekt, dagoversikt)
+
+class Selvstendig(
+    inntekt: YAInntekt,
+    dagoversikt: YADagoversikt? = null,
+) : YA(inntekt, dagoversikt)
 
 sealed class YADagoversikt {
     abstract fun lagDagListe(
@@ -322,6 +354,44 @@ class AInntekt(
                 ArbeidstakerInntektRequest.Ainntekt(
                     begrunnelse = "Velger inntektsmelding for arbeidstaker",
                     refusjon = emptyList(),
+                ),
+        )
+}
+
+class SigrunInntekt(
+    vararg år: Int?,
+) : YAInntekt() {
+    private val årene = år.toList()
+
+    fun lagSigrunSvar(
+        scenario: Scenario,
+    ): Map<Pair<String, Year>, String> {
+        val åreneMedInntekt =
+            årene
+                .reversed()
+                .mapIndexed(fun(
+                    i: Int,
+                    beløp: Int?,
+                ): Pair<Pair<String, Year>, String> {
+                    val året = Year.of(scenario.skjæringstidspunkt.year - i - 1)
+                    if (beløp == null) {
+                        return (scenario.fnr to året) to sigrunErrorResponse(status = 404, kode = "PGIF-008")
+                    }
+
+                    return (scenario.fnr to året) to sigrunÅr(fnr = scenario.fnr, år = året, næring = beløp)
+                })
+                .reversed()
+
+        return mapOf(
+            *åreneMedInntekt.toTypedArray(),
+        )
+    }
+
+    override val request =
+        InntektRequest.SelvstendigNæringsdrivende(
+            data =
+                PensjonsgivendeInntektRequest.PensjonsgivendeInntekt(
+                    begrunnelse = "8-35",
                 ),
         )
 }

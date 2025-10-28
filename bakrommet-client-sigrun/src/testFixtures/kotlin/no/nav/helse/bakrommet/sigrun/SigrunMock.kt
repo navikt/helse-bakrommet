@@ -12,26 +12,25 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
+import java.time.Year
 
 fun client2010to2050(fnr: String) = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSvar2010to2050(fnr))
 
-fun fnrÅrTilSvar2010to2050(fnr: String): Map<Pair<String, String>, String> =
+fun fnrÅrTilSvar2010to2050(fnr: String): Map<Pair<String, Year>, String> =
     mapOf(
         *(2010..2100)
             .map { år ->
-                (fnr to år.toString()) to sigrunÅr(fnr, år, næring = år * 100)
+                (fnr to Year.of(år)) to sigrunÅr(fnr, Year.of(år), næring = år * 100)
             }.toTypedArray(),
     )
 
 fun clientMedManglendeÅr(
     fnr: String,
-    vararg manglendeÅr: Int,
+    vararg manglendeÅr: Year,
 ): SigrunClient {
-    val manglendeÅrStr: List<String> = manglendeÅr.map { it.toString() }
-
     val dataSomManglerNoenÅr =
         fnrÅrTilSvar2010to2050(fnr).mapValues { (fnrÅr, data) ->
-            if (fnrÅr.second in manglendeÅrStr) {
+            if (fnrÅr.second in manglendeÅr) {
                 sigrunErrorResponse(status = 404, kode = "PGIF-008")
             } else {
                 data
@@ -40,9 +39,9 @@ fun clientMedManglendeÅr(
     return SigrunMock.sigrunMockClient(fnrÅrTilSvar = dataSomManglerNoenÅr)
 }
 
-private fun sigrunÅr(
+fun sigrunÅr(
     fnr: String = "10419045026",
-    år: Int = 2022,
+    år: Year = Year.of(2022),
     næring: Int = 350000,
 ) = """
     {"norskPersonidentifikator":"$fnr","inntektsaar":"$år",
@@ -82,7 +81,7 @@ object SigrunMock {
 
     fun sigrunMockHttpClient(
         configuration: Configuration.Sigrun = defaultConfiguration,
-        fnrÅrTilSvar: Map<Pair<String, String>, String> = mapOf(),
+        fnrÅrTilSvar: Map<Pair<String, Year>, String> = mapOf(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
         if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
@@ -91,7 +90,7 @@ object SigrunMock {
             // assertNotNull(request.headers["Nav-Call-Id"])
 
             val fnr = request.headers["Nav-Personident"]!!
-            val inntektsAar = request.headers["inntektsaar"]!!
+            val inntektsAar = Year.of(request.headers["inntektsaar"]!!.toInt())
 
             val svar = fnrÅrTilSvar[fnr to inntektsAar]
             if (svar == null) {
@@ -114,7 +113,7 @@ object SigrunMock {
     fun sigrunMockClient(
         configuration: Configuration.Sigrun = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
-        fnrÅrTilSvar: Map<Pair<String, String>, String> = mapOf(),
+        fnrÅrTilSvar: Map<Pair<String, Year>, String> = mapOf(),
     ) = SigrunClient(
         configuration = configuration,
         oboClient = oboClient,
