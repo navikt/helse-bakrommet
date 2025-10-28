@@ -124,12 +124,14 @@ object InntektsmeldingApiMock {
     fun enInntektsmelding(
         inntektsmeldingId: String = "7371c1ab-ee9b-4fb3-b540-c360fb0156a0",
         arbeidstakerFnr: String = "",
+        beregnetInntekt: Double = 8876.00,
+        virksomhetsnummer: String = "999888777",
     ) = """
         {
             "inntektsmeldingId": "$inntektsmeldingId",
             "arbeidstakerFnr": "$arbeidstakerFnr",
             "arbeidstakerAktorId": "0000111122223",
-            "virksomhetsnummer": "999888777",
+            "virksomhetsnummer": "$virksomhetsnummer",
             "arbeidsgiverFnr": null,
             "arbeidsgiverAktorId": null,
             "innsenderFulltNavn": "BEROEMT FLYTTELASS",
@@ -138,7 +140,7 @@ object InntektsmeldingApiMock {
             "bruttoUtbetalt": null,
             "arbeidsgivertype": "VIRKSOMHET",
             "arbeidsforholdId": null,
-            "beregnetInntekt": "8876.00",
+            "beregnetInntekt": "$beregnetInntekt",
             "inntektsdato": "2025-02-01",
             "refusjon": {
               "beloepPrMnd": "0.00",

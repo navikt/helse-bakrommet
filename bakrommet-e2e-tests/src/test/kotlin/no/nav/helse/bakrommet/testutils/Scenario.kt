@@ -1,33 +1,41 @@
 package no.nav.helse.bakrommet.testutils
 
-import io.ktor.client.request.get
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.Daoer
+import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.Inntekt
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.enInntektsmelding
+import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponseUtDto
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterInntekt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettArbeidstakerYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
 import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.UUID
 
 object ScenarioDefaults {
     val skjæringstidspunkt = LocalDate.parse("2024-05-17")
@@ -35,14 +43,23 @@ object ScenarioDefaults {
     val tom = fom.plusDays(14)
 }
 
-data class ScenarioResultat(
+data class ScenarioData(
     val periode: Saksbehandlingsperiode,
     val sykepengegrunnlag: Sykepengegrunnlag,
+    val yrkesaktiviteter: List<YrkesaktivitetDTO>,
     val utbetalingsberegning: BeregningResponseUtDto?,
+    val daoer: Daoer,
 ) {
     infix fun `skal ha sykepengegrunnlag`(beløp: Double) {
         assertEquals(beløp, sykepengegrunnlag.sykepengegrunnlag.beløp)
     }
+
+    infix fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO = yrkesaktiviteter.filter { it.kategorisering["INNTEKTSKATEGORI"] == "ARBEIDSTAKER" }.first { it.kategorisering["ORGNUMMER"] == orgnummer }
+}
+
+infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: String) {
+    val beregningskodeActual = this.inntektData?.sporing
+    assertEquals(expectedKode, beregningskodeActual, "Feil beregningskode for yrkesaktivitet ${this.id}")
 }
 
 data class Scenario(
@@ -54,7 +71,7 @@ data class Scenario(
     val yrkesaktiviteter: List<YA>,
 ) {
     fun run(
-        testBlock: (suspend ApplicationTestBuilder.(daoer: Daoer, resultat: ScenarioResultat) -> Unit)? = null,
+        testBlock: (suspend ApplicationTestBuilder.(resultat: ScenarioData) -> Unit)? = null,
     ) {
         val ainntekt828 =
             InntektApiUt(
@@ -64,8 +81,13 @@ data class Scenario(
                     },
             )
 
+        val inntektmeldinger =
+            yrkesaktiviteter
+                .filter { it.inntekt is Inntektsmelding }
+                .map { (it.inntekt as Inntektsmelding).skapInntektsmelding(fnr, it.orgnr) }
+
         runApplicationTest(
-            /*inntektsmeldingClient =
+            inntektsmeldingClient =
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
                     configuration = TestOppsett.configuration.inntektsmelding,
                     oboClient = TestOppsett.oboClient,
@@ -73,16 +95,22 @@ data class Scenario(
                         inntektsmeldingMockHttpClient(
                             configuration = TestOppsett.configuration.inntektsmelding,
                             oboClient = TestOppsett.oboClient,
-                            fnrTilSvar = mapOf(FNR to "[$im1]"),
-                            inntektsmeldingIdTilSvar = mapOf(im1Id to im1),
-                            callCounter = antallKallTilInntektsmeldingAPI,
+                            fnrTilSvar =
+                                mapOf(
+                                    fnr to
+                                        inntektmeldinger.joinToString(
+                                            ",",
+                                            prefix = "[",
+                                            postfix = "]",
+                                        ) { it.second },
+                                ),
+                            inntektsmeldingIdTilSvar = inntektmeldinger.toMap().mapKeys { (key) -> key.toString() },
                         ),
-                ),*/
+                ),
             aInntektClient =
                 AInntektMock.aInntektClientMock(
                     fnrTilSvar = mapOf(fnr to ainntekt828.serialisertTilString()),
                 ),
-            // sigrunClient = SigrunClientTest.client2010to2050(FNR),
         ) { daoer ->
             daoer.personDao.opprettPerson(fnr, personId)
 
@@ -97,7 +125,12 @@ data class Scenario(
                 yrkesaktiviteter.map { ya ->
                     ya to
                         when (ya.type) {
-                            YAType.ARBTAKER -> opprettArbeidstakerYrkesaktivitet(periode.id, personId = personId, orgnr = ya.orgnr)
+                            YAType.ARBTAKER ->
+                                opprettArbeidstakerYrkesaktivitet(
+                                    periode.id,
+                                    personId = personId,
+                                    orgnr = ya.orgnr,
+                                )
                         }
                 }
 
@@ -121,15 +154,16 @@ data class Scenario(
             val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
 
             val beregning = hentUtbetalingsberegning(periode.id, periode.spilleromPersonId)
-
+            val yrkesaktiviteter = hentYrkesaktiviteter(periode.id, periode.spilleromPersonId)
             if (testBlock != null) {
                 testBlock.invoke(
                     this,
-                    daoer,
-                    ScenarioResultat(
+                    ScenarioData(
                         periode = periode,
                         sykepengegrunnlag = sykepengegrunnlag.sykepengegrunnlag!!,
                         utbetalingsberegning = beregning,
+                        yrkesaktiviteter = yrkesaktiviteter,
+                        daoer = daoer,
                     ),
                 )
             }
@@ -176,6 +210,50 @@ class SykAlleDager : YADagoversikt() {
 
 sealed class YAInntekt {
     abstract val request: InntektRequest
+}
+
+class Inntektsmelding(
+    val beregnetInntekt: Double,
+) : YAInntekt() {
+    fun skapInntektsmelding(
+        fnr: String,
+        orgnr: String,
+    ): Pair<UUID, String> =
+        Pair(
+            inntektmeldingid,
+            enInntektsmelding(
+                arbeidstakerFnr = fnr,
+                virksomhetsnummer = orgnr,
+                inntektsmeldingId = inntektmeldingid.toString(),
+                beregnetInntekt = beregnetInntekt,
+            ),
+        )
+
+    val inntektmeldingid = UUID.randomUUID()
+
+    override val request: InntektRequest =
+        InntektRequest.Arbeidstaker(
+            data =
+                ArbeidstakerInntektRequest.Inntektsmelding(
+                    begrunnelse = "Velger inntektsmelding for arbeidstaker",
+                    inntektsmeldingId = inntektmeldingid.toString(),
+                ),
+        )
+}
+
+class SkjønnsfastsattManglendeRapportering(
+    årsinntekt: Double,
+    begrunnelse: String = "Fordi arbeidsgiver har ikke rapportert inntekten på vanlig måte",
+) : YAInntekt() {
+    override val request: InntektRequest =
+        InntektRequest.Arbeidstaker(
+            data =
+                ArbeidstakerInntektRequest.Skjønnsfastsatt(
+                    begrunnelse = begrunnelse,
+                    årsinntekt = InntektbeløpDto.Årlig(årsinntekt),
+                    årsak = ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING,
+                ),
+        )
 }
 
 class AInntekt(
