@@ -20,6 +20,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sammenlik
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
@@ -220,7 +221,8 @@ class InntektService(
                                 val fom = ainntektBeregningsgrunnlag.second.fom
                                 val tom = ainntektBeregningsgrunnlag.second.tom
 
-                                val månederOgInntekt = monthsBetween(fom, tom).associateWith { Inntekt.INGEN }.toMutableMap()
+                                val månederOgInntekt =
+                                    monthsBetween(fom, tom).associateWith { Inntekt.INGEN }.toMutableMap()
 
                                 inntektResponse.data.forEach { måned ->
                                     måned.inntektListe.forEach { inntekt ->
@@ -230,7 +232,8 @@ class InntektService(
                                     }
                                 }
 
-                                val månedligSnitt = månederOgInntekt.values.summer().div(månederOgInntekt.size.toDouble())
+                                val månedligSnitt =
+                                    månederOgInntekt.values.summer().div(månederOgInntekt.size.toDouble())
                                 val månederOgInntektDto = månederOgInntekt.mapValues { it.value.dto().månedligDouble }
 
                                 InntektData.FrilanserAinntekt(
@@ -272,31 +275,35 @@ class InntektService(
             yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
             beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)?.let { rec ->
                 requireNotNull(rec.sykepengegrunnlag)
-                if (rec.sammenlikningsgrunnlag == null) {
-                    val dokument =
-                        lastAInntektSammenlikningsgrunnlag(periode, aInntektClient, saksbehandler)
-                    val sammenlikningsgrunnlag = dokument.somAInntektSammenlikningsgrunnlag().sammenlikningsgrunnlag()
+                val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
+                if (yrkesaktiviteter.skalBeregneSammenlikningsgrunnlag()) {
+                    if (rec.sammenlikningsgrunnlag == null) {
+                        val dokument =
+                            lastAInntektSammenlikningsgrunnlag(periode, aInntektClient, saksbehandler)
+                        val sammenlikningsgrunnlag =
+                            dokument.somAInntektSammenlikningsgrunnlag().sammenlikningsgrunnlag()
 
-                    val avvikProsent =
-                        if (sammenlikningsgrunnlag.beløp == 0.0) {
-                            100.0
-                        } else {
-                            (
-                                abs(rec.sykepengegrunnlag.totaltInntektsgrunnlag.beløp - sammenlikningsgrunnlag.beløp) /
-                                    sammenlikningsgrunnlag.beløp
-                            ) * 100.0
-                        }
+                        val avvikProsent =
+                            if (sammenlikningsgrunnlag.beløp == 0.0) {
+                                100.0
+                            } else {
+                                (
+                                    abs(rec.sykepengegrunnlag.totaltInntektsgrunnlag.beløp - sammenlikningsgrunnlag.beløp) /
+                                        sammenlikningsgrunnlag.beløp
+                                ) * 100.0
+                            }
 
-                    sykepengegrunnlagDao.oppdaterSammenlikningsgrunnlag(
-                        sykepengegrunnlagId = rec.id,
-                        sammenlikningsgrunnlag =
-                            Sammenlikningsgrunnlag(
-                                totaltSammenlikningsgrunnlag = sammenlikningsgrunnlag,
-                                avvikProsent = avvikProsent,
-                                avvikMotInntektsgrunnlag = rec.sykepengegrunnlag.totaltInntektsgrunnlag,
-                                basertPåDokumentId = dokument.id,
-                            ),
-                    )
+                        sykepengegrunnlagDao.oppdaterSammenlikningsgrunnlag(
+                            sykepengegrunnlagId = rec.id,
+                            sammenlikningsgrunnlag =
+                                Sammenlikningsgrunnlag(
+                                    totaltSammenlikningsgrunnlag = sammenlikningsgrunnlag,
+                                    avvikProsent = avvikProsent,
+                                    avvikMotInntektsgrunnlag = rec.sykepengegrunnlag.totaltInntektsgrunnlag,
+                                    basertPåDokumentId = dokument.id,
+                                ),
+                        )
+                    }
                 }
             }
         }
@@ -416,7 +423,8 @@ class InntektService(
 
                 when (kategori) {
                     Inntektskategori.ARBEIDSTAKER -> {
-                        val orgnummer = (yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer
+                        val orgnummer =
+                            (yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer
                         val omregnetÅrsinntekt = ainntektBeregningsgrunnlag.omregnetÅrsinntekt(orgnummer)
 
                         AInntektResponse.Suksess(
@@ -468,6 +476,15 @@ class InntektService(
         }
     }
 }
+
+private fun List<Yrkesaktivitet>.skalBeregneSammenlikningsgrunnlag(): Boolean =
+    this.any {
+        when (it.kategorisering) {
+            is YrkesaktivitetKategorisering.Arbeidstaker -> true
+            is YrkesaktivitetKategorisering.Frilanser -> true
+            else -> false
+        }
+    }
 
 sealed interface PensjonsgivendeInntektResponse {
     data class Suksess(
@@ -530,7 +547,8 @@ private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.sammenlikningsgrunnlag(
         throw IllegalStateException("Inntektsdata inneholder måneder utenfor forventet intervall: $fom - $tom")
     }
 
-    val inntektSiste12Måneder = inntektResponse.data.flatMap { it.inntektListe.map { inntekt -> inntekt.beloep.toDouble() } }.sum()
+    val inntektSiste12Måneder =
+        inntektResponse.data.flatMap { it.inntektListe.map { inntekt -> inntekt.beloep.toDouble() } }.sum()
 
     return InntektbeløpDto.Årlig(inntektSiste12Måneder)
 }

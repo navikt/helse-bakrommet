@@ -16,6 +16,7 @@ import java.util.UUID
 internal suspend fun ApplicationTestBuilder.opprettNaeringsdrivendeYrkesaktivitet(
     periodeId: UUID,
     personId: String,
+    forsikring: String,
 ): UUID {
     val kategorisering =
         """
@@ -24,7 +25,7 @@ internal suspend fun ApplicationTestBuilder.opprettNaeringsdrivendeYrkesaktivite
                 "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
                 "ER_SYKMELDT": "ER_SYKMELDT_JA",
                 "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
-                "SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING": "INGEN_FORSIKRING"
+                "SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING": "$forsikring"
             }
         }
         """.trimIndent()

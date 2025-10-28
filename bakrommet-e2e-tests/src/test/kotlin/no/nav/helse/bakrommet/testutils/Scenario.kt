@@ -18,11 +18,12 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponseUtDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigForsikring
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
@@ -40,6 +41,7 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.mai
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.assertNull
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.Year
@@ -56,15 +58,24 @@ data class ScenarioData(
     val scenario: Scenario,
     val periode: Saksbehandlingsperiode,
     val sykepengegrunnlag: Sykepengegrunnlag,
+    val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     val yrkesaktiviteter: List<YrkesaktivitetDTO>,
     val utbetalingsberegning: BeregningResponseUtDto?,
     val daoer: Daoer,
 ) {
-    infix fun `skal ha sykepengegrunnlag`(beløp: Double) {
+    fun `skal ha sykepengegrunnlag`(beløp: Double) {
         assertEquals(beløp, sykepengegrunnlag.sykepengegrunnlag.beløp)
     }
 
-    infix fun `skal ha utbetaling`(beløp: Int) {
+    fun `skal ha nærings del`(beløp: Double) {
+        assertEquals(beløp, sykepengegrunnlag.næringsdel!!.næringsdel.beløp)
+    }
+
+    fun `skal ikke ha sammenlikningsgrunnlag`() {
+        assertNull(sammenlikningsgrunnlag, "Forventet at sammenlikningsgrunnlag er null")
+    }
+
+    fun `skal ha utbetaling`(beløp: Int) {
         val nettoDirekte =
             utbetalingsberegning
                 ?.beregningData
@@ -109,6 +120,14 @@ data class Scenario(
     val tom: LocalDate = ScenarioDefaults.tom,
 ) {
     fun run(
+        testBlock: ScenarioData.() -> Unit,
+    ) {
+        runWithApplicationTestBuilder { resultat ->
+            testBlock(resultat)
+        }
+    }
+
+    fun runWithApplicationTestBuilder(
         testBlock: (suspend ApplicationTestBuilder.(resultat: ScenarioData) -> Unit)? = null,
     ) {
         val ainntekt828 =
@@ -188,6 +207,7 @@ data class Scenario(
                                 opprettNaeringsdrivendeYrkesaktivitet(
                                     periode.id,
                                     personId = personId,
+                                    forsikring = ya.forsikring.toString(),
                                 )
                         }
                 }
@@ -219,6 +239,7 @@ data class Scenario(
                     ScenarioData(
                         periode = periode,
                         sykepengegrunnlag = sykepengegrunnlag.sykepengegrunnlag!!,
+                        sammenlikningsgrunnlag = sykepengegrunnlag.sammenlikningsgrunnlag,
                         utbetalingsberegning = beregning,
                         yrkesaktiviteter = yrkesaktiviteter,
                         daoer = daoer,
@@ -244,6 +265,7 @@ class Arbeidstaker(
 class Selvstendig(
     inntekt: YAInntekt,
     dagoversikt: YADagoversikt? = null,
+    val forsikring: SelvstendigForsikring = SelvstendigForsikring.INGEN_FORSIKRING,
 ) : YA(inntekt, dagoversikt)
 
 sealed class YADagoversikt {

@@ -15,14 +15,12 @@ class ToArbeidsgivereScenarioTest {
                     Arbeidstaker("999", inntekt = AInntekt(15000, 15000, 15000), dagoversikt = SykAlleDager()),
                 ),
         ).run {
-            it.apply {
-                `skal ha sykepengegrunnlag`(300000.0)
-                `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("ARB_SPG_HOVEDREGEL")
-                `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
-                `skal ha refusjon`(0, orgnummer = "888")
-                `skal ha refusjon`(0, orgnummer = "999")
-                `skal ha utbetaling`(11540)
-            }
+            `skal ha sykepengegrunnlag`(300000.0)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("ARB_SPG_HOVEDREGEL")
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
+            `skal ha refusjon`(0, orgnummer = "888")
+            `skal ha refusjon`(0, orgnummer = "999")
+            `skal ha utbetaling`(11540)
         }
     }
 
@@ -46,14 +44,12 @@ class ToArbeidsgivereScenarioTest {
                 ),
             ),
         ).run {
-            it.apply {
-                `skal ha sykepengegrunnlag`(300000.0)
-                `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("ARB_SPG_HOVEDREGEL")
-                `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
-                `skal ha refusjon`(0, orgnummer = "888")
-                `skal ha refusjon`(6920, orgnummer = "999")
-                `skal ha utbetaling`(4620)
-            }
+            `skal ha sykepengegrunnlag`(300000.0)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("ARB_SPG_HOVEDREGEL")
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
+            `skal ha refusjon`(0, orgnummer = "888")
+            `skal ha refusjon`(6920, orgnummer = "999")
+            `skal ha utbetaling`(4620)
         }
     }
 
@@ -70,11 +66,9 @@ class ToArbeidsgivereScenarioTest {
                     ),
                 ),
         ).run {
-            it.apply {
-                `skal ha sykepengegrunnlag`(300000.0)
-                `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
-                `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("SKJØNNSFASTSATT_MANGELFULL_RAPPORTERING TODO")
-            }
+            `skal ha sykepengegrunnlag`(300000.0)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
+            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("SKJØNNSFASTSATT_MANGELFULL_RAPPORTERING TODO")
         }
     }
 }
