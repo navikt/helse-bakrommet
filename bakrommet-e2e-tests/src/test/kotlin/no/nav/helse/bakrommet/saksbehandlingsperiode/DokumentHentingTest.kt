@@ -28,7 +28,7 @@ class DokumentHentingTest {
         val fakeInntektForFnrRespons = etInntektSvar(fnr = FNR)
 
         runApplicationTest(
-            aInntektClient = AInntektMock.aInntektClientMock(mapOf(FNR to fakeInntektForFnrRespons)),
+            aInntektClient = AInntektMock.aInntektClientMock(fnrTilSvar = mapOf(FNR to fakeInntektForFnrRespons)),
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
@@ -70,7 +70,8 @@ class DokumentHentingTest {
     @Test
     fun `403 fra Inntektskomponenten gir 403 videre med feilbeskrivelse`() =
         runApplicationTest(
-            aInntektClient = AInntektMock.aInntektClientMock(),
+            aInntektClient =
+                AInntektMock.aInntektClientMock(),
         ) {
             val personIdForbidden = "ab403"
             it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
@@ -105,7 +106,7 @@ class DokumentHentingTest {
         val fakeAARegForFnrRespons = AARegMock.Person1.respV2
 
         runApplicationTest(
-            aaRegClient = AARegMock.aaRegClientMock(mapOf(FNR to fakeAARegForFnrRespons)),
+            aaRegClient = AARegMock.aaRegClientMock(fnrTilSvar = mapOf(FNR to fakeAARegForFnrRespons)),
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 

@@ -67,8 +67,12 @@ data class Scenario(
         runApplicationTest(
             /*inntektsmeldingClient =
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
+                    configuration = TestOppsett.configuration.inntektsmelding,
+                    oboClient = TestOppsett.oboClient,
                     mockClient =
                         inntektsmeldingMockHttpClient(
+                            configuration = TestOppsett.configuration.inntektsmelding,
+                            oboClient = TestOppsett.oboClient,
                             fnrTilSvar = mapOf(FNR to "[$im1]"),
                             inntektsmeldingIdTilSvar = mapOf(im1Id to im1),
                             callCounter = antallKallTilInntektsmeldingAPI,

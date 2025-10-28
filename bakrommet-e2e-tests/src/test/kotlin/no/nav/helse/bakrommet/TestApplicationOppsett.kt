@@ -53,21 +53,9 @@ object TestOppsett {
                     hostname = "sykepengesoknad-backend",
                     scope = OAuthScope("sykepengesoknad-backend-scope"),
                 ),
-            aareg =
-                Configuration.AAReg(
-                    hostname = "aareg-host",
-                    scope = OAuthScope("aareg-scope"),
-                ),
-            ainntekt =
-                Configuration.AInntekt(
-                    hostname = "inntektskomponenten-host",
-                    scope = OAuthScope("inntektskomponenten-scope"),
-                ),
-            inntektsmelding =
-                Configuration.Inntektsmelding(
-                    baseUrl = "http://localhost",
-                    scope = OAuthScope("im-scope"),
-                ),
+            aareg = AARegMock.defaultConfiguration,
+            ainntekt = AInntektMock.defaultConfiguration,
+            inntektsmelding = InntektsmeldingApiMock.defaultConfiguration,
             sigrun =
                 Configuration.Sigrun(
                     baseUrl = "http://localhost",
@@ -156,7 +144,8 @@ fun runApplicationTest(
     resetDatabase: Boolean = true,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
-    aInntektClient: AInntektClient = AInntektMock.aInntektClientMock(),
+    aInntektClient: AInntektClient =
+        AInntektMock.aInntektClientMock(),
     sigrunClient: SigrunClient = SigrunMock.sigrunMockClient(),
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,

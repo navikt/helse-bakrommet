@@ -29,4 +29,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":bakrommet-api")))
     testImplementation(testFixtures(project(":bakrommet-common")))
+    testImplementation(testFixtures(project(":bakrommet-client-inntektsmelding")))
+    testImplementation(testFixtures(project(":bakrommet-client-ainntekt")))
+    testImplementation(testFixtures(project(":bakrommet-client-aareg")))
 }

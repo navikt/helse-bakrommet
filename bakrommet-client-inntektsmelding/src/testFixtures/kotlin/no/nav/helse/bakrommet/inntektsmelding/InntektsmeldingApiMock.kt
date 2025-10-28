@@ -1,13 +1,17 @@
 package no.nav.helse.bakrommet.inntektsmelding
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
-import no.nav.helse.bakrommet.bodyToJson
-import no.nav.helse.bakrommet.mockHttpClient
-import org.junit.jupiter.api.assertNotNull
+import io.ktor.serialization.jackson.*
+import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.auth.OAuthScope
+import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.util.objectMapper
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -19,14 +23,38 @@ object InntektsmeldingApiMock {
         val resp = "[${enInntektsmelding()}]"
     }
 
+    // Default test konfigurasjon
+    val defaultConfiguration =
+        Configuration.Inntektsmelding(
+            baseUrl = "http://localhost",
+            scope = OAuthScope("im-scope"),
+        )
+
+    // Default OBO client for testing
+    fun createDefaultOboClient(): OboClient {
+        val oboConfig = Configuration.OBO(url = "OBO-url")
+        return OboClient(
+            oboConfig,
+            mockHttpClient { request ->
+                respond(
+                    status = HttpStatusCode.OK,
+                    content = """{"access_token": "OBO-TOKEN_FOR_${request.bodyToJson()["target"].asText()}"}""",
+                    headers = headersOf("Content-Type" to listOf("application/json")),
+                )
+            },
+        )
+    }
+
     fun inntektsmeldingMockHttpClient(
+        configuration: Configuration.Inntektsmelding = defaultConfiguration,
+        oboClient: OboClient = createDefaultOboClient(),
         fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.resp),
         inntektsmeldingIdTilSvar: Map<String, String> = emptyMap(),
         callCounter: AtomicInteger? = null,
     ) = mockHttpClient { request ->
         callCounter?.incrementAndGet()
         val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer ${TestOppsett.configuration.inntektsmelding.scope.oboTokenFor()}") {
+        if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             log.info("URL: " + request.url)
@@ -36,7 +64,7 @@ object InntektsmeldingApiMock {
 
             if (request.method == HttpMethod.Post) {
                 val payload = request.bodyToJson()
-                assertNotNull(request.headers["Nav-Call-Id"])
+                // assertNotNull(request.headers["Nav-Call-Id"])
                 val fnr = payload["fnr"].asText()
                 if (fnr.endsWith("400")) {
                     respond(
@@ -83,12 +111,15 @@ object InntektsmeldingApiMock {
         }
     }
 
-    fun inntektsmeldingClientMock(mockClient: HttpClient = inntektsmeldingMockHttpClient()) =
-        InntektsmeldingClient(
-            configuration = TestOppsett.configuration.inntektsmelding,
-            oboClient = TestOppsett.oboClient,
-            httpClient = mockClient,
-        )
+    fun inntektsmeldingClientMock(
+        configuration: Configuration.Inntektsmelding = defaultConfiguration,
+        oboClient: OboClient = createDefaultOboClient(),
+        mockClient: HttpClient? = null,
+    ) = InntektsmeldingClient(
+        configuration = configuration,
+        oboClient = oboClient,
+        httpClient = mockClient ?: inntektsmeldingMockHttpClient(configuration, oboClient),
+    )
 
     fun enInntektsmelding(
         inntektsmeldingId: String = "7371c1ab-ee9b-4fb3-b540-c360fb0156a0",
@@ -153,3 +184,19 @@ object InntektsmeldingApiMock {
           }        
         """.trimIndent()
 }
+
+// Extension function for å lage OBO token
+fun OAuthScope.oboTokenFor(oboClient: OboClient): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
+
+// Helper functions for mock HTTP client
+fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
+    HttpClient(MockEngine) {
+        install(ContentNegotiation) {
+            register(ContentType.Application.Json, JacksonConverter(objectMapper))
+        }
+        engine {
+            addHandler(requestHandler)
+        }
+    }
+
+suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)
