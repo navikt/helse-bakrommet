@@ -1,7 +1,10 @@
 package no.nav.helse.bakrommet.person
 
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.TestOppsett.userTokenOgBruker
+import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.auth.BrukerOgToken
+import no.nav.helse.bakrommet.auth.Rolle
+import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.pdl.PdlMock.pdlReply
@@ -11,7 +14,6 @@ import org.junit.jupiter.api.assertThrows
 import javax.sql.DataSource
 import kotlin.test.assertEquals
 
-// TODO denne bør ut av e2e modulen
 class PersonSøkServiceTest {
     lateinit var dataSource: DataSource
     lateinit var personDao: PersonDao
@@ -27,6 +29,17 @@ class PersonSøkServiceTest {
                     fnr2 to pdlReply(fnr = fnr2, aktorId = aktor2),
                     aktor1 to pdlReply(fnr = fnr1, aktorId = aktor1),
                     aktor2 to pdlReply(fnr = fnr2, aktorId = aktor2),
+                ),
+        )
+    val userTokenOgBruker =
+        BrukerOgToken(
+            token = SpilleromBearerToken("token"),
+            bruker =
+                Bruker(
+                    navn = "Saksbehandler Navn",
+                    navIdent = "Z123456",
+                    preferredUsername = "saksbehandler",
+                    roller = setOf(Rolle.SAKSBEHANDLER),
                 ),
         )
 

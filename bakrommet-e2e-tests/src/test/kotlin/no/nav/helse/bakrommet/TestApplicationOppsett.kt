@@ -1,26 +1,18 @@
 package no.nav.helse.bakrommet
 
-import com.auth0.jwt.JWT
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.Configuration.Roller
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
-import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
-import no.nav.helse.bakrommet.auth.tilRoller
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
@@ -70,28 +62,6 @@ object TestOppsett {
             naisClusterName = "test",
         )
     val userToken = oAuthMock.token()
-
-    fun brukerFraToken(token: String) =
-        token.let { token ->
-            val payload = JWT.decode(token)
-            Bruker(
-                navn = payload.getClaim("name").asString(),
-                navIdent = payload.getClaim("NAVident").asString(),
-                preferredUsername = payload.getClaim("preferred_username").asString(),
-                roller =
-                    payload
-                        .getClaim("groups")
-                        .asList(String::class.java)
-                        .toSet()
-                        .tilRoller(configuration.roller),
-            )
-        }
-
-    val userTokenOgBruker =
-        BrukerOgToken(
-            token = SpilleromBearerToken(userToken),
-            bruker = brukerFraToken(userToken),
-        )
 
     fun OAuthScope.oboTokenFor() = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
