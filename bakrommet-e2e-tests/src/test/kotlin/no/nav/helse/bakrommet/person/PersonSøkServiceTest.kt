@@ -1,10 +1,8 @@
 package no.nav.helse.bakrommet.person
 
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.userTokenOgBruker
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.pdl.PdlMock.pdlReply
 import org.junit.jupiter.api.BeforeEach
@@ -22,17 +20,13 @@ class PersonSøkServiceTest {
     val aktor1 = "1111111111111"
     val aktor2 = "2222222222222"
     val pdlClient =
-        PdlClient(
-            configuration = TestOppsett.configuration.pdl,
-            oboClient = TestOppsett.oboClient,
-            httpClient =
-                PdlMock.mockPdl(
-                    mapOf(
-                        fnr1 to pdlReply(fnr = fnr1, aktorId = aktor1),
-                        fnr2 to pdlReply(fnr = fnr2, aktorId = aktor2),
-                        aktor1 to pdlReply(fnr = fnr1, aktorId = aktor1),
-                        aktor2 to pdlReply(fnr = fnr2, aktorId = aktor2),
-                    ),
+        PdlMock.pdlClient(
+            identTilReplyMap =
+                mapOf(
+                    fnr1 to pdlReply(fnr = fnr1, aktorId = aktor1),
+                    fnr2 to pdlReply(fnr = fnr2, aktorId = aktor2),
+                    aktor1 to pdlReply(fnr = fnr1, aktorId = aktor1),
+                    aktor2 to pdlReply(fnr = fnr2, aktorId = aktor2),
                 ),
         )
 

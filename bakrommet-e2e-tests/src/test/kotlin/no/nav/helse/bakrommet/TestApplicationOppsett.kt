@@ -46,7 +46,7 @@ object TestOppsett {
         Configuration(
             db = Configuration.DB(jdbcUrl = TestDataSource.dbModule.jdbcUrl),
             obo = Configuration.OBO(url = "OBO-url"),
-            pdl = Configuration.PDL(hostname = "PDL-hostname", scope = OAuthScope("PDL-scope")),
+            pdl = PdlMock.defaultConfiguration,
             auth = oAuthMock.authConfig,
             sykepengesoknadBackend =
                 Configuration.SykepengesoknadBackend(
@@ -139,7 +139,7 @@ class Daoer(
 fun runApplicationTest(
     config: Configuration = TestOppsett.configuration,
     dataSource: DataSource = instansierDatabase(config.db),
-    pdlClient: PdlClient = PdlMock.pdlClient,
+    pdlClient: PdlClient = PdlMock.pdlClient(),
     oboClient: OboClient = TestOppsett.oboClient,
     resetDatabase: Boolean = true,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
