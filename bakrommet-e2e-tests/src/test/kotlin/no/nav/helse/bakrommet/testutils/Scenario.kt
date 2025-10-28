@@ -100,7 +100,11 @@ data class ScenarioData(
         assertEquals(beløp, nettoRefusjon)
     }
 
-    infix fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO =
+    fun `næringsdrivende yrkesaktivitet`(): YrkesaktivitetDTO =
+        yrkesaktiviteter
+            .first { it.kategorisering["INNTEKTSKATEGORI"] == "SELVSTENDIG_NÆRINGSDRIVENDE" }
+
+    fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO =
         yrkesaktiviteter
             .filter { it.kategorisering["INNTEKTSKATEGORI"] == "ARBEIDSTAKER" }
             .first { it.kategorisering["ORGNUMMER"] == orgnummer }

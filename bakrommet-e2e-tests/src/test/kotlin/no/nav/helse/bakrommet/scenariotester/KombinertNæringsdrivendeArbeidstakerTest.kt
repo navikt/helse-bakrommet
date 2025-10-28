@@ -20,6 +20,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
             `skal ha sykepengegrunnlag`(744168.0)
             `skal ha utbetaling`(28630)
             `skal ha nærings del`(744168.0 - (10000.0 * 12))
+            `næringsdrivende yrkesaktivitet`().harBeregningskode("SN_SPG_HOVEDREGEL")
         }
     }
 }
