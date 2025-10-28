@@ -17,6 +17,9 @@ class ToArbeidsgivereScenarioTest {
                 `skal ha sykepengegrunnlag`(300000.0)
                 `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("ARB_SPG_HOVEDREGEL")
                 `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
+                `skal ha refusjon`(0, orgnummer = "888")
+                `skal ha refusjon`(0, orgnummer = "999")
+                `skal ha utbetaling`(11540)
             }
         }
     }
@@ -24,11 +27,10 @@ class ToArbeidsgivereScenarioTest {
     @Test
     fun `to arbeidsgivere med en ainntekt inntekt og en inntektsmelding`() {
         Scenario(
-            yrkesaktiviteter =
-                listOf(
-                    YA(YAType.ARBTAKER, "888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    YA(YAType.ARBTAKER, "999", inntekt = Inntektsmelding(15000.0), dagoversikt = SykAlleDager()),
-                ),
+            listOf(
+                YA(YAType.ARBTAKER, "888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                YA(YAType.ARBTAKER, "999", inntekt = Inntektsmelding(15000.0), dagoversikt = SykAlleDager()),
+            ),
         ).run {
             it.apply {
                 `skal ha sykepengegrunnlag`(300000.0)

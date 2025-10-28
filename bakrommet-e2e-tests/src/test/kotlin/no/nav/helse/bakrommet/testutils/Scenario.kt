@@ -31,6 +31,7 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.dto.InntektbeløpDto
+import no.nav.helse.mai
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -38,12 +39,13 @@ import java.time.YearMonth
 import java.util.UUID
 
 object ScenarioDefaults {
-    val skjæringstidspunkt = LocalDate.parse("2024-05-17")
-    val fom = LocalDate.parse("2024-05-17")
-    val tom = fom.plusDays(14)
+    val skjæringstidspunkt = 17.mai(2024)
+    val fom = 17.mai(2024)
+    val tom = fom.plusDays(13)
 }
 
 data class ScenarioData(
+    val scenario: Scenario,
     val periode: Saksbehandlingsperiode,
     val sykepengegrunnlag: Sykepengegrunnlag,
     val yrkesaktiviteter: List<YrkesaktivitetDTO>,
@@ -54,7 +56,35 @@ data class ScenarioData(
         assertEquals(beløp, sykepengegrunnlag.sykepengegrunnlag.beløp)
     }
 
-    infix fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO = yrkesaktiviteter.filter { it.kategorisering["INNTEKTSKATEGORI"] == "ARBEIDSTAKER" }.first { it.kategorisering["ORGNUMMER"] == orgnummer }
+    infix fun `skal ha utbetaling`(beløp: Int) {
+        val nettoDirekte =
+            utbetalingsberegning
+                ?.beregningData
+                ?.oppdrag
+                ?.filter { it.mottaker == scenario.fnr }
+                ?.sumOf { it.nettoBeløp } ?: 0
+
+        assertEquals(beløp, nettoDirekte, "Feil nettobeløp i utbetalingsberegning")
+    }
+
+    fun `skal ha refusjon`(
+        beløp: Int,
+        orgnummer: String,
+    ) {
+        val nettoRefusjon =
+            utbetalingsberegning
+                ?.beregningData
+                ?.oppdrag
+                ?.filter { it.mottaker == orgnummer }
+                ?.sumOf { it.nettoBeløp } ?: 0
+
+        assertEquals(beløp, nettoRefusjon)
+    }
+
+    infix fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO =
+        yrkesaktiviteter
+            .filter { it.kategorisering["INNTEKTSKATEGORI"] == "ARBEIDSTAKER" }
+            .first { it.kategorisering["ORGNUMMER"] == orgnummer }
 }
 
 infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: String) {
@@ -63,12 +93,12 @@ infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: String) {
 }
 
 data class Scenario(
+    val yrkesaktiviteter: List<YA>,
     val fnr: String = "01019011111",
     val personId: String = "abcde",
     val skjæringstidspunkt: LocalDate = ScenarioDefaults.skjæringstidspunkt,
     val fom: LocalDate = ScenarioDefaults.fom,
     val tom: LocalDate = ScenarioDefaults.tom,
-    val yrkesaktiviteter: List<YA>,
 ) {
     fun run(
         testBlock: (suspend ApplicationTestBuilder.(resultat: ScenarioData) -> Unit)? = null,
@@ -164,6 +194,7 @@ data class Scenario(
                         utbetalingsberegning = beregning,
                         yrkesaktiviteter = yrkesaktiviteter,
                         daoer = daoer,
+                        scenario = this@Scenario,
                     ),
                 )
             }
