@@ -32,4 +32,5 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-client-inntektsmelding")))
     testImplementation(testFixtures(project(":bakrommet-client-ainntekt")))
     testImplementation(testFixtures(project(":bakrommet-client-aareg")))
+    testImplementation(testFixtures(project(":bakrommet-client-sigrun")))
 }
