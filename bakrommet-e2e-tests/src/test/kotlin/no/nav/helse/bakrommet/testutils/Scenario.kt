@@ -20,6 +20,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjø
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponseUtDto
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
@@ -245,6 +246,7 @@ sealed class YAInntekt {
 
 class Inntektsmelding(
     val beregnetInntekt: Double,
+    vararg val refusjon: Refusjonsperiode,
 ) : YAInntekt() {
     fun skapInntektsmelding(
         fnr: String,
@@ -268,6 +270,7 @@ class Inntektsmelding(
                 ArbeidstakerInntektRequest.Inntektsmelding(
                     begrunnelse = "Velger inntektsmelding for arbeidstaker",
                     inntektsmeldingId = inntektmeldingid.toString(),
+                    refusjon = refusjon.toList(),
                 ),
         )
 }
