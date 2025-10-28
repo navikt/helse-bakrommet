@@ -47,6 +47,20 @@ class SelvstendigNæringsdrivendeScenarioTest {
     }
 
     @Test
+    fun `Fjoråret er ikke liknet, men har 3 år før det`() {
+        Scenario(
+            listOf(
+                Selvstendig(inntekt = SigrunInntekt(400000, 400000, 400000, null), dagoversikt = SykAlleDager()),
+            ),
+        ).run {
+            it.apply {
+                `skal ha sykepengegrunnlag`(484340.0)
+                `skal ha utbetaling`(14900)
+            }
+        }
+    }
+
+    @Test
     fun `enkel selvstendig næringsdrivende alle år under 6g 4 år rapportert, 0 for 2 år siden`() {
         Scenario(
             listOf(
@@ -59,4 +73,6 @@ class SelvstendigNæringsdrivendeScenarioTest {
             }
         }
     }
+
+
 }

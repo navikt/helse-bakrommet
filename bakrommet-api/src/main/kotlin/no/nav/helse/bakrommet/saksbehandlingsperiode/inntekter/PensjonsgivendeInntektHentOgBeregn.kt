@@ -29,7 +29,7 @@ fun List<HentPensjonsgivendeInntektResponse>.tilBeregnetPensjonsgivendeInntekt(s
 
     // 3. Beregn sykepengegrunnlag
     val inntekter =
-        this.map {
+        this.filter { it.pensjonsgivendeInntekt != null }.map {
             SelvstendigFaktaavklartInntekt.PensjonsgivendeInntekt(
                 årstall = it.inntektsaar.toYear(),
                 beløp = it.pensjonsgivendeInntekt!!.tilInntekt(),
