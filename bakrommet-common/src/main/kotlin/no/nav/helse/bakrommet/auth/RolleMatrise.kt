@@ -46,11 +46,6 @@ val regler =
             path = "/v1/{personId}/soknader/{soknadId}/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
-        // Inntektsmeldinger
-        Rule(
-            path = "/v1/{personId}/inntektsmeldinger/(method:GET)",
-            role = setOf(SAKSBEHANDLER),
-        ),
         // Saksbehandlingsperioder - ikke knyttet til spesifikk person
         Rule(
             path = "/v1/saksbehandlingsperioder/(method:GET)",

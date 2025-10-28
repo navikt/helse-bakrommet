@@ -25,7 +25,6 @@ import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
-import no.nav.helse.bakrommet.inntektsmelding.inntektsmeldingerRoute
 import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
 import no.nav.helse.bakrommet.kafka.OutboxService
 import no.nav.helse.bakrommet.pdl.PdlClient
@@ -193,7 +192,6 @@ internal fun Application.appModul(
             saksbehandlingsperiodeVilkårRoute(
                 service = VilkårService(daoerFelles, sessionFactoryFelles),
             )
-            inntektsmeldingerRoute(inntektsmeldingClient, personDao)
             saksbehandlingsperiodeYrkesaktivitetRoute(
                 service =
                     YrkesaktivitetService(
