@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
+import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
@@ -12,17 +13,6 @@ import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
-
-enum class Beregningssporing {
-    ARBEIDSTAKER_100,
-    ORDINAER_SELVSTENDIG_80,
-    ORDINAER_SELVSTENDIG_NAVFORSIKRING_100,
-    SELVSTENDIG_KOLLEKTIVFORSIKRING_100,
-    FRILANSER_100,
-    INAKTIV_65,
-    INAKTIV_100,
-    DAGPENGEMOTTAKER_100,
-}
 
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: Sykepengegrunnlag,
@@ -40,7 +30,7 @@ data class DemoUtbetalingsberegningInput(
 
 data class Sporbar<T>(
     val verdi: T,
-    val sporing: Beregningssporing,
+    val sporing: BeregningskoderDekningsgrad,
 )
 
 data class YrkesaktivitetUtbetalingsberegning(

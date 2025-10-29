@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing
+import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
@@ -30,7 +30,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
     }
 
     @Test
@@ -56,7 +56,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
     }
 
     @Test
@@ -82,7 +82,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 0.8
-        dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_80
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_DEKNINGSGRAD_80
     }
 
     @Test
@@ -108,7 +108,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 0.8
-        dekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_80
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_DEKNINGSGRAD_80
     }
 
     @Test
@@ -133,7 +133,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` Beregningssporing.SELVSTENDIG_KOLLEKTIVFORSIKRING_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.SELVSTENDIG_KOLLEKTIVFORSIKRING_DEKNINGSGRAD_100
     }
 
     @Test
@@ -155,7 +155,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 0.65
-        dekningsgrad.sporing `should equal` Beregningssporing.INAKTIV_65
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_65
     }
 
     @Test
@@ -177,7 +177,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` Beregningssporing.INAKTIV_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_100
     }
 
     @Test
@@ -199,7 +199,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` Beregningssporing.ARBEIDSTAKER_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ARBEIDSTAKER_DEKNINGSGRAD_100
     }
 
     @Test
@@ -221,7 +221,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` Beregningssporing.FRILANSER_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.FRILANSER_DEKNINGSGRAD_100
     }
 
     @Test
@@ -246,7 +246,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` Beregningssporing.DAGPENGEMOTTAKER_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.DAGPENGEMOTTAKER_DEKNINGSGRAD_100
     }
 
     @Test
@@ -286,9 +286,9 @@ class YrkesaktivitetExtensionsTest {
         val arbeidstakerDekningsgrad = arbeidstakerYrkesaktivitetDbRecord.hentDekningsgrad()
 
         selvstendigDekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        selvstendigDekningsgrad.sporing `should equal` Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100
+        selvstendigDekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
 
         arbeidstakerDekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        arbeidstakerDekningsgrad.sporing `should equal` Beregningssporing.ARBEIDSTAKER_100
+        arbeidstakerDekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ARBEIDSTAKER_DEKNINGSGRAD_100
     }
 }

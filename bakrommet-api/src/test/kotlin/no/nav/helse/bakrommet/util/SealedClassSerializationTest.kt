@@ -1,8 +1,11 @@
 package no.nav.helse.bakrommet.util
 
+import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningDataInnDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningDataUtDto
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Sporbar
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.YrkesaktivitetUtbetalingsberegningUtDto
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
@@ -41,13 +44,13 @@ class SealedClassSerializationTest {
             BeregningData(
                 yrkesaktiviteter =
                     listOf(
-                        no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning(
+                        YrkesaktivitetUtbetalingsberegning(
                             yrkesaktivitetId = UUID.randomUUID(),
                             utbetalingstidslinje = utbetalingstidslinje,
                             dekningsgrad =
-                                no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Sporbar(
+                                Sporbar(
                                     verdi = ProsentdelDto(1.0),
-                                    sporing = no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing.ARBEIDSTAKER_100,
+                                    sporing = BeregningskoderDekningsgrad.ARBEIDSTAKER_DEKNINGSGRAD_100,
                                 ),
                         ),
                     ),

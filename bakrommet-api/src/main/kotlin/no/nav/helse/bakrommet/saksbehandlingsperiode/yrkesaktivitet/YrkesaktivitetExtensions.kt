@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing
+import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Sporbar
 import no.nav.helse.dto.ProsentdelDto
 
@@ -24,29 +24,29 @@ fun YrkesaktivitetKategorisering.hentDekningsgrad(): Sporbar<ProsentdelDto> =
         is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
             when (val typeSelvstendig = this.type) {
                 is TypeSelvstendigNæringsdrivende.Fisker -> {
-                    Sporbar(HUNDRE_PROSENT, Beregningssporing.SELVSTENDIG_KOLLEKTIVFORSIKRING_100)
+                    Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.SELVSTENDIG_KOLLEKTIVFORSIKRING_DEKNINGSGRAD_100)
                 }
                 else -> {
                     when (typeSelvstendig.forsikring) {
                         SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG ->
-                            Sporbar(HUNDRE_PROSENT, Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100)
+                            Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100)
                         SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG ->
-                            Sporbar(HUNDRE_PROSENT, Beregningssporing.ORDINAER_SELVSTENDIG_NAVFORSIKRING_100)
+                            Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100)
                         SelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG ->
-                            Sporbar(ÅTTI_PROSENT, Beregningssporing.ORDINAER_SELVSTENDIG_80)
+                            Sporbar(ÅTTI_PROSENT, BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_DEKNINGSGRAD_80)
                         SelvstendigForsikring.INGEN_FORSIKRING ->
-                            Sporbar(ÅTTI_PROSENT, Beregningssporing.ORDINAER_SELVSTENDIG_80)
+                            Sporbar(ÅTTI_PROSENT, BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_DEKNINGSGRAD_80)
                     }
                 }
             }
         }
         is YrkesaktivitetKategorisering.Inaktiv -> {
             when (this.variant) {
-                VariantAvInaktiv.INAKTIV_VARIANT_A -> Sporbar(SEKSTIFEM_PROSENT, Beregningssporing.INAKTIV_65)
-                VariantAvInaktiv.INAKTIV_VARIANT_B -> Sporbar(HUNDRE_PROSENT, Beregningssporing.INAKTIV_100)
+                VariantAvInaktiv.INAKTIV_VARIANT_A -> Sporbar(SEKSTIFEM_PROSENT, BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_65)
+                VariantAvInaktiv.INAKTIV_VARIANT_B -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_100)
             }
         }
-        is YrkesaktivitetKategorisering.Arbeidstaker -> Sporbar(HUNDRE_PROSENT, Beregningssporing.ARBEIDSTAKER_100)
-        is YrkesaktivitetKategorisering.Frilanser -> Sporbar(HUNDRE_PROSENT, Beregningssporing.FRILANSER_100)
-        is YrkesaktivitetKategorisering.Arbeidsledig -> Sporbar(HUNDRE_PROSENT, Beregningssporing.DAGPENGEMOTTAKER_100)
+        is YrkesaktivitetKategorisering.Arbeidstaker -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.ARBEIDSTAKER_DEKNINGSGRAD_100)
+        is YrkesaktivitetKategorisering.Frilanser -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.FRILANSER_DEKNINGSGRAD_100)
+        is YrkesaktivitetKategorisering.Arbeidsledig -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.DAGPENGEMOTTAKER_DEKNINGSGRAD_100)
     }

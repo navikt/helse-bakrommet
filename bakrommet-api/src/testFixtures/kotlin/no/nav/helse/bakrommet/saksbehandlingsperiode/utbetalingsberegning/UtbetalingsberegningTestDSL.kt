@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
+import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
@@ -704,12 +705,12 @@ class YrkesaktivitetAssertionBuilder(
         harDekningsgrad(grad)
     }
 
-    fun harDekningsgradBegrunnelse(begrunnelse: Beregningssporing) {
+    fun harDekningsgradBegrunnelse(begrunnelse: BeregningskoderDekningsgrad) {
         val sporing = yrkesaktivitetResultat.dekningsgrad?.sporing
         assertEquals(begrunnelse, sporing, "Forventet $begrunnelse, men fikk $sporing")
     }
 
-    fun `skal ha dekningsgrad begrunnelse`(begrunnelse: Beregningssporing) {
+    fun `skal ha dekningsgrad begrunnelse`(begrunnelse: BeregningskoderDekningsgrad) {
         harDekningsgradBegrunnelse(begrunnelse)
     }
 
