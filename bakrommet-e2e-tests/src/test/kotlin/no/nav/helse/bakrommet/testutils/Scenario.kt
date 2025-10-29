@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.testutils
 
 import io.ktor.server.testing.ApplicationTestBuilder
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
 import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
@@ -110,7 +111,7 @@ data class ScenarioData(
             .first { it.kategorisering["ORGNUMMER"] == orgnummer }
 }
 
-infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: String) {
+infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: BeregningskoderSykepengrunnlag) {
     val beregningskodeActual = this.inntektData?.sporing
     assertEquals(expectedKode, beregningskodeActual, "Feil beregningskode for yrkesaktivitet ${this.id}")
 }

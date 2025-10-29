@@ -37,7 +37,6 @@ internal fun InntektRequest.Inaktiv.inaktivFastsettelse(
                     pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt!!)
                 InntektData.InaktivPensjonsgivende(
                     omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
-                    sporing = "BEREGNINGSSPORINGVERDI",
                     pensjonsgivendeInntekt = beregnet,
                 )
             } else {

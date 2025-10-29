@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse
 
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.DokumentInnhentingDaoer
@@ -37,7 +38,6 @@ internal fun InntektRequest.SelvstendigNæringsdrivende.selvstendigFastsettelse(
                     pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt!!)
                 InntektData.SelvstendigNæringsdrivendePensjonsgivende(
                     omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
-                    sporing = "SN_SPG_HOVEDREGEL",
                     pensjonsgivendeInntekt = beregnet,
                 )
             } else {
@@ -48,6 +48,7 @@ internal fun InntektRequest.SelvstendigNæringsdrivende.selvstendigFastsettelse(
         is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
             InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt(
                 omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                sporing = BeregningskoderSykepengrunnlag.TODO_TRENGER_NY_VERDI,
             )
         }
     }

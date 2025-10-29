@@ -64,7 +64,6 @@ fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
                         data =
                             InntektData.SelvstendigNæringsdrivendePensjonsgivende(
                                 omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
-                                sporing = "SN_SPG_HOVEDREGEL",
                                 pensjonsgivendeInntekt = beregnet,
                             ),
                     )
@@ -74,7 +73,6 @@ fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
                         data =
                             InntektData.InaktivPensjonsgivende(
                                 omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
-                                sporing = "INAKTIV_SPG_HOVEDREGEL",
                                 pensjonsgivendeInntekt = beregnet,
                             ),
                     )

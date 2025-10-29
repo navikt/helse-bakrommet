@@ -1,5 +1,7 @@
 package no.nav.helse.bakrommet.scenariotester
 
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.testutils.*
 import no.nav.helse.dto.InntektbeløpDto
@@ -16,8 +18,8 @@ class ToArbeidsgivereScenarioTest {
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(300000.0)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("ARB_SPG_HOVEDREGEL")
-            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
+            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
             `skal ha refusjon`(0, orgnummer = "888")
             `skal ha refusjon`(0, orgnummer = "999")
             `skal ha utbetaling`(11540)
@@ -45,8 +47,8 @@ class ToArbeidsgivereScenarioTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(300000.0)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("ARB_SPG_HOVEDREGEL")
-            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
+            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
             `skal ha refusjon`(0, orgnummer = "888")
             `skal ha refusjon`(6920, orgnummer = "999")
             `skal ha utbetaling`(4620)
@@ -67,8 +69,8 @@ class ToArbeidsgivereScenarioTest {
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(300000.0)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode ("ARB_SPG_HOVEDREGEL")
-            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode ("SKJØNNSFASTSATT_MANGELFULL_RAPPORTERING TODO")
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG)
         }
     }
 }

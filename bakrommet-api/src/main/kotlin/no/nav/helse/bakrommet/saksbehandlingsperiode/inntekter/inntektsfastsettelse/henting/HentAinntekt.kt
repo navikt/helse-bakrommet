@@ -62,7 +62,6 @@ fun InntektService.hentAInntektForYrkesaktivitet(
                         data =
                             InntektData.ArbeidstakerAinntekt(
                                 omregnetÅrsinntekt = omregnetÅrsinntekt.first,
-                                sporing = "ARB_SPG_HOVEDREGEL",
                                 kildedata = omregnetÅrsinntekt.second,
                             ),
                     )
@@ -91,7 +90,6 @@ fun InntektService.hentAInntektForYrkesaktivitet(
                         data =
                             InntektData.FrilanserAinntekt(
                                 omregnetÅrsinntekt = månedligSnitt.dto().årlig,
-                                sporing = "FRILANSER_SPG_HOVEDREGEL",
                                 kildedata = månederOgInntektDto,
                             ),
                     )

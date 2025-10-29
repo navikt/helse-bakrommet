@@ -3,6 +3,9 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.JsonNode
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.TODO_TRENGER_NY_VERDI
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Year
 import java.time.YearMonth
@@ -23,51 +26,51 @@ import java.time.YearMonth
 )
 sealed class InntektData {
     abstract val omregnetÅrsinntekt: InntektbeløpDto.Årlig
-    abstract val sporing: String
+    abstract val sporing: BeregningskoderSykepengrunnlag
 
     data class ArbeidstakerInntektsmelding(
         val inntektsmeldingId: String,
         val inntektsmelding: JsonNode,
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
     ) : InntektData()
 
     data class ArbeidstakerManueltBeregnet(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
     ) : InntektData()
 
     data class ArbeidstakerAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
         // TODO legg med litt kilder
     ) : InntektData()
 
     data class ArbeidstakerSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag,
     ) : InntektData()
 
     data class FrilanserAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
         val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
     ) : InntektData()
 
     data class FrilanserSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
     ) : InntektData()
 
     data class Arbeidsledig(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
     ) : InntektData()
 
     data class InaktivSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
     ) : InntektData()
 
     data class PensjonsgivendeInntekt(
@@ -78,19 +81,19 @@ sealed class InntektData {
 
     data class InaktivPensjonsgivende(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : InntektData()
 
     data class SelvstendigNæringsdrivendePensjonsgivende(
-        override val omregnetÅrsinntekt: InntektbeløpDto.Årlig, // Denne oppdaterer seg ved at vi trekker arbeidstaker og frilans inntekt fra beregnetPensjonsgivendeInntekt ved beregning av sp grunnlaget
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
+        override val sporing: BeregningskoderSykepengrunnlag = BeregningskoderSykepengrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : InntektData()
 
     data class SelvstendigNæringsdrivendeSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: String = "BEREGNINGSSPORINGVERDI",
+        override val sporing: BeregningskoderSykepengrunnlag,
     ) : InntektData()
 }
 

@@ -51,7 +51,6 @@ internal fun InntektRequest.Frilanser.frilanserFastsettelse(
 
             InntektData.FrilanserAinntekt(
                 omregnetÅrsinntekt = månedligSnitt.dto().årlig,
-                sporing = "FRILANSER_SPG_HOVEDREGEL",
                 kildedata = månederOgInntektDto,
             )
         }
@@ -59,7 +58,6 @@ internal fun InntektRequest.Frilanser.frilanserFastsettelse(
         is FrilanserInntektRequest.Skjønnsfastsatt -> {
             InntektData.FrilanserSkjønnsfastsatt(
                 omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
-                sporing = "A-inntekt TODO",
             )
         }
     }

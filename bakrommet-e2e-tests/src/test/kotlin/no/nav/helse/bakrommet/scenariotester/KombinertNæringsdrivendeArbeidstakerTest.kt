@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.scenariotester
 
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigForsikring
 import no.nav.helse.bakrommet.testutils.*
 import kotlin.test.Test
@@ -20,7 +21,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
             `skal ha sykepengegrunnlag`(744168.0)
             `skal ha utbetaling`(28630)
             `skal ha nærings del`(744168.0 - (10000.0 * 12))
-            `næringsdrivende yrkesaktivitet`().harBeregningskode("SN_SPG_HOVEDREGEL")
+            `næringsdrivende yrkesaktivitet`().harBeregningskode(SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL)
         }
     }
 
@@ -43,7 +44,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
             // Differanse: 1 kr/dag × 10 dager = 10 kr
             `skal ha utbetaling`(28620)
             `skal ha nærings del`(0.0)
-            `næringsdrivende yrkesaktivitet`().harBeregningskode("SN_SPG_HOVEDREGEL")
+            `næringsdrivende yrkesaktivitet`().harBeregningskode(SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL)
         }
     }
 }

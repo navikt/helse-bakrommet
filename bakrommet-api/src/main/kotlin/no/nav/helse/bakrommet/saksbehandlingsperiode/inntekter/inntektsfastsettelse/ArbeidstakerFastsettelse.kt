@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse
 
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
@@ -10,6 +11,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.lastI
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.somAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.somInntektsmelding
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
@@ -32,9 +34,15 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
 
     return when (data) {
         is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
+            val sporing =
+                when (data.årsak) {
+                    ArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT -> BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
+                    ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING -> BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
+                    ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET -> BeregningskoderSykepengrunnlag.TODO_TRENGER_NY_VERDI
+                }
             InntektData.ArbeidstakerSkjønnsfastsatt(
                 omregnetÅrsinntekt = Inntekt.gjenopprett(data.årsinntekt).dto().årlig,
-                sporing = "SKJØNNSFASTSATT_${data.årsak.name} TODO",
+                sporing = sporing,
             )
         }
 
@@ -49,7 +57,6 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                     .omregnetÅrsinntekt((yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer)
             InntektData.ArbeidstakerAinntekt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.first,
-                sporing = "ARB_SPG_HOVEDREGEL",
                 kildedata = omregnetÅrsinntekt.second,
             )
         }
@@ -73,7 +80,6 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                         .årlig,
                 inntektsmeldingId = data.inntektsmeldingId,
                 inntektsmelding = inntektsmelding,
-                sporing = "ARB_SPG_HOVEDREGEL",
             )
         }
 

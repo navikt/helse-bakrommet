@@ -285,7 +285,6 @@ class YrkesaktivitetDaoTest {
             InntektData.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = "123456",
                 omregnetÅrsinntekt = InntektbeløpDto.Årlig(500000.0),
-                sporing = "TEST_SPORING",
                 inntektsmelding = JsonNodeFactory.instance.objectNode(),
             )
 

@@ -512,7 +512,6 @@ class InntektDataBuilder {
         val årligInntekt = InntektbeløpDto.Årlig((beløpPerMåned * 12).toDouble())
         return InntektData.ArbeidstakerAinntekt(
             omregnetÅrsinntekt = årligInntekt,
-            sporing = "TEST_BEREGNING",
             kildedata = emptyMap(),
         )
     }
