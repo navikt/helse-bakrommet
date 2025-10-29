@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse
 
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.DokumentInnhentingDaoer
@@ -9,10 +10,10 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.HentPensjonsgiven
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.kanBeregnesEtter835
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.tilBeregnetPensjonsgivendeInntekt
 import no.nav.helse.bakrommet.sigrun.SigrunClient
-import no.nav.helse.dto.InntektbeløpDto
 
 internal fun InntektRequest.Inaktiv.inaktivFastsettelse(
     periode: Saksbehandlingsperiode,
@@ -45,8 +46,15 @@ internal fun InntektRequest.Inaktiv.inaktivFastsettelse(
         }
 
         is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
+            val sporing =
+                when (data.årsak) {
+                    PensjonsgivendeSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT_VARIG_ENDRING -> BeregningskoderSykepengrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING
+                    PensjonsgivendeSkjønnsfastsettelseÅrsak.SISTE_TRE_YRKESAKTIV -> BeregningskoderSykepengrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB
+                }
+
             InntektData.InaktivSkjønnsfastsatt(
-                omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                omregnetÅrsinntekt = data.årsinntekt,
+                sporing = sporing,
             )
         }
     }

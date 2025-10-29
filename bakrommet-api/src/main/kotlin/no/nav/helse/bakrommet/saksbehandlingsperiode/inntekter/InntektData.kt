@@ -70,7 +70,7 @@ sealed class InntektData {
 
     data class InaktivSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
+        override val sporing: BeregningskoderSykepengrunnlag,
     ) : InntektData()
 
     data class PensjonsgivendeInntekt(
@@ -81,7 +81,7 @@ sealed class InntektData {
 
     data class InaktivPensjonsgivende(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
+        override val sporing: BeregningskoderSykepengrunnlag = BeregningskoderSykepengrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : InntektData()
 
