@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
+import hentPensjonsgivendeInntektForYrkesaktivitet
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -16,6 +17,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMatcherService
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.henting.AInntektResponse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
@@ -158,10 +161,10 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
 
                 val responseDto =
                     when (response) {
-                        is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektResponse.Suksess ->
+                        is PensjonsgivendeInntektResponse.Suksess ->
                             PensjonsgivendeInntektSuccessResponse(data = response.data)
 
-                        is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektResponse.Feil ->
+                        is PensjonsgivendeInntektResponse.Feil ->
                             PensjonsgivendeInntektFeilResponse(feilmelding = response.feilmelding)
                     }
 
@@ -181,10 +184,10 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
 
                 val responseDto =
                     when (response) {
-                        is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.AInntektResponse.Suksess ->
+                        is AInntektResponse.Suksess ->
                             AinntektSuccessResponse(data = response.data)
 
-                        is no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.AInntektResponse.Feil ->
+                        is AInntektResponse.Feil ->
                             AinntektFeilResponse(feilmelding = response.feilmelding)
                     }
 
