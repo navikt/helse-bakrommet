@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
-import no.nav.helse.bakrommet.ainntekt.Inntektoppslag
 import no.nav.helse.bakrommet.ainntekt.tilInntektApiUt
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
@@ -16,6 +15,10 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.*
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.fastsettInntektData
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.monthsBetween
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.omregnetÅrsinntekt
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
@@ -25,11 +28,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.sigrun.SigrunClient
-import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
-import java.time.YearMonth
 import kotlin.math.abs
 
 interface InntektServiceDaoer :
@@ -89,188 +90,17 @@ class InntektService(
 
             yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
 
-            fun hentPensjonsgivende(): List<HentPensjonsgivendeInntektResponse> =
-                lastSigrunDokument(
-                    periode = periode,
-                    saksbehandlerToken = saksbehandler.token,
-                    sigrunClient = sigrunClient,
-                ).somPensjonsgivendeInntekt()
-
             val inntektData =
-                when (request) {
-                    is InntektRequest.Arbeidstaker -> {
-                        yrkesaktivitetDao.oppdaterRefusjonsdata(yrkesaktivitet, request.data.refusjon)
-                        when (request.data) {
-                            is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
-                                InntektData.ArbeidstakerSkjønnsfastsatt(
-                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.årsinntekt).dto().årlig,
-                                    sporing = "SKJØNNSFASTSATT_${request.data.årsak.name} TODO",
-                                )
-                            }
-
-                            is ArbeidstakerInntektRequest.Ainntekt -> {
-                                val omregnetÅrsinntekt =
-                                    lastAInntektBeregningsgrunnlag(
-                                        periode = periode,
-                                        aInntektClient = aInntektClient,
-                                        saksbehandler = saksbehandler,
-                                    ).somAInntektBeregningsgrunnlag()
-                                        .omregnetÅrsinntekt((yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer)
-                                InntektData.ArbeidstakerAinntekt(
-                                    omregnetÅrsinntekt = omregnetÅrsinntekt.first,
-                                    sporing = "ARB_SPG_HOVEDREGEL",
-                                    kildedata = omregnetÅrsinntekt.second,
-                                )
-                            }
-
-                            is ArbeidstakerInntektRequest.Inntektsmelding -> {
-                                val inntektsmelding =
-                                    lastInntektsmeldingDokument(
-                                        periode = periode,
-                                        inntektsmeldingId = request.data.inntektsmeldingId,
-                                        inntektsmeldingClient = inntektsmeldingClient,
-                                        saksbehandler = saksbehandler,
-                                    ).somInntektsmelding()
-                                // TODO valider at fnr og arbeidsgiver stemmer med yrkesaktivitet og person
-                                InntektData.ArbeidstakerInntektsmelding(
-                                    omregnetÅrsinntekt =
-                                        InntektbeløpDto
-                                            .MånedligDouble(
-                                                inntektsmelding.get("beregnetInntekt").asDouble(),
-                                            ).tilInntekt()
-                                            .dto()
-                                            .årlig,
-                                    inntektsmeldingId = request.data.inntektsmeldingId,
-                                    inntektsmelding = inntektsmelding,
-                                    sporing = "ARB_SPG_HOVEDREGEL",
-                                )
-                            }
-
-                            is ArbeidstakerInntektRequest.ManueltBeregnet -> {
-                                InntektData.ArbeidstakerManueltBeregnet(
-                                    omregnetÅrsinntekt = request.data.årsinntekt,
-                                )
-                            }
-                        }
-                    }
-
-                    is InntektRequest.SelvstendigNæringsdrivende ->
-                        when (request.data) {
-                            is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
-                                val pensjonsgivendeInntekt = hentPensjonsgivende()
-
-                                if (pensjonsgivendeInntekt.kanBeregnesEtter835()) {
-                                    val beregnet =
-                                        pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
-                                    InntektData.SelvstendigNæringsdrivendePensjonsgivende(
-                                        omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
-                                        sporing = "SN_SPG_HOVEDREGEL",
-                                        pensjonsgivendeInntekt = beregnet,
-                                    )
-                                } else {
-                                    // kast feil
-                                    throw RuntimeException("Kunne ikke beregne inntekt, todo lag spesifikk error")
-                                }
-                            }
-
-                            is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
-                                InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt(
-                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
-                                )
-                            }
-                        }
-
-                    is InntektRequest.Inaktiv ->
-                        when (request.data) {
-                            is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
-                                val pensjonsgivendeInntekt = hentPensjonsgivende()
-
-                                if (pensjonsgivendeInntekt.kanBeregnesEtter835()) {
-                                    val beregnet =
-                                        pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
-                                    InntektData.InaktivPensjonsgivende(
-                                        omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
-                                        sporing = "BEREGNINGSSPORINGVERDI",
-                                        pensjonsgivendeInntekt = beregnet,
-                                    )
-                                } else {
-                                    // Oppdater yrkesaktiviteten med en slags warning
-                                    return@transactional
-                                }
-                            }
-
-                            is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
-                                InntektData.InaktivSkjønnsfastsatt(
-                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
-                                )
-                            }
-                        }
-
-                    is InntektRequest.Frilanser ->
-                        when (request.data) {
-                            is FrilanserInntektRequest.Ainntekt -> {
-                                val ainntektBeregningsgrunnlag =
-                                    lastAInntektBeregningsgrunnlag(
-                                        periode = periode,
-                                        aInntektClient = aInntektClient,
-                                        saksbehandler = saksbehandler,
-                                    ).somAInntektBeregningsgrunnlag()
-
-                                // For frilanser henter vi all inntekt uten å filtrere på orgnummer
-                                val inntektResponse = ainntektBeregningsgrunnlag.first.tilInntektApiUt()
-                                val fom = ainntektBeregningsgrunnlag.second.fom
-                                val tom = ainntektBeregningsgrunnlag.second.tom
-
-                                val månederOgInntekt =
-                                    monthsBetween(fom, tom).associateWith { Inntekt.INGEN }.toMutableMap()
-
-                                inntektResponse.data.forEach { måned ->
-                                    måned.inntektListe.forEach { inntekt ->
-                                        månederOgInntekt[måned.maaned] =
-                                            månederOgInntekt.getValue(måned.maaned) +
-                                            Inntekt.gjenopprett(InntektbeløpDto.MånedligDouble(inntekt.beloep.toDouble()))
-                                    }
-                                }
-
-                                val månedligSnitt =
-                                    månederOgInntekt.values.summer().div(månederOgInntekt.size.toDouble())
-                                val månederOgInntektDto = månederOgInntekt.mapValues { it.value.dto().månedligDouble }
-
-                                InntektData.FrilanserAinntekt(
-                                    omregnetÅrsinntekt = månedligSnitt.dto().årlig,
-                                    sporing = "FRILANSER_SPG_HOVEDREGEL",
-                                    kildedata = månederOgInntektDto,
-                                )
-                            }
-
-                            is FrilanserInntektRequest.Skjønnsfastsatt -> {
-                                InntektData.FrilanserSkjønnsfastsatt(
-                                    omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
-                                    sporing = "A-inntekt TODO",
-                                )
-                            }
-                        }
-
-                    is InntektRequest.Arbeidsledig -> {
-                        when (request.data) {
-                            is ArbeidsledigInntektRequest.Dagpenger -> {
-                                InntektData.Arbeidsledig(
-                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.dagbeløp).dto().årlig,
-                                )
-                            }
-
-                            is ArbeidsledigInntektRequest.Vartpenger ->
-                                InntektData.Arbeidsledig(
-                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.årsinntekt).dto().årlig,
-                                )
-
-                            is ArbeidsledigInntektRequest.Ventelønn ->
-                                InntektData.Arbeidsledig(
-                                    omregnetÅrsinntekt = Inntekt.gjenopprett(request.data.årsinntekt).dto().årlig,
-                                )
-                        }
-                    }
-                }
+                this.fastsettInntektData(
+                    request = request,
+                    yrkesaktivitet = yrkesaktivitet,
+                    periode = periode,
+                    saksbehandler = saksbehandler,
+                    yrkesaktivitetDao = yrkesaktivitetDao,
+                    inntektsmeldingClient = inntektsmeldingClient,
+                    aInntektClient = aInntektClient,
+                    sigrunClient = sigrunClient,
+                )
 
             yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
             beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)?.let { rec ->
@@ -504,62 +334,4 @@ sealed interface AInntektResponse {
     data class Feil(
         val feilmelding: String,
     ) : AInntektResponse
-}
-
-private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.omregnetÅrsinntekt(orgnummer: String): Pair<InntektbeløpDto.Årlig, Map<YearMonth, InntektbeløpDto.MånedligDouble>> {
-    val inntektResponse = first.tilInntektApiUt()
-    val fom = second.fom
-    val tom = second.tom
-
-    // map måned til 0 verdi
-    val månederOgInntekt = monthsBetween(fom, tom).associateWith { Inntekt.INGEN }.toMutableMap()
-    require(månederOgInntekt.size == 3)
-
-    if (inntektResponse.data.any { !månederOgInntekt.contains(it.maaned) }) {
-        throw IllegalStateException("Inntektsdata inneholder måneder utenfor forventet intervall: $fom - $tom")
-    }
-
-    inntektResponse.data
-        .filter { it.underenhet == orgnummer }
-        .forEach {
-            it.inntektListe.forEach { inntekt ->
-                månederOgInntekt[it.maaned] =
-                    månederOgInntekt.getValue(it.maaned) + Inntekt.gjenopprett(InntektbeløpDto.MånedligDouble(inntekt.beloep.toDouble()))
-            }
-        }
-
-    val månedligSnitt = månederOgInntekt.values.summer().div(månederOgInntekt.size.toDouble())
-    val månederOgInntektDto = månederOgInntekt.mapValues { it.value.dto().månedligDouble }
-
-    return Pair(månedligSnitt.dto().årlig, månederOgInntektDto)
-}
-
-private fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.sammenlikningsgrunnlag(): InntektbeløpDto.Årlig {
-    val inntektResponse = first.tilInntektApiUt()
-    val fom = second.fom
-    val tom = second.tom
-
-    // map måned til 0 verdi
-    val månederOgInntekt = monthsBetween(fom, tom).associateWith { Inntekt.INGEN }.toMutableMap()
-    require(månederOgInntekt.size == 12)
-
-    if (inntektResponse.data.any { !månederOgInntekt.contains(it.maaned) }) {
-        throw IllegalStateException("Inntektsdata inneholder måneder utenfor forventet intervall: $fom - $tom")
-    }
-
-    val inntektSiste12Måneder =
-        inntektResponse.data.flatMap { it.inntektListe.map { inntekt -> inntekt.beloep.toDouble() } }.sum()
-
-    return InntektbeløpDto.Årlig(inntektSiste12Måneder)
-}
-
-fun monthsBetween(
-    fom: YearMonth,
-    tom: YearMonth,
-): List<YearMonth> {
-    require(!tom.isBefore(fom)) { "tom ($tom) kan ikke være før fom ($fom)" }
-
-    return generateSequence(fom) { prev ->
-        if (prev.isBefore(tom)) prev.plusMonths(1) else null
-    }.toList()
 }
