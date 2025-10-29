@@ -1,5 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse
 
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.tilInntektApiUt
 import no.nav.helse.bakrommet.auth.BrukerOgToken
@@ -8,6 +10,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.Dokum
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.somAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.FrilanserInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.FrilanserSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.FrilanserSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.dto.InntektbeløpDto
@@ -56,8 +60,15 @@ internal fun InntektRequest.Frilanser.frilanserFastsettelse(
         }
 
         is FrilanserInntektRequest.Skjønnsfastsatt -> {
+            val sporing =
+                when (data.årsak) {
+                    AVVIK_25_PROSENT -> FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
+                    MANGELFULL_RAPPORTERING -> FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
+                }
+
             InntektData.FrilanserSkjønnsfastsatt(
-                omregnetÅrsinntekt = InntektbeløpDto.Årlig(400000.0),
+                omregnetÅrsinntekt = data.årsinntekt,
+                sporing = sporing,
             )
         }
     }

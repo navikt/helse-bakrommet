@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
 import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.TODO_TRENGER_NY_VERDI
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.DAGPENGEMOTTAKER_SYKEPENGEGRUNNLAG
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Year
 import java.time.YearMonth
@@ -37,7 +38,7 @@ sealed class InntektData {
 
     data class ArbeidstakerManueltBeregnet(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
+        override val sporing: BeregningskoderSykepengrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
     ) : InntektData()
 
     data class ArbeidstakerAinntekt(
@@ -54,18 +55,18 @@ sealed class InntektData {
 
     data class FrilanserAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
+        override val sporing: BeregningskoderSykepengrunnlag = FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
     ) : InntektData()
 
     data class FrilanserSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
+        override val sporing: BeregningskoderSykepengrunnlag,
     ) : InntektData()
 
     data class Arbeidsledig(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = TODO_TRENGER_NY_VERDI,
+        override val sporing: BeregningskoderSykepengrunnlag = DAGPENGEMOTTAKER_SYKEPENGEGRUNNLAG,
     ) : InntektData()
 
     data class InaktivSkjønnsfastsatt(

@@ -38,7 +38,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                 when (data.årsak) {
                     ArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT -> BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
                     ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING -> BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
-                    ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET -> BeregningskoderSykepengrunnlag.TODO_TRENGER_NY_VERDI
+                    ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET -> BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO
                 }
             InntektData.ArbeidstakerSkjønnsfastsatt(
                 omregnetÅrsinntekt = Inntekt.gjenopprett(data.årsinntekt).dto().årlig,
