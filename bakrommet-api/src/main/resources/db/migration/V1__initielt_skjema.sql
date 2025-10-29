@@ -6,11 +6,12 @@ CREATE TABLE IF NOT EXISTS ident
 
 CREATE TABLE IF NOT EXISTS sykepengegrunnlag
 (
-    id                        UUID PRIMARY KEY,
-    sykepengegrunnlag         TEXT                        NULL,
-    opprettet_av_nav_ident    TEXT                        NOT NULL,
-    opprettet                 TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    oppdatert                 TIMESTAMP(6) WITH TIME ZONE NOT NULL
+    id                     UUID PRIMARY KEY,
+    sykepengegrunnlag      TEXT                        NULL,
+    sammenlikningsgrunnlag TEXT                        NULL,
+    opprettet_av_nav_ident TEXT                        NOT NULL,
+    opprettet              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    oppdatert              TIMESTAMP(6) WITH TIME ZONE NOT NULL
 );
 
 
