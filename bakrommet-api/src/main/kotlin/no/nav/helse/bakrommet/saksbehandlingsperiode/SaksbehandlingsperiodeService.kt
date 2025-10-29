@@ -20,7 +20,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeSelvsten
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.VariantAvInaktiv
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -128,10 +127,9 @@ class SaksbehandlingsperiodeService(
                 )
             yrkesaktiviteter.forEach { yrkesaktivitet ->
                 // Konverter til sealed class og bruk den nye DAO-funksjonen
-                val kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitet.kategorisering)
                 yrkesaktivitetDao.opprettYrkesaktivitet(
                     id = yrkesaktivitet.id,
-                    kategorisering = kategorisering,
+                    kategorisering = yrkesaktivitet.kategorisering,
                     dagoversikt = yrkesaktivitet.dagoversikt,
                     saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
                     opprettet = yrkesaktivitet.opprettet,
@@ -397,8 +395,8 @@ fun lagYrkesaktivitetFraSøknader(
             )
         YrkesaktivitetDbRecord(
             id = UUID.randomUUID(),
-            kategorisering = YrkesaktivitetKategoriseringMapper.toMap(kategorisering),
-            kategoriseringGenerert = YrkesaktivitetKategoriseringMapper.toMap(kategorisering),
+            kategorisering = kategorisering,
+            kategoriseringGenerert = kategorisering,
             dagoversikt = dagoversikt,
             dagoversiktGenerert = dagoversikt,
             saksbehandlingsperiodeId = saksbehandlingsperiode.id,
@@ -416,19 +414,15 @@ fun lagYrkesaktiviteter(
     val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
     val søknaderPerKategori = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
 
-    // Konverter søknad-kategorier til Map for sammenligning
-    val søknadKategorierMap =
-        søknaderPerKategori.mapKeys { (kategori, _) ->
-            YrkesaktivitetKategoriseringMapper.toMap(kategori)
-        }
+    val søknadKategorierMap = søknaderPerKategori
 
-    val kategorier = tidligereMap.keys + søknadKategorierMap.keys
+    val kategorier = (tidligereMap.keys + søknadKategorierMap.keys).toSet()
 
     val gammelTilNyIdMap = mutableMapOf<UUID, UUID>()
 
     val result =
-        kategorier.mapNotNull { kategoriMap ->
-            søknadKategorierMap[kategoriMap]?.let { søknader ->
+        kategorier.mapNotNull { kategori ->
+            søknadKategorierMap[kategori]?.let { søknader ->
                 val dagoversikt =
                     skapDagoversiktFraSoknader(
                         søknader.map { it.somSøknad() },
@@ -437,15 +431,15 @@ fun lagYrkesaktiviteter(
                     )
                 YrkesaktivitetDbRecord(
                     id = UUID.randomUUID(),
-                    kategorisering = kategoriMap,
-                    kategoriseringGenerert = kategoriMap,
+                    kategorisering = kategori,
+                    kategoriseringGenerert = kategori,
                     dagoversikt = dagoversikt,
                     dagoversiktGenerert = dagoversikt,
                     saksbehandlingsperiodeId = saksbehandlingsperiode.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
                 )
-            } ?: tidligereMap[kategoriMap]?.let { tidligere ->
+            } ?: tidligereMap[kategori]?.let { tidligere ->
                 val nyId = UUID.randomUUID()
                 gammelTilNyIdMap[tidligere.id] = nyId
                 tidligere.copy(

@@ -13,6 +13,7 @@ import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.fromMap
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
@@ -105,7 +106,7 @@ class YrkesaktivitetOperasjonerTest {
             daoer.yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode).also { inntektsforholdFraDB ->
                 inntektsforholdFraDB.filter { it.id == opprettetYrkesaktivitetId }.also {
                     assertEquals(1, it.size)
-                    assertEquals(nyKategorisering, it.first().kategorisering)
+                    assertEquals(nyKategorisering.fromMap(), it.first().kategorisering)
                 }
             }
 

@@ -62,7 +62,8 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         fun YrkesaktivitetDbRecord.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto =
             YrkesaktivitetKafkaDto(
                 id = id,
-                kategorisering = kategorisering,
+                kategorisering = emptyMap(),
+                // TODO
                 dagoversikt = emptyList(),
                 // TODO
             )

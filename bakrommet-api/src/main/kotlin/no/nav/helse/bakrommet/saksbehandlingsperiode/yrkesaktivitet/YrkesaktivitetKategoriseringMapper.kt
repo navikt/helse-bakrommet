@@ -2,6 +2,8 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 
+fun Map<String, String>.fromMap(): YrkesaktivitetKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(this)
+
 object YrkesaktivitetKategoriseringMapper {
     fun fromMap(map: Map<String, String>): YrkesaktivitetKategorisering {
         val inntektskategori =

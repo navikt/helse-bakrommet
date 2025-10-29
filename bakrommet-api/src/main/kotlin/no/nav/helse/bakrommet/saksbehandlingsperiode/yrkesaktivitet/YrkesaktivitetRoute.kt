@@ -20,6 +20,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMa
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.henting.AInntektResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper.toMap
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
 import no.nav.helse.bakrommet.util.objectMapper
@@ -46,7 +47,7 @@ data class YrkesaktivitetDTO(
 fun YrkesaktivitetDbRecord.tilDto() =
     YrkesaktivitetDTO(
         id = id,
-        kategorisering = kategorisering,
+        kategorisering = toMap(kategorisering),
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
         perioder = perioder,

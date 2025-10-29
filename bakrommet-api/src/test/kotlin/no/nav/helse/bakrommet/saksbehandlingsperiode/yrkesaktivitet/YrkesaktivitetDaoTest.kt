@@ -67,7 +67,7 @@ class YrkesaktivitetDaoTest {
         val ekko =
             dao.opprettYrkesaktivitet(
                 id = yrkesaktivitetDbRecord.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
                 dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
                 saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
                 opprettet = yrkesaktivitetDbRecord.opprettet,
@@ -105,7 +105,7 @@ class YrkesaktivitetDaoTest {
         assertThrows<SQLException> {
             dao.opprettYrkesaktivitet(
                 id = yrkesaktivitetDbRecord.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
                 dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
                 saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
                 opprettet = yrkesaktivitetDbRecord.opprettet,
@@ -138,7 +138,7 @@ class YrkesaktivitetDaoTest {
         val opprettetYrkesaktivitet =
             dao.opprettYrkesaktivitet(
                 id = yrkesaktivitetDbRecord.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
                 dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
                 saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
                 opprettet = yrkesaktivitetDbRecord.opprettet,
@@ -191,7 +191,7 @@ class YrkesaktivitetDaoTest {
         val opprettetYrkesaktivitet =
             dao.opprettYrkesaktivitet(
                 id = yrkesaktivitetDbRecord.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
                 dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
                 saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
                 opprettet = yrkesaktivitetDbRecord.opprettet,
@@ -219,8 +219,8 @@ class YrkesaktivitetDaoTest {
             dao.oppdaterInntektrequest(
                 Yrkesaktivitet(
                     id = opprettetYrkesaktivitet.id,
-                    kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(opprettetYrkesaktivitet.kategorisering),
-                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert?.let { YrkesaktivitetKategoriseringMapper.fromMap(it) },
+                    kategorisering = opprettetYrkesaktivitet.kategorisering,
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
                     dagoversikt = opprettetYrkesaktivitet.dagoversikt,
                     dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
                     saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
@@ -267,7 +267,7 @@ class YrkesaktivitetDaoTest {
         val opprettetYrkesaktivitet =
             dao.opprettYrkesaktivitet(
                 id = yrkesaktivitetDbRecord.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
                 dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
                 saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
                 opprettet = yrkesaktivitetDbRecord.opprettet,
@@ -294,8 +294,8 @@ class YrkesaktivitetDaoTest {
             dao.oppdaterInntektData(
                 Yrkesaktivitet(
                     id = opprettetYrkesaktivitet.id,
-                    kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(opprettetYrkesaktivitet.kategorisering),
-                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert?.let { YrkesaktivitetKategoriseringMapper.fromMap(it) },
+                    kategorisering = opprettetYrkesaktivitet.kategorisering,
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
                     dagoversikt = opprettetYrkesaktivitet.dagoversikt,
                     dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
                     saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
@@ -342,7 +342,7 @@ class YrkesaktivitetDaoTest {
         val opprettetYrkesaktivitet =
             dao.opprettYrkesaktivitet(
                 id = yrkesaktivitetDbRecord.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetDbRecord.kategorisering),
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
                 dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
                 saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
                 opprettet = yrkesaktivitetDbRecord.opprettet,
@@ -375,8 +375,8 @@ class YrkesaktivitetDaoTest {
             dao.oppdaterRefusjonsdata(
                 Yrkesaktivitet(
                     id = opprettetYrkesaktivitet.id,
-                    kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(opprettetYrkesaktivitet.kategorisering),
-                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert?.let { YrkesaktivitetKategoriseringMapper.fromMap(it) },
+                    kategorisering = opprettetYrkesaktivitet.kategorisering,
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
                     dagoversikt = opprettetYrkesaktivitet.dagoversikt,
                     dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
                     saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
@@ -406,8 +406,8 @@ class YrkesaktivitetDaoTest {
             dao.oppdaterRefusjonsdata(
                 Yrkesaktivitet(
                     id = opprettetYrkesaktivitet.id,
-                    kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(opprettetYrkesaktivitet.kategorisering),
-                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert?.let { YrkesaktivitetKategoriseringMapper.fromMap(it) },
+                    kategorisering = opprettetYrkesaktivitet.kategorisering,
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
                     dagoversikt = opprettetYrkesaktivitet.dagoversikt,
                     dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
                     saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,

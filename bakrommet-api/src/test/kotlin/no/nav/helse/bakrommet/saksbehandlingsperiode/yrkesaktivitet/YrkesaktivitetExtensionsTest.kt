@@ -1,42 +1,12 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
-import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.Beregningssporing
 import no.nav.helse.bakrommet.testutils.`should equal`
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.time.OffsetDateTime
 import java.util.*
 
 class YrkesaktivitetExtensionsTest {
-    @Test
-    fun `skal kaste feil for selvstendig næringsdrivende uten forsikring`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
-            }
-
-        val yrkesaktivitetDbRecord =
-            YrkesaktivitetDbRecord(
-                id = UUID.randomUUID(),
-                kategorisering = kategorisering,
-                kategoriseringGenerert = null,
-                dagoversikt = null,
-                dagoversiktGenerert = null,
-                saksbehandlingsperiodeId = UUID.randomUUID(),
-                opprettet = OffsetDateTime.now(),
-                generertFraDokumenter = emptyList(),
-            )
-
-        val exception =
-            assertThrows<InputValideringException> {
-                yrkesaktivitetDbRecord.hentDekningsgrad()
-            }
-
-        assertEquals("ER_SYKMELDT mangler for SELVSTENDIG_NÆRINGSDRIVENDE", exception.message)
-    }
-
     @Test
     fun `skal returnere 100 prosent for selvstendig næringsdrivende med 100 prosent fra første sykedag`() {
         val kategorisering =
@@ -167,33 +137,6 @@ class YrkesaktivitetExtensionsTest {
     }
 
     @Test
-    fun `skal kaste feil for inaktiv uten variant`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "INAKTIV")
-            }
-
-        val yrkesaktivitetDbRecord =
-            YrkesaktivitetDbRecord(
-                id = UUID.randomUUID(),
-                kategorisering = kategorisering,
-                kategoriseringGenerert = null,
-                dagoversikt = null,
-                dagoversiktGenerert = null,
-                saksbehandlingsperiodeId = UUID.randomUUID(),
-                opprettet = OffsetDateTime.now(),
-                generertFraDokumenter = emptyList(),
-            )
-
-        val exception =
-            assertThrows<InputValideringException> {
-                yrkesaktivitetDbRecord.hentDekningsgrad()
-            }
-
-        assertEquals("VARIANT_AV_INAKTIV mangler for INAKTIV", exception.message)
-    }
-
-    @Test
     fun `skal returnere 65 prosent for inaktiv variant A`() {
         val kategorisering = inaktivKategorisering(variant = "INAKTIV_VARIANT_A")
 
@@ -291,7 +234,7 @@ class YrkesaktivitetExtensionsTest {
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
-                kategorisering = kategorisering,
+                kategorisering = kategorisering.fromMap(),
                 kategoriseringGenerert = null,
                 dagoversikt = null,
                 dagoversiktGenerert = null,
@@ -304,113 +247,6 @@ class YrkesaktivitetExtensionsTest {
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
         dekningsgrad.sporing `should equal` Beregningssporing.DAGPENGEMOTTAKER_100
-    }
-
-    @Test
-    fun `skal kaste feil for ukjent forsikringstype for selvstendig næringsdrivende`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "SELVSTENDIG_NÆRINGSDRIVENDE")
-                put("SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING", "UKJENT_FORSIKRING")
-            }
-
-        val yrkesaktivitetDbRecord =
-            YrkesaktivitetDbRecord(
-                id = UUID.randomUUID(),
-                kategorisering = kategorisering,
-                kategoriseringGenerert = null,
-                dagoversikt = null,
-                dagoversiktGenerert = null,
-                saksbehandlingsperiodeId = UUID.randomUUID(),
-                opprettet = OffsetDateTime.now(),
-                generertFraDokumenter = emptyList(),
-            )
-
-        val exception =
-            assertThrows<InputValideringException> {
-                yrkesaktivitetDbRecord.hentDekningsgrad()
-            }
-
-        assertEquals("ER_SYKMELDT mangler for SELVSTENDIG_NÆRINGSDRIVENDE", exception.message)
-    }
-
-    @Test
-    fun `skal kaste feil for ukjent variant for inaktiv`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "INAKTIV")
-                put("VARIANT_AV_INAKTIV", "UKJENT_VARIANT")
-            }
-
-        val yrkesaktivitetDbRecord =
-            YrkesaktivitetDbRecord(
-                id = UUID.randomUUID(),
-                kategorisering = kategorisering,
-                kategoriseringGenerert = null,
-                dagoversikt = null,
-                dagoversiktGenerert = null,
-                saksbehandlingsperiodeId = UUID.randomUUID(),
-                opprettet = OffsetDateTime.now(),
-                generertFraDokumenter = emptyList(),
-            )
-
-        val exception =
-            assertThrows<InputValideringException> {
-                yrkesaktivitetDbRecord.hentDekningsgrad()
-            }
-
-        assertEquals("Ugyldig VARIANT_AV_INAKTIV: UKJENT_VARIANT", exception.message)
-    }
-
-    @Test
-    fun `skal kaste feil for ukjent inntektskategori`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "UKJENT_KATEGORI")
-            }
-
-        val yrkesaktivitetDbRecord =
-            YrkesaktivitetDbRecord(
-                id = UUID.randomUUID(),
-                kategorisering = kategorisering,
-                kategoriseringGenerert = null,
-                dagoversikt = null,
-                dagoversiktGenerert = null,
-                saksbehandlingsperiodeId = UUID.randomUUID(),
-                opprettet = OffsetDateTime.now(),
-                generertFraDokumenter = emptyList(),
-            )
-
-        val exception =
-            assertThrows<InputValideringException> {
-                yrkesaktivitetDbRecord.hentDekningsgrad()
-            }
-
-        assertEquals("Ugyldig INNTEKTSKATEGORI: UKJENT_KATEGORI", exception.message)
-    }
-
-    @Test
-    fun `skal kaste feil når INNTEKTSKATEGORI ikke er satt`() {
-        val kategorisering = HashMap<String, String>()
-
-        val yrkesaktivitetDbRecord =
-            YrkesaktivitetDbRecord(
-                id = UUID.randomUUID(),
-                kategorisering = kategorisering,
-                kategoriseringGenerert = null,
-                dagoversikt = null,
-                dagoversiktGenerert = null,
-                saksbehandlingsperiodeId = UUID.randomUUID(),
-                opprettet = OffsetDateTime.now(),
-                generertFraDokumenter = emptyList(),
-            )
-
-        val exception =
-            assertThrows<InputValideringException> {
-                yrkesaktivitetDbRecord.hentDekningsgrad()
-            }
-
-        assertEquals("INNTEKTSKATEGORI mangler", exception.message)
     }
 
     @Test

@@ -1,5 +1,18 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    value = [
+        JsonSubTypes.Type(value = YrkesaktivitetKategorisering.Arbeidstaker::class, name = "ARBEIDSTAKER"),
+        JsonSubTypes.Type(value = YrkesaktivitetKategorisering.Frilanser::class, name = "FRILANSER"),
+        JsonSubTypes.Type(value = YrkesaktivitetKategorisering.SelvstendigNæringsdrivende::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE"),
+        JsonSubTypes.Type(value = YrkesaktivitetKategorisering.Inaktiv::class, name = "INAKTIV"),
+        JsonSubTypes.Type(value = YrkesaktivitetKategorisering.Arbeidsledig::class, name = "ARBEIDSLEDIG"),
+    ],
+)
 sealed class YrkesaktivitetKategorisering {
     abstract val inntektskategori: Inntektskategori
     abstract val sykmeldt: Boolean
@@ -59,6 +72,16 @@ enum class FrilanserForsikring {
     INGEN_FORSIKRING,
 }
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    value = [
+        JsonSubTypes.Type(value = TypeSelvstendigNæringsdrivende.Ordinær::class, name = "ORDINÆR"),
+        JsonSubTypes.Type(value = TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem::class, name = "BARNEPASSER_EGET_HJEM"),
+        JsonSubTypes.Type(value = TypeSelvstendigNæringsdrivende.Fisker::class, name = "FISKER"),
+        JsonSubTypes.Type(value = TypeSelvstendigNæringsdrivende.Jordbruker::class, name = "JORDBRUKER"),
+        JsonSubTypes.Type(value = TypeSelvstendigNæringsdrivende.Reindrift::class, name = "REINDRIFT"),
+    ],
+)
 sealed class TypeSelvstendigNæringsdrivende {
     abstract val forsikring: SelvstendigForsikring
 

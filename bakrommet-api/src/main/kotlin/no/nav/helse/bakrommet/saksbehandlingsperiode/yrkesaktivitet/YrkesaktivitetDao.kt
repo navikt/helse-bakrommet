@@ -21,8 +21,8 @@ import javax.sql.DataSource
 // Intensjon om at denne kun lever i daoen
 data class YrkesaktivitetDbRecord(
     val id: UUID,
-    val kategorisering: Map<String, String>,
-    val kategoriseringGenerert: Map<String, String>?,
+    val kategorisering: YrkesaktivitetKategorisering,
+    val kategoriseringGenerert: YrkesaktivitetKategorisering?,
     val dagoversikt: List<Dag>?,
     val dagoversiktGenerert: List<Dag>?,
     val saksbehandlingsperiodeId: UUID,
@@ -65,13 +65,8 @@ data class Yrkesaktivitet(
 fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): Yrkesaktivitet =
     Yrkesaktivitet(
         id = this.id,
-        kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(this.kategorisering),
-        kategoriseringGenerert =
-            this.kategoriseringGenerert?.let { map ->
-                YrkesaktivitetKategoriseringMapper.fromMap(
-                    map,
-                )
-            },
+        kategorisering = this.kategorisering,
+        kategoriseringGenerert = this.kategoriseringGenerert,
         dagoversikt = this.dagoversikt,
         dagoversiktGenerert = this.dagoversiktGenerert,
         saksbehandlingsperiodeId = this.saksbehandlingsperiodeId,
@@ -86,13 +81,8 @@ fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): Yrkesaktivitet =
 fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
     YrkesaktivitetDbRecord(
         id = this.id,
-        kategorisering = YrkesaktivitetKategoriseringMapper.toMap(this.kategorisering),
-        kategoriseringGenerert =
-            this.kategoriseringGenerert?.let { map ->
-                YrkesaktivitetKategoriseringMapper.toMap(
-                    map,
-                )
-            },
+        kategorisering = this.kategorisering,
+        kategoriseringGenerert = this.kategoriseringGenerert,
         dagoversikt = this.dagoversikt,
         dagoversiktGenerert = this.dagoversiktGenerert,
         saksbehandlingsperiodeId = this.saksbehandlingsperiodeId,
@@ -112,7 +102,6 @@ class YrkesaktivitetDao private constructor(
 
     /**
      * Oppretter yrkesaktivitet med type-sikker kategorisering.
-     * Mapper sealed class til Map internt før lagring.
      */
     fun opprettYrkesaktivitet(
         id: UUID,
@@ -125,11 +114,10 @@ class YrkesaktivitetDao private constructor(
         inntektData: InntektData? = null,
         refusjonsdata: List<Refusjonsperiode>? = null,
     ): YrkesaktivitetDbRecord {
-        val kategoriseringMap = YrkesaktivitetKategoriseringMapper.toMap(kategorisering)
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
                 id = id,
-                kategorisering = kategoriseringMap,
+                kategorisering = kategorisering,
                 kategoriseringGenerert = null,
                 dagoversikt = dagoversikt,
                 dagoversiktGenerert = null,
@@ -179,13 +167,8 @@ class YrkesaktivitetDao private constructor(
         hentYrkesaktivitetDbRecord(id)?.let { dbRecord ->
             Yrkesaktivitet(
                 id = dbRecord.id,
-                kategorisering = YrkesaktivitetKategoriseringMapper.fromMap(dbRecord.kategorisering),
-                kategoriseringGenerert =
-                    dbRecord.kategoriseringGenerert?.let {
-                        YrkesaktivitetKategoriseringMapper.fromMap(
-                            it,
-                        )
-                    },
+                kategorisering = dbRecord.kategorisering,
+                kategoriseringGenerert = dbRecord.kategoriseringGenerert,
                 dagoversikt = dbRecord.dagoversikt,
                 dagoversiktGenerert = dbRecord.dagoversiktGenerert,
                 saksbehandlingsperiodeId = dbRecord.saksbehandlingsperiodeId,
@@ -215,8 +198,11 @@ class YrkesaktivitetDao private constructor(
     private fun yrkesaktivitetFraRow(row: Row) =
         YrkesaktivitetDbRecord(
             id = row.uuid("id"),
-            kategorisering = row.string("kategorisering").asStringStringMap(),
-            kategoriseringGenerert = row.stringOrNull("kategorisering_generert")?.asStringStringMap(),
+            kategorisering = objectMapper.readValue(row.string("kategorisering"), YrkesaktivitetKategorisering::class.java),
+            kategoriseringGenerert =
+                row.stringOrNull("kategorisering_generert")?.let {
+                    objectMapper.readValue(it, YrkesaktivitetKategorisering::class.java)
+                },
             dagoversikt = row.stringOrNull("dagoversikt")?.tilDagoversikt(),
             dagoversiktGenerert = row.stringOrNull("dagoversikt_generert")?.tilDagoversikt(),
             saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
@@ -242,19 +228,17 @@ class YrkesaktivitetDao private constructor(
 
     /**
      * Oppdaterer kategorisering med type-sikker sealed class.
-     * Mapper til Map internt før lagring.
      */
     fun oppdaterKategorisering(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord {
-        val kategoriseringMap = YrkesaktivitetKategoriseringMapper.toMap(kategorisering)
         db.update(
             """
             update yrkesaktivitet set kategorisering = :kategorisering where id = :id
             """.trimIndent(),
             "id" to yrkesaktivitetDbRecord.id,
-            "kategorisering" to kategoriseringMap.serialisertTilString(),
+            "kategorisering" to kategorisering.serialisertTilString(),
         )
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
