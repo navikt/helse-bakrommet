@@ -94,25 +94,79 @@ fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
         refusjonsdata = this.refusjonsdata,
     )
 
-class YrkesaktivitetDao private constructor(
+interface YrkesaktivitetDao {
+    fun opprettYrkesaktivitet(
+        id: UUID,
+        kategorisering: YrkesaktivitetKategorisering,
+        dagoversikt: List<Dag>?,
+        saksbehandlingsperiodeId: UUID,
+        opprettet: OffsetDateTime,
+        generertFraDokumenter: List<UUID>,
+        perioder: Perioder?,
+        inntektData: InntektData?,
+        refusjonsdata: List<Refusjonsperiode>?,
+    ): YrkesaktivitetDbRecord
+
+    fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord?
+
+    fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet?
+
+    fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet>
+
+    fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord>
+
+    fun oppdaterKategorisering(
+        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
+        kategorisering: YrkesaktivitetKategorisering,
+    ): YrkesaktivitetDbRecord
+
+    fun oppdaterDagoversikt(
+        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
+        oppdatertDagoversikt: List<Dag>,
+    ): YrkesaktivitetDbRecord
+
+    fun oppdaterPerioder(
+        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
+        perioder: Perioder?,
+    ): YrkesaktivitetDbRecord
+
+    fun slettYrkesaktivitet(id: UUID)
+
+    fun oppdaterInntektrequest(
+        yrkesaktivitet: Yrkesaktivitet,
+        request: InntektRequest,
+    ): YrkesaktivitetDbRecord
+
+    fun oppdaterInntektData(
+        yrkesaktivitet: Yrkesaktivitet,
+        inntektData: InntektData,
+    ): YrkesaktivitetDbRecord
+
+    fun oppdaterRefusjonsdata(
+        yrkesaktivitet: Yrkesaktivitet,
+        refusjonsdata: List<Refusjonsperiode>?,
+    ): YrkesaktivitetDbRecord
+}
+
+class YrkesaktivitetDaoPg private constructor(
     private val db: QueryRunner,
-) {
+) : YrkesaktivitetDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
     /**
      * Oppretter yrkesaktivitet med type-sikker kategorisering.
      */
-    fun opprettYrkesaktivitet(
+    override fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
         dagoversikt: List<Dag>?,
         saksbehandlingsperiodeId: UUID,
-        opprettet: OffsetDateTime = OffsetDateTime.now(),
-        generertFraDokumenter: List<UUID> = emptyList(),
-        perioder: Perioder? = null,
-        inntektData: InntektData? = null,
-        refusjonsdata: List<Refusjonsperiode>? = null,
+        opprettet: OffsetDateTime,
+        generertFraDokumenter: List<UUID>,
+        perioder: Perioder?,
+        inntektData: InntektData?,
+        refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
@@ -154,7 +208,7 @@ class YrkesaktivitetDao private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
+    override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
         db.single(
             """
             select *, inntekt_request, inntekt_data, refusjon_data from yrkesaktivitet where id = :id
@@ -163,7 +217,7 @@ class YrkesaktivitetDao private constructor(
             mapper = ::yrkesaktivitetFraRow,
         )
 
-    fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
+    override fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
         hentYrkesaktivitetDbRecord(id)?.let { dbRecord ->
             Yrkesaktivitet(
                 id = dbRecord.id,
@@ -181,12 +235,12 @@ class YrkesaktivitetDao private constructor(
             )
         }
 
-    fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
+    override fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
         hentYrkesaktiviteterDbRecord(periode).map {
             it.tilYrkesaktivitet()
         }
 
-    fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
+    override fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
             select *, inntekt_request, inntekt_data, refusjon_data from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
@@ -229,7 +283,7 @@ class YrkesaktivitetDao private constructor(
     /**
      * Oppdaterer kategorisering med type-sikker sealed class.
      */
-    fun oppdaterKategorisering(
+    override fun oppdaterKategorisering(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord {
@@ -243,7 +297,7 @@ class YrkesaktivitetDao private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    fun oppdaterDagoversikt(
+    override fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: List<Dag>,
     ): YrkesaktivitetDbRecord {
@@ -257,7 +311,7 @@ class YrkesaktivitetDao private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    fun oppdaterPerioder(
+    override fun oppdaterPerioder(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         perioder: Perioder?,
     ): YrkesaktivitetDbRecord {
@@ -271,7 +325,7 @@ class YrkesaktivitetDao private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    fun slettYrkesaktivitet(id: UUID) {
+    override fun slettYrkesaktivitet(id: UUID) {
         db.update(
             """
             delete from yrkesaktivitet where id = :id
@@ -280,7 +334,7 @@ class YrkesaktivitetDao private constructor(
         )
     }
 
-    fun oppdaterInntektrequest(
+    override fun oppdaterInntektrequest(
         yrkesaktivitet: Yrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord {
@@ -294,7 +348,7 @@ class YrkesaktivitetDao private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
 
-    fun oppdaterInntektData(
+    override fun oppdaterInntektData(
         yrkesaktivitet: Yrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord {
@@ -308,7 +362,7 @@ class YrkesaktivitetDao private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
 
-    fun oppdaterRefusjonsdata(
+    override fun oppdaterRefusjonsdata(
         yrkesaktivitet: Yrkesaktivitet,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {

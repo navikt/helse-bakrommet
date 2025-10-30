@@ -40,7 +40,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMa
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.sykepengegrunnlagRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.demoUtbetalingsberegningRoute
@@ -261,7 +261,7 @@ fun createServices(
 
     val utbetalingsberegningService =
         UtbetalingsberegningService(
-            UtbetalingsberegningDao(dataSource),
+            UtbetalingsberegningDaoPg(dataSource),
         )
 
     return Services(

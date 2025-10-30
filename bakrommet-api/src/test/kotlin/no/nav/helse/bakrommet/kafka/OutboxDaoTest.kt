@@ -17,7 +17,7 @@ class OutboxDaoTest {
 
     @Test
     fun `lagrer en entry i outbox og henter den tilbake`() {
-        val dao = OutboxDao(dataSource)
+        val dao = OutboxDaoPg(dataSource)
         val kafkaKey = "test-key-123"
         val kafkaPayload = """{"type":"test","data":"some data"}"""
 
@@ -35,7 +35,7 @@ class OutboxDaoTest {
 
     @Test
     fun `lagrer flere entries og henter dem i riktig rekkefølge`() {
-        val dao = OutboxDao(dataSource)
+        val dao = OutboxDaoPg(dataSource)
 
         val entry1 = Pair("key-1", """{"order":1}""")
         val entry2 = Pair("key-2", """{"order":2}""")
@@ -56,14 +56,14 @@ class OutboxDaoTest {
 
     @Test
     fun `henter tom liste når ingen upubliserte entries finnes`() {
-        val dao = OutboxDao(dataSource)
+        val dao = OutboxDaoPg(dataSource)
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(0, upubliserteEntries.size)
     }
 
     @Test
     fun `markerer entry som publisert`() {
-        val dao = OutboxDao(dataSource)
+        val dao = OutboxDaoPg(dataSource)
         val kafkaKey = "test-key-publish"
         val kafkaPayload = """{"status":"ready"}"""
 
@@ -82,7 +82,7 @@ class OutboxDaoTest {
 
     @Test
     fun `lagrer to entries og markerer den første som publisert`() {
-        val dao = OutboxDao(dataSource)
+        val dao = OutboxDaoPg(dataSource)
         val kafkaKey1 = "key-1"
         val kafkaPayload1 = """{"message":"first"}"""
         val kafkaKey2 = "key-2"

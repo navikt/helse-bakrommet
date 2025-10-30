@@ -37,13 +37,33 @@ data class Dokument(
     }
 }
 
-class DokumentDao private constructor(
+interface DokumentDao {
+    fun finnDokumentMedEksternId(
+        saksbehandlingsperiodeId: UUID,
+        dokumentType: String,
+        eksternId: String,
+    ): Dokument?
+
+    fun finnDokumentForForespurteData(
+        saksbehandlingsperiodeId: UUID,
+        dokumentType: String,
+        forespurteData: String,
+    ): Dokument?
+
+    fun opprettDokument(dokument: Dokument): Dokument
+
+    fun hentDokument(id: UUID): Dokument?
+
+    fun hentDokumenterFor(behandlingId: UUID): List<Dokument>
+}
+
+class DokumentDaoPg private constructor(
     private val db: QueryRunner,
-) {
+) : DokumentDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun finnDokumentMedEksternId(
+    override fun finnDokumentMedEksternId(
         saksbehandlingsperiodeId: UUID,
         dokumentType: String,
         eksternId: String,
@@ -61,7 +81,7 @@ class DokumentDao private constructor(
             mapper = ::dokumentFraRow,
         )
 
-    fun finnDokumentForForespurteData(
+    override fun finnDokumentForForespurteData(
         saksbehandlingsperiodeId: UUID,
         dokumentType: String,
         forespurteData: String,
@@ -79,7 +99,7 @@ class DokumentDao private constructor(
             mapper = ::dokumentFraRow,
         )
 
-    fun opprettDokument(dokument: Dokument): Dokument {
+    override fun opprettDokument(dokument: Dokument): Dokument {
         db.update(
             """
             insert into dokument
@@ -99,7 +119,7 @@ class DokumentDao private constructor(
         return hentDokument(dokument.id)!!
     }
 
-    fun hentDokument(id: UUID): Dokument? =
+    override fun hentDokument(id: UUID): Dokument? =
         db.single(
             """
             select * from dokument where id = :id
@@ -108,7 +128,7 @@ class DokumentDao private constructor(
             mapper = ::dokumentFraRow,
         )
 
-    fun hentDokumenterFor(behandlingId: UUID): List<Dokument> =
+    override fun hentDokumenterFor(behandlingId: UUID): List<Dokument> =
         db.list(
             """
             select * from dokument where opprettet_for_behandling = :behandling_id

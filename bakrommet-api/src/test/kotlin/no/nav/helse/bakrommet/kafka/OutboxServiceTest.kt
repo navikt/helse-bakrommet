@@ -17,7 +17,7 @@ class OutboxServiceTest {
     @BeforeEach
     fun setup() {
         TestDataSource.resetDatasource()
-        outboxDao = OutboxDao(dataSource)
+        outboxDao = OutboxDaoPg(dataSource)
         fakeKafkaProducer = FakeKafkaProducer()
         outboxService = OutboxService(outboxDao, fakeKafkaProducer)
     }

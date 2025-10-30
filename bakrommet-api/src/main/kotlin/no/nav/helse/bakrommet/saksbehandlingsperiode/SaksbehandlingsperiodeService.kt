@@ -135,6 +135,8 @@ class SaksbehandlingsperiodeService(
                     opprettet = yrkesaktivitet.opprettet,
                     generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
                     perioder = yrkesaktivitet.perioder,
+                    inntektData = null,
+                    refusjonsdata = null,
                 )
             }
 

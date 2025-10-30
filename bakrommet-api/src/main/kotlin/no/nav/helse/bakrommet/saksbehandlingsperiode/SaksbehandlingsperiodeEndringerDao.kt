@@ -31,13 +31,19 @@ data class SaksbehandlingsperiodeEndring(
     val endringKommentar: String? = null,
 )
 
-class SaksbehandlingsperiodeEndringerDao private constructor(
+interface SaksbehandlingsperiodeEndringerDao {
+    fun leggTilEndring(hist: SaksbehandlingsperiodeEndring)
+
+    fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring>
+}
+
+class SaksbehandlingsperiodeEndringerDaoPg private constructor(
     private val db: QueryRunner,
-) {
+) : SaksbehandlingsperiodeEndringerDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun leggTilEndring(hist: SaksbehandlingsperiodeEndring) {
+    override fun leggTilEndring(hist: SaksbehandlingsperiodeEndring) {
         db.update(
             """
             insert into saksbehandlingsperiode_endringer
@@ -55,7 +61,7 @@ class SaksbehandlingsperiodeEndringerDao private constructor(
         )
     }
 
-    fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring> =
+    override fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring> =
         db.list(
             """
             select *

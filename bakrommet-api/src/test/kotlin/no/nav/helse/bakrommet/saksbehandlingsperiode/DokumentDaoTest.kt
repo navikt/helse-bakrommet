@@ -2,9 +2,10 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.util.Kildespor
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -35,15 +36,15 @@ class DokumentDaoTest {
     @BeforeEach
     fun setOpp() {
         TestDataSource.resetDatasource()
-        val dao = PersonDao(dataSource)
+        val dao = PersonDaoPg(dataSource)
         dao.opprettPerson(fnr, personId)
-        val behandlingDao = SaksbehandlingsperiodeDao(dataSource)
+        val behandlingDao = SaksbehandlingsperiodeDaoPg(dataSource)
         behandlingDao.opprettPeriode(periode)
     }
 
     @Test
     fun `oppretter og henter et dokument tilknyttet en behandling`() {
-        val dao = DokumentDao(dataSource)
+        val dao = DokumentDaoPg(dataSource)
         val dok =
             Dokument(
                 id = UUID.randomUUID(),

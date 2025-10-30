@@ -22,7 +22,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppretter og henter sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoPg(dataSource)
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(
@@ -52,7 +52,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppretter sykepengegrunnlag med 6G-begrensning`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoPg(dataSource)
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(
@@ -74,7 +74,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppdaterer eksisterende sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoPg(dataSource)
 
         val opprinneligGrunnlag =
             Sykepengegrunnlag(
@@ -111,7 +111,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `sletter sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoPg(dataSource)
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(
@@ -140,7 +140,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `returnerer null for ikke-eksisterende sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoPg(dataSource)
         val ikkeEksisterendeId = UUID.randomUUID()
 
         val grunnlag = dao.hentSykepengegrunnlag(ikkeEksisterendeId)
@@ -150,7 +150,7 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `serialiserer og deserialiserer sykepengegrunnlag korrekt`() {
-        val dao = SykepengegrunnlagDao(dataSource)
+        val dao = SykepengegrunnlagDaoPg(dataSource)
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(

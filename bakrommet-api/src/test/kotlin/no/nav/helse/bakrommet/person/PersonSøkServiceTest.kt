@@ -47,7 +47,7 @@ class PersonSøkServiceTest {
     fun setOpp() {
         TestDataSource.resetDatasource()
         dataSource = TestDataSource.dbModule.dataSource
-        personDao = PersonDao(dataSource)
+        personDao = PersonDaoPg(dataSource)
     }
 
     private fun serviceMed(antallPåfølgendeKollisjoner: Int) =

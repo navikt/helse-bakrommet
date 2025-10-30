@@ -24,13 +24,25 @@ import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
 import javax.sql.DataSource
 
-class UtbetalingsberegningDao private constructor(
+interface UtbetalingsberegningDao {
+    fun settBeregning(
+        saksbehandlingsperiodeId: UUID,
+        beregning: BeregningResponse,
+        saksbehandler: Bruker,
+    ): BeregningResponse
+
+    fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse?
+
+    fun slettBeregning(saksbehandlingsperiodeId: UUID)
+}
+
+class UtbetalingsberegningDaoPg private constructor(
     private val db: QueryRunner,
-) {
+) : UtbetalingsberegningDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun settBeregning(
+    override fun settBeregning(
         saksbehandlingsperiodeId: UUID,
         beregning: BeregningResponse,
         saksbehandler: Bruker,
@@ -77,7 +89,7 @@ class UtbetalingsberegningDao private constructor(
         return hentBeregning(saksbehandlingsperiodeId)!!
     }
 
-    fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse? =
+    override fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse? =
         db.single(
             """
             SELECT * FROM utbetalingsberegning 
@@ -87,7 +99,7 @@ class UtbetalingsberegningDao private constructor(
             mapper = ::beregningFraRow,
         )
 
-    fun slettBeregning(saksbehandlingsperiodeId: UUID) {
+    override fun slettBeregning(saksbehandlingsperiodeId: UUID) {
         db.update(
             """
             DELETE FROM utbetalingsberegning 

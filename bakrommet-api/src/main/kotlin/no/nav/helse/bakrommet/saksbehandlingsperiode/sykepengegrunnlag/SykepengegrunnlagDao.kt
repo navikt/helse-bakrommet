@@ -10,13 +10,34 @@ import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import java.util.UUID
 import javax.sql.DataSource
 
-class SykepengegrunnlagDao private constructor(
+interface SykepengegrunnlagDao {
+    fun lagreSykepengegrunnlag(
+        sykepengegrunnlag: Sykepengegrunnlag,
+        saksbehandler: Bruker,
+    ): SykepengegrunnlagDbRecord
+
+    fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord?
+
+    fun oppdaterSykepengegrunnlag(
+        sykepengegrunnlagId: UUID,
+        sykepengegrunnlag: Sykepengegrunnlag?,
+    ): SykepengegrunnlagDbRecord
+
+    fun oppdaterSammenlikningsgrunnlag(
+        sykepengegrunnlagId: UUID,
+        sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
+    ): SykepengegrunnlagDbRecord
+
+    fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID)
+}
+
+class SykepengegrunnlagDaoPg private constructor(
     private val db: QueryRunner,
-) {
+) : SykepengegrunnlagDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun lagreSykepengegrunnlag(
+    override fun lagreSykepengegrunnlag(
         sykepengegrunnlag: Sykepengegrunnlag,
         saksbehandler: Bruker,
     ): SykepengegrunnlagDbRecord {
@@ -39,7 +60,7 @@ class SykepengegrunnlagDao private constructor(
         return hentSykepengegrunnlag(id)!!
     }
 
-    fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? =
+    override fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? =
         db
             .list(
                 """
@@ -51,7 +72,7 @@ class SykepengegrunnlagDao private constructor(
                 mapper = ::sykepengegrunnlagFraRow,
             ).firstOrNull()
 
-    fun oppdaterSykepengegrunnlag(
+    override fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,
         sykepengegrunnlag: Sykepengegrunnlag?,
     ): SykepengegrunnlagDbRecord {
@@ -72,7 +93,7 @@ class SykepengegrunnlagDao private constructor(
         return hentSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
-    fun oppdaterSammenlikningsgrunnlag(
+    override fun oppdaterSammenlikningsgrunnlag(
         sykepengegrunnlagId: UUID,
         sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     ): SykepengegrunnlagDbRecord {
@@ -95,7 +116,7 @@ class SykepengegrunnlagDao private constructor(
         return hentSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
-    fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
+    override fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
         db.update(
             """
             DELETE FROM sykepengegrunnlag 

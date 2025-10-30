@@ -3,12 +3,13 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
@@ -41,15 +42,15 @@ class YrkesaktivitetDaoTest {
     @BeforeEach
     fun setOpp() {
         TestDataSource.resetDatasource()
-        val dao = PersonDao(dataSource)
+        val dao = PersonDaoPg(dataSource)
         dao.opprettPerson(fnr, personId)
-        val behandlingDao = SaksbehandlingsperiodeDao(dataSource)
+        val behandlingDao = SaksbehandlingsperiodeDaoPg(dataSource)
         behandlingDao.opprettPeriode(periode)
     }
 
     @Test
     fun `oppretter og henter inntektsforhold`() {
-        val dao = YrkesaktivitetDao(dataSource)
+        val dao = YrkesaktivitetDaoPg(dataSource)
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
@@ -85,7 +86,7 @@ class YrkesaktivitetDaoTest {
 
     @Test
     fun `inntektsforhold må referere gyldig saksbehandlingsperiode`() {
-        val dao = YrkesaktivitetDao(dataSource)
+        val dao = YrkesaktivitetDaoPg(dataSource)
         val ugyldigPeriodeId = UUID.randomUUID()
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
@@ -119,7 +120,7 @@ class YrkesaktivitetDaoTest {
 
     @Test
     fun `oppdaterer perioder for inntektsforhold`() {
-        val dao = YrkesaktivitetDao(dataSource)
+        val dao = YrkesaktivitetDaoPg(dataSource)
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
@@ -171,7 +172,7 @@ class YrkesaktivitetDaoTest {
 
     @Test
     fun `oppdaterer og henter inntektRequest for yrkesaktivitet`() {
-        val dao = YrkesaktivitetDao(dataSource)
+        val dao = YrkesaktivitetDaoPg(dataSource)
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
@@ -247,7 +248,7 @@ class YrkesaktivitetDaoTest {
 
     @Test
     fun `oppdaterer og henter inntektData for yrkesaktivitet`() {
-        val dao = YrkesaktivitetDao(dataSource)
+        val dao = YrkesaktivitetDaoPg(dataSource)
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
@@ -321,7 +322,7 @@ class YrkesaktivitetDaoTest {
 
     @Test
     fun `oppdaterer og henter refusjonsdata for yrkesaktivitet`() {
-        val dao = YrkesaktivitetDao(dataSource)
+        val dao = YrkesaktivitetDaoPg(dataSource)
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),

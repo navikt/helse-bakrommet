@@ -2,9 +2,9 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeAll
@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 internal class SaksbehandlingsperiodeDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
 
-    private val dao = SaksbehandlingsperiodeDao(dataSource)
+    private val dao = SaksbehandlingsperiodeDaoPg(dataSource)
 
     companion object {
         val fnr = "01019012345"
@@ -30,7 +30,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         @BeforeAll
         fun setOpp() {
             TestDataSource.resetDatasource()
-            val dao = PersonDao(TestDataSource.dbModule.dataSource)
+            val dao = PersonDaoPg(TestDataSource.dbModule.dataSource)
             dao.opprettPerson(fnr, personId)
         }
     }
@@ -189,7 +189,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         dao.opprettPeriode(periode)
 
         // Opprett et gyldig sykepengegrunnlag først
-        val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
+        val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(124028.0),

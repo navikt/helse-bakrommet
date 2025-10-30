@@ -1,20 +1,20 @@
 package no.nav.helse.bakrommet.infrastruktur.db
 
 import kotliquery.Session
-import no.nav.helse.bakrommet.kafka.OutboxDao
-import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringerDao
+import no.nav.helse.bakrommet.kafka.OutboxDaoPg
+import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDaoPg
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringerDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServiceDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMatcherDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårServiceDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDaoPg
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import javax.sql.DataSource
 
@@ -26,15 +26,15 @@ class DaoerFelles(
     InntektsmeldingMatcherDaoer,
     InntektServiceDaoer,
     VilkårServiceDaoer {
-    override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource)
-    override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(dataSource)
-    override val personDao = PersonDao(dataSource)
-    override val dokumentDao = DokumentDao(dataSource)
-    override val yrkesaktivitetDao = YrkesaktivitetDao(dataSource)
-    override val vurdertVilkårDao = VurdertVilkårDao(dataSource)
-    override val sykepengegrunnlagDao = SykepengegrunnlagDao(dataSource)
-    override val beregningDao = UtbetalingsberegningDao(dataSource)
-    override val outboxDao = OutboxDao(dataSource)
+    override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDaoPg(dataSource)
+    override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoPg(dataSource)
+    override val personDao = PersonDaoPg(dataSource)
+    override val dokumentDao = DokumentDaoPg(dataSource)
+    override val yrkesaktivitetDao = YrkesaktivitetDaoPg(dataSource)
+    override val vurdertVilkårDao = VurdertVilkårDaoPg(dataSource)
+    override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
+    override val beregningDao = UtbetalingsberegningDaoPg(dataSource)
+    override val outboxDao = OutboxDaoPg(dataSource)
 }
 
 class SessionDaoerFelles(
@@ -45,13 +45,13 @@ class SessionDaoerFelles(
     InntektsmeldingMatcherDaoer,
     InntektServiceDaoer,
     VilkårServiceDaoer {
-    override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(session)
-    override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDao(session)
-    override val personDao = PersonDao(session)
-    override val dokumentDao = DokumentDao(session)
-    override val yrkesaktivitetDao = YrkesaktivitetDao(session)
-    override val vurdertVilkårDao = VurdertVilkårDao(session)
-    override val sykepengegrunnlagDao = SykepengegrunnlagDao(session)
-    override val beregningDao = UtbetalingsberegningDao(session)
-    override val outboxDao = OutboxDao(session)
+    override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDaoPg(session)
+    override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoPg(session)
+    override val personDao = PersonDaoPg(session)
+    override val dokumentDao = DokumentDaoPg(session)
+    override val yrkesaktivitetDao = YrkesaktivitetDaoPg(session)
+    override val vurdertVilkårDao = VurdertVilkårDaoPg(session)
+    override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(session)
+    override val beregningDao = UtbetalingsberegningDaoPg(session)
+    override val outboxDao = OutboxDaoPg(session)
 }

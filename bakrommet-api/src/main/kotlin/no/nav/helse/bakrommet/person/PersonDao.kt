@@ -6,13 +6,26 @@ import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import javax.sql.DataSource
 
-class PersonDao private constructor(
+interface PersonDao {
+    fun finnPersonId(vararg identer: String): String?
+
+    fun opprettPerson(
+        naturligIdent: String,
+        spilleromId: String,
+    )
+
+    fun finnNaturligIdent(spilleromId: String): String?
+
+    fun hentNaturligIdent(spilleromId: String): String
+}
+
+class PersonDaoPg private constructor(
     private val db: QueryRunner,
-) {
+) : PersonDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun finnPersonId(vararg identer: String): String? {
+    override fun finnPersonId(vararg identer: String): String? {
         val params = identer.mapIndexed { i, id -> "p$i" to id }
         val placeholderList = params.joinToString(",") { ":${it.first}" }
 
@@ -27,7 +40,7 @@ class PersonDao private constructor(
         }
     }
 
-    fun opprettPerson(
+    override fun opprettPerson(
         naturligIdent: String,
         spilleromId: String,
     ) {
@@ -41,11 +54,11 @@ class PersonDao private constructor(
         )
     }
 
-    fun finnNaturligIdent(spilleromId: String): String? =
+    override fun finnNaturligIdent(spilleromId: String): String? =
         db.single(
             "select naturlig_ident from ident where spillerom_id = :spillerom_id",
             "spillerom_id" to spilleromId,
         ) { it.string(1) }
 
-    fun hentNaturligIdent(spilleromId: String): String = finnNaturligIdent(spilleromId) ?: throw RuntimeException("Fant ikke person med spilleromId $spilleromId")
+    override fun hentNaturligIdent(spilleromId: String): String = finnNaturligIdent(spilleromId) ?: throw RuntimeException("Fant ikke person med spilleromId $spilleromId")
 }

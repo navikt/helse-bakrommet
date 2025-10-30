@@ -16,13 +16,44 @@ data class VurdertVilkår(
     val vurdering: JsonNode,
 )
 
-class VurdertVilkårDao private constructor(
+interface VurdertVilkårDao {
+    fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår>
+
+    fun hentVilkårsvurdering(
+        saksbehandlingsperiodeId: UUID,
+        kode: String,
+    ): VurdertVilkår?
+
+    fun slettVilkårsvurdering(
+        saksbehandlingsperiodeId: UUID,
+        kode: String,
+    ): Int
+
+    fun eksisterer(
+        behandling: Saksbehandlingsperiode,
+        kode: Kode,
+    ): Boolean
+
+    fun oppdater(
+        behandling: Saksbehandlingsperiode,
+        kode: Kode,
+        oppdatertVurdering: JsonNode,
+    ): Int
+
+    fun leggTil(
+        behandling: Saksbehandlingsperiode,
+        kode: Kode,
+        vurdering: JsonNode,
+    ): Int
+}
+
+class VurdertVilkårDaoPg private constructor(
     private val db: QueryRunner,
-) {
+) : VurdertVilkårDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> =
+    override fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> =
         db.list(
             sql =
                 """
@@ -37,7 +68,7 @@ class VurdertVilkårDao private constructor(
             )
         }
 
-    fun hentVilkårsvurdering(
+    override fun hentVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): VurdertVilkår? =
@@ -57,7 +88,7 @@ class VurdertVilkårDao private constructor(
             )
         }
 
-    fun slettVilkårsvurdering(
+    override fun slettVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): Int =
@@ -71,7 +102,7 @@ class VurdertVilkårDao private constructor(
             "kode" to kode,
         )
 
-    fun eksisterer(
+    override fun eksisterer(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
     ): Boolean =
@@ -86,7 +117,7 @@ class VurdertVilkårDao private constructor(
             mapper = { true },
         ) ?: false
 
-    fun oppdater(
+    override fun oppdater(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         oppdatertVurdering: JsonNode,
@@ -105,7 +136,7 @@ class VurdertVilkårDao private constructor(
             "kode" to kode.kode,
         )
 
-    fun leggTil(
+    override fun leggTil(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         vurdering: JsonNode,

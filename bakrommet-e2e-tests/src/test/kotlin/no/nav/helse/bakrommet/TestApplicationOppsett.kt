@@ -18,12 +18,17 @@ import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.OutboxDao
+import no.nav.helse.bakrommet.kafka.OutboxDaoPg
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
@@ -97,11 +102,11 @@ class Daoer(
     companion object {
         fun instansier(dataSource: DataSource): Daoer =
             Daoer(
-                PersonDao(dataSource),
-                SaksbehandlingsperiodeDao(dataSource),
-                DokumentDao(dataSource),
-                YrkesaktivitetDao(dataSource),
-                OutboxDao(dataSource),
+                PersonDaoPg(dataSource),
+                SaksbehandlingsperiodeDaoPg(dataSource),
+                DokumentDaoPg(dataSource),
+                YrkesaktivitetDaoPg(dataSource),
+                OutboxDaoPg(dataSource),
             )
     }
 }

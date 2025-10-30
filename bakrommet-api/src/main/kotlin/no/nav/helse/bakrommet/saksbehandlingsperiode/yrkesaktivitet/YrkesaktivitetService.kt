@@ -20,6 +20,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import java.time.OffsetDateTime
 import java.util.*
 
 data class YrkesaktivitetReferanse(
@@ -99,6 +100,11 @@ class YrkesaktivitetService(
                     kategorisering = kategorisering,
                     dagoversikt = dagoversikt,
                     saksbehandlingsperiodeId = periode.id,
+                    opprettet = OffsetDateTime.now(),
+                    generertFraDokumenter = emptyList(),
+                    perioder = null,
+                    inntektData = null,
+                    refusjonsdata = null,
                 )
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres

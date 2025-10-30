@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 internal class PersonDaoTest {
     val db = MedDataSource(TestDataSource.dbModule.dataSource)
-    private val personDao = PersonDao(TestDataSource.dbModule.dataSource)
+    private val personDao = PersonDaoPg(TestDataSource.dbModule.dataSource)
 
     @Test
     fun `returnerer null for ukjent person-ID`() {

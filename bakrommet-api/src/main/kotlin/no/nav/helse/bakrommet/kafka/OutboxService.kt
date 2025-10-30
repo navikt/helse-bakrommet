@@ -10,7 +10,7 @@ class OutboxService(
 ) {
     private val logger: Logger = LoggerFactory.getLogger(OutboxService::class.java)
 
-    constructor(dataSource: DataSource, kafkaProducer: KafkaProducerInterface) : this(OutboxDao(dataSource), kafkaProducer)
+    constructor(dataSource: DataSource, kafkaProducer: KafkaProducerInterface) : this(OutboxDaoPg(dataSource), kafkaProducer)
 
     fun prosesserOutbox(): Int {
         var antallProsessert = 0
