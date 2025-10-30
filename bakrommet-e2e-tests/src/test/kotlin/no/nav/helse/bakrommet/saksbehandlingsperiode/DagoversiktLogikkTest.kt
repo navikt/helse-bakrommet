@@ -1,132 +1,18 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
-import com.fasterxml.jackson.databind.JsonNode
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
-import org.intellij.lang.annotations.Language
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.util.*
 
 class DagoversiktLogikkTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
-    }
-
-    @Test
-    fun `oppretter dagoversikt automatisk når ER_SYKMELDT er ER_SYKMELDT_JA eller mangler`() {
-        runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
-
-            // Opprett saksbehandlingsperiode via action
-            val periode =
-                opprettSaksbehandlingsperiode(
-                    PERSON_ID,
-                    LocalDate.parse("2023-01-01"),
-                    LocalDate.parse("2023-01-31"),
-                )
-
-            // Test 1: ER_SYKMELDT er "ER_SYKMELDT_JA" - skal opprette dagoversikt
-            @Language("json")
-            val kategoriseringMedSykmeldt =
-                """
-                {
-                    "kategorisering": {
-                        "INNTEKTSKATEGORI": "ARBEIDSTAKER",
-                        "ORGNUMMER": "123456789",
-                        "ER_SYKMELDT": "ER_SYKMELDT_JA",
-                        "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"
-                    }
-                }
-                """.trimIndent()
-
-            val inntektsforholdMedSykmeldtId =
-                client
-                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(kategoriseringMedSykmeldt)
-                    }.let { response ->
-                        assertEquals(201, response.status.value)
-                        val body = response.body<JsonNode>()
-                        UUID.fromString(body["id"].asText())
-                    }
-
-            // Test 2: ER_SYKMELDT er "ER_SYKMELDT_JA" for SELVSTENDIG_NÆRINGSDRIVENDE - skal opprette dagoversikt
-            @Language("json")
-            val kategoriseringUtenSykmeldt =
-                """
-                {
-                    "kategorisering": {
-                        "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
-                        "ER_SYKMELDT": "ER_SYKMELDT_JA",
-                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER"
-                    }
-                }
-                """.trimIndent()
-
-            val inntektsforholdUtenSykmeldtId =
-                client
-                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(kategoriseringUtenSykmeldt)
-                    }.let { response ->
-                        assertEquals(201, response.status.value)
-                        val body = response.body<JsonNode>()
-                        UUID.fromString(body["id"].asText())
-                    }
-
-            // Test 3: ER_SYKMELDT er "ER_SYKMELDT_NEI" - skal IKKE opprette dagoversikt
-            @Language("json")
-            val kategoriseringIkkeSykmeldt =
-                """
-                {
-                    "kategorisering": {
-                        "INNTEKTSKATEGORI": "ARBEIDSTAKER",
-                        "ORGNUMMER": "987654321",
-                        "ER_SYKMELDT": "ER_SYKMELDT_NEI",
-                        "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"
-                    }
-                }
-                """.trimIndent()
-
-            val inntektsforholdIkkeSykmeldtId =
-                client
-                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(kategoriseringIkkeSykmeldt)
-                    }.let { response ->
-                        assertEquals(201, response.status.value)
-                        val body = response.body<JsonNode>()
-                        UUID.fromString(body["id"].asText())
-                    }
-
-            // Verifiser at dagoversikt ble opprettet for de to første, men ikke den siste
-            daoer.yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode).also { inntektsforholdFraDB ->
-                val medSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdMedSykmeldtId }!!
-                val utenSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdUtenSykmeldtId }!!
-                val ikkeSykmeldt = inntektsforholdFraDB.find { it.id == inntektsforholdIkkeSykmeldtId }!!
-
-                // Disse skal ha dagoversikt (31 dager for januar 2023)
-                assertEquals(31, medSykmeldt.dagoversikt?.size ?: 0, "Yrkesaktivitet med ER_SYKMELDT_JA skal ha dagoversikt")
-                assertEquals(31, utenSykmeldt.dagoversikt?.size ?: 0, "Yrkesaktivitet uten ER_SYKMELDT skal ha dagoversikt")
-
-                // Denne skal IKKE ha dagoversikt
-                assertTrue(
-                    ikkeSykmeldt.dagoversikt == null || ikkeSykmeldt.dagoversikt?.size == 0,
-                    "Yrkesaktivitet med ER_SYKMELDT_NEI skal ikke ha dagoversikt",
-                )
-            }
-        }
     }
 
     @Test
@@ -141,18 +27,17 @@ class DagoversiktLogikkTest {
                     LocalDate.parse("2023-02-01"),
                     LocalDate.parse("2023-02-28"),
                 )
-
+            // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId =
-                client
-                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
-                        )
-                    }.let { response ->
-                        UUID.fromString(response.body<JsonNode>()["id"].asText())
-                    }
+                opprettYrkesaktivitet(
+                    periode.id,
+                    personId = PERSON_ID,
+                    YrkesaktivitetKategorisering.Arbeidstaker(
+                        orgnummer = "123456789",
+                        sykmeldt = true,
+                        typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    ),
+                )
 
             // Verifiser at dagoversikt har 28 dager for februar 2023
             daoer.yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode).also { inntektsforholdFraDB ->

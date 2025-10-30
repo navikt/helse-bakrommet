@@ -9,7 +9,10 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.tilDto
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.toMap
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
@@ -167,19 +170,19 @@ class SaksbehandlingsperiodeOpprettelseTest {
             assertEquals(3, inntektsforhold.size)
             assertEquals(
                 setOf("123321123", null, "654321123"),
-                inntektsforhold.map { it.kategorisering["ORGNUMMER"] }.toSet(),
+                inntektsforhold.map { it.kategorisering.toMap()["ORGNUMMER"] }.toSet(),
             )
 
-            val arbgiver1Yrkesaktivitet = inntektsforhold.find { it.kategorisering["ORGNUMMER"] == arbeidsgiver1.identifikator }!!
-            val forventetKategorisering =
-                HashMap<String, String>().apply {
-                    put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
-                    put("ORGNUMMER", "123321123")
-                    put("ER_SYKMELDT", "ER_SYKMELDT_JA")
-                    put("TYPE_ARBEIDSTAKER", "ORDINÆRT_ARBEIDSFORHOLD")
-                }
+            val arbgiver1Yrkesaktivitet = inntektsforhold.find { it.kategorisering.toMap()["ORGNUMMER"] == arbeidsgiver1.identifikator }!!
 
-            assertEquals(forventetKategorisering, arbgiver1Yrkesaktivitet.kategorisering)
+            assertEquals(
+                YrkesaktivitetKategorisering.Arbeidstaker(
+                    orgnummer = "123321123",
+                    sykmeldt = true,
+                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                ),
+                arbgiver1Yrkesaktivitet.kategorisering,
+            )
         }
     }
 

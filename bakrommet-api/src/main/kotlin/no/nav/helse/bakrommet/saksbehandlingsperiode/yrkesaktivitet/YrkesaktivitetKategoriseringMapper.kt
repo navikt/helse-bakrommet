@@ -4,6 +4,8 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 
 fun Map<String, String>.fromMap(): YrkesaktivitetKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(this)
 
+fun YrkesaktivitetKategorisering.toMap(): Map<String, String> = YrkesaktivitetKategoriseringMapper.toMap(this)
+
 object YrkesaktivitetKategoriseringMapper {
     fun fromMap(map: Map<String, String>): YrkesaktivitetKategorisering {
         val inntektskategori =

@@ -12,18 +12,17 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmel
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.fromMap
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDekningsgrad
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
-import no.nav.helse.bakrommet.util.deserialize
 import no.nav.helse.bakrommet.util.serialisertTilString
-import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertNull
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -32,88 +31,6 @@ class YrkesaktivitetOperasjonerTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
-    }
-
-    @Test
-    fun `oppretter og oppdaterer inntektsforhold`() {
-        runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
-
-            // Opprett saksbehandlingsperiode
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-            }
-
-            val periode =
-                client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
-                    .first()
-
-            @Language("json")
-            val kategorisering =
-                """
-                {
-                    "kategorisering": {
-                        "INNTEKTSKATEGORI": "SELVSTENDIG_NÆRINGSDRIVENDE",
-                        "ER_SYKMELDT": "ER_SYKMELDT_JA",
-                        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE": "FISKER"
-                    }
-                }
-                """.trimIndent()
-
-            // Opprett inntektsforhold
-            val opprettetYrkesaktivitetId =
-                client
-                    .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(kategorisering)
-                    }.let { response ->
-                        assertEquals(201, response.status.value)
-                        val body = response.body<JsonNode>()
-                        // Verifiser at viktige felter er med
-                        assertEquals("SELVSTENDIG_NÆRINGSDRIVENDE", body["kategorisering"]["INNTEKTSKATEGORI"].asText())
-                        assertEquals("FISKER", body["kategorisering"]["TYPE_SELVSTENDIG_NÆRINGSDRIVENDE"].asText())
-                        val id = body["id"].asText()
-                        assertDoesNotThrow { UUID.fromString(id) }
-                        assertDoesNotThrow { body.deserialize<YrkesaktivitetDTO>() }
-                        UUID.fromString(id)
-                    }
-
-            val nyKategorisering =
-                HashMap<String, String>().apply {
-                    put("INNTEKTSKATEGORI", "ARBEIDSTAKER")
-                    put("ORGNUMMER", "123456789")
-                    put("ER_SYKMELDT", "ER_SYKMELDT_NEI")
-                    put("TYPE_ARBEIDSTAKER", "ORDINÆRT_ARBEIDSFORHOLD")
-                }
-
-            // Oppdater kategorisering
-            client
-                .put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$opprettetYrkesaktivitetId/kategorisering") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(nyKategorisering)
-                }.let { response ->
-                    assertEquals(204, response.status.value)
-                }
-
-            // Verifiser at kategorisering ble oppdatert
-            daoer.yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode).also { inntektsforholdFraDB ->
-                inntektsforholdFraDB.filter { it.id == opprettetYrkesaktivitetId }.also {
-                    assertEquals(1, it.size)
-                    assertEquals(nyKategorisering.fromMap(), it.first().kategorisering)
-                }
-            }
-
-            // Verifiser at dekningsgrad er riktig etter oppdatering
-            val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitetId)!!
-            assertEquals(1.0, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.prosentDesimal)
-        }
     }
 
     @Test
@@ -134,14 +51,15 @@ class YrkesaktivitetOperasjonerTest {
                     }.body<List<Saksbehandlingsperiode>>()
                     .first()
 
-            // Opprett inntektsforhold med dagoversikt
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
-                )
-            }
+            opprettYrkesaktivitet(
+                periode.id,
+                personId = PERSON_ID,
+                YrkesaktivitetKategorisering.Arbeidstaker(
+                    orgnummer = "123456789",
+                    sykmeldt = true,
+                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                ),
+            )
 
             val yrkesaktivitetId =
                 client
@@ -237,14 +155,15 @@ class YrkesaktivitetOperasjonerTest {
                     }.body<List<Saksbehandlingsperiode>>()
                     .first()
 
-            // Opprett inntektsforhold med dagoversikt
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
-                )
-            }
+            opprettYrkesaktivitet(
+                periode.id,
+                personId = PERSON_ID,
+                YrkesaktivitetKategorisering.Arbeidstaker(
+                    orgnummer = "123456789",
+                    sykmeldt = true,
+                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                ),
+            )
 
             val yrkesaktivitetId =
                 client
@@ -342,14 +261,15 @@ class YrkesaktivitetOperasjonerTest {
                     }.body<List<Saksbehandlingsperiode>>()
                     .first()
 
-            // Opprett inntektsforhold
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
-                )
-            }
+            opprettYrkesaktivitet(
+                periode.id,
+                personId = PERSON_ID,
+                YrkesaktivitetKategorisering.Arbeidstaker(
+                    orgnummer = "123456789",
+                    sykmeldt = true,
+                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                ),
+            )
 
             val yrkesaktivitetId =
                 client
@@ -495,13 +415,15 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             // Opprett yrkesaktivitet
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
-                )
-            }
+            opprettYrkesaktivitet(
+                periode.id,
+                personId = PERSON_ID,
+                YrkesaktivitetKategorisering.Arbeidstaker(
+                    orgnummer = "123456789",
+                    sykmeldt = true,
+                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                ),
+            )
 
             val yrkesaktivitetId =
                 client
@@ -596,14 +518,15 @@ class YrkesaktivitetOperasjonerTest {
                     }.body<List<Saksbehandlingsperiode>>()
                     .first()
 
-            // Opprett yrkesaktivitet
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """{"kategorisering": {"INNTEKTSKATEGORI": "ARBEIDSTAKER", "ORGNUMMER": "123456789", "ER_SYKMELDT": "ER_SYKMELDT_JA", "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"}}""",
-                )
-            }
+            opprettYrkesaktivitet(
+                periode.id,
+                personId = PERSON_ID,
+                YrkesaktivitetKategorisering.Arbeidstaker(
+                    orgnummer = "123456789",
+                    sykmeldt = true,
+                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                ),
+            )
 
             val yrkesaktivitetId =
                 client

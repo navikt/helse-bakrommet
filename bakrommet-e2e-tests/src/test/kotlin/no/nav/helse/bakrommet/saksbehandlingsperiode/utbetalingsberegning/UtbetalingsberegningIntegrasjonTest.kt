@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -17,11 +16,14 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInnte
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.taTilBesluting
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
@@ -73,8 +75,16 @@ class UtbetalingsberegningIntegrasjonTest {
             val periode = opprettSaksbehandlingsperiode()
             daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 1
             // Opprett yrkesaktivitet som ordinær arbeidstaker
-            val yrkesaktivitetId = opprettYrkesaktivitet(periode.id)
-
+            val yrkesaktivitetId =
+                opprettYrkesaktivitet(
+                    periode.id,
+                    personId = PERSON_ID,
+                    YrkesaktivitetKategorisering.Arbeidstaker(
+                        orgnummer = "123456789",
+                        sykmeldt = true,
+                        typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    ),
+                )
             // Sett inntekt på yrkesaktivitet (dette trigger automatisk utbetalingsberegning)
             settInntektPåYrkesaktivitet(periode.id, yrkesaktivitetId)
 
@@ -123,29 +133,6 @@ class UtbetalingsberegningIntegrasjonTest {
             }
         assertEquals(200, response.status.value)
         return response.body<List<Saksbehandlingsperiode>>().first()
-    }
-
-    private suspend fun ApplicationTestBuilder.opprettYrkesaktivitet(periodeId: UUID): UUID {
-        val kategorisering =
-            """
-            {
-                "kategorisering": {
-                    "INNTEKTSKATEGORI": "ARBEIDSTAKER",
-                    "ORGNUMMER": "$ARBEIDSGIVER_ORGNR",
-                    "ER_SYKMELDT": "ER_SYKMELDT_JA",
-                    "TYPE_ARBEIDSTAKER": "ORDINÆRT_ARBEIDSFORHOLD"
-                }
-            }
-            """.trimIndent()
-
-        val response =
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder/$periodeId/yrkesaktivitet") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(kategorisering)
-            }
-        assertEquals(201, response.status.value)
-        return UUID.fromString(response.body<JsonNode>()["id"].asText())
     }
 
     private suspend fun ApplicationTestBuilder.settInntektPåYrkesaktivitet(

@@ -25,7 +25,11 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponseUtDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.toMap
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.sigrun.sigrunÅr
@@ -33,9 +37,8 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegru
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterInntekt
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettArbeidstakerYrkesaktivitet
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettNaeringsdrivendeYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -103,12 +106,12 @@ data class ScenarioData(
 
     fun `næringsdrivende yrkesaktivitet`(): YrkesaktivitetDTO =
         yrkesaktiviteter
-            .first { it.kategorisering["INNTEKTSKATEGORI"] == "SELVSTENDIG_NÆRINGSDRIVENDE" }
+            .first { it.kategorisering.toMap()["INNTEKTSKATEGORI"] == "SELVSTENDIG_NÆRINGSDRIVENDE" }
 
     fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO =
         yrkesaktiviteter
-            .filter { it.kategorisering["INNTEKTSKATEGORI"] == "ARBEIDSTAKER" }
-            .first { it.kategorisering["ORGNUMMER"] == orgnummer }
+            .filter { it.kategorisering.toMap()["INNTEKTSKATEGORI"] == "ARBEIDSTAKER" }
+            .first { it.kategorisering.toMap()["ORGNUMMER"] == orgnummer }
 }
 
 infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: BeregningskoderSykepengrunnlag) {
@@ -202,17 +205,27 @@ data class Scenario(
                     ya to
                         when (ya) {
                             is Arbeidstaker ->
-                                opprettArbeidstakerYrkesaktivitet(
+                                opprettYrkesaktivitet(
                                     periode.id,
                                     personId = personId,
-                                    orgnr = ya.orgnr,
+                                    YrkesaktivitetKategorisering.Arbeidstaker(
+                                        orgnummer = ya.orgnr,
+                                        sykmeldt = true,
+                                        typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                                    ),
                                 )
 
                             is Selvstendig ->
-                                opprettNaeringsdrivendeYrkesaktivitet(
+                                opprettYrkesaktivitet(
                                     periode.id,
                                     personId = personId,
-                                    forsikring = ya.forsikring.toString(),
+                                    YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+                                        sykmeldt = true,
+                                        typeSelvstendigNæringsdrivende =
+                                            TypeSelvstendigNæringsdrivende.Ordinær(
+                                                forsikring = ya.forsikring,
+                                            ),
+                                    ),
                                 )
                         }
                 }

@@ -20,7 +20,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMa
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.henting.AInntektResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategoriseringMapper.toMap
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
 import no.nav.helse.bakrommet.util.objectMapper
@@ -36,7 +35,7 @@ fun RoutingCall.yrkesaktivitetReferanse() =
 
 data class YrkesaktivitetDTO(
     val id: UUID,
-    val kategorisering: Map<String, String>,
+    val kategorisering: YrkesaktivitetKategorisering,
     val dagoversikt: List<Dag>?,
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder?,
@@ -47,7 +46,7 @@ data class YrkesaktivitetDTO(
 fun YrkesaktivitetDbRecord.tilDto() =
     YrkesaktivitetDTO(
         id = id,
-        kategorisering = toMap(kategorisering),
+        kategorisering = kategorisering,
         dagoversikt = dagoversikt,
         generertFraDokumenter = generertFraDokumenter,
         perioder = perioder,
@@ -74,14 +73,10 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
         post {
             val yrkesaktivitetCreateRequest = call.receive<YrkesaktivitetCreateRequest>()
 
-            // Valider og konverter til sealed class
-            val validertKategorisering =
-                YrkesaktivitetKategoriseringMapper.fromMap(yrkesaktivitetCreateRequest.kategorisering)
-
             val yrkesaktivitet =
                 service.opprettYrkesaktivitet(
                     call.periodeReferanse(),
-                    validertKategorisering,
+                    yrkesaktivitetCreateRequest.kategorisering,
                     call.saksbehandler(),
                 )
             call.respondText(
@@ -203,7 +198,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
 }
 
 data class YrkesaktivitetCreateRequest(
-    val kategorisering: Map<String, String>,
+    val kategorisering: YrkesaktivitetKategorisering,
 )
 
 data class PensjonsgivendeInntektSuccessResponse(
