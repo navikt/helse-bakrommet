@@ -103,7 +103,7 @@ fun Application.settOppKtor(
     appModul(configuration, services)
 }
 
-internal fun Application.helsesjekker() {
+fun Application.helsesjekker() {
     routing {
         get("/isready") {
             call.respondText("I'm ready")
@@ -293,7 +293,7 @@ internal fun Application.appModul(
         filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
     }
 
-    installErrorHandling(configuration)
+    installErrorHandling(includeStackTrace = configuration.naisClusterName == "dev-gcp")
 
     routing {
         // Demo API - åpen endpoint uten autentisering

@@ -6,7 +6,7 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.auth.brukerPrincipal
 import no.nav.helse.bakrommet.util.serialisertTilString
 
-internal fun Route.brukerRoute() {
+fun Route.brukerRoute() {
     get("/v1/bruker") {
         val bruker = call.brukerPrincipal() ?: throw IllegalStateException("Bruker ikke funnet i request")
 

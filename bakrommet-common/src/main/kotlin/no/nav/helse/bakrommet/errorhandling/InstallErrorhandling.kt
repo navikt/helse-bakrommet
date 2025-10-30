@@ -6,10 +6,9 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
-import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.util.logg
 
-fun Application.installErrorHandling(configuration: Configuration) {
+fun Application.installErrorHandling(includeStackTrace: Boolean = false) {
     install(StatusPages) {
         exception<InputValideringException> { call, cause ->
             val status = HttpStatusCode.BadRequest
@@ -68,7 +67,7 @@ fun Application.installErrorHandling(configuration: Configuration) {
                 buildProblem(
                     status,
                     detail =
-                        if (configuration.naisClusterName == "dev-gcp") {
+                        if (includeStackTrace) {
                             cause.stackTraceToString()
                         } else {
                             "Uventet serverfeil"
