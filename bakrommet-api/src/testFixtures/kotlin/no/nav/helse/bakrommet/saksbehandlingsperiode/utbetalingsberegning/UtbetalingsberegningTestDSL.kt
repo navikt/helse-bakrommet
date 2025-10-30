@@ -478,7 +478,7 @@ class YrkesaktivitetBuilder {
                     }
                 YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                     sykmeldt = erSykmeldt,
-                    type = type,
+                    typeSelvstendigNæringsdrivende = type,
                 )
             }
             else -> {

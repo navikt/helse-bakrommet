@@ -30,7 +30,7 @@ sealed class YrkesaktivitetKategorisering {
 
     data class SelvstendigNæringsdrivende(
         override val sykmeldt: Boolean,
-        val type: TypeSelvstendigNæringsdrivende,
+        val typeSelvstendigNæringsdrivende: TypeSelvstendigNæringsdrivende,
     ) : YrkesaktivitetKategorisering()
 
     // Alltid sykmeldt

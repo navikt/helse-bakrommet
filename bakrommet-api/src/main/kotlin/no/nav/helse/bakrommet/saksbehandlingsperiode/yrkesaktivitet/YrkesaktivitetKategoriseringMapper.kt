@@ -103,7 +103,7 @@ object YrkesaktivitetKategoriseringMapper {
 
         return YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
             sykmeldt = sykmeldt,
-            type = type,
+            typeSelvstendigNæringsdrivende = type,
         )
     }
 
@@ -181,7 +181,7 @@ object YrkesaktivitetKategoriseringMapper {
                 map["FRILANSER_FORSIKRING"] = kategorisering.forsikring.name
             }
             is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
-                val type = kategorisering.type
+                val type = kategorisering.typeSelvstendigNæringsdrivende
                 map["TYPE_SELVSTENDIG_NÆRINGSDRIVENDE"] =
                     when (type) {
                         is TypeSelvstendigNæringsdrivende.Ordinær -> "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE"

@@ -326,7 +326,7 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
         ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
-                type =
+                typeSelvstendigNæringsdrivende =
                     TypeSelvstendigNæringsdrivende.Ordinær(
                         forsikring = SelvstendigForsikring.INGEN_FORSIKRING,
                     ),
@@ -336,14 +336,14 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
         ArbeidssituasjonDTO.FISKER -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
-                type = TypeSelvstendigNæringsdrivende.Fisker(),
+                typeSelvstendigNæringsdrivende = TypeSelvstendigNæringsdrivende.Fisker(),
             )
         }
 
         ArbeidssituasjonDTO.JORDBRUKER -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
-                type =
+                typeSelvstendigNæringsdrivende =
                     TypeSelvstendigNæringsdrivende.Jordbruker(
                         forsikring = SelvstendigForsikring.INGEN_FORSIKRING,
                     ),
@@ -353,7 +353,7 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
         ArbeidssituasjonDTO.BARNEPASSER -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
-                type =
+                typeSelvstendigNæringsdrivende =
                     TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem(
                         forsikring = SelvstendigForsikring.INGEN_FORSIKRING,
                     ),

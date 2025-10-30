@@ -73,7 +73,7 @@ class YrkesaktivitetKategoriseringMapperTest {
         val original =
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
-                type =
+                typeSelvstendigNæringsdrivende =
                     TypeSelvstendigNæringsdrivende.Ordinær(
                         forsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
                     ),
@@ -90,7 +90,7 @@ class YrkesaktivitetKategoriseringMapperTest {
         val original =
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
-                type = TypeSelvstendigNæringsdrivende.Fisker(),
+                typeSelvstendigNæringsdrivende = TypeSelvstendigNæringsdrivende.Fisker(),
             )
 
         val map = YrkesaktivitetKategoriseringMapper.toMap(original)
@@ -105,7 +105,7 @@ class YrkesaktivitetKategoriseringMapperTest {
             val original =
                 YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                     sykmeldt = true,
-                    type =
+                    typeSelvstendigNæringsdrivende =
                         TypeSelvstendigNæringsdrivende.Jordbruker(
                             forsikring = forsikring,
                         ),
@@ -123,7 +123,7 @@ class YrkesaktivitetKategoriseringMapperTest {
         val original =
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = false,
-                type =
+                typeSelvstendigNæringsdrivende =
                     TypeSelvstendigNæringsdrivende.Reindrift(
                         forsikring = SelvstendigForsikring.INGEN_FORSIKRING,
                     ),
@@ -140,7 +140,7 @@ class YrkesaktivitetKategoriseringMapperTest {
         val original =
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
-                type =
+                typeSelvstendigNæringsdrivende =
                     TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem(
                         forsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
                     ),
@@ -372,7 +372,7 @@ class YrkesaktivitetKategoriseringMapperTest {
         val kategorisering =
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = true,
-                type =
+                typeSelvstendigNæringsdrivende =
                     TypeSelvstendigNæringsdrivende.Ordinær(
                         forsikring = SelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG,
                     ),
@@ -433,7 +433,7 @@ class YrkesaktivitetKategoriseringMapperTest {
             val original =
                 YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                     sykmeldt = true,
-                    type =
+                    typeSelvstendigNæringsdrivende =
                         TypeSelvstendigNæringsdrivende.Ordinær(
                             forsikring = forsikring,
                         ),

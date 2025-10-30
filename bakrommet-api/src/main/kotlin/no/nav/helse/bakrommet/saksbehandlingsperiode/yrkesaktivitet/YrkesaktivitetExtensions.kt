@@ -22,7 +22,7 @@ fun YrkesaktivitetDbRecord.hentDekningsgrad(): Sporbar<ProsentdelDto> = kategori
 fun YrkesaktivitetKategorisering.hentDekningsgrad(): Sporbar<ProsentdelDto> =
     when (this) {
         is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
-            when (val typeSelvstendig = this.type) {
+            when (val typeSelvstendig = this.typeSelvstendigNæringsdrivende) {
                 is TypeSelvstendigNæringsdrivende.Fisker -> {
                     Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.SELVSTENDIG_KOLLEKTIVFORSIKRING_DEKNINGSGRAD_100)
                 }
