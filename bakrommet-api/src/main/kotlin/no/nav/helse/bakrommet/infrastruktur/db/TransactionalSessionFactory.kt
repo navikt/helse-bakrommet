@@ -4,11 +4,15 @@ import kotliquery.Session
 import kotliquery.sessionOf
 import javax.sql.DataSource
 
-class TransactionalSessionFactory<out SessionDaosType>(
+interface TransactionalSessionFactory<out SessionDaosType> {
+    fun <RET> transactionalSessionScope(transactionalBlock: (SessionDaosType) -> RET): RET
+}
+
+class TransactionalSessionFactoryPg<out SessionDaosType>(
     private val dataSource: DataSource,
     private val daosCreatorFunction: (Session) -> SessionDaosType,
-) {
-    fun <RET> transactionalSessionScope(transactionalBlock: (SessionDaosType) -> RET): RET =
+) : TransactionalSessionFactory<SessionDaosType> {
+    override fun <RET> transactionalSessionScope(transactionalBlock: (SessionDaosType) -> RET): RET =
         sessionOf(dataSource, returnGeneratedKey = true).use { session ->
             session.transaction { transactionalSession ->
                 transactionalBlock(daosCreatorFunction(transactionalSession))

@@ -17,7 +17,7 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
-import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
+import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactoryPg
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.OutboxDao
@@ -147,7 +147,7 @@ fun runApplicationTest(
                 clienter = clienter,
                 daoerFelles = DaoerFelles(dataSource),
                 sessionFactoryFelles =
-                    TransactionalSessionFactory(dataSource) { session ->
+                    TransactionalSessionFactoryPg(dataSource) { session ->
                         SessionDaoerFelles(session)
                     },
             )

@@ -24,6 +24,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
+import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactoryPg
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
 import no.nav.helse.bakrommet.kafka.OutboxService
@@ -91,7 +92,7 @@ fun Application.settOppKtor(
         createServices(
             clienter,
             DaoerFelles(dataSource),
-            TransactionalSessionFactory(dataSource) { session ->
+            TransactionalSessionFactoryPg(dataSource) { session ->
                 SessionDaoerFelles(session)
             },
         ),
