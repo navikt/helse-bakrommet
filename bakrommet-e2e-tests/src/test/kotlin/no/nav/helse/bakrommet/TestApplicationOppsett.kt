@@ -15,6 +15,9 @@ import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
+import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
+import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
+import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.OutboxDao
@@ -139,7 +142,15 @@ fun runApplicationTest(
                 inntektsmeldingClient = inntektsmeldingClient,
                 sigrunClient = sigrunClient,
             )
-        val services = createServices(dataSource, clienter)
+        val services =
+            createServices(
+                clienter = clienter,
+                daoerFelles = DaoerFelles(dataSource),
+                sessionFactoryFelles =
+                    TransactionalSessionFactory(dataSource) { session ->
+                        SessionDaoerFelles(session)
+                    },
+            )
 
         settOppKtor(dataSource, config, clienter, services)
     }

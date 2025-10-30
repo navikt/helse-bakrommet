@@ -12,6 +12,8 @@ dependencies {
     testImplementation(project(":bakrommet-client-sykepengesoknad"))
     testImplementation(project(":sykepenger-model"))
 
+    testImplementation("com.github.seratch:kotliquery")
+
     testImplementation("io.ktor:ktor-server-core")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("io.ktor:ktor-client-core")

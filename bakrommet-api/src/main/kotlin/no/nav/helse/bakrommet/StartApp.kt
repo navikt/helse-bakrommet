@@ -40,7 +40,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMa
 import no.nav.helse.bakrommet.saksbehandlingsperiode.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.sykepengegrunnlagRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.demoUtbetalingsberegningRoute
@@ -88,7 +87,14 @@ fun Application.settOppKtor(
     dataSource: DataSource,
     configuration: Configuration,
     clienter: Clienter = createClients(configuration),
-    services: Services = createServices(dataSource, clienter),
+    services: Services =
+        createServices(
+            clienter,
+            DaoerFelles(dataSource),
+            TransactionalSessionFactory(dataSource) { session ->
+                SessionDaoerFelles(session)
+            },
+        ),
 ) {
     azureAdAppAuthentication(configuration.auth, configuration.roller)
     helsesjekker()
@@ -184,15 +190,10 @@ data class SøknaderService(
 )
 
 fun createServices(
-    dataSource: DataSource,
     clienter: Clienter,
-    daoerFelles: DaoerFelles = DaoerFelles(dataSource),
+    daoerFelles: DaoerFelles,
+    sessionFactoryFelles: TransactionalSessionFactory<SessionDaoerFelles>,
 ): Services {
-    val sessionFactoryFelles: TransactionalSessionFactory<SessionDaoerFelles> =
-        TransactionalSessionFactory(dataSource) { session ->
-            SessionDaoerFelles(session)
-        }
-
     val personsøkService =
         PersonsøkService(
             pdlClient = clienter.pdlClient,
@@ -259,10 +260,7 @@ fun createServices(
             clienter.inntektsmeldingClient,
         )
 
-    val utbetalingsberegningService =
-        UtbetalingsberegningService(
-            UtbetalingsberegningDaoPg(dataSource),
-        )
+    val utbetalingsberegningService = UtbetalingsberegningService(daoerFelles.beregningDao)
 
     return Services(
         personsøkService = personsøkService,
