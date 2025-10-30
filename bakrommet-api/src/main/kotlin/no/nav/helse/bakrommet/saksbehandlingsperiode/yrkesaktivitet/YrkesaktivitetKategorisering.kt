@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "inntektskategori")
 @JsonSubTypes(
     value = [
         JsonSubTypes.Type(value = YrkesaktivitetKategorisering.Arbeidstaker::class, name = "ARBEIDSTAKER"),
@@ -14,39 +14,33 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     ],
 )
 sealed class YrkesaktivitetKategorisering {
-    abstract val inntektskategori: Inntektskategori
     abstract val sykmeldt: Boolean
 
     data class Arbeidstaker(
-        override val inntektskategori: Inntektskategori = Inntektskategori.ARBEIDSTAKER,
         override val sykmeldt: Boolean,
         val orgnummer: String,
         val typeArbeidstaker: TypeArbeidstaker,
     ) : YrkesaktivitetKategorisering()
 
     data class Frilanser(
-        override val inntektskategori: Inntektskategori = Inntektskategori.FRILANSER,
         override val sykmeldt: Boolean,
         val orgnummer: String,
         val forsikring: FrilanserForsikring,
     ) : YrkesaktivitetKategorisering()
 
     data class SelvstendigNæringsdrivende(
-        override val inntektskategori: Inntektskategori = Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE,
         override val sykmeldt: Boolean,
         val type: TypeSelvstendigNæringsdrivende,
     ) : YrkesaktivitetKategorisering()
 
     // Alltid sykmeldt
     data class Inaktiv(
-        override val inntektskategori: Inntektskategori = Inntektskategori.INAKTIV,
         override val sykmeldt: Boolean = true,
         val variant: VariantAvInaktiv,
     ) : YrkesaktivitetKategorisering()
 
     // Alltid sykmeldt
     data class Arbeidsledig(
-        override val inntektskategori: Inntektskategori = Inntektskategori.ARBEIDSLEDIG,
         override val sykmeldt: Boolean = true,
     ) : YrkesaktivitetKategorisering()
 }

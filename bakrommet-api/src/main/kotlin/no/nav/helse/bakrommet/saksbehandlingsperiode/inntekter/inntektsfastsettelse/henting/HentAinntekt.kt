@@ -11,7 +11,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.monthsBetween
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.omregnetÅrsinntekt
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.dto.InntektbeløpDto
@@ -37,12 +36,7 @@ fun InntektService.hentAInntektForYrkesaktivitet(
             "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
         }
 
-        val kategori = yrkesaktivitet.kategorisering.inntektskategori
-        if (kategori != Inntektskategori.ARBEIDSTAKER && kategori != Inntektskategori.FRILANSER) {
-            return@transactional AInntektResponse.Feil(
-                feilmelding = "Kan kun hente a-inntekt for arbeidstaker eller frilanser",
-            )
-        }
+        val kategori = yrkesaktivitet.kategorisering
 
         try {
             val ainntektBeregningsgrunnlag =
@@ -53,7 +47,7 @@ fun InntektService.hentAInntektForYrkesaktivitet(
                 ).somAInntektBeregningsgrunnlag()
 
             when (kategori) {
-                Inntektskategori.ARBEIDSTAKER -> {
+                is YrkesaktivitetKategorisering.Arbeidstaker -> {
                     val orgnummer =
                         (yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer
                     val omregnetÅrsinntekt = ainntektBeregningsgrunnlag.omregnetÅrsinntekt(orgnummer)
@@ -67,7 +61,7 @@ fun InntektService.hentAInntektForYrkesaktivitet(
                     )
                 }
 
-                Inntektskategori.FRILANSER -> {
+                is YrkesaktivitetKategorisering.Frilanser -> {
                     // For frilanser henter vi all inntekt uten å filtrere på orgnummer
                     val inntektResponse = ainntektBeregningsgrunnlag.first.tilInntektApiUt()
                     val fom = ainntektBeregningsgrunnlag.second.fom
@@ -95,7 +89,9 @@ fun InntektService.hentAInntektForYrkesaktivitet(
                     )
                 }
 
-                else -> throw IllegalStateException("Ugyldig kategori")
+                else -> return@transactional AInntektResponse.Feil(
+                    feilmelding = "Kan kun hente a-inntekt for arbeidstaker eller frilanser",
+                )
             }
         } catch (e: Exception) {
             AInntektResponse.Feil(

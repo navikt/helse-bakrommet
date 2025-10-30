@@ -154,7 +154,14 @@ object YrkesaktivitetKategoriseringMapper {
     fun toMap(kategorisering: YrkesaktivitetKategorisering): Map<String, String> {
         val map = mutableMapOf<String, String>()
 
-        map["INNTEKTSKATEGORI"] = kategorisering.inntektskategori.name
+        map["INNTEKTSKATEGORI"] =
+            when (kategorisering) {
+                is YrkesaktivitetKategorisering.Arbeidstaker -> "ARBEIDSTAKER"
+                is YrkesaktivitetKategorisering.Frilanser -> "FRILANSER"
+                is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> "SELVSTENDIG_NÆRINGSDRIVENDE"
+                is YrkesaktivitetKategorisering.Inaktiv -> "INAKTIV"
+                is YrkesaktivitetKategorisering.Arbeidsledig -> "ARBEIDSLEDIG"
+            }
 
         // Legg til sykmeldt (ikke for ARBEIDSLEDIG og INAKTIV siden de alltid er sykmeldt)
         if (kategorisering !is YrkesaktivitetKategorisering.Arbeidsledig && kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {

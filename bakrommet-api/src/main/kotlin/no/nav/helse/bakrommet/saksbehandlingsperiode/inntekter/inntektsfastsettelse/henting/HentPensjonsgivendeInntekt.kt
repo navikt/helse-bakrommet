@@ -8,7 +8,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.kanBeregnesEtter835
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.tilBeregnetPensjonsgivendeInntekt
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.Inaktiv
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
 
 fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
@@ -35,11 +36,8 @@ fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
             "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
         }
 
-        val kategori = yrkesaktivitet.kategorisering.inntektskategori
-        if (kategori != Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE && kategori != Inntektskategori.INAKTIV) {
-            return@transactional PensjonsgivendeInntektResponse.Feil(
-                feilmelding = "Kan kun hente pensjonsgivende inntekt for selvstendig næringsdrivende eller inaktiv",
-            )
+        val kategori = yrkesaktivitet.kategorisering
+        if (kategori !is SelvstendigNæringsdrivende && kategori !is Inaktiv) {
         }
 
         try {
@@ -59,7 +57,7 @@ fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
             val beregnet = pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
 
             when (kategori) {
-                Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE ->
+                is SelvstendigNæringsdrivende ->
                     PensjonsgivendeInntektResponse.Suksess(
                         data =
                             InntektData.SelvstendigNæringsdrivendePensjonsgivende(
@@ -68,7 +66,7 @@ fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
                             ),
                     )
 
-                Inntektskategori.INAKTIV ->
+                is Inaktiv ->
                     PensjonsgivendeInntektResponse.Suksess(
                         data =
                             InntektData.InaktivPensjonsgivende(

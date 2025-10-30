@@ -19,7 +19,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsette
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Inntektskategori
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
@@ -68,18 +67,29 @@ class InntektService(
                 "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
             }
 
-            fun validerInntektskategori(forventet: Inntektskategori) {
-                if (yrkesaktivitet.kategorisering.inntektskategori != forventet) {
-                    throw IllegalStateException("Kan kun oppdatere ${forventet.name} inntekt på yrkesaktivitet med inntektskategori ${forventet.name}")
-                }
-            }
+            val feilKategori = { throw IllegalStateException("Feil inntektkategori for oppdatering av inntekt med tyoe ${request.javaClass.name}") }
 
             when (request) {
-                is InntektRequest.Arbeidstaker -> validerInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                is InntektRequest.SelvstendigNæringsdrivende -> validerInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
-                is InntektRequest.Frilanser -> validerInntektskategori(Inntektskategori.FRILANSER)
-                is InntektRequest.Inaktiv -> validerInntektskategori(Inntektskategori.INAKTIV)
-                is InntektRequest.Arbeidsledig -> validerInntektskategori(Inntektskategori.ARBEIDSLEDIG)
+                is InntektRequest.Arbeidstaker ->
+                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
+                        feilKategori()
+                    }
+                is InntektRequest.SelvstendigNæringsdrivende ->
+                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende) {
+                        feilKategori()
+                    }
+                is InntektRequest.Frilanser ->
+                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Frilanser) {
+                        feilKategori()
+                    }
+                is InntektRequest.Inaktiv ->
+                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
+                        feilKategori()
+                    }
+                is InntektRequest.Arbeidsledig ->
+                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidsledig) {
+                        feilKategori()
+                    }
             }
 
             yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
