@@ -29,11 +29,10 @@ import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
 import no.nav.helse.bakrommet.kafka.OutboxService
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonsøkService
 import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.person.personsøkRoute
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeService
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.dokumenterRoute
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
@@ -88,30 +87,13 @@ internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(conf
 fun Application.settOppKtor(
     dataSource: DataSource,
     configuration: Configuration,
-    oboClient: OboClient = OboClient(configuration.obo),
-    pdlClient: PdlClient = PdlClient(configuration.pdl, oboClient),
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient =
-        SykepengesoknadBackendClient(
-            configuration.sykepengesoknadBackend,
-            oboClient,
-        ),
-    aaRegClient: AARegClient = AARegClient(configuration.aareg, oboClient),
-    aInntektClient: AInntektClient = AInntektClient(configuration.ainntekt, oboClient),
-    inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient),
-    sigrunClient: SigrunClient = SigrunClient(configuration.sigrun, oboClient),
+    clienter: Clienter = createClients(configuration),
+    services: Services = createServices(dataSource, clienter),
 ) {
     azureAdAppAuthentication(configuration.auth, configuration.roller)
     helsesjekker()
-    appModul(
-        dataSource,
-        pdlClient,
-        configuration,
-        sykepengesoknadBackendClient,
-        aaRegClient,
-        aInntektClient,
-        inntektsmeldingClient,
-        sigrunClient,
-    )
+
+    appModul(configuration, services)
 }
 
 internal fun Application.helsesjekker() {
@@ -125,44 +107,181 @@ internal fun Application.helsesjekker() {
     }
 }
 
-internal fun Application.appModul(
+fun Route.setupRoutes(services: Services) {
+    personsøkRoute(services.personsøkService)
+    personinfoRoute(services.personService.pdlClient, services.personService.personDao)
+    soknaderRoute(services.søknaderService.soknadClient, services.søknaderService.personDao)
+    sykepengegrunnlagRoute(services.sykepengegrunnlagService)
+    saksbehandlingsperiodeRoute(service = services.saksbehandlingsperiodeService)
+    dokumenterRoute(dokumentHenter = services.dokumentHenter)
+    saksbehandlingsperiodeVilkårRoute(service = services.vilkårService)
+    saksbehandlingsperiodeYrkesaktivitetRoute(
+        service = services.yrkesaktivitetService,
+        inntektservice = services.inntektService,
+        inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
+    )
+    beregningRoute(service = services.utbetalingsberegningService)
+    brukerRoute()
+}
+
+class Clienter(
+    val pdlClient: PdlClient,
+    val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
+    val oboClient: OboClient,
+    val aInntektClient: AInntektClient,
+    val aaRegClient: AARegClient,
+    val inntektsmeldingClient: InntektsmeldingClient,
+    val sigrunClient: SigrunClient,
+)
+
+fun createClients(configuration: Configuration): Clienter {
+    val oboClient = OboClient(configuration.obo)
+    val pdlClient = PdlClient(configuration.pdl, oboClient)
+    val sykepengesoknadBackendClient =
+        SykepengesoknadBackendClient(
+            configuration.sykepengesoknadBackend,
+            oboClient,
+        )
+
+    val aaRegClient = AARegClient(configuration.aareg, oboClient)
+    val aInntektClient = AInntektClient(configuration.ainntekt, oboClient)
+    val inntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient)
+    val sigrunClient = SigrunClient(configuration.sigrun, oboClient)
+
+    return Clienter(
+        pdlClient = pdlClient,
+        sykepengesoknadBackendClient = sykepengesoknadBackendClient,
+        oboClient = oboClient,
+        aInntektClient = aInntektClient,
+        aaRegClient = aaRegClient,
+        inntektsmeldingClient = inntektsmeldingClient,
+        sigrunClient = sigrunClient,
+    )
+}
+
+data class Services(
+    val personsøkService: PersonsøkService,
+    val personService: PersonService,
+    val søknaderService: SøknaderService,
+    val sykepengegrunnlagService: SykepengegrunnlagService,
+    val saksbehandlingsperiodeService: SaksbehandlingsperiodeService,
+    val dokumentHenter: DokumentHenter,
+    val vilkårService: VilkårService,
+    val yrkesaktivitetService: YrkesaktivitetService,
+    val inntektService: InntektService,
+    val inntektsmeldingMatcherService: InntektsmeldingMatcherService,
+    val utbetalingsberegningService: UtbetalingsberegningService,
+)
+
+data class PersonService(
+    val pdlClient: PdlClient,
+    val personDao: PersonDao,
+)
+
+data class SøknaderService(
+    val soknadClient: SykepengesoknadBackendClient,
+    val personDao: PersonDao,
+)
+
+fun createServices(
     dataSource: DataSource,
-    pdlClient: PdlClient,
-    configuration: Configuration,
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient,
-    aaRegClient: AARegClient,
-    aInntektClient: AInntektClient,
-    inntektsmeldingClient: InntektsmeldingClient,
-    sigrunClient: SigrunClient,
-    personDao: PersonDao = PersonDao(dataSource),
-    saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao = SaksbehandlingsperiodeDao(dataSource),
-    dokumentDao: DokumentDao = DokumentDao(dataSource),
+    clienter: Clienter,
     daoerFelles: DaoerFelles = DaoerFelles(dataSource),
-    sessionFactoryFelles: TransactionalSessionFactory<SessionDaoerFelles> =
+): Services {
+    val sessionFactoryFelles: TransactionalSessionFactory<SessionDaoerFelles> =
         TransactionalSessionFactory(dataSource) { session ->
             SessionDaoerFelles(session)
-        },
-    dokumentHenter: DokumentHenter =
+        }
+
+    val personsøkService =
+        PersonsøkService(
+            pdlClient = clienter.pdlClient,
+            personDao = daoerFelles.personDao,
+        )
+
+    val personService =
+        PersonService(
+            pdlClient = clienter.pdlClient,
+            personDao = daoerFelles.personDao,
+        )
+
+    val søknaderService =
+        SøknaderService(
+            soknadClient = clienter.sykepengesoknadBackendClient,
+            personDao = daoerFelles.personDao,
+        )
+
+    val dokumentHenter =
         DokumentHenter(
-            personDao = personDao,
-            saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
-            dokumentDao = dokumentDao,
-            soknadClient = sykepengesoknadBackendClient,
-            aInntektClient = aInntektClient,
-            aaRegClient = aaRegClient,
-            sigrunClient = sigrunClient,
-        ),
-    saksbehandlingsperiodeService: SaksbehandlingsperiodeService =
+            personDao = daoerFelles.personDao,
+            saksbehandlingsperiodeDao = daoerFelles.saksbehandlingsperiodeDao,
+            dokumentDao = daoerFelles.dokumentDao,
+            soknadClient = clienter.sykepengesoknadBackendClient,
+            aInntektClient = clienter.aInntektClient,
+            aaRegClient = clienter.aaRegClient,
+            sigrunClient = clienter.sigrunClient,
+        )
+
+    val saksbehandlingsperiodeService =
         SaksbehandlingsperiodeService(
             daoer = daoerFelles,
             sessionFactory = sessionFactoryFelles,
             dokumentHenter = dokumentHenter,
-        ),
-    sykepengegrunnlagService: SykepengegrunnlagService =
+        )
+
+    val sykepengegrunnlagService =
         SykepengegrunnlagService(
             daoer = daoerFelles,
             sessionFactory = sessionFactoryFelles,
-        ),
+        )
+
+    val vilkårService = VilkårService(daoerFelles, sessionFactoryFelles)
+
+    val yrkesaktivitetService =
+        YrkesaktivitetService(
+            daoerFelles,
+            sessionFactoryFelles,
+        )
+
+    val inntektService =
+        InntektService(
+            daoerFelles,
+            clienter.inntektsmeldingClient,
+            clienter.sigrunClient,
+            clienter.aInntektClient,
+            sessionFactoryFelles,
+        )
+
+    val inntektsmeldingMatcherService =
+        InntektsmeldingMatcherService(
+            daoerFelles,
+            sessionFactoryFelles,
+            clienter.inntektsmeldingClient,
+        )
+
+    val utbetalingsberegningService =
+        UtbetalingsberegningService(
+            UtbetalingsberegningDao(dataSource),
+        )
+
+    return Services(
+        personsøkService = personsøkService,
+        personService = personService,
+        søknaderService = søknaderService,
+        sykepengegrunnlagService = sykepengegrunnlagService,
+        saksbehandlingsperiodeService = saksbehandlingsperiodeService,
+        dokumentHenter = dokumentHenter,
+        vilkårService = vilkårService,
+        yrkesaktivitetService = yrkesaktivitetService,
+        inntektService = inntektService,
+        inntektsmeldingMatcherService = inntektsmeldingMatcherService,
+        utbetalingsberegningService = utbetalingsberegningService,
+    )
+}
+
+internal fun Application.appModul(
+    configuration: Configuration,
+    services: Services,
 ) {
     install(ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter(objectMapper))
@@ -183,43 +302,7 @@ internal fun Application.appModul(
 
         authenticate("entraid") {
             install(RolleMatrise)
-            personsøkRoute(pdlClient, personDao)
-            personinfoRoute(pdlClient, personDao)
-            soknaderRoute(sykepengesoknadBackendClient, personDao)
-            sykepengegrunnlagRoute(sykepengegrunnlagService)
-            saksbehandlingsperiodeRoute(service = saksbehandlingsperiodeService)
-            dokumenterRoute(dokumentHenter = dokumentHenter)
-            saksbehandlingsperiodeVilkårRoute(
-                service = VilkårService(daoerFelles, sessionFactoryFelles),
-            )
-            saksbehandlingsperiodeYrkesaktivitetRoute(
-                service =
-                    YrkesaktivitetService(
-                        daoerFelles,
-                        sessionFactoryFelles,
-                    ),
-                inntektservice =
-                    InntektService(
-                        daoerFelles,
-                        inntektsmeldingClient,
-                        sigrunClient,
-                        aInntektClient,
-                        sessionFactoryFelles,
-                    ),
-                inntektsmeldingMatcherService =
-                    InntektsmeldingMatcherService(
-                        daoerFelles,
-                        sessionFactoryFelles,
-                        inntektsmeldingClient,
-                    ),
-            )
-            beregningRoute(
-                service =
-                    UtbetalingsberegningService(
-                        UtbetalingsberegningDao(dataSource),
-                    ),
-            )
-            brukerRoute()
+            setupRoutes(services)
         }
     }
 }

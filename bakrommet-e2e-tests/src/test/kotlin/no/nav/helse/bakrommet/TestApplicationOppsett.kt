@@ -124,17 +124,19 @@ fun runApplicationTest(
         TestDataSource.resetDatasource()
     }
     application {
-        settOppKtor(
-            dataSource,
-            config,
-            pdlClient = pdlClient,
-            oboClient = oboClient,
-            sykepengesoknadBackendClient = sykepengesoknadBackendClient,
-            aaRegClient = aaRegClient,
-            aInntektClient = aInntektClient,
-            inntektsmeldingClient = inntektsmeldingClient,
-            sigrunClient = sigrunClient,
-        )
+        val clienter =
+            Clienter(
+                pdlClient = pdlClient,
+                sykepengesoknadBackendClient = sykepengesoknadBackendClient,
+                oboClient = oboClient,
+                aInntektClient = aInntektClient,
+                aaRegClient = aaRegClient,
+                inntektsmeldingClient = inntektsmeldingClient,
+                sigrunClient = sigrunClient,
+            )
+        val services = createServices(dataSource, clienter)
+
+        settOppKtor(dataSource, config, clienter, services)
     }
     client =
         createClient {

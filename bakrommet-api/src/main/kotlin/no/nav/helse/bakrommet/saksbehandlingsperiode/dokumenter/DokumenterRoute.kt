@@ -36,7 +36,7 @@ private suspend fun RoutingCall.respondDokument(
     respondText(dokument.tilDto().serialisertTilString(), ContentType.Application.Json, status)
 }
 
-internal fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
+fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
             val dokumenterDto = dokumentHenter.hentDokumenterFor(call.periodeReferanse()).map { it.tilDto() }

@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.pdl.alder
 import no.nav.helse.bakrommet.pdl.formattert
 import no.nav.helse.bakrommet.util.serialisertTilString
 
-internal fun Route.personinfoRoute(
+fun Route.personinfoRoute(
     pdlClient: PdlClient,
     personDao: PersonDao,
 ) {

@@ -14,10 +14,8 @@ import no.nav.helse.bakrommet.util.sikkerLogger
 import java.lang.RuntimeException
 import java.sql.SQLException
 
-internal fun Route.personsøkRoute(
-    pdlClient: PdlClient,
-    personDao: PersonDao,
-    service: PersonsøkService = PersonsøkService(pdlClient, personDao),
+fun Route.personsøkRoute(
+    service: PersonsøkService,
 ) {
     post("/v1/personsok") {
         val ident = call.receive<JsonNode>()["ident"].asText()
