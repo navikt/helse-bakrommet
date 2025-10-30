@@ -5,6 +5,8 @@ import kotlin.collections.contains
 
 infix fun <T> T.`should equal`(expected: T) = assertEquals(expected, this, "Expected <$this> to be equal to <$expected>")
 
+infix fun String.`should contain`(element: String) = assertTrue(this.contains(element), "Expected <$this> to contain <$element>")
+
 infix fun <T> T.`should not equal`(other: T) = assertNotEquals(other, this, "Expected <$this> not to be equal to <$other>")
 
 infix fun <T> Iterable<T>.`should contain`(element: T) = assertTrue(this.contains(element), "Expected <$this> to contain <$element>")

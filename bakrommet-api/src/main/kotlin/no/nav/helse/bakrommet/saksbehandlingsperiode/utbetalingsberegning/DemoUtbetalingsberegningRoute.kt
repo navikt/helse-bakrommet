@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import io.ktor.http.*
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -18,30 +19,27 @@ internal fun Route.demoUtbetalingsberegningRoute() {
         post {
             // Log rå input som tekst
             val rawInput = call.receiveText()
-            try {
-                // Parse input til objekt
-                val input = objectMapperCustomSerde.readValue(rawInput, DemoUtbetalingsberegningInput::class.java)
-                val inputTransformert = input.tilUtbetalingsberegningInput()
-                val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(inputTransformert)
-                val oppdrag = byggOppdragFraBeregning(beregnet, inputTransformert.yrkesaktivitet, "NATURLIG_IDENT_DEMO")
-                val beregningData = BeregningData(beregnet, oppdrag)
-                val beregningDataDto = beregningData.tilBeregningDataUtDto()
+            val inputTransformert =
+                try {
+                    // Parse input til objekt
+                    val input = objectMapperCustomSerde.readValue(rawInput, DemoUtbetalingsberegningInput::class.java)
+                    input.tilUtbetalingsberegningInput()
+                } catch (e: Exception) {
+                    logger.error("Feil i demo utbetalingsberegning API", e)
+                    logger.info("Demo utbetalingsberegning input: $rawInput")
 
-                call.respondText(
-                    beregningDataDto.serialisertTilString(),
-                    ContentType.Application.Json,
-                    HttpStatusCode.OK,
-                )
-            } catch (e: Exception) {
-                logger.error("Feil i demo utbetalingsberegning API", e)
-                logger.info("Demo utbetalingsberegning input: $rawInput")
+                    throw BadRequestException(e.message ?: "Ugyldig input til demo utbetalingsberegning")
+                }
+            val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(inputTransformert)
+            val oppdrag = byggOppdragFraBeregning(beregnet, inputTransformert.yrkesaktivitet, "NATURLIG_IDENT_DEMO")
+            val beregningData = BeregningData(beregnet, oppdrag)
+            val beregningDataDto = beregningData.tilBeregningDataUtDto()
 
-                call.respondText(
-                    """{"error": "${e.message}"}""",
-                    ContentType.Application.Json,
-                    HttpStatusCode.BadRequest,
-                )
-            }
+            call.respondText(
+                beregningDataDto.serialisertTilString(),
+                ContentType.Application.Json,
+                HttpStatusCode.OK,
+            )
         }
     }
 }

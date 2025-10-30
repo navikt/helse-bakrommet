@@ -13,6 +13,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidst
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.tilYrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.testutils.`should contain`
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -61,7 +62,8 @@ class DemoUtbetalingsberegningRouteTest {
 
             // Verifiser at feilmelding er inkludert
             val responseBody = response.bodyAsText()
-            assertTrue(responseBody.contains("error"))
+            responseBody `should contain` "Ugyldig forespørsel"
+            responseBody `should contain` "due to missing (therefore NULL) value for creator parameter sykepengegrunnlag"
         }
 
     private fun lagTestInput(yrkesaktivitetId: UUID): DemoUtbetalingsberegningInput {
