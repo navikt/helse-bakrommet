@@ -89,7 +89,7 @@ object PdlMock {
     )
 
     fun pdlReply(
-        fnr: String = "12345678910",
+        fnr: String = "01010199999",
         aktorId: String = "10987654321",
     ) = """
         {
