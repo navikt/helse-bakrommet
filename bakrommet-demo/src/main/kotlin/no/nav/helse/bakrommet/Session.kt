@@ -4,10 +4,10 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
-class ExtraContext(
+class CoroutineSessionContext(
     val sessionid: String,
 ) : AbstractCoroutineContextElement(Key) {
-    companion object Key : CoroutineContext.Key<ExtraContext>
+    companion object Key : CoroutineContext.Key<CoroutineSessionContext>
 }
 
-suspend fun hentSessionid(): String = currentCoroutineContext()[ExtraContext]?.sessionid ?: throw IllegalStateException("No ExtraContext found")
+suspend fun hentSessionid(): String = currentCoroutineContext()[CoroutineSessionContext]?.sessionid ?: throw IllegalStateException("No ExtraContext found")
