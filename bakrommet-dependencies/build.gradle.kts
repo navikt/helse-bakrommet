@@ -23,7 +23,7 @@ javaPlatform {
 dependencies {
     // BOMs for å sikre samsvar
     api(platform("com.fasterxml.jackson:jackson-bom:2.18.2"))
-    api(platform("io.ktor:ktor-bom:3.3.0"))
+    api(platform("io.ktor:ktor-bom:3.3.1"))
     
     constraints {
         // Kotlin
