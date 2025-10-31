@@ -1,12 +1,12 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter
 
 import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.DokumentInnhentingDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
@@ -27,129 +27,141 @@ import no.nav.helse.bakrommet.util.toJsonNode
 import java.util.*
 
 class DokumentHenter(
-    override val personDao: PersonDao,
-    override val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
-    override val dokumentDao: DokumentDao,
+    val db: DbDaoer<DokumentInnhentingDaoer>,
     private val soknadClient: SykepengesoknadBackendClient,
     private val aInntektClient: AInntektClient,
     private val aaRegClient: AARegClient,
     private val sigrunClient: SigrunClient,
-) : DokumentInnhentingDaoer {
-    fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
-        return dokumentDao.hentDokumenterFor(periode.id)
-    }
+) {
+    suspend fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> =
+        db.nonTransactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+            dokumentDao.hentDokumenterFor(periode.id)
+        }
 
-    fun hentDokument(
+    suspend fun hentDokument(
         ref: SaksbehandlingsperiodeReferanse,
         dokumentId: UUID,
-    ): Dokument? {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
-        val dok = dokumentDao.hentDokument(dokumentId)
-        if (dok != null) {
-            if (dok.opprettetForBehandling != periode.id) {
-                throw InputValideringException("Dokumentet tilhører ikke behandlingen")
+    ): Dokument? =
+        db.nonTransactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+            val dok = dokumentDao.hentDokument(dokumentId)
+            if (dok != null) {
+                if (dok.opprettetForBehandling != periode.id) {
+                    throw InputValideringException("Dokumentet tilhører ikke behandlingen")
+                }
             }
+            dok
         }
-        return dok
-    }
 
     suspend fun hentOgLagreSøknader(
         ref: SaksbehandlingsperiodeReferanse,
         søknadsIder: List<UUID>,
         saksbehandler: BrukerOgToken,
-    ): List<Dokument> {
-        if (søknadsIder.isEmpty()) return emptyList()
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+    ): List<Dokument> =
+        db.nonTransactional {
+            if (søknadsIder.isEmpty()) return@nonTransactional emptyList()
+            val periode =
+                saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
-        // TODO: Transaksjon ? / Tilrettelegg for å kunne fullføre innhenting som feiler halvveis inni løpet ?
+            // TODO: Transaksjon ? / Tilrettelegg for å kunne fullføre innhenting som feiler halvveis inni løpet ?
 
-        val søknader: List<Dokument> =
-            søknadsIder.map { søknadId ->
-                logg.info("Henter søknad med id={} for periode={}", søknadId, periode.id)
-                soknadClient
-                    .hentSoknadMedSporing(
-                        saksbehandlerToken = saksbehandler.token,
-                        id = søknadId.toString(),
-                    ).let { (søknadDto, kildespor) ->
-                        dokumentDao.opprettDokument(
-                            Dokument(
-                                dokumentType = DokumentType.søknad,
-                                eksternId = søknadId.toString(),
-                                innhold = søknadDto.serialisertTilString(),
-                                sporing = kildespor,
-                                opprettetForBehandling = periode.id,
-                            ),
-                        )
+            val søknader: List<Dokument> =
+                runBlocking {
+                    søknadsIder.map { søknadId ->
+                        logg.info("Henter søknad med id={} for periode={}", søknadId, periode.id)
+                        soknadClient
+                            .hentSoknadMedSporing(
+                                saksbehandlerToken = saksbehandler.token,
+                                id = søknadId.toString(),
+                            ).let { (søknadDto, kildespor) ->
+                                dokumentDao.opprettDokument(
+                                    Dokument(
+                                        dokumentType = DokumentType.søknad,
+                                        eksternId = søknadId.toString(),
+                                        innhold = søknadDto.serialisertTilString(),
+                                        sporing = kildespor,
+                                        opprettetForBehandling = periode.id,
+                                    ),
+                                )
+                            }
                     }
-            }
+                }
 
-        return søknader
-    }
+            return@nonTransactional søknader
+        }
 
-    fun hentOgLagreAInntekt828(
+    suspend fun hentOgLagreAInntekt828(
         ref: SaksbehandlingsperiodeReferanse,
         saksbehandler: BrukerOgToken,
-    ): Dokument {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+    ): Dokument =
+        db.nonTransactional {
+            val periode =
+                saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
-        return lastAInntektBeregningsgrunnlag(
-            periode = periode,
-            aInntektClient = aInntektClient,
-            saksbehandler = saksbehandler,
-        )
-    }
+            return@nonTransactional lastAInntektBeregningsgrunnlag(
+                periode = periode,
+                aInntektClient = aInntektClient,
+                saksbehandler = saksbehandler,
+            )
+        }
 
-    fun hentOgLagreAInntekt830(
+    suspend fun hentOgLagreAInntekt830(
         ref: SaksbehandlingsperiodeReferanse,
         saksbehandler: BrukerOgToken,
-    ): Dokument {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+    ): Dokument =
+        db.nonTransactional {
+            val periode =
+                saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
-        return lastAInntektSammenlikningsgrunnlag(
-            periode = periode,
-            aInntektClient = aInntektClient,
-            saksbehandler = saksbehandler,
-        )
-    }
+            return@nonTransactional lastAInntektSammenlikningsgrunnlag(
+                periode = periode,
+                aInntektClient = aInntektClient,
+                saksbehandler = saksbehandler,
+            )
+        }
 
     suspend fun hentOgLagreArbeidsforhold(
         ref: SaksbehandlingsperiodeReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
-        val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
-        logg.info("Henter aareg for periode={}", periode.id)
-        return aaRegClient
-            .hentArbeidsforholdForMedSporing(
-                fnr = fnr,
-                saksbehandlerToken = saksbehandler.token,
-            ).let { (arbeidsforholdRes, kildespor) ->
-                // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?
-                dokumentDao.opprettDokument(
-                    Dokument(
-                        dokumentType = DokumentType.arbeidsforhold,
-                        eksternId = null,
-                        innhold = arbeidsforholdRes.serialisertTilString(),
-                        sporing = kildespor,
-                        opprettetForBehandling = periode.id,
-                    ),
-                )
-            }
+        return db.nonTransactional {
+            val periode =
+                saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+            val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
+            logg.info("Henter aareg for periode={}", periode.id)
+            return@nonTransactional aaRegClient
+                .hentArbeidsforholdForMedSporing(
+                    fnr = fnr,
+                    saksbehandlerToken = saksbehandler.token,
+                ).let { (arbeidsforholdRes, kildespor) ->
+                    // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?
+                    dokumentDao.opprettDokument(
+                        Dokument(
+                            dokumentType = DokumentType.arbeidsforhold,
+                            eksternId = null,
+                            innhold = arbeidsforholdRes.serialisertTilString(),
+                            sporing = kildespor,
+                            opprettetForBehandling = periode.id,
+                        ),
+                    )
+                }
+        }
     }
 
-    fun hentOgLagrePensjonsgivendeInntekt(
+    suspend fun hentOgLagrePensjonsgivendeInntekt(
         ref: SaksbehandlingsperiodeReferanse,
         saksbehandler: BrukerOgToken,
-    ): Dokument {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+    ): Dokument =
+        db.nonTransactional {
+            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
-        return lastSigrunDokument(
-            periode = periode,
-            saksbehandlerToken = saksbehandler.token,
-            sigrunClient = sigrunClient,
-        )
-    }
+            return@nonTransactional lastSigrunDokument(
+                periode = periode,
+                saksbehandlerToken = saksbehandler.token,
+                sigrunClient = sigrunClient,
+            )
+        }
 }
 
 fun List<PensjonsgivendeInntektÅrMedSporing>.joinSigrunResponserTilEttDokument(): Pair<JsonNode, Kildespor> {

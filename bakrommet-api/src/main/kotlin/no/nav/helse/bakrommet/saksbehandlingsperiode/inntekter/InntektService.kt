@@ -4,7 +4,6 @@ import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -38,15 +37,12 @@ interface InntektServiceDaoer :
 }
 
 class InntektService(
-    daoer: InntektServiceDaoer,
+    val db: DbDaoer<InntektServiceDaoer>,
     val inntektsmeldingClient: InntektsmeldingClient,
     val sigrunClient: SigrunClient,
     val aInntektClient: AInntektClient,
-    sessionFactory: TransactionalSessionFactory<InntektServiceDaoer>,
 ) {
-    val db = DbDaoer(daoer, sessionFactory)
-
-    fun oppdaterInntekt(
+    suspend fun oppdaterInntekt(
         ref: YrkesaktivitetReferanse,
         request: InntektRequest,
         saksbehandler: BrukerOgToken,

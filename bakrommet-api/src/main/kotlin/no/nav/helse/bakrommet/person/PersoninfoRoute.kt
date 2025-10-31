@@ -13,10 +13,10 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun Route.personinfoRoute(
     pdlClient: PdlClient,
-    personDao: PersonDao,
+    personIdService: PersonIdService,
 ) {
     get("/v1/{$PARAM_PERSONID}/personinfo") {
-        call.medIdent(personDao) { fnr, personId ->
+        call.medIdent(personIdService) { fnr, personId ->
             val token = call.request.bearerToken()
             val hentPersonInfo =
                 pdlClient.hentPersonInfo(

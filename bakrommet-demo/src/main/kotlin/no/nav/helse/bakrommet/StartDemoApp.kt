@@ -13,8 +13,6 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
-import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock
@@ -37,16 +35,6 @@ object FakeDaoer : AlleDaoer {
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoFake()
     override val beregningDao = UtbetalingsberegningDaoFake()
     override val outboxDao = OutboxDaoFake()
-}
-
-object FakeTransactionlfactory : TransactionalSessionFactory<SessionDaoerFelles> {
-    @Suppress("UNCHECKED_CAST")
-    override fun <RET> transactionalSessionScope(transactionalBlock: (SessionDaoerFelles) -> RET): RET {
-        // Demoen bruker kun fake-DAOer og trenger ingen ekte transaksjon/session.
-        // Vi kaster funksjonen til å akseptere AlleDaoer, og kjører den med FakeDaoer.
-        val block = transactionalBlock as (AlleDaoer) -> RET
-        return block(FakeDaoer)
-    }
 }
 
 fun main() {
@@ -89,11 +77,12 @@ fun main() {
                 oboClient = oboClient,
             )
 
+        TODO()
+        /*
         val clienter =
             Clienter(
                 pdlClient = pdlClient,
                 sykepengesoknadBackendClient = sykepengesoknadBackendClient,
-                oboClient = oboClient,
                 aInntektClient = aInntektClient,
                 aaRegClient = aaRegClient,
                 inntektsmeldingClient = inntektsmeldingClient,
@@ -105,5 +94,7 @@ fun main() {
         }
 
         appLogger.info("Starter bakrommet")
+
+         */
     }.start(true)
 }

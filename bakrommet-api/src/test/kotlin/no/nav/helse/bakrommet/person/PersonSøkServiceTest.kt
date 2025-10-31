@@ -6,17 +6,17 @@ import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.Rolle
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.pdl.PdlMock.pdlReply
+import no.nav.helse.bakrommet.skapDbDaoer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import javax.sql.DataSource
 import kotlin.test.assertEquals
 
 class PersonSøkServiceTest {
-    lateinit var dataSource: DataSource
-    lateinit var personDao: PersonDao
+    lateinit var db: DbDaoer<PersonsokDaoer>
     val fnr1 = "01019011111"
     val fnr2 = "01018022222"
     val aktor1 = "1111111111111"
@@ -46,14 +46,13 @@ class PersonSøkServiceTest {
     @BeforeEach
     fun setOpp() {
         TestDataSource.resetDatasource()
-        dataSource = TestDataSource.dbModule.dataSource
-        personDao = PersonDaoPg(dataSource)
+        db = skapDbDaoer(TestDataSource.dbModule.dataSource)
     }
 
     private fun serviceMed(antallPåfølgendeKollisjoner: Int) =
         PersonsøkService(
             pdlClient,
-            personDao,
+            db,
             personIdFactory =
                 object : PersonIdFactory {
                     var count = 0
@@ -91,7 +90,7 @@ class PersonSøkServiceTest {
     private fun service() =
         PersonsøkService(
             pdlClient,
-            personDao,
+            db,
             personIdFactory =
                 object : PersonIdFactory {
                     var count = 0
@@ -108,7 +107,8 @@ class PersonSøkServiceTest {
     fun `ved hentEllerOpprett() på AktørID så er det Folkeregisterident som skal kobles til personId`() {
         val service = service()
         val spilleromId1 = runBlocking { service.hentEllerOpprettPersonid(aktor1, saksbehandler = userTokenOgBruker) }
+        val actualPersonId = runBlocking { db.nonTransactional { personDao.finnPersonId(fnr1) } }
 
-        assertEquals(spilleromId1.personId, personDao.finnPersonId(fnr1))
+        assertEquals(spilleromId1.personId, actualPersonId)
     }
 }

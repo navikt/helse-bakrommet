@@ -1,9 +1,14 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 
+interface UtbetalingsberegningDaoer {
+    val beregningDao: UtbetalingsberegningDao
+}
+
 class UtbetalingsberegningService(
-    private val beregningDao: UtbetalingsberegningDao,
+    private val db: DbDaoer<UtbetalingsberegningDaoer>,
 ) {
-    fun hentUtbetalingsberegning(referanse: SaksbehandlingsperiodeReferanse): BeregningResponse? = beregningDao.hentBeregning(referanse.periodeUUID)
+    suspend fun hentUtbetalingsberegning(referanse: SaksbehandlingsperiodeReferanse): BeregningResponse? = db.nonTransactional { beregningDao.hentBeregning(referanse.periodeUUID) }
 }

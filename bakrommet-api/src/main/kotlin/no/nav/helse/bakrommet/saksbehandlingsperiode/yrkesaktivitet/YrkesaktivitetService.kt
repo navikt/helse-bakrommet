@@ -5,7 +5,6 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -39,14 +38,11 @@ interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
 typealias DagerSomSkalOppdateres = JsonNode
 
 class YrkesaktivitetService(
-    daoer: YrkesaktivitetServiceDaoer,
-    sessionFactory: TransactionalSessionFactory<YrkesaktivitetServiceDaoer>,
+    private val db: DbDaoer<YrkesaktivitetServiceDaoer>,
 ) {
-    private val db = DbDaoer(daoer, sessionFactory)
-
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean = this.sykmeldt
 
-    private fun hentYrkesaktivitet(
+    private suspend fun hentYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
         krav: BrukerHarRollePåSakenKrav?,
     ): YrkesaktivitetDbRecord =
@@ -66,18 +62,13 @@ class YrkesaktivitetService(
                 }
         }
 
-    fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<YrkesaktivitetDbRecord> =
+    suspend fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<YrkesaktivitetDbRecord> =
         db.nonTransactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
             yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         }
 
-    fun hentPeriodeForYrkesaktivitet(ref: SaksbehandlingsperiodeReferanse) =
-        db.nonTransactional {
-            saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
-        }
-
-    fun opprettYrkesaktivitet(
+    suspend fun opprettYrkesaktivitet(
         ref: SaksbehandlingsperiodeReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
@@ -114,7 +105,7 @@ class YrkesaktivitetService(
             inntektsforhold
         }
 
-    fun oppdaterKategorisering(
+    suspend fun oppdaterKategorisering(
         ref: YrkesaktivitetReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
@@ -129,7 +120,7 @@ class YrkesaktivitetService(
         }
     }
 
-    fun slettYrkesaktivitet(
+    suspend fun slettYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
         saksbehandler: Bruker,
     ) {
@@ -143,7 +134,7 @@ class YrkesaktivitetService(
         }
     }
 
-    fun oppdaterDagoversiktDager(
+    suspend fun oppdaterDagoversiktDager(
         ref: YrkesaktivitetReferanse,
         dagerSomSkalOppdateres: DagerSomSkalOppdateres,
         saksbehandler: Bruker,
@@ -216,7 +207,7 @@ class YrkesaktivitetService(
         }
     }
 
-    fun oppdaterPerioder(
+    suspend fun oppdaterPerioder(
         ref: YrkesaktivitetReferanse,
         perioder: Perioder?,
         saksbehandler: Bruker,

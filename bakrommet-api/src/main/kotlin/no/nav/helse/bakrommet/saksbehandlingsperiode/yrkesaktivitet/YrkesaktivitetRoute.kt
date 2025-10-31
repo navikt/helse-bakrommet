@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.PARAM_YRKESAKTIVITETUUID
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
+import no.nav.helse.bakrommet.person.PersonIdService
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
@@ -58,6 +59,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
     service: YrkesaktivitetService,
     inntektservice: InntektService,
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
+    personIdService: PersonIdService,
 ) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
@@ -130,7 +132,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                 }
             }
             get("/inntektsmeldinger") {
-                call.medIdent(inntektsmeldingMatcherService.personDao) { fnr, personId ->
+                call.medIdent(personIdService) { fnr, personId ->
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
 
                     val inntektsmeldinger =

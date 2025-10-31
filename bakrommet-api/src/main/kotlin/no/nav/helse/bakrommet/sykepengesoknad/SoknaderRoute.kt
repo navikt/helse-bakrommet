@@ -6,7 +6,7 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonIdService
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -14,10 +14,10 @@ import java.time.LocalDate
 
 internal fun Route.soknaderRoute(
     sykepengesoknadBackendClient: SykepengesoknadBackendClient,
-    personDao: PersonDao,
+    personIdService: PersonIdService,
 ) {
     get("/v1/{$PARAM_PERSONID}/soknader") {
-        call.medIdent(personDao) { fnr, personId ->
+        call.medIdent(personIdService) { fnr, personId ->
             val fomParam = call.request.queryParameters["fom"]
             val fom =
                 fomParam?.let {
@@ -42,7 +42,7 @@ internal fun Route.soknaderRoute(
     }
 
     get("/v1/{$PARAM_PERSONID}/soknader/{soknadId}") {
-        call.medIdent(personDao) { fnr, personId ->
+        call.medIdent(personIdService) { fnr, personId ->
             val soknadId = call.parameters["soknadId"] ?: throw InputValideringException("Mangler søknadId")
 
             val soknad: SykepengesoknadDTO =

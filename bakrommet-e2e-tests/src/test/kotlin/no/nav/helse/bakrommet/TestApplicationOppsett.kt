@@ -15,9 +15,6 @@ import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
-import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
-import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
-import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactoryPg
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.OutboxDao
@@ -26,8 +23,6 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.PersonDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
@@ -97,7 +92,6 @@ object TestOppsett {
 
 class Daoer(
     val personDao: PersonDao,
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
     val dokumentDao: DokumentDao,
     val yrkesaktivitetDao: YrkesaktivitetDao,
     val outboxDao: OutboxDao,
@@ -106,7 +100,6 @@ class Daoer(
         fun instansier(dataSource: DataSource): Daoer =
             Daoer(
                 PersonDaoPg(dataSource),
-                SaksbehandlingsperiodeDaoPg(dataSource),
                 DokumentDaoPg(dataSource),
                 YrkesaktivitetDaoPg(dataSource),
                 OutboxDaoPg(dataSource),
@@ -118,7 +111,6 @@ fun runApplicationTest(
     config: Configuration = TestOppsett.configuration,
     dataSource: DataSource = instansierDatabase(config.db),
     pdlClient: PdlClient = PdlMock.pdlClient(),
-    oboClient: OboClient = TestOppsett.oboClient,
     resetDatabase: Boolean = true,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
@@ -136,7 +128,6 @@ fun runApplicationTest(
             Clienter(
                 pdlClient = pdlClient,
                 sykepengesoknadBackendClient = sykepengesoknadBackendClient,
-                oboClient = oboClient,
                 aInntektClient = aInntektClient,
                 aaRegClient = aaRegClient,
                 inntektsmeldingClient = inntektsmeldingClient,
@@ -145,11 +136,7 @@ fun runApplicationTest(
         val services =
             createServices(
                 clienter = clienter,
-                daoerFelles = DaoerFelles(dataSource),
-                sessionFactoryFelles =
-                    TransactionalSessionFactoryPg(dataSource) { session ->
-                        SessionDaoerFelles(session)
-                    },
+                db = skapDbDaoer(dataSource),
             )
 
         settOppKtor(dataSource, config, clienter, services)

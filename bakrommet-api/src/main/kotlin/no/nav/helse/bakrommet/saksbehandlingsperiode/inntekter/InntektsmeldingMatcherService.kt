@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.server.plugins.BadRequestException
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
-import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactory
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -25,13 +23,9 @@ interface InntektsmeldingMatcherDaoer {
 }
 
 class InntektsmeldingMatcherService(
-    daoer: InntektsmeldingMatcherDaoer,
-    sessionFactory: TransactionalSessionFactory<SessionDaoerFelles>,
+    val db: DbDaoer<InntektsmeldingMatcherDaoer>,
     private val inntektsmeldingClient: InntektsmeldingClient,
 ) {
-    val db = DbDaoer(daoer, sessionFactory)
-    val personDao = daoer.personDao
-
     suspend fun hentInntektsmeldingerForYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
         fnr: String,

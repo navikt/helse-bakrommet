@@ -3,6 +3,8 @@ package no.nav.helse.bakrommet.infrastruktur.db
 import kotliquery.Session
 import no.nav.helse.bakrommet.kafka.OutboxDaoPg
 import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.person.PersonIdServiceDaoer
+import no.nav.helse.bakrommet.person.PersonsokDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringerDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServiceDaoer
@@ -12,6 +14,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMa
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDaoPg
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårServiceDaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDaoPg
@@ -24,7 +27,10 @@ interface AlleDaoer :
     SykepengegrunnlagServiceDaoer,
     InntektsmeldingMatcherDaoer,
     InntektServiceDaoer,
-    VilkårServiceDaoer
+    VilkårServiceDaoer,
+    PersonsokDaoer,
+    PersonIdServiceDaoer,
+    UtbetalingsberegningDaoer
 
 class DaoerFelles(
     dataSource: DataSource,

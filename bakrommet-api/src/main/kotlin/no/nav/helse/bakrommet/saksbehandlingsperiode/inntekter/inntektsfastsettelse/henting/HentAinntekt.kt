@@ -17,7 +17,7 @@ import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
 
-fun InntektService.hentAInntektForYrkesaktivitet(
+suspend fun InntektService.hentAInntektForYrkesaktivitet(
     ref: YrkesaktivitetReferanse,
     saksbehandler: BrukerOgToken,
 ): AInntektResponse {
