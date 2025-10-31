@@ -46,7 +46,7 @@ class InntektService(
 ) {
     val db = DbDaoer(daoer, sessionFactory)
 
-    fun oppdaterInntekt(
+    suspend fun oppdaterInntekt(
         ref: YrkesaktivitetReferanse,
         request: InntektRequest,
         saksbehandler: BrukerOgToken,

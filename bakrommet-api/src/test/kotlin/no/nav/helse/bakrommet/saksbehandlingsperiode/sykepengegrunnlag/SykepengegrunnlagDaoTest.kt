@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.dto.InntektbeløpDto
@@ -35,7 +36,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
+        val lagretGrunnlag = runBlocking { dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler) }
 
         assertEquals(540000.0, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(744168.0, lagretGrunnlag.sykepengegrunnlag!!.seksG.beløp)
@@ -45,7 +46,7 @@ class SykepengegrunnlagDaoTest {
         // Verifiser at opprettet og oppdatert er like ved opprettelse
         assertEquals(lagretGrunnlag.opprettet, lagretGrunnlag.oppdatert)
 
-        val hentetGrunnlag = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
+        val hentetGrunnlag = runBlocking { dao.hentSykepengegrunnlag(lagretGrunnlag.id) }
         assertEquals(lagretGrunnlag.id, hentetGrunnlag!!.id)
         assertEquals(lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
     }
@@ -65,7 +66,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
+        val lagretGrunnlag = runBlocking { dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler) }
 
         assertEquals(780960.0, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(true, lagretGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
@@ -87,7 +88,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(opprinneligGrunnlag, saksbehandler)
+        val lagretGrunnlag = runBlocking { dao.lagreSykepengegrunnlag(opprinneligGrunnlag, saksbehandler) }
 
         val oppdatertGrunnlag =
             Sykepengegrunnlag(
@@ -100,7 +101,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val oppdatertResultat = dao.oppdaterSykepengegrunnlag(lagretGrunnlag.id, oppdatertGrunnlag)
+        val oppdatertResultat = runBlocking { dao.oppdaterSykepengegrunnlag(lagretGrunnlag.id, oppdatertGrunnlag) }
 
         assertEquals(660000.0, oppdatertResultat.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(lagretGrunnlag.id, oppdatertResultat.id)
@@ -124,17 +125,17 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
+        val lagretGrunnlag = runBlocking { dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler) }
 
         // Verifiser at grunnlaget finnes
-        val hentetFørSletting = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
+        val hentetFørSletting = runBlocking { dao.hentSykepengegrunnlag(lagretGrunnlag.id) }
         assertEquals(540000.0, hentetFørSletting!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
 
         // Slett grunnlaget
-        dao.slettSykepengegrunnlag(lagretGrunnlag.id)
+        runBlocking { dao.slettSykepengegrunnlag(lagretGrunnlag.id) }
 
         // Verifiser at grunnlaget er slettet
-        val hentetEtterSletting = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
+        val hentetEtterSletting = runBlocking { dao.hentSykepengegrunnlag(lagretGrunnlag.id) }
         assertNull(hentetEtterSletting)
     }
 
@@ -143,7 +144,7 @@ class SykepengegrunnlagDaoTest {
         val dao = SykepengegrunnlagDaoPg(dataSource)
         val ikkeEksisterendeId = UUID.randomUUID()
 
-        val grunnlag = dao.hentSykepengegrunnlag(ikkeEksisterendeId)
+        val grunnlag = runBlocking { dao.hentSykepengegrunnlag(ikkeEksisterendeId) }
 
         assertNull(grunnlag)
     }
@@ -163,8 +164,8 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
-        val hentetGrunnlag = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
+        val lagretGrunnlag = runBlocking { dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler) }
+        val hentetGrunnlag = runBlocking { dao.hentSykepengegrunnlag(lagretGrunnlag.id) }
 
         // Verifiser at alle felter er korrekt deserialisert
         assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag!!.grunnbeløp.beløp)

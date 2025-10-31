@@ -1,32 +1,39 @@
 package no.nav.helse.bakrommet.fakedaos
 
+import kotlinx.coroutines.runBlocking
+import no.nav.helse.bakrommet.hentSessionid
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.tilYrkesaktivitet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.tilYrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.*
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class YrkesaktivitetDaoFake : YrkesaktivitetDao {
-    private val storage = ConcurrentHashMap<UUID, YrkesaktivitetDbRecord>()
+    // Map av sessionId -> yrkesaktivitetId -> YrkesaktivitetDbRecord
+    private val sessionData = ConcurrentHashMap<String, ConcurrentHashMap<UUID, YrkesaktivitetDbRecord>>()
 
-    override fun opprettYrkesaktivitet(
+    private fun getSessionMap(): ConcurrentHashMap<UUID, YrkesaktivitetDbRecord> =
+        runBlocking {
+            val sessionId = hentSessionid()
+            sessionData.getOrPut(sessionId) { ConcurrentHashMap() }
+        }
+
+    private val storage: ConcurrentHashMap<UUID, YrkesaktivitetDbRecord>
+        get() = getSessionMap()
+
+    override suspend fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
         dagoversikt: List<Dag>?,
         saksbehandlingsperiodeId: UUID,
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
-        perioder: no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder?,
+        perioder: Perioder?,
         inntektData: InntektData?,
-        refusjonsdata: List<no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode>?,
+        refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
         val record =
             YrkesaktivitetDbRecord(
@@ -47,15 +54,15 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         return record
     }
 
-    override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = storage[id]
+    override suspend fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = storage[id]
 
-    override fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? = storage[id]?.tilYrkesaktivitet()
+    override suspend fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? = storage[id]?.tilYrkesaktivitet()
 
-    override fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> = storage.values.filter { it.saksbehandlingsperiodeId == periode.id }.map { it.tilYrkesaktivitet() }
+    override suspend fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> = storage.values.filter { it.saksbehandlingsperiodeId == periode.id }.map { it.tilYrkesaktivitet() }
 
-    override fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> = storage.values.filter { it.saksbehandlingsperiodeId == periode.id }
+    override suspend fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> = storage.values.filter { it.saksbehandlingsperiodeId == periode.id }
 
-    override fun oppdaterKategorisering(
+    override suspend fun oppdaterKategorisering(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord {
@@ -65,7 +72,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         return oppdatert
     }
 
-    override fun oppdaterDagoversikt(
+    override suspend fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: List<Dag>,
     ): YrkesaktivitetDbRecord {
@@ -75,9 +82,9 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         return oppdatert
     }
 
-    override fun oppdaterPerioder(
+    override suspend fun oppdaterPerioder(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        perioder: no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder?,
+        perioder: Perioder?,
     ): YrkesaktivitetDbRecord {
         val eksisterende = storage[yrkesaktivitetDbRecord.id] ?: return yrkesaktivitetDbRecord
         val oppdatert = eksisterende.copy(perioder = perioder)
@@ -85,11 +92,11 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         return oppdatert
     }
 
-    override fun slettYrkesaktivitet(id: UUID) {
+    override suspend fun slettYrkesaktivitet(id: UUID) {
         storage.remove(id)
     }
 
-    override fun oppdaterInntektrequest(
+    override suspend fun oppdaterInntektrequest(
         yrkesaktivitet: Yrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord {
@@ -99,7 +106,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         return oppdatert
     }
 
-    override fun oppdaterInntektData(
+    override suspend fun oppdaterInntektData(
         yrkesaktivitet: Yrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord {
@@ -109,9 +116,9 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         return oppdatert
     }
 
-    override fun oppdaterRefusjonsdata(
+    override suspend fun oppdaterRefusjonsdata(
         yrkesaktivitet: Yrkesaktivitet,
-        refusjonsdata: List<no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode>?,
+        refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
         val eksisterende = storage[yrkesaktivitet.id] ?: return yrkesaktivitet.tilYrkesaktivitetDbRecord()
         val oppdatert = eksisterende.copy(refusjonsdata = refusjonsdata)

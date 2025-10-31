@@ -58,7 +58,7 @@ class PersonsøkService(
         return newPersonId
     }
 
-    private fun prøvOpprettFor(naturligIdent: String): SpilleromPersonId? {
+    private suspend fun prøvOpprettFor(naturligIdent: String): SpilleromPersonId? {
         val newPersonId = personIdFactory.lagNy()
         try {
             personDao.opprettPerson(naturligIdent = naturligIdent, newPersonId.personId)

@@ -18,7 +18,7 @@ import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
 
-internal fun InntektRequest.Frilanser.frilanserFastsettelse(
+internal suspend fun InntektRequest.Frilanser.frilanserFastsettelse(
     periode: Saksbehandlingsperiode,
     saksbehandler: BrukerOgToken,
     aInntektClient: AInntektClient,

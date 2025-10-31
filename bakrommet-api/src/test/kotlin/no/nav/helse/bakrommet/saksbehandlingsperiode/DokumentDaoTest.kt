@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDaoPg
@@ -37,9 +38,11 @@ class DokumentDaoTest {
     fun setOpp() {
         TestDataSource.resetDatasource()
         val dao = PersonDaoPg(dataSource)
-        dao.opprettPerson(fnr, personId)
+        runBlocking { dao.opprettPerson(fnr, personId) }
         val behandlingDao = SaksbehandlingsperiodeDaoPg(dataSource)
-        behandlingDao.opprettPeriode(periode)
+        runBlocking {
+            behandlingDao.opprettPeriode(periode)
+        }
     }
 
     @Test
@@ -55,10 +58,10 @@ class DokumentDaoTest {
                 sporing = Kildespor("GET /søknader/søknad-1"),
                 opprettetForBehandling = periode.id,
             )
-        dao.opprettDokument(dok)
+        runBlocking { dao.opprettDokument(dok) }
 
-        assertEquals(listOf(dok).tidsstuttet(), dao.hentDokumenterFor(periode.id).tidsstuttet())
+        assertEquals(listOf(dok).tidsstuttet(), runBlocking { dao.hentDokumenterFor(periode.id) }.tidsstuttet())
 
-        assertEquals(dok.tidsstuttet(), dao.hentDokument(dok.id)?.tidsstuttet())
+        assertEquals(dok.tidsstuttet(), runBlocking { dao.hentDokument(dok.id) }?.tidsstuttet())
     }
 }

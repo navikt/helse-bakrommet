@@ -109,6 +109,6 @@ class PersonSøkServiceTest {
         val service = service()
         val spilleromId1 = runBlocking { service.hentEllerOpprettPersonid(aktor1, saksbehandler = userTokenOgBruker) }
 
-        assertEquals(spilleromId1.personId, personDao.finnPersonId(fnr1))
+        assertEquals(spilleromId1.personId, runBlocking { personDao.finnPersonId(fnr1) })
     }
 }

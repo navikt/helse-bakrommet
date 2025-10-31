@@ -7,16 +7,16 @@ import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import javax.sql.DataSource
 
 interface PersonDao {
-    fun finnPersonId(vararg identer: String): String?
+    suspend fun finnPersonId(vararg identer: String): String?
 
-    fun opprettPerson(
+    suspend fun opprettPerson(
         naturligIdent: String,
         spilleromId: String,
     )
 
-    fun finnNaturligIdent(spilleromId: String): String?
+    suspend fun finnNaturligIdent(spilleromId: String): String?
 
-    fun hentNaturligIdent(spilleromId: String): String
+    suspend fun hentNaturligIdent(spilleromId: String): String
 }
 
 class PersonDaoPg private constructor(
@@ -25,7 +25,7 @@ class PersonDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override fun finnPersonId(vararg identer: String): String? {
+    override suspend fun finnPersonId(vararg identer: String): String? {
         val params = identer.mapIndexed { i, id -> "p$i" to id }
         val placeholderList = params.joinToString(",") { ":${it.first}" }
 
@@ -40,7 +40,7 @@ class PersonDaoPg private constructor(
         }
     }
 
-    override fun opprettPerson(
+    override suspend fun opprettPerson(
         naturligIdent: String,
         spilleromId: String,
     ) {
@@ -54,11 +54,11 @@ class PersonDaoPg private constructor(
         )
     }
 
-    override fun finnNaturligIdent(spilleromId: String): String? =
+    override suspend fun finnNaturligIdent(spilleromId: String): String? =
         db.single(
             "select naturlig_ident from ident where spillerom_id = :spillerom_id",
             "spillerom_id" to spilleromId,
         ) { it.string(1) }
 
-    override fun hentNaturligIdent(spilleromId: String): String = finnNaturligIdent(spilleromId) ?: throw RuntimeException("Fant ikke person med spilleromId $spilleromId")
+    override suspend fun hentNaturligIdent(spilleromId: String): String = finnNaturligIdent(spilleromId) ?: throw RuntimeException("Fant ikke person med spilleromId $spilleromId")
 }

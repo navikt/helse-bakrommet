@@ -5,7 +5,10 @@ import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.withContext
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.auth.OAuthScope
@@ -27,6 +30,27 @@ import org.slf4j.event.Level
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
+fun Application.requestContextPlugin() {
+/*
+    @Serializable
+    data class DemoSession(val userId: String?)
+    install(Sessions) {
+        cookie<DemoSession>("DEMO_SESSION") {
+            cookie.path = "/"
+            cookie.maxAgeInSeconds = 60 * 60 * 24 // 24 timer
+            // Bruker enkel cookie uten transform for demo
+        }
+    }
+*/
+    intercept(ApplicationCallPipeline.Plugins) {
+        call.response.header("dsf", "heihei")
+        val ctx = CoroutineSessionContext(sessionid = "test-string")
+        withContext(ctx) {
+            proceed()
+        }
+    }
+}
+
 object FakeDaoer : AlleDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDaoFake()
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoFake()
@@ -41,7 +65,7 @@ object FakeDaoer : AlleDaoer {
 
 object FakeTransactionlfactory : TransactionalSessionFactory<SessionDaoerFelles> {
     @Suppress("UNCHECKED_CAST")
-    override fun <RET> transactionalSessionScope(transactionalBlock: (SessionDaoerFelles) -> RET): RET {
+    override suspend fun <RET> transactionalSessionScope(transactionalBlock: suspend (SessionDaoerFelles) -> RET): RET {
         // Demoen bruker kun fake-DAOer og trenger ingen ekte transaksjon/session.
         // Vi kaster funksjonen til å akseptere AlleDaoer, og kjører den med FakeDaoer.
         val block = transactionalBlock as (AlleDaoer) -> RET
@@ -49,17 +73,26 @@ object FakeTransactionlfactory : TransactionalSessionFactory<SessionDaoerFelles>
     }
 }
 
+suspend fun doSomething(prefix: String) {
+    println("2: ${currentCoroutineContext()[CoroutineSessionContext.Key]?.sessionid}")
+}
+
 fun main() {
     embeddedServer(CIO, port = 8080) {
         appLogger.info("Setter opp ktor")
 
         helsesjekker()
-/*
-        install(ContentNegotiation) {
-            register(ContentType.Application.Json, JacksonConverter(objectMapper))
-        }
 
- */
+        requestContextPlugin()
+        routing {
+            get("/") {
+                println("1: ${coroutineContext[CoroutineSessionContext.Key]?.sessionid}")
+                println("2: ${currentCoroutineContext()[CoroutineSessionContext.Key]?.sessionid}")
+
+                doSomething("sdfdf")
+                call.respondText("Hello World")
+            }
+        }
         install(CallLogging) {
             disableDefaultColors()
             logger = sikkerLogger

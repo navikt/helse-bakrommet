@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 
-fun DokumentInnhentingDaoer.lastSigrunDokument(
+suspend fun DokumentInnhentingDaoer.lastSigrunDokument(
     periode: Saksbehandlingsperiode,
     saksbehandlerToken: SpilleromBearerToken,
     sigrunClient: SigrunClient,

@@ -20,7 +20,7 @@ class SykepengegrunnlagBeregningHjelper(
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
 ) {
-    fun beregnOgLagreSykepengegrunnlag(
+    suspend fun beregnOgLagreSykepengegrunnlag(
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): SykepengegrunnlagDbRecord? {

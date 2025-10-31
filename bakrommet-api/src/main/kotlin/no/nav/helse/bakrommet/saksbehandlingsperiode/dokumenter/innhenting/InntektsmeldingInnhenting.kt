@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentType
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.serialisertTilString
 
-fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
+suspend fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
     periode: Saksbehandlingsperiode,
     inntektsmeldingId: String,
     inntektsmeldingClient: InntektsmeldingClient,

@@ -21,7 +21,7 @@ interface Beregningsdaoer {
     val personDao: PersonDao
 }
 
-fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
+suspend fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     ref: SaksbehandlingsperiodeReferanse,
     saksbehandler: Bruker,
 ): SykepengegrunnlagDbRecord? =
@@ -37,7 +37,7 @@ fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
         beregnUtbetaling(ref, saksbehandler)
     }
 
-fun Beregningsdaoer.beregnUtbetaling(
+suspend fun Beregningsdaoer.beregnUtbetaling(
     ref: SaksbehandlingsperiodeReferanse,
     saksbehandler: Bruker,
 ) {

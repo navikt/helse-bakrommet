@@ -29,11 +29,11 @@ interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val outboxDao: OutboxDao
 }
 
-fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: Saksbehandlingsperiode) {
+suspend fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: Saksbehandlingsperiode) {
     leggTilOutbox(periode.somReferanse())
 }
 
-fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: SaksbehandlingsperiodeReferanse) {
+suspend fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: SaksbehandlingsperiodeReferanse) {
     val kafkamelding =
         SaksbehandlingsperiodeKafkaDtoMapper(
             beregningDao = beregningDao,
@@ -52,7 +52,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
 ) {
-    fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): KafkaMelding {
+    suspend fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): KafkaMelding {
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, null)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent =

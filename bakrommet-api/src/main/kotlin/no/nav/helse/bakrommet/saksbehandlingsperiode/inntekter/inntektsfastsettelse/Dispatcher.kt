@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 
-internal fun DokumentInnhentingDaoer.fastsettInntektData(
+internal suspend fun DokumentInnhentingDaoer.fastsettInntektData(
     request: InntektRequest,
     yrkesaktivitet: Yrkesaktivitet,
     periode: Saksbehandlingsperiode,

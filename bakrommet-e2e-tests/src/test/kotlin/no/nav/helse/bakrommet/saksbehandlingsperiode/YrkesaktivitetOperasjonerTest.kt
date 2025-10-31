@@ -469,7 +469,7 @@ class YrkesaktivitetOperasjonerTest {
 
             // TODO: Sjekk også at grunnlaget blir satt?
 
-            fun finnImDok(inntektsmeldingId: String) = daoer.dokumentDao.finnDokumentMedEksternId(periode.id, "inntektsmelding", inntektsmeldingId)
+            suspend fun finnImDok(inntektsmeldingId: String) = daoer.dokumentDao.finnDokumentMedEksternId(periode.id, "inntektsmelding", inntektsmeldingId)
 
             assertNull(finnImDok(im1Id), "im1 skal ikke ha blitt lagret, siden den ikke er brukt til noe")
             assertEquals(

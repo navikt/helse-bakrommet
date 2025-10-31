@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.kafka
 
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.db.TestDataSource
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -35,10 +36,10 @@ class OutboxServiceTest {
                 kafkaKey = "test-key-123",
                 kafkaPayload = """{"type": "test", "data": "test-data"}""",
             )
-        outboxDao.lagreTilOutbox(kafkaMelding)
+        runBlocking { outboxDao.lagreTilOutbox(kafkaMelding) }
 
         // Når: OutboxService prosesserer meldingene
-        val antallProsessert = outboxService.prosesserOutbox()
+        val antallProsessert = runBlocking { outboxService.prosesserOutbox() }
 
         // Så: Meldingen skal være sendt til Kafka og markert som publisert
         assertEquals(1, antallProsessert)
@@ -54,32 +55,34 @@ class OutboxServiceTest {
         assertTrue(sentMessage.headers.containsKey("outbox-opprettet"))
 
         // Verifiser at meldingen er markert som publisert
-        val upubliserteMeldinger = outboxDao.hentAlleUpubliserteEntries()
+        val upubliserteMeldinger = runBlocking { outboxDao.hentAlleUpubliserteEntries() }
         assertTrue(upubliserteMeldinger.isEmpty())
     }
 
     @Test
     fun `skal håndtere flere upubliserte meldinger`() {
         // Gitt: Flere upubliserte meldinger
-        outboxDao.lagreTilOutbox(KafkaMelding("key1", "payload1"))
-        outboxDao.lagreTilOutbox(KafkaMelding("key2", "payload2"))
-        outboxDao.lagreTilOutbox(KafkaMelding("key3", "payload3"))
+        runBlocking {
+            outboxDao.lagreTilOutbox(KafkaMelding("key1", "payload1"))
+            outboxDao.lagreTilOutbox(KafkaMelding("key2", "payload2"))
+            outboxDao.lagreTilOutbox(KafkaMelding("key3", "payload3"))
+        }
 
         // Når: OutboxService prosesserer meldingene
-        val antallProsessert = outboxService.prosesserOutbox()
+        val antallProsessert = runBlocking { outboxService.prosesserOutbox() }
 
         // Så: Alle meldingene skal være prosessert
         assertEquals(3, antallProsessert)
         assertEquals(3, fakeKafkaProducer.getSentMessages().size)
 
-        val upubliserteMeldinger = outboxDao.hentAlleUpubliserteEntries()
+        val upubliserteMeldinger = runBlocking { outboxDao.hentAlleUpubliserteEntries() }
         assertTrue(upubliserteMeldinger.isEmpty())
     }
 
     @Test
     fun `skal returnere 0 når ingen upubliserte meldinger finnes`() {
         // Når: OutboxService prosesserer uten meldinger
-        val antallProsessert = outboxService.prosesserOutbox()
+        val antallProsessert = runBlocking { outboxService.prosesserOutbox() }
 
         // Så: Ingen meldinger skal være prosessert
         assertEquals(0, antallProsessert)
@@ -89,7 +92,7 @@ class OutboxServiceTest {
     @Test
     fun `skal håndtere feil ved Kafka-sending uten å markere som publisert`() {
         // Gitt: En upublisert melding og en feilende Kafka producer
-        outboxDao.lagreTilOutbox(KafkaMelding("test-key", "test-payload"))
+        runBlocking { outboxDao.lagreTilOutbox(KafkaMelding("test-key", "test-payload")) }
 
         val feilendeProducer =
             object : KafkaProducerInterface {
@@ -106,12 +109,12 @@ class OutboxServiceTest {
         val outboxServiceMedFeil = OutboxService(outboxDao, feilendeProducer)
 
         // Når: OutboxService prosesserer meldingen
-        val antallProsessert = outboxServiceMedFeil.prosesserOutbox()
+        val antallProsessert = runBlocking { outboxServiceMedFeil.prosesserOutbox() }
 
         // Så: Ingen meldinger skal være prosessert og meldingen skal fortsatt være upublisert
         assertEquals(0, antallProsessert)
 
-        val upubliserteMeldinger = outboxDao.hentAlleUpubliserteEntries()
+        val upubliserteMeldinger = runBlocking { outboxDao.hentAlleUpubliserteEntries() }
         assertEquals(1, upubliserteMeldinger.size)
         assertEquals("test-key", upubliserteMeldinger.first().kafkaKey)
     }
@@ -119,12 +122,14 @@ class OutboxServiceTest {
     @Test
     fun `skal prosessere meldinger i riktig rekkefølge basert på id`() {
         // Gitt: Meldinger lagt til i tilfeldig rekkefølge
-        outboxDao.lagreTilOutbox(KafkaMelding("key3", "payload3"))
-        outboxDao.lagreTilOutbox(KafkaMelding("key1", "payload1"))
-        outboxDao.lagreTilOutbox(KafkaMelding("key2", "payload2"))
+        runBlocking {
+            outboxDao.lagreTilOutbox(KafkaMelding("key3", "payload3"))
+            outboxDao.lagreTilOutbox(KafkaMelding("key1", "payload1"))
+            outboxDao.lagreTilOutbox(KafkaMelding("key2", "payload2"))
+        }
 
         // Når: OutboxService prosesserer meldingene
-        outboxService.prosesserOutbox()
+        runBlocking { outboxService.prosesserOutbox() }
 
         // Så: Meldingene skal være sendt i riktig rekkefølge (basert på id)
         val sentMessages = fakeKafkaProducer.getSentMessages()

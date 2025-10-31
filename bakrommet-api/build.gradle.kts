@@ -24,6 +24,9 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages")
     implementation("io.ktor:ktor-serialization-jackson")
 
+    // Kotlinx Coroutines for CoroutineContext support
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 

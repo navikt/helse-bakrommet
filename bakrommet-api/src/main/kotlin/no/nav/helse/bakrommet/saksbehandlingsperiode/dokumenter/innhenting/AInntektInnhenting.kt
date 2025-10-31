@@ -28,7 +28,7 @@ fun Dokument.somAInntektBeregningsgrunnlag(): Pair<Inntektoppslag, AinntektPerio
     return innhold.asJsonNode() to forespurteData.tilAinntektPeriodeNøkkel()
 }
 
-fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
+suspend fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
     periode: Saksbehandlingsperiode,
     aInntektClient: AInntektClient,
     saksbehandler: BrukerOgToken,
@@ -49,7 +49,7 @@ data class AinntektPeriodeNøkkel(
 
 fun String.tilAinntektPeriodeNøkkel(): AinntektPeriodeNøkkel = objectMapper.readValue(this)
 
-fun DokumentInnhentingDaoer.lastAInntektBeregningsgrunnlag(
+suspend fun DokumentInnhentingDaoer.lastAInntektBeregningsgrunnlag(
     periode: Saksbehandlingsperiode,
     aInntektClient: AInntektClient,
     saksbehandler: BrukerOgToken,
@@ -69,7 +69,7 @@ private fun doktypeFraFilter(filter: AInntektFilter): String =
         AInntektFilter.`8-30` -> DokumentType.aInntekt830
     }
 
-private fun DokumentInnhentingDaoer.lastAInntektDok(
+private suspend fun DokumentInnhentingDaoer.lastAInntektDok(
     periode: Saksbehandlingsperiode,
     aInntektClient: AInntektClient,
     filter: AInntektFilter,
