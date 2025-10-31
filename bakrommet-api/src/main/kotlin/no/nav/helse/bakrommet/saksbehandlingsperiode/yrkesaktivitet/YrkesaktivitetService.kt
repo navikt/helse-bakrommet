@@ -46,7 +46,7 @@ class YrkesaktivitetService(
 
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean = this.sykmeldt
 
-    private suspend fun hentYrkesaktivitet(
+    private fun hentYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
         krav: BrukerHarRollePåSakenKrav?,
     ): YrkesaktivitetDbRecord =
@@ -66,18 +66,18 @@ class YrkesaktivitetService(
                 }
         }
 
-    suspend fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<YrkesaktivitetDbRecord> =
+    fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<YrkesaktivitetDbRecord> =
         db.nonTransactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
             yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         }
 
-    suspend fun hentPeriodeForYrkesaktivitet(ref: SaksbehandlingsperiodeReferanse) =
+    fun hentPeriodeForYrkesaktivitet(ref: SaksbehandlingsperiodeReferanse) =
         db.nonTransactional {
             saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
         }
 
-    suspend fun opprettYrkesaktivitet(
+    fun opprettYrkesaktivitet(
         ref: SaksbehandlingsperiodeReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
@@ -114,7 +114,7 @@ class YrkesaktivitetService(
             inntektsforhold
         }
 
-    suspend fun oppdaterKategorisering(
+    fun oppdaterKategorisering(
         ref: YrkesaktivitetReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
@@ -129,7 +129,7 @@ class YrkesaktivitetService(
         }
     }
 
-    suspend fun slettYrkesaktivitet(
+    fun slettYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
         saksbehandler: Bruker,
     ) {
@@ -143,7 +143,7 @@ class YrkesaktivitetService(
         }
     }
 
-    suspend fun oppdaterDagoversiktDager(
+    fun oppdaterDagoversiktDager(
         ref: YrkesaktivitetReferanse,
         dagerSomSkalOppdateres: DagerSomSkalOppdateres,
         saksbehandler: Bruker,
@@ -216,7 +216,7 @@ class YrkesaktivitetService(
         }
     }
 
-    suspend fun oppdaterPerioder(
+    fun oppdaterPerioder(
         ref: YrkesaktivitetReferanse,
         perioder: Perioder?,
         saksbehandler: Bruker,

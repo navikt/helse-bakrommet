@@ -50,9 +50,9 @@ class SaksbehandlingsperiodeService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    suspend fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
+    fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
 
-    suspend fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
+    fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -150,9 +150,9 @@ class SaksbehandlingsperiodeService(
         return nyPeriode
     }
 
-    suspend fun finnPerioderForPerson(spilleromPersonId: SpilleromPersonId): List<Saksbehandlingsperiode> = db.nonTransactional { saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId) }
+    fun finnPerioderForPerson(spilleromPersonId: SpilleromPersonId): List<Saksbehandlingsperiode> = db.nonTransactional { saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId) }
 
-    suspend fun sendTilBeslutning(
+    fun sendTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         individuellBegrunnelse: String?,
         saksbehandler: Bruker,
@@ -182,7 +182,7 @@ class SaksbehandlingsperiodeService(
                 }
         }
 
-    suspend fun taTilBeslutning(
+    fun taTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode =
@@ -206,7 +206,7 @@ class SaksbehandlingsperiodeService(
             }
         }
 
-    suspend fun sendTilbakeFraBeslutning(
+    fun sendTilbakeFraBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
         kommentar: String,
@@ -230,7 +230,7 @@ class SaksbehandlingsperiodeService(
             }
         }
 
-    suspend fun godkjennPeriode(
+    fun godkjennPeriode(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode {
@@ -255,13 +255,13 @@ class SaksbehandlingsperiodeService(
         }
     }
 
-    suspend fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> =
+    fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> =
         db.nonTransactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = null)
             saksbehandlingsperiodeEndringerDao.hentEndringerFor(periode.id)
         }
 
-    suspend fun oppdaterSkjæringstidspunkt(
+    fun oppdaterSkjæringstidspunkt(
         periodeRef: SaksbehandlingsperiodeReferanse,
         skjæringstidspunkt: LocalDate?,
         saksbehandler: Bruker,

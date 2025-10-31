@@ -25,7 +25,7 @@ class UtbetalingsBeregningHjelper(
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
 ) {
-    suspend fun settBeregning(
+    fun settBeregning(
         referanse: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
     ) {

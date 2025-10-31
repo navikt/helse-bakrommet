@@ -1,47 +1,34 @@
 package no.nav.helse.bakrommet.fakedaos
 
 import com.fasterxml.jackson.databind.JsonNode
-import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.hentSessionid
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class VurdertVilkårDaoFake : VurdertVilkårDao {
-    // Map av sessionId -> (periodeId, kode) -> VurdertVilkår
-    private val sessionData = ConcurrentHashMap<String, ConcurrentHashMap<Pair<UUID, String>, VurdertVilkår>>()
+    private val vurderinger = ConcurrentHashMap<Pair<UUID, String>, VurdertVilkår>()
 
-    private fun getSessionMap(): ConcurrentHashMap<Pair<UUID, String>, VurdertVilkår> =
-        runBlocking {
-            val sessionId = hentSessionid()
+    override fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> = vurderinger.filterKeys { it.first == saksbehandlingsperiodeId }.values.toList()
 
-            sessionData.getOrPut(sessionId) { ConcurrentHashMap() }
-        }
-
-    private val vurderinger: ConcurrentHashMap<Pair<UUID, String>, VurdertVilkår>
-        get() = getSessionMap()
-
-    override suspend fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> = vurderinger.filterKeys { it.first == saksbehandlingsperiodeId }.values.toList()
-
-    override suspend fun hentVilkårsvurdering(
+    override fun hentVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): VurdertVilkår? = vurderinger[saksbehandlingsperiodeId to kode]
 
-    override suspend fun slettVilkårsvurdering(
+    override fun slettVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): Int = if (vurderinger.remove(saksbehandlingsperiodeId to kode) != null) 1 else 0
 
-    override suspend fun eksisterer(
+    override fun eksisterer(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
     ): Boolean = vurderinger.containsKey(behandling.id to kode.kode)
 
-    override suspend fun oppdater(
+    override fun oppdater(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         oppdatertVurdering: JsonNode,
@@ -52,7 +39,7 @@ class VurdertVilkårDaoFake : VurdertVilkårDao {
         return 1
     }
 
-    override suspend fun leggTil(
+    override fun leggTil(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         vurdering: JsonNode,

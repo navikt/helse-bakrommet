@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.kafka
 
-import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.db.TestDataSource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -22,9 +21,9 @@ class OutboxDaoTest {
         val kafkaKey = "test-key-123"
         val kafkaPayload = """{"type":"test","data":"some data"}"""
 
-        runBlocking { dao.lagreTilOutbox(KafkaMelding(kafkaKey, kafkaPayload)) }
+        dao.lagreTilOutbox(KafkaMelding(kafkaKey, kafkaPayload))
 
-        val upubliserteEntries = runBlocking { dao.hentAlleUpubliserteEntries() }
+        val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(1, upubliserteEntries.size)
 
         val entry = upubliserteEntries.first()
@@ -42,13 +41,11 @@ class OutboxDaoTest {
         val entry2 = Pair("key-2", """{"order":2}""")
         val entry3 = Pair("key-3", """{"order":3}""")
 
-        runBlocking {
-            dao.lagreTilOutbox(KafkaMelding(entry1.first, entry1.second))
-            dao.lagreTilOutbox(KafkaMelding(entry2.first, entry2.second))
-            dao.lagreTilOutbox(KafkaMelding(entry3.first, entry3.second))
-        }
+        dao.lagreTilOutbox(KafkaMelding(entry1.first, entry1.second))
+        dao.lagreTilOutbox(KafkaMelding(entry2.first, entry2.second))
+        dao.lagreTilOutbox(KafkaMelding(entry3.first, entry3.second))
 
-        val upubliserteEntries = runBlocking { dao.hentAlleUpubliserteEntries() }
+        val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(3, upubliserteEntries.size)
 
         // Verify they are ordered by id (sequential)
@@ -60,7 +57,7 @@ class OutboxDaoTest {
     @Test
     fun `henter tom liste når ingen upubliserte entries finnes`() {
         val dao = OutboxDaoPg(dataSource)
-        val upubliserteEntries = runBlocking { dao.hentAlleUpubliserteEntries() }
+        val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(0, upubliserteEntries.size)
     }
 
@@ -70,16 +67,16 @@ class OutboxDaoTest {
         val kafkaKey = "test-key-publish"
         val kafkaPayload = """{"status":"ready"}"""
 
-        runBlocking { dao.lagreTilOutbox(KafkaMelding(kafkaKey, kafkaPayload)) }
+        dao.lagreTilOutbox(KafkaMelding(kafkaKey, kafkaPayload))
 
-        val upubliserteEntries = runBlocking { dao.hentAlleUpubliserteEntries() }
+        val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(1, upubliserteEntries.size)
         val entry = upubliserteEntries.first()
         assertNull(entry.publisert)
 
-        runBlocking { dao.markerSomPublisert(entry.id) }
+        dao.markerSomPublisert(entry.id)
 
-        val upubliserteEtterPublisering = runBlocking { dao.hentAlleUpubliserteEntries() }
+        val upubliserteEtterPublisering = dao.hentAlleUpubliserteEntries()
         assertEquals(0, upubliserteEtterPublisering.size)
     }
 
@@ -91,18 +88,16 @@ class OutboxDaoTest {
         val kafkaKey2 = "key-2"
         val kafkaPayload2 = """{"message":"second"}"""
 
-        runBlocking {
-            dao.lagreTilOutbox(KafkaMelding(kafkaKey1, kafkaPayload1))
-            dao.lagreTilOutbox(KafkaMelding(kafkaKey2, kafkaPayload2))
-        }
+        dao.lagreTilOutbox(KafkaMelding(kafkaKey1, kafkaPayload1))
+        dao.lagreTilOutbox(KafkaMelding(kafkaKey2, kafkaPayload2))
 
-        val upubliserteEntries = runBlocking { dao.hentAlleUpubliserteEntries() }
+        val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(2, upubliserteEntries.size)
 
         val førsteEntry = upubliserteEntries[0]
-        runBlocking { dao.markerSomPublisert(førsteEntry.id) }
+        dao.markerSomPublisert(førsteEntry.id)
 
-        val upubliserteEtterPublisering = runBlocking { dao.hentAlleUpubliserteEntries() }
+        val upubliserteEtterPublisering = dao.hentAlleUpubliserteEntries()
         assertEquals(1, upubliserteEtterPublisering.size)
 
         val gjenværendeEntry = upubliserteEtterPublisering.first()

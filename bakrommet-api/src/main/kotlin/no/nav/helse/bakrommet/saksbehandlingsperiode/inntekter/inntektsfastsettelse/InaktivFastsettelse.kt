@@ -15,13 +15,13 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.kanBeregnesEtter8
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.tilBeregnetPensjonsgivendeInntekt
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 
-internal suspend fun InntektRequest.Inaktiv.inaktivFastsettelse(
+internal fun InntektRequest.Inaktiv.inaktivFastsettelse(
     periode: Saksbehandlingsperiode,
     saksbehandler: BrukerOgToken,
     sigrunClient: SigrunClient,
     daoer: DokumentInnhentingDaoer,
 ): InntektData {
-    suspend fun hentPensjonsgivende(): List<HentPensjonsgivendeInntektResponse> =
+    fun hentPensjonsgivende(): List<HentPensjonsgivendeInntektResponse> =
         daoer
             .lastSigrunDokument(
                 periode = periode,

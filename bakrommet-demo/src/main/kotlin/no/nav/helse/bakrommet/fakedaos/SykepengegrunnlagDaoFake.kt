@@ -1,31 +1,18 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.hentSessionid
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDbRecord
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
-    // Map av sessionId -> sykepengegrunnlagId -> SykepengegrunnlagDbRecord
-    private val sessionData = ConcurrentHashMap<String, ConcurrentHashMap<UUID, SykepengegrunnlagDbRecord>>()
+    private val storage = ConcurrentHashMap<UUID, SykepengegrunnlagDbRecord>()
 
-    private fun getSessionMap(): ConcurrentHashMap<UUID, SykepengegrunnlagDbRecord> =
-        runBlocking {
-            val sessionId = hentSessionid()
-
-            sessionData.getOrPut(sessionId) { ConcurrentHashMap() }
-        }
-
-    private val storage: ConcurrentHashMap<UUID, SykepengegrunnlagDbRecord>
-        get() = getSessionMap()
-
-    override suspend fun lagreSykepengegrunnlag(
+    override fun lagreSykepengegrunnlag(
         sykepengegrunnlag: Sykepengegrunnlag,
         saksbehandler: Bruker,
     ): SykepengegrunnlagDbRecord {
@@ -44,9 +31,9 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
         return record
     }
 
-    override suspend fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? = storage[sykepengegrunnlagId]
+    override fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? = storage[sykepengegrunnlagId]
 
-    override suspend fun oppdaterSykepengegrunnlag(
+    override fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,
         sykepengegrunnlag: Sykepengegrunnlag?,
     ): SykepengegrunnlagDbRecord {
@@ -60,7 +47,7 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
         return oppdatert
     }
 
-    override suspend fun oppdaterSammenlikningsgrunnlag(
+    override fun oppdaterSammenlikningsgrunnlag(
         sykepengegrunnlagId: UUID,
         sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     ): SykepengegrunnlagDbRecord {
@@ -75,7 +62,7 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
         return oppdatert
     }
 
-    override suspend fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
+    override fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
         storage.remove(sykepengegrunnlagId)
     }
 }

@@ -21,11 +21,11 @@ data class KafkaMelding(
 )
 
 interface OutboxDao {
-    suspend fun lagreTilOutbox(kafkaMelding: KafkaMelding)
+    fun lagreTilOutbox(kafkaMelding: KafkaMelding)
 
-    suspend fun markerSomPublisert(id: Long)
+    fun markerSomPublisert(id: Long)
 
-    suspend fun hentAlleUpubliserteEntries(): List<OutboxEntry>
+    fun hentAlleUpubliserteEntries(): List<OutboxEntry>
 }
 
 class OutboxDaoPg private constructor(
@@ -34,7 +34,7 @@ class OutboxDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override suspend fun lagreTilOutbox(kafkaMelding: KafkaMelding) {
+    override fun lagreTilOutbox(kafkaMelding: KafkaMelding) {
         db.update(
             """
             insert into kafka_outbox
@@ -48,7 +48,7 @@ class OutboxDaoPg private constructor(
         )
     }
 
-    override suspend fun markerSomPublisert(id: Long) {
+    override fun markerSomPublisert(id: Long) {
         db.update(
             """
             update kafka_outbox
@@ -60,7 +60,7 @@ class OutboxDaoPg private constructor(
         )
     }
 
-    override suspend fun hentAlleUpubliserteEntries(): List<OutboxEntry> =
+    override fun hentAlleUpubliserteEntries(): List<OutboxEntry> =
         db.list(
             """
             select id, kafka_key, kafka_payload, opprettet, publisert

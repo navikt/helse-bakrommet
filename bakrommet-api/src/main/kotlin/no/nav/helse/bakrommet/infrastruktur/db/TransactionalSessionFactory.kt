@@ -5,14 +5,14 @@ import kotliquery.sessionOf
 import javax.sql.DataSource
 
 interface TransactionalSessionFactory<out SessionDaosType> {
-    suspend fun <RET> transactionalSessionScope(transactionalBlock: suspend (SessionDaosType) -> RET): RET
+    fun <RET> transactionalSessionScope(transactionalBlock: (SessionDaosType) -> RET): RET
 }
 
 class TransactionalSessionFactoryPg<out SessionDaosType>(
     private val dataSource: DataSource,
     private val daosCreatorFunction: (Session) -> SessionDaosType,
 ) : TransactionalSessionFactory<SessionDaosType> {
-    override suspend fun <RET> transactionalSessionScope(transactionalBlock: suspend (SessionDaosType) -> RET): RET =
+    override fun <RET> transactionalSessionScope(transactionalBlock: (SessionDaosType) -> RET): RET =
         sessionOf(dataSource, returnGeneratedKey = true).use { session ->
             session.transaction { transactionalSession ->
                 transactionalBlock(daosCreatorFunction(transactionalSession))
@@ -30,9 +30,9 @@ class DbDaoer<DaosType>(
     private val daoer: DaosType,
     private val sessionFactory: TransactionalSessionFactory<DaosType>,
 ) {
-    suspend fun <RET> nonTransactional(block: suspend (DaosType.() -> RET)): RET = block(daoer)
+    fun <RET> nonTransactional(block: (DaosType.() -> RET)): RET = block(daoer)
 
-    suspend fun <RET> transactional(block: suspend (DaosType.() -> RET)): RET =
+    fun <RET> transactional(block: (DaosType.() -> RET)): RET =
         sessionFactory.transactionalSessionScope { session ->
             block(session)
         }

@@ -12,7 +12,7 @@ class OutboxService(
 
     constructor(dataSource: DataSource, kafkaProducer: KafkaProducerInterface) : this(OutboxDaoPg(dataSource), kafkaProducer)
 
-    suspend fun prosesserOutbox(): Int {
+    fun prosesserOutbox(): Int {
         var antallProsessert = 0
 
         try {

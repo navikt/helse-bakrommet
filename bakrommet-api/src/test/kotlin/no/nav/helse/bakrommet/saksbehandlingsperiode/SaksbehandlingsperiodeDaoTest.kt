@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode
 
-import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDaoPg
@@ -32,13 +31,13 @@ internal class SaksbehandlingsperiodeDaoTest {
         fun setOpp() {
             TestDataSource.resetDatasource()
             val dao = PersonDaoPg(TestDataSource.dbModule.dataSource)
-            runBlocking { dao.opprettPerson(fnr, personId) }
+            dao.opprettPerson(fnr, personId)
         }
     }
 
     @Test
     fun `ukjent id gir null`() {
-        assertNull(runBlocking { dao.finnSaksbehandlingsperiode(UUID.randomUUID()) })
+        assertNull(dao.finnSaksbehandlingsperiode(UUID.randomUUID()))
     }
 
     @Test
@@ -63,13 +62,13 @@ internal class SaksbehandlingsperiodeDaoTest {
                 individuellBegrunnelse = null,
                 sykepengegrunnlagId = null,
             ).truncateTidspunkt()
-        runBlocking { dao.opprettPeriode(periode) }
+        dao.opprettPeriode(periode)
 
-        val hentet = runBlocking { dao.finnSaksbehandlingsperiode(id)!! }
+        val hentet = dao.finnSaksbehandlingsperiode(id)!!
         assertEquals(periode, hentet)
 
         // Sjekk at perioden finnes i listen over alle perioder for personen
-        val perioder = runBlocking { dao.finnPerioderForPerson(personId) }
+        val perioder = dao.finnPerioderForPerson(personId)
         assertTrue(perioder.any { it.id == id })
     }
 
@@ -98,22 +97,20 @@ internal class SaksbehandlingsperiodeDaoTest {
                     skjæringstidspunkt = fom.toLocalDate(),
                     sykepengegrunnlagId = null,
                 ).truncateTidspunkt()
-            runBlocking { dao.opprettPeriode(periode) }
-            return runBlocking { dao.finnSaksbehandlingsperiode(id)!! }
+            dao.opprettPeriode(periode)
+            return dao.finnSaksbehandlingsperiode(id)!!
         }
 
         fun finnOverlappende(
             fom: String,
             tom: String,
         ): Set<Saksbehandlingsperiode> =
-            runBlocking {
-                dao
-                    .finnPerioderForPersonSomOverlapper(
-                        Companion.personId,
-                        fom.toLocalDate(),
-                        tom.toLocalDate(),
-                    ).toSet()
-            }
+            dao
+                .finnPerioderForPersonSomOverlapper(
+                    Companion.personId,
+                    fom.toLocalDate(),
+                    tom.toLocalDate(),
+                ).toSet()
 
         val p1 = opprettPeriode("2024-01-01", "2024-02-01")
         val p2 = opprettPeriode("2024-02-15", "2024-02-25")
@@ -151,19 +148,19 @@ internal class SaksbehandlingsperiodeDaoTest {
                 individuellBegrunnelse = null,
                 sykepengegrunnlagId = null,
             ).truncateTidspunkt()
-        runBlocking { dao.opprettPeriode(periode) }
+        dao.opprettPeriode(periode)
 
         // Oppdater skjæringstidspunkt
         val nyttSkjæringstidspunkt = LocalDate.of(2021, 1, 15)
-        runBlocking { dao.oppdaterSkjæringstidspunkt(id, nyttSkjæringstidspunkt) }
+        dao.oppdaterSkjæringstidspunkt(id, nyttSkjæringstidspunkt)
 
-        val oppdatertPeriode = runBlocking { dao.finnSaksbehandlingsperiode(id)!! }
+        val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
         assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt)
 
         // Nullstill skjæringstidspunkt
-        runBlocking { dao.oppdaterSkjæringstidspunkt(id, null) }
+        dao.oppdaterSkjæringstidspunkt(id, null)
 
-        val nullstiltPeriode = runBlocking { dao.finnSaksbehandlingsperiode(id)!! }
+        val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
         assertNull(nullstiltPeriode.skjæringstidspunkt)
     }
 
@@ -189,7 +186,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                 individuellBegrunnelse = null,
                 sykepengegrunnlagId = null,
             ).truncateTidspunkt()
-        runBlocking { dao.opprettPeriode(periode) }
+        dao.opprettPeriode(periode)
 
         // Opprett et gyldig sykepengegrunnlag først
         val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
@@ -203,18 +200,18 @@ internal class SaksbehandlingsperiodeDaoTest {
                 totaltInntektsgrunnlag = InntektbeløpDto.Årlig(540000.0),
                 næringsdel = null,
             )
-        val lagretGrunnlag = runBlocking { sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler) }
+        val lagretGrunnlag = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
 
         // Oppdater sykepengegrunnlag_id med gyldig ID
-        runBlocking { dao.oppdaterSykepengegrunnlagId(id, lagretGrunnlag.id) }
+        dao.oppdaterSykepengegrunnlagId(id, lagretGrunnlag.id)
 
-        val oppdatertPeriode = runBlocking { dao.finnSaksbehandlingsperiode(id)!! }
+        val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
         assertEquals(lagretGrunnlag.id, oppdatertPeriode.sykepengegrunnlagId)
 
         // Nullstill sykepengegrunnlag_id
-        runBlocking { dao.oppdaterSykepengegrunnlagId(id, null) }
+        dao.oppdaterSykepengegrunnlagId(id, null)
 
-        val nullstiltPeriode = runBlocking { dao.finnSaksbehandlingsperiode(id)!! }
+        val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
         assertNull(nullstiltPeriode.sykepengegrunnlagId)
     }
 }

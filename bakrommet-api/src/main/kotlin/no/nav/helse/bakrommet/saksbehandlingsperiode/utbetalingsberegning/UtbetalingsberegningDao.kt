@@ -25,15 +25,15 @@ import java.util.UUID
 import javax.sql.DataSource
 
 interface UtbetalingsberegningDao {
-    suspend fun settBeregning(
+    fun settBeregning(
         saksbehandlingsperiodeId: UUID,
         beregning: BeregningResponse,
         saksbehandler: Bruker,
     ): BeregningResponse
 
-    suspend fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse?
+    fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse?
 
-    suspend fun slettBeregning(saksbehandlingsperiodeId: UUID)
+    fun slettBeregning(saksbehandlingsperiodeId: UUID)
 }
 
 class UtbetalingsberegningDaoPg private constructor(
@@ -42,7 +42,7 @@ class UtbetalingsberegningDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override suspend fun settBeregning(
+    override fun settBeregning(
         saksbehandlingsperiodeId: UUID,
         beregning: BeregningResponse,
         saksbehandler: Bruker,
@@ -89,7 +89,7 @@ class UtbetalingsberegningDaoPg private constructor(
         return hentBeregning(saksbehandlingsperiodeId)!!
     }
 
-    override suspend fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse? =
+    override fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse? =
         db.single(
             """
             SELECT * FROM utbetalingsberegning 
@@ -99,7 +99,7 @@ class UtbetalingsberegningDaoPg private constructor(
             mapper = ::beregningFraRow,
         )
 
-    override suspend fun slettBeregning(saksbehandlingsperiodeId: UUID) {
+    override fun slettBeregning(saksbehandlingsperiodeId: UUID) {
         db.update(
             """
             DELETE FROM utbetalingsberegning 

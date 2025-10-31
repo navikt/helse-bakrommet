@@ -32,9 +32,9 @@ data class SaksbehandlingsperiodeEndring(
 )
 
 interface SaksbehandlingsperiodeEndringerDao {
-    suspend fun leggTilEndring(hist: SaksbehandlingsperiodeEndring)
+    fun leggTilEndring(hist: SaksbehandlingsperiodeEndring)
 
-    suspend fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring>
+    fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring>
 }
 
 class SaksbehandlingsperiodeEndringerDaoPg private constructor(
@@ -43,7 +43,7 @@ class SaksbehandlingsperiodeEndringerDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override suspend fun leggTilEndring(hist: SaksbehandlingsperiodeEndring) {
+    override fun leggTilEndring(hist: SaksbehandlingsperiodeEndring) {
         db.update(
             """
             insert into saksbehandlingsperiode_endringer
@@ -61,7 +61,7 @@ class SaksbehandlingsperiodeEndringerDaoPg private constructor(
         )
     }
 
-    override suspend fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring> =
+    override fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring> =
         db.list(
             """
             select *

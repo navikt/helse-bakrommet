@@ -5,5 +5,5 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeRefer
 class UtbetalingsberegningService(
     private val beregningDao: UtbetalingsberegningDao,
 ) {
-    suspend fun hentUtbetalingsberegning(referanse: SaksbehandlingsperiodeReferanse): BeregningResponse? = beregningDao.hentBeregning(referanse.periodeUUID)
+    fun hentUtbetalingsberegning(referanse: SaksbehandlingsperiodeReferanse): BeregningResponse? = beregningDao.hentBeregning(referanse.periodeUUID)
 }

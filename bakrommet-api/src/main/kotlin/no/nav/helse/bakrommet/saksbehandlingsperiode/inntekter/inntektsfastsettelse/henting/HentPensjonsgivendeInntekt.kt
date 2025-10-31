@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
 
-suspend fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
+fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
     ref: YrkesaktivitetReferanse,
     saksbehandler: BrukerOgToken,
 ): PensjonsgivendeInntektResponse {

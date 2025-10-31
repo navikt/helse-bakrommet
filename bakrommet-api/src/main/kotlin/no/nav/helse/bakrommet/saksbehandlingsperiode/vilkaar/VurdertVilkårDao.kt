@@ -17,30 +17,30 @@ data class VurdertVilkår(
 )
 
 interface VurdertVilkårDao {
-    suspend fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår>
+    fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår>
 
-    suspend fun hentVilkårsvurdering(
+    fun hentVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): VurdertVilkår?
 
-    suspend fun slettVilkårsvurdering(
+    fun slettVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): Int
 
-    suspend fun eksisterer(
+    fun eksisterer(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
     ): Boolean
 
-    suspend fun oppdater(
+    fun oppdater(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         oppdatertVurdering: JsonNode,
     ): Int
 
-    suspend fun leggTil(
+    fun leggTil(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         vurdering: JsonNode,
@@ -53,7 +53,7 @@ class VurdertVilkårDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override suspend fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> =
+    override fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> =
         db.list(
             sql =
                 """
@@ -68,7 +68,7 @@ class VurdertVilkårDaoPg private constructor(
             )
         }
 
-    override suspend fun hentVilkårsvurdering(
+    override fun hentVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): VurdertVilkår? =
@@ -88,7 +88,7 @@ class VurdertVilkårDaoPg private constructor(
             )
         }
 
-    override suspend fun slettVilkårsvurdering(
+    override fun slettVilkårsvurdering(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): Int =
@@ -102,7 +102,7 @@ class VurdertVilkårDaoPg private constructor(
             "kode" to kode,
         )
 
-    override suspend fun eksisterer(
+    override fun eksisterer(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
     ): Boolean =
@@ -117,7 +117,7 @@ class VurdertVilkårDaoPg private constructor(
             mapper = { true },
         ) ?: false
 
-    override suspend fun oppdater(
+    override fun oppdater(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         oppdatertVurdering: JsonNode,
@@ -136,7 +136,7 @@ class VurdertVilkårDaoPg private constructor(
             "kode" to kode.kode,
         )
 
-    override suspend fun leggTil(
+    override fun leggTil(
         behandling: Saksbehandlingsperiode,
         kode: Kode,
         vurdering: JsonNode,

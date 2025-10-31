@@ -44,13 +44,13 @@ class VilkårService(
 ) {
     private val db = DbDaoer(daoer, sessionFactory)
 
-    suspend fun hentVilkårsvurderingerFor(ref: SaksbehandlingsperiodeReferanse): List<VurdertVilkår> =
+    fun hentVilkårsvurderingerFor(ref: SaksbehandlingsperiodeReferanse): List<VurdertVilkår> =
         db.nonTransactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
             vurdertVilkårDao.hentVilkårsvurderinger(periode.id)
         }
 
-    suspend fun leggTilEllerOpprettVurdertVilkår(
+    fun leggTilEllerOpprettVurdertVilkår(
         ref: SaksbehandlingsperiodeReferanse,
         vilkårsKode: Kode,
         vurdertVilkår: JsonNode,
@@ -73,7 +73,7 @@ class VilkårService(
             )
         }
 
-    suspend fun slettVilkårsvurdering(
+    fun slettVilkårsvurdering(
         ref: SaksbehandlingsperiodeReferanse,
         vilkårsKode: Kode,
         saksbehandler: Bruker,

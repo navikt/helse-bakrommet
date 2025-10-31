@@ -38,23 +38,23 @@ data class Dokument(
 }
 
 interface DokumentDao {
-    suspend fun finnDokumentMedEksternId(
+    fun finnDokumentMedEksternId(
         saksbehandlingsperiodeId: UUID,
         dokumentType: String,
         eksternId: String,
     ): Dokument?
 
-    suspend fun finnDokumentForForespurteData(
+    fun finnDokumentForForespurteData(
         saksbehandlingsperiodeId: UUID,
         dokumentType: String,
         forespurteData: String,
     ): Dokument?
 
-    suspend fun opprettDokument(dokument: Dokument): Dokument
+    fun opprettDokument(dokument: Dokument): Dokument
 
-    suspend fun hentDokument(id: UUID): Dokument?
+    fun hentDokument(id: UUID): Dokument?
 
-    suspend fun hentDokumenterFor(behandlingId: UUID): List<Dokument>
+    fun hentDokumenterFor(behandlingId: UUID): List<Dokument>
 }
 
 class DokumentDaoPg private constructor(
@@ -63,7 +63,7 @@ class DokumentDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override suspend fun finnDokumentMedEksternId(
+    override fun finnDokumentMedEksternId(
         saksbehandlingsperiodeId: UUID,
         dokumentType: String,
         eksternId: String,
@@ -81,7 +81,7 @@ class DokumentDaoPg private constructor(
             mapper = ::dokumentFraRow,
         )
 
-    override suspend fun finnDokumentForForespurteData(
+    override fun finnDokumentForForespurteData(
         saksbehandlingsperiodeId: UUID,
         dokumentType: String,
         forespurteData: String,
@@ -99,7 +99,7 @@ class DokumentDaoPg private constructor(
             mapper = ::dokumentFraRow,
         )
 
-    override suspend fun opprettDokument(dokument: Dokument): Dokument {
+    override fun opprettDokument(dokument: Dokument): Dokument {
         db.update(
             """
             insert into dokument
@@ -119,7 +119,7 @@ class DokumentDaoPg private constructor(
         return hentDokument(dokument.id)!!
     }
 
-    override suspend fun hentDokument(id: UUID): Dokument? =
+    override fun hentDokument(id: UUID): Dokument? =
         db.single(
             """
             select * from dokument where id = :id
@@ -128,7 +128,7 @@ class DokumentDaoPg private constructor(
             mapper = ::dokumentFraRow,
         )
 
-    override suspend fun hentDokumenterFor(behandlingId: UUID): List<Dokument> =
+    override fun hentDokumenterFor(behandlingId: UUID): List<Dokument> =
         db.list(
             """
             select * from dokument where opprettet_for_behandling = :behandling_id

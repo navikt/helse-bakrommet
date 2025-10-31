@@ -51,43 +51,43 @@ enum class SaksbehandlingsperiodeStatus {
 }
 
 interface SaksbehandlingsperiodeDao {
-    suspend fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode>
+    fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode>
 
-    suspend fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode?
+    fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode?
 
-    suspend fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode>
+    fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode>
 
-    suspend fun finnPerioderForPersonSomOverlapper(
+    fun finnPerioderForPersonSomOverlapper(
         spilleromPersonId: String,
         fom: LocalDate,
         tom: LocalDate,
     ): List<Saksbehandlingsperiode>
 
-    suspend fun endreStatus(
+    fun endreStatus(
         periode: Saksbehandlingsperiode,
         nyStatus: SaksbehandlingsperiodeStatus,
     )
 
-    suspend fun endreStatusOgIndividuellBegrunnelse(
+    fun endreStatusOgIndividuellBegrunnelse(
         periode: Saksbehandlingsperiode,
         nyStatus: SaksbehandlingsperiodeStatus,
         individuellBegrunnelse: String?,
     )
 
-    suspend fun endreStatusOgBeslutter(
+    fun endreStatusOgBeslutter(
         periode: Saksbehandlingsperiode,
         nyStatus: SaksbehandlingsperiodeStatus,
         beslutterNavIdent: String?,
     )
 
-    suspend fun opprettPeriode(periode: Saksbehandlingsperiode)
+    fun opprettPeriode(periode: Saksbehandlingsperiode)
 
-    suspend fun oppdaterSkjæringstidspunkt(
+    fun oppdaterSkjæringstidspunkt(
         periodeId: UUID,
         skjæringstidspunkt: LocalDate?,
     )
 
-    suspend fun oppdaterSykepengegrunnlagId(
+    fun oppdaterSykepengegrunnlagId(
         periodeId: UUID,
         sykepengegrunnlagId: UUID?,
     )
@@ -99,7 +99,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override suspend fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode> {
+    override fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode> {
         val limitEnnSåLenge = 100
         return db
             .list(
@@ -118,7 +118,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             }
     }
 
-    override suspend fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
+    override fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
         db.single(
             """
             select *
@@ -128,7 +128,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             "id" to id,
         ) { rowTilPeriode(it) }
 
-    override suspend fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode> =
+    override fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode> =
         db.list(
             """
             select *
@@ -138,7 +138,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             "spillerom_personid" to spilleromPersonId,
         ) { rowTilPeriode(it) }
 
-    override suspend fun finnPerioderForPersonSomOverlapper(
+    override fun finnPerioderForPersonSomOverlapper(
         spilleromPersonId: String,
         fom: LocalDate,
         tom: LocalDate,
@@ -172,7 +172,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id"),
         )
 
-    override suspend fun endreStatus(
+    override fun endreStatus(
         periode: Saksbehandlingsperiode,
         nyStatus: SaksbehandlingsperiodeStatus,
     ) {
@@ -187,7 +187,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         )
     }
 
-    override suspend fun endreStatusOgIndividuellBegrunnelse(
+    override fun endreStatusOgIndividuellBegrunnelse(
         periode: Saksbehandlingsperiode,
         nyStatus: SaksbehandlingsperiodeStatus,
         individuellBegrunnelse: String?,
@@ -204,7 +204,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         )
     }
 
-    override suspend fun endreStatusOgBeslutter(
+    override fun endreStatusOgBeslutter(
         periode: Saksbehandlingsperiode,
         nyStatus: SaksbehandlingsperiodeStatus,
         beslutterNavIdent: String?,
@@ -221,7 +221,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         )
     }
 
-    override suspend fun opprettPeriode(periode: Saksbehandlingsperiode) {
+    override fun opprettPeriode(periode: Saksbehandlingsperiode) {
         db.update(
             """
             insert into saksbehandlingsperiode
@@ -244,7 +244,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         )
     }
 
-    override suspend fun oppdaterSkjæringstidspunkt(
+    override fun oppdaterSkjæringstidspunkt(
         periodeId: UUID,
         skjæringstidspunkt: LocalDate?,
     ) {
@@ -259,7 +259,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         )
     }
 
-    override suspend fun oppdaterSykepengegrunnlagId(
+    override fun oppdaterSykepengegrunnlagId(
         periodeId: UUID,
         sykepengegrunnlagId: UUID?,
     ) {

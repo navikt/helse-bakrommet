@@ -95,7 +95,7 @@ fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
     )
 
 interface YrkesaktivitetDao {
-    suspend fun opprettYrkesaktivitet(
+    fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
         dagoversikt: List<Dag>?,
@@ -107,42 +107,42 @@ interface YrkesaktivitetDao {
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord
 
-    suspend fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord?
+    fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord?
 
-    suspend fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet?
+    fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet?
 
-    suspend fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet>
+    fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet>
 
-    suspend fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord>
+    fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord>
 
-    suspend fun oppdaterKategorisering(
+    fun oppdaterKategorisering(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord
 
-    suspend fun oppdaterDagoversikt(
+    fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: List<Dag>,
     ): YrkesaktivitetDbRecord
 
-    suspend fun oppdaterPerioder(
+    fun oppdaterPerioder(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         perioder: Perioder?,
     ): YrkesaktivitetDbRecord
 
-    suspend fun slettYrkesaktivitet(id: UUID)
+    fun slettYrkesaktivitet(id: UUID)
 
-    suspend fun oppdaterInntektrequest(
+    fun oppdaterInntektrequest(
         yrkesaktivitet: Yrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord
 
-    suspend fun oppdaterInntektData(
+    fun oppdaterInntektData(
         yrkesaktivitet: Yrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord
 
-    suspend fun oppdaterRefusjonsdata(
+    fun oppdaterRefusjonsdata(
         yrkesaktivitet: Yrkesaktivitet,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord
@@ -157,7 +157,7 @@ class YrkesaktivitetDaoPg private constructor(
     /**
      * Oppretter yrkesaktivitet med type-sikker kategorisering.
      */
-    override suspend fun opprettYrkesaktivitet(
+    override fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
         dagoversikt: List<Dag>?,
@@ -208,7 +208,7 @@ class YrkesaktivitetDaoPg private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    override suspend fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
+    override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
         db.single(
             """
             select *, inntekt_request, inntekt_data, refusjon_data from yrkesaktivitet where id = :id
@@ -217,7 +217,7 @@ class YrkesaktivitetDaoPg private constructor(
             mapper = ::yrkesaktivitetFraRow,
         )
 
-    override suspend fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
+    override fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
         hentYrkesaktivitetDbRecord(id)?.let { dbRecord ->
             Yrkesaktivitet(
                 id = dbRecord.id,
@@ -235,12 +235,12 @@ class YrkesaktivitetDaoPg private constructor(
             )
         }
 
-    override suspend fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
+    override fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
         hentYrkesaktiviteterDbRecord(periode).map {
             it.tilYrkesaktivitet()
         }
 
-    override suspend fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
+    override fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
             select *, inntekt_request, inntekt_data, refusjon_data from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
@@ -283,7 +283,7 @@ class YrkesaktivitetDaoPg private constructor(
     /**
      * Oppdaterer kategorisering med type-sikker sealed class.
      */
-    override suspend fun oppdaterKategorisering(
+    override fun oppdaterKategorisering(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord {
@@ -297,7 +297,7 @@ class YrkesaktivitetDaoPg private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    override suspend fun oppdaterDagoversikt(
+    override fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: List<Dag>,
     ): YrkesaktivitetDbRecord {
@@ -311,7 +311,7 @@ class YrkesaktivitetDaoPg private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    override suspend fun oppdaterPerioder(
+    override fun oppdaterPerioder(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         perioder: Perioder?,
     ): YrkesaktivitetDbRecord {
@@ -325,7 +325,7 @@ class YrkesaktivitetDaoPg private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
-    override suspend fun slettYrkesaktivitet(id: UUID) {
+    override fun slettYrkesaktivitet(id: UUID) {
         db.update(
             """
             delete from yrkesaktivitet where id = :id
@@ -334,7 +334,7 @@ class YrkesaktivitetDaoPg private constructor(
         )
     }
 
-    override suspend fun oppdaterInntektrequest(
+    override fun oppdaterInntektrequest(
         yrkesaktivitet: Yrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord {
@@ -348,7 +348,7 @@ class YrkesaktivitetDaoPg private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
 
-    override suspend fun oppdaterInntektData(
+    override fun oppdaterInntektData(
         yrkesaktivitet: Yrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord {
@@ -362,7 +362,7 @@ class YrkesaktivitetDaoPg private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
 
-    override suspend fun oppdaterRefusjonsdata(
+    override fun oppdaterRefusjonsdata(
         yrkesaktivitet: Yrkesaktivitet,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {

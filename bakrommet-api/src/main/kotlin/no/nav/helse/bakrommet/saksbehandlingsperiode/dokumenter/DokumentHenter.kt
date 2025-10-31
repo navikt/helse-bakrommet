@@ -35,12 +35,12 @@ class DokumentHenter(
     private val aaRegClient: AARegClient,
     private val sigrunClient: SigrunClient,
 ) : DokumentInnhentingDaoer {
-    suspend fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> {
+    fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> {
         val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
         return dokumentDao.hentDokumenterFor(periode.id)
     }
 
-    suspend fun hentDokument(
+    fun hentDokument(
         ref: SaksbehandlingsperiodeReferanse,
         dokumentId: UUID,
     ): Dokument? {
@@ -87,7 +87,7 @@ class DokumentHenter(
         return søknader
     }
 
-    suspend fun hentOgLagreAInntekt828(
+    fun hentOgLagreAInntekt828(
         ref: SaksbehandlingsperiodeReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument {
@@ -100,7 +100,7 @@ class DokumentHenter(
         )
     }
 
-    suspend fun hentOgLagreAInntekt830(
+    fun hentOgLagreAInntekt830(
         ref: SaksbehandlingsperiodeReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument {
@@ -138,7 +138,7 @@ class DokumentHenter(
             }
     }
 
-    suspend fun hentOgLagrePensjonsgivendeInntekt(
+    fun hentOgLagrePensjonsgivendeInntekt(
         ref: SaksbehandlingsperiodeReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument {

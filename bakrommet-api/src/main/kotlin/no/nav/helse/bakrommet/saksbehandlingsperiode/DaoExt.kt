@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 
-suspend fun SaksbehandlingsperiodeDao.hentPeriode(
+fun SaksbehandlingsperiodeDao.hentPeriode(
     ref: SaksbehandlingsperiodeReferanse,
     krav: BrukerHarRollePåSakenKrav?,
 ): Saksbehandlingsperiode {
@@ -17,4 +17,4 @@ suspend fun SaksbehandlingsperiodeDao.hentPeriode(
     return periode
 }
 
-suspend fun SaksbehandlingsperiodeDao.reload(periode: Saksbehandlingsperiode) = finnSaksbehandlingsperiode(periode.id)!!
+fun SaksbehandlingsperiodeDao.reload(periode: Saksbehandlingsperiode) = finnSaksbehandlingsperiode(periode.id)!!

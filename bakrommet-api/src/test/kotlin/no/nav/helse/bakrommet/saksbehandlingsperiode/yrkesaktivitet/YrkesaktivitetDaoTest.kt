@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDaoPg
@@ -44,11 +43,9 @@ class YrkesaktivitetDaoTest {
     fun setOpp() {
         TestDataSource.resetDatasource()
         val dao = PersonDaoPg(dataSource)
-        runBlocking {
-            dao.opprettPerson(fnr, personId)
-        }
+        dao.opprettPerson(fnr, personId)
         val behandlingDao = SaksbehandlingsperiodeDaoPg(dataSource)
-        runBlocking { behandlingDao.opprettPeriode(periode) }
+        behandlingDao.opprettPeriode(periode)
     }
 
     @Test
@@ -69,24 +66,22 @@ class YrkesaktivitetDaoTest {
                 refusjonsdata = null,
             )
         val ekko =
-            runBlocking {
-                dao.opprettYrkesaktivitet(
-                    id = yrkesaktivitetDbRecord.id,
-                    kategorisering = yrkesaktivitetDbRecord.kategorisering,
-                    dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
-                    saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
-                    opprettet = yrkesaktivitetDbRecord.opprettet,
-                    generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
-                    perioder = yrkesaktivitetDbRecord.perioder,
-                    inntektData = yrkesaktivitetDbRecord.inntektData,
-                    refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
-                )
-            }
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+            )
         assertEquals(yrkesaktivitetDbRecord.tidsstuttet(), ekko.tidsstuttet())
 
-        assertEquals(ekko, runBlocking { dao.hentYrkesaktivitetDbRecord(ekko.id) })
+        assertEquals(ekko, dao.hentYrkesaktivitetDbRecord(ekko.id))
 
-        assertEquals(listOf(ekko), runBlocking { dao.hentYrkesaktiviteterDbRecord(periode) })
+        assertEquals(listOf(ekko), dao.hentYrkesaktiviteterDbRecord(periode))
     }
 
     @Test
@@ -109,19 +104,17 @@ class YrkesaktivitetDaoTest {
             )
 
         assertThrows<SQLException> {
-            runBlocking {
-                dao.opprettYrkesaktivitet(
-                    id = yrkesaktivitetDbRecord.id,
-                    kategorisering = yrkesaktivitetDbRecord.kategorisering,
-                    dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
-                    saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
-                    opprettet = yrkesaktivitetDbRecord.opprettet,
-                    generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
-                    perioder = yrkesaktivitetDbRecord.perioder,
-                    inntektData = yrkesaktivitetDbRecord.inntektData,
-                    refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
-                )
-            }
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+            )
         }
     }
 
@@ -144,19 +137,17 @@ class YrkesaktivitetDaoTest {
                 refusjonsdata = null,
             )
         val opprettetYrkesaktivitet =
-            runBlocking {
-                dao.opprettYrkesaktivitet(
-                    id = yrkesaktivitetDbRecord.id,
-                    kategorisering = yrkesaktivitetDbRecord.kategorisering,
-                    dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
-                    saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
-                    opprettet = yrkesaktivitetDbRecord.opprettet,
-                    generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
-                    perioder = yrkesaktivitetDbRecord.perioder,
-                    inntektData = yrkesaktivitetDbRecord.inntektData,
-                    refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
-                )
-            }
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+            )
 
         // Oppdater perioder
         val perioder =
@@ -171,11 +162,11 @@ class YrkesaktivitetDaoTest {
                     ),
             )
 
-        val oppdatertYrkesaktivitet = runBlocking { dao.oppdaterPerioder(opprettetYrkesaktivitet, perioder) }
+        val oppdatertYrkesaktivitet = dao.oppdaterPerioder(opprettetYrkesaktivitet, perioder)
         assertEquals(perioder, oppdatertYrkesaktivitet.perioder)
 
         // Slett perioder
-        val yrkesaktivitetUtenPerioder = runBlocking { dao.oppdaterPerioder(opprettetYrkesaktivitet, null) }
+        val yrkesaktivitetUtenPerioder = dao.oppdaterPerioder(opprettetYrkesaktivitet, null)
         assertEquals(null, yrkesaktivitetUtenPerioder.perioder)
     }
 
@@ -199,19 +190,17 @@ class YrkesaktivitetDaoTest {
 
         // Opprett yrkesaktivitet
         val opprettetYrkesaktivitet =
-            runBlocking {
-                dao.opprettYrkesaktivitet(
-                    id = yrkesaktivitetDbRecord.id,
-                    kategorisering = yrkesaktivitetDbRecord.kategorisering,
-                    dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
-                    saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
-                    opprettet = yrkesaktivitetDbRecord.opprettet,
-                    generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
-                    perioder = yrkesaktivitetDbRecord.perioder,
-                    inntektData = yrkesaktivitetDbRecord.inntektData,
-                    refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
-                )
-            }
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+            )
 
         // Verifiser at inntektRequest er null ved opprettelse
         assertEquals(null, opprettetYrkesaktivitet.inntektRequest)
@@ -228,34 +217,32 @@ class YrkesaktivitetDaoTest {
 
         // Oppdater inntektRequest
         val oppdatertYrkesaktivitet =
-            runBlocking {
-                dao.oppdaterInntektrequest(
-                    Yrkesaktivitet(
-                        id = opprettetYrkesaktivitet.id,
-                        kategorisering = opprettetYrkesaktivitet.kategorisering,
-                        kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
-                        dagoversikt = opprettetYrkesaktivitet.dagoversikt,
-                        dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
-                        saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
-                        opprettet = opprettetYrkesaktivitet.opprettet,
-                        generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
-                        perioder = opprettetYrkesaktivitet.perioder,
-                        inntektRequest = null,
-                        inntektData = null,
-                    ),
-                    inntektRequest,
-                )
-            }
+            dao.oppdaterInntektrequest(
+                Yrkesaktivitet(
+                    id = opprettetYrkesaktivitet.id,
+                    kategorisering = opprettetYrkesaktivitet.kategorisering,
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
+                    dagoversikt = opprettetYrkesaktivitet.dagoversikt,
+                    dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
+                    saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
+                    opprettet = opprettetYrkesaktivitet.opprettet,
+                    generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
+                    perioder = opprettetYrkesaktivitet.perioder,
+                    inntektRequest = null,
+                    inntektData = null,
+                ),
+                inntektRequest,
+            )
 
         // Verifiser at inntektRequest er oppdatert
         assertEquals(inntektRequest, oppdatertYrkesaktivitet.inntektRequest)
 
         // Hent yrkesaktivitet og verifiser at inntektRequest er lagret
-        val hentetYrkesaktivitet = runBlocking { dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id) }
+        val hentetYrkesaktivitet = dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id)
         assertEquals(inntektRequest, hentetYrkesaktivitet?.inntektRequest)
 
         // Hent via hentYrkesaktivitetDbRecord og verifiser
-        val hentetDbRecord = runBlocking { dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id) }
+        val hentetDbRecord = dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id)
         assertEquals(inntektRequest, hentetDbRecord?.inntektRequest)
     }
 
@@ -279,19 +266,17 @@ class YrkesaktivitetDaoTest {
 
         // Opprett yrkesaktivitet
         val opprettetYrkesaktivitet =
-            runBlocking {
-                dao.opprettYrkesaktivitet(
-                    id = yrkesaktivitetDbRecord.id,
-                    kategorisering = yrkesaktivitetDbRecord.kategorisering,
-                    dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
-                    saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
-                    opprettet = yrkesaktivitetDbRecord.opprettet,
-                    generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
-                    perioder = yrkesaktivitetDbRecord.perioder,
-                    inntektData = yrkesaktivitetDbRecord.inntektData,
-                    refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
-                )
-            }
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+            )
 
         // Verifiser at inntektData er null ved opprettelse
         assertEquals(null, opprettetYrkesaktivitet.inntektData)
@@ -306,34 +291,32 @@ class YrkesaktivitetDaoTest {
 
         // Oppdater inntektData
         val oppdatertYrkesaktivitet =
-            runBlocking {
-                dao.oppdaterInntektData(
-                    Yrkesaktivitet(
-                        id = opprettetYrkesaktivitet.id,
-                        kategorisering = opprettetYrkesaktivitet.kategorisering,
-                        kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
-                        dagoversikt = opprettetYrkesaktivitet.dagoversikt,
-                        dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
-                        saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
-                        opprettet = opprettetYrkesaktivitet.opprettet,
-                        generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
-                        perioder = opprettetYrkesaktivitet.perioder,
-                        inntektRequest = null,
-                        inntektData = null,
-                    ),
-                    inntektData,
-                )
-            }
+            dao.oppdaterInntektData(
+                Yrkesaktivitet(
+                    id = opprettetYrkesaktivitet.id,
+                    kategorisering = opprettetYrkesaktivitet.kategorisering,
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
+                    dagoversikt = opprettetYrkesaktivitet.dagoversikt,
+                    dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
+                    saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
+                    opprettet = opprettetYrkesaktivitet.opprettet,
+                    generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
+                    perioder = opprettetYrkesaktivitet.perioder,
+                    inntektRequest = null,
+                    inntektData = null,
+                ),
+                inntektData,
+            )
 
         // Verifiser at inntektData er oppdatert
         assertEquals(inntektData, oppdatertYrkesaktivitet.inntektData)
 
         // Hent yrkesaktivitet og verifiser at inntektData er lagret
-        val hentetYrkesaktivitet = runBlocking { dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id) }
+        val hentetYrkesaktivitet = dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id)
         assertEquals(inntektData, hentetYrkesaktivitet?.inntektData)
 
         // Hent via hentYrkesaktivitetDbRecord og verifiser
-        val hentetDbRecord = runBlocking { dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id) }
+        val hentetDbRecord = dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id)
         assertEquals(inntektData, hentetDbRecord?.inntektData)
     }
 
@@ -357,19 +340,17 @@ class YrkesaktivitetDaoTest {
 
         // Opprett yrkesaktivitet
         val opprettetYrkesaktivitet =
-            runBlocking {
-                dao.opprettYrkesaktivitet(
-                    id = yrkesaktivitetDbRecord.id,
-                    kategorisering = yrkesaktivitetDbRecord.kategorisering,
-                    dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
-                    saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
-                    opprettet = yrkesaktivitetDbRecord.opprettet,
-                    generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
-                    perioder = yrkesaktivitetDbRecord.perioder,
-                    inntektData = yrkesaktivitetDbRecord.inntektData,
-                    refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
-                )
-            }
+            dao.opprettYrkesaktivitet(
+                id = yrkesaktivitetDbRecord.id,
+                kategorisering = yrkesaktivitetDbRecord.kategorisering,
+                dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+                saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                opprettet = yrkesaktivitetDbRecord.opprettet,
+                generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+                perioder = yrkesaktivitetDbRecord.perioder,
+                inntektData = yrkesaktivitetDbRecord.inntektData,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+            )
 
         // Verifiser at refusjonsdata er null ved opprettelse
         assertEquals(null, opprettetYrkesaktivitet.refusjonsdata)
@@ -391,58 +372,54 @@ class YrkesaktivitetDaoTest {
 
         // Oppdater refusjonsdata
         val oppdatertYrkesaktivitet =
-            runBlocking {
-                dao.oppdaterRefusjonsdata(
-                    Yrkesaktivitet(
-                        id = opprettetYrkesaktivitet.id,
-                        kategorisering = opprettetYrkesaktivitet.kategorisering,
-                        kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
-                        dagoversikt = opprettetYrkesaktivitet.dagoversikt,
-                        dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
-                        saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
-                        opprettet = opprettetYrkesaktivitet.opprettet,
-                        generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
-                        perioder = opprettetYrkesaktivitet.perioder,
-                        inntektRequest = null,
-                        inntektData = null,
-                        refusjonsdata = null,
-                    ),
-                    refusjonsdata,
-                )
-            }
+            dao.oppdaterRefusjonsdata(
+                Yrkesaktivitet(
+                    id = opprettetYrkesaktivitet.id,
+                    kategorisering = opprettetYrkesaktivitet.kategorisering,
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
+                    dagoversikt = opprettetYrkesaktivitet.dagoversikt,
+                    dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
+                    saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
+                    opprettet = opprettetYrkesaktivitet.opprettet,
+                    generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
+                    perioder = opprettetYrkesaktivitet.perioder,
+                    inntektRequest = null,
+                    inntektData = null,
+                    refusjonsdata = null,
+                ),
+                refusjonsdata,
+            )
 
         // Verifiser at refusjonsdata er oppdatert
         assertEquals(refusjonsdata, oppdatertYrkesaktivitet.refusjonsdata)
 
         // Hent yrkesaktivitet og verifiser at refusjonsdata er lagret
-        val hentetYrkesaktivitet = runBlocking { dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id) }
+        val hentetYrkesaktivitet = dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id)
         assertEquals(refusjonsdata, hentetYrkesaktivitet?.refusjonsdata)
 
         // Hent via hentYrkesaktivitetDbRecord og verifiser
-        val hentetDbRecord = runBlocking { dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id) }
+        val hentetDbRecord = dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id)
         assertEquals(refusjonsdata, hentetDbRecord?.refusjonsdata)
 
         // Test at vi kan sette refusjonsdata til null
         val yrkesaktivitetUtenRefusjonsdata =
-            runBlocking {
-                dao.oppdaterRefusjonsdata(
-                    Yrkesaktivitet(
-                        id = opprettetYrkesaktivitet.id,
-                        kategorisering = opprettetYrkesaktivitet.kategorisering,
-                        kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
-                        dagoversikt = opprettetYrkesaktivitet.dagoversikt,
-                        dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
-                        saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
-                        opprettet = opprettetYrkesaktivitet.opprettet,
-                        generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
-                        perioder = opprettetYrkesaktivitet.perioder,
-                        inntektRequest = null,
-                        inntektData = null,
-                        refusjonsdata = null,
-                    ),
-                    null,
-                )
-            }
+            dao.oppdaterRefusjonsdata(
+                Yrkesaktivitet(
+                    id = opprettetYrkesaktivitet.id,
+                    kategorisering = opprettetYrkesaktivitet.kategorisering,
+                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
+                    dagoversikt = opprettetYrkesaktivitet.dagoversikt,
+                    dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
+                    saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
+                    opprettet = opprettetYrkesaktivitet.opprettet,
+                    generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
+                    perioder = opprettetYrkesaktivitet.perioder,
+                    inntektRequest = null,
+                    inntektData = null,
+                    refusjonsdata = null,
+                ),
+                null,
+            )
 
         assertEquals(null, yrkesaktivitetUtenRefusjonsdata.refusjonsdata)
     }

@@ -21,7 +21,7 @@ import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
-internal suspend fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
+internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
     yrkesaktivitet: Yrkesaktivitet,
     periode: Saksbehandlingsperiode,
     saksbehandler: BrukerOgToken,

@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import no.nav.helse.bakrommet.PARAM_PERSONID
 
 suspend inline fun ApplicationCall.medIdent(
-    crossinline finnNaturligIdent: suspend (personId: String) -> String?,
+    crossinline finnNaturligIdent: (personId: String) -> String?,
     crossinline block: suspend (naturligIdent: String, personId: SpilleromPersonId) -> Unit,
 ) {
     val personId =

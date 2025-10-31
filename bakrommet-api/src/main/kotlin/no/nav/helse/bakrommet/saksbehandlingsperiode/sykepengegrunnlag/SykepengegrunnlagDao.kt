@@ -11,24 +11,24 @@ import java.util.UUID
 import javax.sql.DataSource
 
 interface SykepengegrunnlagDao {
-    suspend fun lagreSykepengegrunnlag(
+    fun lagreSykepengegrunnlag(
         sykepengegrunnlag: Sykepengegrunnlag,
         saksbehandler: Bruker,
     ): SykepengegrunnlagDbRecord
 
-    suspend fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord?
+    fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord?
 
-    suspend fun oppdaterSykepengegrunnlag(
+    fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,
         sykepengegrunnlag: Sykepengegrunnlag?,
     ): SykepengegrunnlagDbRecord
 
-    suspend fun oppdaterSammenlikningsgrunnlag(
+    fun oppdaterSammenlikningsgrunnlag(
         sykepengegrunnlagId: UUID,
         sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     ): SykepengegrunnlagDbRecord
 
-    suspend fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID)
+    fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID)
 }
 
 class SykepengegrunnlagDaoPg private constructor(
@@ -37,7 +37,7 @@ class SykepengegrunnlagDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override suspend fun lagreSykepengegrunnlag(
+    override fun lagreSykepengegrunnlag(
         sykepengegrunnlag: Sykepengegrunnlag,
         saksbehandler: Bruker,
     ): SykepengegrunnlagDbRecord {
@@ -60,7 +60,7 @@ class SykepengegrunnlagDaoPg private constructor(
         return hentSykepengegrunnlag(id)!!
     }
 
-    override suspend fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? =
+    override fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? =
         db
             .list(
                 """
@@ -72,7 +72,7 @@ class SykepengegrunnlagDaoPg private constructor(
                 mapper = ::sykepengegrunnlagFraRow,
             ).firstOrNull()
 
-    override suspend fun oppdaterSykepengegrunnlag(
+    override fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,
         sykepengegrunnlag: Sykepengegrunnlag?,
     ): SykepengegrunnlagDbRecord {
@@ -93,7 +93,7 @@ class SykepengegrunnlagDaoPg private constructor(
         return hentSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
-    override suspend fun oppdaterSammenlikningsgrunnlag(
+    override fun oppdaterSammenlikningsgrunnlag(
         sykepengegrunnlagId: UUID,
         sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     ): SykepengegrunnlagDbRecord {
@@ -116,7 +116,7 @@ class SykepengegrunnlagDaoPg private constructor(
         return hentSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
-    override suspend fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
+    override fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
         db.update(
             """
             DELETE FROM sykepengegrunnlag 
