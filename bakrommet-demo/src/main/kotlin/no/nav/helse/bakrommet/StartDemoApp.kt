@@ -101,7 +101,11 @@ fun main() {
                         val sessionid = userSession ?: it
                         sessionsDaoer[sessionid] = FakeDaoer()
                         // TODO her kan vi sette opp testdata per session som skal i databasene. Helst via services?
-                        call.response.headers.append("set-cookie", "$cookieNavn=$sessionid")
+                        val maxAge = 4 * 60 * 60 // 4 timer i sekunder
+                        call.response.headers.append(
+                            "set-cookie",
+                            "$cookieNavn=$sessionid; Path=/; HttpOnly; Max-Age=$maxAge",
+                        )
                     }
                 } else {
                     userSession
