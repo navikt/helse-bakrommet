@@ -19,12 +19,14 @@ import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.scenarioer.Saksbehandingsperiode
 import no.nav.helse.bakrommet.scenarioer.Testperson
+import no.nav.helse.bakrommet.scenarioer.opprettTestdata
 import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
+import java.time.LocalDate
 import java.util.UUID
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
@@ -81,12 +83,27 @@ fun main() {
 
         install(CallLogging) {
             disableDefaultColors()
-            logger = sikkerLogger
+            logger = appLogger
             level = Level.INFO
             filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
         }
 
-        val testpersoner = listOf(Testperson(fnr = "12121210000", fornavn = "Ola Nordmann", etternavn = "Nordmann"))
+        val testpersoner =
+            listOf(
+                Testperson(
+                    fnr = "12121210000",
+                    fornavn = "Ola Nordmann",
+                    etternavn = "Nordmann",
+                    spilleromId = "8j4ns",
+                    saksbehandingsperioder =
+                        listOf(
+                            Saksbehandingsperiode(
+                                fom = LocalDate.of(2023, 1, 1),
+                                tom = LocalDate.of(2023, 1, 31),
+                            ),
+                        ),
+                ),
+            )
         val clienter = skapClienter(testpersoner)
         val services = createServices(clienter, DbDaoerFake())
 
@@ -100,6 +117,10 @@ fun main() {
                     UUID.randomUUID().toString().also {
                         val sessionid = userSession ?: it
                         sessionsDaoer[sessionid] = FakeDaoer()
+                        val ctx = CoroutineSessionContext(sessionid)
+                        withContext(ctx) {
+                            services.opprettTestdata(testpersoner)
+                        }
                         // TODO her kan vi sette opp testdata per session som skal i databasene. Helst via services?
                         val maxAge = 4 * 60 * 60 // 4 timer i sekunder
                         call.response.headers.append(

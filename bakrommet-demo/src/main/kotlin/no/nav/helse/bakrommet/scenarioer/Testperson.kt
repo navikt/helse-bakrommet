@@ -11,6 +11,7 @@ data class Testperson(
     val mellomnavn: String? = null,
     val etternavn: String,
     val fødselsdato: LocalDate = 17.juli(1997),
+    val saksbehandingsperioder: List<Saksbehandingsperiode> = emptyList(),
 ) {
     init {
         require(fnr.length == 11) { "Fnr skal være 11 siffer" }
@@ -19,3 +20,8 @@ data class Testperson(
         }
     }
 }
+
+data class Saksbehandingsperiode(
+    val fom: LocalDate,
+    val tom: LocalDate,
+)

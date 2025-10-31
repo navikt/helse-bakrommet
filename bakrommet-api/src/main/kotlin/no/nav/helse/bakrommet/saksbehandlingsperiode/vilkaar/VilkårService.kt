@@ -9,8 +9,20 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
+import java.util.UUID
 
 fun String.erGyldigSomKode(): Boolean {
+    // Først sjekk om det er en gyldig UUID
+    val erGyldigUuid =
+        try {
+            UUID.fromString(this)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+    if (erGyldigUuid) return true
+
+    // Hvis ikke UUID, bruk opprinnelig regex
     val regex = "^[A-ZÆØÅ0-9_]*$".toRegex()
     return regex.matches(this)
 }
