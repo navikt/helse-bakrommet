@@ -13,20 +13,13 @@ import io.ktor.server.request.*
 import io.ktor.server.routing.routing
 import io.ktor.utils.io.InternalAPI
 import kotlinx.coroutines.withContext
-import no.nav.helse.bakrommet.aareg.AARegMock
-import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.Rolle
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
-import no.nav.helse.bakrommet.pdl.PdlMock
-import no.nav.helse.bakrommet.sigrun.SigrunMock
-import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
+import no.nav.helse.bakrommet.scenarioer.Testperson
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.Logger
@@ -93,6 +86,10 @@ fun main() {
             filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
         }
 
+        val testpersoner = listOf(Testperson(fnr = "12121210000", fornavn = "Ola Nordmann", etternavn = "Nordmann"))
+        val clienter = skapClienter(testpersoner)
+        val services = createServices(clienter, DbDaoerFake())
+
         intercept(ApplicationCallPipeline.Plugins) {
             val cookieNavn = "user_session"
             // spillerom sender cookien tilbake i Authorization-header fordi vi ikke proxyer cookies
@@ -103,6 +100,7 @@ fun main() {
                     UUID.randomUUID().toString().also {
                         val sessionid = userSession ?: it
                         sessionsDaoer[sessionid] = FakeDaoer()
+                        // TODO her kan vi sette opp testdata per session som skal i databasene. Helst via services?
                         call.response.headers.append("set-cookie", "$cookieNavn=$sessionid")
                     }
                 } else {
@@ -121,36 +119,6 @@ fun main() {
 
         installErrorHandling(true)
 
-        // Sett opp mock-klienter tilsvarende e2e-testene
-        val oboClient: OboClient = PdlMock.createDefaultOboClient()
-
-        val pdlClient = PdlMock.pdlClient(oboClient = oboClient)
-        val aaRegClient = AARegMock.aaRegClientMock(oboClient = oboClient)
-        val aInntektClient = AInntektMock.aInntektClientMock(oboClient = oboClient)
-        val sigrunClient = SigrunMock.sigrunMockClient(oboClient = oboClient)
-        val inntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(oboClient = oboClient)
-
-        // Enkel mock av sykepengesøknad-backend-klienten for demoformål
-        val sykepengesoknadBackendClient =
-            SykepengesoknadBackendClient(
-                configuration =
-                    Configuration.SykepengesoknadBackend(
-                        hostname = "sykepengesoknad-backend",
-                        scope = OAuthScope("sykepengesoknad-backend-scope"),
-                    ),
-                oboClient = oboClient,
-            )
-
-        val clienter =
-            Clienter(
-                pdlClient = pdlClient,
-                sykepengesoknadBackendClient = sykepengesoknadBackendClient,
-                aInntektClient = aInntektClient,
-                aaRegClient = aaRegClient,
-                inntektsmeldingClient = inntektsmeldingClient,
-                sigrunClient = sigrunClient,
-            )
-        val services = createServices(clienter, DbDaoerFake())
         routing {
             authenticate("manual") {
                 setupRoutes(services, clienter)

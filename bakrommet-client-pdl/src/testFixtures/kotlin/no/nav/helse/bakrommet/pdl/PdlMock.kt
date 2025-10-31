@@ -50,6 +50,7 @@ object PdlMock {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             val json = request.bodyToJson()
+            println(json)
             val ident = json["variables"]["ident"].asText()
             val reply = identTilReplyMap[ident]
             if (reply != null) {
@@ -91,24 +92,45 @@ object PdlMock {
     fun pdlReply(
         fnr: String = "01010199999",
         aktorId: String = "10987654321",
-    ) = """
-        {
-          "data": {
-            "hentIdenter": {
-              "identer": [
-                {
-                  "ident": "$fnr",
-                  "gruppe": "FOLKEREGISTERIDENT"
+        fornavn: String = "Test",
+        mellomnavn: String? = "Mellom",
+        etternavn: String = "Testesen",
+        foedselsdato: String = "1990-01-01",
+    ): String {
+        val mellomnavnJson = mellomnavn?.let { "\"$it\"" } ?: "null"
+        return """
+            {
+              "data": {
+                "hentIdenter": {
+                  "identer": [
+                    {
+                      "ident": "$fnr",
+                      "gruppe": "FOLKEREGISTERIDENT"
+                    },
+                    {
+                      "ident": "$aktorId",
+                      "gruppe": "AKTORID"
+                    }
+                  ]
                 },
-                {
-                  "ident": "$aktorId",
-                  "gruppe": "AKTORID"
+                "hentPerson": {
+                  "navn": [
+                    {
+                      "fornavn": "$fornavn",
+                      "mellomnavn": $mellomnavnJson,
+                      "etternavn": "$etternavn"
+                    }
+                  ],
+                  "foedselsdato": [
+                    {
+                      "foedselsdato": "$foedselsdato"
+                    }
+                  ]
                 }
-              ]
-            }
-          }
-        }        
-        """.trimIndent()
+              }
+            }        
+            """.trimIndent()
+    }
 
     private val pdlUgyldigIdentReply =
         """
