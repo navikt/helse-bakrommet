@@ -24,6 +24,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoerImpl
 import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactoryPg
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
@@ -86,7 +87,7 @@ fun startApp(configuration: Configuration) {
 internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
 
 fun skapDbDaoer(dataSource: DataSource) =
-    DbDaoer(
+    DbDaoerImpl(
         DaoerFelles(dataSource),
         TransactionalSessionFactoryPg(dataSource) { session ->
             SessionDaoerFelles(session)

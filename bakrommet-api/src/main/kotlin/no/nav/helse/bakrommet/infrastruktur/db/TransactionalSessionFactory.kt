@@ -26,14 +26,20 @@ class TransactionalSessionFactoryPg<out SessionDaosType>(
  * av et Daoer-interface av gangen (per kode-blokk), ved at riktig versjon av DAO-samlingen tilgjengeliggjøres som "this"
  * (og ved at "daoer" og "sessionFactory" da ikke trenger være tilgjengelig i Servicen som "val"-verdier).
  */
-class DbDaoer<out DaosType>(
+class DbDaoerImpl<out DaosType>(
     private val daoer: DaosType,
     private val sessionFactory: TransactionalSessionFactory<DaosType>,
-) {
-    suspend fun <RET> nonTransactional(block: suspend (DaosType.() -> RET)): RET = block(daoer)
+) : DbDaoer<DaosType> {
+    override suspend fun <RET> nonTransactional(block: suspend (DaosType.() -> RET)): RET = block(daoer)
 
-    suspend fun <RET> transactional(block: suspend (DaosType.() -> RET)): RET =
+    override suspend fun <RET> transactional(block: suspend (DaosType.() -> RET)): RET =
         sessionFactory.transactionalSessionScope { session ->
             block(session)
         }
+}
+
+interface DbDaoer<out DaosType> {
+    suspend fun <RET> nonTransactional(block: suspend (DaosType.() -> RET)): RET
+
+    suspend fun <RET> transactional(block: suspend (DaosType.() -> RET)): RET
 }
