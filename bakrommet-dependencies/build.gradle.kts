@@ -27,7 +27,7 @@ dependencies {
     
     constraints {
         // Kotlin
-        api("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
+        api("org.jetbrains.kotlin:kotlin-stdlib:2.2.21")
         api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
         // Logging
