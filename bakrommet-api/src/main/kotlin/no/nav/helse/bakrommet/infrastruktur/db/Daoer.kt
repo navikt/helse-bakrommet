@@ -18,14 +18,17 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import javax.sql.DataSource
 
-class DaoerFelles(
-    dataSource: DataSource,
-) : SaksbehandlingsperiodeServiceDaoer,
+interface AlleDaoer :
+    SaksbehandlingsperiodeServiceDaoer,
     YrkesaktivitetServiceDaoer,
     SykepengegrunnlagServiceDaoer,
     InntektsmeldingMatcherDaoer,
     InntektServiceDaoer,
-    VilkårServiceDaoer {
+    VilkårServiceDaoer
+
+class DaoerFelles(
+    dataSource: DataSource,
+) : AlleDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDaoPg(dataSource)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoPg(dataSource)
     override val personDao = PersonDaoPg(dataSource)
@@ -39,12 +42,7 @@ class DaoerFelles(
 
 class SessionDaoerFelles(
     session: Session,
-) : SaksbehandlingsperiodeServiceDaoer,
-    YrkesaktivitetServiceDaoer,
-    SykepengegrunnlagServiceDaoer,
-    InntektsmeldingMatcherDaoer,
-    InntektServiceDaoer,
-    VilkårServiceDaoer {
+) : AlleDaoer {
     override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDaoPg(session)
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoPg(session)
     override val personDao = PersonDaoPg(session)

@@ -20,6 +20,7 @@ import no.nav.helse.bakrommet.auth.RolleMatrise
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.bruker.brukerRoute
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
@@ -192,7 +193,7 @@ data class SøknaderService(
 
 fun createServices(
     clienter: Clienter,
-    daoerFelles: DaoerFelles,
+    daoerFelles: AlleDaoer,
     sessionFactoryFelles: TransactionalSessionFactory<SessionDaoerFelles>,
 ): Services {
     val personsøkService =
