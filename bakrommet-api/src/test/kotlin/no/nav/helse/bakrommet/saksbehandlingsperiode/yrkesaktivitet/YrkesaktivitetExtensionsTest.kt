@@ -246,7 +246,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.DAGPENGEMOTTAKER_DEKNINGSGRAD_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ARBEIDSLEDIG_DEKNINGSGRAD_100
     }
 
     @Test

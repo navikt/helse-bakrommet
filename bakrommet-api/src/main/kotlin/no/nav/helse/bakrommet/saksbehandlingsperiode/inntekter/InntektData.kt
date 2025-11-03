@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
+import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG
 import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.DAGPENGEMOTTAKER_SYKEPENGEGRUNNLAG
 import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Year
@@ -66,7 +66,7 @@ sealed class InntektData {
 
     data class Arbeidsledig(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = DAGPENGEMOTTAKER_SYKEPENGEGRUNNLAG,
+        override val sporing: BeregningskoderSykepengrunnlag = ARBEIDSLEDIG_SYKEPENGEGRUNNLAG,
     ) : InntektData()
 
     data class InaktivSkjønnsfastsatt(

@@ -48,5 +48,5 @@ fun YrkesaktivitetKategorisering.hentDekningsgrad(): Sporbar<ProsentdelDto> =
         }
         is YrkesaktivitetKategorisering.Arbeidstaker -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.ARBEIDSTAKER_DEKNINGSGRAD_100)
         is YrkesaktivitetKategorisering.Frilanser -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.FRILANSER_DEKNINGSGRAD_100)
-        is YrkesaktivitetKategorisering.Arbeidsledig -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.DAGPENGEMOTTAKER_DEKNINGSGRAD_100)
+        is YrkesaktivitetKategorisering.Arbeidsledig -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.ARBEIDSLEDIG_DEKNINGSGRAD_100)
     }

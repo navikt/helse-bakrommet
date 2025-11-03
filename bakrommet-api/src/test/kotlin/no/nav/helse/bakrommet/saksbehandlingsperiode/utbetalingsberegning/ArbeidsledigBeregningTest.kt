@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
-import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.DAGPENGEMOTTAKER_DEKNINGSGRAD_100
+import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.ARBEIDSLEDIG_DEKNINGSGRAD_100
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
@@ -41,7 +41,7 @@ class ArbeidsledigBeregningTest {
             `ha yrkesaktivitet`(yrkesaktivitetId) {
                 `skal ha antall dager`(31) // Hele januar
                 `skal ha dekningsgrad`(100)
-                `skal ha dekningsgrad begrunnelse`(DAGPENGEMOTTAKER_DEKNINGSGRAD_100)
+                `skal ha dekningsgrad begrunnelse`(ARBEIDSLEDIG_DEKNINGSGRAD_100)
                 `på dato`(1.januar(2024)) {
                     `skal ha total grad`(50)
                     `skal ha ingen refusjon`()
