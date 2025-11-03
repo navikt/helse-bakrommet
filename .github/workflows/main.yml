@@ -14,7 +14,7 @@ permissions:
 jobs:
   build:
     if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
-    name: Bygg, test og lag docker image
+    name: Bygg og test
     runs-on: ubuntu-latest
     steps:
       - name: Sjekk ut kode
@@ -34,6 +34,25 @@ jobs:
         run: ./gradlew test
         env:
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache build output
+        uses: actions/cache@v4
+        with:
+          path: build/
+          key: build-${{ runner.os }}-${{ github.sha }}
+
+  docker-build:
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
+    name: Bygg docker image
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sjekk ut kode
+        uses: actions/checkout@v5
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: build/
+          key: build-${{ runner.os }}-${{ github.sha }}
       - name: Bygg docker image
         uses: nais/docker-build-push@v0
         id: docker-build-push
@@ -47,7 +66,7 @@ jobs:
   deploy-dev:
     if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
     name: Deploy til dev
-    needs: [build]
+    needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
       - name: Sjekk ut kode
@@ -57,5 +76,5 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: deploy/dev.yml
-          IMAGE: ${{ needs.build.outputs.image }}
+          IMAGE: ${{ needs.docker-build.outputs.image }}
 
