@@ -1,7 +1,9 @@
 package no.nav.helse.bakrommet.scenarioer
 
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.juli
 import java.time.LocalDate
+import java.time.Year
 
 data class Testperson(
     val fnr: String,
@@ -12,6 +14,8 @@ data class Testperson(
     val etternavn: String,
     val fødselsdato: LocalDate = 17.juli(1997),
     val saksbehandingsperioder: List<Saksbehandingsperiode> = emptyList(),
+    val soknader: List<SykepengesoknadDTO> = emptyList(),
+    val sigrunData: Map<Year, String> = emptyMap(),
 ) {
     init {
         require(fnr.length == 11) { "Fnr skal være 11 siffer" }
@@ -24,4 +28,5 @@ data class Testperson(
 data class Saksbehandingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
+    val søknadIder: List<String> = emptyList(),
 )

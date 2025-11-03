@@ -2,6 +2,7 @@ dependencies {
     api(project(":bakrommet-api"))
     api(project(":bakrommet-common"))
 
+    implementation("no.nav.helse.flex:sykepengesoknad-kafka")
     implementation("io.ktor:ktor-server-metrics-micrometer")
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-cio")
@@ -18,6 +19,8 @@ dependencies {
     implementation(testFixtures(project(":bakrommet-client-sykepengesoknad")))
     implementation(testFixtures(project(":bakrommet-client-sigrun")))
     implementation(testFixtures(project(":bakrommet-client-pdl")))
+
+    implementation("io.github.serpro69:kotlin-faker:1.16.0")
 }
 
 tasks {

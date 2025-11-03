@@ -13,4 +13,5 @@ dependencies {
     testFixturesImplementation("io.ktor:ktor-client-content-negotiation")
     testFixturesImplementation("io.ktor:ktor-serialization-jackson")
     testFixturesImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    testFixturesImplementation("no.nav.helse.flex:sykepengesoknad-kafka")
 }

@@ -19,14 +19,13 @@ import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.scenarioer.Saksbehandingsperiode
-import no.nav.helse.bakrommet.scenarioer.Testperson
+import no.nav.helse.bakrommet.mockclients.skapClienter
+import no.nav.helse.bakrommet.scenarioer.alleTestdata
 import no.nav.helse.bakrommet.scenarioer.opprettTestdata
 import no.nav.helse.bakrommet.util.objectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
-import java.time.LocalDate
 import java.util.UUID
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
@@ -71,9 +70,9 @@ fun main() {
                     // Sett inn din egen principal når du har bestemt at requesten er “innlogget”
                     ctx.principal(
                         Bruker(
-                            navn = "Test",
-                            navIdent = "a23423",
-                            preferredUsername = "sdfsdfs",
+                            navn = "Saks McBehandlersen",
+                            navIdent = "Z123456",
+                            preferredUsername = "saks.mcbehandlersen@nav.no",
                             roller = setOf(Rolle.SAKSBEHANDLER, Rolle.LES),
                         ),
                     )
@@ -88,22 +87,7 @@ fun main() {
             filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
         }
 
-        val testpersoner =
-            listOf(
-                Testperson(
-                    fnr = "12121210000",
-                    fornavn = "Ola Nordmann",
-                    etternavn = "Nordmann",
-                    spilleromId = "8j4ns",
-                    saksbehandingsperioder =
-                        listOf(
-                            Saksbehandingsperiode(
-                                fom = LocalDate.of(2023, 1, 1),
-                                tom = LocalDate.of(2023, 1, 31),
-                            ),
-                        ),
-                ),
-            )
+        val testpersoner = alleTestdata()
         val clienter = skapClienter(testpersoner)
         val services = createServices(clienter, DbDaoerFake())
 

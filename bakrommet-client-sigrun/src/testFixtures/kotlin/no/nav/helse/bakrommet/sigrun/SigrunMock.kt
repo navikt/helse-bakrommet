@@ -79,9 +79,83 @@ object SigrunMock {
         )
     }
 
+    /**
+     * Default handler for Sigrun-svar.
+     * Dette brukes når ingen predefinert data finnes for en gitt fnr/år-kombinasjon.
+     */
+    fun sigrunDefaultReplyHandler(
+        fnr: String,
+        år: Year,
+    ): String {
+        return when (år.value) {
+            2024 ->
+                """
+                {"norskPersonidentifikator":"$fnr","inntektsaar":2024,
+                "pensjonsgivendeInntekt":
+                    [
+                        {"skatteordning":"FASTLAND","datoForFastsetting":"2025-06-24T07:31:26.035Z",
+                        "pensjonsgivendeInntektAvLoennsinntekt":"250000",
+                        "pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel":null,
+                        "pensjonsgivendeInntektAvNaeringsinntekt":null,
+                        "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":null}
+                    ]
+                }
+                """.trimIndent()
+            2023 ->
+                """
+                {"norskPersonidentifikator":"$fnr","inntektsaar":2023,
+                "pensjonsgivendeInntekt":
+                    [
+                        {"skatteordning":"FASTLAND","datoForFastsetting":"2025-06-24T07:32:30.396Z",
+                        "pensjonsgivendeInntektAvLoennsinntekt":"250000",
+                        "pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel":"",
+                        "pensjonsgivendeInntektAvNaeringsinntekt":"25000",
+                        "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":null}
+                    ]
+                }
+                """.trimIndent()
+            2022 ->
+                """
+                {"norskPersonidentifikator":"$fnr","inntektsaar":2022,
+                "pensjonsgivendeInntekt":
+                    [
+                        {"skatteordning":"FASTLAND","datoForFastsetting":"2025-06-24T07:32:48.777Z",
+                        "pensjonsgivendeInntektAvLoennsinntekt":null,
+                        "pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel":null,
+                        "pensjonsgivendeInntektAvNaeringsinntekt":"900000",
+                        "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":null}
+                    ]
+                }
+                """.trimIndent()
+            2021 ->
+                """
+                {"norskPersonidentifikator":"$fnr","inntektsaar":2021,
+                "pensjonsgivendeInntekt":
+                    [
+                        {"skatteordning":"FASTLAND","datoForFastsetting":"2025-06-24T07:33:10.123Z",
+                        "pensjonsgivendeInntektAvLoennsinntekt":"1000000",
+                        "pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel":null,
+                        "pensjonsgivendeInntektAvNaeringsinntekt":"200",
+                        "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":null}
+                    ]
+                }
+                """.trimIndent()
+            2020 ->
+                """
+                {"norskPersonidentifikator":"$fnr","inntektsaar":2020,
+                "pensjonsgivendeInntekt":null}
+                """.trimIndent()
+            else -> {
+                // For andre år, returner 404
+                return sigrunErrorResponse(status = 404, kode = "PGIF-008")
+            }
+        }
+    }
+
     fun sigrunMockHttpClient(
         configuration: Configuration.Sigrun = defaultConfiguration,
         fnrÅrTilSvar: Map<Pair<String, Year>, String> = mapOf(),
+        defaultSigrunReplyHandler: (String, Year) -> String = { fnr, år -> sigrunDefaultReplyHandler(fnr, år) },
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
         if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
@@ -93,18 +167,28 @@ object SigrunMock {
             val inntektsAar = Year.of(request.headers["inntektsaar"]!!.toInt())
 
             val svar = fnrÅrTilSvar[fnr to inntektsAar]
-            if (svar == null) {
+            val finalSvar = svar ?: defaultSigrunReplyHandler(fnr, inntektsAar)
+
+            // Sjekk om svaret er en feilmelding (starter med "{" og inneholder "status")
+            val isError =
+                try {
+                    finalSvar.asJsonNode()["status"] != null
+                } catch (e: Exception) {
+                    false
+                }
+
+            if (isError) {
+                val status = statusFromResp(finalSvar) ?: 404
                 respond(
-                    status = HttpStatusCode.NotFound,
-                    content = sigrunErrorResponse(status = 404, kode = "PGIF-008"),
+                    status = HttpStatusCode(status, "mock-$status"),
+                    content = finalSvar,
                     headers = headersOf("Content-Type" to listOf("application/json")),
                 )
             } else {
-                val status = statusFromResp(svar) ?: 200
                 respond(
-                    status = HttpStatusCode(status, "mock-$status"),
+                    status = HttpStatusCode.OK,
                     headers = headersOf("Content-Type" to listOf("application/json")),
-                    content = svar,
+                    content = finalSvar,
                 )
             }
         }
@@ -114,10 +198,11 @@ object SigrunMock {
         configuration: Configuration.Sigrun = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
         fnrÅrTilSvar: Map<Pair<String, Year>, String> = mapOf(),
+        defaultSigrunReplyHandler: (String, Year) -> String = { fnr, år -> sigrunDefaultReplyHandler(fnr, år) },
     ) = SigrunClient(
         configuration = configuration,
         oboClient = oboClient,
-        httpClient = sigrunMockHttpClient(configuration, fnrÅrTilSvar),
+        httpClient = sigrunMockHttpClient(configuration, fnrÅrTilSvar, defaultSigrunReplyHandler),
     )
 
     private fun statusFromResp(resp: String): Int? {

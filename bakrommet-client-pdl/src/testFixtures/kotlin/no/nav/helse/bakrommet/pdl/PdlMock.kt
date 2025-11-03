@@ -44,33 +44,45 @@ object PdlMock {
                 "1234" to pdlReply(),
                 "01010199999" to pdlReply(),
             ),
+        pdlReplyGenerator: ((String) -> String?)? = null,
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
         if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             val json = request.bodyToJson()
-            println(json)
             val ident = json["variables"]["ident"].asText()
-            val reply = identTilReplyMap[ident]
-            if (reply != null) {
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = reply,
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            } else if (ident == "error") {
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = pdlUgyldigIdentReply,
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            } else {
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = personIkkeFunnetReply,
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
+
+            when {
+                identTilReplyMap[ident] != null -> {
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = identTilReplyMap[ident]!!,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                }
+                pdlReplyGenerator?.invoke(ident) != null -> {
+                    val generatedReply = pdlReplyGenerator.invoke(ident)!!
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = generatedReply,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                }
+                ident == "error" -> {
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = pdlUgyldigIdentReply,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                }
+                else -> {
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = personIkkeFunnetReply,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                }
             }
         }
     }
@@ -83,10 +95,11 @@ object PdlMock {
                 "1234" to pdlReply(),
                 "01010199999" to pdlReply(),
             ),
+        pdlReplyGenerator: ((String) -> String?)? = null,
     ) = PdlClient(
         configuration = configuration,
         oboClient = oboClient,
-        httpClient = mockPdl(configuration, oboClient, identTilReplyMap),
+        httpClient = mockPdl(configuration, oboClient, identTilReplyMap, pdlReplyGenerator),
     )
 
     fun pdlReply(
