@@ -48,6 +48,7 @@ class FakeDaoer : AlleDaoer {
 }
 
 val sessionsDaoer = mutableMapOf<String, FakeDaoer>()
+val sessionsBrukere = mutableMapOf<String, Bruker>()
 
 class DbDaoerFake : DbDaoer<AlleDaoer> {
     private suspend fun hentSessionDaoer(): AlleDaoer = sessionsDaoer[hentSession()] ?: throw IllegalStateException("Ingen Daoer funnet for session")
@@ -71,15 +72,14 @@ fun main() {
         install(Authentication) {
             provider("manual") {
                 authenticate { ctx ->
-                    // Sett inn din egen principal når du har bestemt at requesten er “innlogget”
-                    ctx.principal(
-                        Bruker(
-                            navn = "Saks McBehandlersen",
-                            navIdent = "Z123456",
-                            preferredUsername = "saks.mcbehandlersen@nav.no",
-                            roller = setOf(Rolle.SAKSBEHANDLER, Rolle.LES),
-                        ),
-                    )
+                    val sessionIdFraCookie = ctx.call.sessions.get("bakrommet-demo-session") as String?
+                    val bruker =
+                        if (sessionIdFraCookie != null) {
+                            sessionsBrukere[sessionIdFraCookie] ?: predefinerteBrukere.first()
+                        } else {
+                            predefinerteBrukere.first()
+                        }
+                    ctx.principal(bruker)
                 }
             }
         }
@@ -110,6 +110,9 @@ fun main() {
                     UUID.randomUUID().toString().also {
                         val sessionid = sessionIdFraCookie ?: it
                         sessionsDaoer[sessionid] = FakeDaoer()
+                        if (!sessionsBrukere.containsKey(sessionid)) {
+                            sessionsBrukere[sessionid] = predefinerteBrukere.first()
+                        }
                         val ctx = CoroutineSessionContext(sessionid)
                         withContext(ctx) {
                             services.opprettTestdata(testpersoner)
@@ -136,6 +139,7 @@ fun main() {
         installErrorHandling(true)
 
         routing {
+            demoBrukerRoute()
             authenticate("manual") {
                 setupRoutes(services, clienter)
             }
