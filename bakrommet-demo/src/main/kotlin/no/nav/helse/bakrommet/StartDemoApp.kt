@@ -11,6 +11,10 @@ import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.*
 import io.ktor.server.routing.routing
+import io.ktor.server.sessions.SessionStorageMemory
+import io.ktor.server.sessions.Sessions
+import io.ktor.server.sessions.cookie
+import io.ktor.server.sessions.sessions
 import io.ktor.utils.io.InternalAPI
 import kotlinx.coroutines.withContext
 import no.nav.helse.bakrommet.auth.Bruker
@@ -46,7 +50,7 @@ class FakeDaoer : AlleDaoer {
 val sessionsDaoer = mutableMapOf<String, FakeDaoer>()
 
 class DbDaoerFake : DbDaoer<AlleDaoer> {
-    private suspend fun hentSessionDaoer(): AlleDaoer = sessionsDaoer.get(hentSession()) ?: throw IllegalStateException("Ingen Daoer funnet for session")
+    private suspend fun hentSessionDaoer(): AlleDaoer = sessionsDaoer[hentSession()] ?: throw IllegalStateException("Ingen Daoer funnet for session")
 
     override suspend fun <RET> nonTransactional(block: suspend (AlleDaoer.() -> RET)): RET = block(hentSessionDaoer())
 
@@ -91,31 +95,35 @@ fun main() {
         val clienter = skapClienter(testpersoner)
         val services = createServices(clienter, DbDaoerFake())
 
-        intercept(ApplicationCallPipeline.Plugins) {
-            val cookieNavn = "user_session"
-            // spillerom sender cookien tilbake i Authorization-header fordi vi ikke proxyer cookies
-            val userSession = call.request.authorization()?.replace("Bearer ", "")
+        install(Sessions) {
+            cookie<String>("bakrommet-demo-session", SessionStorageMemory()) {
+                cookie.path = "/"
+                cookie.maxAgeInSeconds = 60 * 60 * 4 // 4 timer
+            }
+        }
 
-            val faktiskSesjon =
-                if (userSession == null || !sessionsDaoer.containsKey(userSession)) {
+        intercept(ApplicationCallPipeline.Plugins) {
+            val sessionIdFraCookie = call.sessions.get("bakrommet-demo-session") as String?
+
+            val sessionId =
+                if (sessionIdFraCookie == null || !sessionsDaoer.containsKey(sessionIdFraCookie)) {
                     UUID.randomUUID().toString().also {
-                        val sessionid = userSession ?: it
+                        val sessionid = sessionIdFraCookie ?: it
                         sessionsDaoer[sessionid] = FakeDaoer()
                         val ctx = CoroutineSessionContext(sessionid)
                         withContext(ctx) {
                             services.opprettTestdata(testpersoner)
                         }
-                        val maxAge = 4 * 60 * 60 // 4 timer i sekunder
-                        call.response.headers.append(
-                            "set-cookie",
-                            "$cookieNavn=$sessionid; Path=/; HttpOnly; Max-Age=$maxAge",
-                        )
+                        call.sessions.set("bakrommet-demo-session", sessionid)
                     }
                 } else {
-                    userSession
+                    sessionIdFraCookie
                 }
+            val ctx =
+                CoroutineSessionContext(
+                    sessionId,
+                )
 
-            val ctx = CoroutineSessionContext(faktiskSesjon)
             withContext(ctx) {
                 proceed()
             }
