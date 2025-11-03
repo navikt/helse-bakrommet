@@ -142,7 +142,7 @@ private fun List<Yrkesaktivitet>.hentKombinertBeregningskode(): BeregningskoderK
         return BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_ARBEIDSTAKER_FRILANSER_SELVSTENDIG_SYKEPENGEGRUNNLAG
     }
     if (erNæringsdrivende && erFrilanser) {
-        return BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_FRILANSER_SELVSTENDIG_SYKEPENGEGRUNNLAG
+        return BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_SELVSTENDIG_FRILANSER_SYKEPENGEGRUNNLAG
     }
     if (erArbeidstaker && erFrilanser) {
         return BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_ARBEIDSTAKER_FRILANSER_SYKEPENGEGRUNNLAG

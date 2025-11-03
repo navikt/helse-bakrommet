@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.*
-import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.SELVSTENDIG_DEKNINGSGRAD_80
+import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_80
 import no.nav.helse.desember
 import no.nav.helse.januar
 import org.junit.jupiter.api.Test
@@ -54,7 +54,7 @@ class PerPålEspenBeregningTest {
             `ha yrkesaktivitet`(yrkesaktivitetIdNæring) {
                 `skal ha antall dager`(365)
                 `skal ha dekningsgrad`(80)
-                `skal ha dekningsgrad begrunnelse`(SELVSTENDIG_DEKNINGSGRAD_80)
+                `skal ha dekningsgrad begrunnelse`(SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_80)
                 `på dato`(1.januar(2024)) {
                     `skal ha total grad`(50)
                     `skal ha sykdoms grad`(0)
@@ -131,7 +131,7 @@ class PerPålEspenBeregningTest {
             `ha yrkesaktivitet`(yrkesaktivitetIdNæring) {
                 `skal ha antall dager`(365)
                 `skal ha dekningsgrad`(80)
-                `skal ha dekningsgrad begrunnelse`(SELVSTENDIG_DEKNINGSGRAD_80)
+                `skal ha dekningsgrad begrunnelse`(SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_80)
                 `på dato`(1.januar(2024)) {
                     `skal ha total grad`(100)
                     `skal ha sykdoms grad`(0)
@@ -208,7 +208,7 @@ class PerPålEspenBeregningTest {
             `ha yrkesaktivitet`(yrkesaktivitetIdNæring) {
                 `skal ha antall dager`(365)
                 `skal ha dekningsgrad`(80)
-                `skal ha dekningsgrad begrunnelse`(SELVSTENDIG_DEKNINGSGRAD_80)
+                `skal ha dekningsgrad begrunnelse`(SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_80)
                 `på dato`(1.januar(2024)) {
                     `skal ha total grad`(0)
                     `skal ha sykdoms grad`(100)

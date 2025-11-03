@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.ARBEIDSTAKER_DEKNINGSGRAD_100
-import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.SELVSTENDIG_DEKNINGSGRAD_80
+import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_80
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
 import org.junit.jupiter.api.Test
@@ -50,7 +50,7 @@ class KombinertBeregningTest {
             `ha yrkesaktivitet`(yrkesaktivitetIdNæring) {
                 `skal ha antall dager`(31) // Hele januar
                 `skal ha dekningsgrad`(80)
-                `skal ha dekningsgrad begrunnelse`(SELVSTENDIG_DEKNINGSGRAD_80)
+                `skal ha dekningsgrad begrunnelse`(SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_80)
                 `på dato`(1.januar(2024)) {
                     `skal ha total grad`(100)
                     `skal ha ingen refusjon`()

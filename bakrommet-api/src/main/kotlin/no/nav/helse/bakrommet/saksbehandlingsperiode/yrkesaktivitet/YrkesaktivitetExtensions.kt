@@ -33,7 +33,7 @@ fun YrkesaktivitetKategorisering.hentDekningsgrad(): Sporbar<ProsentdelDto> =
                         SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG ->
                             Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100)
                         SelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG ->
-                            Sporbar(ÅTTI_PROSENT, BeregningskoderDekningsgrad.SELVSTENDIG_DEKNINGSGRAD_80)
+                            Sporbar(ÅTTI_PROSENT, BeregningskoderDekningsgrad.SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_80)
                         SelvstendigForsikring.INGEN_FORSIKRING ->
                             Sporbar(ÅTTI_PROSENT, BeregningskoderDekningsgrad.SELVSTENDIG_DEKNINGSGRAD_80)
                     }
