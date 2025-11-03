@@ -38,8 +38,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            bakrommet-bootstrap/build/
-            bakrommet-demo/build/
+            bakrommet-bootstrap/build/deps/
+            bakrommet-bootstrap/build/libs/
+            bakrommet-demo/build/deps/
+            bakrommet-demo/build/libs/
           key: build-${{ runner.os }}-${{ github.sha }}
 
   docker-build:
@@ -54,8 +56,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            bakrommet-bootstrap/build/
-            bakrommet-demo/build/
+            bakrommet-bootstrap/build/deps/
+            bakrommet-bootstrap/build/libs/
+            bakrommet-demo/build/deps/
+            bakrommet-demo/build/libs/
           key: build-${{ runner.os }}-${{ github.sha }}
       - name: Bygg docker image
         uses: nais/docker-build-push@v0
@@ -96,8 +100,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            bakrommet-bootstrap/build/
-            bakrommet-demo/build/
+            bakrommet-bootstrap/build/deps/
+            bakrommet-bootstrap/build/libs/
+            bakrommet-demo/build/deps/
+            bakrommet-demo/build/libs/
           key: build-${{ runner.os }}-${{ github.sha }}
       - name: Bygg docker image
         uses: nais/docker-build-push@v0
