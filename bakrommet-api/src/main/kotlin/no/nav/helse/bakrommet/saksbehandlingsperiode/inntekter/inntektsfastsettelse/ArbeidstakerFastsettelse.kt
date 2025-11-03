@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse
 
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
@@ -36,9 +36,9 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
         is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
             val sporing =
                 when (data.årsak) {
-                    ArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT -> BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
-                    ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING -> BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
-                    ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET -> BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO
+                    ArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT -> BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
+                    ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING -> BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
+                    ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET -> BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO
                 }
             InntektData.ArbeidstakerSkjønnsfastsatt(
                 omregnetÅrsinntekt = Inntekt.gjenopprett(data.årsinntekt).dto().årlig,

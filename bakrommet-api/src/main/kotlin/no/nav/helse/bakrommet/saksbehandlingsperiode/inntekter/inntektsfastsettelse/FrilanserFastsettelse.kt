@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse
 
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.tilInntektApiUt
 import no.nav.helse.bakrommet.auth.BrukerOgToken

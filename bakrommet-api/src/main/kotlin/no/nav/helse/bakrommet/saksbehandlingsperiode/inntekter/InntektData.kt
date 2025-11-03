@@ -3,10 +3,10 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.JsonNode
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
-import no.nav.helse.bakrommet.BeregningskoderSykepengrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Year
 import java.time.YearMonth
@@ -27,51 +27,51 @@ import java.time.YearMonth
 )
 sealed class InntektData {
     abstract val omregnetÅrsinntekt: InntektbeløpDto.Årlig
-    abstract val sporing: BeregningskoderSykepengrunnlag
+    abstract val sporing: BeregningskoderSykepengegrunnlag
 
     data class ArbeidstakerInntektsmelding(
         val inntektsmeldingId: String,
         val inntektsmelding: JsonNode,
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
+        override val sporing: BeregningskoderSykepengegrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
     ) : InntektData()
 
     data class ArbeidstakerManueltBeregnet(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
+        override val sporing: BeregningskoderSykepengegrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
     ) : InntektData()
 
     data class ArbeidstakerAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
+        override val sporing: BeregningskoderSykepengegrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
         // TODO legg med litt kilder
     ) : InntektData()
 
     data class ArbeidstakerSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag,
+        override val sporing: BeregningskoderSykepengegrunnlag,
     ) : InntektData()
 
     data class FrilanserAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
+        override val sporing: BeregningskoderSykepengegrunnlag = FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
     ) : InntektData()
 
     data class FrilanserSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag,
+        override val sporing: BeregningskoderSykepengegrunnlag,
     ) : InntektData()
 
     data class Arbeidsledig(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = ARBEIDSLEDIG_SYKEPENGEGRUNNLAG,
+        override val sporing: BeregningskoderSykepengegrunnlag = ARBEIDSLEDIG_SYKEPENGEGRUNNLAG,
     ) : InntektData()
 
     data class InaktivSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag,
+        override val sporing: BeregningskoderSykepengegrunnlag,
     ) : InntektData()
 
     data class PensjonsgivendeInntekt(
@@ -82,19 +82,19 @@ sealed class InntektData {
 
     data class InaktivPensjonsgivende(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = BeregningskoderSykepengrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL,
+        override val sporing: BeregningskoderSykepengegrunnlag = BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : InntektData()
 
     data class SelvstendigNæringsdrivendePensjonsgivende(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag = BeregningskoderSykepengrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL,
+        override val sporing: BeregningskoderSykepengegrunnlag = BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : InntektData()
 
     data class SelvstendigNæringsdrivendeSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengrunnlag,
+        override val sporing: BeregningskoderSykepengegrunnlag,
     ) : InntektData()
 }
 
