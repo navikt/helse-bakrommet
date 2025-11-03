@@ -6,9 +6,9 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.pdl.PdlMock
-import no.nav.helse.bakrommet.scenarioer.Testperson
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock.sykepengesoknadMock
+import no.nav.helse.bakrommet.testdata.Testperson
 
 fun skapClienter(testpersoner: List<Testperson>): Clienter {
     val pdlResponses = testpersoner.associate { it.fnr to it.skapPdlReply() }

@@ -1,19 +1,20 @@
-package no.nav.helse.bakrommet.scenarioer
+package no.nav.helse.bakrommet.testdata
 
 import no.nav.helse.bakrommet.inntektsmelding.enInntektsmelding
+import no.nav.helse.bakrommet.testdata.scenarioer.alleScenarioer
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
 fun alleTestdata(): List<Testperson> =
-    listOf(
+    mutableListOf(
         kalleKranfører(),
         mattisMatros(),
         bosseBunntrål(),
         blankeArk(),
         muggeMcMurstein(),
-    )
+    ).also { lista -> lista.addAll(alleScenarioer.map { it.testperson }) }
 
 private fun kalleKranfører() =
     Testperson(

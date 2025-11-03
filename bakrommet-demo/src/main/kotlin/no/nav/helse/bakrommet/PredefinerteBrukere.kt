@@ -36,4 +36,3 @@ val predefinerteBrukere =
             roller = setOf(Rolle.SAKSBEHANDLER, Rolle.BESLUTTER),
         ),
     )
-

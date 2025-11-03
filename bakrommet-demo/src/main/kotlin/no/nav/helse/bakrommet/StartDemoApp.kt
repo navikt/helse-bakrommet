@@ -18,14 +18,13 @@ import io.ktor.server.sessions.sessions
 import io.ktor.utils.io.InternalAPI
 import kotlinx.coroutines.withContext
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.auth.Rolle
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.mockclients.skapClienter
-import no.nav.helse.bakrommet.scenarioer.alleTestdata
-import no.nav.helse.bakrommet.scenarioer.opprettTestdata
+import no.nav.helse.bakrommet.testdata.alleTestdata
+import no.nav.helse.bakrommet.testdata.opprettTestdata
 import no.nav.helse.bakrommet.util.objectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -140,6 +139,7 @@ fun main() {
 
         routing {
             demoBrukerRoute()
+            demoTestdataRoute()
             authenticate("manual") {
                 setupRoutes(services, clienter)
             }

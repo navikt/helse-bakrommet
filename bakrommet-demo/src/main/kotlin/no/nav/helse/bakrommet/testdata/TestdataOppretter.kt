@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.scenarioer
+package no.nav.helse.bakrommet.testdata
 
 import no.nav.helse.bakrommet.Services
 import no.nav.helse.bakrommet.auth.Bruker

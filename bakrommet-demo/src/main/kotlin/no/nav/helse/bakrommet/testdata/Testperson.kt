@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.scenarioer
+package no.nav.helse.bakrommet.testdata
 
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.juli
@@ -31,4 +31,19 @@ data class Saksbehandingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
     val søknadIder: List<String> = emptyList(),
+)
+
+fun Testperson.tilTestpersonForFrontend(): TestpersonForFrontend =
+    TestpersonForFrontend(
+        navn = this.fornavn + " " + this.etternavn,
+        fnr = this.fnr,
+        spilleromId = this.spilleromId!!,
+        alder = 22,
+    )
+
+data class TestpersonForFrontend(
+    val navn: String,
+    val alder: Number,
+    val spilleromId: String,
+    val fnr: String,
 )
