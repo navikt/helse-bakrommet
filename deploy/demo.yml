@@ -8,6 +8,8 @@ metadata:
 spec:
   image: {{image}}
   port: 8080
+  ingresses:
+    - https://bakrommet-demo.ekstern.dev.nav.no
   replicas:
     min: 1
     max: 1
