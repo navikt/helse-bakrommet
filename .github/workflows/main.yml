@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-') || startsWith(github.ref_name, 'demo-')
     name: Bygg og test
     runs-on: ubuntu-latest
     steps:
@@ -37,7 +37,9 @@ jobs:
       - name: Cache build output
         uses: actions/cache@v4
         with:
-          path: build/
+          path: |
+            bakrommet-bootstrap/build/
+            bakrommet-demo/build/
           key: build-${{ runner.os }}-${{ github.sha }}
 
   docker-build:
@@ -51,7 +53,9 @@ jobs:
       - name: Restore build cache
         uses: actions/cache@v4
         with:
-          path: build/
+          path: |
+            bakrommet-bootstrap/build/
+            bakrommet-demo/build/
           key: build-${{ runner.os }}-${{ github.sha }}
       - name: Bygg docker image
         uses: nais/docker-build-push@v0
@@ -78,3 +82,45 @@ jobs:
           RESOURCE: deploy/dev.yml
           IMAGE: ${{ needs.docker-build.outputs.image }}
 
+
+
+  docker-build-demo:
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'demo-')
+    name: Bygg docker image
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sjekk ut kode
+        uses: actions/checkout@v5
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            bakrommet-bootstrap/build/
+            bakrommet-demo/build/
+          key: build-${{ runner.os }}-${{ github.sha }}
+      - name: Bygg docker image
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: speilvendt
+          dockerfile: Dockerfile.demo
+          cache_from: type=gha
+          cache_to: type=gha,mode=min
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+
+  deploy-demo:
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'demo-')
+    name: Deploy demo
+    needs: [docker-build-demo]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sjekk ut kode
+        uses: actions/checkout@v5
+      - name: Deploy til NAIS
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/demo.yml
+          IMAGE: ${{ needs.docker-build-demo.outputs.image }}
