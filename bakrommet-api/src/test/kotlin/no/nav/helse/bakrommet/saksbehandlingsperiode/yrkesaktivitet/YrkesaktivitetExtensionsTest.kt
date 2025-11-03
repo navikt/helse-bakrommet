@@ -30,7 +30,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
     }
 
     @Test
@@ -56,7 +56,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
     }
 
     @Test
@@ -82,7 +82,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 0.8
-        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_DEKNINGSGRAD_80
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.SELVSTENDIG_DEKNINGSGRAD_80
     }
 
     @Test
@@ -108,7 +108,7 @@ class YrkesaktivitetExtensionsTest {
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
 
         dekningsgrad.verdi.prosentDesimal `should equal` 0.8
-        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_DEKNINGSGRAD_80
+        dekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.SELVSTENDIG_DEKNINGSGRAD_80
     }
 
     @Test
@@ -286,7 +286,7 @@ class YrkesaktivitetExtensionsTest {
         val arbeidstakerDekningsgrad = arbeidstakerYrkesaktivitetDbRecord.hentDekningsgrad()
 
         selvstendigDekningsgrad.verdi.prosentDesimal `should equal` 1.0
-        selvstendigDekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ORDINAER_SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
+        selvstendigDekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.SELVSTENDIG_NAVFORSIKRING_DEKNINGSGRAD_100
 
         arbeidstakerDekningsgrad.verdi.prosentDesimal `should equal` 1.0
         arbeidstakerDekningsgrad.sporing `should equal` BeregningskoderDekningsgrad.ARBEIDSTAKER_DEKNINGSGRAD_100
