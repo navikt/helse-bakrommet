@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.ARBEIDSLEDIG_DEKNINGSGRAD_100
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
@@ -30,6 +31,7 @@ class ArbeidsledigBeregningTest {
                     inntektData(
                         InntektData.Arbeidsledig(
                             omregnetÅrsinntekt = 21666.0.månedlig.dto().årlig,
+                            sporing = BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER
                         ),
                     )
                 }

@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse
 
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidsledigInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
@@ -10,16 +11,19 @@ internal fun InntektRequest.Arbeidsledig.arbeidsledigFastsettelse(): InntektData
         is ArbeidsledigInntektRequest.Dagpenger -> {
             InntektData.Arbeidsledig(
                 omregnetÅrsinntekt = Inntekt.gjenopprett(data.dagbeløp).dto().årlig,
+                sporing = BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_DAGPENGER,
             )
         }
 
         is ArbeidsledigInntektRequest.Vartpenger ->
             InntektData.Arbeidsledig(
                 omregnetÅrsinntekt = Inntekt.gjenopprett(data.årsinntekt).dto().årlig,
+                sporing = BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER,
             )
 
         is ArbeidsledigInntektRequest.Ventelønn ->
             InntektData.Arbeidsledig(
                 omregnetÅrsinntekt = Inntekt.gjenopprett(data.årsinntekt).dto().årlig,
+                sporing = BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VENTELOENN,
             )
     }
