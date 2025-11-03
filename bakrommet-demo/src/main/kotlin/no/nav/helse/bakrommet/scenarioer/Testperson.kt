@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.scenarioer
 
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.juli
+import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 import java.time.LocalDate
 import java.time.Year
 
@@ -15,6 +16,7 @@ data class Testperson(
     val fødselsdato: LocalDate = 17.juli(1997),
     val saksbehandingsperioder: List<Saksbehandingsperiode> = emptyList(),
     val soknader: List<SykepengesoknadDTO> = emptyList(),
+    val inntektsmeldinger: List<Inntektsmelding>? = null,
     val sigrunData: Map<Year, String> = emptyMap(),
 ) {
     init {

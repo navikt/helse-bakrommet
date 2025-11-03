@@ -105,7 +105,6 @@ fun main() {
                         withContext(ctx) {
                             services.opprettTestdata(testpersoner)
                         }
-                        // TODO her kan vi sette opp testdata per session som skal i databasene. Helst via services?
                         val maxAge = 4 * 60 * 60 // 4 timer i sekunder
                         call.response.headers.append(
                             "set-cookie",

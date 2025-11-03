@@ -20,7 +20,3 @@ spec:
   readiness:
     path: isready
     initialDelay: 5
-  accessPolicy:
-    inbound:
-      rules:
-        - application: spillerom-demo

@@ -12,6 +12,7 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -20,7 +21,7 @@ object InntektsmeldingApiMock {
 
     object Person1 {
         val fnr = "08088811111"
-        val resp = "[${enInntektsmelding()}]"
+        val inntektsmeldinger = listOf(enInntektsmelding())
     }
 
     // Default test konfigurasjon
@@ -48,65 +49,72 @@ object InntektsmeldingApiMock {
     fun inntektsmeldingMockHttpClient(
         configuration: Configuration.Inntektsmelding = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
-        fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.resp),
-        inntektsmeldingIdTilSvar: Map<String, String> = emptyMap(),
+        fnrTilInntektsmeldinger: Map<String, List<Inntektsmelding>> = mapOf(Person1.fnr to Person1.inntektsmeldinger),
         callCounter: AtomicInteger? = null,
-    ) = mockHttpClient { request ->
-        callCounter?.incrementAndGet()
-        val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
-            respondError(HttpStatusCode.Unauthorized)
-        } else {
-            log.info("URL: " + request.url)
-            log.info("BODY: " + String(request.body.toByteArray()))
-            log.info("PARAMS: " + request.url.parameters)
-            log.info("HEADERS: " + request.headers)
+    ): HttpClient {
+        // Generer mapping fra inntektsmeldingId til Inntektsmelding for GET-forespørsler
+        val inntektsmeldingIdTilInntektsmelding: Map<String, Inntektsmelding> =
+            fnrTilInntektsmeldinger.values.flatten().associateBy { it.inntektsmeldingId }
 
-            if (request.method == HttpMethod.Post) {
-                val payload = request.bodyToJson()
-                // assertNotNull(request.headers["Nav-Call-Id"])
-                val fnr = payload["fnr"].asText()
-                if (fnr.endsWith("400")) {
-                    respond(
-                        status = HttpStatusCode.BadRequest,
-                        content = "400",
-                    )
-                } else {
-                    val svar = fnrTilSvar[fnr]
-                    if (svar == null) {
+        return mockHttpClient { request ->
+            callCounter?.incrementAndGet()
+            val auth = request.headers[HttpHeaders.Authorization]!!
+            if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
+                respondError(HttpStatusCode.Unauthorized)
+            } else {
+                log.info("URL: " + request.url)
+                log.info("BODY: " + String(request.body.toByteArray()))
+                log.info("PARAMS: " + request.url.parameters)
+                log.info("HEADERS: " + request.headers)
+
+                if (request.method == HttpMethod.Post) {
+                    val payload = request.bodyToJson()
+                    // assertNotNull(request.headers["Nav-Call-Id"])
+                    val fnr = payload["fnr"].asText()
+                    if (fnr.endsWith("400")) {
+                        respond(
+                            status = HttpStatusCode.BadRequest,
+                            content = "400",
+                        )
+                    } else {
+                        val inntektsmeldinger = fnrTilInntektsmeldinger[fnr]
+                        if (inntektsmeldinger == null) {
+                            respond(
+                                status = HttpStatusCode.NotFound,
+                                content = "404",
+                            )
+                        } else {
+                            val svar = objectMapper.writeValueAsString(inntektsmeldinger)
+                            respond(
+                                status = HttpStatusCode.OK,
+                                content = svar,
+                                headers = headersOf("Content-Type" to listOf("application/json")),
+                            )
+                        }
+                    }
+                } else if (request.method == HttpMethod.Get) {
+                    val inntektsmeldingId =
+                        request.url
+                            .toString()
+                            .split('/')
+                            .last()
+                    val inntektsmelding = inntektsmeldingIdTilInntektsmelding[inntektsmeldingId]
+                    if (inntektsmelding == null) {
                         respond(
                             status = HttpStatusCode.NotFound,
                             content = "404",
                         )
                     } else {
+                        val svar = objectMapper.writeValueAsString(inntektsmelding)
                         respond(
                             status = HttpStatusCode.OK,
                             content = svar,
                             headers = headersOf("Content-Type" to listOf("application/json")),
                         )
                     }
-                }
-            } else if (request.method == HttpMethod.Get) {
-                val inntektsmeldingId =
-                    request.url
-                        .toString()
-                        .split('/')
-                        .last()
-                val svar = inntektsmeldingIdTilSvar[inntektsmeldingId]
-                if (svar == null) {
-                    respond(
-                        status = HttpStatusCode.NotFound,
-                        content = "404",
-                    )
                 } else {
-                    respond(
-                        status = HttpStatusCode.OK,
-                        content = svar,
-                        headers = headersOf("Content-Type" to listOf("application/json")),
-                    )
+                    respond(status = HttpStatusCode.BadRequest, content = "400")
                 }
-            } else {
-                respond(status = HttpStatusCode.BadRequest, content = "400")
             }
         }
     }
@@ -115,76 +123,12 @@ object InntektsmeldingApiMock {
         configuration: Configuration.Inntektsmelding = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
         mockClient: HttpClient? = null,
+        fnrTilInntektsmeldinger: Map<String, List<Inntektsmelding>> = mapOf(Person1.fnr to Person1.inntektsmeldinger),
     ) = InntektsmeldingClient(
         configuration = configuration,
         oboClient = oboClient,
-        httpClient = mockClient ?: inntektsmeldingMockHttpClient(configuration, oboClient),
+        httpClient = mockClient ?: inntektsmeldingMockHttpClient(configuration, oboClient, fnrTilInntektsmeldinger),
     )
-
-    fun enInntektsmelding(
-        inntektsmeldingId: String = "7371c1ab-ee9b-4fb3-b540-c360fb0156a0",
-        arbeidstakerFnr: String = "",
-        beregnetInntekt: Double = 8876.00,
-        virksomhetsnummer: String = "999888777",
-    ) = """
-        {
-            "inntektsmeldingId": "$inntektsmeldingId",
-            "arbeidstakerFnr": "$arbeidstakerFnr",
-            "arbeidstakerAktorId": "0000111122223",
-            "virksomhetsnummer": "$virksomhetsnummer",
-            "arbeidsgiverFnr": null,
-            "arbeidsgiverAktorId": null,
-            "innsenderFulltNavn": "BEROEMT FLYTTELASS",
-            "innsenderTelefon": "11223344",
-            "begrunnelseForReduksjonEllerIkkeUtbetalt": "",
-            "bruttoUtbetalt": null,
-            "arbeidsgivertype": "VIRKSOMHET",
-            "arbeidsforholdId": null,
-            "beregnetInntekt": "$beregnetInntekt",
-            "inntektsdato": "2025-02-01",
-            "refusjon": {
-              "beloepPrMnd": "0.00",
-              "opphoersdato": null
-            },
-            "endringIRefusjoner": [],
-            "opphoerAvNaturalytelser": [],
-            "gjenopptakelseNaturalytelser": [],
-            "arbeidsgiverperioder": [
-              {
-                "fom": "2025-02-01",
-                "tom": "2025-02-16"
-              }
-            ],
-            "status": "GYLDIG",
-            "arkivreferanse": "im_690924579",
-            "ferieperioder": [],
-            "foersteFravaersdag": null,
-            "mottattDato": "2025-05-05T13:58:01.818383756",
-            "naerRelasjon": null,
-            "avsenderSystem": {
-              "navn": "NAV_NO",
-              "versjon": "1.0"
-            },
-            "inntektEndringAarsak": {
-              "aarsak": "Bonus",
-              "perioder": null,
-              "gjelderFra": null,
-              "bleKjent": null
-            },
-            "inntektEndringAarsaker": [
-              {
-                "aarsak": "Bonus",
-                "perioder": null,
-                "gjelderFra": null,
-                "bleKjent": null
-              }
-            ],
-            "arsakTilInnsending": "Ny",
-            "mottaksKanal": "NAV_NO",
-            "format": "Arbeidsgiveropplysninger",
-            "forespurt": true
-          }        
-        """.trimIndent()
 }
 
 // Extension function for å lage OBO token

@@ -7,8 +7,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.enInntektsmelding
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
+import no.nav.helse.bakrommet.inntektsmelding.enInntektsmelding
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
@@ -377,15 +377,9 @@ class YrkesaktivitetOperasjonerTest {
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
                     mockClient =
                         inntektsmeldingMockHttpClient(
-                            fnrTilSvar =
+                            fnrTilInntektsmeldinger =
                                 mapOf(
-                                    FNR to "[$im1, $im2]",
-                                ),
-                            inntektsmeldingIdTilSvar =
-                                mapOf(
-                                    im1Id to im1,
-                                    im2Id to im2,
-                                    imFeilPersonId to imFeilPerson,
+                                    FNR to listOf(im1, im2),
                                 ),
                             callCounter = antallKallTilInntektsmeldingAPI,
                         ),
@@ -444,7 +438,7 @@ class YrkesaktivitetOperasjonerTest {
             // Verifiser at responsen er en gyldig JSON-array
             val inntektsmeldinger = response.body<JsonNode>()
             assertTrue(inntektsmeldinger.isArray, "Responsen skal være en JSON-array")
-            assertEquals("[$im1,$im2]".asJsonNode(), inntektsmeldinger)
+            assertEquals("[${im1.serialisertTilString()},${im2.serialisertTilString()}]".asJsonNode(), inntektsmeldinger)
 
             suspend fun velgIm(inntektsmeldingId: String) =
                 client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
@@ -473,7 +467,7 @@ class YrkesaktivitetOperasjonerTest {
 
             assertNull(finnImDok(im1Id), "im1 skal ikke ha blitt lagret, siden den ikke er brukt til noe")
             assertEquals(
-                im2.asJsonNode(),
+                im2.serialisertTilString().asJsonNode(),
                 finnImDok(im2Id)!!
                     .innhold
                     .asJsonNode(),

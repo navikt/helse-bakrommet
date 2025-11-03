@@ -105,6 +105,7 @@ jobs:
         with:
           team: speilvendt
           dockerfile: Dockerfile.demo
+          postfix: demo
           cache_from: type=gha
           cache_to: type=gha,mode=min
     outputs:

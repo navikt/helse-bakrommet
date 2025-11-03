@@ -9,8 +9,8 @@ import no.nav.helse.bakrommet.ainntekt.Inntekt
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.enInntektsmelding
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
+import no.nav.helse.bakrommet.inntektsmelding.enInntektsmelding
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
@@ -51,6 +51,7 @@ import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
 import java.util.UUID
+import no.nav.inntektsmeldingkontrakt.Inntektsmelding as InntektsmeldingKontrakt
 
 object ScenarioDefaults {
     val skjæringstidspunkt = 17.mai(2024)
@@ -150,7 +151,7 @@ data class Scenario(
                         },
             )
 
-        val inntektmeldinger =
+        val inntektsmeldinger =
             yrkesaktiviteter
                 .filter { it is Arbeidstaker }
                 .map { it as Arbeidstaker }
@@ -173,16 +174,7 @@ data class Scenario(
                         inntektsmeldingMockHttpClient(
                             configuration = TestOppsett.configuration.inntektsmelding,
                             oboClient = TestOppsett.oboClient,
-                            fnrTilSvar =
-                                mapOf(
-                                    fnr to
-                                        inntektmeldinger.joinToString(
-                                            ",",
-                                            prefix = "[",
-                                            postfix = "]",
-                                        ) { it.second },
-                                ),
-                            inntektsmeldingIdTilSvar = inntektmeldinger.toMap().mapKeys { (key) -> key.toString() },
+                            fnrTilInntektsmeldinger = mapOf(fnr to inntektsmeldinger),
                         ),
                 ),
             sigrunClient = SigrunMock.sigrunMockClient(fnrÅrTilSvar = sigrunsvar),
@@ -323,15 +315,12 @@ class Inntektsmelding(
     fun skapInntektsmelding(
         fnr: String,
         orgnr: String,
-    ): Pair<UUID, String> =
-        Pair(
-            inntektmeldingid,
-            enInntektsmelding(
-                arbeidstakerFnr = fnr,
-                virksomhetsnummer = orgnr,
-                inntektsmeldingId = inntektmeldingid.toString(),
-                beregnetInntekt = beregnetInntekt,
-            ),
+    ): InntektsmeldingKontrakt =
+        enInntektsmelding(
+            inntektsmeldingId = inntektmeldingid.toString(),
+            arbeidstakerFnr = fnr,
+            virksomhetsnummer = orgnr,
+            beregnetInntekt = beregnetInntekt,
         )
 
     val inntektmeldingid = UUID.randomUUID()

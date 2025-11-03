@@ -1,8 +1,10 @@
 package no.nav.helse.bakrommet.scenarioer
 
+import no.nav.helse.bakrommet.inntektsmelding.enInntektsmelding
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 fun alleTestdata(): List<Testperson> =
     listOf(
@@ -21,6 +23,11 @@ private fun kalleKranfører() =
         fornavn = "Kalle",
         etternavn = "Kranfører",
         fødselsdato = LocalDate.of(1977, 1, 1), // ca. 47 år basert på alder 47
+        inntektsmeldinger =
+            listOf(
+                enInntektsmelding(UUID.randomUUID().toString()),
+                enInntektsmelding(UUID.randomUUID().toString(), beregnetInntekt = 89000.0),
+            ),
         saksbehandingsperioder =
             listOf(
                 Saksbehandingsperiode(
