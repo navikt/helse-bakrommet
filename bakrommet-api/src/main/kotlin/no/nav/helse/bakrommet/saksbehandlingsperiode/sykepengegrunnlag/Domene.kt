@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
+import no.nav.helse.bakrommet.BeregningskoderKombinasjonerSykepengegrunnlag
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Instant
 import java.time.LocalDate
@@ -13,6 +14,7 @@ data class Sykepengegrunnlag(
     val begrensetTil6G: Boolean,
     val grunnbeløpVirkningstidspunkt: LocalDate,
     val næringsdel: Næringsdel?,
+    val kombinertBeregningskode: BeregningskoderKombinasjonerSykepengegrunnlag? = null,
 )
 
 data class Næringsdel(

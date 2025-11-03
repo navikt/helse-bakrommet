@@ -31,7 +31,7 @@ class ArbeidsledigBeregningTest {
                     inntektData(
                         InntektData.Arbeidsledig(
                             omregnetÅrsinntekt = 21666.0.månedlig.dto().årlig,
-                            sporing = BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER
+                            sporing = BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER,
                         ),
                     )
                 }

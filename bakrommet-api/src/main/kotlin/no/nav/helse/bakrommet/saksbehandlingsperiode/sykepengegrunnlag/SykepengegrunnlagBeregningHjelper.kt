@@ -1,12 +1,15 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag
 
 import no.nav.helse.Grunnbeløp
+import no.nav.helse.bakrommet.BeregningskoderKombinasjonerSykepengegrunnlag
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.Arbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.Frilanser
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.util.singleOrNone
 import no.nav.helse.bakrommet.økonomi.tilInntekt
@@ -126,5 +129,27 @@ fun beregnSykepengegrunnlag(
         seksG = grunnbeløp6G.dto().årlig,
         begrensetTil6G = begrensetTil6G,
         grunnbeløpVirkningstidspunkt = grunnbeløpVirkningstidspunkt,
+        kombinertBeregningskode = yrkesaktiviteter.hentKombinertBeregningskode(),
     )
+}
+
+private fun List<Yrkesaktivitet>.hentKombinertBeregningskode(): BeregningskoderKombinasjonerSykepengegrunnlag? {
+    val erNæringsdrivende = this.any { it.kategorisering is SelvstendigNæringsdrivende }
+    val erFrilanser = this.any { it.kategorisering is Frilanser }
+    val erArbeidstaker = this.any { it.kategorisering is Arbeidstaker }
+
+    if (erNæringsdrivende && erFrilanser && erArbeidstaker) {
+        return BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_ARBEIDSTAKER_FRILANSER_SELVSTENDIG_SYKEPENGEGRUNNLAG
+    }
+    if (erNæringsdrivende && erFrilanser) {
+        return BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_FRILANSER_SELVSTENDIG_SYKEPENGEGRUNNLAG
+    }
+    if (erArbeidstaker && erFrilanser) {
+        return BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_ARBEIDSTAKER_FRILANSER_SYKEPENGEGRUNNLAG
+    }
+    if (erNæringsdrivende && erArbeidstaker) {
+        return BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_ARBEIDSTAKER_SELVSTENDIG_SYKEPENGEGRUNNLAG
+    }
+
+    return null
 }
