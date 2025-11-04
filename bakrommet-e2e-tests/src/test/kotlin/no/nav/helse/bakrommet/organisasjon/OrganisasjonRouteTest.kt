@@ -40,9 +40,24 @@ class OrganisasjonRouteTest {
         }
 
     @Test
+    fun `hent organisasjonsnavn for faker kotlin generert organisasjon`() =
+        runApplicationTest {
+            val orgnummer = "876547463"
+            val forventetNavn = "Eide BA"
+
+            client
+                .get("/v1/organisasjon/$orgnummer") {
+                    header(HttpHeaders.Authorization, "Bearer ${TestOppsett.userToken}")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    assertEquals(forventetNavn, bodyAsText())
+                }
+        }
+
+    @Test
     fun `organisasjon ikke funnet gir 404`() =
         runApplicationTest {
-            val orgnummer = "999999999" // Ikke i mock data
+            val orgnummer = "199999999" // Ikke i mock data
 
             client
                 .get("/v1/organisasjon/$orgnummer") {
