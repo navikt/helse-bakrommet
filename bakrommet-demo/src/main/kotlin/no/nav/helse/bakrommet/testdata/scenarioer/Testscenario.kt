@@ -13,5 +13,5 @@ data class Testscenario(
     val tittel: String,
 ) {
     @JsonSerialize
-    fun testperson(): TestpersonForFrontend = testperson.tilTestpersonForFrontend()
+    fun testperson(): TestpersonForFrontend = testperson.tilTestpersonForFrontend(erScenarie = true)
 }

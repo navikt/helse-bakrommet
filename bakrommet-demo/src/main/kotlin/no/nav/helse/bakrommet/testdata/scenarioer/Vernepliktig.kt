@@ -11,6 +11,7 @@ val vernepliktig =
                 fornavn = "August",
                 fødselsdato = LocalDate.now().minusYears(20),
                 fnr = "20029712345",
+                spilleromId = "91stomp",
                 etternavn = "Stomperud",
             ),
         beskrivelse =

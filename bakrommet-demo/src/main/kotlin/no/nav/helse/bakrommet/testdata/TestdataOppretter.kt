@@ -13,9 +13,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
     val db = sessionsDaoer[hentSession()]!!
 
     testpersoner
-        .filter {
-            it.spilleromId != null // Må ha spilleromId for å opprette testdata
-        }.forEach { testperson ->
+        .forEach { testperson ->
             db.personDao.opprettPerson(
                 naturligIdent = testperson.fnr,
                 spilleromId = testperson.spilleromId!!,

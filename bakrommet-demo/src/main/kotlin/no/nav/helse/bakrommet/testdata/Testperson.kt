@@ -9,7 +9,7 @@ import java.time.Year
 data class Testperson(
     val fnr: String,
     val aktorId: String? = null,
-    val spilleromId: String? = null,
+    val spilleromId: String,
     val fornavn: String,
     val mellomnavn: String? = null,
     val etternavn: String,
@@ -33,12 +33,13 @@ data class Saksbehandingsperiode(
     val søknadIder: List<String> = emptyList(),
 )
 
-fun Testperson.tilTestpersonForFrontend(): TestpersonForFrontend =
+fun Testperson.tilTestpersonForFrontend(erScenarie: Boolean = false): TestpersonForFrontend =
     TestpersonForFrontend(
         navn = this.fornavn + " " + this.etternavn,
         fnr = this.fnr,
-        spilleromId = this.spilleromId!!,
+        spilleromId = this.spilleromId,
         alder = 22,
+        erScenarie = erScenarie,
     )
 
 data class TestpersonForFrontend(
@@ -46,4 +47,5 @@ data class TestpersonForFrontend(
     val alder: Number,
     val spilleromId: String,
     val fnr: String,
+    val erScenarie: Boolean,
 )

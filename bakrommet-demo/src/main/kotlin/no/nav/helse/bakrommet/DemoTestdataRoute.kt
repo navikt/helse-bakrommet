@@ -14,6 +14,11 @@ fun Route.demoTestdataRoute() {
     }
 
     get("/v1/demo/testpersoner") {
-        call.respondText(alleTestdata().map { it.tilTestpersonForFrontend() }.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+        val scenarioPersoner = alleScenarioer.map { it.testperson.fnr }.toSet()
+        val testpersoner =
+            alleTestdata().map { testperson ->
+                testperson.tilTestpersonForFrontend(erScenarie = testperson.fnr in scenarioPersoner)
+            }
+        call.respondText(testpersoner.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
     }
 }
