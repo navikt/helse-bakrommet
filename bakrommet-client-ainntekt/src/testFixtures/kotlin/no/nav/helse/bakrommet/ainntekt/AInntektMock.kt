@@ -68,7 +68,7 @@ object AInntektMock {
                     content = "403",
                 )
             } else {
-                val inntektApiUt = fnrTilInntektApiUt[fnr] ?: InntektApiUt(data = emptyList())
+                val inntektApiUt = (fnrTilInntektApiUt[fnr] ?: InntektApiUt(data = emptyList())).filtrerMaaneder(maanedFom, maanedTom)
 
                 respond(
                     status = HttpStatusCode.OK,
