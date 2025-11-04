@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.mockclients
 import no.nav.helse.bakrommet.Clienter
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
+import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.pdl.PdlMock
@@ -31,6 +32,7 @@ fun skapClienter(testpersoner: List<Testperson>): Clienter {
             sykepengesoknadBackendClient = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
             aInntektClient = AInntektMock.aInntektClientMock(),
             aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
+            eregClient = EregMock.eregClientMock(),
             inntektsmeldingClient =
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
                     mockClient =

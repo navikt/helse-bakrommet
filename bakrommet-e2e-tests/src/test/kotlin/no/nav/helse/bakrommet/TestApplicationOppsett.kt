@@ -14,6 +14,8 @@ import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.ereg.EregClient
+import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
@@ -50,6 +52,7 @@ object TestOppsett {
                 ),
             aareg = AARegMock.defaultConfiguration,
             ainntekt = AInntektMock.defaultConfiguration,
+            ereg = EregMock.defaultConfiguration,
             inntektsmelding = InntektsmeldingApiMock.defaultConfiguration,
             sigrun =
                 Configuration.Sigrun(
@@ -116,6 +119,7 @@ fun runApplicationTest(
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient =
         AInntektMock.aInntektClientMock(),
+    eregClient: EregClient = EregMock.eregClientMock(),
     sigrunClient: SigrunClient = SigrunMock.sigrunMockClient(),
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
@@ -130,6 +134,7 @@ fun runApplicationTest(
                 sykepengesoknadBackendClient = sykepengesoknadBackendClient,
                 aInntektClient = aInntektClient,
                 aaRegClient = aaRegClient,
+                eregClient = eregClient,
                 inntektsmeldingClient = inntektsmeldingClient,
                 sigrunClient = sigrunClient,
             )

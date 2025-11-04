@@ -21,6 +21,10 @@ val regler =
             role = setOf(LES, SAKSBEHANDLER, BESLUTTER),
         ),
         Rule(
+            path = "/v1/organisasjon/{orgnummer}/(method:GET)",
+            role = setOf(LES, SAKSBEHANDLER, BESLUTTER),
+        ),
+        Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),

@@ -9,6 +9,7 @@ dependencies {
     api(project(":bakrommet-client-pdl"))
     api(project(":bakrommet-client-aareg"))
     api(project(":bakrommet-client-ainntekt"))
+    api(project(":bakrommet-client-ereg"))
     api(project(":bakrommet-client-sigrun"))
     api(project(":bakrommet-client-inntektsmelding"))
     api(project(":bakrommet-client-sykepengesoknad"))

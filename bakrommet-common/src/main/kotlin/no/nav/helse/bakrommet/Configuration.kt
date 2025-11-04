@@ -10,6 +10,7 @@ data class Configuration(
     val sykepengesoknadBackend: SykepengesoknadBackend,
     val aareg: AAReg,
     val ainntekt: AInntekt,
+    val ereg: Ereg,
     val inntektsmelding: Inntektsmelding,
     val sigrun: Sigrun,
     val roller: Roller,
@@ -36,6 +37,10 @@ data class Configuration(
     data class AInntekt(
         val hostname: String,
         val scope: OAuthScope,
+    )
+
+    data class Ereg(
+        val baseUrl: String,
     )
 
     data class Sigrun(
@@ -105,6 +110,10 @@ data class Configuration(
                     AInntekt(
                         scope = OAuthScope(env.getValue("INNTEKTSKOMPONENTEN_SCOPE")),
                         hostname = env.getValue("INNTEKTSKOMPONENTEN_HOSTNAME"),
+                    ),
+                ereg =
+                    Ereg(
+                        baseUrl = env.getValue("EREG_SERVICES_BASE_URL"),
                     ),
                 inntektsmelding =
                     Inntektsmelding(

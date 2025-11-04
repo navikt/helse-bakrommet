@@ -16,6 +16,7 @@ dependencies {
     implementation(testFixtures(project(":bakrommet-client-inntektsmelding")))
     implementation(testFixtures(project(":bakrommet-client-ainntekt")))
     implementation(testFixtures(project(":bakrommet-client-aareg")))
+    implementation(testFixtures(project(":bakrommet-client-ereg")))
     implementation(testFixtures(project(":bakrommet-client-sykepengesoknad")))
     implementation(testFixtures(project(":bakrommet-client-sigrun")))
     implementation(testFixtures(project(":bakrommet-client-pdl")))

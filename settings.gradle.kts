@@ -6,6 +6,7 @@ include(
     "bakrommet-api",
     "bakrommet-client-aareg",
     "bakrommet-client-ainntekt",
+    "bakrommet-client-ereg",
     "bakrommet-client-inntektsmelding",
     "bakrommet-client-pdl",
     "bakrommet-client-sigrun",

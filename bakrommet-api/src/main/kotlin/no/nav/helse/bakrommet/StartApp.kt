@@ -19,6 +19,7 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.RolleMatrise
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.bruker.brukerRoute
+import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
@@ -30,6 +31,8 @@ import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactoryPg
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
 import no.nav.helse.bakrommet.kafka.OutboxService
+import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
+import no.nav.helse.bakrommet.organisasjon.organisasjonRoute
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonIdService
 import no.nav.helse.bakrommet.person.PersonsøkService
@@ -140,6 +143,7 @@ fun Route.setupRoutes(
     )
     beregningRoute(service = services.utbetalingsberegningService)
     brukerRoute()
+    organisasjonRoute(services.organisasjonService)
 }
 
 class Clienter(
@@ -147,6 +151,7 @@ class Clienter(
     val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
     val aInntektClient: AInntektClient,
     val aaRegClient: AARegClient,
+    val eregClient: EregClient,
     val inntektsmeldingClient: InntektsmeldingClient,
     val sigrunClient: SigrunClient,
 )
@@ -162,6 +167,7 @@ fun createClients(configuration: Configuration): Clienter {
 
     val aaRegClient = AARegClient(configuration.aareg, oboClient)
     val aInntektClient = AInntektClient(configuration.ainntekt, oboClient)
+    val eregClient = EregClient(configuration.ereg)
     val inntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient)
     val sigrunClient = SigrunClient(configuration.sigrun, oboClient)
 
@@ -170,6 +176,7 @@ fun createClients(configuration: Configuration): Clienter {
         sykepengesoknadBackendClient = sykepengesoknadBackendClient,
         aInntektClient = aInntektClient,
         aaRegClient = aaRegClient,
+        eregClient = eregClient,
         inntektsmeldingClient = inntektsmeldingClient,
         sigrunClient = sigrunClient,
     )
@@ -186,6 +193,7 @@ data class Services(
     val inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     val utbetalingsberegningService: UtbetalingsberegningService,
     val personIdService: PersonIdService,
+    val organisasjonService: OrganisasjonService,
 )
 
 fun createServices(
@@ -229,6 +237,7 @@ fun createServices(
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
         personIdService = PersonIdService(db),
+        organisasjonService = OrganisasjonService(clienter.eregClient),
     )
 }
 
