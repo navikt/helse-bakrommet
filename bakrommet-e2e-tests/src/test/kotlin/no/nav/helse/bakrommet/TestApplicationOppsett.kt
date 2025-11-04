@@ -118,7 +118,7 @@ fun runApplicationTest(
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient =
-        AInntektMock.aInntektClientMock(),
+        AInntektMock.aInntektClientMock(fnrTilInntektApiUt = emptyMap()),
     eregClient: EregClient = EregMock.eregClientMock(),
     sigrunClient: SigrunClient = SigrunMock.sigrunMockClient(),
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(),

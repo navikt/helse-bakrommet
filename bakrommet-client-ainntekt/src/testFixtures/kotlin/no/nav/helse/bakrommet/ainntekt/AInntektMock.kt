@@ -12,15 +12,12 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
+import java.time.YearMonth
 
 object AInntektMock {
     private val log = LoggerFactory.getLogger(AInntektMock::class.java)
-
-    object Person1 {
-        val fnr = "08088811111"
-        val resp = "{}"
-    }
 
     // Default test konfigurasjon
     val defaultConfiguration =
@@ -47,7 +44,7 @@ object AInntektMock {
     fun ainntektMockHttpClient(
         configuration: Configuration.AInntekt = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
-        fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.resp),
+        fnrTilInntektApiUt: Map<String, InntektApiUt>,
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
         if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
@@ -62,6 +59,8 @@ object AInntektMock {
             // assertNotNull(request.headers["Nav-Call-Id"])
 
             val fnr = payload["personident"].asText()
+            val maanedFom = YearMonth.parse(payload["maanedFom"].asText())
+            val maanedTom = YearMonth.parse(payload["maanedTom"].asText())
 
             if (fnr.endsWith("403")) {
                 respond(
@@ -69,10 +68,11 @@ object AInntektMock {
                     content = "403",
                 )
             } else {
-                val svar = fnrTilSvar[fnr] ?: "{}"
+                val inntektApiUt = fnrTilInntektApiUt[fnr] ?: InntektApiUt(data = emptyList())
+
                 respond(
                     status = HttpStatusCode.OK,
-                    content = svar,
+                    content = inntektApiUt.serialisertTilString(),
                     headers = headersOf("Content-Type" to listOf("application/json")),
                 )
             }
@@ -82,157 +82,66 @@ object AInntektMock {
     fun aInntektClientMock(
         configuration: Configuration.AInntekt = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
-        fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.resp),
+        fnrTilInntektApiUt: Map<String, InntektApiUt>,
         mockClient: HttpClient? = null,
     ) = AInntektClient(
         configuration = configuration,
         oboClient = oboClient,
-        httpClient = mockClient ?: ainntektMockHttpClient(configuration, oboClient, fnrTilSvar),
+        httpClient = mockClient ?: ainntektMockHttpClient(configuration, oboClient, fnrTilInntektApiUt),
     )
 }
 
 fun etInntektSvar(
-    fnr: String = AInntektMock.Person1.fnr,
     virksomhet: String = "999999999",
     opplysningspliktig: String = "888888888",
-) = """
-    {
-      "arbeidsInntektMaaned": [
-        {
-          "aarMaaned": "2022-09",
-          "arbeidsInntektInformasjon": {
-            "inntektListe": [
-              {
-                "inntektType": "LOENNSINNTEKT",
-                "beloep": 12000.0,
-                "fordel": "kontantytelse",
-                "inntektskilde": "A-ordningen",
-                "inntektsperiodetype": "Maaned",
-                "inntektsstatus": "LoependeInnrapportert",
-                "utbetaltIMaaned": "2022-09",
-                "opplysningspliktig": {
-                  "identifikator": "$opplysningspliktig",
-                  "aktoerType": "ORGANISASJON"
-                },
-                "virksomhet": {
-                  "identifikator": "$virksomhet",
-                  "aktoerType": "ORGANISASJON"
-                },
-                "inntektsmottaker": {
-                  "identifikator": "$fnr",
-                  "aktoerType": "NATURLIG_IDENT"
-                },
-                "inngaarIGrunnlagForTrekk": true,
-                "utloeserArbeidsgiveravgift": true,
-                "informasjonsstatus": "InngaarAlltid",
-                "beskrivelse": "fastloenn"
-              }
-            ]
-          }
-        },
-        {
-          "aarMaaned": "2022-10",
-          "arbeidsInntektInformasjon": {
-            "inntektListe": [
-              {
-                "inntektType": "LOENNSINNTEKT",
-                "beloep": 12000.0,
-                "fordel": "kontantytelse",
-                "inntektskilde": "A-ordningen",
-                "inntektsperiodetype": "Maaned",
-                "inntektsstatus": "LoependeInnrapportert",
-                "utbetaltIMaaned": "2022-10",
-                "opplysningspliktig": {
-                  "identifikator": "$opplysningspliktig",
-                  "aktoerType": "ORGANISASJON"
-                },
-                "virksomhet": {
-                  "identifikator": "$virksomhet",
-                  "aktoerType": "ORGANISASJON"
-                },
-                "inntektsmottaker": {
-                  "identifikator": "$fnr",
-                  "aktoerType": "NATURLIG_IDENT"
-                },
-                "inngaarIGrunnlagForTrekk": true,
-                "utloeserArbeidsgiveravgift": true,
-                "informasjonsstatus": "InngaarAlltid",
-                "beskrivelse": "fastloenn"
-              }
-            ]
-          }
-        },
-        {
-          "aarMaaned": "2022-08",
-          "arbeidsInntektInformasjon": {
-            "inntektListe": [
-              {
-                "inntektType": "LOENNSINNTEKT",
-                "beloep": 12000.0,
-                "fordel": "kontantytelse",
-                "inntektskilde": "A-ordningen",
-                "inntektsperiodetype": "Maaned",
-                "inntektsstatus": "LoependeInnrapportert",
-                "utbetaltIMaaned": "2022-08",
-                "opplysningspliktig": {
-                  "identifikator": "$opplysningspliktig",
-                  "aktoerType": "ORGANISASJON"
-                },
-                "virksomhet": {
-                  "identifikator": "$virksomhet",
-                  "aktoerType": "ORGANISASJON"
-                },
-                "inntektsmottaker": {
-                  "identifikator": "$fnr",
-                  "aktoerType": "NATURLIG_IDENT"
-                },
-                "inngaarIGrunnlagForTrekk": true,
-                "utloeserArbeidsgiveravgift": true,
-                "informasjonsstatus": "InngaarAlltid",
-                "beskrivelse": "fastloenn"
-              }
-            ]
-          }
-        },
-        {
-          "aarMaaned": "2022-11",
-          "arbeidsInntektInformasjon": {
-            "inntektListe": [
-              {
-                "inntektType": "LOENNSINNTEKT",
-                "beloep": 12000.0,
-                "fordel": "kontantytelse",
-                "inntektskilde": "A-ordningen",
-                "inntektsperiodetype": "Maaned",
-                "inntektsstatus": "LoependeInnrapportert",
-                "utbetaltIMaaned": "2022-11",
-                "opplysningspliktig": {
-                  "identifikator": "$opplysningspliktig",
-                  "aktoerType": "ORGANISASJON"
-                },
-                "virksomhet": {
-                  "identifikator": "$virksomhet",
-                  "aktoerType": "ORGANISASJON"
-                },
-                "inntektsmottaker": {
-                  "identifikator": "$fnr",
-                  "aktoerType": "NATURLIG_IDENT"
-                },
-                "inngaarIGrunnlagForTrekk": true,
-                "utloeserArbeidsgiveravgift": true,
-                "informasjonsstatus": "InngaarAlltid",
-                "beskrivelse": "fastloenn"
-              }
-            ]
-          }
+    skjæringstidspunkt: YearMonth? = null,
+    beloep: Int = 12000,
+): InntektApiUt {
+    // Hvis skjæringstidspunkt er gitt, generer måneder basert på det (3 måneder før skjæringstidspunkt)
+    // Ellers bruk hardkodede måneder for bakoverkompatibilitet
+    val maaneder =
+        if (skjæringstidspunkt != null) {
+            listOf(
+                skjæringstidspunkt.minusMonths(3),
+                skjæringstidspunkt.minusMonths(2),
+                skjæringstidspunkt.minusMonths(1),
+            )
+        } else {
+            listOf(
+                YearMonth.parse("2022-08"),
+                YearMonth.parse("2022-09"),
+                YearMonth.parse("2022-10"),
+                YearMonth.parse("2022-11"),
+            )
         }
-      ],
-      "ident": {
-        "identifikator": "$fnr",
-        "aktoerType": "NATURLIG_IDENT"
-      }
-    }    
-    """.trimIndent()
+
+    return InntektApiUt(
+        data =
+            maaneder.map { maaned ->
+                Inntektsinformasjon(
+                    maaned = maaned,
+                    underenhet = virksomhet,
+                    opplysningspliktig = opplysningspliktig,
+                    inntektListe =
+                        listOf(
+                            Inntekt(
+                                type = "LOENNSINNTEKT",
+                                beloep = java.math.BigDecimal.valueOf(beloep.toLong()),
+                            ),
+                        ),
+                )
+            },
+    )
+}
+
+// Extension function for å filtrere måneder basert på forespurt periode
+fun InntektApiUt.filtrerMaaneder(
+    maanedFom: YearMonth,
+    maanedTom: YearMonth,
+): InntektApiUt =
+    InntektApiUt(
+        data = data.filter { it.maaned >= maanedFom && it.maaned <= maanedTom },
+    )
 
 // Extension function for å lage OBO token
 fun OAuthScope.oboTokenFor(oboClient: OboClient): String = "OBO-TOKEN_FOR_api://$baseValue/.default"

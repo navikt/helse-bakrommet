@@ -13,6 +13,7 @@ val vernepliktig =
                 fnr = "20029712345",
                 spilleromId = "91sto",
                 etternavn = "Stomperud",
+                aaregData = emptyList(),
             ),
         beskrivelse =
             """

@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.mockclients
 import no.nav.helse.bakrommet.Clienter
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
+import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
@@ -26,11 +27,12 @@ fun skapClienter(testpersoner: List<Testperson>): Clienter {
     val fnrTilArbeidsforhold =
         testpersoner.filter { it.aaregData != null }.associate { it.fnr to it.aaregData!! }
 
+    val fnrTilAinntk: Map<String, InntektApiUt> = emptyMap()
     val clienter =
         Clienter(
             pdlClient = PdlMock.pdlClient(identTilReplyMap = pdlResponses, pdlReplyGenerator = pdlReplyGenerator),
             sykepengesoknadBackendClient = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
-            aInntektClient = AInntektMock.aInntektClientMock(),
+            aInntektClient = AInntektMock.aInntektClientMock(fnrTilInntektApiUt = fnrTilAinntk),
             aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
             eregClient = EregMock.eregClientMock(),
             inntektsmeldingClient =

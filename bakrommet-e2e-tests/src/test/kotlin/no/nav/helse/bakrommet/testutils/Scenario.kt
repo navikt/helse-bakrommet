@@ -41,7 +41,6 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehan
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
-import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.mai
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -180,7 +179,7 @@ data class Scenario(
             sigrunClient = SigrunMock.sigrunMockClient(fnrÅrTilSvar = sigrunsvar),
             aInntektClient =
                 AInntektMock.aInntektClientMock(
-                    fnrTilSvar = mapOf(fnr to ainntekt828.serialisertTilString()),
+                    fnrTilInntektApiUt = mapOf(fnr to ainntekt828),
                 ),
         ) { daoer ->
             daoer.personDao.opprettPerson(fnr, personId)
