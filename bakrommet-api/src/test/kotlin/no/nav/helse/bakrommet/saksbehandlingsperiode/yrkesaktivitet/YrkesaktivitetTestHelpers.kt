@@ -4,38 +4,44 @@ fun arbeidstakerKategorisering(
     orgnummer: String = "123456789",
     erSykmeldt: Boolean = true,
     typeArbeidstaker: String = "ORDINÆRT_ARBEIDSFORHOLD",
-) = mapOf(
-    "INNTEKTSKATEGORI" to "ARBEIDSTAKER",
-    "ORGNUMMER" to orgnummer,
-    "ER_SYKMELDT" to if (erSykmeldt) "ER_SYKMELDT_JA" else "ER_SYKMELDT_NEI",
-    "TYPE_ARBEIDSTAKER" to typeArbeidstaker,
-).fromMap()
+) = YrkesaktivitetKategorisering.Arbeidstaker(
+    orgnummer = orgnummer,
+    sykmeldt = erSykmeldt,
+    typeArbeidstaker = TypeArbeidstaker.valueOf(typeArbeidstaker),
+)
 
 fun frilanserKategorisering(
     orgnummer: String = "123456789",
     erSykmeldt: Boolean = true,
     forsikring: String = "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG",
-) = mapOf(
-    "INNTEKTSKATEGORI" to "FRILANSER",
-    "ORGNUMMER" to orgnummer,
-    "ER_SYKMELDT" to if (erSykmeldt) "ER_SYKMELDT_JA" else "ER_SYKMELDT_NEI",
-    "FRILANSER_FORSIKRING" to forsikring,
-).fromMap()
+) = YrkesaktivitetKategorisering.Frilanser(
+    orgnummer = orgnummer,
+    sykmeldt = erSykmeldt,
+    forsikring = FrilanserForsikring.valueOf(forsikring),
+)
 
 fun selvstendigNæringsdrivendeKategorisering(
     erSykmeldt: Boolean = true,
     type: String = "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE",
     forsikring: String = "FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG",
-): YrkesaktivitetKategorisering =
-    mapOf(
-        "INNTEKTSKATEGORI" to "SELVSTENDIG_NÆRINGSDRIVENDE",
-        "ER_SYKMELDT" to if (erSykmeldt) "ER_SYKMELDT_JA" else "ER_SYKMELDT_NEI",
-        "TYPE_SELVSTENDIG_NÆRINGSDRIVENDE" to type,
-        "SELVSTENDIG_NÆRINGSDRIVENDE_FORSIKRING" to forsikring,
-    ).fromMap()
+): YrkesaktivitetKategorisering {
+    val forsikringEnum = SelvstendigForsikring.valueOf(forsikring)
+    val typeSelvstendigNæringsdrivende =
+        when (type) {
+            "ORDINÆR_SELVSTENDIG_NÆRINGSDRIVENDE" -> TypeSelvstendigNæringsdrivende.Ordinær(forsikring = forsikringEnum)
+            "BARNEPASSER_EGET_HJEM" -> TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem(forsikring = forsikringEnum)
+            "FISKER" -> TypeSelvstendigNæringsdrivende.Fisker()
+            "JORDBRUKER" -> TypeSelvstendigNæringsdrivende.Jordbruker(forsikring = forsikringEnum)
+            "REINDRIFT" -> TypeSelvstendigNæringsdrivende.Reindrift(forsikring = forsikringEnum)
+            else -> throw IllegalArgumentException("Ugyldig type: $type")
+        }
+    return YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+        sykmeldt = erSykmeldt,
+        typeSelvstendigNæringsdrivende = typeSelvstendigNæringsdrivende,
+    )
+}
 
 fun inaktivKategorisering(variant: String = "INAKTIV_VARIANT_A"): YrkesaktivitetKategorisering =
-    mapOf(
-        "INNTEKTSKATEGORI" to "INAKTIV",
-        "VARIANT_AV_INAKTIV" to variant,
-    ).fromMap()
+    YrkesaktivitetKategorisering.Inaktiv(
+        variant = VariantAvInaktiv.valueOf(variant),
+    )

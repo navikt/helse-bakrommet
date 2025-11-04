@@ -31,46 +31,58 @@ class SoknadBuilder(
 
     fun status(status: SoknadsstatusDTO) = apply { this.status = status }
 
-    fun arbeidsgiver(navn: String, orgnummer: String) = apply {
+    fun arbeidsgiver(
+        navn: String,
+        orgnummer: String,
+    ) = apply {
         this.arbeidsgiverNavn = navn
         this.arbeidsgiverOrgnummer = orgnummer
     }
 
-    fun arbeidssituasjon(arbeidssituasjon: ArbeidssituasjonDTO) = apply {
-        this.arbeidssituasjon = arbeidssituasjon
-    }
+    fun arbeidssituasjon(arbeidssituasjon: ArbeidssituasjonDTO) =
+        apply {
+            this.arbeidssituasjon = arbeidssituasjon
+        }
 
-    fun sykmeldingSkrevet(dato: LocalDate) = apply {
-        this.sykmeldingSkrevet = dato
-    }
+    fun sykmeldingSkrevet(dato: LocalDate) =
+        apply {
+            this.sykmeldingSkrevet = dato
+        }
 
-    fun startSyketilfelle(dato: LocalDate) = apply {
-        this.startSyketilfelle = dato
-    }
+    fun startSyketilfelle(dato: LocalDate) =
+        apply {
+            this.startSyketilfelle = dato
+        }
 
-    fun opprettet(dato: LocalDate) = apply {
-        this.opprettet = dato
-    }
+    fun opprettet(dato: LocalDate) =
+        apply {
+            this.opprettet = dato
+        }
 
-    fun sendtNav(dato: LocalDate) = apply {
-        this.sendtNav = dato
-    }
+    fun sendtNav(dato: LocalDate) =
+        apply {
+            this.sendtNav = dato
+        }
 
-    fun sendtArbeidsgiver(dato: LocalDate) = apply {
-        this.sendtArbeidsgiver = dato
-    }
+    fun sendtArbeidsgiver(dato: LocalDate) =
+        apply {
+            this.sendtArbeidsgiver = dato
+        }
 
-    fun sykmeldingstype(type: SykmeldingstypeDTO) = apply {
-        this.sykmeldingstype = type
-    }
+    fun sykmeldingstype(type: SykmeldingstypeDTO) =
+        apply {
+            this.sykmeldingstype = type
+        }
 
-    fun grad(grad: Int) = apply {
-        this.grad = grad
-    }
+    fun grad(grad: Int) =
+        apply {
+            this.grad = grad
+        }
 
-    fun sykmeldingsgrad(grad: Int) = apply {
-        this.sykmeldingsgrad = grad
-    }
+    fun sykmeldingsgrad(grad: Int) =
+        apply {
+            this.sykmeldingsgrad = grad
+        }
 
     fun build(): SykepengesoknadDTO =
         SykepengesoknadDTO(
@@ -131,4 +143,3 @@ fun soknad(
     tom: LocalDate,
     builder: SoknadBuilder.() -> Unit = {},
 ): SykepengesoknadDTO = SoknadBuilder(fnr = fnr, fom = fom, tom = tom).apply(builder).build()
-

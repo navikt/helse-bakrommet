@@ -12,7 +12,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.tilDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.toMap
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
@@ -170,10 +169,24 @@ class SaksbehandlingsperiodeOpprettelseTest {
             assertEquals(3, inntektsforhold.size)
             assertEquals(
                 setOf("123321123", null, "654321123"),
-                inntektsforhold.map { it.kategorisering.toMap()["ORGNUMMER"] }.toSet(),
+                inntektsforhold
+                    .map {
+                        when (val k = it.kategorisering) {
+                            is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer
+                            is YrkesaktivitetKategorisering.Frilanser -> k.orgnummer
+                            else -> null
+                        }
+                    }.toSet(),
             )
 
-            val arbgiver1Yrkesaktivitet = inntektsforhold.find { it.kategorisering.toMap()["ORGNUMMER"] == arbeidsgiver1.identifikator }!!
+            val arbgiver1Yrkesaktivitet =
+                inntektsforhold.find {
+                    when (val k = it.kategorisering) {
+                        is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer == arbeidsgiver1.identifikator
+                        is YrkesaktivitetKategorisering.Frilanser -> k.orgnummer == arbeidsgiver1.identifikator
+                        else -> false
+                    }
+                }!!
 
             assertEquals(
                 YrkesaktivitetKategorisering.Arbeidstaker(

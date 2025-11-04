@@ -103,14 +103,11 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/kategorisering") {
-                val kategoriseringMap = call.receive<Map<String, String>>()
-
-                // Valider og konverter til sealed class
-                val validertKategorisering = YrkesaktivitetKategoriseringMapper.fromMap(kategoriseringMap)
+                val kategorisering = call.receive<YrkesaktivitetKategorisering>()
 
                 service.oppdaterKategorisering(
                     call.yrkesaktivitetReferanse(),
-                    validertKategorisering,
+                    kategorisering,
                     call.saksbehandler(),
                 )
                 call.respond(HttpStatusCode.NoContent)

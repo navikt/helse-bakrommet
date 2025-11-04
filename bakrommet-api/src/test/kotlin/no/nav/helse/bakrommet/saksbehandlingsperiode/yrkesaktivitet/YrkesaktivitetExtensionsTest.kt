@@ -226,15 +226,12 @@ class YrkesaktivitetExtensionsTest {
 
     @Test
     fun `skal returnere 100 prosent for arbeidsledig`() {
-        val kategorisering =
-            HashMap<String, String>().apply {
-                put("INNTEKTSKATEGORI", "ARBEIDSLEDIG")
-            }
+        val kategorisering = YrkesaktivitetKategorisering.Arbeidsledig()
 
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
                 id = UUID.randomUUID(),
-                kategorisering = kategorisering.fromMap(),
+                kategorisering = kategorisering,
                 kategoriseringGenerert = null,
                 dagoversikt = null,
                 dagoversiktGenerert = null,

@@ -29,7 +29,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidst
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.toMap
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.sigrun.sigrunÅr
@@ -106,12 +105,12 @@ data class ScenarioData(
 
     fun `næringsdrivende yrkesaktivitet`(): YrkesaktivitetDTO =
         yrkesaktiviteter
-            .first { it.kategorisering.toMap()["INNTEKTSKATEGORI"] == "SELVSTENDIG_NÆRINGSDRIVENDE" }
+            .first { it.kategorisering is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende }
 
     fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO =
         yrkesaktiviteter
-            .filter { it.kategorisering.toMap()["INNTEKTSKATEGORI"] == "ARBEIDSTAKER" }
-            .first { it.kategorisering.toMap()["ORGNUMMER"] == orgnummer }
+            .filter { it.kategorisering is YrkesaktivitetKategorisering.Arbeidstaker }
+            .first { (it.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer == orgnummer }
 }
 
 infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: BeregningskoderSykepengegrunnlag) {
