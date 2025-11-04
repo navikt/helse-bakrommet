@@ -17,15 +17,6 @@ import org.slf4j.LoggerFactory
 object AARegMock {
     private val log = LoggerFactory.getLogger(AARegMock::class.java)
 
-    object Person1 {
-        val fnr = "08088811111"
-        val respV2 =
-            AARegMock::class.java
-                .getResource("/aareg_v2_eksempel_respons.json")!!
-                .readText()
-                .trim()
-    }
-
     // Default test konfigurasjon
     val defaultConfiguration =
         Configuration.AAReg(
@@ -51,7 +42,7 @@ object AARegMock {
     fun aaregMockHttpClient(
         configuration: Configuration.AAReg = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
-        fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.respV2),
+        fnrTilArbeidsforhold: Map<String, List<Arbeidsforhold>> = emptyMap(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
         if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
@@ -71,7 +62,8 @@ object AARegMock {
                     content = "403",
                 )
             } else {
-                val svar = fnrTilSvar[fnr] ?: "[]"
+                val arbeidsforhold = fnrTilArbeidsforhold[fnr] ?: emptyList()
+                val svar = objectMapper.writeValueAsString(arbeidsforhold)
                 respond(
                     status = HttpStatusCode.OK,
                     content = svar,
@@ -84,11 +76,11 @@ object AARegMock {
     fun aaRegClientMock(
         configuration: Configuration.AAReg = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
-        fnrTilSvar: Map<String, String> = mapOf(Person1.fnr to Person1.respV2),
+        fnrTilArbeidsforhold: Map<String, List<Arbeidsforhold>> = emptyMap(),
     ) = AARegClient(
         configuration = configuration,
         oboClient = oboClient,
-        httpClient = aaregMockHttpClient(configuration, oboClient, fnrTilSvar),
+        httpClient = aaregMockHttpClient(configuration, oboClient, fnrTilArbeidsforhold),
     )
 }
 

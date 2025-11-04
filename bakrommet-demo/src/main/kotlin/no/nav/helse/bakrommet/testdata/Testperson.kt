@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.testdata
 
+import no.nav.helse.bakrommet.aareg.Arbeidsforhold
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.juli
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding
@@ -18,6 +19,7 @@ data class Testperson(
     val soknader: List<SykepengesoknadDTO> = emptyList(),
     val inntektsmeldinger: List<Inntektsmelding>? = null,
     val sigrunData: Map<Year, String> = emptyMap(),
+    val aaregData: List<Arbeidsforhold>? = null,
 ) {
     init {
         require(fnr.length == 11) { "Fnr skal være 11 siffer" }

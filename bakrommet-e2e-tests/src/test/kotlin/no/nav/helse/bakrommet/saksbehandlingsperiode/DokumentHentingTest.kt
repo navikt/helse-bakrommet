@@ -6,6 +6,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.aareg.AARegMock
+import no.nav.helse.bakrommet.aareg.arbeidsforhold
+import no.nav.helse.bakrommet.aareg.fastAnsettelse
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.runApplicationTest
@@ -13,6 +15,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.sigrun.client2010to2050
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.util.asJsonNode
+import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -103,10 +106,28 @@ class DokumentHentingTest {
 
     @Test
     fun `henter arbeidsforhold dokument`() {
-        val fakeAARegForFnrRespons = AARegMock.Person1.respV2
+        val fakeAARegForFnrRespons =
+            listOf(
+                arbeidsforhold(
+                    fnr = FNR,
+                    orgnummer = "999444333",
+                    startdato = LocalDate.parse("2014-01-01"),
+                    stillingsprosent = 100.0,
+                    ansettelsesform = fastAnsettelse(),
+                    navArbeidsforholdId = 12345,
+                ) {
+                    aktorId("1111122222333")
+                    opplysningspliktig("888777666")
+                    yrke("1231119", "KONTORLEDER")
+                    arbeidstidsordning("ikkeSkift", "Ikke skift")
+                    rapporteringsmaaneder("2019-11", null)
+                },
+            )
+
+        val forventetJsonNode = objectMapper.writeValueAsString(fakeAARegForFnrRespons).asJsonNode()
 
         runApplicationTest(
-            aaRegClient = AARegMock.aaRegClientMock(fnrTilSvar = mapOf(FNR to fakeAARegForFnrRespons)),
+            aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = mapOf(FNR to fakeAARegForFnrRespons)),
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
@@ -128,7 +149,7 @@ class DokumentHentingTest {
                     assertEquals("arbeidsforhold", jsonPostResponse.dokumentType)
 
                     assertEquals(201, postResponse.status.value)
-                    assertEquals(fakeAARegForFnrRespons.asJsonNode(), jsonPostResponse.innhold)
+                    assertEquals(forventetJsonNode, jsonPostResponse.innhold)
 
                     // Verifiser at dokumentet kan hentes via location-header
                     client

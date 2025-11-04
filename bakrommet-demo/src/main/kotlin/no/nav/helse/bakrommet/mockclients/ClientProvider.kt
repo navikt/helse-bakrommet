@@ -22,12 +22,15 @@ fun skapClienter(testpersoner: List<Testperson>): Clienter {
     val fnrTilInntektsmeldinger =
         testpersoner.filter { it.inntektsmeldinger != null }.associate { it.fnr to it.inntektsmeldinger!! }
 
+    val fnrTilArbeidsforhold =
+        testpersoner.filter { it.aaregData != null }.associate { it.fnr to it.aaregData!! }
+
     val clienter =
         Clienter(
             pdlClient = PdlMock.pdlClient(identTilReplyMap = pdlResponses, pdlReplyGenerator = pdlReplyGenerator),
             sykepengesoknadBackendClient = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
             aInntektClient = AInntektMock.aInntektClientMock(),
-            aaRegClient = AARegMock.aaRegClientMock(),
+            aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
             inntektsmeldingClient =
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
                     mockClient =
