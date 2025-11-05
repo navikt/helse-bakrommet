@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
 
-val søknadsid = UUID.randomUUID().toString()
+private val søknadsid = UUID.randomUUID().toString()
 
 private val skogenSFOOrgnummer = "999999993"
 private val skogenSFOInntekt = BigDecimal.valueOf(28300)

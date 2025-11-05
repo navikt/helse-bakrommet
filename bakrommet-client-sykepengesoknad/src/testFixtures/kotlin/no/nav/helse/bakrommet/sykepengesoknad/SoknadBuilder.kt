@@ -19,6 +19,7 @@ class SoknadBuilder(
     private var sykmeldingSkrevet: LocalDate? = null
     private var startSyketilfelle: LocalDate? = null
     private var opprettet: LocalDate? = null
+    private var sporsmal: List<SporsmalDTO>? = null
     private var sendtNav: LocalDate? = null
     private var sendtArbeidsgiver: LocalDate? = null
     private var sykmeldingstype: SykmeldingstypeDTO = SykmeldingstypeDTO.AKTIVITET_IKKE_MULIG
@@ -52,6 +53,11 @@ class SoknadBuilder(
     fun startSyketilfelle(dato: LocalDate) =
         apply {
             this.startSyketilfelle = dato
+        }
+
+    fun sporsmal(sporsmal: List<SporsmalDTO>) =
+        apply {
+            this.sporsmal = sporsmal
         }
 
     fun opprettet(dato: LocalDate) =
@@ -91,6 +97,7 @@ class SoknadBuilder(
             type = type,
             status = status,
             fom = fom,
+            sporsmal = sporsmal,
             tom = tom,
             arbeidsgiver =
                 arbeidsgiverNavn?.let { navn ->
@@ -126,7 +133,6 @@ class SoknadBuilder(
             fravarForSykmeldingen = emptyList(),
             papirsykmeldinger = emptyList(),
             andreInntektskilder = emptyList(),
-            sporsmal = emptyList(),
             korrigerer = null,
             korrigertAv = null,
             soktUtenlandsopphold = false,
