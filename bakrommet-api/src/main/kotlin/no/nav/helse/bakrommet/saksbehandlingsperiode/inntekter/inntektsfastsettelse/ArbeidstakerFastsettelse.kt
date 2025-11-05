@@ -16,7 +16,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.orgnummer
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
@@ -54,7 +54,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                         aInntektClient = aInntektClient,
                         saksbehandler = saksbehandler,
                     ).somAInntektBeregningsgrunnlag()
-                    .omregnetÅrsinntekt((yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer)
+                    .omregnetÅrsinntekt(yrkesaktivitet.kategorisering.orgnummer())
             InntektData.ArbeidstakerAinntekt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.first,
                 kildedata = omregnetÅrsinntekt.second,

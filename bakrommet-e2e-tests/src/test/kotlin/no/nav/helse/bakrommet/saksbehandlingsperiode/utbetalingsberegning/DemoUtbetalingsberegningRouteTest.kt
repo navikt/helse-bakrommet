@@ -86,8 +86,7 @@ class DemoUtbetalingsberegningRouteTest {
                 kategorisering =
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
-                        orgnummer = "123456789",
-                        typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
                     ),
                 kategoriseringGenerert = null,
                 dagoversikt =

@@ -55,9 +55,8 @@ class YrkesaktivitetOperasjonerTest {
                 periode.id,
                 personId = PERSON_ID,
                 YrkesaktivitetKategorisering.Arbeidstaker(
-                    orgnummer = "123456789",
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
                 ),
             )
 
@@ -159,9 +158,8 @@ class YrkesaktivitetOperasjonerTest {
                 periode.id,
                 personId = PERSON_ID,
                 YrkesaktivitetKategorisering.Arbeidstaker(
-                    orgnummer = "123456789",
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
                 ),
             )
 
@@ -265,9 +263,8 @@ class YrkesaktivitetOperasjonerTest {
                 periode.id,
                 personId = PERSON_ID,
                 YrkesaktivitetKategorisering.Arbeidstaker(
-                    orgnummer = "123456789",
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
                 ),
             )
 
@@ -413,9 +410,8 @@ class YrkesaktivitetOperasjonerTest {
                 periode.id,
                 personId = PERSON_ID,
                 YrkesaktivitetKategorisering.Arbeidstaker(
-                    orgnummer = "123456789",
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
                 ),
             )
 
@@ -516,9 +512,8 @@ class YrkesaktivitetOperasjonerTest {
                 periode.id,
                 personId = PERSON_ID,
                 YrkesaktivitetKategorisering.Arbeidstaker(
-                    orgnummer = "123456789",
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
                 ),
             )
 

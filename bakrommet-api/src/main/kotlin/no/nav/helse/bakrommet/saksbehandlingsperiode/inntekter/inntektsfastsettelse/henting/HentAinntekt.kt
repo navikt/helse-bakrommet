@@ -13,6 +13,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsette
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.omregnetÅrsinntekt
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.orgnummer
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
@@ -48,8 +49,7 @@ suspend fun InntektService.hentAInntektForYrkesaktivitet(
 
             when (kategori) {
                 is YrkesaktivitetKategorisering.Arbeidstaker -> {
-                    val orgnummer =
-                        (yrkesaktivitet.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer
+                    val orgnummer = yrkesaktivitet.kategorisering.orgnummer()
                     val omregnetÅrsinntekt = ainntektBeregningsgrunnlag.omregnetÅrsinntekt(orgnummer)
 
                     AInntektResponse.Suksess(

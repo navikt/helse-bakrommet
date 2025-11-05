@@ -307,9 +307,11 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
     return when (soknad.arbeidssituasjon) {
         ArbeidssituasjonDTO.ARBEIDSTAKER -> {
             YrkesaktivitetKategorisering.Arbeidstaker(
-                orgnummer = orgnummer,
                 sykmeldt = true, // Anta at søknad betyr sykmeldt
-                typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                typeArbeidstaker =
+                    TypeArbeidstaker.Ordinær(
+                        orgnummer = orgnummer,
+                    ),
             )
         }
 

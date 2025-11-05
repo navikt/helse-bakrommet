@@ -440,15 +440,10 @@ class YrkesaktivitetBuilder {
             "ARBEIDSTAKER" -> {
                 val orgnummer = kategorisering["ORGNUMMER"] ?: "123456789"
                 val erSykmeldt = kategorisering["ER_SYKMELDT"] == "ER_SYKMELDT_JA"
-                val typeArbeidstaker =
-                    when (kategorisering["TYPE_ARBEIDSTAKER"]) {
-                        "ORDINÆRT_ARBEIDSFORHOLD" -> TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD
-                        else -> TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD
-                    }
+
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = erSykmeldt,
-                    orgnummer = orgnummer,
-                    typeArbeidstaker = typeArbeidstaker,
+                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = orgnummer),
                 )
             }
             "ARBEIDSLEDIG" -> {
@@ -484,8 +479,7 @@ class YrkesaktivitetBuilder {
             else -> {
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
-                    orgnummer = "123456789",
-                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
                 )
             }
         }

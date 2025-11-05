@@ -3,11 +3,9 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 fun arbeidstakerKategorisering(
     orgnummer: String = "123456789",
     erSykmeldt: Boolean = true,
-    typeArbeidstaker: String = "ORDINÆRT_ARBEIDSFORHOLD",
 ) = YrkesaktivitetKategorisering.Arbeidstaker(
-    orgnummer = orgnummer,
     sykmeldt = erSykmeldt,
-    typeArbeidstaker = TypeArbeidstaker.valueOf(typeArbeidstaker),
+    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = orgnummer),
 )
 
 fun frilanserKategorisering(

@@ -12,6 +12,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.tilDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.orgnummer
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
@@ -172,7 +173,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 inntektsforhold
                     .map {
                         when (val k = it.kategorisering) {
-                            is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer
+                            is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer()
                             is YrkesaktivitetKategorisering.Frilanser -> k.orgnummer
                             else -> null
                         }
@@ -182,7 +183,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             val arbgiver1Yrkesaktivitet =
                 inntektsforhold.find {
                     when (val k = it.kategorisering) {
-                        is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer == arbeidsgiver1.identifikator
+                        is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer() == arbeidsgiver1.identifikator
                         is YrkesaktivitetKategorisering.Frilanser -> k.orgnummer == arbeidsgiver1.identifikator
                         else -> false
                     }
@@ -190,9 +191,8 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
             assertEquals(
                 YrkesaktivitetKategorisering.Arbeidstaker(
-                    orgnummer = "123321123",
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123321123"),
                 ),
                 arbgiver1Yrkesaktivitet.kategorisering,
             )

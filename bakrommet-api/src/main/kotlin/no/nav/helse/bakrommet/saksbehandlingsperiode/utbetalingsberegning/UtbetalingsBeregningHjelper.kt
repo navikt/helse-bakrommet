@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregn
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.orgnummer
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Klassekode
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -93,7 +94,7 @@ fun byggOppdragFraBeregning(
         val yrkesaktivitet = yrkesaktiviteter.first { it.id == yrkesaktivitetBeregning.yrkesaktivitetId }
         val mottakerRefusjon =
             if (yrkesaktivitet.kategorisering is YrkesaktivitetKategorisering.Arbeidstaker) {
-                yrkesaktivitet.kategorisering.orgnummer
+                yrkesaktivitet.kategorisering.orgnummer() // TODO Hva hvis ikke orgnummer?
             } else {
                 "TODO_INGEN_REFUSJON" // Dette er en hack vi bør fikse en gang
             }

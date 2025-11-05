@@ -29,6 +29,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidst
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.maybeOrgnummer
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.sigrun.sigrunÅr
@@ -110,7 +111,7 @@ data class ScenarioData(
     fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO =
         yrkesaktiviteter
             .filter { it.kategorisering is YrkesaktivitetKategorisering.Arbeidstaker }
-            .first { (it.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).orgnummer == orgnummer }
+            .first { (it.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).maybeOrgnummer() == orgnummer }
 }
 
 infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: BeregningskoderSykepengegrunnlag) {
@@ -199,9 +200,8 @@ data class Scenario(
                                     periode.id,
                                     personId = personId,
                                     YrkesaktivitetKategorisering.Arbeidstaker(
-                                        orgnummer = ya.orgnr,
                                         sykmeldt = true,
-                                        typeArbeidstaker = TypeArbeidstaker.ORDINÆRT_ARBEIDSFORHOLD,
+                                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = ya.orgnr),
                                     ),
                                 )
 
