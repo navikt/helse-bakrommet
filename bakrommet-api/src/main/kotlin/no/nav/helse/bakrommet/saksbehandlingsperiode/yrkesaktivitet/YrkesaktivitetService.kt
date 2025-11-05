@@ -99,8 +99,12 @@ class YrkesaktivitetService(
                 )
 
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            // TODO slett sp grunnlag fra ny sykepengegrunnlagdao
             beregningDao.slettBeregning(ref.periodeUUID)
+
+            // TODO vi må håndtere dette annerledes når vi forlenger og arver sykepengegrunnlag
+            periode.sykepengegrunnlagId?.let {
+                sykepengegrunnlagDao.slettSykepengegrunnlag(it)
+            }
 
             inntektsforhold
         }
