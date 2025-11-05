@@ -44,12 +44,13 @@ val yrkesskade =
                             fom = LocalDate.of(2025, 9, 29),
                             tom = LocalDate.of(2025, 10, 26),
                         ) {
-                            id(søknadsid)
-                            type(SoknadstypeDTO.ARBEIDSTAKERE)
-                            arbeidssituasjon(ArbeidssituasjonDTO.ARBEIDSTAKER)
-                            arbeidsgiver(betongbyggAS.navn, betongbyggAS.orgnummer)
-                            status(SoknadsstatusDTO.SENDT)
-                            sporsmal(
+                            id = søknadsid
+                            type = SoknadstypeDTO.ARBEIDSTAKERE
+                            arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
+                            arbeidsgiverNavn = betongbyggAS.navn
+                            arbeidsgiverOrgnummer = betongbyggAS.orgnummer
+                            status = SoknadsstatusDTO.SENDT
+                            sporsmal =
                                 listOf(
                                     SporsmalDTO(
                                         id = "8b567169-5a03-3f53-ad0c-622a5721821a",
@@ -133,13 +134,12 @@ val yrkesskade =
                                             ),
                                         metadata = null,
                                     ),
-                                ),
-                            )
-                            grad(100)
-                            sykmeldingSkrevet(LocalDate.of(2025, 9, 29))
-                            startSyketilfelle(LocalDate.of(2025, 9, 29))
-                            opprettet(LocalDate.of(2025, 9, 29))
-                            sendtNav(LocalDate.of(2025, 10, 1))
+                                )
+                            grad = 100
+                            sykmeldingSkrevet = LocalDate.of(2025, 9, 29)
+                            startSyketilfelle = LocalDate.of(2025, 9, 29)
+                            opprettet = LocalDate.of(2025, 9, 29)
+                            sendtNav = LocalDate.of(2025, 10, 1)
                         },
                     ),
             ),

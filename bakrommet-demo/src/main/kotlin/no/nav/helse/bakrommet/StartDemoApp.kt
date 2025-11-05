@@ -90,8 +90,7 @@ fun main() {
             filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
         }
 
-        val testpersoner = alleTestdata()
-        val clienter = skapClienter(testpersoner)
+        val clienter = skapClienter(alleTestdata)
         val services = createServices(clienter, DbDaoerFake())
 
         install(Sessions) {
@@ -114,7 +113,7 @@ fun main() {
                         }
                         val ctx = CoroutineSessionContext(sessionid)
                         withContext(ctx) {
-                            services.opprettTestdata(testpersoner)
+                            services.opprettTestdata(alleTestdata)
                         }
                         call.sessions.set("bakrommet-demo-session", sessionid)
                     }

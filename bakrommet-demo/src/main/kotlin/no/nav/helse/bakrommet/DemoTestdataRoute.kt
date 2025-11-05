@@ -16,7 +16,7 @@ fun Route.demoTestdataRoute() {
     get("/v1/demo/testpersoner") {
         val scenarioPersoner = alleScenarioer.map { it.testperson.fnr }.toSet()
         val testpersoner =
-            alleTestdata().map { testperson ->
+            alleTestdata.map { testperson ->
                 testperson.tilTestpersonForFrontend(erScenarie = testperson.fnr in scenarioPersoner)
             }
         call.respondText(testpersoner.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)

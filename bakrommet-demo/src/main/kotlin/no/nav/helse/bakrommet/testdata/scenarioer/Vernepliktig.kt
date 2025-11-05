@@ -48,14 +48,14 @@ val vernepliktig =
                             fom = LocalDate.of(2025, 9, 29),
                             tom = LocalDate.of(2025, 10, 26),
                         ) {
-                            id(søknadsid)
-                            type(SoknadstypeDTO.ANNET_ARBEIDSFORHOLD)
-                            status(SoknadsstatusDTO.SENDT)
-                            grad(100)
-                            sykmeldingSkrevet(LocalDate.of(2025, 9, 29))
-                            startSyketilfelle(LocalDate.of(2025, 9, 29))
-                            opprettet(LocalDate.of(2025, 9, 29))
-                            sendtNav(LocalDate.of(2025, 10, 1))
+                            id = søknadsid
+                            type = SoknadstypeDTO.ANNET_ARBEIDSFORHOLD
+                            status = SoknadsstatusDTO.SENDT
+                            grad = 100
+                            sykmeldingSkrevet = LocalDate.of(2025, 9, 29)
+                            startSyketilfelle = LocalDate.of(2025, 9, 29)
+                            opprettet = LocalDate.of(2025, 9, 29)
+                            sendtNav = LocalDate.of(2025, 10, 1)
                         },
                     ),
             ),

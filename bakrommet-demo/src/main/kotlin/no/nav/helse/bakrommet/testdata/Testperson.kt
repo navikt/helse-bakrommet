@@ -35,6 +35,7 @@ data class Saksbehandingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
     val søknadIder: List<String> = emptyList(),
+    val avsluttet: Boolean = false,
 )
 
 fun Testperson.tilTestpersonForFrontend(erScenarie: Boolean = false): TestpersonForFrontend =

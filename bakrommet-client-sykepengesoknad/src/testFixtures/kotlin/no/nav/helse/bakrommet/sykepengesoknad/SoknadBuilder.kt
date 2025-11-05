@@ -5,90 +5,26 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class SoknadBuilder(
-    private var id: String = UUID.randomUUID().toString(),
-    private var fnr: String,
-    private var type: SoknadstypeDTO = SoknadstypeDTO.ANNET_ARBEIDSFORHOLD,
-    private var status: SoknadsstatusDTO = SoknadsstatusDTO.NY,
-    private var fom: LocalDate,
-    private var tom: LocalDate,
+class SoknadDsl(
+    var id: String = UUID.randomUUID().toString(),
+    var fnr: String,
+    var type: SoknadstypeDTO = SoknadstypeDTO.ARBEIDSTAKERE,
+    var status: SoknadsstatusDTO = SoknadsstatusDTO.NY,
+    var fom: LocalDate,
+    var tom: LocalDate,
 ) {
-    private var arbeidsgiverNavn: String? = null
-    private var arbeidsgiverOrgnummer: String? = null
-    private var arbeidssituasjon: ArbeidssituasjonDTO? = null
-    private var sykmeldingSkrevet: LocalDate? = null
-    private var startSyketilfelle: LocalDate? = null
-    private var opprettet: LocalDate? = null
-    private var sporsmal: List<SporsmalDTO> = emptyList()
-    private var sendtNav: LocalDate? = null
-    private var sendtArbeidsgiver: LocalDate? = null
-    private var sykmeldingstype: SykmeldingstypeDTO = SykmeldingstypeDTO.AKTIVITET_IKKE_MULIG
-    private var grad: Int = 100
-    private var sykmeldingsgrad: Int? = null
-
-    fun id(id: String) = apply { this.id = id }
-
-    fun type(type: SoknadstypeDTO) = apply { this.type = type }
-
-    fun status(status: SoknadsstatusDTO) = apply { this.status = status }
-
-    fun arbeidsgiver(
-        navn: String,
-        orgnummer: String,
-    ) = apply {
-        this.arbeidsgiverNavn = navn
-        this.arbeidsgiverOrgnummer = orgnummer
-    }
-
-    fun arbeidssituasjon(arbeidssituasjon: ArbeidssituasjonDTO) =
-        apply {
-            this.arbeidssituasjon = arbeidssituasjon
-        }
-
-    fun sykmeldingSkrevet(dato: LocalDate) =
-        apply {
-            this.sykmeldingSkrevet = dato
-        }
-
-    fun startSyketilfelle(dato: LocalDate) =
-        apply {
-            this.startSyketilfelle = dato
-        }
-
-    fun sporsmal(sporsmal: List<SporsmalDTO>) =
-        apply {
-            this.sporsmal = sporsmal
-        }
-
-    fun opprettet(dato: LocalDate) =
-        apply {
-            this.opprettet = dato
-        }
-
-    fun sendtNav(dato: LocalDate) =
-        apply {
-            this.sendtNav = dato
-        }
-
-    fun sendtArbeidsgiver(dato: LocalDate) =
-        apply {
-            this.sendtArbeidsgiver = dato
-        }
-
-    fun sykmeldingstype(type: SykmeldingstypeDTO) =
-        apply {
-            this.sykmeldingstype = type
-        }
-
-    fun grad(grad: Int) =
-        apply {
-            this.grad = grad
-        }
-
-    fun sykmeldingsgrad(grad: Int) =
-        apply {
-            this.sykmeldingsgrad = grad
-        }
+    var arbeidsgiverNavn: String? = null
+    var arbeidsgiverOrgnummer: String? = null
+    var arbeidssituasjon: ArbeidssituasjonDTO? = null
+    var sykmeldingSkrevet: LocalDate? = null
+    var startSyketilfelle: LocalDate? = null
+    var opprettet: LocalDate? = null
+    var sporsmal: List<SporsmalDTO> = emptyList()
+    var sendtNav: LocalDate? = null
+    var sendtArbeidsgiver: LocalDate? = null
+    var sykmeldingstype: SykmeldingstypeDTO = SykmeldingstypeDTO.AKTIVITET_IKKE_MULIG
+    var grad: Int = 100
+    var sykmeldingsgrad: Int? = null
 
     fun build(): SykepengesoknadDTO =
         SykepengesoknadDTO(
@@ -147,5 +83,5 @@ fun soknad(
     fnr: String,
     fom: LocalDate,
     tom: LocalDate,
-    builder: SoknadBuilder.() -> Unit = {},
-): SykepengesoknadDTO = SoknadBuilder(fnr = fnr, fom = fom, tom = tom).apply(builder).build()
+    block: SoknadDsl.() -> Unit = {},
+): SykepengesoknadDTO = SoknadDsl(fnr = fnr, fom = fom, tom = tom).apply(block).build()

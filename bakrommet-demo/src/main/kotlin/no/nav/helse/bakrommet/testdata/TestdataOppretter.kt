@@ -1,11 +1,13 @@
 package no.nav.helse.bakrommet.testdata
 
 import no.nav.helse.bakrommet.Services
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.beritBeslutter
 import no.nav.helse.bakrommet.hentSession
 import no.nav.helse.bakrommet.person.SpilleromPersonId
+import no.nav.helse.bakrommet.saksMcBehandlersen
+import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
 import no.nav.helse.bakrommet.sessionsDaoer
 import java.util.*
 
@@ -30,23 +32,33 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                             soknadIdTilUuid[soknadId]
                         }.toSet()
 
-                this.saksbehandlingsperiodeService.opprettNySaksbehandlingsperiode(
-                    spilleromPersonId = SpilleromPersonId(testperson.spilleromId),
-                    fom = periode.fom,
-                    tom = periode.tom,
-                    søknader = søknadUUIDer,
-                    saksbehandler =
-                        BrukerOgToken(
-                            bruker =
-                                Bruker(
-                                    navn = "Saks McBehandlersen",
-                                    navIdent = "Z123456",
-                                    preferredUsername = "saks.mcbehandlersen@nav.no",
-                                    roller = emptySet(),
-                                ),
-                            token = SpilleromBearerToken("token"),
-                        ),
-                )
+                val nySaksbehandlingsperiode =
+                    this.saksbehandlingsperiodeService.opprettNySaksbehandlingsperiode(
+                        spilleromPersonId = SpilleromPersonId(testperson.spilleromId),
+                        fom = periode.fom,
+                        tom = periode.tom,
+                        søknader = søknadUUIDer,
+                        saksbehandler =
+                            BrukerOgToken(
+                                bruker = saksMcBehandlersen,
+                                token = SpilleromBearerToken("token"),
+                            ),
+                    )
+                if (periode.avsluttet) {
+                    this.saksbehandlingsperiodeService.sendTilBeslutning(
+                        periodeRef = nySaksbehandlingsperiode.somReferanse(),
+                        individuellBegrunnelse = "En god begrunnelse",
+                        saksbehandler = saksMcBehandlersen,
+                    )
+                    this.saksbehandlingsperiodeService.taTilBeslutning(
+                        periodeRef = nySaksbehandlingsperiode.somReferanse(),
+                        saksbehandler = beritBeslutter,
+                    )
+                    this.saksbehandlingsperiodeService.godkjennPeriode(
+                        periodeRef = nySaksbehandlingsperiode.somReferanse(),
+                        saksbehandler = beritBeslutter,
+                    )
+                }
             }
         }
 }
