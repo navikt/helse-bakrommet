@@ -27,7 +27,10 @@ fun skapClienter(testpersoner: List<Testperson>): Clienter {
     val fnrTilArbeidsforhold =
         testpersoner.filter { it.aaregData != null }.associate { it.fnr to it.aaregData!! }
 
-    val fnrTilAinntk: Map<String, InntektApiUt> = emptyMap()
+    val fnrTilAinntk: Map<String, InntektApiUt> =
+        testpersoner
+            .filter { it.ainntektData != null }
+            .associate { it.fnr to InntektApiUt(data = it.ainntektData!!) }
     val clienter =
         Clienter(
             pdlClient = PdlMock.pdlClient(identTilReplyMap = pdlResponses, pdlReplyGenerator = pdlReplyGenerator),

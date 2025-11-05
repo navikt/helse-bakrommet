@@ -1,13 +1,29 @@
 package no.nav.helse.bakrommet.testdata.scenarioer
 
+import no.nav.helse.bakrommet.ainntekt.genererAinntektsdata
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Testperson
+import no.nav.helse.bakrommet.testdata.genererAaregFraAinntekt
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.YearMonth
 import java.util.UUID
 
 val søknadsid = UUID.randomUUID().toString()
+
+private val skogenSFOOrgnummer = "999999993"
+private val skogenSFOInntekt = BigDecimal.valueOf(28300)
+
+private val skogenSFOAinntektData =
+    genererAinntektsdata(
+        beloep = skogenSFOInntekt,
+        fraMaaned = YearMonth.of(2025, 6),
+        virksomhetsnummer = skogenSFOOrgnummer,
+        antallMaanederTilbake = 16,
+    )
+
 val vernepliktig =
     Testscenario(
         tittel = "Vernepliktig som dimitteres pga skade",
@@ -18,7 +34,13 @@ val vernepliktig =
                 fnr = "20029712345",
                 spilleromId = "91sto",
                 etternavn = "Stomperud",
-                aaregData = emptyList(),
+                aaregData =
+                    genererAaregFraAinntekt(
+                        fnr = "20029712345",
+                        ainntektData = skogenSFOAinntektData,
+                        fortsattAktiveOrgnummer = emptyList(), // Ikke lenger aktiv da han startet verneplikt
+                    ),
+                ainntektData = skogenSFOAinntektData,
                 soknader =
                     listOf(
                         soknad(

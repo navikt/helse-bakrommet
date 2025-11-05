@@ -10,7 +10,7 @@ data class InntektApiUt(
 data class Inntektsinformasjon(
     val maaned: YearMonth,
     val underenhet: String,
-    val opplysningspliktig: String,
+    val opplysningspliktig: String = underenhet,
     val inntektListe: List<Inntekt> = emptyList(),
 )
 

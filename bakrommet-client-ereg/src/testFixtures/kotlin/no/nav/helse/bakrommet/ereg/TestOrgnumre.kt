@@ -77,6 +77,11 @@ val veihjelpenAS =
         navn = "Veihjelpen AS",
         orgnummer = "963743254",
     )
+val skogenSFO =
+    Organisasjon(
+        navn = "Skogen SFO",
+        orgnummer = "999999993",
+    )
 
 val organisasjonsnavnMap: Map<String, String> =
     mapOf(
@@ -94,4 +99,5 @@ val organisasjonsnavnMap: Map<String, String> =
         mursteinAS.toPair(),
         betongbyggAS.toPair(),
         veihjelpenAS.toPair(),
+        skogenSFO.toPair(),
     )

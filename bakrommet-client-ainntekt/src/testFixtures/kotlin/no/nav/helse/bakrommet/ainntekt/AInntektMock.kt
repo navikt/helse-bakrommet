@@ -14,6 +14,7 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
+import java.math.BigDecimal
 import java.time.YearMonth
 
 object AInntektMock {
@@ -133,6 +134,41 @@ fun etInntektSvar(
             },
     )
 }
+
+/**
+ * Builder-funksjon for å generere ainntektsdata for en gitt periode.
+ *
+ * @param beloep Månedlig inntekt
+ * @param fraMaaned Startmåned for inntektsperioden
+ * @param virksomhetsnummer Organisasjonsnummer
+ * @param antallMaanederTilbake Antall måneder tilbake fra fraMaaned (inkluderer fraMaaned)
+ * @param inntektType Type inntekt (default: "LOENNSINNTEKT")
+ * @param opplysningspliktig Opplysningspliktig organisasjonsnummer (default: samme som virksomhetsnummer)
+ * @return Liste med Inntektsinformasjon for hver måned
+ */
+fun genererAinntektsdata(
+    beloep: BigDecimal,
+    fraMaaned: YearMonth,
+    virksomhetsnummer: String,
+    antallMaanederTilbake: Int,
+    inntektType: String = "LOENNSINNTEKT",
+    opplysningspliktig: String = virksomhetsnummer,
+): List<Inntektsinformasjon> =
+    (0 until antallMaanederTilbake).map { månederTilbake ->
+        val maaned = fraMaaned.minusMonths(månederTilbake.toLong())
+        Inntektsinformasjon(
+            maaned = maaned,
+            underenhet = virksomhetsnummer,
+            opplysningspliktig = opplysningspliktig,
+            inntektListe =
+                listOf(
+                    Inntekt(
+                        type = inntektType,
+                        beloep = beloep,
+                    ),
+                ),
+        )
+    }
 
 // Extension function for å filtrere måneder basert på forespurt periode
 fun InntektApiUt.filtrerMaaneder(
