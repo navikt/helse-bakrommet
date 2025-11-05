@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
-import no.nav.helse.bakrommet.inntektsmelding.enInntektsmelding
+import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
@@ -314,7 +314,7 @@ class Inntektsmelding(
         fnr: String,
         orgnr: String,
     ): InntektsmeldingKontrakt =
-        enInntektsmelding(
+        skapInntektsmelding(
             inntektsmeldingId = inntektmeldingid.toString(),
             arbeidstakerFnr = fnr,
             virksomhetsnummer = orgnr,

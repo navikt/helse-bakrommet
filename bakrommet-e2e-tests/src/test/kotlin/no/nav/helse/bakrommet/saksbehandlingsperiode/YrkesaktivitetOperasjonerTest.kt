@@ -8,7 +8,7 @@ import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
-import no.nav.helse.bakrommet.inntektsmelding.enInntektsmelding
+import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
@@ -368,9 +368,9 @@ class YrkesaktivitetOperasjonerTest {
         val im1Id = UUID.randomUUID().toString()
         val im2Id = UUID.randomUUID().toString()
         val imFeilPersonId = UUID.randomUUID().toString()
-        val im1 = enInntektsmelding(arbeidstakerFnr = FNR, inntektsmeldingId = im1Id)
-        val im2 = enInntektsmelding(arbeidstakerFnr = FNR, inntektsmeldingId = im2Id)
-        val imFeilPerson = enInntektsmelding(arbeidstakerFnr = "00000011111", inntektsmeldingId = imFeilPersonId)
+        val im1 = skapInntektsmelding(arbeidstakerFnr = FNR, inntektsmeldingId = im1Id)
+        val im2 = skapInntektsmelding(arbeidstakerFnr = FNR, inntektsmeldingId = im2Id)
+        val imFeilPerson = skapInntektsmelding(arbeidstakerFnr = "00000011111", inntektsmeldingId = imFeilPersonId)
         val antallKallTilInntektsmeldingAPI = AtomicInteger(0)
         runApplicationTest(
             inntektsmeldingClient =

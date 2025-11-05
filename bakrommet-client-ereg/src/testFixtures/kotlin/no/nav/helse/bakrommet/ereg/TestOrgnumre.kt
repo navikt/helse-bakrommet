@@ -1,103 +1,110 @@
 package no.nav.helse.bakrommet.ereg
 
-data class Organisasjon(
-    val navn: String,
-    val orgnummer: String,
-) {
-    fun toPair() = orgnummer to navn
-}
+typealias Organisasjon = Pair<String, String>
 
 val kranførerkompaniet =
     Organisasjon(
-        navn = "Kranførerkompaniet",
-        orgnummer = "987654321",
+        "987654321",
+        "Kranførerkompaniet",
     )
 val krankompisen =
     Organisasjon(
-        navn = "Krankompisen",
-        orgnummer = "123456789",
+        "123456789",
+        "Krankompisen",
     )
 val danskebåten =
     Organisasjon(
-        navn = "Danskebåten",
-        orgnummer = "889955555",
+        "889955555",
+        "Danskebåten",
     )
 val pengeløsSparebank =
     Organisasjon(
-        navn = "Pengeløs Sparebank",
-        orgnummer = "972674818",
+        "972674818",
+        "Pengeløs Sparebank",
     )
 val ruterNesoddbåten =
     Organisasjon(
-        navn = "Ruter, avd Nesoddbåten",
-        orgnummer = "222222222",
+        "222222222",
+        "Ruter, avd Nesoddbåten",
     )
 val veganskSlakteri =
     Organisasjon(
-        navn = "Vegansk slakteri",
-        orgnummer = "805824352",
+        "805824352",
+        "Vegansk slakteri",
     )
 val sauefabrikk =
     Organisasjon(
-        navn = "Sauefabrikk",
-        orgnummer = "896929119",
+        "896929119",
+        "Sauefabrikk",
     )
 val sjokkerendeElektriker =
     Organisasjon(
-        navn = "Sjokkerende elektriker",
-        orgnummer = "947064649",
+        "947064649",
+        "Sjokkerende elektriker",
     )
 val snillTorpedo =
     Organisasjon(
-        navn = "Snill torpedo",
-        orgnummer = "967170232",
+        "967170232",
+        "Snill torpedo",
     )
 val hårreisendeFrisør =
     Organisasjon(
-        navn = "Hårreisende frisør",
-        orgnummer = "839942907",
+        "839942907",
+        "Hårreisende frisør",
     )
 val klonelabben =
     Organisasjon(
-        navn = "Klonelabben",
-        orgnummer = "907670201",
+        "907670201",
+        "Klonelabben",
     )
 val mursteinAS =
     Organisasjon(
-        navn = "Murstein AS",
-        orgnummer = "999999991",
+        "999999991",
+        "Murstein AS",
     )
 val betongbyggAS =
     Organisasjon(
-        navn = "Betongbygg AS",
-        orgnummer = "999999992",
+        "999999992",
+        "Betongbygg AS",
     )
+
+val malermesternAS =
+    Organisasjon(
+        "834567890",
+        "Malermestern AS",
+    )
+
 val veihjelpenAS =
     Organisasjon(
-        navn = "Veihjelpen AS",
-        orgnummer = "963743254",
+        "963743254",
+        "Veihjelpen AS",
     )
 val skogenSFO =
     Organisasjon(
-        navn = "Skogen SFO",
-        orgnummer = "999999993",
+        "999999993",
+        "Skogen SFO",
     )
 
 val organisasjonsnavnMap: Map<String, String> =
     mapOf(
-        kranførerkompaniet.toPair(),
-        krankompisen.toPair(),
-        danskebåten.toPair(),
-        pengeløsSparebank.toPair(),
-        ruterNesoddbåten.toPair(),
-        veganskSlakteri.toPair(),
-        sauefabrikk.toPair(),
-        sjokkerendeElektriker.toPair(),
-        snillTorpedo.toPair(),
-        hårreisendeFrisør.toPair(),
-        klonelabben.toPair(),
-        mursteinAS.toPair(),
-        betongbyggAS.toPair(),
-        veihjelpenAS.toPair(),
-        skogenSFO.toPair(),
-    )
+        kranførerkompaniet,
+        krankompisen,
+        danskebåten,
+        pengeløsSparebank,
+        ruterNesoddbåten,
+        veganskSlakteri,
+        sauefabrikk,
+        sjokkerendeElektriker,
+        snillTorpedo,
+        hårreisendeFrisør,
+        klonelabben,
+        mursteinAS,
+        betongbyggAS,
+        veihjelpenAS,
+        skogenSFO,
+        malermesternAS,
+    ).also {
+        it.forEach { (navn, orgnr) ->
+            require(!it.containsKey(orgnr)) { "Duplikat orgnr $orgnr for organisasjonene ${it[orgnr]} og $navn" }
+        }
+    }

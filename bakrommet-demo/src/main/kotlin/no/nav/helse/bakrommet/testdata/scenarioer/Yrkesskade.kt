@@ -4,9 +4,7 @@ import no.nav.helse.bakrommet.ainntekt.genererAinntektsdata
 import no.nav.helse.bakrommet.ereg.betongbyggAS
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Testperson
-import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
-import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SporsmalDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SvarDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SvartypeDTO
@@ -22,7 +20,7 @@ private val inntektData =
     genererAinntektsdata(
         beloep = BigDecimal.valueOf(14000),
         fraMaaned = YearMonth.of(2025, 10),
-        virksomhetsnummer = betongbyggAS.orgnummer,
+        organisasjon = betongbyggAS,
         antallMaanederTilbake = 16,
     )
 
@@ -44,11 +42,8 @@ val yrkesskade =
                             fom = LocalDate.of(2025, 9, 29),
                             tom = LocalDate.of(2025, 10, 26),
                         ) {
+                            arbeidstaker(betongbyggAS)
                             id = søknadsid
-                            type = SoknadstypeDTO.ARBEIDSTAKERE
-                            arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                            arbeidsgiverNavn = betongbyggAS.navn
-                            arbeidsgiverOrgnummer = betongbyggAS.orgnummer
                             status = SoknadsstatusDTO.SENDT
                             sporsmal =
                                 listOf(

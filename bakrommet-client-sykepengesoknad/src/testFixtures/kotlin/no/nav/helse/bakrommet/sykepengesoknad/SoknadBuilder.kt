@@ -9,7 +9,7 @@ class SoknadDsl(
     var id: String = UUID.randomUUID().toString(),
     var fnr: String,
     var type: SoknadstypeDTO = SoknadstypeDTO.ARBEIDSTAKERE,
-    var status: SoknadsstatusDTO = SoknadsstatusDTO.NY,
+    var status: SoknadsstatusDTO = SoknadsstatusDTO.SENDT,
     var fom: LocalDate,
     var tom: LocalDate,
 ) {
@@ -25,6 +25,13 @@ class SoknadDsl(
     var sykmeldingstype: SykmeldingstypeDTO = SykmeldingstypeDTO.AKTIVITET_IKKE_MULIG
     var grad: Int = 100
     var sykmeldingsgrad: Int? = null
+
+    fun arbeidstaker(organisasjon: Pair<String, String>) {
+        arbeidsgiverOrgnummer = organisasjon.first
+        arbeidsgiverNavn = organisasjon.second
+        arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
+        type = SoknadstypeDTO.ARBEIDSTAKERE
+    }
 
     fun build(): SykepengesoknadDTO =
         SykepengesoknadDTO(
@@ -48,7 +55,7 @@ class SoknadDsl(
             sykmeldingSkrevet = sykmeldingSkrevet?.let { LocalDateTime.of(it, java.time.LocalTime.of(2, 0)) },
             startSyketilfelle = startSyketilfelle,
             arbeidGjenopptatt = null,
-            opprettet = opprettet?.atStartOfDay(),
+            opprettet = opprettet?.atStartOfDay() ?: LocalDate.now().atStartOfDay(),
             sendtNav = sendtNav?.atStartOfDay(),
             sendtArbeidsgiver = sendtArbeidsgiver?.atStartOfDay(),
             soknadsperioder =

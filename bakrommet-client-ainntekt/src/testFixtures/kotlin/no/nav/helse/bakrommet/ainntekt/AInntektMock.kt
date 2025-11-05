@@ -149,7 +149,8 @@ fun etInntektSvar(
 fun genererAinntektsdata(
     beloep: BigDecimal,
     fraMaaned: YearMonth,
-    virksomhetsnummer: String,
+    organisasjon: Pair<String, String>? = null,
+    virksomhetsnummer: String = organisasjon?.first ?: "999888777",
     antallMaanederTilbake: Int,
     inntektType: String = "LOENNSINNTEKT",
     opplysningspliktig: String = virksomhetsnummer,

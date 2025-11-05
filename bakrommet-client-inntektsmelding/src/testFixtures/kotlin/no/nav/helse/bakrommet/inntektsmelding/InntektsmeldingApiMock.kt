@@ -21,7 +21,7 @@ object InntektsmeldingApiMock {
 
     object Person1 {
         val fnr = "08088811111"
-        val inntektsmeldinger = listOf(enInntektsmelding())
+        val inntektsmeldinger = listOf(skapInntektsmelding())
     }
 
     // Default test konfigurasjon

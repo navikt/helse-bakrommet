@@ -165,14 +165,13 @@ class InntektsmeldingBuilder(
         )
 }
 
-/**
- * Konvensjonsfunksjon for å lage en Inntektsmelding med standardverdier.
- */
-fun enInntektsmelding(
+fun skapInntektsmelding(
     inntektsmeldingId: String = UUID.randomUUID().toString(),
     arbeidstakerFnr: String = "12345678901",
     beregnetInntekt: Double = 8876.00,
-    virksomhetsnummer: String = "999888777",
+    foersteFravaersdag: LocalDate? = null,
+    organisasjon: Pair<String, String>? = null,
+    virksomhetsnummer: String = organisasjon?.first ?: "999888777",
     block: (InntektsmeldingBuilder.() -> Unit)? = null,
 ): Inntektsmelding =
     InntektsmeldingBuilder(
@@ -180,4 +179,5 @@ fun enInntektsmelding(
         arbeidstakerFnr = arbeidstakerFnr,
         beregnetInntekt = BigDecimal(beregnetInntekt.toString()),
         virksomhetsnummer = virksomhetsnummer,
+        foersteFravaersdag = foersteFravaersdag,
     ).apply { block?.invoke(this) }.build()

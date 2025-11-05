@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.testdata.testpersoner
 
-import no.nav.helse.bakrommet.inntektsmelding.enInntektsmelding
+import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Saksbehandingsperiode
 import no.nav.helse.bakrommet.testdata.Testperson
@@ -18,8 +18,8 @@ val kalleKranfører =
         fødselsdato = LocalDate.of(1977, 1, 1), // ca. 47 år basert på alder 47
         inntektsmeldinger =
             listOf(
-                enInntektsmelding(UUID.randomUUID().toString()),
-                enInntektsmelding(UUID.randomUUID().toString(), beregnetInntekt = 89000.0),
+                skapInntektsmelding(UUID.randomUUID().toString()),
+                skapInntektsmelding(UUID.randomUUID().toString(), beregnetInntekt = 89000.0),
             ),
         saksbehandingsperioder =
             listOf(
