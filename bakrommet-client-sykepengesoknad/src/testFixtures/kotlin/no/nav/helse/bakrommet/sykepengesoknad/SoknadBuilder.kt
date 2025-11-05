@@ -19,7 +19,7 @@ class SoknadBuilder(
     private var sykmeldingSkrevet: LocalDate? = null
     private var startSyketilfelle: LocalDate? = null
     private var opprettet: LocalDate? = null
-    private var sporsmal: List<SporsmalDTO>? = null
+    private var sporsmal: List<SporsmalDTO> = emptyList()
     private var sendtNav: LocalDate? = null
     private var sendtArbeidsgiver: LocalDate? = null
     private var sykmeldingstype: SykmeldingstypeDTO = SykmeldingstypeDTO.AKTIVITET_IKKE_MULIG
