@@ -3,7 +3,12 @@ package no.nav.helse.bakrommet.infrastruktur.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.november
 import org.flywaydb.core.Flyway
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -18,15 +23,24 @@ class FlywayMigrator(
             maximumPoolSize = 2
         }
 
+    val tillattNukeFør = ZonedDateTime.of(6.november(2025), LocalTime.of(14, 10, 0), ZoneId.of("Europe/Oslo")).toInstant()
+
+    val nukeDb = Instant.now().isBefore(tillattNukeFør)
+
     fun migrate() {
         HikariDataSource(hikariConfig).use { dataSource ->
             Flyway
                 .configure()
                 .validateMigrationNaming(true)
                 .dataSource(dataSource)
+                .cleanDisabled(!nukeDb)
                 .lockRetryCount(-1)
                 .load()
-                .migrate()
+                .also {
+                    if (nukeDb) {
+                        it.clean()
+                    }
+                }.migrate()
         }
     }
 }
