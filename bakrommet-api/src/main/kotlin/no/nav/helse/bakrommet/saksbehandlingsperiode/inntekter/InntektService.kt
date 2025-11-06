@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonDao
@@ -53,6 +54,14 @@ class InntektService(
                     ref = ref.saksbehandlingsperiodeReferanse,
                     krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
                 )
+
+            if (periode.sykepengegrunnlagId != null) {
+                val spg = sykepengegrunnlagDao.hentSykepengegrunnlag(periode.sykepengegrunnlagId)!!
+                if (spg.opprettetForBehandling != periode.id) {
+                    throw InputValideringException("Gjeldende sykepengegrunnlag er fastsatt på en tidligere saksbehandlingsperiode")
+                }
+            }
+
             if (periode.skjæringstidspunkt == null) {
                 throw IllegalStateException("Kan ikke oppdatere inntekt før skjæringstidspunkt er satt på saksbehandlingsperiode (id=${periode.id})")
             }

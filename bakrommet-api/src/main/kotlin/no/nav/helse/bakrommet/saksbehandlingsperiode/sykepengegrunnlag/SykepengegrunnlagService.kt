@@ -22,6 +22,7 @@ class SykepengegrunnlagService(
                     SykepengegrunnlagResponse(
                         sykepengegrunnlag = record.sykepengegrunnlag,
                         sammenlikningsgrunnlag = record.sammenlikningsgrunnlag,
+                        opprettetForBehandling = record.opprettetForBehandling,
                     )
                 }
             }

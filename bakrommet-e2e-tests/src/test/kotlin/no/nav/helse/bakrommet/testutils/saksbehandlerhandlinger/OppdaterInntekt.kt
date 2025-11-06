@@ -4,6 +4,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
@@ -17,6 +18,7 @@ internal suspend fun ApplicationTestBuilder.oppdaterInntekt(
     periodeId: UUID,
     yrkesaktivitetId: UUID,
     inntektRequest: InntektRequest,
+    expectedResponseStatus: HttpStatusCode = HttpStatusCode.NoContent,
 ) {
     val response =
         client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
@@ -25,5 +27,5 @@ internal suspend fun ApplicationTestBuilder.oppdaterInntekt(
             setBody(objectMapperCustomSerde.writeValueAsString(inntektRequest))
         }
 
-    assertEquals(204, response.status.value, "Inntektsoppdatering skal returnere status 204")
+    assertEquals(expectedResponseStatus, response.status, "Inntektsoppdatering skal returnere status ${expectedResponseStatus.value}")
 }

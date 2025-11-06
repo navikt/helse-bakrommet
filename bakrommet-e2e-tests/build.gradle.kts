@@ -1,6 +1,8 @@
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
 
+    implementation("com.zaxxer:HikariCP")
+
     testImplementation(project(":bakrommet-bootstrap"))
     testImplementation(project(":bakrommet-api"))
     testImplementation(project(":bakrommet-common"))

@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet
 
+import com.zaxxer.hikari.HikariConfig
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
@@ -35,6 +36,8 @@ import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.util.objectMapper
 import javax.sql.DataSource
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 object TestOppsett {
     val oAuthMock = OAuthMock()
@@ -157,4 +160,16 @@ fun runApplicationTest(
 }
 
 // Manglende funksjoner fra App.kt
-internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
+internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration, ::testHikariConfigurator).also { it.migrate() }.dataSource
+
+private fun testHikariConfigurator(configuration: Configuration.DB) =
+    HikariConfig().apply {
+        jdbcUrl = configuration.jdbcUrl
+        maximumPoolSize = 40
+        minimumIdle = 2
+        idleTimeout = 10.seconds.inWholeMilliseconds
+        maxLifetime = idleTimeout * 5
+        initializationFailTimeout = 1.minutes.inWholeMilliseconds
+        connectionTimeout = 5.seconds.inWholeMilliseconds
+        leakDetectionThreshold = 30.seconds.inWholeMilliseconds
+    }
