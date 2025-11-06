@@ -45,4 +45,5 @@ data class SykepengegrunnlagDbRecord(
 data class SykepengegrunnlagResponse(
     val sykepengegrunnlag: Sykepengegrunnlag?,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
+    val opprettetForBehandling: UUID,
 )

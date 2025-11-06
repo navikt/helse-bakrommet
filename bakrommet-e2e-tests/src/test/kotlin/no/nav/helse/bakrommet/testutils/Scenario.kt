@@ -246,7 +246,7 @@ data class Scenario(
                     this,
                     ScenarioData(
                         periode = periode,
-                        sykepengegrunnlag = sykepengegrunnlag.sykepengegrunnlag!!,
+                        sykepengegrunnlag = sykepengegrunnlag!!.sykepengegrunnlag!!,
                         sammenlikningsgrunnlag = sykepengegrunnlag.sammenlikningsgrunnlag,
                         utbetalingsberegning = beregning,
                         yrkesaktiviteter = yrkesaktiviteter,

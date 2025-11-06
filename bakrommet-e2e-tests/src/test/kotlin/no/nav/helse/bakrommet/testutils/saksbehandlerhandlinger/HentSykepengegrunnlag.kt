@@ -12,12 +12,13 @@ import java.util.UUID
 internal suspend fun ApplicationTestBuilder.hentSykepengegrunnlag(
     personId: String,
     periodeId: UUID,
-): SykepengegrunnlagResponse {
+): SykepengegrunnlagResponse? {
     val response =
         client.get("/v2/$personId/saksbehandlingsperioder/$periodeId/sykepengegrunnlag") {
             bearerAuth(TestOppsett.userToken)
         }
 
     val sykepengegrunnlagStr = response.body<String>()
+    if (sykepengegrunnlagStr == "null") return null
     return objectMapperCustomSerde.readValue(sykepengegrunnlagStr, SykepengegrunnlagResponse::class.java)
 }

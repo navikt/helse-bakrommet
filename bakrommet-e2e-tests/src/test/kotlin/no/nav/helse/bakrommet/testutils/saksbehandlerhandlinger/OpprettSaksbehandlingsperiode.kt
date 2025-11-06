@@ -48,8 +48,7 @@ internal suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(
     val perioder = objectMapperCustomSerde.readValue<List<Saksbehandlingsperiode>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, Saksbehandlingsperiode::class.java))
 
     assertTrue(perioder.isNotEmpty(), "Det skal finnes minst én saksbehandlingsperiode")
-    val periode = perioder.first()
-    assertEquals(periodeId, periode.id, "Periode ID skal matche det som ble opprettet")
+    val periode = perioder.first { it.id == periodeId }
 
     return periode
 }

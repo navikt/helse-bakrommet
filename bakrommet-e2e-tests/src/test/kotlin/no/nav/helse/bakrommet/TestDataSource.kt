@@ -12,11 +12,6 @@ object TestDataSource {
             .withLabel("app", "bakrommet")
             .apply { start() }
 
-    val configuration =
-        Configuration.DB(
-            jdbcUrl = postgres.jdbcUrl + "&user=" + postgres.username + "&password=" + postgres.password,
-        )
-
     val dbModule =
         DBModule(
             configuration =
