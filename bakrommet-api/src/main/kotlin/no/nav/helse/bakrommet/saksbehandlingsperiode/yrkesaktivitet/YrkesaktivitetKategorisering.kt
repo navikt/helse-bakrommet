@@ -73,7 +73,6 @@ fun YrkesaktivitetKategorisering.orgnummer(): String = maybeOrgnummer() ?: throw
         ),
         JsonSubTypes.Type(value = TypeArbeidstaker.Fisker::class, name = "FISKER"),
         JsonSubTypes.Type(value = TypeArbeidstaker.DimmitertVernepliktig::class, name = "DIMMITERT_VERNEPLIKTIG"),
-        JsonSubTypes.Type(value = TypeArbeidstaker.BarnepasserBarnetsHjem::class, name = "BARNEPASSER_BARNETS_HJEM"),
         JsonSubTypes.Type(value = TypeArbeidstaker.PrivatArbeidsgiver::class, name = "PRIVAT_ARBEIDSGIVER"),
     ],
 )
@@ -91,10 +90,6 @@ sealed class TypeArbeidstaker {
     ) : TypeArbeidstaker()
 
     class DimmitertVernepliktig : TypeArbeidstaker()
-
-    data class BarnepasserBarnetsHjem(
-        val arbeidsgiverFnr: String,
-    ) : TypeArbeidstaker()
 
     data class PrivatArbeidsgiver(
         val arbeidsgiverFnr: String,
