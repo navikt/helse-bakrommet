@@ -165,8 +165,8 @@ internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(conf
 private fun testHikariConfigurator(configuration: Configuration.DB) =
     HikariConfig().apply {
         jdbcUrl = configuration.jdbcUrl
-        maximumPoolSize = 40
-        minimumIdle = 2
+        maximumPoolSize = 5
+        minimumIdle = 1
         idleTimeout = 10.seconds.inWholeMilliseconds
         maxLifetime = idleTimeout * 5
         initializationFailTimeout = 1.minutes.inWholeMilliseconds
