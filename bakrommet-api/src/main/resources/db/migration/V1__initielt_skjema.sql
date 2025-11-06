@@ -6,12 +6,13 @@ CREATE TABLE IF NOT EXISTS ident
 
 CREATE TABLE IF NOT EXISTS sykepengegrunnlag
 (
-    id                     UUID PRIMARY KEY,
-    sykepengegrunnlag      TEXT                        NULL,
-    sammenlikningsgrunnlag TEXT                        NULL,
-    opprettet_av_nav_ident TEXT                        NOT NULL,
-    opprettet              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    oppdatert              TIMESTAMP(6) WITH TIME ZONE NOT NULL
+    id                       UUID PRIMARY KEY,
+    sykepengegrunnlag        TEXT                        NULL,
+    sammenlikningsgrunnlag   TEXT                        NULL,
+    opprettet_for_behandling UUID                        NOT NULL,
+    opprettet_av_nav_ident   TEXT                        NOT NULL,
+    opprettet                TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    oppdatert                TIMESTAMP(6) WITH TIME ZONE NOT NULL
 );
 
 
@@ -32,6 +33,11 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
     beslutter_nav_ident     TEXT                        NULL,
     individuell_begrunnelse TEXT                        NULL
 );
+
+ALTER TABLE sykepengegrunnlag ADD CONSTRAINT fk_sykepengegrunnlag_behandling
+    FOREIGN KEY (opprettet_for_behandling)
+    REFERENCES saksbehandlingsperiode (id);
+
 
 CREATE TABLE IF NOT EXISTS vurdert_vilkaar
 (
@@ -83,22 +89,6 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode_endringer
     endring_kommentar         TEXT                        NULL
 );
 
-CREATE TABLE IF NOT EXISTS sykepengegrunnlag_old
-(
-    id                            UUID PRIMARY KEY,
-    saksbehandlingsperiode_id     UUID                     NOT NULL REFERENCES saksbehandlingsperiode (id) UNIQUE,
-    total_inntekt_ore             INTEGER                  NOT NULL,
-    grunnbelop_ore                INTEGER                  NOT NULL,
-    grunnbelop_6g_ore             INTEGER                  NOT NULL,
-    begrenset_til_6g              BOOLEAN                  NOT NULL,
-    sykepengegrunnlag_ore         INTEGER                  NOT NULL,
-    begrunnelse                   TEXT,
-    opprettet                     TIMESTAMP WITH TIME ZONE NOT NULL,
-    opprettet_av_nav_ident        TEXT                     NOT NULL,
-    sist_oppdatert                TIMESTAMP WITH TIME ZONE NOT NULL,
-    inntekter                     TEXT                     NOT NULL,
-    grunnbelop_virkningstidspunkt DATE                     NOT NULL
-);
 
 CREATE TABLE IF NOT EXISTS utbetalingsberegning
 (

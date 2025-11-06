@@ -85,6 +85,7 @@ class SaksbehandlingsperiodeService(
                 nyPeriode =
                     nyPeriode.copy(
                         skjæringstidspunkt = it.skjæringstidspunkt ?: fom,
+                        sykepengegrunnlagId = it.sykepengegrunnlagId,
                     )
             }
 

@@ -14,6 +14,7 @@ interface SykepengegrunnlagDao {
     fun lagreSykepengegrunnlag(
         sykepengegrunnlag: Sykepengegrunnlag,
         saksbehandler: Bruker,
+        opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord
 
     fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord?
@@ -40,6 +41,7 @@ class SykepengegrunnlagDaoPg private constructor(
     override fun lagreSykepengegrunnlag(
         sykepengegrunnlag: Sykepengegrunnlag,
         saksbehandler: Bruker,
+        opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord {
         val id = UUID.randomUUID()
         val nå = java.time.Instant.now()
@@ -47,14 +49,15 @@ class SykepengegrunnlagDaoPg private constructor(
 
         db.update(
             """
-            INSERT INTO sykepengegrunnlag (id, sykepengegrunnlag, opprettet_av_nav_ident, opprettet, oppdatert)
-            VALUES (:id, :sykepengegrunnlag, :opprettet_av_nav_ident, :opprettet, :oppdatert)
+            INSERT INTO sykepengegrunnlag (id, sykepengegrunnlag, opprettet_av_nav_ident, opprettet, oppdatert, opprettet_for_behandling)
+            VALUES (:id, :sykepengegrunnlag, :opprettet_av_nav_ident, :opprettet, :oppdatert, :opprettet_for_behandling)
             """.trimIndent(),
             "id" to id,
             "sykepengegrunnlag" to sykepengegrunnlagJson,
             "opprettet_av_nav_ident" to saksbehandler.navIdent,
             "opprettet" to nå,
             "oppdatert" to nå,
+            "opprettet_for_behandling" to opprettetForBehandling,
         )
 
         return hentSykepengegrunnlag(id)!!
@@ -149,6 +152,7 @@ class SykepengegrunnlagDaoPg private constructor(
             opprettet = opprettet,
             oppdatert = oppdatert,
             sammenlikningsgrunnlag = sammenlikningsgrunnlag,
+            opprettetForBehandling = row.uuid("opprettet_for_behandling"),
         )
     }
 }

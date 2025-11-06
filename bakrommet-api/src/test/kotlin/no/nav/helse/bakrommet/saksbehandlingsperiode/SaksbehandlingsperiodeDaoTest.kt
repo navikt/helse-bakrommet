@@ -200,7 +200,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                 totaltInntektsgrunnlag = InntektbeløpDto.Årlig(540000.0),
                 næringsdel = null,
             )
-        val lagretGrunnlag = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
+        val lagretGrunnlag = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, id)
 
         // Oppdater sykepengegrunnlag_id med gyldig ID
         dao.oppdaterSykepengegrunnlagId(id, lagretGrunnlag.id)

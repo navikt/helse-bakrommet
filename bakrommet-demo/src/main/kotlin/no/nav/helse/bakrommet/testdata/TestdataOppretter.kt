@@ -18,7 +18,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
         .forEach { testperson ->
             db.personDao.opprettPerson(
                 naturligIdent = testperson.fnr,
-                spilleromId = testperson.spilleromId!!,
+                spilleromId = testperson.spilleromId,
             )
 
             // Opprett mapping fra søknad-ID (string) til UUID

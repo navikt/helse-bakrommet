@@ -52,7 +52,7 @@ class SykepengegrunnlagBeregningHjelper(
         } else {
             if (sykepengegrunnlag != null) {
                 // Lagre nytt sykepengegrunnlag
-                val lagret = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler)
+                val lagret = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, periode.id)
                 // Knytt til saksbehandlingsperiode
                 saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(periode.id, lagret.id)
                 lagret

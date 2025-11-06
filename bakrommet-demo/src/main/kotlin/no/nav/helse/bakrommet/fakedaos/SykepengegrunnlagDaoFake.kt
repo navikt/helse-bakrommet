@@ -15,6 +15,7 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
     override fun lagreSykepengegrunnlag(
         sykepengegrunnlag: Sykepengegrunnlag,
         saksbehandler: Bruker,
+        opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord {
         val id = UUID.randomUUID()
         val nå = Instant.now()
@@ -26,6 +27,7 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
                 opprettet = nå,
                 oppdatert = nå,
                 sammenlikningsgrunnlag = null,
+                opprettetForBehandling = opprettetForBehandling,
             )
         storage[id] = record
         return record
