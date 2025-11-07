@@ -18,7 +18,7 @@ class SykepengegrunnlagService(
     suspend fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? =
         db.nonTransactional {
             saksbehandlingsperiodeDao.hentPeriode(referanse, krav = null).sykepengegrunnlagId?.let { sykepengegrunnlagId ->
-                sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)?.let { record ->
+                sykepengegrunnlagDao.finnSykepengegrunnlag(sykepengegrunnlagId)?.let { record ->
                     SykepengegrunnlagResponse(
                         sykepengegrunnlag = record.sykepengegrunnlag,
                         sammenlikningsgrunnlag = record.sammenlikningsgrunnlag,

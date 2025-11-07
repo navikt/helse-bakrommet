@@ -33,7 +33,7 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
         return record
     }
 
-    override fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? = storage[sykepengegrunnlagId]
+    override fun finnSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? = storage[sykepengegrunnlagId]
 
     override fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,

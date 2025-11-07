@@ -98,14 +98,6 @@ class YrkesaktivitetService(
                     refusjonsdata = null,
                 )
 
-            // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            beregningDao.slettBeregning(ref.periodeUUID)
-
-            // TODO vi må håndtere dette annerledes når vi forlenger og arver sykepengegrunnlag
-            periode.sykepengegrunnlagId?.let {
-                sykepengegrunnlagDao.slettSykepengegrunnlag(it)
-            }
-
             inntektsforhold
         }
 
@@ -114,13 +106,23 @@ class YrkesaktivitetService(
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
     ) {
-        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.nonTransactional {
-            yrkesaktivitetDao.oppdaterKategorisering(inntektsforhold, kategorisering)
+            yrkesaktivitetDao.oppdaterKategoriseringOgSlettInntektData(yrkesaktivtet, kategorisering)
 
+            // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
             // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
-            // TODO slett sp grunnlag fra ny sykepengegrunnlagdao
+            // Vi må alltid beregne på nytt når kategorisering endres
             beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+
+            // hvis sykepengegrunnlaget eies av denne perioden, slett det
+            val periode = saksbehandlingsperiodeDao.hentPeriode(ref.saksbehandlingsperiodeReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+            periode.sykepengegrunnlagId?.let { sykepengegrunnlagId ->
+                val spgRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)
+                if (spgRecord.opprettetForBehandling == periode.id) {
+                    sykepengegrunnlagDao.slettSykepengegrunnlag(sykepengegrunnlagId)
+                }
+            }
         }
     }
 

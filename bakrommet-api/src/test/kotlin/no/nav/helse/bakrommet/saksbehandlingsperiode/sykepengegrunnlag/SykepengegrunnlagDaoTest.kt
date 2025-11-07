@@ -63,7 +63,7 @@ class SykepengegrunnlagDaoTest {
         // Verifiser at opprettet og oppdatert er like ved opprettelse
         assertEquals(lagretGrunnlag.opprettet, lagretGrunnlag.oppdatert)
 
-        val hentetGrunnlag = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
+        val hentetGrunnlag = dao.finnSykepengegrunnlag(lagretGrunnlag.id)
         assertEquals(lagretGrunnlag.id, hentetGrunnlag!!.id)
         assertEquals(lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
     }
@@ -145,14 +145,14 @@ class SykepengegrunnlagDaoTest {
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
 
         // Verifiser at grunnlaget finnes
-        val hentetFørSletting = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
+        val hentetFørSletting = dao.finnSykepengegrunnlag(lagretGrunnlag.id)
         assertEquals(540000.0, hentetFørSletting!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
 
         // Slett grunnlaget
         dao.slettSykepengegrunnlag(lagretGrunnlag.id)
 
         // Verifiser at grunnlaget er slettet
-        val hentetEtterSletting = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
+        val hentetEtterSletting = dao.finnSykepengegrunnlag(lagretGrunnlag.id)
         assertNull(hentetEtterSletting)
     }
 
@@ -161,7 +161,7 @@ class SykepengegrunnlagDaoTest {
         val dao = SykepengegrunnlagDaoPg(dataSource)
         val ikkeEksisterendeId = UUID.randomUUID()
 
-        val grunnlag = dao.hentSykepengegrunnlag(ikkeEksisterendeId)
+        val grunnlag = dao.finnSykepengegrunnlag(ikkeEksisterendeId)
 
         assertNull(grunnlag)
     }
@@ -182,7 +182,7 @@ class SykepengegrunnlagDaoTest {
             )
 
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
-        val hentetGrunnlag = dao.hentSykepengegrunnlag(lagretGrunnlag.id)
+        val hentetGrunnlag = dao.finnSykepengegrunnlag(lagretGrunnlag.id)
 
         // Verifiser at alle felter er korrekt deserialisert
         assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag!!.grunnbeløp.beløp)

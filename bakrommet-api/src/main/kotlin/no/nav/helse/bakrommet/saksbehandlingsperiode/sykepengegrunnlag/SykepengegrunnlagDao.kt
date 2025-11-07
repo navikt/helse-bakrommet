@@ -17,7 +17,11 @@ interface SykepengegrunnlagDao {
         opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord
 
-    fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord?
+    fun finnSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord?
+
+    fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord =
+        finnSykepengegrunnlag(sykepengegrunnlagId)
+            ?: throw IllegalArgumentException("Fant ikke sykepengegrunnlag for id $sykepengegrunnlagId")
 
     fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,
@@ -60,10 +64,10 @@ class SykepengegrunnlagDaoPg private constructor(
             "opprettet_for_behandling" to opprettetForBehandling,
         )
 
-        return hentSykepengegrunnlag(id)!!
+        return finnSykepengegrunnlag(id)!!
     }
 
-    override fun hentSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? =
+    override fun finnSykepengegrunnlag(sykepengegrunnlagId: UUID): SykepengegrunnlagDbRecord? =
         db
             .list(
                 """
@@ -93,14 +97,14 @@ class SykepengegrunnlagDaoPg private constructor(
             "oppdatert" to nå,
         )
 
-        return hentSykepengegrunnlag(sykepengegrunnlagId)!!
+        return finnSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
     override fun oppdaterSammenlikningsgrunnlag(
         sykepengegrunnlagId: UUID,
         sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     ): SykepengegrunnlagDbRecord {
-        require(hentSykepengegrunnlag(sykepengegrunnlagId)!!.sammenlikningsgrunnlag == null)
+        require(finnSykepengegrunnlag(sykepengegrunnlagId)!!.sammenlikningsgrunnlag == null)
 
         val nå = java.time.Instant.now()
         val sammenlikningsgrunnlagJson = sammenlikningsgrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }
@@ -116,7 +120,7 @@ class SykepengegrunnlagDaoPg private constructor(
             "oppdatert" to nå,
         )
 
-        return hentSykepengegrunnlag(sykepengegrunnlagId)!!
+        return finnSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
     override fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {

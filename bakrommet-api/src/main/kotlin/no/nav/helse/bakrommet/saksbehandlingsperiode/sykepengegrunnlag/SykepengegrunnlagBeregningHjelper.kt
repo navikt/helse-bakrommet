@@ -36,7 +36,7 @@ class SykepengegrunnlagBeregningHjelper(
 
         // Hent sykepengegrunnlag
         val eksisterendeSykepengegrunnlag =
-            periode.sykepengegrunnlagId?.let { sykepengegrunnlagDao.hentSykepengegrunnlag(it) }
+            periode.sykepengegrunnlagId?.let { sykepengegrunnlagDao.finnSykepengegrunnlag(it) }
 
         val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
 

@@ -56,7 +56,7 @@ class InntektService(
                 )
 
             if (periode.sykepengegrunnlagId != null) {
-                val spg = sykepengegrunnlagDao.hentSykepengegrunnlag(periode.sykepengegrunnlagId)!!
+                val spg = sykepengegrunnlagDao.finnSykepengegrunnlag(periode.sykepengegrunnlagId)!!
                 if (spg.opprettetForBehandling != periode.id) {
                     throw InputValideringException("Gjeldende sykepengegrunnlag er fastsatt på en tidligere saksbehandlingsperiode")
                 }

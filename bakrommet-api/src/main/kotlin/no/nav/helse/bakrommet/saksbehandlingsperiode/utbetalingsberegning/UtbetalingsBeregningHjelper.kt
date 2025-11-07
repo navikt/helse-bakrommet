@@ -36,7 +36,7 @@ class UtbetalingsBeregningHjelper(
             personDao.hentNaturligIdent(periode.spilleromPersonId)
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
-            sykepengegrunnlagDao.hentSykepengegrunnlag(periode.sykepengegrunnlagId ?: return)?.sykepengegrunnlag ?: return
+            sykepengegrunnlagDao.finnSykepengegrunnlag(periode.sykepengegrunnlagId ?: return)?.sykepengegrunnlag ?: return
 
         // Hent inntektsforhold
         val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)

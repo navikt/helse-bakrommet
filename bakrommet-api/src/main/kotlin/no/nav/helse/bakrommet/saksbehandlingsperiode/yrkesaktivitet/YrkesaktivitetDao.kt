@@ -115,7 +115,7 @@ interface YrkesaktivitetDao {
 
     fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord>
 
-    fun oppdaterKategorisering(
+    fun oppdaterKategoriseringOgSlettInntektData(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord
@@ -283,13 +283,13 @@ class YrkesaktivitetDaoPg private constructor(
     /**
      * Oppdaterer kategorisering med type-sikker sealed class.
      */
-    override fun oppdaterKategorisering(
+    override fun oppdaterKategoriseringOgSlettInntektData(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord {
         db.update(
             """
-            update yrkesaktivitet set kategorisering = :kategorisering where id = :id
+            update yrkesaktivitet set kategorisering = :kategorisering, inntekt_data=null, inntekt_request=null where id = :id
             """.trimIndent(),
             "id" to yrkesaktivitetDbRecord.id,
             "kategorisering" to kategorisering.serialisertTilString(),
