@@ -19,3 +19,8 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: deploy/topics/spillerom-behandlinger-topic-dev.yaml
+      - name: Deploy spillerom-utbetalinger-topic topic til dev-gcp
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/topics/sykepenger-spillerom-utbetalinger-topic-dev.yaml
