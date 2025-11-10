@@ -9,7 +9,7 @@ import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.godkjenn
-import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDto
+import no.nav.helse.bakrommet.kafka.dto.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest

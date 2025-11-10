@@ -2,19 +2,19 @@ package no.nav.helse.bakrommet.fakedaos
 
 import no.nav.helse.bakrommet.kafka.KafkaMelding
 import no.nav.helse.bakrommet.kafka.OutboxDao
-import no.nav.helse.bakrommet.kafka.OutboxEntry
+import no.nav.helse.bakrommet.kafka.OutboxDbRecord
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 class OutboxDaoFake : OutboxDao {
     private val idGenerator = AtomicLong(1)
-    private val storage = ConcurrentHashMap<Long, OutboxEntry>()
+    private val storage = ConcurrentHashMap<Long, OutboxDbRecord>()
 
     override fun lagreTilOutbox(kafkaMelding: KafkaMelding) {
         val id = idGenerator.getAndIncrement()
         val entry =
-            OutboxEntry(
+            OutboxDbRecord(
                 id = id,
                 kafkaKey = kafkaMelding.kafkaKey,
                 kafkaPayload = kafkaMelding.kafkaPayload,
@@ -29,5 +29,5 @@ class OutboxDaoFake : OutboxDao {
         storage[id] = eksisterende.copy(publisert = Instant.now())
     }
 
-    override fun hentAlleUpubliserteEntries(): List<OutboxEntry> = storage.values.filter { it.publisert == null }.sortedBy { it.id }
+    override fun hentAlleUpubliserteEntries(): List<OutboxDbRecord> = storage.values.filter { it.publisert == null }.sortedBy { it.id }
 }

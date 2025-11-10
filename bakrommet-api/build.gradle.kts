@@ -6,6 +6,7 @@ dependencies {
     api(platform(project(":bakrommet-dependencies")))
 
     api(project(":bakrommet-common"))
+    api(project(":bakrommet-kafka-dto"))
     api(project(":bakrommet-client-pdl"))
     api(project(":bakrommet-client-aareg"))
     api(project(":bakrommet-client-ainntekt"))

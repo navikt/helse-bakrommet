@@ -1,13 +1,12 @@
 package no.nav.helse.bakrommet.kafka
 
-import com.fasterxml.jackson.annotation.JsonInclude
+import no.nav.helse.bakrommet.kafka.dto.SaksbehandlingsperiodeKafkaDto
+import no.nav.helse.bakrommet.kafka.dto.YrkesaktivitetKafkaDto
+import no.nav.helse.bakrommet.kafka.tilKafkaDto
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
@@ -16,9 +15,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.util.HashUtils
 import no.nav.helse.bakrommet.util.serialisertTilString
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.util.*
 
 interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val beregningDao: UtbetalingsberegningDao
@@ -78,7 +74,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                 opprettetAvNavn = periode.opprettetAvNavn,
                 fom = periode.fom,
                 tom = periode.tom,
-                status = periode.status,
+                status = periode.status.tilKafkaDto(),
                 beslutterNavIdent = periode.beslutterNavIdent,
                 skjæringstidspunkt = periode.skjæringstidspunkt,
                 yrkesaktiviteter = yrkesaktivitet.map { it.tilYrkesaktivitetKafkaDto() },
@@ -89,38 +85,3 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
         return KafkaMelding(hash, saksbehandlingsperiodeKafkaDto.serialisertTilString())
     }
 }
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class DagKafkaDto(
-    val dato: LocalDate,
-    val dagtype: Dagtype,
-    val refusjonØre: Int?,
-    val utbetalingØre: Int?,
-    val grad: Int?,
-    val totalGrad: Int?,
-    val avslåttBegrunnelse: List<String>? = null,
-    val andreYtelserBegrunnelse: List<String>? = null,
-    val kilde: Kilde?,
-)
-
-data class SaksbehandlingsperiodeKafkaDto(
-    val id: UUID,
-    val spilleromPersonId: String,
-    val fnr: String,
-    val opprettet: OffsetDateTime,
-    val opprettetAvNavIdent: String,
-    val opprettetAvNavn: String,
-    val fom: LocalDate,
-    val tom: LocalDate,
-    val status: SaksbehandlingsperiodeStatus,
-    val beslutterNavIdent: String?,
-    val skjæringstidspunkt: LocalDate?,
-    val yrkesaktiviteter: List<YrkesaktivitetKafkaDto>,
-)
-
-// TODO typ strengt når landet
-data class YrkesaktivitetKafkaDto(
-    val id: UUID,
-    val kategorisering: Map<String, String>,
-    val dagoversikt: List<DagKafkaDto>?,
-)

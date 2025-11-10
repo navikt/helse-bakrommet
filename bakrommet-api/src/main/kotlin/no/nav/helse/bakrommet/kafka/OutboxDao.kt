@@ -7,7 +7,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import java.time.Instant
 import javax.sql.DataSource
 
-data class OutboxEntry(
+data class OutboxDbRecord(
     val id: Long,
     val kafkaKey: String,
     val kafkaPayload: String,
@@ -25,7 +25,7 @@ interface OutboxDao {
 
     fun markerSomPublisert(id: Long)
 
-    fun hentAlleUpubliserteEntries(): List<OutboxEntry>
+    fun hentAlleUpubliserteEntries(): List<OutboxDbRecord>
 }
 
 class OutboxDaoPg private constructor(
@@ -60,7 +60,7 @@ class OutboxDaoPg private constructor(
         )
     }
 
-    override fun hentAlleUpubliserteEntries(): List<OutboxEntry> =
+    override fun hentAlleUpubliserteEntries(): List<OutboxDbRecord> =
         db.list(
             """
             select id, kafka_key, kafka_payload, opprettet, publisert
@@ -69,7 +69,7 @@ class OutboxDaoPg private constructor(
             order by id
             """.trimIndent(),
         ) { row ->
-            OutboxEntry(
+            OutboxDbRecord(
                 id = row.long("id"),
                 kafkaKey = row.string("kafka_key"),
                 kafkaPayload = row.string("kafka_payload"),
