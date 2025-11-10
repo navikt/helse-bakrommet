@@ -139,6 +139,7 @@ fun main() {
         routing {
             demoBrukerRoute()
             demoTestdataRoute()
+            demoOutboxRoute()
             authenticate("manual") {
                 setupRoutes(services, clienter)
             }
