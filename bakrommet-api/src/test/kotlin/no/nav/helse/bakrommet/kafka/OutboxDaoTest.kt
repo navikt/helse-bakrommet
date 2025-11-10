@@ -8,7 +8,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class OutboxDaoTest {
-    val dataSource = TestDataSource.dbModule.dataSource
+    private val dataSource = TestDataSource.dbModule.dataSource
+
+    private companion object {
+        private const val STANDARD_TOPIC = "speilvendt.spillerom-behandlinger"
+        private const val ANNEN_TOPIC = "speilvendt.spillerom-andre-meldinger"
+    }
 
     @BeforeEach
     fun setOpp() {
@@ -21,12 +26,13 @@ class OutboxDaoTest {
         val kafkaKey = "test-key-123"
         val kafkaPayload = """{"type":"test","data":"some data"}"""
 
-        dao.lagreTilOutbox(KafkaMelding(kafkaKey, kafkaPayload))
+        dao.lagreTilOutbox(KafkaMelding(STANDARD_TOPIC, kafkaKey, kafkaPayload))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(1, upubliserteEntries.size)
 
         val entry = upubliserteEntries.first()
+        assertEquals(STANDARD_TOPIC, entry.topic)
         assertEquals(kafkaKey, entry.kafkaKey)
         assertEquals(kafkaPayload, entry.kafkaPayload)
         assertNotNull(entry.opprettet)
@@ -37,21 +43,28 @@ class OutboxDaoTest {
     fun `lagrer flere entries og henter dem i riktig rekkefølge`() {
         val dao = OutboxDaoPg(dataSource)
 
-        val entry1 = Pair("key-1", """{"order":1}""")
-        val entry2 = Pair("key-2", """{"order":2}""")
-        val entry3 = Pair("key-3", """{"order":3}""")
+        val entries =
+            listOf(
+                Triple(STANDARD_TOPIC, "key-1", """{"order":1}"""),
+                Triple(ANNEN_TOPIC, "key-2", """{"order":2}"""),
+                Triple(STANDARD_TOPIC, "key-3", """{"order":3}"""),
+            )
 
-        dao.lagreTilOutbox(KafkaMelding(entry1.first, entry1.second))
-        dao.lagreTilOutbox(KafkaMelding(entry2.first, entry2.second))
-        dao.lagreTilOutbox(KafkaMelding(entry3.first, entry3.second))
+        entries.forEach { (topic, key, payload) ->
+            dao.lagreTilOutbox(KafkaMelding(topic, key, payload))
+        }
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(3, upubliserteEntries.size)
 
-        // Verify they are ordered by id (sequential)
         assertEquals("key-1", upubliserteEntries[0].kafkaKey)
+        assertEquals(STANDARD_TOPIC, upubliserteEntries[0].topic)
+
         assertEquals("key-2", upubliserteEntries[1].kafkaKey)
+        assertEquals(ANNEN_TOPIC, upubliserteEntries[1].topic)
+
         assertEquals("key-3", upubliserteEntries[2].kafkaKey)
+        assertEquals(STANDARD_TOPIC, upubliserteEntries[2].topic)
     }
 
     @Test
@@ -67,7 +80,7 @@ class OutboxDaoTest {
         val kafkaKey = "test-key-publish"
         val kafkaPayload = """{"status":"ready"}"""
 
-        dao.lagreTilOutbox(KafkaMelding(kafkaKey, kafkaPayload))
+        dao.lagreTilOutbox(KafkaMelding(STANDARD_TOPIC, kafkaKey, kafkaPayload))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(1, upubliserteEntries.size)
@@ -88,8 +101,8 @@ class OutboxDaoTest {
         val kafkaKey2 = "key-2"
         val kafkaPayload2 = """{"message":"second"}"""
 
-        dao.lagreTilOutbox(KafkaMelding(kafkaKey1, kafkaPayload1))
-        dao.lagreTilOutbox(KafkaMelding(kafkaKey2, kafkaPayload2))
+        dao.lagreTilOutbox(KafkaMelding(STANDARD_TOPIC, kafkaKey1, kafkaPayload1))
+        dao.lagreTilOutbox(KafkaMelding(ANNEN_TOPIC, kafkaKey2, kafkaPayload2))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
         assertEquals(2, upubliserteEntries.size)
@@ -102,6 +115,7 @@ class OutboxDaoTest {
 
         val gjenværendeEntry = upubliserteEtterPublisering.first()
         assertEquals(kafkaKey2, gjenværendeEntry.kafkaKey)
+        assertEquals(ANNEN_TOPIC, gjenværendeEntry.topic)
         assertEquals(kafkaPayload2, gjenværendeEntry.kafkaPayload)
         assertNull(gjenværendeEntry.publisert)
     }

@@ -16,10 +16,11 @@ class OutboxDaoFake : OutboxDao {
         val entry =
             OutboxDbRecord(
                 id = id,
-                kafkaKey = kafkaMelding.kafkaKey,
-                kafkaPayload = kafkaMelding.kafkaPayload,
+                kafkaKey = kafkaMelding.key,
+                kafkaPayload = kafkaMelding.payload,
                 opprettet = Instant.now(),
                 publisert = null,
+                topic = kafkaMelding.topic,
             )
         storage[id] = entry
     }

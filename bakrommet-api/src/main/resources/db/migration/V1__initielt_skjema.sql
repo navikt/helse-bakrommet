@@ -34,9 +34,10 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
     individuell_begrunnelse TEXT                        NULL
 );
 
-ALTER TABLE sykepengegrunnlag ADD CONSTRAINT fk_sykepengegrunnlag_behandling
-    FOREIGN KEY (opprettet_for_behandling)
-    REFERENCES saksbehandlingsperiode (id);
+ALTER TABLE sykepengegrunnlag
+    ADD CONSTRAINT fk_sykepengegrunnlag_behandling
+        FOREIGN KEY (opprettet_for_behandling)
+            REFERENCES saksbehandlingsperiode (id);
 
 
 CREATE TABLE IF NOT EXISTS vurdert_vilkaar
@@ -102,11 +103,12 @@ CREATE TABLE IF NOT EXISTS utbetalingsberegning
 
 CREATE TABLE IF NOT EXISTS kafka_outbox
 (
-    id            BIGSERIAL PRIMARY KEY,
-    kafka_key     TEXT                        NOT NULL,
-    kafka_payload TEXT                        NOT NULL,
-    opprettet     TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    publisert     TIMESTAMP(6) WITH TIME ZONE NULL
+    id        BIGSERIAL PRIMARY KEY,
+    key       TEXT                        NOT NULL,
+    payload   TEXT                        NOT NULL,
+    topic     TEXT                        NOT NULL,
+    opprettet TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    publisert TIMESTAMP(6) WITH TIME ZONE NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_kafka_outbox_unpublished

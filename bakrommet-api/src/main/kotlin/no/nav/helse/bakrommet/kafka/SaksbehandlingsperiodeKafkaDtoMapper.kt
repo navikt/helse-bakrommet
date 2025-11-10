@@ -82,6 +82,6 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
 
         // Lag sha256 hash av spilleromPersonId som key
         val hash = HashUtils.sha256(periode.spilleromPersonId)
-        return KafkaMelding(hash, saksbehandlingsperiodeKafkaDto.serialisertTilString())
+        return KafkaMelding(topic = "sdfdf", hash, saksbehandlingsperiodeKafkaDto.serialisertTilString())
     }
 }

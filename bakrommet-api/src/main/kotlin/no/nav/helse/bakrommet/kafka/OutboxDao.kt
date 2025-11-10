@@ -12,12 +12,14 @@ data class OutboxDbRecord(
     val kafkaKey: String,
     val kafkaPayload: String,
     val opprettet: Instant,
+    val topic: String,
     val publisert: Instant?,
 )
 
 data class KafkaMelding(
-    val kafkaKey: String,
-    val kafkaPayload: String,
+    val topic: String,
+    val key: String,
+    val payload: String,
 )
 
 interface OutboxDao {
@@ -38,13 +40,14 @@ class OutboxDaoPg private constructor(
         db.update(
             """
             insert into kafka_outbox
-                (kafka_key, kafka_payload, opprettet)
+                (key, payload, opprettet, topic)
             values
-                (:kafka_key, :kafka_payload, :opprettet)
+                (:key, :payload, :opprettet, :topic)
             """.trimIndent(),
-            "kafka_key" to kafkaMelding.kafkaKey,
-            "kafka_payload" to kafkaMelding.kafkaPayload,
+            "key" to kafkaMelding.key,
+            "payload" to kafkaMelding.payload,
             "opprettet" to Instant.now(),
+            "topic" to kafkaMelding.topic,
         )
     }
 
@@ -63,7 +66,7 @@ class OutboxDaoPg private constructor(
     override fun hentAlleUpubliserteEntries(): List<OutboxDbRecord> =
         db.list(
             """
-            select id, kafka_key, kafka_payload, opprettet, publisert
+            select id, key, payload, opprettet, publisert, topic
             from kafka_outbox
             where publisert is null
             order by id
@@ -71,10 +74,11 @@ class OutboxDaoPg private constructor(
         ) { row ->
             OutboxDbRecord(
                 id = row.long("id"),
-                kafkaKey = row.string("kafka_key"),
-                kafkaPayload = row.string("kafka_payload"),
+                kafkaKey = row.string("key"),
+                kafkaPayload = row.string("payload"),
                 opprettet = row.instant("opprettet"),
                 publisert = row.instantOrNull("publisert"),
+                topic = row.string("topic"),
             )
         }
 }

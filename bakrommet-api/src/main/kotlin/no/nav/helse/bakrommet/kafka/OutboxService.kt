@@ -33,7 +33,7 @@ class OutboxService(
 
                     kafkaProducer
                         .send(
-                            topic = "speilvendt.spillerom-behandlinger",
+                            topic = entry.topic,
                             key = entry.kafkaKey,
                             value = entry.kafkaPayload,
                             headers =

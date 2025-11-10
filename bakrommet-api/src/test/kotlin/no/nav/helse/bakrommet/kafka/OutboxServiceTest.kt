@@ -14,6 +14,11 @@ class OutboxServiceTest {
     private lateinit var fakeKafkaProducer: FakeKafkaProducer
     private lateinit var outboxService: OutboxService
 
+    private companion object {
+        private const val SPILLEROM_BEHANDLINGER_TOPIC = "speilvendt.spillerom-behandlinger"
+        private const val UTBETALINGER_TOPIC = "speilvendt.sykepenger-spillerom-utbetalinger"
+    }
+
     @BeforeEach
     fun setup() {
         TestDataSource.resetDatasource()
@@ -32,8 +37,9 @@ class OutboxServiceTest {
         // Gitt: En upublisert melding i outbox
         val kafkaMelding =
             KafkaMelding(
-                kafkaKey = "test-key-123",
-                kafkaPayload = """{"type": "test", "data": "test-data"}""",
+                topic = SPILLEROM_BEHANDLINGER_TOPIC,
+                key = "test-key-123",
+                payload = """{"type": "test", "data": "test-data"}""",
             )
         outboxDao.lagreTilOutbox(kafkaMelding)
 
@@ -45,7 +51,7 @@ class OutboxServiceTest {
         assertEquals(1, fakeKafkaProducer.getSentMessages().size)
 
         val sentMessage = fakeKafkaProducer.getSentMessages().first()
-        assertEquals("speilvendt.spillerom-behandlinger", sentMessage.topic)
+        assertEquals(SPILLEROM_BEHANDLINGER_TOPIC, sentMessage.topic)
         assertEquals("test-key-123", sentMessage.key)
         assertEquals("""{"type": "test", "data": "test-data"}""", sentMessage.value)
 
@@ -61,9 +67,9 @@ class OutboxServiceTest {
     @Test
     fun `skal håndtere flere upubliserte meldinger`() {
         // Gitt: Flere upubliserte meldinger
-        outboxDao.lagreTilOutbox(KafkaMelding("key1", "payload1"))
-        outboxDao.lagreTilOutbox(KafkaMelding("key2", "payload2"))
-        outboxDao.lagreTilOutbox(KafkaMelding("key3", "payload3"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key1", "payload1"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key2", "payload2"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key3", "payload3"))
 
         // Når: OutboxService prosesserer meldingene
         val antallProsessert = outboxService.prosesserOutbox()
@@ -74,6 +80,19 @@ class OutboxServiceTest {
 
         val upubliserteMeldinger = outboxDao.hentAlleUpubliserteEntries()
         assertTrue(upubliserteMeldinger.isEmpty())
+    }
+
+    @Test
+    fun `skal støtte flere forskjellige topic`() {
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key-standard", "payload-standard"))
+        outboxDao.lagreTilOutbox(KafkaMelding(UTBETALINGER_TOPIC, "key-annen", "payload-annen"))
+
+        val antallProsessert = outboxService.prosesserOutbox()
+
+        assertEquals(2, antallProsessert)
+        val sentMessages = fakeKafkaProducer.getSentMessages()
+        assertEquals(listOf(SPILLEROM_BEHANDLINGER_TOPIC, UTBETALINGER_TOPIC), sentMessages.map { it.topic })
+        assertEquals(listOf("key-standard", "key-annen"), sentMessages.map { it.key })
     }
 
     @Test
@@ -89,7 +108,7 @@ class OutboxServiceTest {
     @Test
     fun `skal håndtere feil ved Kafka-sending uten å markere som publisert`() {
         // Gitt: En upublisert melding og en feilende Kafka producer
-        outboxDao.lagreTilOutbox(KafkaMelding("test-key", "test-payload"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "test-key", "test-payload"))
 
         val feilendeProducer =
             object : KafkaProducerInterface {
@@ -119,9 +138,9 @@ class OutboxServiceTest {
     @Test
     fun `skal prosessere meldinger i riktig rekkefølge basert på id`() {
         // Gitt: Meldinger lagt til i tilfeldig rekkefølge
-        outboxDao.lagreTilOutbox(KafkaMelding("key3", "payload3"))
-        outboxDao.lagreTilOutbox(KafkaMelding("key1", "payload1"))
-        outboxDao.lagreTilOutbox(KafkaMelding("key2", "payload2"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key3", "payload3"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key1", "payload1"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key2", "payload2"))
 
         // Når: OutboxService prosesserer meldingene
         outboxService.prosesserOutbox()
