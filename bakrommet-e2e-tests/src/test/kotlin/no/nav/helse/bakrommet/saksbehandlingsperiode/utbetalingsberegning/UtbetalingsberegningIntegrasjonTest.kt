@@ -101,9 +101,9 @@ class UtbetalingsberegningIntegrasjonTest {
 
             godkjenn(periode, tokenBeslutter)
             val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()
-            upubliserteEntries.size `should equal` 2
+            upubliserteEntries.size `should equal` 3
 
-            val kafkaPayload = upubliserteEntries.last().kafkaPayload.tilSaksbehandlingsperiodeKafkaDto()
+            val kafkaPayload = upubliserteEntries[1].kafkaPayload.tilSaksbehandlingsperiodeKafkaDto()
             // TODO: Kafka mapping av dagoversikt er ikke implementert ennå
             // kafkaPayload.yrkesaktiviteter.single().dagoversikt skal inkludere beregningsdata
             kafkaPayload.yrkesaktiviteter.single().dagoversikt `should equal` emptyList()

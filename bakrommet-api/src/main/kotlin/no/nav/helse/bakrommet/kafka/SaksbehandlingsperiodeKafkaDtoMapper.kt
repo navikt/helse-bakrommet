@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.kafka
 
 import no.nav.helse.bakrommet.kafka.dto.SaksbehandlingsperiodeKafkaDto
+import no.nav.helse.bakrommet.kafka.dto.SaksbehandlingsperiodeStatusKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.YrkesaktivitetKafkaDto
-import no.nav.helse.bakrommet.kafka.tilKafkaDto
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeRefer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
@@ -30,16 +31,37 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: Saksbehandlingspe
 }
 
 fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: SaksbehandlingsperiodeReferanse) {
-    val kafkamelding =
+    val saksbehandlingsperiodeKafkaDtoMapper =
         SaksbehandlingsperiodeKafkaDtoMapper(
             beregningDao = beregningDao,
             saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
             sykepengegrunnlagDao = sykepengegrunnlagDao,
             yrkesaktivitetDao = yrkesaktivitetDao,
             personDao = personDao,
-        ).genererKafkaMelding(referanse)
-    outboxDao.lagreTilOutbox(kafkamelding)
+        )
+    val kafkameldingMedData =
+        saksbehandlingsperiodeKafkaDtoMapper.genererKafkaMelding(referanse)
+    outboxDao.lagreTilOutbox(kafkameldingMedData.melding)
+    if (kafkameldingMedData.saksbehandlingsperiode.status == SaksbehandlingsperiodeStatusKafkaDto.GODKJENT) {
+        // TODO sjekk at det faktisk er penger å sende
+
+        kafkameldingMedData.beregning?.let { beregning ->
+            outboxDao.lagreTilOutbox(
+                KafkaMelding(
+                    topic = "speilvendt.sykepenger-spillerom-utbetalinger",
+                    key = kafkameldingMedData.melding.key,
+                    payload = beregning.beregningData.oppdrag.serialisertTilString(),
+                ),
+            )
+        }
+    }
 }
+
+data class KafkaMeldingMedData(
+    val melding: KafkaMelding,
+    val saksbehandlingsperiode: SaksbehandlingsperiodeKafkaDto,
+    val beregning: BeregningResponse?,
+)
 
 class SaksbehandlingsperiodeKafkaDtoMapper(
     private val beregningDao: UtbetalingsberegningDao,
@@ -48,7 +70,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
 ) {
-    fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): KafkaMelding {
+    fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): KafkaMeldingMedData {
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, null)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent =
@@ -82,6 +104,16 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
 
         // Lag sha256 hash av spilleromPersonId som key
         val hash = HashUtils.sha256(periode.spilleromPersonId)
-        return KafkaMelding(topic = "speilvendt.spillerom-behandlinger", hash, saksbehandlingsperiodeKafkaDto.serialisertTilString())
+        val kafkaMelding =
+            KafkaMelding(
+                topic = "speilvendt.spillerom-behandlinger",
+                hash,
+                saksbehandlingsperiodeKafkaDto.serialisertTilString(),
+            )
+        return KafkaMeldingMedData(
+            melding = kafkaMelding,
+            saksbehandlingsperiode = saksbehandlingsperiodeKafkaDto,
+            beregning = beregning,
+        )
     }
 }
