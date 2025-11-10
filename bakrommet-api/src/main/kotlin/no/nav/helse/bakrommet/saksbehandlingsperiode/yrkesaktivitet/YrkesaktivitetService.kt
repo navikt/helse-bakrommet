@@ -8,6 +8,9 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringType
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringerDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregnSykepengegrunnlagOgUtbetaling
@@ -33,6 +36,7 @@ interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
     override val beregningDao: UtbetalingsberegningDao
     override val personDao: PersonDao
     override val sykepengegrunnlagDao: SykepengegrunnlagDao
+    val saksbehandlingsperiodeEndringerDao: SaksbehandlingsperiodeEndringerDao
 }
 
 typealias DagerSomSkalOppdateres = JsonNode
@@ -107,6 +111,9 @@ class YrkesaktivitetService(
         saksbehandler: Bruker,
     ) {
         val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        val gammelKategorisering = yrkesaktivtet.kategorisering
+        val hovedkategoriseringEndret = hovedkategoriseringEndret(gammelKategorisering, kategorisering)
+
         db.nonTransactional {
             yrkesaktivitetDao.oppdaterKategoriseringOgSlettInntektData(yrkesaktivtet, kategorisering)
 
@@ -123,8 +130,37 @@ class YrkesaktivitetService(
                     sykepengegrunnlagDao.slettSykepengegrunnlag(sykepengegrunnlagId)
                 }
             }
+
+            // Legg til endring i historikk hvis hovedkategorisering endrer seg
+            if (hovedkategoriseringEndret) {
+                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    SaksbehandlingsperiodeEndring(
+                        saksbehandlingsperiodeId = periode.id,
+                        status = periode.status,
+                        beslutterNavIdent = periode.beslutterNavIdent,
+                        endretTidspunkt = OffsetDateTime.now(),
+                        endretAvNavIdent = saksbehandler.navIdent,
+                        endringType = SaksbehandlingsperiodeEndringType.OPPDATERT_YRKESAKTIVITET_KATEGORISERING,
+                        endringKommentar = "Endret fra ${hovedkategoriseringNavn(gammelKategorisering)} til ${hovedkategoriseringNavn(kategorisering)}",
+                    ),
+                )
+            }
         }
     }
+
+    private fun hovedkategoriseringEndret(
+        gammel: YrkesaktivitetKategorisering,
+        ny: YrkesaktivitetKategorisering,
+    ): Boolean = hovedkategoriseringNavn(gammel) != hovedkategoriseringNavn(ny)
+
+    private fun hovedkategoriseringNavn(kategorisering: YrkesaktivitetKategorisering): String =
+        when (kategorisering) {
+            is YrkesaktivitetKategorisering.Arbeidstaker -> "Arbeidstaker"
+            is YrkesaktivitetKategorisering.Frilanser -> "Frilanser"
+            is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> "Selvstendig næringsdrivende"
+            is YrkesaktivitetKategorisering.Inaktiv -> "Inaktiv"
+            is YrkesaktivitetKategorisering.Arbeidsledig -> "Arbeidsledig"
+        }
 
     suspend fun slettYrkesaktivitet(
         ref: YrkesaktivitetReferanse,

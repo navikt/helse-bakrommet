@@ -17,6 +17,7 @@ enum class SaksbehandlingsperiodeEndringType {
     GODKJENT,
     OPPDATERT_INDIVIDUELL_BEGRUNNELSE,
     OPPDATERT_SKJÆRINGSTIDSPUNKT,
+    OPPDATERT_YRKESAKTIVITET_KATEGORISERING,
 }
 
 data class SaksbehandlingsperiodeEndring(
