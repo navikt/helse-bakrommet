@@ -34,4 +34,14 @@ fun Route.demoBrukerRoute() {
         sessionsBrukere[sessionIdFraCookie] = valgtBruker
         call.respondText(valgtBruker.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
     }
+
+    post("/v1/demo/session/nullstill") {
+        val sessionIdFraCookie = call.sessions.get("bakrommet-demo-session") as String?
+        if (sessionIdFraCookie != null) {
+            sessionsDaoer.remove(sessionIdFraCookie)
+            sessionsBrukere.remove(sessionIdFraCookie)
+        }
+        call.sessions.clear("bakrommet-demo-session")
+        call.respond(HttpStatusCode.OK, "Session nullstilt")
+    }
 }
