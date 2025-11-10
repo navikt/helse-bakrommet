@@ -33,8 +33,13 @@ class SoknadDsl(
         type = SoknadstypeDTO.ARBEIDSTAKERE
     }
 
-    fun build(): SykepengesoknadDTO =
-        SykepengesoknadDTO(
+    fun build(): SykepengesoknadDTO {
+        val sykmeldingSkrevetDato = sykmeldingSkrevet ?: fom
+        val startSyketilfelleDato = startSyketilfelle ?: fom
+        val opprettetDato = opprettet ?: fom
+        val sendtNavDato = sendtNav ?: tom.plusDays(1)
+
+        return SykepengesoknadDTO(
             id = id,
             fnr = fnr,
             type = type,
@@ -52,11 +57,11 @@ class SoknadDsl(
                     }
                 },
             arbeidssituasjon = arbeidssituasjon,
-            sykmeldingSkrevet = sykmeldingSkrevet?.let { LocalDateTime.of(it, java.time.LocalTime.of(2, 0)) },
-            startSyketilfelle = startSyketilfelle,
+            sykmeldingSkrevet = LocalDateTime.of(sykmeldingSkrevetDato, java.time.LocalTime.of(2, 0)),
+            startSyketilfelle = startSyketilfelleDato,
             arbeidGjenopptatt = null,
-            opprettet = opprettet?.atStartOfDay() ?: LocalDate.now().atStartOfDay(),
-            sendtNav = sendtNav?.atStartOfDay(),
+            opprettet = opprettetDato.atStartOfDay(),
+            sendtNav = sendtNavDato.atStartOfDay(),
             sendtArbeidsgiver = sendtArbeidsgiver?.atStartOfDay(),
             soknadsperioder =
                 listOf(
@@ -84,6 +89,7 @@ class SoknadDsl(
             friskmeldt = null,
             opprinneligSendt = null,
         )
+    }
 }
 
 fun soknad(

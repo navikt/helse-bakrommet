@@ -43,15 +43,16 @@ fun sigrunÅr(
     fnr: String = "10419045026",
     år: Year = Year.of(2022),
     næring: Int = 350000,
+    lønnsinntekt: Int? = null,
 ) = """
     {"norskPersonidentifikator":"$fnr","inntektsaar":"$år",
     "pensjonsgivendeInntekt":
         [
             {"skatteordning":"FASTLAND","datoForFastsetting":"2025-06-24T07:32:48.777Z",
-            "pensjonsgivendeInntektAvLoennsinntekt":null,
+            "pensjonsgivendeInntektAvLoennsinntekt":"${lønnsinntekt?.toString() ?: "null"}",
             "pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel":null,
             "pensjonsgivendeInntektAvNaeringsinntekt":"$næring",
-            "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":"10000"}
+            "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":"null"}
         ]
     }    
     """.trimIndent()

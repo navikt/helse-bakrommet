@@ -38,8 +38,8 @@ class SelvstendigNæringsdrivendeScenarioTest {
                 Selvstendig(inntekt = SigrunInntekt(400000, 400000, 400000), dagoversikt = SykAlleDager()),
             ),
         ).run {
-            `skal ha sykepengegrunnlag`(462094.0)
-            `skal ha utbetaling`(14220)
+            `skal ha sykepengegrunnlag`(450823.0)
+            `skal ha utbetaling`(13870)
             `skal ikke ha sammenlikningsgrunnlag`()
         }
     }
@@ -51,8 +51,8 @@ class SelvstendigNæringsdrivendeScenarioTest {
                 Selvstendig(inntekt = SigrunInntekt(400000, 400000, 400000, 400000), dagoversikt = SykAlleDager()),
             ),
         ).run {
-            `skal ha sykepengegrunnlag`(462094.0)
-            `skal ha utbetaling`(14220)
+            `skal ha sykepengegrunnlag`(450823.0)
+            `skal ha utbetaling`(13870)
             `skal ikke ha sammenlikningsgrunnlag`()
         }
     }
@@ -64,8 +64,8 @@ class SelvstendigNæringsdrivendeScenarioTest {
                 Selvstendig(inntekt = SigrunInntekt(400000, 400000, 400000, null), dagoversikt = SykAlleDager()),
             ),
         ).run {
-            `skal ha sykepengegrunnlag`(484340.0)
-            `skal ha utbetaling`(14900)
+            `skal ha sykepengegrunnlag`(472527.0)
+            `skal ha utbetaling`(14540)
         }
     }
 
@@ -76,8 +76,8 @@ class SelvstendigNæringsdrivendeScenarioTest {
                 Selvstendig(inntekt = SigrunInntekt(400000, 400000, 0, 400000), dagoversikt = SykAlleDager()),
             ),
         ).run {
-            `skal ha sykepengegrunnlag`(311461.0)
-            `skal ha utbetaling`(9580)
+            `skal ha sykepengegrunnlag`(300190.0)
+            `skal ha utbetaling`(9240)
         }
     }
 }
