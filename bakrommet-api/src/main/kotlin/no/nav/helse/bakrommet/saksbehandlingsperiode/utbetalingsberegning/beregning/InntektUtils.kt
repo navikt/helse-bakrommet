@@ -12,13 +12,13 @@ import no.nav.helse.økonomi.Inntekt
 fun finnInntektForYrkesaktivitet(
     sykepengegrunnlag: Sykepengegrunnlag,
     yrkesaktivitet: Yrkesaktivitet,
-): Inntekt {
+): Inntekt? {
     // Hvis næringsdrivende og næringsdel, returner næringsdel.
     if (yrkesaktivitet.kategorisering is SelvstendigNæringsdrivende) {
         sykepengegrunnlag.næringsdel?.let {
             return it.næringsdel.tilInntekt()
         }
     }
-    requireNotNull(yrkesaktivitet.inntektData)
-    return yrkesaktivitet.inntektData.omregnetÅrsinntekt.tilInntekt()
+
+    return yrkesaktivitet.inntektData?.omregnetÅrsinntekt?.tilInntekt()
 }

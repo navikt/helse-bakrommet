@@ -71,9 +71,6 @@ fun beregnSykepengegrunnlag(
     val grunnbeløp6G = Grunnbeløp.`6G`.beløp(skjæringstidspunkt)
     val grunnbeløpVirkningstidspunkt = Grunnbeløp.virkningstidspunktFor(grunnbeløp)
 
-    val harFullInnntektsdata = yrkesaktiviteter.all { it.inntektData != null }
-    if (!harFullInnntektsdata) return null
-
     val næringsdrivende = yrkesaktiviteter.singleOrNone { it.kategorisering is SelvstendigNæringsdrivende }
 
     val kombinert = næringsdrivende != null && yrkesaktiviteter.size > 1
@@ -87,8 +84,12 @@ fun beregnSykepengegrunnlag(
             val andreYrkesaktiviteter =
                 yrkesaktiviteter
                     .filter { it.id != næringsdrivende.id }
-                    .map { it.inntektData!!.omregnetÅrsinntekt }
-                    .map { Inntekt.gjenopprett(it) }
+                    .map { it.inntektData?.omregnetÅrsinntekt }
+                    .map {
+                        it?.let {
+                            Inntekt.gjenopprett(it)
+                        } ?: Inntekt.INGEN
+                    }
             val sumAvArbeidsinntekt = andreYrkesaktiviteter.fold(Inntekt.INGEN) { acc, inntekt -> acc + inntekt }
 
             // Trekk arbeidsinntekt fra næringsdel
@@ -108,13 +109,13 @@ fun beregnSykepengegrunnlag(
             kombinert ->
                 yrkesaktiviteter
                     .filter { it.kategorisering !is SelvstendigNæringsdrivende }
-                    .map { it.inntektData!!.omregnetÅrsinntekt.tilInntekt() }
+                    .map { it.inntektData?.omregnetÅrsinntekt?.tilInntekt() ?: Inntekt.INGEN }
                     .summer()
                     .plus(næringsdel!!.næringsdel.tilInntekt())
 
             else ->
                 yrkesaktiviteter
-                    .map { it.inntektData!!.omregnetÅrsinntekt.tilInntekt() }
+                    .map { it.inntektData?.omregnetÅrsinntekt?.tilInntekt() ?: Inntekt.INGEN }
                     .summer()
         }
 

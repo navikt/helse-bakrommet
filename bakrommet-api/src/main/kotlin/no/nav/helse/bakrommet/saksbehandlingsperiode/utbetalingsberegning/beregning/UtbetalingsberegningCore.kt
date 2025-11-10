@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.hentDeknings
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
+import no.nav.helse.økonomi.Inntekt
 
 /**
  * Kjernefunksjoner for utbetalingsberegning - ren funksjonell tilnærming
@@ -36,7 +37,7 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
                 dekningsgrad = dekningsgrad.verdi,
                 input = input,
                 refusjonstidslinje = refusjonstidslinje,
-                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                fastsattÅrsinntekt = fastsattÅrsinntekt ?: Inntekt.INGEN,
             )
         }
 
