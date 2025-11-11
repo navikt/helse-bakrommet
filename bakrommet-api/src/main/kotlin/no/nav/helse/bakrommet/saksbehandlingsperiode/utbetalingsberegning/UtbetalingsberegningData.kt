@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
+import no.nav.helse.bakrommet.kafka.dto.SpilleromOppdragDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
@@ -53,17 +54,20 @@ data class YrkesaktivitetUtbetalingsberegningInnDto(
 
 data class BeregningData(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegning>,
-    val oppdrag: List<Oppdrag> = emptyList(),
+    val oppdrag: List<Oppdrag> = emptyList(), // TODO slett meg
+    val spilleromOppdrag: SpilleromOppdragDto,
 )
 
 data class BeregningDataUtDto(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegningUtDto>,
     val oppdrag: List<OppdragUtDto> = emptyList(),
+    val spilleromOppdrag: SpilleromOppdragDto,
 )
 
 data class BeregningDataInnDto(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegningInnDto>,
     val oppdrag: List<OppdragInnDto> = emptyList(),
+    val spilleromOppdrag: SpilleromOppdragDto,
 )
 
 data class BeregningResponse(

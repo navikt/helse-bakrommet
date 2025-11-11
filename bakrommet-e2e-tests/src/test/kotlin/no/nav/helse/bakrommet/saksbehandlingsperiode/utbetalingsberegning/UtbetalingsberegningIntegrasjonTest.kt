@@ -254,12 +254,14 @@ class UtbetalingsberegningIntegrasjonTest {
                         dekningsgrad = it.dekningsgrad,
                     )
                 },
+            spilleromOppdrag = spilleromOppdrag,
         )
     }
 
     private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto =
         BeregningDataInnDto(
             yrkesaktiviteter = yrkesaktiviteter.map { it.tilInnDto() },
+            spilleromOppdrag = spilleromOppdrag,
         )
 
     private fun YrkesaktivitetUtbetalingsberegningUtDto.tilInnDto(): YrkesaktivitetUtbetalingsberegningInnDto =

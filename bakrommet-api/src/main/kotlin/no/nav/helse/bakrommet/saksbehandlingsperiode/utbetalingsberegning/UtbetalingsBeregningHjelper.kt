@@ -1,6 +1,9 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.kafka.dto.OppdragDto
+import no.nav.helse.bakrommet.kafka.dto.SpilleromOppdragDto
+import no.nav.helse.bakrommet.kafka.dto.UtbetalingslinjeDto
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
@@ -59,7 +62,7 @@ class UtbetalingsBeregningHjelper(
         // Bygg oppdrag for hver yrkesaktivitet
         val oppdrag = byggOppdragFraBeregning(beregnet, yrkesaktiviteter, ident)
 
-        val beregningData = BeregningData(beregnet, oppdrag)
+        val beregningData = BeregningData(beregnet, oppdrag, oppdrag.tilSpilleromoppdrag())
 
         // Opprett response
         val beregningResponse =
@@ -79,6 +82,28 @@ class UtbetalingsBeregningHjelper(
         )
     }
 }
+
+private fun List<Oppdrag>.tilSpilleromoppdrag(): SpilleromOppdragDto =
+    SpilleromOppdragDto(
+        spilleromUtbetalingId = UUID.randomUUID().toString(),
+        oppdragDto = this.map { it.tilOppdragDto() },
+    )
+
+private fun Oppdrag.tilOppdragDto(): OppdragDto =
+    OppdragDto(
+        mottaker = this.mottaker,
+        fagområde = this.fagområde.verdi,
+        linjer =
+            this.linjer.map {
+                UtbetalingslinjeDto(
+                    fom = it.fom,
+                    tom = it.tom,
+                    beløp = it.beløp,
+                    grad = it.grad,
+                    klassekode = it.klassekode.verdi,
+                )
+            },
+    )
 
 /**
  * Bygger oppdrag fra en liste av yrkesaktivitet-beregninger

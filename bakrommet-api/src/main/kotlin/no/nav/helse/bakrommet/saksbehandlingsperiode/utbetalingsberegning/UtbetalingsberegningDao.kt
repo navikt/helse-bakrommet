@@ -135,6 +135,7 @@ internal fun BeregningData.tilBeregningDataUtDto(): BeregningDataUtDto =
                 )
             },
         oppdrag = oppdrag.map { it.dto() },
+        spilleromOppdrag = spilleromOppdrag,
     )
 
 private fun BeregningDataInnDto.tilBeregningData(): BeregningData =
@@ -148,6 +149,7 @@ private fun BeregningDataInnDto.tilBeregningData(): BeregningData =
                 )
             },
         oppdrag = oppdrag.map { Oppdrag.gjenopprett(it) },
+        spilleromOppdrag = spilleromOppdrag,
     )
 
 internal fun BeregningResponse.tilBeregningResponseUtDto(): BeregningResponseUtDto =
@@ -212,6 +214,7 @@ private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto =
     BeregningDataInnDto(
         yrkesaktiviteter = yrkesaktiviteter.map { it.tilYrkesaktivitetUtbetalingsberegningInnDto() },
         oppdrag = oppdrag.map { it.tilOppdragInnDto() },
+        spilleromOppdrag = spilleromOppdrag,
     )
 
 private fun OppdragUtDto.tilOppdragInnDto(): OppdragInnDto =
