@@ -4,13 +4,14 @@ import java.time.LocalDate
 
 data class SpilleromOppdragDto(
     val spilleromUtbetalingId: String,
-    val oppdragDto: List<OppdragDto>,
+    val oppdrag: List<OppdragDto>,
 )
 
 data class OppdragDto(
     val mottaker: String,
     val fagområde: String,
     val linjer: List<UtbetalingslinjeDto>,
+    val totalbeløp: Int,
 )
 
 data class UtbetalingslinjeDto(

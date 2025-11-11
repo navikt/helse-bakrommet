@@ -62,7 +62,7 @@ class UtbetalingsBeregningHjelper(
         // Bygg oppdrag for hver yrkesaktivitet
         val oppdrag = byggOppdragFraBeregning(beregnet, yrkesaktiviteter, ident)
 
-        val beregningData = BeregningData(beregnet, oppdrag, oppdrag.tilSpilleromoppdrag())
+        val beregningData = BeregningData(beregnet, oppdrag.tilSpilleromoppdrag())
 
         // Opprett response
         val beregningResponse =
@@ -86,13 +86,14 @@ class UtbetalingsBeregningHjelper(
 private fun List<Oppdrag>.tilSpilleromoppdrag(): SpilleromOppdragDto =
     SpilleromOppdragDto(
         spilleromUtbetalingId = UUID.randomUUID().toString(),
-        oppdragDto = this.map { it.tilOppdragDto() },
+        oppdrag = this.map { it.tilOppdragDto() },
     )
 
 private fun Oppdrag.tilOppdragDto(): OppdragDto =
     OppdragDto(
         mottaker = this.mottaker,
         fagområde = this.fagområde.verdi,
+        totalbeløp = this.totalbeløp(),
         linjer =
             this.linjer.map {
                 UtbetalingslinjeDto(

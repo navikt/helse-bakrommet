@@ -83,9 +83,10 @@ data class ScenarioData(
         val nettoDirekte =
             utbetalingsberegning
                 ?.beregningData
+                ?.spilleromOppdrag
                 ?.oppdrag
                 ?.filter { it.mottaker == scenario.fnr }
-                ?.sumOf { it.nettoBeløp } ?: 0
+                ?.sumOf { it.totalbeløp } ?: 0
 
         assertEquals(beløp, nettoDirekte, "Feil nettobeløp i utbetalingsberegning")
     }
@@ -97,9 +98,10 @@ data class ScenarioData(
         val nettoRefusjon =
             utbetalingsberegning
                 ?.beregningData
+                ?.spilleromOppdrag
                 ?.oppdrag
                 ?.filter { it.mottaker == orgnummer }
-                ?.sumOf { it.nettoBeløp } ?: 0
+                ?.sumOf { it.totalbeløp } ?: 0
 
         assertEquals(beløp, nettoRefusjon)
     }

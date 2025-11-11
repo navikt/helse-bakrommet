@@ -7,11 +7,8 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivit
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.dto.ProsentdelDto
-import no.nav.helse.dto.deserialisering.OppdragInnDto
 import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
-import no.nav.helse.dto.serialisering.OppdragUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
-import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
 
@@ -54,19 +51,16 @@ data class YrkesaktivitetUtbetalingsberegningInnDto(
 
 data class BeregningData(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegning>,
-    val oppdrag: List<Oppdrag> = emptyList(), // TODO slett meg
     val spilleromOppdrag: SpilleromOppdragDto,
 )
 
 data class BeregningDataUtDto(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegningUtDto>,
-    val oppdrag: List<OppdragUtDto> = emptyList(),
     val spilleromOppdrag: SpilleromOppdragDto,
 )
 
 data class BeregningDataInnDto(
     val yrkesaktiviteter: List<YrkesaktivitetUtbetalingsberegningInnDto>,
-    val oppdrag: List<OppdragInnDto> = emptyList(),
     val spilleromOppdrag: SpilleromOppdragDto,
 )
 

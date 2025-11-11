@@ -50,7 +50,7 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: Saksbehandlings
                 KafkaMelding(
                     topic = "speilvendt.sykepenger-spillerom-utbetalinger",
                     key = kafkameldingMedData.melding.key,
-                    payload = beregning.beregningData.oppdrag.serialisertTilString(),
+                    payload = beregning.beregningData.spilleromOppdrag.serialisertTilString(),
                 ),
             )
         }
