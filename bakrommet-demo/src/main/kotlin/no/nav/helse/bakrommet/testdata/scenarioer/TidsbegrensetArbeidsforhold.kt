@@ -84,11 +84,10 @@ val tidsbegrensetArbeidsforhold =
                 inntektsmeldinger = inntektsmeldinger,
                 soknader =
                     listOf(
-                        // November 2025: Kun sykmeldt som arbeidstaker, 100%
                         soknad(
                             fnr = fnr1,
-                            fom = LocalDate.of(2025, 4, 10),
-                            tom = LocalDate.of(2025, 4, 30),
+                            fom = LocalDate.of(2025, 7, 7),
+                            tom = LocalDate.of(2025, 8, 4),
                         ) {
                             id = UUID.randomUUID().toString()
                             type = SoknadstypeDTO.ARBEIDSTAKERE
