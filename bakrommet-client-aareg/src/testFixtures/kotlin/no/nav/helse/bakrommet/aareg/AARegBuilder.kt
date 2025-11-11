@@ -61,7 +61,7 @@ fun arbeidsforhold(
     orgnummer: String,
     startdato: LocalDate,
     sluttdato: LocalDate? = null,
-    id: String? = null,
+    id: String = UUID.randomUUID().toString(),
     stillingsprosent: Double = 100.0,
     timerPrUke: Double? = null,
     ansettelsesform: KodeBeskrivelse = fastAnsettelse(),

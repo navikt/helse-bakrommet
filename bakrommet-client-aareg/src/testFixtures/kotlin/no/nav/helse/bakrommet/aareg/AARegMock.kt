@@ -41,11 +41,10 @@ object AARegMock {
 
     fun aaregMockHttpClient(
         configuration: Configuration.AAReg = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
         fnrTilArbeidsforhold: Map<String, List<Arbeidsforhold>> = emptyMap(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
+        if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             log.info("URL: " + request.url)
@@ -80,12 +79,12 @@ object AARegMock {
     ) = AARegClient(
         configuration = configuration,
         oboClient = oboClient,
-        httpClient = aaregMockHttpClient(configuration, oboClient, fnrTilArbeidsforhold),
+        httpClient = aaregMockHttpClient(configuration, fnrTilArbeidsforhold),
     )
 }
 
 // Extension function for å lage OBO token
-fun OAuthScope.oboTokenFor(oboClient: OboClient): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
+fun OAuthScope.oboTokenFor(): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
 // Helper functions for mock HTTP client
 fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
