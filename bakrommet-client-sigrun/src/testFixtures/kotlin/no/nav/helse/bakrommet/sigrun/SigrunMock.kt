@@ -52,7 +52,7 @@ fun sigrunÅr(
             "pensjonsgivendeInntektAvLoennsinntekt":"${lønnsinntekt?.toString() ?: "null"}",
             "pensjonsgivendeInntektAvLoennsinntektBarePensjonsdel":null,
             "pensjonsgivendeInntektAvNaeringsinntekt":"$næring",
-            "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage":"null"}
+            "pensjonsgivendeInntektAvNaeringsinntektFraFiskeFangstEllerFamiliebarnehage": null}
         ]
     }    
     """.trimIndent()
