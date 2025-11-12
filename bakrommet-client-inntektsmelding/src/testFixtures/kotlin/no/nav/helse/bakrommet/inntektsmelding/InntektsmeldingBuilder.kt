@@ -172,6 +172,9 @@ fun skapInntektsmelding(
     foersteFravaersdag: LocalDate? = null,
     organisasjon: Pair<String, String>? = null,
     virksomhetsnummer: String = organisasjon?.first ?: "999888777",
+    refusjon: Refusjon = Refusjon(beloepPrMnd = BigDecimal("0.00"), opphoersdato = null),
+    endringIRefusjoner: List<EndringIRefusjon> = emptyList(),
+    arbeidsgiverperioder: List<Periode> = listOf(Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 16))),
     block: (InntektsmeldingBuilder.() -> Unit)? = null,
 ): Inntektsmelding =
     InntektsmeldingBuilder(
@@ -180,4 +183,7 @@ fun skapInntektsmelding(
         beregnetInntekt = BigDecimal(beregnetInntekt.toString()),
         virksomhetsnummer = virksomhetsnummer,
         foersteFravaersdag = foersteFravaersdag,
+        refusjon = refusjon,
+        endringIRefusjoner = endringIRefusjoner,
+        arbeidsgiverperioder = arbeidsgiverperioder,
     ).apply { block?.invoke(this) }.build()

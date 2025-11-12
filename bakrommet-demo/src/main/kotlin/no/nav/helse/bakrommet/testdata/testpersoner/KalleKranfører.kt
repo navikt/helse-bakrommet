@@ -5,8 +5,12 @@ import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Saksbehandingsperiode
 import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
+import no.nav.inntektsmeldingkontrakt.EndringIRefusjon
+import no.nav.inntektsmeldingkontrakt.Periode
+import no.nav.inntektsmeldingkontrakt.Refusjon
+import java.math.BigDecimal
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 val kalleKranfører =
     Testperson(
@@ -18,7 +22,15 @@ val kalleKranfører =
         fødselsdato = LocalDate.of(1977, 1, 1), // ca. 47 år basert på alder 47
         inntektsmeldinger =
             listOf(
-                skapInntektsmelding(UUID.randomUUID().toString()),
+                skapInntektsmelding(
+                    inntektsmeldingId = UUID.randomUUID().toString(),
+                    organisasjon = Pair("987654321", "Kranførerkompaniet"),
+                    foersteFravaersdag = LocalDate.of(2025, 1, 1),
+                    refusjon = Refusjon(beloepPrMnd = BigDecimal("50000.00"), opphoersdato = null),
+                    endringIRefusjoner = listOf(EndringIRefusjon(endringsdato = LocalDate.of(2025, 2, 1), beloep = BigDecimal("45000.00"))),
+                    arbeidsgiverperioder = listOf(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16))),
+                    beregnetInntekt = 50000.0,
+                ),
                 skapInntektsmelding(UUID.randomUUID().toString(), beregnetInntekt = 89000.0),
             ),
         saksbehandingsperioder =
