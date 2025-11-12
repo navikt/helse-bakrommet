@@ -15,6 +15,7 @@ repositories {
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
     api(project(":bakrommet-common"))
+    api(project(":bakrommet-client-ereg"))
     api("no.nav.sykepenger.kontrakter:inntektsmelding-kontrakt:2025.04.04-01-56-365d3")
 
     testFixturesImplementation(testFixtures(project(":bakrommet-common")))

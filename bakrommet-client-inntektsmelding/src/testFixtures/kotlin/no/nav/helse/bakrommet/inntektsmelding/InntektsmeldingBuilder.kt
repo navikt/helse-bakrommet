@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.inntektsmelding
 
+import no.nav.helse.bakrommet.ereg.Organisasjon
 import no.nav.inntektsmeldingkontrakt.*
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -170,8 +171,8 @@ fun skapInntektsmelding(
     arbeidstakerFnr: String = "12345678901",
     månedsinntekt: Double = 8876.00,
     foersteFravaersdag: LocalDate? = null,
-    organisasjon: Pair<String, String>? = null,
-    virksomhetsnummer: String = organisasjon?.first ?: "999888777",
+    organisasjon: Organisasjon? = null,
+    virksomhetsnummer: String = organisasjon?.orgnummer ?: "999888777",
     refusjon: Refusjon = Refusjon(beloepPrMnd = BigDecimal("0.00"), opphoersdato = null),
     endringIRefusjoner: List<EndringIRefusjon> = emptyList(),
     arbeidsgiverperioder: List<Periode> = listOf(Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 16))),

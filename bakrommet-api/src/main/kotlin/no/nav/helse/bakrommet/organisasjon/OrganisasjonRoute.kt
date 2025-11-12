@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 fun Route.organisasjonRoute(service: OrganisasjonService) {
     get("/v1/organisasjon/{orgnummer}") {
         val orgnummer = call.parameters["orgnummer"] ?: throw InputValideringException("Mangler orgnummer i path")
-        val navn = service.hentOrganisasjonsnavn(orgnummer)
-        call.respondText(navn, ContentType.Text.Plain, HttpStatusCode.OK)
+        val organisasjon = service.hentOrganisasjonsnavn(orgnummer)
+        call.respondText(organisasjon.navn, ContentType.Text.Plain, HttpStatusCode.OK)
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.testdata.testpersoner
 
+import no.nav.helse.bakrommet.ereg.Organisasjon
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
@@ -19,8 +20,8 @@ val muggeMcMurstein =
     )
 
 private fun generateMuggeSoknader(): List<SykepengesoknadDTO> {
-    val arbeidsgiver1 = Pair("Murstein AS", "999999991")
-    val arbeidsgiver2 = Pair("Betongbygg AS", "999999992")
+    val arbeidsgiver1 = Organisasjon(navn = "Murstein AS", orgnummer = "999999991")
+    val arbeidsgiver2 = Organisasjon(navn = "Betongbygg AS", orgnummer = "999999992")
 
     val start1 = LocalDate.of(2025, 1, 1)
     val start2 = LocalDate.of(2025, 1, 8)
@@ -40,8 +41,8 @@ private fun generateMuggeSoknader(): List<SykepengesoknadDTO> {
                 tom = tom1,
             ) {
                 id = "mugge-1-${i + 1}"
-                arbeidsgiverNavn = arbeidsgiver1.first
-                arbeidsgiverOrgnummer = arbeidsgiver1.second
+                arbeidsgiverNavn = arbeidsgiver1.navn
+                arbeidsgiverOrgnummer = arbeidsgiver1.orgnummer
                 arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
                 sykmeldingSkrevet = fom1
                 startSyketilfelle = fom1
@@ -62,8 +63,8 @@ private fun generateMuggeSoknader(): List<SykepengesoknadDTO> {
                 tom = tom2,
             ) {
                 id = "mugge-2-${i + 1}"
-                arbeidsgiverNavn = arbeidsgiver2.first
-                arbeidsgiverOrgnummer = arbeidsgiver2.second
+                arbeidsgiverNavn = arbeidsgiver2.navn
+                arbeidsgiverOrgnummer = arbeidsgiver2.orgnummer
                 arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
                 sykmeldingSkrevet = fom2
                 startSyketilfelle = fom2

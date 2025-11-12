@@ -15,8 +15,8 @@ import java.time.YearMonth
 import java.util.UUID
 
 private val fnr = "15089312345"
-private val førsteArbeidsgiverOrgnummer = betongbyggAS.first
-private val andreArbeidsgiverOrgnummer = veihjelpenAS.first
+private val førsteArbeidsgiverOrgnummer = betongbyggAS.orgnummer
+private val andreArbeidsgiverOrgnummer = veihjelpenAS.orgnummer
 
 // Inntektsdata for første arbeidsforhold: 50000 kr/mnd
 private val førsteArbeidsforholdInntektData =

@@ -23,6 +23,11 @@ data class EregNavn(
     val navnelinje1: String?,
 )
 
+data class Organisasjon(
+    val navn: String,
+    val orgnummer: String,
+)
+
 class EregClient(
     private val configuration: Configuration.Ereg,
     private val httpClient: HttpClient =
@@ -34,7 +39,7 @@ class EregClient(
 ) {
     suspend fun hentOrganisasjonsnavn(
         orgnummer: String,
-    ): String {
+    ): Organisasjon {
         val url = "${configuration.baseUrl}/v2/organisasjon/$orgnummer/noekkelinfo"
 
         val response =
@@ -50,7 +55,7 @@ class EregClient(
                 val navnelinje1 = navnNode.get("navnelinje1")?.asText()
                 val navnFraEreg = sammensattnavn ?: navnelinje1
                 if (navnFraEreg != null) {
-                    return navnFraEreg
+                    return Organisasjon(navn = navnFraEreg, orgnummer = orgnummer)
                 }
             }
             logg.warn("Mangler navn i EREG respons for orgnummer={}", orgnummer)

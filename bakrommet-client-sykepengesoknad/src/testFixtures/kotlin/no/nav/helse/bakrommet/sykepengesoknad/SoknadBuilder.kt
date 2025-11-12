@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.sykepengesoknad
 
+import no.nav.helse.bakrommet.ereg.Organisasjon
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,9 +27,9 @@ class SoknadDsl(
     var grad: Int = 100
     var sykmeldingsgrad: Int? = null
 
-    fun arbeidstaker(organisasjon: Pair<String, String>) {
-        arbeidsgiverOrgnummer = organisasjon.first
-        arbeidsgiverNavn = organisasjon.second
+    fun arbeidstaker(organisasjon: Organisasjon) {
+        arbeidsgiverOrgnummer = organisasjon.orgnummer
+        arbeidsgiverNavn = organisasjon.navn
         arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
         type = SoknadstypeDTO.ARBEIDSTAKERE
     }

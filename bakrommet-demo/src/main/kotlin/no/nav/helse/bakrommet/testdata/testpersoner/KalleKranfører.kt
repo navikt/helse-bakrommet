@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.testdata.testpersoner
 
+import no.nav.helse.bakrommet.ereg.kranførerkompaniet
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Saksbehandingsperiode
@@ -24,7 +25,7 @@ val kalleKranfører =
             listOf(
                 skapInntektsmelding(
                     inntektsmeldingId = UUID.randomUUID().toString(),
-                    organisasjon = Pair("987654321", "Kranførerkompaniet"),
+                    organisasjon = kranførerkompaniet,
                     foersteFravaersdag = LocalDate.of(2025, 1, 1),
                     refusjon = Refusjon(beloepPrMnd = BigDecimal("50000.00"), opphoersdato = null),
                     endringIRefusjoner = listOf(EndringIRefusjon(endringsdato = LocalDate.of(2025, 2, 1), beloep = BigDecimal("45000.00"))),

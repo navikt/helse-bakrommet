@@ -41,7 +41,7 @@ object EregMock {
                     content = "Ugyldig URL",
                 )
             } else {
-                val navn =
+                val organisasjon =
                     organisasjonsnavnMap[orgnummer]
                         ?: if (!orgnummer.startsWith("1") && orgnummer.length == 9) {
                             // Generer navn med faker for orgnumre som ikke begynner på 1 og har 9 siffer
@@ -52,18 +52,19 @@ object EregMock {
                                     random = Random(seed)
                                 }
                             val faker = Faker(config)
-                            faker.company.name()
+                            val generertNavn = faker.company.name()
+                            Organisasjon(navn = generertNavn, orgnummer = orgnummer)
                         } else {
                             null
                         }
 
-                if (navn == null) {
+                if (organisasjon == null) {
                     respond(
                         status = HttpStatusCode.NotFound,
                         content = "Organisasjon ikke funnet",
                     )
                 } else {
-                    val svar = """{"navn": {"sammensattnavn": "$navn"}}"""
+                    val svar = """{"navn": {"sammensattnavn": "${organisasjon.navn}"}}"""
                     respond(
                         status = HttpStatusCode.OK,
                         content = svar,

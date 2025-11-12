@@ -11,6 +11,7 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.ereg.Organisasjon
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
@@ -149,8 +150,8 @@ fun etInntektSvar(
 fun genererAinntektsdata(
     beloep: BigDecimal,
     fraMaaned: YearMonth,
-    organisasjon: Pair<String, String>? = null,
-    virksomhetsnummer: String = organisasjon?.first ?: "999888777",
+    organisasjon: Organisasjon? = null,
+    virksomhetsnummer: String = organisasjon?.orgnummer ?: "999888777",
     antallMaanederTilbake: Int,
     inntektType: String = "LOENNSINNTEKT",
     opplysningspliktig: String = virksomhetsnummer,

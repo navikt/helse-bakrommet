@@ -56,7 +56,7 @@ val kombinertArbeidstakerOgSelvstendig =
                     genererAaregFraAinntekt(
                         fnr = fnr,
                         ainntektData = arbeidstakerInntektData,
-                        fortsattAktiveOrgnummer = listOf(veihjelpenAS.first),
+                        fortsattAktiveOrgnummer = listOf(veihjelpenAS.orgnummer),
                     ),
                 ainntektData = arbeidstakerInntektData,
                 sigrunData = sigrunData,

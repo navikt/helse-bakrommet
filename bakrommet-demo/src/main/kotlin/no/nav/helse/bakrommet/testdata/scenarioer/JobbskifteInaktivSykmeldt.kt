@@ -17,8 +17,8 @@ import java.time.YearMonth
 import java.util.UUID
 
 private val fnr = "15087512346"
-private val gammelArbeidsgiverOrgnummer = betongbyggAS.first
-private val nyArbeidsgiverOrgnummer = klonelabben.first
+private val gammelArbeidsgiverOrgnummer = betongbyggAS.orgnummer
+private val nyArbeidsgiverOrgnummer = klonelabben.orgnummer
 
 // Månedsinntekt på 41667 kroner tilsvarer årslønn på 500 000 kroner
 private val gammelMaanedsinntekt = BigDecimal.valueOf(41667)

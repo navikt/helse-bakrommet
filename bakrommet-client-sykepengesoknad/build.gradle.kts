@@ -5,6 +5,7 @@ plugins {
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
     api(project(":bakrommet-common"))
+    api(project(":bakrommet-client-ereg"))
     implementation("no.nav.helse.flex:sykepengesoknad-kafka")
 
     testFixturesImplementation(testFixtures(project(":bakrommet-common")))

@@ -73,7 +73,7 @@ val tidsbegrensetArbeidsforhold =
                         // Andre arbeidsforhold: vikariat fulltid fra 01.04.25 - 31.08.25
                         arbeidsforhold(
                             fnr = fnr1,
-                            orgnummer = veihjelpenAS.first,
+                            orgnummer = veihjelpenAS.orgnummer,
                             startdato = LocalDate.of(2025, 4, 1),
                             sluttdato = LocalDate.of(2025, 8, 31),
                             stillingsprosent = 100.0, // Fulltid
