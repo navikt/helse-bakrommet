@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.økonomi.Inntekt

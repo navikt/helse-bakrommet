@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.testutils.*
 import kotlin.test.Test
 

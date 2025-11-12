@@ -24,12 +24,12 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sammenlik
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponseUtDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigForsikring
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.maybeOrgnummer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.SelvstendigForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.maybeOrgnummer
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.sigrun.sigrunÅr

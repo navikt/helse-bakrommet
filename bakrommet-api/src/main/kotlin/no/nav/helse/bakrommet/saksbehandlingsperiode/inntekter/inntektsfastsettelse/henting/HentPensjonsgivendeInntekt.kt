@@ -8,9 +8,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.kanBeregnesEtter835
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.tilBeregnetPensjonsgivendeInntekt
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.Inaktiv
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Inaktiv
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 
 suspend fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
     ref: YrkesaktivitetReferanse,

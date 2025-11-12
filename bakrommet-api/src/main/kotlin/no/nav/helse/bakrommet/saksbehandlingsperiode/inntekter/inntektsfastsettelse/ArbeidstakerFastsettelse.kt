@@ -14,9 +14,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInnte
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.orgnummer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt

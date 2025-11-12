@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
-import no.nav.helse.bakrommet.kafka.dto.SpilleromOppdragDto
+import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto

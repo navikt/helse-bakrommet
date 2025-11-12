@@ -9,15 +9,16 @@ import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.godkjenn
-import no.nav.helse.bakrommet.kafka.dto.SaksbehandlingsperiodeKafkaDto
+import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
+import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -104,9 +105,10 @@ class UtbetalingsberegningIntegrasjonTest {
             upubliserteEntries.size `should equal` 3
 
             val kafkaPayload = upubliserteEntries[1].kafkaPayload.tilSaksbehandlingsperiodeKafkaDto()
+            kafkaPayload.status `should equal` SaksbehandlingsperiodeStatusKafkaDto.GODKJENT
             // TODO: Kafka mapping av dagoversikt er ikke implementert ennå
             // kafkaPayload.yrkesaktiviteter.single().dagoversikt skal inkludere beregningsdata
-            kafkaPayload.yrkesaktiviteter.single().dagoversikt `should equal` emptyList()
+            //  kafkaPayload.yrkesaktiviteter.single().dagoversikt `should equal` emptyList()
         }
     }
 

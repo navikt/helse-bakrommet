@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning
 
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.økonomi.Inntekt
 

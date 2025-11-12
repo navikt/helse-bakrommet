@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.scenariotester
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.testutils.*
 import kotlin.test.Test
 
@@ -19,7 +19,7 @@ class SelvstendigNæringsdrivendeScenarioTest {
     }
 
     @Test
-    fun `enkel selvstendig næringsdrivende 100% forsikring`() {
+    fun `enkel selvstendig næringsdrivende 100prosemt forsikring`() {
         Scenario(
             listOf(
                 Selvstendig(forsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG, inntekt = SigrunInntekt(700000, 900000, 1000000), dagoversikt = SykAlleDager()),

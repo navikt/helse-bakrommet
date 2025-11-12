@@ -1,10 +1,11 @@
-package no.nav.helse.bakrommet.kafka.dto
+package no.nav.helse.bakrommet.kafka.dto.oppdrag
 
 import java.time.LocalDate
 
 data class SpilleromOppdragDto(
     val spilleromUtbetalingId: String,
     val oppdrag: List<OppdragDto>,
+    val maksdato: LocalDate? = null,
 )
 
 data class OppdragDto(
@@ -20,4 +21,5 @@ data class UtbetalingslinjeDto(
     val beløp: Int,
     val grad: Int,
     val klassekode: String,
+    val stønadsdager: Int,
 )

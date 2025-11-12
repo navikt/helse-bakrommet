@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime

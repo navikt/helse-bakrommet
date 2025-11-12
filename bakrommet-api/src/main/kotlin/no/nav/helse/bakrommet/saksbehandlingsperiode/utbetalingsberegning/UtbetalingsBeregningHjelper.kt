@@ -1,9 +1,9 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning
 
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.kafka.dto.OppdragDto
-import no.nav.helse.bakrommet.kafka.dto.SpilleromOppdragDto
-import no.nav.helse.bakrommet.kafka.dto.UtbetalingslinjeDto
+import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
+import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
+import no.nav.helse.bakrommet.kafka.dto.oppdrag.UtbetalingslinjeDto
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
@@ -11,10 +11,10 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.orgnummer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Klassekode
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -102,6 +102,7 @@ private fun Oppdrag.tilOppdragDto(): OppdragDto =
                     beløp = it.beløp,
                     grad = it.grad,
                     klassekode = it.klassekode.verdi,
+                    stønadsdager = it.stønadsdager(),
                 )
             },
     )

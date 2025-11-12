@@ -9,10 +9,10 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.tilDto
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.TypeArbeidstaker
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDTO
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.orgnummer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad

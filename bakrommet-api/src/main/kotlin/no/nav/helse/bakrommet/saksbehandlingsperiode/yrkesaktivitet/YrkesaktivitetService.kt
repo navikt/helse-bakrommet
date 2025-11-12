@@ -22,6 +22,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import java.time.OffsetDateTime
 import java.util.*
 

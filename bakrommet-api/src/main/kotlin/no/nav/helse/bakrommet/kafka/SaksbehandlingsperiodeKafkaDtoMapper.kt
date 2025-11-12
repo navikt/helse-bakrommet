@@ -1,8 +1,7 @@
 package no.nav.helse.bakrommet.kafka
 
-import no.nav.helse.bakrommet.kafka.dto.SaksbehandlingsperiodeKafkaDto
-import no.nav.helse.bakrommet.kafka.dto.SaksbehandlingsperiodeStatusKafkaDto
-import no.nav.helse.bakrommet.kafka.dto.YrkesaktivitetKafkaDto
+import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
+import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -13,7 +12,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepenge
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.util.HashUtils
 import no.nav.helse.bakrommet.util.serialisertTilString
 
@@ -55,6 +53,20 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: Saksbehandlings
             )
         }
     }
+    /*
+    if (kafkameldingMedData.skalHaMeldingOmVedtak()) {
+        kafkameldingMedData.beregning?.let { beregning ->
+            outboxDao.lagreTilOutbox(
+                KafkaMelding(
+                    topic = "speilvendt.spillerom-melding-om-vedtak",
+                    key = kafkameldingMedData.melding.key,
+                    payload = beregning.beregningData.spilleromOppdrag.serialisertTilString(),
+                ),
+            )
+        }
+    }
+
+     */
 }
 
 data class KafkaMeldingMedData(
@@ -77,19 +89,9 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
             personDao.hentNaturligIdent(periode.spilleromPersonId)
         val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
 
-        fun YrkesaktivitetDbRecord.tilYrkesaktivitetKafkaDto(): YrkesaktivitetKafkaDto =
-            YrkesaktivitetKafkaDto(
-                id = id,
-                kategorisering = emptyMap(),
-                // TODO
-                dagoversikt = emptyList(),
-                // TODO
-            )
-
         val saksbehandlingsperiodeKafkaDto =
             SaksbehandlingsperiodeKafkaDto(
                 id = periode.id,
-                spilleromPersonId = periode.spilleromPersonId,
                 fnr = naturligIdent,
                 opprettet = periode.opprettet,
                 opprettetAvNavIdent = periode.opprettetAvNavIdent,
@@ -99,7 +101,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                 status = periode.status.tilKafkaDto(),
                 beslutterNavIdent = periode.beslutterNavIdent,
                 skjæringstidspunkt = periode.skjæringstidspunkt,
-                yrkesaktiviteter = yrkesaktivitet.map { it.tilYrkesaktivitetKafkaDto() },
+                yrkesaktiviteter = emptyList(),
             )
 
         // Lag sha256 hash av spilleromPersonId som key

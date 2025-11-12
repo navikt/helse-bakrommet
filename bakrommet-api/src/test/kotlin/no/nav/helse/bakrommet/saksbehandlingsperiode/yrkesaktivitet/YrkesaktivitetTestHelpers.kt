@@ -1,5 +1,12 @@
 package no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet
 
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.FrilanserForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.SelvstendigForsikring
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeArbeidstaker
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.VariantAvInaktiv
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+
 fun arbeidstakerKategorisering(
     orgnummer: String = "123456789",
     erSykmeldt: Boolean = true,

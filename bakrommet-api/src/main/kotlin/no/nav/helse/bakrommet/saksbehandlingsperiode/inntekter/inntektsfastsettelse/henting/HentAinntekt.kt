@@ -11,9 +11,9 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektService
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.monthsBetween
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.omregnetÅrsinntekt
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.orgnummer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer

@@ -3,8 +3,8 @@ package no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.bereg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.tilSykdomstidslinje
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Yrkesaktivitet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
 import no.nav.helse.hendelser.MeldingsreferanseId

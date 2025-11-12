@@ -21,6 +21,7 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMa
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.henting.AInntektResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.periodeReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
 import no.nav.helse.bakrommet.util.objectMapper

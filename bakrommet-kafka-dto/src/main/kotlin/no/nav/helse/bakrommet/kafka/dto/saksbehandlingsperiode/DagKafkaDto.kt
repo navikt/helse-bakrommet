@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.kafka.dto
+package no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.LocalDate
