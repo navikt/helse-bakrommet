@@ -13,9 +13,10 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
 
+private val kalleFnr = "12345678901"
 val kalleKranfører =
     Testperson(
-        fnr = "12345678901",
+        fnr = kalleFnr,
         aktorId = "1234567891011",
         spilleromId = "8j4ns",
         fornavn = "Kalle",
@@ -26,13 +27,21 @@ val kalleKranfører =
                 skapInntektsmelding(
                     inntektsmeldingId = UUID.randomUUID().toString(),
                     organisasjon = kranførerkompaniet,
+                    arbeidstakerFnr = kalleFnr,
                     foersteFravaersdag = LocalDate.of(2025, 1, 1),
                     refusjon = Refusjon(beloepPrMnd = BigDecimal("50000.00"), opphoersdato = null),
-                    endringIRefusjoner = listOf(EndringIRefusjon(endringsdato = LocalDate.of(2025, 2, 1), beloep = BigDecimal("45000.00"))),
+                    endringIRefusjoner = listOf(
+                        EndringIRefusjon(
+                            endringsdato = LocalDate.of(2025, 2, 1),
+                            beloep = BigDecimal("45000.00")
+                        )
+                    ),
                     arbeidsgiverperioder = listOf(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16))),
                     månedsinntekt = 50000.0,
                 ),
-                skapInntektsmelding(UUID.randomUUID().toString(), månedsinntekt = 89000.0),
+                skapInntektsmelding(
+                    UUID.randomUUID().toString(), månedsinntekt = 89000.0, arbeidstakerFnr = kalleFnr,
+                ),
             ),
         saksbehandingsperioder =
             listOf(
@@ -51,7 +60,7 @@ val kalleKranfører =
         soknader =
             listOf(
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2024, 8, 2),
                     tom = LocalDate.of(2024, 8, 9),
                 ) {
@@ -66,7 +75,7 @@ val kalleKranfører =
                     sendtArbeidsgiver = LocalDate.of(2024, 8, 2)
                 },
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2024, 8, 10),
                     tom = LocalDate.of(2024, 9, 22),
                 ) {
@@ -81,7 +90,7 @@ val kalleKranfører =
                     sendtArbeidsgiver = LocalDate.of(2024, 8, 10)
                 },
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2025, 1, 1),
                     tom = LocalDate.of(2025, 1, 31),
                 ) {
@@ -96,7 +105,7 @@ val kalleKranfører =
                     sendtArbeidsgiver = LocalDate.of(2025, 1, 1)
                 },
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2025, 2, 1),
                     tom = LocalDate.of(2025, 2, 28),
                 ) {
@@ -111,7 +120,7 @@ val kalleKranfører =
                     sendtArbeidsgiver = LocalDate.of(2025, 1, 1)
                 },
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2025, 1, 1),
                     tom = LocalDate.of(2025, 1, 31),
                 ) {
@@ -126,7 +135,7 @@ val kalleKranfører =
                     sendtArbeidsgiver = LocalDate.of(2025, 1, 1)
                 },
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2024, 1, 1),
                     tom = LocalDate.of(2024, 1, 31),
                 ) {
@@ -141,7 +150,7 @@ val kalleKranfører =
                     sendtArbeidsgiver = LocalDate.of(2024, 1, 1)
                 },
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 31),
                 ) {
@@ -156,7 +165,7 @@ val kalleKranfører =
                     sendtArbeidsgiver = LocalDate.of(2023, 1, 1)
                 },
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2025, 9, 1),
                     tom = LocalDate.of(2025, 9, 20),
                 ) {
@@ -171,7 +180,7 @@ val kalleKranfører =
                     sendtArbeidsgiver = LocalDate.of(2025, 9, 21)
                 },
                 soknad(
-                    fnr = "12345678901",
+                    fnr = kalleFnr,
                     fom = LocalDate.of(2025, 9, 21),
                     tom = LocalDate.of(2025, 9, 30),
                 ) {

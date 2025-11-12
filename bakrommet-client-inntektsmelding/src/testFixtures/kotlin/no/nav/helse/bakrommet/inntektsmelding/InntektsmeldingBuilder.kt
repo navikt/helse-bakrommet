@@ -168,7 +168,7 @@ class InntektsmeldingBuilder(
 
 fun skapInntektsmelding(
     inntektsmeldingId: String = UUID.randomUUID().toString(),
-    arbeidstakerFnr: String = "12345678901",
+    arbeidstakerFnr: String,
     månedsinntekt: Double = 8876.00,
     foersteFravaersdag: LocalDate? = null,
     organisasjon: Organisasjon? = null,
