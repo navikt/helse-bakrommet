@@ -20,15 +20,15 @@ private val fnr = "15087512345"
 private val gammelArbeidsgiverOrgnummer = betongbyggAS.first
 private val nyArbeidsgiverOrgnummer = klonelabben.first
 
-// Månedsinntekt på 41667 kroner tilsvarer årslønn på 500 000 kroner
-private val maanedsinntekt = BigDecimal.valueOf(41667)
+// Månedsinntekt på 62500 kroner tilsvarer årslønn på 750 000 kroner
+private val maanedsinntekt = BigDecimal.valueOf(62500)
 
-// Sigrun data som viser konstant årslønn på 500 000 kroner de siste årene
+// Sigrun data som viser konstant årslønn på 750 000 kroner de siste årene
 private val sigrunData =
     mapOf(
-        Year.of(2022) to sigrunÅr(fnr = fnr, år = Year.of(2022), lønnsinntekt = 500000),
-        Year.of(2023) to sigrunÅr(fnr = fnr, år = Year.of(2023), lønnsinntekt = 500000),
-        Year.of(2024) to sigrunÅr(fnr = fnr, år = Year.of(2024), lønnsinntekt = 500000),
+        Year.of(2022) to sigrunÅr(fnr = fnr, år = Year.of(2022), lønnsinntekt = 750000),
+        Year.of(2023) to sigrunÅr(fnr = fnr, år = Year.of(2023), lønnsinntekt = 750000),
+        Year.of(2024) to sigrunÅr(fnr = fnr, år = Year.of(2024), lønnsinntekt = 750000),
     )
 
 // Inntektsdata for gammel arbeidsgiver (fram til 31.08.2025)
@@ -56,15 +56,18 @@ private val kombinertInntektData = gammelArbeidsgiverInntektData + nyArbeidsgive
 private val inntektsmeldinger =
     listOf(
         skapInntektsmelding(
-            beregnetInntekt = 500000.0, // Årsinntekt
+            månedsinntekt = 62500.0, // Årsinntekt (62500 * 12)
             organisasjon = klonelabben,
             arbeidstakerFnr = fnr,
-        ),
+            foersteFravaersdag = LocalDate.of(2025, 9, 30),
+        ) {
+            medBegrunnelseForReduksjonEllerIkkeUtbetalt("Ikke utbetalt sykepenger i arbeidsgiverperioden pga manglende opptjening")
+        },
     )
 
 val jobbskifteInaktiv3uker =
     Testscenario(
-        tittel = "Jobbskifte med kort autonom periode",
+        tittel = "Jobbskifte med 3 uker opphold periode",
         testperson =
             Testperson(
                 fornavn = "Liv",
@@ -96,11 +99,11 @@ val jobbskifteInaktiv3uker =
                 inntektsmeldinger = inntektsmeldinger,
                 soknader =
                     listOf(
-                        // Blir sykmeldt etter 3 uker i ny jobb (starter ca. 1. oktober)
+                        // Blir sykmeldt etter 3 uker i ny jobb
                         soknad(
                             fnr = fnr,
-                            fom = LocalDate.of(2025, 10, 1),
-                            tom = LocalDate.of(2025, 10, 28),
+                            fom = LocalDate.of(2025, 9, 30),
+                            tom = LocalDate.of(2025, 10, 30),
                         ) {
                             id = UUID.randomUUID().toString()
                             type = SoknadstypeDTO.ARBEIDSTAKERE
@@ -112,9 +115,12 @@ val jobbskifteInaktiv3uker =
             ),
         beskrivelse =
             """
-            Personen har jobbet i samme jobb i mange år med konstant årslønn på 500 000 kroner.
-            Siste dag i gammel jobb var 31.08.2025.
-            Etter en kort autonom periode starter personen i ny jobb 10.09.2025.
-            Etter å ha jobbet i ny jobb i tre uker blir personen 100% sykmeldt.
+            Personen har jobbet i samme jobb i mange år. Har de siste årene hatt en årslønn på 750 000 kroner.
+            Får tilbud om ny jobb i et annet firma og takker ja til dette.
+            Har siste dag i gammel jobb 31.08.2025.
+            Vil slappe av litt før hen begynner i den nye jobben, så starter der 10.09.2025.
+            Etter å ha jobbet i ny jobb i tre uker blir personen sykmeldt.
+            Arbeidsgiver sender IM hvor de oppgir at de ikke har utbetalt sykepenger i arbeidsgiverperioden pga manglende opptjening.
+            Lønnen er oppgitt å være 62 500 kroner per måned.
             """.trimIndent(),
     )

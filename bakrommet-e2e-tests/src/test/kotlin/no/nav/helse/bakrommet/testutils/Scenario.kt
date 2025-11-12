@@ -320,7 +320,7 @@ class Inntektsmelding(
             inntektsmeldingId = inntektmeldingid.toString(),
             arbeidstakerFnr = fnr,
             virksomhetsnummer = orgnr,
-            beregnetInntekt = beregnetInntekt,
+            månedsinntekt = beregnetInntekt,
         )
 
     val inntektmeldingid = UUID.randomUUID()

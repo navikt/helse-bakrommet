@@ -31,7 +31,7 @@ private val førsteArbeidsforholdInntektData =
 private val inntektsmeldinger =
     listOf(
         skapInntektsmelding(
-            beregnetInntekt = 50000.0,
+            månedsinntekt = 50000.0,
             organisasjon = betongbyggAS,
             arbeidstakerFnr = fnr,
         ),

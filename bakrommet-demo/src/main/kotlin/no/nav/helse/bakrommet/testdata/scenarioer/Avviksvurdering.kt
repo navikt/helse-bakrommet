@@ -24,7 +24,7 @@ private val inntektData =
 private val fnr = "10029714444"
 private val inntektsmeldinger =
     listOf(
-        skapInntektsmelding(beregnetInntekt = 89000.0, organisasjon = malermesternAS, arbeidstakerFnr = fnr),
+        skapInntektsmelding(månedsinntekt = 89000.0, organisasjon = malermesternAS, arbeidstakerFnr = fnr),
     )
 val avvikendeMaler =
     Testscenario(
