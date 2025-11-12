@@ -1,5 +1,7 @@
 package no.nav.helse.bakrommet.testdata
 
+import io.github.serpro69.kfaker.Faker
+import io.github.serpro69.kfaker.fakerConfig
 import no.nav.helse.bakrommet.Services
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
@@ -9,6 +11,7 @@ import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksMcBehandlersen
 import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
 import no.nav.helse.bakrommet.sessionsDaoer
+import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.*
 
 suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
@@ -20,6 +23,13 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                 naturligIdent = testperson.fnr,
                 spilleromId = testperson.spilleromId,
             )
+            val seed = testperson.fnr.toLong()
+            val config =
+                fakerConfig {
+                    locale = "nb_NO"
+                    random = Random(seed)
+                }
+            val faker = Faker(config)
 
             // Opprett mapping fra søknad-ID (string) til UUID
             val soknadIdTilUuid = testperson.soknader.associate { it.id to stringIdTilUUID(it.id) }
@@ -34,6 +44,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
 
                 val nySaksbehandlingsperiode =
                     this.saksbehandlingsperiodeService.opprettNySaksbehandlingsperiode(
+                        id = faker.random.nextUUID().somGyldigUUID(),
                         spilleromPersonId = SpilleromPersonId(testperson.spilleromId),
                         fom = periode.fom,
                         tom = periode.tom,
