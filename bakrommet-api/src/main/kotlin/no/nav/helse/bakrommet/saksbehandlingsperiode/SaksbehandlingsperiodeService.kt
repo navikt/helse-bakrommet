@@ -56,11 +56,12 @@ class SaksbehandlingsperiodeService(
         tom: LocalDate,
         søknader: Set<UUID>,
         saksbehandler: BrukerOgToken,
+        id: UUID = UUID.randomUUID(),
     ): Saksbehandlingsperiode {
         if (fom.isAfter(tom)) throw InputValideringException("Fom-dato kan ikke være etter tom-dato")
         var nyPeriode =
             Saksbehandlingsperiode(
-                id = UUID.randomUUID(),
+                id = id,
                 spilleromPersonId = spilleromPersonId.personId,
                 opprettet = OffsetDateTime.now(),
                 opprettetAvNavIdent = saksbehandler.bruker.navIdent,
