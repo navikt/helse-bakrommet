@@ -34,6 +34,7 @@ class SykepengegrunnlagDaoTest {
                 opprettetAvNavn = saksbehandler.navn,
                 fom = LocalDate.of(2021, 1, 1),
                 tom = LocalDate.of(2021, 1, 31),
+                skjæringstidspunkt = LocalDate.of(2021, 1, 1),
             ),
         )
     }

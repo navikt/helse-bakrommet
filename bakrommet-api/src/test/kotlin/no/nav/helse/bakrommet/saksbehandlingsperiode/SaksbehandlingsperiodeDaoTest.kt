@@ -156,12 +156,6 @@ internal class SaksbehandlingsperiodeDaoTest {
 
         val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
         assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt)
-
-        // Nullstill skjæringstidspunkt
-        dao.oppdaterSkjæringstidspunkt(id, null)
-
-        val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
-        assertNull(nullstiltPeriode.skjæringstidspunkt)
     }
 
     @Test

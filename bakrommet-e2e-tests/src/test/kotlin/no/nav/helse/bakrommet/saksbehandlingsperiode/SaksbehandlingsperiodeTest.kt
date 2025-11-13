@@ -120,20 +120,5 @@ class SaksbehandlingsperiodeTest {
                     }.body<Saksbehandlingsperiode>()
 
             assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt.toString())
-
-            // Nullstill skjæringstidspunkt
-            val nullstiltPeriode =
-                client
-                    .put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/skjaeringstidspunkt") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            """
-                            { "skjaeringstidspunkt": null }
-                            """.trimIndent(),
-                        )
-                    }.body<Saksbehandlingsperiode>()
-
-            assertEquals(null, nullstiltPeriode.skjæringstidspunkt)
         }
 }

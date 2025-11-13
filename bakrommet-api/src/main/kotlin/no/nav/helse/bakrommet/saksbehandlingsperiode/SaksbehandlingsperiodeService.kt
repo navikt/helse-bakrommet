@@ -261,7 +261,7 @@ class SaksbehandlingsperiodeService(
 
     suspend fun oppdaterSkjæringstidspunkt(
         periodeRef: SaksbehandlingsperiodeReferanse,
-        skjæringstidspunkt: LocalDate?,
+        skjæringstidspunkt: LocalDate,
         saksbehandler: Bruker,
     ): Saksbehandlingsperiode =
         db.transactional {

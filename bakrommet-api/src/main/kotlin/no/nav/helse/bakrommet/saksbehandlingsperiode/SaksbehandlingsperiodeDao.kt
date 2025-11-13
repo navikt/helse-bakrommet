@@ -23,7 +23,7 @@ data class Saksbehandlingsperiode(
     val tom: LocalDate,
     val status: SaksbehandlingsperiodeStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
     val beslutterNavIdent: String? = null,
-    val skjæringstidspunkt: LocalDate? = null,
+    val skjæringstidspunkt: LocalDate,
     val individuellBegrunnelse: String? = null,
     val sykepengegrunnlagId: UUID? = null,
 )
@@ -84,7 +84,7 @@ interface SaksbehandlingsperiodeDao {
 
     fun oppdaterSkjæringstidspunkt(
         periodeId: UUID,
-        skjæringstidspunkt: LocalDate?,
+        skjæringstidspunkt: LocalDate,
     )
 
     fun oppdaterSykepengegrunnlagId(
@@ -167,7 +167,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             tom = row.localDate("tom"),
             status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
-            skjæringstidspunkt = row.localDateOrNull("skjaeringstidspunkt"),
+            skjæringstidspunkt = row.localDate("skjaeringstidspunkt"),
             individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
             sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id"),
         )
@@ -246,7 +246,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
 
     override fun oppdaterSkjæringstidspunkt(
         periodeId: UUID,
-        skjæringstidspunkt: LocalDate?,
+        skjæringstidspunkt: LocalDate,
     ) {
         db.update(
             """

@@ -123,12 +123,12 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/skjaeringstidspunkt") {
         data class OppdaterSkjæringstidspunktRequest(
-            val skjaeringstidspunkt: String?,
+            val skjaeringstidspunkt: String,
         )
 
         put {
             val body = call.receive<OppdaterSkjæringstidspunktRequest>()
-            val skjæringstidspunkt = body.skjaeringstidspunkt?.let { LocalDate.parse(it) }
+            val skjæringstidspunkt = body.skjaeringstidspunkt.let { LocalDate.parse(it) }
             service
                 .oppdaterSkjæringstidspunkt(
                     periodeRef = call.periodeReferanse(),

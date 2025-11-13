@@ -60,7 +60,7 @@ class SaksbehandlingsperiodeDaoFake : SaksbehandlingsperiodeDao {
 
     override fun oppdaterSkjæringstidspunkt(
         periodeId: UUID,
-        skjæringstidspunkt: LocalDate?,
+        skjæringstidspunkt: LocalDate,
     ) {
         val eksisterende = perioder[periodeId] ?: return
         perioder[periodeId] = eksisterende.copy(skjæringstidspunkt = skjæringstidspunkt)

@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
     opprettet_av_navn       TEXT                        NOT NULL,
     fom                     DATE                        NOT NULL,
     tom                     DATE                        NOT NULL,
-    skjaeringstidspunkt     DATE                        NULL,
+    skjaeringstidspunkt     DATE                        NOT NULL,
     status                  TEXT                        NOT NULL,
     beslutter_nav_ident     TEXT                        NULL,
     individuell_begrunnelse TEXT                        NULL
