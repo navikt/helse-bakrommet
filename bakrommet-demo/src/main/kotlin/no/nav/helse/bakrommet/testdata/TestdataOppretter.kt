@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.hentSession
 import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksMcBehandlersen
 import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.sessionsDaoer
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.*
@@ -17,6 +18,11 @@ import java.util.*
 suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
     val db = sessionsDaoer[hentSession()]!!
 
+    val saksbehandlerBrukerOgToken =
+        BrukerOgToken(
+            bruker = saksMcBehandlersen,
+            token = SpilleromBearerToken("token"),
+        )
     testpersoner
         .forEach { testperson ->
             db.personDao.opprettPerson(
@@ -50,11 +56,17 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                         tom = periode.tom,
                         søknader = søknadUUIDer,
                         saksbehandler =
-                            BrukerOgToken(
-                                bruker = saksMcBehandlersen,
-                                token = SpilleromBearerToken("token"),
-                            ),
+                        saksbehandlerBrukerOgToken,
                     )
+                if (periode.inntektRequest != null) {
+                    this.yrkesaktivitetService.hentYrkesaktivitetFor(nySaksbehandlingsperiode.somReferanse()).let { yrkesaktiviteter ->
+                        this.inntektService.oppdaterInntekt(
+                            ref = YrkesaktivitetReferanse(nySaksbehandlingsperiode.somReferanse(), yrkesaktiviteter.first().id),
+                            request = periode.inntektRequest,
+                            saksbehandler = saksbehandlerBrukerOgToken,
+                        )
+                    }
+                }
                 if (periode.avsluttet) {
                     this.saksbehandlingsperiodeService.sendTilBeslutning(
                         periodeRef = nySaksbehandlingsperiode.somReferanse(),

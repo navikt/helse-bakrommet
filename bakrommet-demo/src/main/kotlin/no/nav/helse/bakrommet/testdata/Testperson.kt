@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.testdata
 
 import no.nav.helse.bakrommet.aareg.Arbeidsforhold
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.juli
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding
@@ -36,6 +37,7 @@ data class Saksbehandingsperiode(
     val tom: LocalDate,
     val søknadIder: List<String> = emptyList(),
     val avsluttet: Boolean = false,
+    val inntektRequest: InntektRequest? = null,
 )
 
 fun Testperson.tilTestpersonForFrontend(erScenarie: Boolean = false): TestpersonForFrontend =

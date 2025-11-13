@@ -2,9 +2,13 @@ package no.nav.helse.bakrommet.testdata.testpersoner
 
 import no.nav.helse.bakrommet.ereg.kranførerkompaniet
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Saksbehandingsperiode
 import no.nav.helse.bakrommet.testdata.Testperson
+import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.inntektsmeldingkontrakt.EndringIRefusjon
 import no.nav.inntektsmeldingkontrakt.Periode
@@ -58,6 +62,14 @@ val kalleKranfører =
                     tom = LocalDate.of(2024, 8, 9),
                     søknadIder = listOf("1"),
                     avsluttet = true,
+                    inntektRequest =
+                        InntektRequest.Arbeidstaker(
+                            ArbeidstakerInntektRequest.Skjønnsfastsatt(
+                                InntektbeløpDto.Årlig(500000.0),
+                                årsak = ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING,
+                                begrunnelse = "Fordi",
+                            ),
+                        ),
                 ),
             ),
         soknader =
@@ -71,11 +83,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Kranførerkompaniet"
                     arbeidsgiverOrgnummer = "987654321"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2024, 8, 2)
-                    startSyketilfelle = LocalDate.of(2024, 8, 2)
-                    opprettet = LocalDate.of(2024, 8, 2)
-                    sendtNav = LocalDate.of(2024, 8, 2)
-                    sendtArbeidsgiver = LocalDate.of(2024, 8, 2)
                 },
                 soknad(
                     fnr = kalleFnr,
@@ -86,11 +93,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Kranførerkompaniet"
                     arbeidsgiverOrgnummer = "987654321"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2024, 8, 10)
-                    startSyketilfelle = LocalDate.of(2024, 8, 10)
-                    opprettet = LocalDate.of(2024, 8, 10)
-                    sendtNav = LocalDate.of(2024, 8, 10)
-                    sendtArbeidsgiver = LocalDate.of(2024, 8, 10)
                 },
                 soknad(
                     fnr = kalleFnr,
@@ -101,11 +103,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Kranførerkompaniet"
                     arbeidsgiverOrgnummer = "987654321"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2025, 1, 1)
-                    startSyketilfelle = LocalDate.of(2025, 1, 1)
-                    opprettet = LocalDate.of(2025, 1, 1)
-                    sendtNav = LocalDate.of(2025, 1, 1)
-                    sendtArbeidsgiver = LocalDate.of(2025, 1, 1)
                 },
                 soknad(
                     fnr = kalleFnr,
@@ -116,11 +113,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Kranførerkompaniet"
                     arbeidsgiverOrgnummer = "987654321"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2025, 1, 1)
-                    startSyketilfelle = LocalDate.of(2025, 1, 1)
-                    opprettet = LocalDate.of(2025, 1, 1)
-                    sendtNav = LocalDate.of(2025, 1, 1)
-                    sendtArbeidsgiver = LocalDate.of(2025, 1, 1)
                 },
                 soknad(
                     fnr = kalleFnr,
@@ -131,11 +123,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2025, 1, 1)
-                    startSyketilfelle = LocalDate.of(2025, 1, 1)
-                    opprettet = LocalDate.of(2025, 1, 1)
-                    sendtNav = LocalDate.of(2025, 1, 1)
-                    sendtArbeidsgiver = LocalDate.of(2025, 1, 1)
                 },
                 soknad(
                     fnr = kalleFnr,
@@ -146,11 +133,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2024, 1, 1)
-                    startSyketilfelle = LocalDate.of(2024, 1, 1)
-                    opprettet = LocalDate.of(2024, 1, 1)
-                    sendtNav = LocalDate.of(2024, 1, 1)
-                    sendtArbeidsgiver = LocalDate.of(2024, 1, 1)
                 },
                 soknad(
                     fnr = kalleFnr,
@@ -161,11 +143,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2023, 1, 1)
-                    startSyketilfelle = LocalDate.of(2023, 1, 1)
-                    opprettet = LocalDate.of(2023, 1, 1)
-                    sendtNav = LocalDate.of(2023, 1, 1)
-                    sendtArbeidsgiver = LocalDate.of(2023, 1, 1)
                 },
                 soknad(
                     fnr = kalleFnr,
@@ -176,11 +153,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2025, 9, 1)
-                    startSyketilfelle = LocalDate.of(2025, 9, 1)
-                    opprettet = LocalDate.of(2025, 9, 1)
-                    sendtNav = LocalDate.of(2025, 9, 21)
-                    sendtArbeidsgiver = LocalDate.of(2025, 9, 21)
                 },
                 soknad(
                     fnr = kalleFnr,
@@ -191,11 +163,6 @@ val kalleKranfører =
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
-                    sykmeldingSkrevet = LocalDate.of(2025, 9, 21)
-                    startSyketilfelle = LocalDate.of(2025, 9, 1)
-                    opprettet = LocalDate.of(2025, 9, 21)
-                    sendtNav = LocalDate.of(2025, 9, 21)
-                    sendtArbeidsgiver = LocalDate.of(2025, 9, 21)
                 },
             ),
     )
