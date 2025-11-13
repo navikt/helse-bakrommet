@@ -175,7 +175,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             val outboxAfterApproval = it.outboxDao.hentAlleUpubliserteEntries()
-            assertEquals(2, outboxAfterApproval.size, "Det skal være to meldinger i outbox etter godkjenning av perioden")
+            assertEquals(3, outboxAfterApproval.size, "Det skal være 3 meldinger i outbox etter godkjenning av perioden")
 
             client
                 .get("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/historikk") {

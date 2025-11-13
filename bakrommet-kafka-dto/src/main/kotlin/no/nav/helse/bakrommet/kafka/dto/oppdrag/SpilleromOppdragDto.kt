@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class SpilleromOppdragDto(
     val spilleromUtbetalingId: String,
+    val fnr: String,
     val oppdrag: List<OppdragDto>,
     val maksdato: LocalDate? = null,
 )

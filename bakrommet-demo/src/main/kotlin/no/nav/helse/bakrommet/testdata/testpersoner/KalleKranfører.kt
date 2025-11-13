@@ -30,17 +30,20 @@ val kalleKranfører =
                     arbeidstakerFnr = kalleFnr,
                     foersteFravaersdag = LocalDate.of(2025, 1, 1),
                     refusjon = Refusjon(beloepPrMnd = BigDecimal("50000.00"), opphoersdato = null),
-                    endringIRefusjoner = listOf(
-                        EndringIRefusjon(
-                            endringsdato = LocalDate.of(2025, 2, 1),
-                            beloep = BigDecimal("45000.00")
-                        )
-                    ),
+                    endringIRefusjoner =
+                        listOf(
+                            EndringIRefusjon(
+                                endringsdato = LocalDate.of(2025, 2, 1),
+                                beloep = BigDecimal("45000.00"),
+                            ),
+                        ),
                     arbeidsgiverperioder = listOf(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16))),
                     månedsinntekt = 50000.0,
                 ),
                 skapInntektsmelding(
-                    UUID.randomUUID().toString(), månedsinntekt = 89000.0, arbeidstakerFnr = kalleFnr,
+                    UUID.randomUUID().toString(),
+                    månedsinntekt = 89000.0,
+                    arbeidstakerFnr = kalleFnr,
                 ),
             ),
         saksbehandingsperioder =

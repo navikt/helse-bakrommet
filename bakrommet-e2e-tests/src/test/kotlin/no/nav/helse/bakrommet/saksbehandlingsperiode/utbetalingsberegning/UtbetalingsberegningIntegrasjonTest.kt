@@ -102,7 +102,7 @@ class UtbetalingsberegningIntegrasjonTest {
 
             godkjenn(periode, tokenBeslutter)
             val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()
-            upubliserteEntries.size `should equal` 3
+            upubliserteEntries.size `should equal` 4
 
             val kafkaPayload = upubliserteEntries[1].kafkaPayload.tilSaksbehandlingsperiodeKafkaDto()
             kafkaPayload.status `should equal` SaksbehandlingsperiodeStatusKafkaDto.GODKJENT

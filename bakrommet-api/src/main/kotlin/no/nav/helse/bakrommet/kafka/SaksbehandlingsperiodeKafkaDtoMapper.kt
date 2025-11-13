@@ -2,6 +2,8 @@ package no.nav.helse.bakrommet.kafka
 
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
+import no.nav.helse.bakrommet.meldingomvedtak.skalHaMeldingOmVedtak
+import no.nav.helse.bakrommet.meldingomvedtak.tilMeldingOmVedtak
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
@@ -9,7 +11,6 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeRefer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponse
 import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.util.HashUtils
@@ -37,43 +38,41 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: Saksbehandlings
             yrkesaktivitetDao = yrkesaktivitetDao,
             personDao = personDao,
         )
-    val kafkameldingMedData =
-        saksbehandlingsperiodeKafkaDtoMapper.genererKafkaMelding(referanse)
-    outboxDao.lagreTilOutbox(kafkameldingMedData.melding)
-    if (kafkameldingMedData.saksbehandlingsperiode.status == SaksbehandlingsperiodeStatusKafkaDto.GODKJENT) {
+    val saksbehandlingsperiodeKafkaDto = saksbehandlingsperiodeKafkaDtoMapper.genererKafkaMelding(referanse)
+    outboxDao.lagreTilOutbox(
+        KafkaMelding(
+            topic = "speilvendt.spillerom-behandlinger",
+            key = saksbehandlingsperiodeKafkaDto.fnr.tilKafkaKey(),
+            saksbehandlingsperiodeKafkaDto.serialisertTilString(),
+        ),
+    )
+    if (saksbehandlingsperiodeKafkaDto.status == SaksbehandlingsperiodeStatusKafkaDto.GODKJENT) {
         // TODO sjekk at det faktisk er penger å sende
 
-        kafkameldingMedData.beregning?.let { beregning ->
+        saksbehandlingsperiodeKafkaDto.spilleromOppdrag?.let { spilleromOppdrag ->
             outboxDao.lagreTilOutbox(
                 KafkaMelding(
                     topic = "speilvendt.sykepenger-spillerom-utbetalinger",
-                    key = kafkameldingMedData.melding.key,
-                    payload = beregning.beregningData.spilleromOppdrag.serialisertTilString(),
-                ),
-            )
-        }
-    }
-    /*
-    if (kafkameldingMedData.skalHaMeldingOmVedtak()) {
-        kafkameldingMedData.beregning?.let { beregning ->
-            outboxDao.lagreTilOutbox(
-                KafkaMelding(
-                    topic = "speilvendt.spillerom-melding-om-vedtak",
-                    key = kafkameldingMedData.melding.key,
-                    payload = beregning.beregningData.spilleromOppdrag.serialisertTilString(),
+                    key = spilleromOppdrag.fnr.tilKafkaKey(),
+                    payload = spilleromOppdrag.serialisertTilString(),
                 ),
             )
         }
     }
 
-     */
+    if (saksbehandlingsperiodeKafkaDto.skalHaMeldingOmVedtak()) {
+        val meldingOmVedtak = saksbehandlingsperiodeKafkaDto.tilMeldingOmVedtak()
+        outboxDao.lagreTilOutbox(
+            KafkaMelding(
+                topic = "speilvendt.spillerom-melding-om-vedtak",
+                key = meldingOmVedtak.fnr.tilKafkaKey(),
+                payload = meldingOmVedtak.serialisertTilString(),
+            ),
+        )
+    }
 }
 
-data class KafkaMeldingMedData(
-    val melding: KafkaMelding,
-    val saksbehandlingsperiode: SaksbehandlingsperiodeKafkaDto,
-    val beregning: BeregningResponse?,
-)
+fun String.tilKafkaKey(): String = HashUtils.sha256("spillerom-$this")
 
 class SaksbehandlingsperiodeKafkaDtoMapper(
     private val beregningDao: UtbetalingsberegningDao,
@@ -82,7 +81,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
 ) {
-    fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): KafkaMeldingMedData {
+    fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): SaksbehandlingsperiodeKafkaDto {
         val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, null)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent =
@@ -102,20 +101,9 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                 beslutterNavIdent = periode.beslutterNavIdent,
                 skjæringstidspunkt = periode.skjæringstidspunkt,
                 yrkesaktiviteter = emptyList(),
+                spilleromOppdrag = beregning?.beregningData?.spilleromOppdrag,
             )
 
-        // Lag sha256 hash av spilleromPersonId som key
-        val hash = HashUtils.sha256(periode.spilleromPersonId)
-        val kafkaMelding =
-            KafkaMelding(
-                topic = "speilvendt.spillerom-behandlinger",
-                hash,
-                saksbehandlingsperiodeKafkaDto.serialisertTilString(),
-            )
-        return KafkaMeldingMedData(
-            melding = kafkaMelding,
-            saksbehandlingsperiode = saksbehandlingsperiodeKafkaDto,
-            beregning = beregning,
-        )
+        return saksbehandlingsperiodeKafkaDto
     }
 }
