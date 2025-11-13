@@ -8,4 +8,10 @@ data class SpilleromMeldingOmVedtakDto(
     val id: UUID,
     val fom: LocalDate,
     val tom: LocalDate,
+    val ubetalinger: List<UtbetalingDto>,
+)
+
+data class UtbetalingDto(
+    val beløp: Int,
+    val mottaker: String, // Orgnummer eller fnr
 )
