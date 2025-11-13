@@ -14,13 +14,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      - name: Deploy spillerom-behandlinger-topic topic til dev-gcp
+      - name: Deploy spillerom-behandlinger topic til dev-gcp
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: deploy/topics/spillerom-behandlinger-topic-dev.yaml
-      - name: Deploy spillerom-utbetalinger-topic topic til dev-gcp
+      - name: Deploy spillerom-utbetalinger topic til dev-gcp
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: deploy/topics/sykepenger-spillerom-utbetalinger-topic-dev.yaml
+      - name: Deploy spillerom-melding-om-vedtak topic til dev-gcp
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/topics/spillerom-melding-om-vedtak-topic-dev.yaml
