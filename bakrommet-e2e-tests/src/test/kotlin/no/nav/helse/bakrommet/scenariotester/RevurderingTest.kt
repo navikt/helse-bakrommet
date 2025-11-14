@@ -1,0 +1,73 @@
+package no.nav.helse.bakrommet.scenariotester
+
+import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.helse.bakrommet.kafka.OutboxDbRecord
+import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
+import no.nav.helse.bakrommet.taTilBesluting
+import no.nav.helse.bakrommet.testutils.*
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.revurder
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
+import no.nav.helse.bakrommet.util.objectMapper
+import org.junit.jupiter.api.Test
+
+class RevurderingTest {
+    @Test
+    fun `Vi revurderer og endrer graderingen lavere`() {
+        Scenario(
+            yrkesaktiviteter =
+                listOf(
+                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                ),
+        ).runWithApplicationTestBuilder { scenarioData ->
+            val forsteOppdrag = scenarioData.utbetalingsberegning!!.beregningData.spilleromOppdrag
+            val personId = scenarioData.scenario.personId
+
+            val revurderendePeriode = revurder(scenarioData.periode)
+            revurderendePeriode.revurdererSaksbehandlingsperiodeId `should equal` scenarioData.periode.id
+
+            forsteOppdrag.oppdrag.size `should equal` 1
+            val førsteOppdragslinje = forsteOppdrag.oppdrag[0]
+            førsteOppdragslinje.totalbeløp `should equal` 4620
+
+            val yrkesaktivitet =
+                hentYrkesaktiviteter(
+                    periodeId = revurderendePeriode.id,
+                    personId = personId,
+                ).first()
+
+            settDagoversikt(
+                periodeId = revurderendePeriode.id,
+                yrkesaktivitetId = yrkesaktivitet.id,
+                personId = personId,
+                dager = lagSykedager(fom = revurderendePeriode.fom, tom = revurderendePeriode.tom, grad = 50),
+            )
+            sendTilBeslutning(
+                periodeId = revurderendePeriode.id,
+                personId = personId,
+                individuellBegrunnelse = "Revurdering med lavere grad",
+            )
+            taTilBesluting(revurderendePeriode, token = scenarioData.beslutterToken)
+            godkjenn(revurderendePeriode, token = scenarioData.beslutterToken)
+
+            val utbetalingKafkaMeldinger =
+                scenarioData.daoer.outboxDao
+                    .hentAlleUpubliserteEntries()
+                    .filter { it.topic == "speilvendt.sykepenger-spillerom-utbetalinger" }
+            utbetalingKafkaMeldinger.size `should equal` 2
+            val opprinneligUtbetaling = utbetalingKafkaMeldinger[0].tilSpilleromOppdragDto()
+            val revurderendeUtbetaling = utbetalingKafkaMeldinger[1].tilSpilleromOppdragDto()
+
+            opprinneligUtbetaling.oppdrag.first().totalbeløp `should equal` 4620
+            revurderendeUtbetaling.oppdrag.first().totalbeløp `should equal` 2310
+
+            opprinneligUtbetaling.spilleromUtbetalingId `should equal` revurderendeUtbetaling.spilleromUtbetalingId
+
+            println("Alle utbetalinger etter revurdering: $utbetalingKafkaMeldinger")
+        }
+    }
+}
+
+fun OutboxDbRecord.tilSpilleromOppdragDto(): SpilleromOppdragDto = objectMapper.readValue(this.kafkaPayload)

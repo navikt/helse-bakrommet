@@ -9,6 +9,8 @@ import no.nav.helse.bakrommet.kafka.leggTilOutbox
 import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringType.REVURDERING_STARTET
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.Beregningsdaoer
+import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
@@ -24,7 +26,9 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
-interface SaksbehandlingsperiodeServiceDaoer : SaksbehandlingsperiodeKafkaDtoDaoer {
+interface SaksbehandlingsperiodeServiceDaoer :
+    SaksbehandlingsperiodeKafkaDtoDaoer,
+    Beregningsdaoer {
     val saksbehandlingsperiodeEndringerDao: SaksbehandlingsperiodeEndringerDao
     val dokumentDao: DokumentDao
 }
@@ -208,6 +212,7 @@ class SaksbehandlingsperiodeService(
                     ),
                 )
             }
+            /*
             // TODO bare gjøre en reberegning istedenfor?
             beregningDao.hentBeregning(forrigePeriode.id)?.let {
                 beregningDao.settBeregning(
@@ -216,6 +221,8 @@ class SaksbehandlingsperiodeService(
                     saksbehandler,
                 )
             }
+
+             */
             if (forrigePeriode.sykepengegrunnlagId != null) {
                 sykepengegrunnlagDao.hentSykepengegrunnlag(forrigePeriode.sykepengegrunnlagId).let { spg ->
                     if (spg.opprettetForBehandling == forrigePeriode.id) {
@@ -265,6 +272,11 @@ class SaksbehandlingsperiodeService(
                     dokument.copy(id = UUID.randomUUID(), opprettetForBehandling = nyPeriode.id),
                 )
             }
+
+            beregnSykepengegrunnlagOgUtbetaling(
+                nyPeriode.somReferanse(),
+                saksbehandler = saksbehandler,
+            )
 
             saksbehandlingsperiodeDao.reload(nyPeriode)
         }

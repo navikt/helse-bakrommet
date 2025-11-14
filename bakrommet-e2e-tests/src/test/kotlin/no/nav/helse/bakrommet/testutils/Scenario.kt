@@ -4,6 +4,7 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.Inntekt
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
@@ -30,9 +31,13 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeA
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.maybeOrgnummer
+import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.sigrun.sigrunÅr
+import no.nav.helse.bakrommet.taTilBesluting
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentAllePerioder
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
@@ -66,6 +71,7 @@ data class ScenarioData(
     val yrkesaktiviteter: List<YrkesaktivitetDTO>,
     val utbetalingsberegning: BeregningResponseUtDto?,
     val daoer: Daoer,
+    val beslutterToken: String,
 ) {
     fun `skal ha sykepengegrunnlag`(beløp: Double) {
         assertEquals(beløp, sykepengegrunnlag.sykepengegrunnlag.beløp)
@@ -187,6 +193,7 @@ data class Scenario(
             daoer.personDao.opprettPerson(fnr, personId)
 
             val periode = opprettSaksbehandlingsperiode(personId, fom, tom)
+            val beslutterToken = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
 
             if (skjæringstidspunkt != fom) {
                 // Sett skjæringstidspunkt for perioden via action
@@ -243,16 +250,21 @@ data class Scenario(
 
             val beregning = hentUtbetalingsberegning(periode.id, periode.spilleromPersonId)
             val yrkesaktiviteter = hentYrkesaktiviteter(periode.id, periode.spilleromPersonId)
+            sendTilBeslutning(periode)
+            taTilBesluting(periode, beslutterToken)
+            godkjenn(periode, beslutterToken)
+            val reloadedPeriode = hentAllePerioder(personId).first { it.id == periode.id }
             if (testBlock != null) {
                 testBlock.invoke(
                     this,
                     ScenarioData(
-                        periode = periode,
+                        periode = reloadedPeriode,
                         sykepengegrunnlag = sykepengegrunnlag!!.sykepengegrunnlag!!,
                         sammenlikningsgrunnlag = sykepengegrunnlag.sammenlikningsgrunnlag,
                         utbetalingsberegning = beregning,
                         yrkesaktiviteter = yrkesaktiviteter,
                         daoer = daoer,
+                        beslutterToken = beslutterToken,
                         scenario = this@Scenario,
                     ),
                 )
@@ -289,20 +301,26 @@ class SykAlleDager : YADagoversikt() {
     override fun lagDagListe(
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Dag> =
-        fom
-            .datesUntil(tom.plusDays(1))
-            .map { dato ->
-                Dag(
-                    dato = dato,
-                    dagtype = Dagtype.Syk,
-                    grad = 100,
-                    avslåttBegrunnelse = listOf(),
-                    andreYtelserBegrunnelse = listOf(),
-                    kilde = Kilde.Søknad,
-                )
-            }.toList()
+    ): List<Dag> = lagSykedager(fom, tom, grad = 100)
 }
+
+fun lagSykedager(
+    fom: LocalDate,
+    tom: LocalDate,
+    grad: Int,
+): List<Dag> =
+    fom
+        .datesUntil(tom.plusDays(1))
+        .map { dato ->
+            Dag(
+                dato = dato,
+                dagtype = Dagtype.Syk,
+                grad = grad,
+                avslåttBegrunnelse = listOf(),
+                andreYtelserBegrunnelse = listOf(),
+                kilde = Kilde.Søknad,
+            )
+        }.toList()
 
 sealed class YAInntekt {
     abstract val request: InntektRequest

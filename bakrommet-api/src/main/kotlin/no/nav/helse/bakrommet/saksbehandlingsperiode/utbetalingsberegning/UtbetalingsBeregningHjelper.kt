@@ -94,7 +94,7 @@ private fun List<Oppdrag>.tilSpilleromoppdrag(
     spilleromUtbetalingId: String,
 ): SpilleromOppdragDto =
     SpilleromOppdragDto(
-        spilleromUtbetalingId = UUID.randomUUID().toString(),
+        spilleromUtbetalingId = spilleromUtbetalingId,
         oppdrag = this.map { it.tilOppdragDto() },
         fnr = fnr,
     )

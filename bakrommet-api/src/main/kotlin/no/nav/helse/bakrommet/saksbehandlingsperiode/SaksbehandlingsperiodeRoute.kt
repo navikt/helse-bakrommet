@@ -128,7 +128,7 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/revurder") {
         post {
             service.revurderPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
-                call.respondPeriode(oppdatertPeriode)
+                call.respondPeriode(oppdatertPeriode, status = HttpStatusCode.Created)
             }
         }
     }

@@ -38,15 +38,3 @@ suspend fun ApplicationTestBuilder.taTilBesluting(
         }
     assertEquals(200, response.status.value)
 }
-
-suspend fun ApplicationTestBuilder.godkjenn(
-    saksbehandlingsperiode: Saksbehandlingsperiode,
-    token: String,
-) {
-    val response =
-        this.client.post("/v1/${saksbehandlingsperiode.spilleromPersonId}/saksbehandlingsperioder/${saksbehandlingsperiode.id}/godkjenn") {
-            bearerAuth(token)
-            contentType(ContentType.Application.Json)
-        }
-    assertEquals(200, response.status.value)
-}
