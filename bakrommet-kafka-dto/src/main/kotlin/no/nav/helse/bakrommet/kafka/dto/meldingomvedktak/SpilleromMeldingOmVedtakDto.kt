@@ -9,6 +9,7 @@ data class SpilleromMeldingOmVedtakDto(
     val fom: LocalDate,
     val tom: LocalDate,
     val ubetalinger: List<UtbetalingDto>,
+    val revurdererSaksbehandlingsperiodeId: UUID?,
 )
 
 data class UtbetalingDto(

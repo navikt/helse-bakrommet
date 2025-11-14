@@ -104,6 +104,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
                 skjæringstidspunkt = periode.skjæringstidspunkt,
                 yrkesaktiviteter = emptyList(),
                 spilleromOppdrag = beregning?.beregningData?.spilleromOppdrag,
+                revurdererSaksbehandlingsperiodeId = periode.revurdererSaksbehandlingsperiodeId,
             )
 
         return saksbehandlingsperiodeKafkaDto

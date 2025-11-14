@@ -62,7 +62,13 @@ class UtbetalingsBeregningHjelper(
         // Bygg oppdrag for hver yrkesaktivitet
         val oppdrag = byggOppdragFraBeregning(beregnet, yrkesaktiviteter, ident)
 
-        val beregningData = BeregningData(beregnet, oppdrag.tilSpilleromoppdrag(fnr = ident))
+        val spilleromUtbetalingIdViRevurderer =
+            periode.revurdererSaksbehandlingsperiodeId?.let {
+                val tidligereBeregning = beregningDao.hentBeregning(it)
+                tidligereBeregning?.beregningData?.spilleromOppdrag?.spilleromUtbetalingId
+            }
+        val spilleromUtbetalingId = spilleromUtbetalingIdViRevurderer ?: UUID.randomUUID().toString()
+        val beregningData = BeregningData(beregnet, oppdrag.tilSpilleromoppdrag(fnr = ident, spilleromUtbetalingId = spilleromUtbetalingId))
 
         // Opprett response
         val beregningResponse =
@@ -83,7 +89,10 @@ class UtbetalingsBeregningHjelper(
     }
 }
 
-private fun List<Oppdrag>.tilSpilleromoppdrag(fnr: String): SpilleromOppdragDto =
+private fun List<Oppdrag>.tilSpilleromoppdrag(
+    fnr: String,
+    spilleromUtbetalingId: String,
+): SpilleromOppdragDto =
     SpilleromOppdragDto(
         spilleromUtbetalingId = UUID.randomUUID().toString(),
         oppdrag = this.map { it.tilOppdragDto() },

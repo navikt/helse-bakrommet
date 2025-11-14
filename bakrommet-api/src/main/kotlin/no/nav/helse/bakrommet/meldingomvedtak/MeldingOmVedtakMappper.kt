@@ -20,4 +20,5 @@ fun SaksbehandlingsperiodeKafkaDto.tilMeldingOmVedtak(): SpilleromMeldingOmVedta
                     mottaker = it.mottaker,
                 )
             } ?: emptyList(),
+        revurdererSaksbehandlingsperiodeId = this.revurdererSaksbehandlingsperiodeId,
     )

@@ -18,4 +18,5 @@ data class SaksbehandlingsperiodeKafkaDto(
     val skjæringstidspunkt: LocalDate?,
     val yrkesaktiviteter: List<Any>,
     val spilleromOppdrag: SpilleromOppdragDto?,
+    val revurdererSaksbehandlingsperiodeId: UUID?,
 )
