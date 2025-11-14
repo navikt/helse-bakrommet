@@ -18,20 +18,21 @@ CREATE TABLE IF NOT EXISTS sykepengegrunnlag
 
 CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
 (
-    id                      UUID                        NOT NULL PRIMARY KEY,
-    spillerom_personid      TEXT                        NOT NULL
+    id                                   UUID                        NOT NULL PRIMARY KEY,
+    spillerom_personid                   TEXT                        NOT NULL
         REFERENCES ident (spillerom_id),
-    sykepengegrunnlag_id    UUID                        NULL
+    sykepengegrunnlag_id                 UUID                        NULL
         REFERENCES sykepengegrunnlag (id),
-    opprettet               TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    opprettet_av_nav_ident  TEXT                        NOT NULL,
-    opprettet_av_navn       TEXT                        NOT NULL,
-    fom                     DATE                        NOT NULL,
-    tom                     DATE                        NOT NULL,
-    skjaeringstidspunkt     DATE                        NOT NULL,
-    status                  TEXT                        NOT NULL,
-    beslutter_nav_ident     TEXT                        NULL,
-    individuell_begrunnelse TEXT                        NULL
+    opprettet                            TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    opprettet_av_nav_ident               TEXT                        NOT NULL,
+    opprettet_av_navn                    TEXT                        NOT NULL,
+    fom                                  DATE                        NOT NULL,
+    tom                                  DATE                        NOT NULL,
+    skjaeringstidspunkt                  DATE                        NOT NULL,
+    status                               TEXT                        NOT NULL,
+    beslutter_nav_ident                  TEXT                        NULL,
+    individuell_begrunnelse              TEXT                        NULL,
+    revurderer_saksbehandlingsperiode_id UUID                        NULL UNIQUE REFERENCES saksbehandlingsperiode (id)
 );
 
 ALTER TABLE sykepengegrunnlag

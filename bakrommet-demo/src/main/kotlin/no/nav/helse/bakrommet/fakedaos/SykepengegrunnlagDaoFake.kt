@@ -13,7 +13,7 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
     private val storage = ConcurrentHashMap<UUID, SykepengegrunnlagDbRecord>()
 
     override fun lagreSykepengegrunnlag(
-        sykepengegrunnlag: Sykepengegrunnlag,
+        sykepengegrunnlag: Sykepengegrunnlag?,
         saksbehandler: Bruker,
         opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord {

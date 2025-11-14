@@ -22,11 +22,6 @@ suspend fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
                 ref = ref.saksbehandlingsperiodeReferanse,
                 krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
             )
-        if (periode.skjæringstidspunkt == null) {
-            return@transactional PensjonsgivendeInntektResponse.Feil(
-                feilmelding = "Kan ikke hente pensjonsgivende inntekt før skjæringstidspunkt er satt",
-            )
-        }
 
         val yrkesaktivitet =
             yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)

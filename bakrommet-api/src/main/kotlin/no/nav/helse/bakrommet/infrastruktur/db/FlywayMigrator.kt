@@ -23,7 +23,7 @@ class FlywayMigrator(
             maximumPoolSize = 2
         }
 
-    val tillattNukeFør = ZonedDateTime.of(13.november(2025), LocalTime.of(23, 0, 0), ZoneId.of("Europe/Oslo")).toInstant()
+    val tillattNukeFør = ZonedDateTime.of(14.november(2025), LocalTime.of(9, 0, 0), ZoneId.of("Europe/Oslo")).toInstant()
 
     val nukeDb = Instant.now().isBefore(tillattNukeFør)
 

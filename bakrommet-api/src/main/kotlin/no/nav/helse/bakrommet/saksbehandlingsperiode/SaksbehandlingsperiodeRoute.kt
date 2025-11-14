@@ -81,9 +81,11 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
 
         post {
             val body = call.receive<SendTilBeslutningRequest>()
-            service.sendTilBeslutning(call.periodeReferanse(), body.individuellBegrunnelse, call.saksbehandler()).let { oppdatertPeriode ->
-                call.respondPeriode(oppdatertPeriode)
-            }
+            service
+                .sendTilBeslutning(call.periodeReferanse(), body.individuellBegrunnelse, call.saksbehandler())
+                .let { oppdatertPeriode ->
+                    call.respondPeriode(oppdatertPeriode)
+                }
         }
     }
 
@@ -107,15 +109,25 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
                     sikkerLogger.warn("Klarte ikke parse SendTilbakeRequest", ex)
                     throw InputValideringException("Ugyldig innhold i POST-body")
                 }
-            service.sendTilbakeFraBeslutning(call.periodeReferanse(), call.saksbehandler(), kommentar = kommentar).let { oppdatertPeriode ->
-                call.respondPeriode(oppdatertPeriode)
-            }
+            service
+                .sendTilbakeFraBeslutning(call.periodeReferanse(), call.saksbehandler(), kommentar = kommentar)
+                .let { oppdatertPeriode ->
+                    call.respondPeriode(oppdatertPeriode)
+                }
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/godkjenn") {
         post {
             service.godkjennPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+                call.respondPeriode(oppdatertPeriode)
+            }
+        }
+    }
+
+    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/revurder") {
+        post {
+            service.revurderPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondPeriode(oppdatertPeriode)
             }
         }

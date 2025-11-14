@@ -99,6 +99,10 @@ val regler =
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/revurder/(method:POST)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/tatilbeslutning/(method:POST)",
             role = setOf(BESLUTTER),
         ),

@@ -75,6 +75,21 @@ fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
 
 interface YrkesaktivitetDao {
     fun opprettYrkesaktivitet(
+        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
+    ): YrkesaktivitetDbRecord =
+        opprettYrkesaktivitet(
+            id = yrkesaktivitetDbRecord.id,
+            kategorisering = yrkesaktivitetDbRecord.kategorisering,
+            dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
+            saksbehandlingsperiodeId = yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+            opprettet = yrkesaktivitetDbRecord.opprettet,
+            generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
+            perioder = yrkesaktivitetDbRecord.perioder,
+            inntektData = yrkesaktivitetDbRecord.inntektData,
+            refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+        )
+
+    fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
         dagoversikt: List<Dag>?,

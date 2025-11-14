@@ -7,18 +7,16 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
 import no.nav.helse.bakrommet.kafka.leggTilOutbox
 import no.nav.helse.bakrommet.person.SpilleromPersonId
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringType.REVURDERING_STARTET
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentHenter
+import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.FrilanserForsikring
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.SelvstendigForsikring
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.VariantAvInaktiv
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.*
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -69,6 +67,7 @@ class SaksbehandlingsperiodeService(
                 fom = fom,
                 tom = tom,
                 skjæringstidspunkt = fom,
+                revurdererSaksbehandlingsperiodeId = null,
             )
 
         var tidligerePeriodeInntilNyPeriode: Saksbehandlingsperiode? = null
@@ -180,6 +179,96 @@ class SaksbehandlingsperiodeService(
                 }
         }
 
+    suspend fun revurderPeriode(
+        periodeRef: SaksbehandlingsperiodeReferanse,
+        saksbehandler: Bruker,
+    ): Saksbehandlingsperiode =
+        db.transactional {
+            val forrigePeriode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, null)
+            if (forrigePeriode.status != SaksbehandlingsperiodeStatus.GODKJENT) {
+                throw InputValideringException("Kun godkjente perioder kan revurderes")
+            }
+            // TODO sjekke at ingen andre revurderer den? Eller bare stole på unique constraint i db?
+            val nyPeriode =
+                forrigePeriode.copy(
+                    status = UNDER_BEHANDLING,
+                    opprettet = OffsetDateTime.now(),
+                    opprettetAvNavn = saksbehandler.navn,
+                    opprettetAvNavIdent = saksbehandler.navIdent,
+                    id = UUID.randomUUID(),
+                    revurdererSaksbehandlingsperiodeId = forrigePeriode.id,
+                )
+            saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+            yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(forrigePeriode).forEach { ya ->
+                yrkesaktivitetDao.opprettYrkesaktivitet(
+                    ya.copy(
+                        id = UUID.randomUUID(),
+                        saksbehandlingsperiodeId = nyPeriode.id,
+                        opprettet = OffsetDateTime.now(),
+                    ),
+                )
+            }
+            // TODO bare gjøre en reberegning istedenfor?
+            beregningDao.hentBeregning(forrigePeriode.id)?.let {
+                beregningDao.settBeregning(
+                    nyPeriode.id,
+                    it,
+                    saksbehandler,
+                )
+            }
+            if (forrigePeriode.sykepengegrunnlagId != null) {
+                sykepengegrunnlagDao.hentSykepengegrunnlag(forrigePeriode.sykepengegrunnlagId).let { spg ->
+                    if (spg.opprettetForBehandling == forrigePeriode.id) {
+                        val nyttSpg =
+                            sykepengegrunnlagDao.lagreSykepengegrunnlag(
+                                spg.sykepengegrunnlag,
+                                saksbehandler,
+                                nyPeriode.id,
+                            )
+                        saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(
+                            nyPeriode.id,
+                            nyttSpg.id,
+                        )
+                    }
+                }
+            }
+
+            saksbehandlingsperiodeEndringerDao.hentEndringerFor(forrigePeriode.id).forEach { e ->
+                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    nyPeriode.endring(
+                        endringType = e.endringType,
+                        saksbehandler = saksbehandler,
+                        status = nyPeriode.status,
+                        beslutterNavIdent = nyPeriode.beslutterNavIdent,
+                        endretTidspunkt = e.endretTidspunkt,
+                        endringKommentar = e.endringKommentar,
+                    ),
+                )
+            }
+            saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                nyPeriode.endring(
+                    endringType = REVURDERING_STARTET,
+                    saksbehandler = saksbehandler,
+                ),
+            )
+
+            vurdertVilkårDao.hentVilkårsvurderinger(forrigePeriode.id).forEach { v ->
+                vurdertVilkårDao.leggTil(
+                    nyPeriode,
+                    Kode(v.kode),
+                    v.vurdering,
+                )
+            }
+
+            dokumentDao.hentDokumenterFor(forrigePeriode.id).forEach { dokument ->
+                dokumentDao.opprettDokument(
+                    dokument.copy(id = UUID.randomUUID(), opprettetForBehandling = nyPeriode.id),
+                )
+            }
+
+            saksbehandlingsperiodeDao.reload(nyPeriode)
+        }
+
     suspend fun taTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
@@ -211,7 +300,7 @@ class SaksbehandlingsperiodeService(
     ): Saksbehandlingsperiode =
         db.transactional {
             val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
-            val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
+            val nyStatus = UNDER_BEHANDLING
             periode.verifiserNyStatusGyldighet(nyStatus)
             saksbehandlingsperiodeDao.endreStatus(
                 periode,

@@ -62,9 +62,6 @@ class InntektService(
                 }
             }
 
-            if (periode.skjæringstidspunkt == null) {
-                throw IllegalStateException("Kan ikke oppdatere inntekt før skjæringstidspunkt er satt på saksbehandlingsperiode (id=${periode.id})")
-            }
             val yrkesaktivitet =
                 yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
                     ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")

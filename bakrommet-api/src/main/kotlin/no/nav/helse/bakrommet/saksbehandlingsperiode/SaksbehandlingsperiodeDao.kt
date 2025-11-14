@@ -26,6 +26,7 @@ data class Saksbehandlingsperiode(
     val skjæringstidspunkt: LocalDate,
     val individuellBegrunnelse: String? = null,
     val sykepengegrunnlagId: UUID? = null,
+    val revurdererSaksbehandlingsperiodeId: UUID? = null,
 )
 
 enum class SaksbehandlingsperiodeStatus {
@@ -170,6 +171,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             skjæringstidspunkt = row.localDate("skjaeringstidspunkt"),
             individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
             sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id"),
+            revurdererSaksbehandlingsperiodeId = row.uuidOrNull("revurderer_saksbehandlingsperiode_id"),
         )
 
     override fun endreStatus(
@@ -225,9 +227,9 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         db.update(
             """
             insert into saksbehandlingsperiode
-                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse, sykepengegrunnlag_id)
+                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse, sykepengegrunnlag_id, revurderer_saksbehandlingsperiode_id)
             values
-                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id)
+                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id, :revurderer_saksbehandlingsperiode_id)
             """.trimIndent(),
             "id" to periode.id,
             "spillerom_personid" to periode.spilleromPersonId,
@@ -241,6 +243,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             "skjaeringstidspunkt" to periode.skjæringstidspunkt,
             "individuell_begrunnelse" to periode.individuellBegrunnelse,
             "sykepengegrunnlag_id" to periode.sykepengegrunnlagId,
+            "revurderer_saksbehandlingsperiode_id" to periode.revurdererSaksbehandlingsperiodeId,
         )
     }
 

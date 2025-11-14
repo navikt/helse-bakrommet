@@ -12,7 +12,7 @@ import javax.sql.DataSource
 
 interface SykepengegrunnlagDao {
     fun lagreSykepengegrunnlag(
-        sykepengegrunnlag: Sykepengegrunnlag,
+        sykepengegrunnlag: Sykepengegrunnlag?,
         saksbehandler: Bruker,
         opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord
@@ -43,7 +43,7 @@ class SykepengegrunnlagDaoPg private constructor(
     constructor(session: Session) : this(MedSession(session))
 
     override fun lagreSykepengegrunnlag(
-        sykepengegrunnlag: Sykepengegrunnlag,
+        sykepengegrunnlag: Sykepengegrunnlag?,
         saksbehandler: Bruker,
         opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord {
