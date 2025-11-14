@@ -43,6 +43,7 @@ enum class SaksbehandlingsperiodeStatus {
                 TIL_BESLUTNING to UNDER_BESLUTNING,
                 UNDER_BESLUTNING to GODKJENT,
                 UNDER_BESLUTNING to UNDER_BEHANDLING,
+                UNDER_BESLUTNING to UNDER_BESLUTNING, // ved endring av beslutter
                 TIL_BESLUTNING to UNDER_BEHANDLING,
                 UNDER_BEHANDLING to UNDER_BESLUTNING,
             )
