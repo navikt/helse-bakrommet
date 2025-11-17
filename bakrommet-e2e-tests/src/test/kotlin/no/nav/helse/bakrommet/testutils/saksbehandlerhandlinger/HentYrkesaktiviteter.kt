@@ -10,8 +10,8 @@ import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(
-    periodeId: UUID,
     personId: String,
+    periodeId: UUID,
 ): List<YrkesaktivitetDTO> {
     val response =
         client

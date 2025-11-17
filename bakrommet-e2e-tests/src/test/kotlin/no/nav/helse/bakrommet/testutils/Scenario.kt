@@ -134,6 +134,7 @@ data class Scenario(
     val skjæringstidspunkt: LocalDate = ScenarioDefaults.skjæringstidspunkt,
     val fom: LocalDate = ScenarioDefaults.fom,
     val tom: LocalDate = ScenarioDefaults.tom,
+    val besluttOgGodkjenn: Boolean = true,
 ) {
     fun run(
         testBlock: ScenarioData.() -> Unit,
@@ -248,11 +249,13 @@ data class Scenario(
             // Hent sykepengegrunnlag via action
             val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
 
-            val beregning = hentUtbetalingsberegning(periode.id, periode.spilleromPersonId)
-            val yrkesaktiviteter = hentYrkesaktiviteter(periode.id, periode.spilleromPersonId)
-            sendTilBeslutning(periode)
-            taTilBesluting(periode, beslutterToken)
-            godkjenn(periode, beslutterToken)
+            val beregning = hentUtbetalingsberegning(periode.spilleromPersonId, periode.id)
+            val yrkesaktiviteter = hentYrkesaktiviteter(periode.spilleromPersonId, periode.id)
+            if (besluttOgGodkjenn) {
+                sendTilBeslutning(periode)
+                taTilBesluting(periode, beslutterToken)
+                godkjenn(periode, beslutterToken)
+            }
             val reloadedPeriode = hentAllePerioder(personId).first { it.id == periode.id }
             if (testBlock != null) {
                 testBlock.invoke(

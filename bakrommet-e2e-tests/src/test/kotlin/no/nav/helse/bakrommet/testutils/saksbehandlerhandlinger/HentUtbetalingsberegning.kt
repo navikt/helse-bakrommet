@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentUtbetalingsberegning(
-    periodeId: UUID,
     personId: String,
+    periodeId: UUID,
 ): BeregningResponseUtDto? {
     val response =
         client.get("/v1/$personId/saksbehandlingsperioder/$periodeId/utbetalingsberegning") {

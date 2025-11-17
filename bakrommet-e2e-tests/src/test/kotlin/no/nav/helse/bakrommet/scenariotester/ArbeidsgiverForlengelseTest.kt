@@ -47,7 +47,7 @@ class ArbeidsgiverForlengelseTest {
             val personId = førsteBehandling.scenario.personId
             val periode = opprettSaksbehandlingsperiode(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
 
-            val yaer = hentYrkesaktiviteter(periode.id, personId)
+            val yaer = hentYrkesaktiviteter(personId, periode.id)
             val ya = yaer.first()
             oppdaterInntekt(
                 personId = personId,

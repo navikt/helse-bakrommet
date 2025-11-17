@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.scenariotester
 import no.nav.helse.bakrommet.testutils.*
 import kotlin.test.Test
 
-class SykepengrgrunnlagLåsesTest {
+class SykepengegrunnlagLåsesTest {
     @Test
     fun `sykepengegrunnlag i databasen låses når perioden er blitt godkjent`() {
         Scenario(
