@@ -342,6 +342,15 @@ class SaksbehandlingsperiodeService(
                 nyStatus = nyStatus,
                 beslutterNavIdent = saksbehandler.navIdent,
             )
+
+            periode.sykepengegrunnlagId?.let {
+                // Sjekk om perioden eier sykepengegrunnlaget, så skal det låses
+                val sykepengegrunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(it)
+                if (sykepengegrunnlag.opprettetForBehandling == periode.id) {
+                    sykepengegrunnlagDao.settLåst(it)
+                }
+            }
+
             val oppdatertPeriode = saksbehandlingsperiodeDao.reload(periode)
             saksbehandlingsperiodeEndringerDao.leggTilEndring(
                 oppdatertPeriode.endring(

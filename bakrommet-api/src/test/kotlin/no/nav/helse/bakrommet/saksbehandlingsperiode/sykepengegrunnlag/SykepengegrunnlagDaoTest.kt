@@ -5,9 +5,11 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDaoPg
+import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -66,7 +68,10 @@ class SykepengegrunnlagDaoTest {
 
         val hentetGrunnlag = dao.finnSykepengegrunnlag(lagretGrunnlag.id)
         assertEquals(lagretGrunnlag.id, hentetGrunnlag!!.id)
-        assertEquals(lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
+        assertEquals(
+            lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp,
+            hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp,
+        )
     }
 
     @Test
@@ -88,7 +93,10 @@ class SykepengegrunnlagDaoTest {
 
         assertEquals(780960.0, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(true, lagretGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
-        assertEquals(lagretGrunnlag.sykepengegrunnlag!!.seksG.beløp, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
+        assertEquals(
+            lagretGrunnlag.sykepengegrunnlag!!.seksG.beløp,
+            lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp,
+        )
     }
 
     @Test
@@ -187,11 +195,58 @@ class SykepengegrunnlagDaoTest {
 
         // Verifiser at alle felter er korrekt deserialisert
         assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag!!.grunnbeløp.beløp)
-        assertEquals(sykepengegrunnlag.totaltInntektsgrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.totaltInntektsgrunnlag.beløp)
-        assertEquals(sykepengegrunnlag.sykepengegrunnlag.beløp, hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
+        assertEquals(
+            sykepengegrunnlag.totaltInntektsgrunnlag.beløp,
+            hentetGrunnlag.sykepengegrunnlag!!.totaltInntektsgrunnlag.beløp,
+        )
+        assertEquals(
+            sykepengegrunnlag.sykepengegrunnlag.beløp,
+            hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp,
+        )
         assertEquals(sykepengegrunnlag.seksG.beløp, hentetGrunnlag.sykepengegrunnlag!!.seksG.beløp)
         assertEquals(sykepengegrunnlag.begrensetTil6G, hentetGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
-        assertEquals(sykepengegrunnlag.grunnbeløpVirkningstidspunkt, hentetGrunnlag.sykepengegrunnlag!!.grunnbeløpVirkningstidspunkt)
+        assertEquals(
+            sykepengegrunnlag.grunnbeløpVirkningstidspunkt,
+            hentetGrunnlag.sykepengegrunnlag!!.grunnbeløpVirkningstidspunkt,
+        )
         assertEquals(sykepengegrunnlag.næringsdel, hentetGrunnlag.sykepengegrunnlag!!.næringsdel)
+    }
+
+    @Test
+    fun `låste grunnlag kan ikke endres`() {
+        val dao = SykepengegrunnlagDaoPg(dataSource)
+
+        val sykepengegrunnlag =
+            Sykepengegrunnlag(
+                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
+                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(744168.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
+                seksG = InntektbeløpDto.Årlig(744168.0),
+                begrensetTil6G = false,
+                grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
+                næringsdel = null,
+            )
+
+        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
+
+        dao.settLåst(lagretGrunnlag.id)
+        assertThrows<IllegalStateException> {
+            dao.oppdaterSykepengegrunnlag(
+                lagretGrunnlag.id,
+                sykepengegrunnlag.copy(sykepengegrunnlag = InntektbeløpDto.Årlig(600000.0)),
+            )
+        }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
+
+        assertThrows<IllegalStateException> {
+            dao.slettSykepengegrunnlag(lagretGrunnlag.id)
+        }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
+
+        assertThrows<IllegalStateException> {
+            dao.settLåst(lagretGrunnlag.id)
+        }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
+
+        assertThrows<IllegalStateException> {
+            dao.oppdaterSammenlikningsgrunnlag(lagretGrunnlag.id, null)
+        }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
     }
 }

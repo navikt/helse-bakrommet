@@ -88,16 +88,17 @@ class SykepengegrunnlagDaoPg private constructor(
         val nå = java.time.Instant.now()
         val sykepengegrunnlagJson = sykepengegrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }
 
-        db.update(
-            """
-            UPDATE sykepengegrunnlag 
-            SET sykepengegrunnlag = :sykepengegrunnlag, oppdatert = :oppdatert
-            WHERE id = :id
-            """.trimIndent(),
-            "id" to sykepengegrunnlagId,
-            "sykepengegrunnlag" to sykepengegrunnlagJson,
-            "oppdatert" to nå,
-        )
+        db
+            .update(
+                """
+                UPDATE sykepengegrunnlag 
+                SET sykepengegrunnlag = :sykepengegrunnlag, oppdatert = :oppdatert
+                WHERE id = :id and not laast
+                """.trimIndent(),
+                "id" to sykepengegrunnlagId,
+                "sykepengegrunnlag" to sykepengegrunnlagJson,
+                "oppdatert" to nå,
+            ).also(verifiserOppdatert)
 
         return finnSykepengegrunnlag(sykepengegrunnlagId)!!
     }
@@ -111,42 +112,51 @@ class SykepengegrunnlagDaoPg private constructor(
         val nå = java.time.Instant.now()
         val sammenlikningsgrunnlagJson = sammenlikningsgrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }
 
-        db.update(
-            """
-            UPDATE sykepengegrunnlag 
-            SET sammenlikningsgrunnlag = :sammenlikningsgrunnlag, oppdatert = :oppdatert
-            WHERE id = :id
-            """.trimIndent(),
-            "id" to sykepengegrunnlagId,
-            "sammenlikningsgrunnlag" to sammenlikningsgrunnlagJson,
-            "oppdatert" to nå,
-        )
+        db
+            .update(
+                """
+                UPDATE sykepengegrunnlag 
+                SET sammenlikningsgrunnlag = :sammenlikningsgrunnlag, oppdatert = :oppdatert
+                WHERE id = :id and not laast
+                """.trimIndent(),
+                "id" to sykepengegrunnlagId,
+                "sammenlikningsgrunnlag" to sammenlikningsgrunnlagJson,
+                "oppdatert" to nå,
+            ).also(verifiserOppdatert)
 
         return finnSykepengegrunnlag(sykepengegrunnlagId)!!
     }
 
     override fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
-        db.update(
-            """
-            DELETE FROM sykepengegrunnlag 
-            WHERE id = :id
-            """.trimIndent(),
-            "id" to sykepengegrunnlagId,
-        )
+        db
+            .update(
+                """
+                DELETE FROM sykepengegrunnlag 
+                WHERE id = :id and not laast
+                """.trimIndent(),
+                "id" to sykepengegrunnlagId,
+            ).also(verifiserOppdatert)
     }
 
     override fun settLåst(sykepengegrunnlagId: UUID) {
         val nå = java.time.Instant.now()
 
-        db.update(
-            """
-            UPDATE sykepengegrunnlag 
-            SET laast = true, oppdatert = :oppdatert
-            WHERE id = :id
-            """.trimIndent(),
-            "id" to sykepengegrunnlagId,
-            "oppdatert" to nå,
-        )
+        db
+            .update(
+                """
+                UPDATE sykepengegrunnlag 
+                SET laast = true, oppdatert = :oppdatert
+                WHERE id = :id and not laast
+                """.trimIndent(),
+                "id" to sykepengegrunnlagId,
+                "oppdatert" to nå,
+            ).also(verifiserOppdatert)
+    }
+
+    private val verifiserOppdatert: (Int) -> Unit = {
+        if (it == 0) {
+            throw IllegalStateException("Sykepengegrunnlag kunne ikke oppdateres")
+        }
     }
 
     private fun sykepengegrunnlagFraRow(row: Row): SykepengegrunnlagDbRecord {

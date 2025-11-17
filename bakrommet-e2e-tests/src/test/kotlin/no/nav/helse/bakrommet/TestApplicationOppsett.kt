@@ -28,6 +28,8 @@ import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDaoPg
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.sigrun.SigrunClient
@@ -101,6 +103,7 @@ class Daoer(
     val dokumentDao: DokumentDao,
     val yrkesaktivitetDao: YrkesaktivitetDao,
     val outboxDao: OutboxDao,
+    val sykepengegrunnlagDao: SykepengegrunnlagDao,
 ) {
     companion object {
         fun instansier(dataSource: DataSource): Daoer =
@@ -109,6 +112,7 @@ class Daoer(
                 DokumentDaoPg(dataSource),
                 YrkesaktivitetDaoPg(dataSource),
                 OutboxDaoPg(dataSource),
+                SykepengegrunnlagDaoPg(dataSource),
             )
     }
 }
