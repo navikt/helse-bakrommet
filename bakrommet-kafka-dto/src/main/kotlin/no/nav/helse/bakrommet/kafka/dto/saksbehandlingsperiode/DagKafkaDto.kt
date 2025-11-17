@@ -35,6 +35,7 @@ enum class SaksbehandlingsperiodeStatusKafkaDto {
     TIL_BESLUTNING,
     UNDER_BESLUTNING,
     GODKJENT,
+    REVURDERT,
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

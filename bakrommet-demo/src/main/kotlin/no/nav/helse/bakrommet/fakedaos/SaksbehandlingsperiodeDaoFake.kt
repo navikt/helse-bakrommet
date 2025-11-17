@@ -73,4 +73,12 @@ class SaksbehandlingsperiodeDaoFake : SaksbehandlingsperiodeDao {
         val eksisterende = perioder[periodeId] ?: return
         perioder[periodeId] = eksisterende.copy(sykepengegrunnlagId = sykepengegrunnlagId)
     }
+
+    override fun oppdaterRevurdertAvBehandlingId(
+        behandlingId: UUID,
+        revurdertAvBehandlingId: UUID,
+    ) {
+        val eksisterende = perioder[behandlingId] ?: return
+        perioder[behandlingId] = eksisterende.copy(revurdererSaksbehandlingsperiodeId = revurdertAvBehandlingId)
+    }
 }

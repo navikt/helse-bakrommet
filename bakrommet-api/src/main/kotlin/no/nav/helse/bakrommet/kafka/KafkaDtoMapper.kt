@@ -35,4 +35,5 @@ fun SaksbehandlingsperiodeStatus.tilKafkaDto(): SaksbehandlingsperiodeStatusKafk
         SaksbehandlingsperiodeStatus.TIL_BESLUTNING -> SaksbehandlingsperiodeStatusKafkaDto.TIL_BESLUTNING
         SaksbehandlingsperiodeStatus.UNDER_BESLUTNING -> SaksbehandlingsperiodeStatusKafkaDto.UNDER_BESLUTNING
         SaksbehandlingsperiodeStatus.GODKJENT -> SaksbehandlingsperiodeStatusKafkaDto.GODKJENT
+        SaksbehandlingsperiodeStatus.REVURDERT -> SaksbehandlingsperiodeStatusKafkaDto.REVURDERT
     }

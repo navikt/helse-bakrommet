@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
 import no.nav.helse.bakrommet.kafka.leggTilOutbox
 import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringType.REVURDERING_STARTET
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus.REVURDERT
 import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
 import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.saksbehandlingsperiode.beregning.beregnSykepengegrunnlagOgUtbetaling
@@ -348,6 +349,13 @@ class SaksbehandlingsperiodeService(
                 val sykepengegrunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(it)
                 if (sykepengegrunnlag.opprettetForBehandling == periode.id) {
                     sykepengegrunnlagDao.settLåst(it)
+                }
+            }
+
+            periode.revurdererSaksbehandlingsperiodeId?.let {
+                saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(it)?.let { revurdertPeriode ->
+                    saksbehandlingsperiodeDao.endreStatus(revurdertPeriode, REVURDERT)
+                    saksbehandlingsperiodeDao.oppdaterRevurdertAvBehandlingId(revurdertPeriode.id, periode.id)
                 }
             }
 

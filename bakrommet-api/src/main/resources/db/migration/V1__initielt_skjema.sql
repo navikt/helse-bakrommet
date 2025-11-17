@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
     status                               TEXT                        NOT NULL,
     beslutter_nav_ident                  TEXT                        NULL,
     individuell_begrunnelse              TEXT                        NULL,
-    revurderer_saksbehandlingsperiode_id UUID                        NULL UNIQUE REFERENCES saksbehandlingsperiode (id)
+    revurderer_saksbehandlingsperiode_id UUID                        NULL UNIQUE REFERENCES saksbehandlingsperiode (id),
+    revurdert_av_behandling_id           UUID                        NULL UNIQUE REFERENCES saksbehandlingsperiode (id)
 );
 
 ALTER TABLE sykepengegrunnlag

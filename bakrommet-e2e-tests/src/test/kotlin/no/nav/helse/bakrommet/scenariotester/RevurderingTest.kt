@@ -3,9 +3,11 @@ package no.nav.helse.bakrommet.scenariotester
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.bakrommet.kafka.OutboxDbRecord
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
+import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus
 import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.*
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentAllePerioder
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.revurder
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
@@ -65,7 +67,13 @@ class RevurderingTest {
 
             opprinneligUtbetaling.spilleromUtbetalingId `should equal` revurderendeUtbetaling.spilleromUtbetalingId
 
-            println("Alle utbetalinger etter revurdering: $utbetalingKafkaMeldinger")
+            hentAllePerioder(personId).also {
+                it.size `should equal` 2
+                it.last().status `should equal` SaksbehandlingsperiodeStatus.REVURDERT
+                it.last().revurdertAvBehandlingId `should equal` it.first().id
+                it.first().status `should equal` SaksbehandlingsperiodeStatus.GODKJENT
+                it.first().revurdererSaksbehandlingsperiodeId `should equal` it.last().id
+            }
         }
     }
 }

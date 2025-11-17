@@ -27,6 +27,7 @@ data class Saksbehandlingsperiode(
     val individuellBegrunnelse: String? = null,
     val sykepengegrunnlagId: UUID? = null,
     val revurdererSaksbehandlingsperiodeId: UUID? = null,
+    val revurdertAvBehandlingId: UUID? = null,
 )
 
 enum class SaksbehandlingsperiodeStatus {
@@ -34,6 +35,7 @@ enum class SaksbehandlingsperiodeStatus {
     TIL_BESLUTNING,
     UNDER_BESLUTNING,
     GODKJENT,
+    REVURDERT,
     ;
 
     companion object {
@@ -46,6 +48,7 @@ enum class SaksbehandlingsperiodeStatus {
                 UNDER_BESLUTNING to UNDER_BESLUTNING, // ved endring av beslutter
                 TIL_BESLUTNING to UNDER_BEHANDLING,
                 UNDER_BEHANDLING to UNDER_BESLUTNING,
+                GODKJENT to REVURDERT,
             )
 
         fun erGyldigEndring(fraTil: Pair<SaksbehandlingsperiodeStatus, SaksbehandlingsperiodeStatus>) = GYLDIGE_ENDRINGER.contains(fraTil)
@@ -92,6 +95,11 @@ interface SaksbehandlingsperiodeDao {
     fun oppdaterSykepengegrunnlagId(
         periodeId: UUID,
         sykepengegrunnlagId: UUID?,
+    )
+
+    fun oppdaterRevurdertAvBehandlingId(
+        behandlingId: UUID,
+        revurdertAvBehandlingId: UUID,
     )
 }
 
@@ -173,6 +181,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
             sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id"),
             revurdererSaksbehandlingsperiodeId = row.uuidOrNull("revurderer_saksbehandlingsperiode_id"),
+            revurdertAvBehandlingId = row.uuidOrNull("revurdert_av_behandling_id"),
         )
 
     override fun endreStatus(
@@ -275,6 +284,21 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             """.trimIndent(),
             "id" to periodeId,
             "sykepengegrunnlag_id" to sykepengegrunnlagId,
+        )
+    }
+
+    override fun oppdaterRevurdertAvBehandlingId(
+        behandlingId: UUID,
+        revurdertAvBehandlingId: UUID,
+    ) {
+        db.update(
+            """
+            UPDATE saksbehandlingsperiode 
+            SET revurdert_av_behandling_id = :revurdert_av_behandling_id
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to behandlingId,
+            "revurdert_av_behandling_id" to revurdertAvBehandlingId,
         )
     }
 }
