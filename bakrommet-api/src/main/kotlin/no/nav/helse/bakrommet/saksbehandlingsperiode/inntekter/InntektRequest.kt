@@ -22,7 +22,7 @@ sealed class ArbeidstakerInntektRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     data class Inntektsmelding(
         val inntektsmeldingId: String,
-        override val begrunnelse: String,
+        override val begrunnelse: String? = null,
         override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()
 

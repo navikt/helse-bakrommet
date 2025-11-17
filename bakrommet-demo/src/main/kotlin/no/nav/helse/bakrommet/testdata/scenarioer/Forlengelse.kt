@@ -5,7 +5,10 @@ import no.nav.helse.bakrommet.ainntekt.genererAinntektsdata
 import no.nav.helse.bakrommet.ereg.betongbyggAS
 import no.nav.helse.bakrommet.ereg.veihjelpenAS
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
+import no.nav.helse.bakrommet.testdata.Saksbehandingsperiode
 import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -27,10 +30,13 @@ private val førsteArbeidsforholdInntektData =
         antallMaanederTilbake = 12,
     )
 
+private val betongByggInntektsmelding = UUID.randomUUID().toString()
+
 // Inntektsmelding for første arbeidsforhold
 private val inntektsmeldinger =
     listOf(
         skapInntektsmelding(
+            inntektsmeldingId = betongByggInntektsmelding,
             månedsinntekt = 50000.0,
             organisasjon = betongbyggAS,
             arbeidstakerFnr = fnr,
@@ -99,6 +105,27 @@ val forlengelse =
                             arbeidstaker(veihjelpenAS)
                             grad = 100
                         },
+                    ),
+                saksbehandingsperioder =
+                    listOf(
+                        Saksbehandingsperiode(
+                            fom = LocalDate.of(2025, 5, 1),
+                            tom = LocalDate.of(2025, 5, 31),
+                            søknadIder = listOf(førsteSøknadId),
+                            avsluttet = true,
+                            inntektRequest =
+                                InntektRequest.Arbeidstaker(
+                                    ArbeidstakerInntektRequest.Inntektsmelding(
+                                        inntektsmeldingId = betongByggInntektsmelding,
+                                        begrunnelse = "sdfsdf",
+                                    ),
+                                ),
+                        ),
+                        Saksbehandingsperiode(
+                            fom = LocalDate.of(2025, 6, 1),
+                            tom = LocalDate.of(2025, 6, 30),
+                            søknadIder = listOf(andreSøknadId),
+                        ),
                     ),
             ),
         beskrivelse =
