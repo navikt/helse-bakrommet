@@ -63,7 +63,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = emptyList(),
                 inntektRequest = null,
                 inntektData = null,
-                refusjonsdata = null,
+                refusjon = null,
             )
         val ekko =
             dao.opprettYrkesaktivitet(
@@ -75,7 +75,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
-                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjon,
             )
         assertEquals(yrkesaktivitetDbRecord.tidsstuttet(), ekko.tidsstuttet())
 
@@ -100,7 +100,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = emptyList(),
                 inntektRequest = null,
                 inntektData = null,
-                refusjonsdata = null,
+                refusjon = null,
             )
 
         assertThrows<SQLException> {
@@ -113,7 +113,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
-                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjon,
             )
         }
     }
@@ -134,7 +134,7 @@ class YrkesaktivitetDaoTest {
                 perioder = null,
                 inntektRequest = null,
                 inntektData = null,
-                refusjonsdata = null,
+                refusjon = null,
             )
         val opprettetYrkesaktivitet =
             dao.opprettYrkesaktivitet(
@@ -146,7 +146,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
-                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjon,
             )
 
         // Oppdater perioder
@@ -185,7 +185,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = emptyList(),
                 inntektRequest = null,
                 inntektData = null,
-                refusjonsdata = null,
+                refusjon = null,
             )
 
         // Opprett yrkesaktivitet
@@ -199,7 +199,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
-                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjon,
             )
 
         // Verifiser at inntektRequest er null ved opprettelse
@@ -261,7 +261,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = emptyList(),
                 inntektRequest = null,
                 inntektData = null,
-                refusjonsdata = null,
+                refusjon = null,
             )
 
         // Opprett yrkesaktivitet
@@ -275,7 +275,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
-                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjon,
             )
 
         // Verifiser at inntektData er null ved opprettelse
@@ -335,7 +335,7 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = emptyList(),
                 inntektRequest = null,
                 inntektData = null,
-                refusjonsdata = null,
+                refusjon = null,
             )
 
         // Opprett yrkesaktivitet
@@ -349,11 +349,11 @@ class YrkesaktivitetDaoTest {
                 generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
-                refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+                refusjonsdata = yrkesaktivitetDbRecord.refusjon,
             )
 
         // Verifiser at refusjonsdata er null ved opprettelse
-        assertEquals(null, opprettetYrkesaktivitet.refusjonsdata)
+        assertEquals(null, opprettetYrkesaktivitet.refusjon)
 
         // Opprett refusjonsdata
         val refusjonsdata =
@@ -385,21 +385,21 @@ class YrkesaktivitetDaoTest {
                     perioder = opprettetYrkesaktivitet.perioder,
                     inntektRequest = null,
                     inntektData = null,
-                    refusjonsdata = null,
+                    refusjon = null,
                 ),
                 refusjonsdata,
             )
 
         // Verifiser at refusjonsdata er oppdatert
-        assertEquals(refusjonsdata, oppdatertYrkesaktivitet.refusjonsdata)
+        assertEquals(refusjonsdata, oppdatertYrkesaktivitet.refusjon)
 
         // Hent yrkesaktivitet og verifiser at refusjonsdata er lagret
         val hentetYrkesaktivitet = dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id)
-        assertEquals(refusjonsdata, hentetYrkesaktivitet?.refusjonsdata)
+        assertEquals(refusjonsdata, hentetYrkesaktivitet?.refusjon)
 
         // Hent via hentYrkesaktivitetDbRecord og verifiser
         val hentetDbRecord = dao.hentYrkesaktivitetDbRecord(opprettetYrkesaktivitet.id)
-        assertEquals(refusjonsdata, hentetDbRecord?.refusjonsdata)
+        assertEquals(refusjonsdata, hentetDbRecord?.refusjon)
 
         // Test at vi kan sette refusjonsdata til null
         val yrkesaktivitetUtenRefusjonsdata =
@@ -416,11 +416,11 @@ class YrkesaktivitetDaoTest {
                     perioder = opprettetYrkesaktivitet.perioder,
                     inntektRequest = null,
                     inntektData = null,
-                    refusjonsdata = null,
+                    refusjon = null,
                 ),
                 null,
             )
 
-        assertEquals(null, yrkesaktivitetUtenRefusjonsdata.refusjonsdata)
+        assertEquals(null, yrkesaktivitetUtenRefusjonsdata.refusjon)
     }
 }

@@ -431,7 +431,7 @@ class YrkesaktivitetBuilder {
             perioder = perioder,
             inntektRequest = null,
             inntektData = inntektData,
-            refusjonsdata = refusjonsdata,
+            refusjon = refusjonsdata,
         )
     }
 

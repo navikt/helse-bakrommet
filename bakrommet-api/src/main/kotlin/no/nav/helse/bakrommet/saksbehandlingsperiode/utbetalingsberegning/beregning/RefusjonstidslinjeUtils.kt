@@ -12,7 +12,7 @@ fun beregnRefusjonstidslinje(
 ): Map<LocalDate, Inntekt> {
     val refusjonstidslinje = mutableMapOf<LocalDate, Inntekt>()
 
-    yrkesaktivitet.refusjonsdata?.map { refusjon ->
+    yrkesaktivitet.refusjon?.map { refusjon ->
         // Fyll tidslinjen for hver dag i refusjonsperioden
         val refusjonTom = refusjon.tom ?: saksbehandlingsperiode.tom
         refusjon.fom.datesUntil(refusjonTom.plusDays(1)).forEach { dato ->

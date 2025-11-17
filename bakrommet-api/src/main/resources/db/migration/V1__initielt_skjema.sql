@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS yrkesaktivitet
     perioder                  TEXT                        NULL,
     inntekt_request           TEXT                        NULL,
     inntekt_data              TEXT                        NULL,
-    refusjon_data             TEXT                        NULL
+    refusjon                  TEXT                        NULL
 );
 
 

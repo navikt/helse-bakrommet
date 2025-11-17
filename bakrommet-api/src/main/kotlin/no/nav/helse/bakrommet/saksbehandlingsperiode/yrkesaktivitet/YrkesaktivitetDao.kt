@@ -32,7 +32,7 @@ data class YrkesaktivitetDbRecord(
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
     val inntektData: InntektData? = null,
-    val refusjonsdata: List<Refusjonsperiode>? = null,
+    val refusjon: List<Refusjonsperiode>? = null,
 )
 
 data class Refusjonsperiode(
@@ -54,7 +54,7 @@ fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): Yrkesaktivitet =
         perioder = this.perioder,
         inntektRequest = this.inntektRequest,
         inntektData = this.inntektData,
-        refusjonsdata = this.refusjonsdata,
+        refusjon = this.refusjon,
     )
 
 fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
@@ -70,7 +70,7 @@ fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
         perioder = this.perioder,
         inntektRequest = this.inntektRequest,
         inntektData = this.inntektData,
-        refusjonsdata = this.refusjonsdata,
+        refusjon = this.refusjon,
     )
 
 interface YrkesaktivitetDao {
@@ -86,7 +86,7 @@ interface YrkesaktivitetDao {
             generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
             perioder = yrkesaktivitetDbRecord.perioder,
             inntektData = yrkesaktivitetDbRecord.inntektData,
-            refusjonsdata = yrkesaktivitetDbRecord.refusjonsdata,
+            refusjonsdata = yrkesaktivitetDbRecord.refusjon,
         )
 
     fun opprettYrkesaktivitet(
@@ -174,18 +174,18 @@ class YrkesaktivitetDaoPg private constructor(
                 generertFraDokumenter = generertFraDokumenter,
                 perioder = perioder,
                 inntektData = inntektData,
-                refusjonsdata = refusjonsdata,
+                refusjon = refusjonsdata,
             )
         db.update(
             """
             insert into yrkesaktivitet
                 (id, kategorisering, kategorisering_generert,
                 dagoversikt, dagoversikt_generert,
-                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon_data)
+                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon)
             values
                 (:id, :kategorisering, :kategorisering_generert,
                 :dagoversikt, :dagoversikt_generert,
-                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon_data)
+                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon)
             """.trimIndent(),
             "id" to yrkesaktivitetDbRecord.id,
             "kategorisering" to yrkesaktivitetDbRecord.kategorisering.serialisertTilString(),
@@ -197,7 +197,7 @@ class YrkesaktivitetDaoPg private constructor(
             "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
             "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
             "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.serialisertTilString(),
-            "refusjon_data" to yrkesaktivitetDbRecord.refusjonsdata?.serialisertTilString(),
+            "refusjon" to yrkesaktivitetDbRecord.refusjon?.serialisertTilString(),
         )
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
@@ -205,7 +205,7 @@ class YrkesaktivitetDaoPg private constructor(
     override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? =
         db.single(
             """
-            select *, inntekt_request, inntekt_data, refusjon_data from yrkesaktivitet where id = :id
+            select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where id = :id
             """.trimIndent(),
             "id" to id,
             mapper = ::yrkesaktivitetFraRow,
@@ -225,7 +225,7 @@ class YrkesaktivitetDaoPg private constructor(
                 perioder = dbRecord.perioder,
                 inntektRequest = dbRecord.inntektRequest,
                 inntektData = dbRecord.inntektData,
-                refusjonsdata = dbRecord.refusjonsdata,
+                refusjon = dbRecord.refusjon,
             )
         }
 
@@ -237,7 +237,7 @@ class YrkesaktivitetDaoPg private constructor(
     override fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
-            select *, inntekt_request, inntekt_data, refusjon_data from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
+            select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
             """.trimIndent(),
             "behandling_id" to periode.id,
             mapper = ::yrkesaktivitetFraRow,
@@ -265,8 +265,8 @@ class YrkesaktivitetDaoPg private constructor(
                     .stringOrNull("inntekt_request")
                     ?.let { objectMapper.readValue(it, InntektRequest::class.java) },
             inntektData = row.stringOrNull("inntekt_data")?.let { objectMapper.readValue(it, InntektData::class.java) },
-            refusjonsdata =
-                row.stringOrNull("refusjon_data")?.let {
+            refusjon =
+                row.stringOrNull("refusjon")?.let {
                     objectMapper.readValue(
                         it,
                         object : com.fasterxml.jackson.core.type.TypeReference<List<Refusjonsperiode>>() {},
@@ -362,10 +362,10 @@ class YrkesaktivitetDaoPg private constructor(
     ): YrkesaktivitetDbRecord {
         db.update(
             """
-            update yrkesaktivitet set refusjon_data = :refusjon_data where id = :id
+            update yrkesaktivitet set refusjon = :refusjon where id = :id
             """.trimIndent(),
             "id" to yrkesaktivitet.id,
-            "refusjon_data" to refusjonsdata?.serialisertTilString(),
+            "refusjon" to refusjonsdata?.serialisertTilString(),
         )
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }

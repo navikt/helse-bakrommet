@@ -41,7 +41,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
                 perioder = perioder,
                 inntektRequest = null,
                 inntektData = inntektData,
-                refusjonsdata = refusjonsdata,
+                refusjon = refusjonsdata,
             )
         storage[id] = record
         return record
@@ -114,7 +114,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         refusjonsdata: List<no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
         val eksisterende = storage[yrkesaktivitet.id] ?: return yrkesaktivitet.tilYrkesaktivitetDbRecord()
-        val oppdatert = eksisterende.copy(refusjonsdata = refusjonsdata)
+        val oppdatert = eksisterende.copy(refusjon = refusjonsdata)
         storage[oppdatert.id] = oppdatert
         return oppdatert
     }

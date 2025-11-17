@@ -22,7 +22,7 @@ data class Yrkesaktivitet(
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
     val inntektData: InntektData? = null,
-    val refusjonsdata: List<Refusjonsperiode>? = null,
+    val refusjon: List<Refusjonsperiode>? = null,
 ) {
     fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
         if (this.perioder?.type == periodetype) {

@@ -43,7 +43,7 @@ data class YrkesaktivitetDTO(
     val perioder: Perioder?,
     val inntektRequest: InntektRequest?,
     val inntektData: InntektData?,
-    val refusjonsdata: List<Refusjonsperiode>? = null,
+    val refusjon: List<Refusjonsperiode>? = null,
 )
 
 fun YrkesaktivitetDbRecord.tilDto() =
@@ -55,7 +55,7 @@ fun YrkesaktivitetDbRecord.tilDto() =
         perioder = perioder,
         inntektRequest = inntektRequest,
         inntektData = inntektData,
-        refusjonsdata = refusjonsdata,
+        refusjon = refusjon,
     )
 
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
@@ -97,6 +97,15 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/dagoversikt") {
+                val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
+                service.oppdaterDagoversiktDager(
+                    call.yrkesaktivitetReferanse(),
+                    dagerSomSkalOppdateres,
+                    call.saksbehandler(),
+                )
+                call.respond(HttpStatusCode.NoContent)
+            }
+            put("/refusjon") {
                 val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
                 service.oppdaterDagoversiktDager(
                     call.yrkesaktivitetReferanse(),
