@@ -135,7 +135,7 @@ fun Route.setupRoutes(
     dokumenterRoute(dokumentHenter = services.dokumentHenter)
     saksbehandlingsperiodeVilkårRoute(service = services.vilkårService)
     saksbehandlingsperiodeYrkesaktivitetRoute(
-        service = services.yrkesaktivitetService,
+        yrkesaktivitetService = services.yrkesaktivitetService,
         inntektservice = services.inntektService,
         inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
         personIdService = services.personIdService,

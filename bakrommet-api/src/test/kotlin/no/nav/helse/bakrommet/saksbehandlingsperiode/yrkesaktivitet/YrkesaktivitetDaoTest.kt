@@ -372,21 +372,8 @@ class YrkesaktivitetDaoTest {
 
         // Oppdater refusjonsdata
         val oppdatertYrkesaktivitet =
-            dao.oppdaterRefusjonsdata(
-                Yrkesaktivitet(
-                    id = opprettetYrkesaktivitet.id,
-                    kategorisering = opprettetYrkesaktivitet.kategorisering,
-                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
-                    dagoversikt = opprettetYrkesaktivitet.dagoversikt,
-                    dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
-                    saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
-                    opprettet = opprettetYrkesaktivitet.opprettet,
-                    generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
-                    perioder = opprettetYrkesaktivitet.perioder,
-                    inntektRequest = null,
-                    inntektData = null,
-                    refusjon = null,
-                ),
+            dao.oppdaterRefusjon(
+                opprettetYrkesaktivitet.id,
                 refusjonsdata,
             )
 
@@ -403,21 +390,8 @@ class YrkesaktivitetDaoTest {
 
         // Test at vi kan sette refusjonsdata til null
         val yrkesaktivitetUtenRefusjonsdata =
-            dao.oppdaterRefusjonsdata(
-                Yrkesaktivitet(
-                    id = opprettetYrkesaktivitet.id,
-                    kategorisering = opprettetYrkesaktivitet.kategorisering,
-                    kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
-                    dagoversikt = opprettetYrkesaktivitet.dagoversikt,
-                    dagoversiktGenerert = opprettetYrkesaktivitet.dagoversiktGenerert,
-                    saksbehandlingsperiodeId = opprettetYrkesaktivitet.saksbehandlingsperiodeId,
-                    opprettet = opprettetYrkesaktivitet.opprettet,
-                    generertFraDokumenter = opprettetYrkesaktivitet.generertFraDokumenter,
-                    perioder = opprettetYrkesaktivitet.perioder,
-                    inntektRequest = null,
-                    inntektData = null,
-                    refusjon = null,
-                ),
+            dao.oppdaterRefusjon(
+                opprettetYrkesaktivitet.id,
                 null,
             )
 

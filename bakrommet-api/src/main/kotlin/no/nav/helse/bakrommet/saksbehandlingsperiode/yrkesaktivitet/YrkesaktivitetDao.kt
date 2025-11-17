@@ -136,8 +136,8 @@ interface YrkesaktivitetDao {
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord
 
-    fun oppdaterRefusjonsdata(
-        yrkesaktivitet: Yrkesaktivitet,
+    fun oppdaterRefusjon(
+        yrkesaktivitetID: UUID,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord
 }
@@ -356,17 +356,17 @@ class YrkesaktivitetDaoPg private constructor(
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
 
-    override fun oppdaterRefusjonsdata(
-        yrkesaktivitet: Yrkesaktivitet,
+    override fun oppdaterRefusjon(
+        yrkesaktivitetID: UUID,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
         db.update(
             """
             update yrkesaktivitet set refusjon = :refusjon where id = :id
             """.trimIndent(),
-            "id" to yrkesaktivitet.id,
+            "id" to yrkesaktivitetID,
             "refusjon" to refusjonsdata?.serialisertTilString(),
         )
-        return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
+        return hentYrkesaktivitetDbRecord(yrkesaktivitetID)!!
     }
 }

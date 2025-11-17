@@ -59,14 +59,14 @@ fun YrkesaktivitetDbRecord.tilDto() =
     )
 
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
-    service: YrkesaktivitetService,
+    yrkesaktivitetService: YrkesaktivitetService,
     inntektservice: InntektService,
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     personIdService: PersonIdService,
 ) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
-            val yrkesaktiviteter = service.hentYrkesaktivitetFor(call.periodeReferanse())
+            val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(call.periodeReferanse())
             val yrkesaktivitetDto = yrkesaktiviteter.map { it.tilDto() }
             call.respondText(
                 objectMapperCustomSerde.writeValueAsString(yrkesaktivitetDto),
@@ -79,7 +79,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
             val yrkesaktivitetCreateRequest = call.receive<YrkesaktivitetCreateRequest>()
 
             val yrkesaktivitet =
-                service.opprettYrkesaktivitet(
+                yrkesaktivitetService.opprettYrkesaktivitet(
                     call.periodeReferanse(),
                     yrkesaktivitetCreateRequest.kategorisering,
                     call.saksbehandler(),
@@ -93,21 +93,12 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
 
         route("/{$PARAM_YRKESAKTIVITETUUID}") {
             delete {
-                service.slettYrkesaktivitet(call.yrkesaktivitetReferanse(), call.saksbehandler())
+                yrkesaktivitetService.slettYrkesaktivitet(call.yrkesaktivitetReferanse(), call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
             put("/dagoversikt") {
                 val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
-                service.oppdaterDagoversiktDager(
-                    call.yrkesaktivitetReferanse(),
-                    dagerSomSkalOppdateres,
-                    call.saksbehandler(),
-                )
-                call.respond(HttpStatusCode.NoContent)
-            }
-            put("/refusjon") {
-                val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
-                service.oppdaterDagoversiktDager(
+                yrkesaktivitetService.oppdaterDagoversiktDager(
                     call.yrkesaktivitetReferanse(),
                     dagerSomSkalOppdateres,
                     call.saksbehandler(),
@@ -117,7 +108,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
             put("/kategorisering") {
                 val kategorisering = call.receive<YrkesaktivitetKategorisering>()
 
-                service.oppdaterKategorisering(
+                yrkesaktivitetService.oppdaterKategorisering(
                     call.yrkesaktivitetReferanse(),
                     kategorisering,
                     call.saksbehandler(),
@@ -128,7 +119,7 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                 val perioderJson = call.receiveText()
                 val perioder: Perioder? =
                     if (perioderJson == "null") null else objectMapper.readValue(perioderJson, Perioder::class.java)
-                service.oppdaterPerioder(call.yrkesaktivitetReferanse(), perioder, call.saksbehandler())
+                yrkesaktivitetService.oppdaterPerioder(call.yrkesaktivitetReferanse(), perioder, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
             route("/inntekt") {
@@ -137,6 +128,16 @@ internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
 
                     inntektservice.oppdaterInntekt(yrkesaktivitetRef, inntektRequest, call.saksbehandlerOgToken())
+                    call.respond(HttpStatusCode.NoContent)
+                }
+            }
+
+            route("/refusjon") {
+                put {
+                    val refusjon = call.receiveWithCustomMapper<List<Refusjonsperiode>?>(objectMapperCustomSerde)
+                    val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
+
+                    yrkesaktivitetService.oppdaterRefusjon(yrkesaktivitetRef, refusjon, call.saksbehandler())
                     call.respond(HttpStatusCode.NoContent)
                 }
             }

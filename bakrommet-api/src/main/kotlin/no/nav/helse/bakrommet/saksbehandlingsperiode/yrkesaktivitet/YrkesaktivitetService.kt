@@ -256,10 +256,21 @@ class YrkesaktivitetService(
         perioder: Perioder?,
         saksbehandler: Bruker,
     ) {
-        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.transactional {
-            yrkesaktivitetDao.oppdaterPerioder(inntektsforhold, perioder)
+            yrkesaktivitetDao.oppdaterPerioder(yrkesaktivitet, perioder)
             beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
+        }
+    }
+
+    suspend fun oppdaterRefusjon(
+        ref: YrkesaktivitetReferanse,
+        refusjon: List<Refusjonsperiode>?,
+        saksbehandler: Bruker,
+    ) {
+        val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        db.nonTransactional {
+            yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, refusjon)
         }
     }
 }

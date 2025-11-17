@@ -30,7 +30,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
     aInntektClient: AInntektClient,
     daoer: DokumentInnhentingDaoer,
 ): InntektData {
-    yrkesaktivitetDao.oppdaterRefusjonsdata(yrkesaktivitet, data.refusjon)
+    yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, data.refusjon)
 
     return when (data) {
         is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {

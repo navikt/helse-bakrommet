@@ -4,12 +4,13 @@ import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektData
 import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.tilYrkesaktivitet
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.tilYrkesaktivitetDbRecord
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -24,9 +25,9 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         saksbehandlingsperiodeId: UUID,
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
-        perioder: no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder?,
+        perioder: Perioder?,
         inntektData: InntektData?,
-        refusjonsdata: List<no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode>?,
+        refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
         val record =
             YrkesaktivitetDbRecord(
@@ -59,7 +60,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord {
-        val eksisterende = storage[yrkesaktivitetDbRecord.id] ?: return yrkesaktivitetDbRecord
+        val eksisterende = storage[yrkesaktivitetDbRecord.id] ?: throw IllegalArgumentException("Kunne ikke finne yrkesaktivitet")
         val oppdatert = eksisterende.copy(kategorisering = kategorisering, inntektData = null, inntektRequest = null)
         storage[oppdatert.id] = oppdatert
         return oppdatert
@@ -69,7 +70,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: List<Dag>,
     ): YrkesaktivitetDbRecord {
-        val eksisterende = storage[yrkesaktivitetDbRecord.id] ?: return yrkesaktivitetDbRecord
+        val eksisterende = storage[yrkesaktivitetDbRecord.id] ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${yrkesaktivitetDbRecord.id}")
         val oppdatert = eksisterende.copy(dagoversikt = oppdatertDagoversikt)
         storage[oppdatert.id] = oppdatert
         return oppdatert
@@ -77,9 +78,9 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
 
     override fun oppdaterPerioder(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        perioder: no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Perioder?,
+        perioder: Perioder?,
     ): YrkesaktivitetDbRecord {
-        val eksisterende = storage[yrkesaktivitetDbRecord.id] ?: return yrkesaktivitetDbRecord
+        val eksisterende = storage[yrkesaktivitetDbRecord.id] ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${yrkesaktivitetDbRecord.id}")
         val oppdatert = eksisterende.copy(perioder = perioder)
         storage[oppdatert.id] = oppdatert
         return oppdatert
@@ -93,7 +94,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         yrkesaktivitet: Yrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord {
-        val eksisterende = storage[yrkesaktivitet.id] ?: return yrkesaktivitet.tilYrkesaktivitetDbRecord()
+        val eksisterende = storage[yrkesaktivitet.id] ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${yrkesaktivitet.id}")
         val oppdatert = eksisterende.copy(inntektRequest = request)
         storage[oppdatert.id] = oppdatert
         return oppdatert
@@ -103,17 +104,17 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         yrkesaktivitet: Yrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord {
-        val eksisterende = storage[yrkesaktivitet.id] ?: return yrkesaktivitet.tilYrkesaktivitetDbRecord()
+        val eksisterende = storage[yrkesaktivitet.id] ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${yrkesaktivitet.id}")
         val oppdatert = eksisterende.copy(inntektData = inntektData)
         storage[oppdatert.id] = oppdatert
         return oppdatert
     }
 
-    override fun oppdaterRefusjonsdata(
-        yrkesaktivitet: Yrkesaktivitet,
-        refusjonsdata: List<no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode>?,
+    override fun oppdaterRefusjon(
+        yrkesaktivitetID: UUID,
+        refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
-        val eksisterende = storage[yrkesaktivitet.id] ?: return yrkesaktivitet.tilYrkesaktivitetDbRecord()
+        val eksisterende = storage[yrkesaktivitetID] ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id $yrkesaktivitetID")
         val oppdatert = eksisterende.copy(refusjon = refusjonsdata)
         storage[oppdatert.id] = oppdatert
         return oppdatert
