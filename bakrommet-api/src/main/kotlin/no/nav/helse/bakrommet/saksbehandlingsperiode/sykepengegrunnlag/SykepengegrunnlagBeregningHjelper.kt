@@ -36,15 +36,18 @@ class SykepengegrunnlagBeregningHjelper(
 
         // Hent sykepengegrunnlag
         val eksisterendeSykepengegrunnlag =
-            periode.sykepengegrunnlagId?.let { sykepengegrunnlagDao.finnSykepengegrunnlag(it) }
+            periode.sykepengegrunnlagId?.let { sykepengegrunnlagDao.finnSykepengegrunnlag(it) }?.also {
+                if (it.opprettetForBehandling != periode.id) {
+                    return it
+                }
+            }
 
         val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
 
         val sykepengegrunnlag =
             beregnSykepengegrunnlag(
                 yrkesaktiviteter,
-                periode.skjæringstidspunkt
-                    ?: throw RuntimeException("Mangler skjæringstidspunkt på periode ${periode.id}"),
+                periode.skjæringstidspunkt,
             )
 
         return if (eksisterendeSykepengegrunnlag != null) {
