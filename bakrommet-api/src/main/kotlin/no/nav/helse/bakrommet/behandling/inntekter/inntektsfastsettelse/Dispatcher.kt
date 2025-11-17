@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
@@ -14,7 +14,7 @@ import no.nav.helse.bakrommet.sigrun.SigrunClient
 internal fun DokumentInnhentingDaoer.fastsettInntektData(
     request: InntektRequest,
     yrkesaktivitet: Yrkesaktivitet,
-    periode: Saksbehandlingsperiode,
+    periode: Behandling,
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
     inntektsmeldingClient: InntektsmeldingClient,

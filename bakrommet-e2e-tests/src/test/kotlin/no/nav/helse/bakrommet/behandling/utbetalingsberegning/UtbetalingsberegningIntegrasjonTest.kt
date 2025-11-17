@@ -8,7 +8,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
@@ -114,7 +114,7 @@ class UtbetalingsberegningIntegrasjonTest {
 
     private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto = objectMapper.readValue(this)
 
-    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Saksbehandlingsperiode {
+    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Behandling {
         client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
@@ -133,7 +133,7 @@ class UtbetalingsberegningIntegrasjonTest {
                 bearerAuth(TestOppsett.userToken)
             }
         assertEquals(200, response.status.value)
-        return response.body<List<Saksbehandlingsperiode>>().first()
+        return response.body<List<Behandling>>().first()
     }
 
     private suspend fun ApplicationTestBuilder.settInntektPåYrkesaktivitet(

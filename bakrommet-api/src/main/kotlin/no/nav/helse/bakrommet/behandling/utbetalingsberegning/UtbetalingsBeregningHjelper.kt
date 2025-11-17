@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
@@ -24,7 +24,7 @@ import java.util.*
 
 class UtbetalingsBeregningHjelper(
     private val beregningDao: UtbetalingsberegningDao,
-    private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
+    private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
@@ -34,7 +34,7 @@ class UtbetalingsBeregningHjelper(
         saksbehandler: Bruker,
     ) {
         // Hent nødvendige data for beregningen
-        val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+        val periode = behandlingDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
         val ident =
             personDao.hentNaturligIdent(periode.spilleromPersonId)
         // Hent sykepengegrunnlag

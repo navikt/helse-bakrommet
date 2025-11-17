@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDaoPg
+import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
@@ -28,7 +28,7 @@ class YrkesaktivitetDaoTest {
     val personId = "0h0a1"
     val saksbehandler = Bruker("ABC", "A. B. C", "ola@nav.no", emptySet())
     val periode =
-        Saksbehandlingsperiode(
+        Behandling(
             id = UUID.randomUUID(),
             spilleromPersonId = personId,
             opprettet = OffsetDateTime.now(),
@@ -44,7 +44,7 @@ class YrkesaktivitetDaoTest {
         TestDataSource.resetDatasource()
         val dao = PersonDaoPg(dataSource)
         dao.opprettPerson(fnr, personId)
-        val behandlingDao = SaksbehandlingsperiodeDaoPg(dataSource)
+        val behandlingDao = BehandlingDaoPg(dataSource)
         behandlingDao.opprettPeriode(periode)
     }
 

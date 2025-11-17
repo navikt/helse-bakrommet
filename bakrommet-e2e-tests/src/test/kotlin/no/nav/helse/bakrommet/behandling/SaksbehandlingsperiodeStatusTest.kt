@@ -79,7 +79,7 @@ class SaksbehandlingsperiodeStatusTest {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(200, response.status.value)
-                    val periode = response.body<Saksbehandlingsperiode>()
+                    val periode = response.body<Behandling>()
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
@@ -133,7 +133,7 @@ class SaksbehandlingsperiodeStatusTest {
                     setBody("""{ "individuellBegrunnelse" : "En ny begrunnelse" }""".trimIndent())
                 }.let { response ->
                     assertEquals(200, response.status.value)
-                    val periode = response.body<Saksbehandlingsperiode>()
+                    val periode = response.body<Behandling>()
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
@@ -162,7 +162,7 @@ class SaksbehandlingsperiodeStatusTest {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(200, response.status.value)
-                    val periode = response.body<Saksbehandlingsperiode>()
+                    val periode = response.body<Behandling>()
                     assertEquals(
                         periodeOpprinnelig
                             .copy(

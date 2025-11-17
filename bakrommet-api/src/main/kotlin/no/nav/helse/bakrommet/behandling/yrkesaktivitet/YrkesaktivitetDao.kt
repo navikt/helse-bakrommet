@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import kotliquery.Row
 import kotliquery.Session
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
@@ -105,9 +105,9 @@ interface YrkesaktivitetDao {
 
     fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet?
 
-    fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet>
+    fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet>
 
-    fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord>
+    fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord>
 
     fun oppdaterKategoriseringOgSlettInntektData(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
@@ -229,12 +229,12 @@ class YrkesaktivitetDaoPg private constructor(
             )
         }
 
-    override fun hentYrkesaktiviteter(periode: Saksbehandlingsperiode): List<Yrkesaktivitet> =
+    override fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet> =
         hentYrkesaktiviteterDbRecord(periode).map {
             it.tilYrkesaktivitet()
         }
 
-    override fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
+    override fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord> =
         db.list(
             """
             select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where behandling_id = :behandling_id

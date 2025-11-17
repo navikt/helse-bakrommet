@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling.inntekter
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.server.plugins.BadRequestException
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
@@ -15,7 +15,7 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonDao
 
 interface InntektsmeldingMatcherDaoer {
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    val behandlingDao: BehandlingDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val beregningDao: UtbetalingsberegningDao

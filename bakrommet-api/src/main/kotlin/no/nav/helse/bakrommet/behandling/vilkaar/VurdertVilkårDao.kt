@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.vilkaar
 
 import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Session
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -30,18 +30,18 @@ interface VurdertVilkårDao {
     ): Int
 
     fun eksisterer(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
     ): Boolean
 
     fun oppdater(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
         oppdatertVurdering: JsonNode,
     ): Int
 
     fun leggTil(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
         vurdering: JsonNode,
     ): Int
@@ -103,7 +103,7 @@ class VurdertVilkårDaoPg private constructor(
         )
 
     override fun eksisterer(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
     ): Boolean =
         db.single(
@@ -118,7 +118,7 @@ class VurdertVilkårDaoPg private constructor(
         ) ?: false
 
     override fun oppdater(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
         oppdatertVurdering: JsonNode,
     ): Int =
@@ -137,7 +137,7 @@ class VurdertVilkårDaoPg private constructor(
         )
 
     override fun leggTil(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
         vurdering: JsonNode,
     ): Int =

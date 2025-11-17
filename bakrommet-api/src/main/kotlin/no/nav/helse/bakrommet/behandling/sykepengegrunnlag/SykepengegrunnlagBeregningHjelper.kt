@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling.sykepengegrunnlag
 import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.BeregningskoderKombinasjonerSykepengegrunnlag
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
@@ -19,7 +19,7 @@ import java.time.LocalDate
 
 class SykepengegrunnlagBeregningHjelper(
     private val beregningDao: UtbetalingsberegningDao,
-    private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
+    private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
 ) {
@@ -29,7 +29,7 @@ class SykepengegrunnlagBeregningHjelper(
     ): SykepengegrunnlagDbRecord? {
         // Hent nødvendige data for beregningen
         val periode =
-            saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(referanse.periodeUUID)
+            behandlingDao.finnBehandling(referanse.periodeUUID)
                 ?: throw RuntimeException("Fant ikke saksbehandlingsperiode for id ${referanse.periodeUUID}")
 
         // TODO valider at sb på saken? Eller anta at det skjer senere
@@ -57,7 +57,7 @@ class SykepengegrunnlagBeregningHjelper(
                 // Lagre nytt sykepengegrunnlag
                 val lagret = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, periode.id)
                 // Knytt til saksbehandlingsperiode
-                saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(periode.id, lagret.id)
+                behandlingDao.oppdaterSykepengegrunnlagId(periode.id, lagret.id)
                 lagret
             } else {
                 null

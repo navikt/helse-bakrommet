@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.inntekter
 
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
@@ -29,7 +29,7 @@ import kotlin.math.abs
 interface InntektServiceDaoer :
     Beregningsdaoer,
     DokumentInnhentingDaoer {
-    override val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    override val behandlingDao: BehandlingDao
     override val yrkesaktivitetDao: YrkesaktivitetDao
     override val sykepengegrunnlagDao: SykepengegrunnlagDao
     override val beregningDao: UtbetalingsberegningDao
@@ -50,7 +50,7 @@ class InntektService(
     ) {
         db.transactional {
             val periode =
-                saksbehandlingsperiodeDao.hentPeriode(
+                behandlingDao.hentPeriode(
                     ref = ref.saksbehandlingsperiodeReferanse,
                     krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
                 )

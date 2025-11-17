@@ -35,7 +35,7 @@ import java.util.UUID
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 class FakeDaoer : AlleDaoer {
-    override val saksbehandlingsperiodeDao = SaksbehandlingsperiodeDaoFake()
+    override val behandlingDao = BehandlingDaoFake()
     override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoFake()
     override val personDao = PersonDaoFake()
     override val dokumentDao = DokumentDaoFake()

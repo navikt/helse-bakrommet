@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastSigrunDokument
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somPensjonsgivendeInntekt
@@ -16,7 +16,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.tilBeregnetPensjonsgivendeInn
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 
 internal fun InntektRequest.SelvstendigNæringsdrivende.selvstendigFastsettelse(
-    periode: Saksbehandlingsperiode,
+    periode: Behandling,
     saksbehandler: BrukerOgToken,
     sigrunClient: SigrunClient,
     daoer: DokumentInnhentingDaoer,

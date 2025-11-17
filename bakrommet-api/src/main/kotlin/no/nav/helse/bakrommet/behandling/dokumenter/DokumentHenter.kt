@@ -35,7 +35,7 @@ class DokumentHenter(
 ) {
     suspend fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> =
         db.nonTransactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+            val periode = behandlingDao.hentPeriode(ref, krav = null)
             dokumentDao.hentDokumenterFor(periode.id)
         }
 
@@ -44,7 +44,7 @@ class DokumentHenter(
         dokumentId: UUID,
     ): Dokument? =
         db.nonTransactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+            val periode = behandlingDao.hentPeriode(ref, krav = null)
             val dok = dokumentDao.hentDokument(dokumentId)
             if (dok != null) {
                 if (dok.opprettetForBehandling != periode.id) {
@@ -62,7 +62,7 @@ class DokumentHenter(
         db.nonTransactional {
             if (søknadsIder.isEmpty()) return@nonTransactional emptyList()
             val periode =
-                saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+                behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
             // TODO: Transaksjon ? / Tilrettelegg for å kunne fullføre innhenting som feiler halvveis inni løpet ?
 
@@ -97,7 +97,7 @@ class DokumentHenter(
     ): Dokument =
         db.nonTransactional {
             val periode =
-                saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+                behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
             return@nonTransactional lastAInntektBeregningsgrunnlag(
                 periode = periode,
@@ -112,7 +112,7 @@ class DokumentHenter(
     ): Dokument =
         db.nonTransactional {
             val periode =
-                saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+                behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
             return@nonTransactional lastAInntektSammenlikningsgrunnlag(
                 periode = periode,
@@ -127,7 +127,7 @@ class DokumentHenter(
     ): Dokument {
         return db.nonTransactional {
             val periode =
-                saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+                behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
             val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
             logg.info("Henter aareg for periode={}", periode.id)
             return@nonTransactional aaRegClient
@@ -154,7 +154,7 @@ class DokumentHenter(
         saksbehandler: BrukerOgToken,
     ): Dokument =
         db.nonTransactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+            val periode = behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
 
             return@nonTransactional lastSigrunDokument(
                 periode = periode,

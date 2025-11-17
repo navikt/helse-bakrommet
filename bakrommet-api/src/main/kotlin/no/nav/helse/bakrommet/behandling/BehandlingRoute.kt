@@ -22,7 +22,7 @@ fun RoutingCall.periodeReferanse() =
         periodeUUID = periodeUUID(),
     )
 
-internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeService) {
+internal fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/saksbehandlingsperioder") {
         get {
             val perioder = service.hentAlleSaksbehandlingsperioder()
@@ -154,14 +154,14 @@ internal fun Route.saksbehandlingsperiodeRoute(service: SaksbehandlingsperiodeSe
 }
 
 private suspend fun RoutingCall.respondPeriode(
-    periode: Saksbehandlingsperiode,
+    periode: Behandling,
     status: HttpStatusCode = HttpStatusCode.OK,
 ) {
     respondText(periode.serialisertTilString(), ContentType.Application.Json, status)
 }
 
 private suspend fun RoutingCall.respondPerioder(
-    perioder: List<Saksbehandlingsperiode>,
+    perioder: List<Behandling>,
     status: HttpStatusCode = HttpStatusCode.OK,
 ) {
     respondText(perioder.serialisertTilString(), ContentType.Application.Json, status)

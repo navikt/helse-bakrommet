@@ -10,7 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -22,7 +22,7 @@ internal suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(
     fom: LocalDate,
     tom: LocalDate,
     token: String = TestOppsett.userToken,
-): Saksbehandlingsperiode {
+): Behandling {
     val response =
         client.post("/v1/$personId/saksbehandlingsperioder") {
             bearerAuth(token)
@@ -45,7 +45,7 @@ internal suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(
     assertEquals(200, getResponse.status.value, "Henting av saksbehandlingsperioder skal returnere status 200")
 
     val json = getResponse.body<String>()
-    val perioder = objectMapperCustomSerde.readValue<List<Saksbehandlingsperiode>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, Saksbehandlingsperiode::class.java))
+    val perioder = objectMapperCustomSerde.readValue<List<Behandling>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, Behandling::class.java))
 
     assertTrue(perioder.isNotEmpty(), "Det skal finnes minst én saksbehandlingsperiode")
     val periode = perioder.first { it.id == periodeId }

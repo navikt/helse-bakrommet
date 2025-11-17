@@ -21,7 +21,7 @@ class DokumentDaoTest {
     val personId = "0h0a1"
     val saksbehandler = Bruker("ABC", "A. B. C", "Saksbehandersen@nav.no", roller = emptySet())
     val periode =
-        Saksbehandlingsperiode(
+        Behandling(
             id = UUID.randomUUID(),
             spilleromPersonId = personId,
             opprettet = OffsetDateTime.now(),
@@ -37,7 +37,7 @@ class DokumentDaoTest {
         TestDataSource.resetDatasource()
         val dao = PersonDaoPg(dataSource)
         dao.opprettPerson(fnr, personId)
-        val behandlingDao = SaksbehandlingsperiodeDaoPg(dataSource)
+        val behandlingDao = BehandlingDaoPg(dataSource)
         behandlingDao.opprettPeriode(periode)
     }
 

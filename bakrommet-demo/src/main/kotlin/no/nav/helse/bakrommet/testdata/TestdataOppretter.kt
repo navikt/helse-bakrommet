@@ -49,7 +49,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                         }.toSet()
 
                 val nySaksbehandlingsperiode =
-                    this.saksbehandlingsperiodeService.opprettNySaksbehandlingsperiode(
+                    this.behandlingService.opprettNySaksbehandlingsperiode(
                         id = faker.random.nextUUID().somGyldigUUID(),
                         spilleromPersonId = SpilleromPersonId(testperson.spilleromId),
                         fom = periode.fom,
@@ -68,16 +68,16 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                     }
                 }
                 if (periode.avsluttet) {
-                    this.saksbehandlingsperiodeService.sendTilBeslutning(
+                    this.behandlingService.sendTilBeslutning(
                         periodeRef = nySaksbehandlingsperiode.somReferanse(),
                         individuellBegrunnelse = "En god begrunnelse",
                         saksbehandler = saksMcBehandlersen,
                     )
-                    this.saksbehandlingsperiodeService.taTilBeslutning(
+                    this.behandlingService.taTilBeslutning(
                         periodeRef = nySaksbehandlingsperiode.somReferanse(),
                         saksbehandler = beritBeslutter,
                     )
-                    this.saksbehandlingsperiodeService.godkjennPeriode(
+                    this.behandlingService.godkjennPeriode(
                         periodeRef = nySaksbehandlingsperiode.somReferanse(),
                         saksbehandler = beritBeslutter,
                     )

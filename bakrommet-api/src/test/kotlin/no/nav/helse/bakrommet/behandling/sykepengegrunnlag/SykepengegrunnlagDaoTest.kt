@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.behandling.sykepengegrunnlag
 
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDaoPg
+import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.testutils.`should equal`
@@ -27,8 +27,8 @@ class SykepengegrunnlagDaoTest {
     fun setOpp() {
         TestDataSource.resetDatasource()
         PersonDaoPg(TestDataSource.dbModule.dataSource).opprettPerson("01019012345", "6512a")
-        SaksbehandlingsperiodeDaoPg(TestDataSource.dbModule.dataSource).opprettPeriode(
-            Saksbehandlingsperiode(
+        BehandlingDaoPg(TestDataSource.dbModule.dataSource).opprettPeriode(
+            Behandling(
                 id = saksbehandlingsperiodeId,
                 spilleromPersonId = "6512a",
                 opprettet = OffsetDateTime.now(),

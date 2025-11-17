@@ -64,7 +64,7 @@ class SaksbehandlingsperiodeTest {
                             { "fom": "2023-01-01", "tom": "2023-01-31" }
                             """.trimIndent(),
                         )
-                    }.body<Saksbehandlingsperiode>()
+                    }.body<Behandling>()
             val periode1 =
                 lagPeriodePåPerson(personId).also {
                     assertEquals(personId, it.spilleromPersonId)
@@ -74,7 +74,7 @@ class SaksbehandlingsperiodeTest {
                     assertEquals(personId2, it.spilleromPersonId)
                 }
 
-            val absoluttAllePerioder: List<Saksbehandlingsperiode> =
+            val absoluttAllePerioder: List<Behandling> =
                 client
                     .get("/v1/saksbehandlingsperioder") {
                         bearerAuth(TestOppsett.userToken)
@@ -103,7 +103,7 @@ class SaksbehandlingsperiodeTest {
                             { "fom": "2023-01-01", "tom": "2023-01-31" }
                             """.trimIndent(),
                         )
-                    }.body<Saksbehandlingsperiode>()
+                    }.body<Behandling>()
 
             // Oppdater skjæringstidspunkt
             val nyttSkjæringstidspunkt = "2023-01-15"
@@ -117,7 +117,7 @@ class SaksbehandlingsperiodeTest {
                             { "skjaeringstidspunkt": "$nyttSkjæringstidspunkt" }
                             """.trimIndent(),
                         )
-                    }.body<Saksbehandlingsperiode>()
+                    }.body<Behandling>()
 
             assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt.toString())
         }

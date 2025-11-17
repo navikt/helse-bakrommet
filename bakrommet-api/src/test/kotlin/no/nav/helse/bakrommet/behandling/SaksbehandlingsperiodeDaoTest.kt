@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 internal class SaksbehandlingsperiodeDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
 
-    private val dao = SaksbehandlingsperiodeDaoPg(dataSource)
+    private val dao = BehandlingDaoPg(dataSource)
 
     companion object {
         val fnr = "01019012345"
@@ -37,7 +37,7 @@ internal class SaksbehandlingsperiodeDaoTest {
 
     @Test
     fun `ukjent id gir null`() {
-        assertNull(dao.finnSaksbehandlingsperiode(UUID.randomUUID()))
+        assertNull(dao.finnBehandling(UUID.randomUUID()))
     }
 
     @Test
@@ -50,7 +50,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val tom = LocalDate.of(2021, 1, 31)
 
         val periode =
-            Saksbehandlingsperiode(
+            Behandling(
                 id = id,
                 spilleromPersonId = personId,
                 opprettet = now,
@@ -64,11 +64,11 @@ internal class SaksbehandlingsperiodeDaoTest {
             ).truncateTidspunkt()
         dao.opprettPeriode(periode)
 
-        val hentet = dao.finnSaksbehandlingsperiode(id)!!
+        val hentet = dao.finnBehandling(id)!!
         assertEquals(periode, hentet)
 
         // Sjekk at perioden finnes i listen over alle perioder for personen
-        val perioder = dao.finnPerioderForPerson(personId)
+        val perioder = dao.finnBehandlingerForPerson(personId)
         assertTrue(perioder.any { it.id == id })
     }
 
@@ -81,12 +81,12 @@ internal class SaksbehandlingsperiodeDaoTest {
         fun opprettPeriode(
             fom: String,
             tom: String,
-        ): Saksbehandlingsperiode {
+        ): Behandling {
             val id = UUID.randomUUID()
             val now = OffsetDateTime.now()
             val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
             val periode =
-                Saksbehandlingsperiode(
+                Behandling(
                     id = id,
                     spilleromPersonId = personId,
                     opprettet = now,
@@ -98,15 +98,15 @@ internal class SaksbehandlingsperiodeDaoTest {
                     sykepengegrunnlagId = null,
                 ).truncateTidspunkt()
             dao.opprettPeriode(periode)
-            return dao.finnSaksbehandlingsperiode(id)!!
+            return dao.finnBehandling(id)!!
         }
 
         fun finnOverlappende(
             fom: String,
             tom: String,
-        ): Set<Saksbehandlingsperiode> =
+        ): Set<Behandling> =
             dao
-                .finnPerioderForPersonSomOverlapper(
+                .finnBehandlingerForPersonSomOverlapper(
                     Companion.personId,
                     fom.toLocalDate(),
                     tom.toLocalDate(),
@@ -136,7 +136,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val tom = LocalDate.of(2021, 1, 31)
 
         val periode =
-            Saksbehandlingsperiode(
+            Behandling(
                 id = id,
                 spilleromPersonId = personId,
                 opprettet = now,
@@ -154,7 +154,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val nyttSkjæringstidspunkt = LocalDate.of(2021, 1, 15)
         dao.oppdaterSkjæringstidspunkt(id, nyttSkjæringstidspunkt)
 
-        val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        val oppdatertPeriode = dao.finnBehandling(id)!!
         assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt)
     }
 
@@ -168,7 +168,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val tom = LocalDate.of(2021, 1, 31)
 
         val periode =
-            Saksbehandlingsperiode(
+            Behandling(
                 id = id,
                 spilleromPersonId = personId,
                 opprettet = now,
@@ -199,13 +199,13 @@ internal class SaksbehandlingsperiodeDaoTest {
         // Oppdater sykepengegrunnlag_id med gyldig ID
         dao.oppdaterSykepengegrunnlagId(id, lagretGrunnlag.id)
 
-        val oppdatertPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        val oppdatertPeriode = dao.finnBehandling(id)!!
         assertEquals(lagretGrunnlag.id, oppdatertPeriode.sykepengegrunnlagId)
 
         // Nullstill sykepengegrunnlag_id
         dao.oppdaterSykepengegrunnlagId(id, null)
 
-        val nullstiltPeriode = dao.finnSaksbehandlingsperiode(id)!!
+        val nullstiltPeriode = dao.finnBehandling(id)!!
         assertNull(nullstiltPeriode.sykepengegrunnlagId)
     }
 }

@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling.dokumenter.innhenting
 import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
-    periode: Saksbehandlingsperiode,
+    periode: Behandling,
     inntektsmeldingId: String,
     inntektsmeldingClient: InntektsmeldingClient,
     saksbehandler: BrukerOgToken,

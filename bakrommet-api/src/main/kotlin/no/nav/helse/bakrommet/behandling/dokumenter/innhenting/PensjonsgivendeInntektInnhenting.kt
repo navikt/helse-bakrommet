@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling.dokumenter.innhenting
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
 import no.nav.helse.bakrommet.behandling.dokumenter.joinSigrunResponserTilEttDokument
@@ -13,7 +13,7 @@ import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun DokumentInnhentingDaoer.lastSigrunDokument(
-    periode: Saksbehandlingsperiode,
+    periode: Behandling,
     saksbehandlerToken: SpilleromBearerToken,
     sigrunClient: SigrunClient,
 ): Dokument {

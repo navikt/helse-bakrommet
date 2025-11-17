@@ -3,12 +3,12 @@ package no.nav.helse.bakrommet.behandling
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 
-fun SaksbehandlingsperiodeDao.hentPeriode(
+fun BehandlingDao.hentPeriode(
     ref: SaksbehandlingsperiodeReferanse,
     krav: BrukerHarRollePåSakenKrav?,
-): Saksbehandlingsperiode {
+): Behandling {
     val periode =
-        this.finnSaksbehandlingsperiode(ref.periodeUUID)
+        this.finnBehandling(ref.periodeUUID)
             ?: throw SaksbehandlingsperiodeIkkeFunnetException()
     if (periode.spilleromPersonId != ref.spilleromPersonId.personId) {
         throw InputValideringException("Ugyldig saksbehandlingsperiode")
@@ -17,4 +17,4 @@ fun SaksbehandlingsperiodeDao.hentPeriode(
     return periode
 }
 
-fun SaksbehandlingsperiodeDao.reload(periode: Saksbehandlingsperiode) = finnSaksbehandlingsperiode(periode.id)!!
+fun BehandlingDao.reload(periode: Behandling) = finnBehandling(periode.id)!!

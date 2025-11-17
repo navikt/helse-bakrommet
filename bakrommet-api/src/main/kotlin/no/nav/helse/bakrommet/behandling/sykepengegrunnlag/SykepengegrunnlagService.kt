@@ -7,7 +7,7 @@ import no.nav.helse.bakrommet.person.PersonDao
 
 interface SykepengegrunnlagServiceDaoer {
     val sykepengegrunnlagDao: SykepengegrunnlagDao
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    val behandlingDao: BehandlingDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personDao: PersonDao
 }
@@ -17,7 +17,7 @@ class SykepengegrunnlagService(
 ) {
     suspend fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? =
         db.nonTransactional {
-            saksbehandlingsperiodeDao.hentPeriode(referanse, krav = null).sykepengegrunnlagId?.let { sykepengegrunnlagId ->
+            behandlingDao.hentPeriode(referanse, krav = null).sykepengegrunnlagId?.let { sykepengegrunnlagId ->
                 sykepengegrunnlagDao.finnSykepengegrunnlag(sykepengegrunnlagId)?.let { record ->
                     SykepengegrunnlagResponse(
                         sykepengegrunnlag = record.sykepengegrunnlag,

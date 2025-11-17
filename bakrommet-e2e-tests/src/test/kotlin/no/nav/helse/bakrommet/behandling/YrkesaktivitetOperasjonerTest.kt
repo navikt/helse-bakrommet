@@ -48,7 +48,7 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
+                    }.body<List<Behandling>>()
                     .first()
 
             opprettYrkesaktivitet(
@@ -151,7 +151,7 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
+                    }.body<List<Behandling>>()
                     .first()
 
             opprettYrkesaktivitet(
@@ -256,7 +256,7 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
+                    }.body<List<Behandling>>()
                     .first()
 
             opprettYrkesaktivitet(
@@ -395,7 +395,7 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
+                    }.body<List<Behandling>>()
                     .first()
 
             // Sett skjæringstidspunkt for perioden
@@ -505,7 +505,7 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
+                    }.body<List<Behandling>>()
                     .first()
 
             opprettYrkesaktivitet(

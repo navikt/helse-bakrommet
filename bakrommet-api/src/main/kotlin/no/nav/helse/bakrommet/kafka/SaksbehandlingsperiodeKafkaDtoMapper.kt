@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.kafka
 
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.somReferanse
@@ -19,7 +19,7 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 
 interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val beregningDao: UtbetalingsberegningDao
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    val behandlingDao: BehandlingDao
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personDao: PersonDao
@@ -27,7 +27,7 @@ interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val vurdertVilkårDao: VurdertVilkårDao
 }
 
-fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: Saksbehandlingsperiode) {
+fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: Behandling) {
     leggTilOutbox(periode.somReferanse())
 }
 
@@ -35,7 +35,7 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: Saksbehandlings
     val saksbehandlingsperiodeKafkaDtoMapper =
         SaksbehandlingsperiodeKafkaDtoMapper(
             beregningDao = beregningDao,
-            saksbehandlingsperiodeDao = saksbehandlingsperiodeDao,
+            behandlingDao = behandlingDao,
             sykepengegrunnlagDao = sykepengegrunnlagDao,
             yrkesaktivitetDao = yrkesaktivitetDao,
             personDao = personDao,
@@ -78,13 +78,13 @@ fun String.tilKafkaKey(): String = HashUtils.sha256("spillerom-$this")
 
 class SaksbehandlingsperiodeKafkaDtoMapper(
     private val beregningDao: UtbetalingsberegningDao,
-    private val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao,
+    private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
 ) {
     fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): SaksbehandlingsperiodeKafkaDto {
-        val periode = saksbehandlingsperiodeDao.hentPeriode(referanse, null)
+        val periode = behandlingDao.hentPeriode(referanse, null)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent =
             personDao.hentNaturligIdent(periode.spilleromPersonId)

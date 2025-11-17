@@ -6,7 +6,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
@@ -20,7 +20,7 @@ class VilkårRouteTest {
         val personId = "65hth"
     }
 
-    fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(Pair<Daoer, Saksbehandlingsperiode>) -> Unit) =
+    fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(Pair<Daoer, Behandling>) -> Unit) =
         runApplicationTest {
             it.personDao.opprettPerson(fnr, personId)
             val response =
@@ -35,14 +35,14 @@ class VilkårRouteTest {
                 }
             assertEquals(201, response.status.value)
 
-            val saksbehandlingsperiode: Saksbehandlingsperiode =
+            val behandling: Behandling =
                 objectMapper
                     .readValue(
                         response.bodyAsText(),
-                        Saksbehandlingsperiode::class.java,
+                        Behandling::class.java,
                     ).truncateTidspunkt()
 
-            this.testBlock(it to saksbehandlingsperiode)
+            this.testBlock(it to behandling)
         }
 
     @Test

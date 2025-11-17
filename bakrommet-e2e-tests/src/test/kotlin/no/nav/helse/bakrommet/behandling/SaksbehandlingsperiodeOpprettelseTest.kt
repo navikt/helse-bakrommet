@@ -87,7 +87,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     bearerAuth(TestOppsett.userToken)
                 }
             assertEquals(200, allePerioder.status.value)
-            val perioder: List<Saksbehandlingsperiode> = allePerioder.body()
+            val perioder: List<Behandling> = allePerioder.body()
 
             perioder.size `should equal` 1
             val periode = perioder.first()
@@ -157,7 +157,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 client
                     .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Saksbehandlingsperiode>>()
+                    }.body<List<Behandling>>()
                     .first()
 
             // Verifiser yrkesaktivitet

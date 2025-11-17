@@ -39,19 +39,19 @@ data class SaksbehandlingsperiodeReferanse(
     val periodeUUID: UUID,
 )
 
-fun Saksbehandlingsperiode.somReferanse() =
+fun Behandling.somReferanse() =
     SaksbehandlingsperiodeReferanse(
         spilleromPersonId = SpilleromPersonId(this.spilleromPersonId),
         periodeUUID = this.id,
     )
 
-class SaksbehandlingsperiodeService(
+class BehandlingService(
     private val db: DbDaoer<SaksbehandlingsperiodeServiceDaoer>,
     private val dokumentHenter: DokumentHenter,
 ) {
-    suspend fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { saksbehandlingsperiodeDao.hentAlleSaksbehandlingsperioder() }
+    suspend fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { behandlingDao.hentAlleBehandlinger() }
 
-    suspend fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { saksbehandlingsperiodeDao.hentPeriode(ref, krav = null) }
+    suspend fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { behandlingDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNySaksbehandlingsperiode(
         spilleromPersonId: SpilleromPersonId,
@@ -60,10 +60,10 @@ class SaksbehandlingsperiodeService(
         søknader: Set<UUID>,
         saksbehandler: BrukerOgToken,
         id: UUID = UUID.randomUUID(),
-    ): Saksbehandlingsperiode {
+    ): Behandling {
         if (fom.isAfter(tom)) throw InputValideringException("Fom-dato kan ikke være etter tom-dato")
         var nyPeriode =
-            Saksbehandlingsperiode(
+            Behandling(
                 id = id,
                 spilleromPersonId = spilleromPersonId.personId,
                 opprettet = OffsetDateTime.now(),
@@ -75,10 +75,10 @@ class SaksbehandlingsperiodeService(
                 revurdererSaksbehandlingsperiodeId = null,
             )
 
-        var tidligerePeriodeInntilNyPeriode: Saksbehandlingsperiode? = null
+        var tidligerePeriodeInntilNyPeriode: Behandling? = null
 
         db.transactional {
-            val perioder = saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId)
+            val perioder = behandlingDao.finnBehandlingerForPerson(spilleromPersonId.personId)
 
             if (perioder.any { it.fom <= tom && it.tom >= fom }) {
                 throw InputValideringException("Angitte datoer overlapper med en eksisterende periode")
@@ -94,7 +94,7 @@ class SaksbehandlingsperiodeService(
                     )
             }
 
-            saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+            behandlingDao.opprettPeriode(nyPeriode)
             saksbehandlingsperiodeEndringerDao.leggTilEndring(
                 nyPeriode.endring(
                     endringType = SaksbehandlingsperiodeEndringType.STARTET,
@@ -124,7 +124,7 @@ class SaksbehandlingsperiodeService(
             val (yrkesaktiviteter, gammelTilNyIdMap) =
                 lagYrkesaktiviteter(
                     sykepengesoknader = søknader,
-                    saksbehandlingsperiode = nyPeriode,
+                    behandling = nyPeriode,
                     tidligereYrkesaktiviteter = tidligereYrkesaktiviteter,
                 )
             yrkesaktiviteter.forEach { yrkesaktivitet ->
@@ -144,7 +144,7 @@ class SaksbehandlingsperiodeService(
 
             tidligerePeriodeInntilNyPeriode?.let {
                 it.sykepengegrunnlagId?.let { spgid ->
-                    saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(nyPeriode.id, spgid)
+                    behandlingDao.oppdaterSykepengegrunnlagId(nyPeriode.id, spgid)
                 }
             }
         }
@@ -152,19 +152,19 @@ class SaksbehandlingsperiodeService(
         return nyPeriode
     }
 
-    suspend fun finnPerioderForPerson(spilleromPersonId: SpilleromPersonId): List<Saksbehandlingsperiode> = db.nonTransactional { saksbehandlingsperiodeDao.finnPerioderForPerson(spilleromPersonId.personId) }
+    suspend fun finnPerioderForPerson(spilleromPersonId: SpilleromPersonId): List<Behandling> = db.nonTransactional { behandlingDao.finnBehandlingerForPerson(spilleromPersonId.personId) }
 
     suspend fun sendTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         individuellBegrunnelse: String?,
         saksbehandler: Bruker,
-    ): Saksbehandlingsperiode =
+    ): Behandling =
         db.transactional {
-            saksbehandlingsperiodeDao
+            behandlingDao
                 .let { dao ->
                     val periode = dao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
 
-                    fun Saksbehandlingsperiode.harAlleredeBeslutter() = this.beslutterNavIdent != null
+                    fun Behandling.harAlleredeBeslutter() = this.beslutterNavIdent != null
                     val nyStatus =
                         if (periode.harAlleredeBeslutter()) {
                             SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
@@ -187,9 +187,9 @@ class SaksbehandlingsperiodeService(
     suspend fun revurderPeriode(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
-    ): Saksbehandlingsperiode =
+    ): Behandling =
         db.transactional {
-            val forrigePeriode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, null)
+            val forrigePeriode = behandlingDao.hentPeriode(periodeRef, null)
             if (forrigePeriode.status != SaksbehandlingsperiodeStatus.GODKJENT) {
                 throw InputValideringException("Kun godkjente perioder kan revurderes")
             }
@@ -203,7 +203,7 @@ class SaksbehandlingsperiodeService(
                     id = UUID.randomUUID(),
                     revurdererSaksbehandlingsperiodeId = forrigePeriode.id,
                 )
-            saksbehandlingsperiodeDao.opprettPeriode(nyPeriode)
+            behandlingDao.opprettPeriode(nyPeriode)
             yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(forrigePeriode).forEach { ya ->
                 yrkesaktivitetDao.opprettYrkesaktivitet(
                     ya.copy(
@@ -233,7 +233,7 @@ class SaksbehandlingsperiodeService(
                                 saksbehandler,
                                 nyPeriode.id,
                             )
-                        saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(
+                        behandlingDao.oppdaterSykepengegrunnlagId(
                             nyPeriode.id,
                             nyttSpg.id,
                         )
@@ -279,24 +279,24 @@ class SaksbehandlingsperiodeService(
                 saksbehandler = saksbehandler,
             )
 
-            saksbehandlingsperiodeDao.reload(nyPeriode)
+            behandlingDao.reload(nyPeriode)
         }
 
     suspend fun taTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
-    ): Saksbehandlingsperiode =
+    ): Behandling =
         db.transactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = null)
+            val periode = behandlingDao.hentPeriode(periodeRef, krav = null)
             // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
             val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
             periode.verifiserNyStatusGyldighet(nyStatus)
-            saksbehandlingsperiodeDao.endreStatusOgBeslutter(
+            behandlingDao.endreStatusOgBeslutter(
                 periode,
                 nyStatus = nyStatus,
                 beslutterNavIdent = saksbehandler.navIdent,
             )
-            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+            behandlingDao.reload(periode).also { oppdatertPeriode ->
                 saksbehandlingsperiodeEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.TATT_TIL_BESLUTNING,
@@ -310,16 +310,16 @@ class SaksbehandlingsperiodeService(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
         kommentar: String,
-    ): Saksbehandlingsperiode =
+    ): Behandling =
         db.transactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
+            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
             val nyStatus = UNDER_BEHANDLING
             periode.verifiserNyStatusGyldighet(nyStatus)
-            saksbehandlingsperiodeDao.endreStatus(
+            behandlingDao.endreStatus(
                 periode,
                 nyStatus = nyStatus,
             )
-            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+            behandlingDao.reload(periode).also { oppdatertPeriode ->
                 saksbehandlingsperiodeEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.SENDT_I_RETUR,
@@ -333,12 +333,12 @@ class SaksbehandlingsperiodeService(
     suspend fun godkjennPeriode(
         periodeRef: SaksbehandlingsperiodeReferanse,
         saksbehandler: Bruker,
-    ): Saksbehandlingsperiode {
+    ): Behandling {
         return db.transactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
+            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
             val nyStatus = SaksbehandlingsperiodeStatus.GODKJENT
             periode.verifiserNyStatusGyldighet(nyStatus)
-            saksbehandlingsperiodeDao.endreStatusOgBeslutter(
+            behandlingDao.endreStatusOgBeslutter(
                 periode,
                 nyStatus = nyStatus,
                 beslutterNavIdent = saksbehandler.navIdent,
@@ -353,13 +353,13 @@ class SaksbehandlingsperiodeService(
             }
 
             periode.revurdererSaksbehandlingsperiodeId?.let {
-                saksbehandlingsperiodeDao.finnSaksbehandlingsperiode(it)?.let { revurdertPeriode ->
-                    saksbehandlingsperiodeDao.endreStatus(revurdertPeriode, REVURDERT)
-                    saksbehandlingsperiodeDao.oppdaterRevurdertAvBehandlingId(revurdertPeriode.id, periode.id)
+                behandlingDao.finnBehandling(it)?.let { revurdertPeriode ->
+                    behandlingDao.endreStatus(revurdertPeriode, REVURDERT)
+                    behandlingDao.oppdaterRevurdertAvBehandlingId(revurdertPeriode.id, periode.id)
                 }
             }
 
-            val oppdatertPeriode = saksbehandlingsperiodeDao.reload(periode)
+            val oppdatertPeriode = behandlingDao.reload(periode)
             saksbehandlingsperiodeEndringerDao.leggTilEndring(
                 oppdatertPeriode.endring(
                     endringType = SaksbehandlingsperiodeEndringType.GODKJENT,
@@ -373,7 +373,7 @@ class SaksbehandlingsperiodeService(
 
     suspend fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> =
         db.nonTransactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = null)
+            val periode = behandlingDao.hentPeriode(periodeRef, krav = null)
             saksbehandlingsperiodeEndringerDao.hentEndringerFor(periode.id)
         }
 
@@ -381,12 +381,12 @@ class SaksbehandlingsperiodeService(
         periodeRef: SaksbehandlingsperiodeReferanse,
         skjæringstidspunkt: LocalDate,
         saksbehandler: Bruker,
-    ): Saksbehandlingsperiode =
+    ): Behandling =
         db.transactional {
             val periode =
-                saksbehandlingsperiodeDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
-            saksbehandlingsperiodeDao.oppdaterSkjæringstidspunkt(periode.id, skjæringstidspunkt)
-            saksbehandlingsperiodeDao.reload(periode).also { oppdatertPeriode ->
+                behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
+            behandlingDao.oppdaterSkjæringstidspunkt(periode.id, skjæringstidspunkt)
+            behandlingDao.reload(periode).also { oppdatertPeriode ->
                 saksbehandlingsperiodeEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.OPPDATERT_SKJÆRINGSTIDSPUNKT,
@@ -397,7 +397,7 @@ class SaksbehandlingsperiodeService(
         }
 }
 
-private fun Saksbehandlingsperiode.endring(
+private fun Behandling.endring(
     endringType: SaksbehandlingsperiodeEndringType,
     saksbehandler: Bruker,
     status: SaksbehandlingsperiodeStatus = this.status,
@@ -414,7 +414,7 @@ private fun Saksbehandlingsperiode.endring(
     endringKommentar = endringKommentar,
 )
 
-private fun Saksbehandlingsperiode.verifiserNyStatusGyldighet(nyStatus: SaksbehandlingsperiodeStatus) {
+private fun Behandling.verifiserNyStatusGyldighet(nyStatus: SaksbehandlingsperiodeStatus) {
     if (!SaksbehandlingsperiodeStatus.erGyldigEndring(status to nyStatus)) {
         throw InputValideringException("Ugyldig statusendring: $status til $nyStatus")
     }
@@ -501,7 +501,7 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
 
 fun lagYrkesaktivitetFraSøknader(
     sykepengesoknader: Iterable<Dokument>,
-    saksbehandlingsperiode: Saksbehandlingsperiode,
+    behandling: Behandling,
 ): List<YrkesaktivitetDbRecord> {
     val kategorierOgSøknader =
         sykepengesoknader
@@ -510,8 +510,8 @@ fun lagYrkesaktivitetFraSøknader(
         val dagoversikt =
             skapDagoversiktFraSoknader(
                 dok.map { it.somSøknad() },
-                saksbehandlingsperiode.fom,
-                saksbehandlingsperiode.tom,
+                behandling.fom,
+                behandling.tom,
             )
         YrkesaktivitetDbRecord(
             id = UUID.randomUUID(),
@@ -519,7 +519,7 @@ fun lagYrkesaktivitetFraSøknader(
             kategoriseringGenerert = kategorisering,
             dagoversikt = dagoversikt,
             dagoversiktGenerert = dagoversikt,
-            saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+            saksbehandlingsperiodeId = behandling.id,
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = dok.map { it.id },
         )
@@ -528,7 +528,7 @@ fun lagYrkesaktivitetFraSøknader(
 
 fun lagYrkesaktiviteter(
     sykepengesoknader: Iterable<Dokument>,
-    saksbehandlingsperiode: Saksbehandlingsperiode,
+    behandling: Behandling,
     tidligereYrkesaktiviteter: List<YrkesaktivitetDbRecord>,
 ): Pair<List<YrkesaktivitetDbRecord>, Map<UUID, UUID>> {
     val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
@@ -546,8 +546,8 @@ fun lagYrkesaktiviteter(
                 val dagoversikt =
                     skapDagoversiktFraSoknader(
                         søknader.map { it.somSøknad() },
-                        saksbehandlingsperiode.fom,
-                        saksbehandlingsperiode.tom,
+                        behandling.fom,
+                        behandling.tom,
                     )
                 YrkesaktivitetDbRecord(
                     id = UUID.randomUUID(),
@@ -555,7 +555,7 @@ fun lagYrkesaktiviteter(
                     kategoriseringGenerert = kategori,
                     dagoversikt = dagoversikt,
                     dagoversiktGenerert = dagoversikt,
-                    saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+                    saksbehandlingsperiodeId = behandling.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
                 )
@@ -564,10 +564,10 @@ fun lagYrkesaktiviteter(
                 gammelTilNyIdMap[tidligere.id] = nyId
                 tidligere.copy(
                     id = nyId,
-                    dagoversikt = initialiserDager(saksbehandlingsperiode.fom, saksbehandlingsperiode.tom),
+                    dagoversikt = initialiserDager(behandling.fom, behandling.tom),
                     dagoversiktGenerert = null,
                     generertFraDokumenter = emptyList(),
-                    saksbehandlingsperiodeId = saksbehandlingsperiode.id,
+                    saksbehandlingsperiodeId = behandling.id,
                     opprettet = OffsetDateTime.now(),
                 )
             }

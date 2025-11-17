@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.fakedaos
 
 import com.fasterxml.jackson.databind.JsonNode
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
@@ -24,12 +24,12 @@ class VurdertVilkårDaoFake : VurdertVilkårDao {
     ): Int = if (vurderinger.remove(saksbehandlingsperiodeId to kode) != null) 1 else 0
 
     override fun eksisterer(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
     ): Boolean = vurderinger.containsKey(behandling.id to kode.kode)
 
     override fun oppdater(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
         oppdatertVurdering: JsonNode,
     ): Int {
@@ -40,7 +40,7 @@ class VurdertVilkårDaoFake : VurdertVilkårDao {
     }
 
     override fun leggTil(
-        behandling: Saksbehandlingsperiode,
+        behandling: Behandling,
         kode: Kode,
         vurdering: JsonNode,
     ): Int {

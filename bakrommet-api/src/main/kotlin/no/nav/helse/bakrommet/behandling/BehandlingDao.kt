@@ -13,7 +13,7 @@ import java.util.UUID
 import javax.sql.DataSource
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class Saksbehandlingsperiode(
+data class Behandling(
     val id: UUID,
     val spilleromPersonId: String,
     val opprettet: OffsetDateTime,
@@ -55,37 +55,37 @@ enum class SaksbehandlingsperiodeStatus {
     }
 }
 
-interface SaksbehandlingsperiodeDao {
-    fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode>
+interface BehandlingDao {
+    fun hentAlleBehandlinger(): List<Behandling>
 
-    fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode?
+    fun finnBehandling(id: UUID): Behandling?
 
-    fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode>
+    fun finnBehandlingerForPerson(spilleromPersonId: String): List<Behandling>
 
-    fun finnPerioderForPersonSomOverlapper(
+    fun finnBehandlingerForPersonSomOverlapper(
         spilleromPersonId: String,
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Saksbehandlingsperiode>
+    ): List<Behandling>
 
     fun endreStatus(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
     )
 
     fun endreStatusOgIndividuellBegrunnelse(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
         individuellBegrunnelse: String?,
     )
 
     fun endreStatusOgBeslutter(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
         beslutterNavIdent: String?,
     )
 
-    fun opprettPeriode(periode: Saksbehandlingsperiode)
+    fun opprettPeriode(periode: Behandling)
 
     fun oppdaterSkjæringstidspunkt(
         periodeId: UUID,
@@ -103,13 +103,13 @@ interface SaksbehandlingsperiodeDao {
     )
 }
 
-class SaksbehandlingsperiodeDaoPg private constructor(
+class BehandlingDaoPg private constructor(
     private val db: QueryRunner,
-) : SaksbehandlingsperiodeDao {
+) : BehandlingDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode> {
+    override fun hentAlleBehandlinger(): List<Behandling> {
         val limitEnnSåLenge = 100
         return db
             .list(
@@ -128,7 +128,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             }
     }
 
-    override fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? =
+    override fun finnBehandling(id: UUID): Behandling? =
         db.single(
             """
             select *
@@ -138,7 +138,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             "id" to id,
         ) { rowTilPeriode(it) }
 
-    override fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode> =
+    override fun finnBehandlingerForPerson(spilleromPersonId: String): List<Behandling> =
         db.list(
             """
             select *
@@ -148,11 +148,11 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             "spillerom_personid" to spilleromPersonId,
         ) { rowTilPeriode(it) }
 
-    override fun finnPerioderForPersonSomOverlapper(
+    override fun finnBehandlingerForPersonSomOverlapper(
         spilleromPersonId: String,
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Saksbehandlingsperiode> =
+    ): List<Behandling> =
         db.list(
             """
             select *
@@ -167,7 +167,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         ) { rowTilPeriode(it) }
 
     private fun rowTilPeriode(row: Row) =
-        Saksbehandlingsperiode(
+        Behandling(
             id = row.uuid("id"),
             spilleromPersonId = row.string("spillerom_personid"),
             opprettet = row.offsetDateTime("opprettet"),
@@ -185,7 +185,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         )
 
     override fun endreStatus(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
     ) {
         check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
@@ -200,7 +200,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
     }
 
     override fun endreStatusOgIndividuellBegrunnelse(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
         individuellBegrunnelse: String?,
     ) {
@@ -217,7 +217,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
     }
 
     override fun endreStatusOgBeslutter(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
         beslutterNavIdent: String?,
     ) {
@@ -233,7 +233,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         )
     }
 
-    override fun opprettPeriode(periode: Saksbehandlingsperiode) {
+    override fun opprettPeriode(periode: Behandling) {
         db.update(
             """
             insert into behandling

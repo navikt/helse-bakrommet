@@ -18,12 +18,12 @@ import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.RolleMatrise
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeService
+import no.nav.helse.bakrommet.behandling.BehandlingService
+import no.nav.helse.bakrommet.behandling.behandlingRoute
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.dokumenter.dokumenterRoute
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
-import no.nav.helse.bakrommet.behandling.saksbehandlingsperiodeRoute
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.sykepengegrunnlagRoute
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
@@ -131,7 +131,7 @@ fun Route.setupRoutes(
     personinfoRoute(clienter.pdlClient, services.personIdService)
     soknaderRoute(clienter.sykepengesoknadBackendClient, services.personIdService)
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)
-    saksbehandlingsperiodeRoute(service = services.saksbehandlingsperiodeService)
+    behandlingRoute(service = services.behandlingService)
     dokumenterRoute(dokumentHenter = services.dokumentHenter)
     saksbehandlingsperiodeVilkårRoute(service = services.vilkårService)
     saksbehandlingsperiodeYrkesaktivitetRoute(
@@ -184,7 +184,7 @@ fun createClients(configuration: Configuration): Clienter {
 data class Services(
     val personsøkService: PersonsøkService,
     val sykepengegrunnlagService: SykepengegrunnlagService,
-    val saksbehandlingsperiodeService: SaksbehandlingsperiodeService,
+    val behandlingService: BehandlingService,
     val dokumentHenter: DokumentHenter,
     val vilkårService: VilkårService,
     val yrkesaktivitetService: YrkesaktivitetService,
@@ -214,8 +214,8 @@ fun createServices(
                 db = db,
             ),
         sykepengegrunnlagService = SykepengegrunnlagService(db),
-        saksbehandlingsperiodeService =
-            SaksbehandlingsperiodeService(
+        behandlingService =
+            BehandlingService(
                 db = db,
                 dokumentHenter = dokumentHenter,
             ),

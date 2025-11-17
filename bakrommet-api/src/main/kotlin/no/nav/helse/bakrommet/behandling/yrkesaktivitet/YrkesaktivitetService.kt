@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BrukerHarRollePåSakenKrav
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndring
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringerDao
@@ -32,7 +32,7 @@ data class YrkesaktivitetReferanse(
 )
 
 interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
-    override val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    override val behandlingDao: BehandlingDao
     override val yrkesaktivitetDao: YrkesaktivitetDao
     override val beregningDao: UtbetalingsberegningDao
     override val personDao: PersonDao
@@ -52,7 +52,7 @@ class YrkesaktivitetService(
         krav: BrukerHarRollePåSakenKrav?,
     ): YrkesaktivitetDbRecord =
         db.nonTransactional {
-            saksbehandlingsperiodeDao
+            behandlingDao
                 .hentPeriode(
                     ref = ref.saksbehandlingsperiodeReferanse,
                     krav = krav,
@@ -69,7 +69,7 @@ class YrkesaktivitetService(
 
     suspend fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<YrkesaktivitetDbRecord> =
         db.nonTransactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+            val periode = behandlingDao.hentPeriode(ref, krav = null)
             yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         }
 
@@ -80,7 +80,7 @@ class YrkesaktivitetService(
     ): YrkesaktivitetDbRecord =
         db.nonTransactional {
             val periode =
-                saksbehandlingsperiodeDao.hentPeriode(
+                behandlingDao.hentPeriode(
                     ref = ref,
                     krav = saksbehandler.erSaksbehandlerPåSaken(),
                 )
@@ -124,11 +124,11 @@ class YrkesaktivitetService(
             beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
 
             // hvis sykepengegrunnlaget eies av denne perioden, slett det
-            val periode = saksbehandlingsperiodeDao.hentPeriode(ref.saksbehandlingsperiodeReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+            val periode = behandlingDao.hentPeriode(ref.saksbehandlingsperiodeReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())
             periode.sykepengegrunnlagId?.let { sykepengegrunnlagId ->
                 val spgRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)
                 if (spgRecord.opprettetForBehandling == periode.id) {
-                    saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(periode.id, null)
+                    behandlingDao.oppdaterSykepengegrunnlagId(periode.id, null)
                     sykepengegrunnlagDao.slettSykepengegrunnlag(sykepengegrunnlagId)
                 }
             }

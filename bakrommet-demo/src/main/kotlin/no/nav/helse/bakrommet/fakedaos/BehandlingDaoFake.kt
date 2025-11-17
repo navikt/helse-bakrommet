@@ -1,32 +1,32 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus
 import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-class SaksbehandlingsperiodeDaoFake : SaksbehandlingsperiodeDao {
-    private val perioder = ConcurrentHashMap<UUID, Saksbehandlingsperiode>()
+class BehandlingDaoFake : BehandlingDao {
+    private val perioder = ConcurrentHashMap<UUID, Behandling>()
 
-    override fun hentAlleSaksbehandlingsperioder(): List<Saksbehandlingsperiode> = perioder.values.toList()
+    override fun hentAlleBehandlinger(): List<Behandling> = perioder.values.toList()
 
-    override fun finnSaksbehandlingsperiode(id: UUID): Saksbehandlingsperiode? = perioder[id]
+    override fun finnBehandling(id: UUID): Behandling? = perioder[id]
 
-    override fun finnPerioderForPerson(spilleromPersonId: String): List<Saksbehandlingsperiode> = perioder.values.filter { it.spilleromPersonId == spilleromPersonId }
+    override fun finnBehandlingerForPerson(spilleromPersonId: String): List<Behandling> = perioder.values.filter { it.spilleromPersonId == spilleromPersonId }
 
-    override fun finnPerioderForPersonSomOverlapper(
+    override fun finnBehandlingerForPersonSomOverlapper(
         spilleromPersonId: String,
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Saksbehandlingsperiode> =
+    ): List<Behandling> =
         perioder.values.filter {
             it.spilleromPersonId == spilleromPersonId && it.fom <= tom && it.tom >= fom
         }
 
     override fun endreStatus(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
     ) {
         check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
@@ -35,7 +35,7 @@ class SaksbehandlingsperiodeDaoFake : SaksbehandlingsperiodeDao {
     }
 
     override fun endreStatusOgIndividuellBegrunnelse(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
         individuellBegrunnelse: String?,
     ) {
@@ -45,7 +45,7 @@ class SaksbehandlingsperiodeDaoFake : SaksbehandlingsperiodeDao {
     }
 
     override fun endreStatusOgBeslutter(
-        periode: Saksbehandlingsperiode,
+        periode: Behandling,
         nyStatus: SaksbehandlingsperiodeStatus,
         beslutterNavIdent: String?,
     ) {
@@ -54,7 +54,7 @@ class SaksbehandlingsperiodeDaoFake : SaksbehandlingsperiodeDao {
         perioder[periode.id] = eksisterende.copy(status = nyStatus, beslutterNavIdent = beslutterNavIdent)
     }
 
-    override fun opprettPeriode(periode: Saksbehandlingsperiode) {
+    override fun opprettPeriode(periode: Behandling) {
         perioder[periode.id] = periode
     }
 

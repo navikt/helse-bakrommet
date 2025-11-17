@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling.vilkaar
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
@@ -46,7 +46,7 @@ enum class OpprettetEllerEndret {
 
 interface VilkårServiceDaoer {
     val vurdertVilkårDao: VurdertVilkårDao
-    val saksbehandlingsperiodeDao: SaksbehandlingsperiodeDao
+    val behandlingDao: BehandlingDao
 }
 
 class VilkårService(
@@ -54,7 +54,7 @@ class VilkårService(
 ) {
     suspend fun hentVilkårsvurderingerFor(ref: SaksbehandlingsperiodeReferanse): List<VurdertVilkår> =
         db.nonTransactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = null)
+            val periode = behandlingDao.hentPeriode(ref, krav = null)
             vurdertVilkårDao.hentVilkårsvurderinger(periode.id)
         }
 
@@ -65,7 +65,7 @@ class VilkårService(
         saksbehandler: Bruker,
     ): Pair<VurdertVilkår, OpprettetEllerEndret> =
         db.transactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.erSaksbehandlerPåSaken())
+            val periode = behandlingDao.hentPeriode(ref, krav = saksbehandler.erSaksbehandlerPåSaken())
             val finnesFraFør = vurdertVilkårDao.eksisterer(periode, vilkårsKode)
             val opprettetEllerEndret =
                 if (finnesFraFør) {
@@ -87,7 +87,7 @@ class VilkårService(
         saksbehandler: Bruker,
     ): Boolean =
         db.transactional {
-            val periode = saksbehandlingsperiodeDao.hentPeriode(ref, krav = saksbehandler.erSaksbehandlerPåSaken())
+            val periode = behandlingDao.hentPeriode(ref, krav = saksbehandler.erSaksbehandlerPåSaken())
             val numAffectedRows = vurdertVilkårDao.slettVilkårsvurdering(periode.id, vilkårsKode.kode)
             (numAffectedRows > 0)
         }
