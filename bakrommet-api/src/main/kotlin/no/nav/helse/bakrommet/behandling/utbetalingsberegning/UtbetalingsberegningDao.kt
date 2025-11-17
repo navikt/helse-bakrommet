@@ -59,9 +59,9 @@ class UtbetalingsberegningDaoPg private constructor(
                     utbetalingsberegning_data = :utbetalingsberegning_data,
                     opprettet_av_nav_ident = :opprettet_av_nav_ident,
                     sist_oppdatert = NOW()
-                WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                WHERE behandling_id = :behandling_id
                 """.trimIndent(),
-                "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+                "behandling_id" to saksbehandlingsperiodeId,
                 "utbetalingsberegning_data" to beregningJson,
                 "opprettet_av_nav_ident" to saksbehandler.navIdent,
             )
@@ -70,12 +70,12 @@ class UtbetalingsberegningDaoPg private constructor(
             db.update(
                 """
                 INSERT INTO utbetalingsberegning 
-                    (id, saksbehandlingsperiode_id, utbetalingsberegning_data, opprettet, opprettet_av_nav_ident, sist_oppdatert)
+                    (id, behandling_id, utbetalingsberegning_data, opprettet, opprettet_av_nav_ident, sist_oppdatert)
                 VALUES 
-                    (:id, :saksbehandlingsperiode_id, :utbetalingsberegning_data, NOW(), :opprettet_av_nav_ident, NOW())
+                    (:id, :behandling_id, :utbetalingsberegning_data, NOW(), :opprettet_av_nav_ident, NOW())
                 """.trimIndent(),
                 "id" to beregning.id,
-                "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+                "behandling_id" to saksbehandlingsperiodeId,
                 "utbetalingsberegning_data" to beregningJson,
                 "opprettet_av_nav_ident" to saksbehandler.navIdent,
             )
@@ -88,9 +88,9 @@ class UtbetalingsberegningDaoPg private constructor(
         db.single(
             """
             SELECT * FROM utbetalingsberegning 
-            WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+            WHERE behandling_id = :behandling_id
             """.trimIndent(),
-            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+            "behandling_id" to saksbehandlingsperiodeId,
             mapper = ::beregningFraRow,
         )
 
@@ -98,9 +98,9 @@ class UtbetalingsberegningDaoPg private constructor(
         db.update(
             """
             DELETE FROM utbetalingsberegning 
-            WHERE saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+            WHERE behandling_id = :behandling_id
             """.trimIndent(),
-            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+            "behandling_id" to saksbehandlingsperiodeId,
         )
     }
 
@@ -110,7 +110,7 @@ class UtbetalingsberegningDaoPg private constructor(
 
         return BeregningResponse(
             id = row.uuid("id"),
-            saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
+            saksbehandlingsperiodeId = row.uuid("behandling_id"),
             beregningData = beregningData.tilBeregningData(),
             opprettet = row.offsetDateTime("opprettet").toString(),
             opprettetAv = row.string("opprettet_av_nav_ident"),

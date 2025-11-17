@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS sykepengegrunnlag
 );
 
 
-CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
+CREATE TABLE IF NOT EXISTS behandling
 (
     id                                   UUID                        NOT NULL PRIMARY KEY,
     spillerom_personid                   TEXT                        NOT NULL
@@ -33,23 +33,23 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode
     status                               TEXT                        NOT NULL,
     beslutter_nav_ident                  TEXT                        NULL,
     individuell_begrunnelse              TEXT                        NULL,
-    revurderer_saksbehandlingsperiode_id UUID                        NULL UNIQUE REFERENCES saksbehandlingsperiode (id),
-    revurdert_av_behandling_id           UUID                        NULL UNIQUE REFERENCES saksbehandlingsperiode (id)
+    revurderer_behandling_id             UUID                        NULL UNIQUE REFERENCES behandling (id),
+    revurdert_av_behandling_id           UUID                        NULL UNIQUE REFERENCES behandling (id)
 );
 
 ALTER TABLE sykepengegrunnlag
     ADD CONSTRAINT fk_sykepengegrunnlag_behandling
         FOREIGN KEY (opprettet_for_behandling)
-            REFERENCES saksbehandlingsperiode (id);
+            REFERENCES behandling (id);
 
 
 CREATE TABLE IF NOT EXISTS vurdert_vilkaar
 (
-    saksbehandlingsperiode_id UUID                        NOT NULL REFERENCES saksbehandlingsperiode (id),
+    behandling_id             UUID                        NOT NULL REFERENCES behandling (id),
     kode                      TEXT                        NOT NULL,
     vurdering                 TEXT                        NOT NULL,
     vurdering_tidspunkt       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    PRIMARY KEY (saksbehandlingsperiode_id, kode)
+    PRIMARY KEY (behandling_id, kode)
 );
 
 CREATE TABLE IF NOT EXISTS dokument
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS dokument
     opprettet                TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     sporing                  TEXT                        NOT NULL,
     forespurte_data          TEXT                        NULL,
-    opprettet_for_behandling UUID                        NOT NULL REFERENCES saksbehandlingsperiode (id)
+    opprettet_for_behandling UUID                        NOT NULL REFERENCES behandling (id)
 );
 
 CREATE TABLE IF NOT EXISTS yrkesaktivitet
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS yrkesaktivitet
     kategorisering_generert   TEXT                        NULL,
     dagoversikt               TEXT                        NULL,
     dagoversikt_generert      TEXT                        NULL,
-    saksbehandlingsperiode_id UUID                        NOT NULL REFERENCES saksbehandlingsperiode (id),
+    behandling_id             UUID                        NOT NULL REFERENCES behandling (id),
     opprettet                 TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     generert_fra_dokumenter   TEXT                        NULL,
     perioder                  TEXT                        NULL,
@@ -81,10 +81,10 @@ CREATE TABLE IF NOT EXISTS yrkesaktivitet
 );
 
 
-CREATE TABLE IF NOT EXISTS saksbehandlingsperiode_endringer
+CREATE TABLE IF NOT EXISTS behandling_endringer
 (
     id                        BIGSERIAL PRIMARY KEY,
-    saksbehandlingsperiode_id UUID                        NOT NULL REFERENCES saksbehandlingsperiode (id),
+    behandling_id             UUID                        NOT NULL REFERENCES behandling (id),
     status                    TEXT                        NOT NULL,
     beslutter_nav_ident       TEXT                        NULL,
     endret_tidspunkt          TIMESTAMP(6) WITH TIME ZONE NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS saksbehandlingsperiode_endringer
 CREATE TABLE IF NOT EXISTS utbetalingsberegning
 (
     id                        UUID PRIMARY KEY,
-    saksbehandlingsperiode_id UUID                     NOT NULL REFERENCES saksbehandlingsperiode (id) UNIQUE,
+    behandling_id             UUID                     NOT NULL REFERENCES behandling (id) UNIQUE,
     utbetalingsberegning_data TEXT                     NOT NULL,
     opprettet                 TIMESTAMP WITH TIME ZONE NOT NULL,
     opprettet_av_nav_ident    TEXT                     NOT NULL,

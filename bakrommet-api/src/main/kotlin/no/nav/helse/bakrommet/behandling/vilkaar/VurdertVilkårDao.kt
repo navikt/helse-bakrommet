@@ -58,9 +58,9 @@ class VurdertVilkårDaoPg private constructor(
             sql =
                 """
                 select * from vurdert_vilkaar 
-                where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                where behandling_id = :behandling_id
                 """.trimIndent(),
-            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+            "behandling_id" to saksbehandlingsperiodeId,
         ) {
             VurdertVilkår(
                 kode = it.string("kode"),
@@ -76,10 +76,10 @@ class VurdertVilkårDaoPg private constructor(
             sql =
                 """
                 select * from vurdert_vilkaar 
-                where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+                where behandling_id = :behandling_id
                 and kode = :kode
                 """.trimIndent(),
-            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+            "behandling_id" to saksbehandlingsperiodeId,
             "kode" to kode,
         ) {
             VurdertVilkår(
@@ -95,10 +95,10 @@ class VurdertVilkårDaoPg private constructor(
         db.update(
             """
             DELETE FROM vurdert_vilkaar
-            where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+            where behandling_id = :behandling_id
             and kode = :kode
             """.trimIndent(),
-            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+            "behandling_id" to saksbehandlingsperiodeId,
             "kode" to kode,
         )
 
@@ -109,10 +109,10 @@ class VurdertVilkårDaoPg private constructor(
         db.single(
             """
             select * from vurdert_vilkaar 
-            where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+            where behandling_id = :behandling_id
             and kode = :kode
             """.trimIndent(),
-            "saksbehandlingsperiode_id" to behandling.id,
+            "behandling_id" to behandling.id,
             "kode" to kode.kode,
             mapper = { true },
         ) ?: false
@@ -127,12 +127,12 @@ class VurdertVilkårDaoPg private constructor(
             update vurdert_vilkaar 
             set vurdering = :vurdering,
             vurdering_tidspunkt = :vurdering_tidspunkt
-            where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+            where behandling_id = :behandling_id
             and kode = :kode 
             """.trimIndent(),
             "vurdering" to oppdatertVurdering.serialisertTilString(),
             "vurdering_tidspunkt" to Instant.now(),
-            "saksbehandlingsperiode_id" to behandling.id,
+            "behandling_id" to behandling.id,
             "kode" to kode.kode,
         )
 
@@ -144,12 +144,12 @@ class VurdertVilkårDaoPg private constructor(
         db.update(
             """
             insert into vurdert_vilkaar
-             (vurdering, vurdering_tidspunkt, saksbehandlingsperiode_id, kode)
-            values (:vurdering, :vurdering_tidspunkt, :saksbehandlingsperiode_id, :kode) 
+             (vurdering, vurdering_tidspunkt, behandling_id, kode)
+            values (:vurdering, :vurdering_tidspunkt, :behandling_id, :kode) 
             """.trimIndent(),
             "vurdering" to vurdering.serialisertTilString(),
             "vurdering_tidspunkt" to Instant.now(),
-            "saksbehandlingsperiode_id" to behandling.id,
+            "behandling_id" to behandling.id,
             "kode" to kode.kode,
         )
 }

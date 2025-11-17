@@ -48,12 +48,12 @@ class SaksbehandlingsperiodeEndringerDaoPg private constructor(
     override fun leggTilEndring(hist: SaksbehandlingsperiodeEndring) {
         db.update(
             """
-            insert into saksbehandlingsperiode_endringer
-                (saksbehandlingsperiode_id, status, beslutter_nav_ident, endret_tidspunkt, endret_av_nav_ident, endring_type, endring_kommentar)
+            insert into behandling_endringer
+                (behandling_id, status, beslutter_nav_ident, endret_tidspunkt, endret_av_nav_ident, endring_type, endring_kommentar)
             values
-                (:saksbehandlingsperiode_id, :status, :beslutter_nav_ident, :endret_tidspunkt, :endret_av_nav_ident, :endring_type, :endring_kommentar)
+                (:behandling_id, :status, :beslutter_nav_ident, :endret_tidspunkt, :endret_av_nav_ident, :endring_type, :endring_kommentar)
             """.trimIndent(),
-            "saksbehandlingsperiode_id" to hist.saksbehandlingsperiodeId,
+            "behandling_id" to hist.saksbehandlingsperiodeId,
             "status" to hist.status.name,
             "beslutter_nav_ident" to hist.beslutterNavIdent,
             "endret_tidspunkt" to hist.endretTidspunkt,
@@ -67,16 +67,16 @@ class SaksbehandlingsperiodeEndringerDaoPg private constructor(
         db.list(
             """
             select *
-              from saksbehandlingsperiode_endringer
-              where saksbehandlingsperiode_id = :saksbehandlingsperiode_id
+              from behandling_endringer
+              where behandling_id = :behandling_id
               order by id
             """.trimIndent(),
-            "saksbehandlingsperiode_id" to saksbehandlingsperiodeId,
+            "behandling_id" to saksbehandlingsperiodeId,
         ) { rowTilHistorikk(it) }
 
     private fun rowTilHistorikk(row: Row) =
         SaksbehandlingsperiodeEndring(
-            saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
+            saksbehandlingsperiodeId = row.uuid("behandling_id"),
             status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
             endretTidspunkt = row.offsetDateTime("endret_tidspunkt"),

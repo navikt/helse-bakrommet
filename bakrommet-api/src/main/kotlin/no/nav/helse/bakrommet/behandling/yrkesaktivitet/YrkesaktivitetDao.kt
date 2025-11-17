@@ -181,18 +181,18 @@ class YrkesaktivitetDaoPg private constructor(
             insert into yrkesaktivitet
                 (id, kategorisering, kategorisering_generert,
                 dagoversikt, dagoversikt_generert,
-                saksbehandlingsperiode_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon)
+                behandling_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon)
             values
                 (:id, :kategorisering, :kategorisering_generert,
                 :dagoversikt, :dagoversikt_generert,
-                :saksbehandlingsperiode_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon)
+                :behandling_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon)
             """.trimIndent(),
             "id" to yrkesaktivitetDbRecord.id,
             "kategorisering" to yrkesaktivitetDbRecord.kategorisering.serialisertTilString(),
             "kategorisering_generert" to yrkesaktivitetDbRecord.kategoriseringGenerert?.serialisertTilString(),
             "dagoversikt" to yrkesaktivitetDbRecord.dagoversikt?.serialisertTilString(),
             "dagoversikt_generert" to yrkesaktivitetDbRecord.dagoversiktGenerert?.serialisertTilString(),
-            "saksbehandlingsperiode_id" to yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+            "behandling_id" to yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
             "opprettet" to yrkesaktivitetDbRecord.opprettet,
             "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
             "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
@@ -237,7 +237,7 @@ class YrkesaktivitetDaoPg private constructor(
     override fun hentYrkesaktiviteterDbRecord(periode: Saksbehandlingsperiode): List<YrkesaktivitetDbRecord> =
         db.list(
             """
-            select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where saksbehandlingsperiode_id = :behandling_id
+            select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where behandling_id = :behandling_id
             """.trimIndent(),
             "behandling_id" to periode.id,
             mapper = ::yrkesaktivitetFraRow,
@@ -253,7 +253,7 @@ class YrkesaktivitetDaoPg private constructor(
                 },
             dagoversikt = row.stringOrNull("dagoversikt")?.tilDagoversikt(),
             dagoversiktGenerert = row.stringOrNull("dagoversikt_generert")?.tilDagoversikt(),
-            saksbehandlingsperiodeId = row.uuid("saksbehandlingsperiode_id"),
+            saksbehandlingsperiodeId = row.uuid("behandling_id"),
             opprettet = row.offsetDateTime("opprettet"),
             generertFraDokumenter =
                 row

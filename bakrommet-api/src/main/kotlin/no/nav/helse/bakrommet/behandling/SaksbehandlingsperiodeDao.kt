@@ -115,7 +115,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             .list(
                 """
                 select *
-                  from saksbehandlingsperiode
+                  from behandling
                  
                   LIMIT $limitEnnSåLenge 
                 """.trimIndent(),
@@ -132,7 +132,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         db.single(
             """
             select *
-              from saksbehandlingsperiode
+              from behandling
              where id = :id
             """.trimIndent(),
             "id" to id,
@@ -142,7 +142,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         db.list(
             """
             select *
-              from saksbehandlingsperiode
+              from behandling
              where spillerom_personid = :spillerom_personid
             """.trimIndent(),
             "spillerom_personid" to spilleromPersonId,
@@ -156,7 +156,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         db.list(
             """
             select *
-              from saksbehandlingsperiode
+              from behandling
              where spillerom_personid = :spillerom_personid
              AND fom <= :tom
              AND tom >= :fom
@@ -180,7 +180,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             skjæringstidspunkt = row.localDate("skjaeringstidspunkt"),
             individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
             sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id"),
-            revurdererSaksbehandlingsperiodeId = row.uuidOrNull("revurderer_saksbehandlingsperiode_id"),
+            revurdererSaksbehandlingsperiodeId = row.uuidOrNull("revurderer_behandling_id"),
             revurdertAvBehandlingId = row.uuidOrNull("revurdert_av_behandling_id"),
         )
 
@@ -191,7 +191,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
         db.update(
             """
-            UPDATE saksbehandlingsperiode SET status = :status
+            UPDATE behandling SET status = :status
             WHERE id = :id
             """.trimIndent(),
             "id" to periode.id,
@@ -207,7 +207,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
         db.update(
             """
-            UPDATE saksbehandlingsperiode SET status = :status, individuell_begrunnelse = :individuell_begrunnelse
+            UPDATE behandling SET status = :status, individuell_begrunnelse = :individuell_begrunnelse
             WHERE id = :id
             """.trimIndent(),
             "id" to periode.id,
@@ -224,7 +224,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
         check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
         db.update(
             """
-            UPDATE saksbehandlingsperiode SET status = :status, beslutter_nav_ident = :beslutter_nav_ident
+            UPDATE behandling SET status = :status, beslutter_nav_ident = :beslutter_nav_ident
             WHERE id = :id
             """.trimIndent(),
             "id" to periode.id,
@@ -236,10 +236,10 @@ class SaksbehandlingsperiodeDaoPg private constructor(
     override fun opprettPeriode(periode: Saksbehandlingsperiode) {
         db.update(
             """
-            insert into saksbehandlingsperiode
-                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse, sykepengegrunnlag_id, revurderer_saksbehandlingsperiode_id)
+            insert into behandling
+                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse, sykepengegrunnlag_id, revurderer_behandling_id)
             values
-                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id, :revurderer_saksbehandlingsperiode_id)
+                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id, :revurderer_behandling_id)
             """.trimIndent(),
             "id" to periode.id,
             "spillerom_personid" to periode.spilleromPersonId,
@@ -253,7 +253,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
             "skjaeringstidspunkt" to periode.skjæringstidspunkt,
             "individuell_begrunnelse" to periode.individuellBegrunnelse,
             "sykepengegrunnlag_id" to periode.sykepengegrunnlagId,
-            "revurderer_saksbehandlingsperiode_id" to periode.revurdererSaksbehandlingsperiodeId,
+            "revurderer_behandling_id" to periode.revurdererSaksbehandlingsperiodeId,
         )
     }
 
@@ -263,7 +263,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
     ) {
         db.update(
             """
-            UPDATE saksbehandlingsperiode 
+            UPDATE behandling 
             SET skjaeringstidspunkt = :skjaeringstidspunkt
             WHERE id = :id
             """.trimIndent(),
@@ -278,7 +278,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
     ) {
         db.update(
             """
-            UPDATE saksbehandlingsperiode 
+            UPDATE behandling 
             SET sykepengegrunnlag_id = :sykepengegrunnlag_id
             WHERE id = :id
             """.trimIndent(),
@@ -293,7 +293,7 @@ class SaksbehandlingsperiodeDaoPg private constructor(
     ) {
         db.update(
             """
-            UPDATE saksbehandlingsperiode 
+            UPDATE behandling 
             SET revurdert_av_behandling_id = :revurdert_av_behandling_id
             WHERE id = :id
             """.trimIndent(),
