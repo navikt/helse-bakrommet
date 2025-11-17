@@ -41,7 +41,7 @@ class UtbetalingsBeregningHjelper(
         val sykepengegrunnlag =
             sykepengegrunnlagDao.finnSykepengegrunnlag(periode.sykepengegrunnlagId ?: return)?.sykepengegrunnlag ?: return
 
-        // Hent inntektsforhold
+        // Hent yrkesaktivitet
         val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
 
         // Opprett input for beregning

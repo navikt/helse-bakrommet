@@ -122,7 +122,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
     }
 
     @Test
-    fun `verifiserer automatisk genererte inntektsforhold fra søknader`() {
+    fun `verifiserer automatisk genererte yrkesaktivitet fra søknader`() {
         val arbeidsgiver1 = Arbeidsgiverinfo(identifikator = "123321123", navn = "navn for AG 1")
         val arbeidsgiver2 = Arbeidsgiverinfo(identifikator = "654321123", navn = "navn for AG 2")
 
@@ -160,17 +160,17 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     }.body<List<Saksbehandlingsperiode>>()
                     .first()
 
-            // Verifiser inntektsforhold
-            val inntektsforhold =
+            // Verifiser yrkesaktivitet
+            val yrkesaktivitet =
                 client
                     .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDTO>>()
 
-            assertEquals(3, inntektsforhold.size)
+            assertEquals(3, yrkesaktivitet.size)
             assertEquals(
                 setOf("123321123", null, "654321123"),
-                inntektsforhold
+                yrkesaktivitet
                     .map {
                         when (val k = it.kategorisering) {
                             is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer()
@@ -181,7 +181,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             )
 
             val arbgiver1Yrkesaktivitet =
-                inntektsforhold.find {
+                yrkesaktivitet.find {
                     when (val k = it.kategorisering) {
                         is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer() == arbeidsgiver1.identifikator
                         is YrkesaktivitetKategorisering.Frilanser -> k.orgnummer == arbeidsgiver1.identifikator

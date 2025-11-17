@@ -34,7 +34,7 @@ class YrkesaktivitetOperasjonerTest {
     }
 
     @Test
-    fun `oppdaterer dagoversikt for inntektsforhold`() {
+    fun `oppdaterer dagoversikt for yrkesaktivitet`() {
         runApplicationTest { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
@@ -137,7 +137,7 @@ class YrkesaktivitetOperasjonerTest {
     }
 
     @Test
-    fun `oppdaterer dagoversikt for inntektsforhold med nytt format`() {
+    fun `oppdaterer dagoversikt for yrkesaktivitet med nytt format`() {
         runApplicationTest { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
@@ -241,7 +241,7 @@ class YrkesaktivitetOperasjonerTest {
     }
 
     @Test
-    fun `oppdaterer perioder for inntektsforhold`() {
+    fun `oppdaterer perioder for yrkesaktivitet`() {
         runApplicationTest { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 

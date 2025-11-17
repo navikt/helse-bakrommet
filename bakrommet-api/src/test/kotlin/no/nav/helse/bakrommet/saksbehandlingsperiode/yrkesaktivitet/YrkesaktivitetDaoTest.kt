@@ -49,7 +49,7 @@ class YrkesaktivitetDaoTest {
     }
 
     @Test
-    fun `oppretter og henter inntektsforhold`() {
+    fun `oppretter og henter yrkesaktivitet`() {
         val dao = YrkesaktivitetDaoPg(dataSource)
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
@@ -85,7 +85,7 @@ class YrkesaktivitetDaoTest {
     }
 
     @Test
-    fun `inntektsforhold må referere gyldig saksbehandlingsperiode`() {
+    fun `yrkesaktivitet må referere gyldig saksbehandlingsperiode`() {
         val dao = YrkesaktivitetDaoPg(dataSource)
         val ugyldigPeriodeId = UUID.randomUUID()
         val yrkesaktivitetDbRecord =
@@ -119,7 +119,7 @@ class YrkesaktivitetDaoTest {
     }
 
     @Test
-    fun `oppdaterer perioder for inntektsforhold`() {
+    fun `oppdaterer perioder for yrkesaktivitet`() {
         val dao = YrkesaktivitetDaoPg(dataSource)
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(

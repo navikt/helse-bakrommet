@@ -90,7 +90,7 @@ class YrkesaktivitetService(
                 } else {
                     null
                 }
-            val inntektsforhold =
+            val yrkesaktivitet =
                 yrkesaktivitetDao.opprettYrkesaktivitet(
                     id = UUID.randomUUID(),
                     kategorisering = kategorisering,
@@ -103,7 +103,7 @@ class YrkesaktivitetService(
                     refusjonsdata = null,
                 )
 
-            inntektsforhold
+            yrkesaktivitet
         }
 
     suspend fun oppdaterKategorisering(
@@ -119,7 +119,7 @@ class YrkesaktivitetService(
             yrkesaktivitetDao.oppdaterKategoriseringOgSlettInntektData(yrkesaktivtet, kategorisering)
 
             // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
-            // Slett sykepengegrunnlag og utbetalingsberegning når inntektsforhold endres
+            // Slett sykepengegrunnlag og utbetalingsberegning når yrkesaktivitet endres
             // Vi må alltid beregne på nytt når kategorisering endres
             beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
 
@@ -168,9 +168,9 @@ class YrkesaktivitetService(
         ref: YrkesaktivitetReferanse,
         saksbehandler: Bruker,
     ) {
-        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.transactional {
-            yrkesaktivitetDao.slettYrkesaktivitet(inntektsforhold.id)
+            yrkesaktivitetDao.slettYrkesaktivitet(yrkesaktivitet.id)
             beregnSykepengegrunnlagOgUtbetaling(
                 ref.saksbehandlingsperiodeReferanse,
                 saksbehandler = saksbehandler,
@@ -183,7 +183,7 @@ class YrkesaktivitetService(
         dagerSomSkalOppdateres: DagerSomSkalOppdateres,
         saksbehandler: Bruker,
     ): YrkesaktivitetDbRecord {
-        val inntektsforhold = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         return db.transactional {
             val dagerSomSkalOppdateresJson = dagerSomSkalOppdateres
 
@@ -204,7 +204,7 @@ class YrkesaktivitetService(
                 }
 
             // Hent eksisterende dagoversikt
-            val eksisterendeDagoversikt = inntektsforhold.dagoversikt ?: emptyList()
+            val eksisterendeDagoversikt = yrkesaktivitet.dagoversikt ?: emptyList()
 
             // Opprett map for enkel oppslag basert på dato
             val eksisterendeDagerMap =
@@ -244,7 +244,7 @@ class YrkesaktivitetService(
             // Konverter tilbake til List<Dag> og lagre
             val oppdatertDagoversikt = eksisterendeDagerMap.values.toList()
 
-            val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(inntektsforhold, oppdatertDagoversikt)
+            val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(yrkesaktivitet, oppdatertDagoversikt)
 
             beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
             oppdatertYrkesaktivitet
