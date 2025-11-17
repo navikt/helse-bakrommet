@@ -40,6 +40,7 @@ data class SykepengegrunnlagDbRecord(
     val opprettet: Instant,
     val oppdatert: Instant,
     val opprettetForBehandling: UUID,
+    val låst: Boolean = false,
 )
 
 data class SykepengegrunnlagResponse(

@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS sykepengegrunnlag
     opprettet_for_behandling UUID                        NOT NULL,
     opprettet_av_nav_ident   TEXT                        NOT NULL,
     opprettet                TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    oppdatert                TIMESTAMP(6) WITH TIME ZONE NOT NULL
+    oppdatert                TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    laast                    BOOLEAN                     NOT NULL
 );
 
 

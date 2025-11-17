@@ -34,6 +34,8 @@ interface SykepengegrunnlagDao {
     ): SykepengegrunnlagDbRecord
 
     fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID)
+
+    fun settLåst(sykepengegrunnlagId: UUID)
 }
 
 class SykepengegrunnlagDaoPg private constructor(
@@ -53,8 +55,8 @@ class SykepengegrunnlagDaoPg private constructor(
 
         db.update(
             """
-            INSERT INTO sykepengegrunnlag (id, sykepengegrunnlag, opprettet_av_nav_ident, opprettet, oppdatert, opprettet_for_behandling)
-            VALUES (:id, :sykepengegrunnlag, :opprettet_av_nav_ident, :opprettet, :oppdatert, :opprettet_for_behandling)
+            INSERT INTO sykepengegrunnlag (id, sykepengegrunnlag, opprettet_av_nav_ident, opprettet, oppdatert, opprettet_for_behandling, laast)
+            VALUES (:id, :sykepengegrunnlag, :opprettet_av_nav_ident, :opprettet, :oppdatert, :opprettet_for_behandling, false)
             """.trimIndent(),
             "id" to id,
             "sykepengegrunnlag" to sykepengegrunnlagJson,
@@ -133,6 +135,20 @@ class SykepengegrunnlagDaoPg private constructor(
         )
     }
 
+    override fun settLåst(sykepengegrunnlagId: UUID) {
+        val nå = java.time.Instant.now()
+
+        db.update(
+            """
+            UPDATE sykepengegrunnlag 
+            SET laast = true, oppdatert = :oppdatert
+            WHERE id = :id
+            """.trimIndent(),
+            "id" to sykepengegrunnlagId,
+            "oppdatert" to nå,
+        )
+    }
+
     private fun sykepengegrunnlagFraRow(row: Row): SykepengegrunnlagDbRecord {
         val sykepengegrunnlagJson = row.stringOrNull("sykepengegrunnlag")
         val sykepengegrunnlag =
@@ -157,6 +173,7 @@ class SykepengegrunnlagDaoPg private constructor(
             oppdatert = oppdatert,
             sammenlikningsgrunnlag = sammenlikningsgrunnlag,
             opprettetForBehandling = row.uuid("opprettet_for_behandling"),
+            låst = row.boolean("laast"),
         )
     }
 }

@@ -67,4 +67,14 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
     override fun slettSykepengegrunnlag(sykepengegrunnlagId: UUID) {
         storage.remove(sykepengegrunnlagId)
     }
+
+    override fun settLåst(sykepengegrunnlagId: UUID) {
+        val eksisterende = storage[sykepengegrunnlagId] ?: throw IllegalArgumentException("Ukjent id")
+        val oppdatert =
+            eksisterende.copy(
+                oppdatert = Instant.now(),
+                låst = true,
+            )
+        storage[oppdatert.id] = oppdatert
+    }
 }

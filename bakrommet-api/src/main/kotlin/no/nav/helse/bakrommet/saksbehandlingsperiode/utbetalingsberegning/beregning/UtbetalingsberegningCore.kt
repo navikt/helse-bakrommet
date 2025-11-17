@@ -25,6 +25,8 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
             ya to ya.kategorisering.hentDekningsgrad()
         }
 
+    // TODO her
+
     val utbetalingstidslinjer =
         yrkesaktivitetMedDekningsgrad.map { (yrkesaktivitet, dekningsgrad) ->
             val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet] ?: emptyMap()
