@@ -43,6 +43,7 @@ data class YrkesaktivitetDTO(
     val perioder: Perioder?,
     val inntektRequest: InntektRequest?,
     val inntektData: InntektData?,
+    val refusjonsdata: List<Refusjonsperiode>? = null,
 )
 
 fun YrkesaktivitetDbRecord.tilDto() =
@@ -54,6 +55,7 @@ fun YrkesaktivitetDbRecord.tilDto() =
         perioder = perioder,
         inntektRequest = inntektRequest,
         inntektData = inntektData,
+        refusjonsdata = refusjonsdata,
     )
 
 internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
