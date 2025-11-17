@@ -30,8 +30,8 @@ class DagoversiktLogikkTest {
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId =
                 opprettYrkesaktivitet(
-                    periode.id,
                     personId = PERSON_ID,
+                    periode.id,
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
                         typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),

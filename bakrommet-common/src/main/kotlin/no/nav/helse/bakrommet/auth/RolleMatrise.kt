@@ -132,6 +132,10 @@ val regler =
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
+            path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/refusjon/(method:PUT)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/kategorisering/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),

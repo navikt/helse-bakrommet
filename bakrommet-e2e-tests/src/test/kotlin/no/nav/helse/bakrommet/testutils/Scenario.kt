@@ -207,8 +207,8 @@ data class Scenario(
                         when (ya) {
                             is Arbeidstaker ->
                                 opprettYrkesaktivitet(
-                                    periode.id,
                                     personId = personId,
+                                    periode.id,
                                     YrkesaktivitetKategorisering.Arbeidstaker(
                                         sykmeldt = true,
                                         typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = ya.orgnr),
@@ -217,8 +217,8 @@ data class Scenario(
 
                             is Selvstendig ->
                                 opprettYrkesaktivitet(
-                                    periode.id,
                                     personId = personId,
+                                    periode.id,
                                     YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                                         sykmeldt = true,
                                         typeSelvstendigNæringsdrivende =
@@ -238,9 +238,9 @@ data class Scenario(
             yaMedId.forEach { (ya, yrkesaktivitetId) ->
                 if (ya.dagoversikt != null) {
                     settDagoversikt(
+                        personId = personId,
                         periodeId = periode.id,
                         yrkesaktivitetId = yrkesaktivitetId,
-                        personId = personId,
                         dager = ya.dagoversikt.lagDagListe(fom = periode.fom, tom = periode.tom),
                     )
                 }

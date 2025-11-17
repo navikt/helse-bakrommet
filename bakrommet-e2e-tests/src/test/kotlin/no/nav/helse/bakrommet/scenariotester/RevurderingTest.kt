@@ -39,9 +39,9 @@ class RevurderingTest {
                 ).first()
 
             settDagoversikt(
+                personId = personId,
                 periodeId = revurderendePeriode.id,
                 yrkesaktivitetId = yrkesaktivitet.id,
-                personId = personId,
                 dager = lagSykedager(fom = revurderendePeriode.fom, tom = revurderendePeriode.tom, grad = 50),
             )
             sendTilBeslutning(

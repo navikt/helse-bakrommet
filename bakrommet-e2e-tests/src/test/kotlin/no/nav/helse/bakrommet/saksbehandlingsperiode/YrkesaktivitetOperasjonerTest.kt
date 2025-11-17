@@ -52,8 +52,8 @@ class YrkesaktivitetOperasjonerTest {
                     .first()
 
             opprettYrkesaktivitet(
-                periode.id,
                 personId = PERSON_ID,
+                periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
                     typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
@@ -155,8 +155,8 @@ class YrkesaktivitetOperasjonerTest {
                     .first()
 
             opprettYrkesaktivitet(
-                periode.id,
                 personId = PERSON_ID,
+                periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
                     typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
@@ -260,8 +260,8 @@ class YrkesaktivitetOperasjonerTest {
                     .first()
 
             opprettYrkesaktivitet(
-                periode.id,
                 personId = PERSON_ID,
+                periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
                     typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
@@ -407,8 +407,8 @@ class YrkesaktivitetOperasjonerTest {
 
             // Opprett yrkesaktivitet
             opprettYrkesaktivitet(
-                periode.id,
                 personId = PERSON_ID,
+                periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
                     typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
@@ -509,8 +509,8 @@ class YrkesaktivitetOperasjonerTest {
                     .first()
 
             opprettYrkesaktivitet(
-                periode.id,
                 personId = PERSON_ID,
+                periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
                     typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),

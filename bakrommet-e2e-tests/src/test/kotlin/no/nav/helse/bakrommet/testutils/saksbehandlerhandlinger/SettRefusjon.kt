@@ -7,23 +7,22 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dag
+import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
-internal suspend fun ApplicationTestBuilder.settDagoversikt(
+internal suspend fun ApplicationTestBuilder.settRefusjon(
     personId: String,
     periodeId: UUID,
     yrkesaktivitetId: UUID,
-    dager: List<Dag>,
+    refusjon: List<Refusjonsperiode>,
 ) {
-    val dagoversikt = dager.serialisertTilString()
     val response =
-        client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
+        client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/refusjon") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
-            setBody(dagoversikt)
+            setBody(refusjon.serialisertTilString())
         }
     assertEquals(204, response.status.value)
 }

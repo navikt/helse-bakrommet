@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.slettYrkesaktivitet(
+    personId: String,
     periodeId: UUID,
     yrkesaktivitetId: UUID,
-    personId: String,
 ) {
     val response =
         client.delete("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId") {
