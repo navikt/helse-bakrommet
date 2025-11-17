@@ -24,6 +24,8 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "21"
+      - name: Slett lokal logback fil i demo
+        run: rm -f bakrommet-demo/src/main/resources/logback.xml
       - name: Sett opp Gradle
         uses: gradle/actions/setup-gradle@v5
       - name: Bygg med Gradle
