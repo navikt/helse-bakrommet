@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus
+import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus
 import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap

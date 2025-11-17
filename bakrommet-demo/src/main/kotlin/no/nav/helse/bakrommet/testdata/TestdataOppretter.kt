@@ -5,12 +5,12 @@ import io.github.serpro69.kfaker.fakerConfig
 import no.nav.helse.bakrommet.Services
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.behandling.somReferanse
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.beritBeslutter
 import no.nav.helse.bakrommet.hentSession
 import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.saksMcBehandlersen
-import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.sessionsDaoer
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.*

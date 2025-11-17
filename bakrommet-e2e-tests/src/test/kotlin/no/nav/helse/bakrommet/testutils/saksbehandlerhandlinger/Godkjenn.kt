@@ -5,7 +5,7 @@ import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
 import org.junit.jupiter.api.Assertions.assertEquals
 
 suspend fun ApplicationTestBuilder.godkjenn(

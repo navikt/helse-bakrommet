@@ -1,11 +1,11 @@
 package no.nav.helse.bakrommet.kafka
 
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus
+import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
+import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.DagtypeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.KildeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dagoversikt.Kilde
 
 /**
  * Mapper-funksjoner for å konvertere interne domeneobjekter til Kafka DTOs.

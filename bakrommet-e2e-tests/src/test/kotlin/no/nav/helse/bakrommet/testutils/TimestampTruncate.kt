@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.testutils
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import java.time.temporal.ChronoUnit.MILLIS
 import java.time.temporal.ChronoUnit.SECONDS
 import kotlin.collections.map

@@ -1,24 +1,24 @@
 package no.nav.helse.bakrommet.infrastruktur.db
 
 import kotliquery.Session
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDaoPg
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringerDaoPg
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeServiceDaoer
+import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
+import no.nav.helse.bakrommet.behandling.inntekter.InntektServiceDaoer
+import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherDaoer
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
+import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDaoPg
+import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDaoer
+import no.nav.helse.bakrommet.behandling.vilkaar.VilkårServiceDaoer
+import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDaoPg
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import no.nav.helse.bakrommet.kafka.OutboxDaoPg
 import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.person.PersonIdServiceDaoer
 import no.nav.helse.bakrommet.person.PersonsokDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeEndringerDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeServiceDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektServiceDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektsmeldingMatcherDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VilkårServiceDaoer
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import javax.sql.DataSource
 
 interface AlleDaoer :

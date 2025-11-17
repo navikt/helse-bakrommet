@@ -1,9 +1,9 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus
 import no.nav.helse.bakrommet.kafka.OutboxDbRecord
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeStatus
 import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.*
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn

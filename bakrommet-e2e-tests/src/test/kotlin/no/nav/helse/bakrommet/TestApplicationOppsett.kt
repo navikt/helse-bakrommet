@@ -14,6 +14,12 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.ereg.EregMock
@@ -26,12 +32,6 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.person.PersonDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDaoPg
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient

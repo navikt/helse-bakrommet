@@ -7,8 +7,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.PensjonsgivendeInntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID

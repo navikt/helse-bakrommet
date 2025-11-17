@@ -41,7 +41,7 @@ class InntektbeløpDtoSerializerTest {
     @Test
     fun `serialiserer Sykepengegrunnlag med InntektbeløpDto som tall`() {
         val sykepengegrunnlag =
-            no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.Sykepengegrunnlag(
+            no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
                 totaltInntektsgrunnlag = InntektbeløpDto.Årlig(400000.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(400000.0),

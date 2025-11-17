@@ -8,7 +8,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 

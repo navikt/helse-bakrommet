@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.scenariotester
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Inntektsmelding
 import no.nav.helse.bakrommet.testutils.Scenario

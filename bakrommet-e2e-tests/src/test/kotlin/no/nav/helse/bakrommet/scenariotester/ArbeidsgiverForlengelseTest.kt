@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import io.ktor.http.*
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.saksbehandlingsperiode.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.testutils.AInntekt
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Scenario

@@ -1,19 +1,19 @@
 package no.nav.helse.bakrommet.kafka
 
+import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeDao
+import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.hentPeriode
+import no.nav.helse.bakrommet.behandling.somReferanse
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
 import no.nav.helse.bakrommet.meldingomvedtak.skalHaMeldingOmVedtak
 import no.nav.helse.bakrommet.meldingomvedtak.tilMeldingOmVedtak
 import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.hentPeriode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.somReferanse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.util.HashUtils
 import no.nav.helse.bakrommet.util.serialisertTilString
 

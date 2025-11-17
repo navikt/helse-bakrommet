@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.fakedaos
 
 import com.fasterxml.jackson.databind.JsonNode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.Kode
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkår
-import no.nav.helse.bakrommet.saksbehandlingsperiode.vilkaar.VurdertVilkårDao
+import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.vilkaar.Kode
+import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
+import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 

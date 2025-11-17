@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.scenariotester
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.orgnummer
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.testutils.*
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter

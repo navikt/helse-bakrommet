@@ -5,7 +5,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.saksbehandlingsperiode.sykepengegrunnlag.SykepengegrunnlagResponse
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagResponse
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import java.util.UUID
 

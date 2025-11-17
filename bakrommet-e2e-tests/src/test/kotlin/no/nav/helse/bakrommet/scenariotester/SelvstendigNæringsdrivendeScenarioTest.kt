@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.scenariotester
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.yrkesaktivitet.domene.SelvstendigForsikring
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.testutils.*
 import kotlin.test.Test
 

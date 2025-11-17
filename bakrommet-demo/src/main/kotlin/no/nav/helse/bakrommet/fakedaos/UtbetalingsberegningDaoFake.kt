@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.fakedaos
 
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.BeregningResponse
-import no.nav.helse.bakrommet.saksbehandlingsperiode.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningResponse
+import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap

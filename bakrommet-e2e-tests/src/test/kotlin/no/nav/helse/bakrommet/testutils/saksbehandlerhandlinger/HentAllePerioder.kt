@@ -5,7 +5,7 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.saksbehandlingsperiode.Saksbehandlingsperiode
+import no.nav.helse.bakrommet.behandling.Saksbehandlingsperiode
 import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 

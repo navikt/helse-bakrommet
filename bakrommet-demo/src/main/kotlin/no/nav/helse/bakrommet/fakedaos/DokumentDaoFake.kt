@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.Dokument
-import no.nav.helse.bakrommet.saksbehandlingsperiode.dokumenter.DokumentDao
+import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
+import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
