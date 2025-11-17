@@ -60,7 +60,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord {
         val eksisterende = storage[yrkesaktivitetDbRecord.id] ?: return yrkesaktivitetDbRecord
-        val oppdatert = eksisterende.copy(kategorisering = kategorisering)
+        val oppdatert = eksisterende.copy(kategorisering = kategorisering, inntektData = null, inntektRequest = null)
         storage[oppdatert.id] = oppdatert
         return oppdatert
     }

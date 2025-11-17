@@ -128,6 +128,7 @@ class YrkesaktivitetService(
             periode.sykepengegrunnlagId?.let { sykepengegrunnlagId ->
                 val spgRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)
                 if (spgRecord.opprettetForBehandling == periode.id) {
+                    saksbehandlingsperiodeDao.oppdaterSykepengegrunnlagId(periode.id, null)
                     sykepengegrunnlagDao.slettSykepengegrunnlag(sykepengegrunnlagId)
                 }
             }
