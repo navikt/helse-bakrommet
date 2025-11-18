@@ -44,6 +44,7 @@ class FakeDaoer : AlleDaoer {
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoFake()
     override val beregningDao = UtbetalingsberegningDaoFake()
     override val outboxDao = OutboxDaoFake()
+    override val tilkommenInntektDao = TilkommenInntektDaoFake()
 }
 
 val sessionsDaoer = mutableMapOf<String, FakeDaoer>()

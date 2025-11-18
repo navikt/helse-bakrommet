@@ -80,7 +80,7 @@ class TilkommenInntektDaoTest {
     fun `sletter tilkommen inntekt`() {
         val lagret = dao.opprett(nyTilkommenInntekt())
 
-        dao.slett(lagret.id)
+        dao.slett(behandlingId = lagret.behandlingId, id = lagret.id)
 
         val funnet = dao.hentForBehandling(behandlingId)
         assertTrue(funnet.isEmpty())

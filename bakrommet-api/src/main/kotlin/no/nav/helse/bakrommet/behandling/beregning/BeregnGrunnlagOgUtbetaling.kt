@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBeregningHjelper
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
@@ -19,6 +20,7 @@ interface Beregningsdaoer {
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personDao: PersonDao
+    val tilkommenInntektDao: TilkommenInntektDao
 }
 
 fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(

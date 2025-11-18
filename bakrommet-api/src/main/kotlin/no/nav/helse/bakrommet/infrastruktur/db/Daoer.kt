@@ -9,6 +9,8 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektServiceDaoer
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherDaoer
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDaoPg
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektServiceDaoer
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDaoPg
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDaoer
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårServiceDaoer
@@ -30,7 +32,8 @@ interface AlleDaoer :
     VilkårServiceDaoer,
     PersonsokDaoer,
     PersonIdServiceDaoer,
-    UtbetalingsberegningDaoer
+    UtbetalingsberegningDaoer,
+    TilkommenInntektServiceDaoer
 
 class DaoerFelles(
     dataSource: DataSource,
@@ -44,6 +47,7 @@ class DaoerFelles(
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
     override val beregningDao = UtbetalingsberegningDaoPg(dataSource)
     override val outboxDao = OutboxDaoPg(dataSource)
+    override val tilkommenInntektDao = TilkommenInntektDaoPg(dataSource)
 }
 
 class SessionDaoerFelles(
@@ -58,4 +62,5 @@ class SessionDaoerFelles(
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(session)
     override val beregningDao = UtbetalingsberegningDaoPg(session)
     override val outboxDao = OutboxDaoPg(session)
+    override val tilkommenInntektDao = TilkommenInntektDaoPg(session)
 }

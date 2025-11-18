@@ -44,7 +44,10 @@ interface TilkommenInntektDao {
 
     fun oppdater(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord
 
-    fun slett(id: UUID)
+    fun slett(
+        behandlingId: UUID,
+        id: UUID,
+    )
 }
 
 class TilkommenInntektDaoPg private constructor(
@@ -97,14 +100,24 @@ class TilkommenInntektDaoPg private constructor(
         return hent(tilkommenInntektDbRecord.id)!!
     }
 
-    override fun slett(id: UUID) {
-        db.update(
-            """
-            delete from tilkommen_inntekt
-            where id = :id
-            """.trimIndent(),
-            "id" to id,
-        )
+    override fun slett(
+        behandlingId: UUID,
+        id: UUID,
+    ) {
+        db
+            .update(
+                """
+                delete from tilkommen_inntekt
+                where id = :id
+                and behandling_id = :behandling_id
+                """.trimIndent(),
+                "id" to id,
+                "behandling_id" to behandlingId,
+            ).also {
+                if (it != 1) {
+                    throw IllegalArgumentException("Kunne ikke slette tilkommen inntekt med id $id for behandling $behandlingId")
+                }
+            }
     }
 
     private fun hent(id: UUID): TilkommenInntektDbRecord? =
@@ -122,7 +135,11 @@ class TilkommenInntektDaoPg private constructor(
         TilkommenInntektDbRecord(
             id = row.uuid("id"),
             behandlingId = row.uuid("behandling_id"),
-            tilkommenInntekt = objectMapper.readValue(row.string("tilkommen_inntekt"), TilkommenInntekt::class.java),
+            tilkommenInntekt =
+                objectMapper.readValue(
+                    row.string("tilkommen_inntekt"),
+                    TilkommenInntekt::class.java,
+                ),
             opprettet = row.offsetDateTime("opprettet"),
             opprettetAvNavIdent = row.string("opprettet_av_nav_ident"),
         )
