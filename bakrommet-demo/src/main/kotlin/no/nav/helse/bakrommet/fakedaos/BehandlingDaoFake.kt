@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.fakedaos
 
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus
+import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -27,29 +27,29 @@ class BehandlingDaoFake : BehandlingDao {
 
     override fun endreStatus(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
     ) {
-        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
+        check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
         val eksisterende = perioder[periode.id] ?: return
         perioder[periode.id] = eksisterende.copy(status = nyStatus)
     }
 
     override fun endreStatusOgIndividuellBegrunnelse(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
         individuellBegrunnelse: String?,
     ) {
-        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
+        check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
         val eksisterende = perioder[periode.id] ?: return
         perioder[periode.id] = eksisterende.copy(status = nyStatus, individuellBegrunnelse = individuellBegrunnelse)
     }
 
     override fun endreStatusOgBeslutter(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
         beslutterNavIdent: String?,
     ) {
-        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
+        check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
         val eksisterende = perioder[periode.id] ?: return
         perioder[periode.id] = eksisterende.copy(status = nyStatus, beslutterNavIdent = beslutterNavIdent)
     }

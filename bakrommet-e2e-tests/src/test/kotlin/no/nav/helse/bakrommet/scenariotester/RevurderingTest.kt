@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus
+import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.kafka.OutboxDbRecord
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.taTilBesluting
@@ -69,9 +69,9 @@ class RevurderingTest {
 
             hentAllePerioder(personId).also {
                 it.size `should equal` 2
-                it.last().status `should equal` SaksbehandlingsperiodeStatus.REVURDERT
+                it.last().status `should equal` BehandlingStatus.REVURDERT
                 it.last().revurdertAvBehandlingId `should equal` it.first().id
-                it.first().status `should equal` SaksbehandlingsperiodeStatus.GODKJENT
+                it.first().status `should equal` BehandlingStatus.GODKJENT
                 it.first().revurdererSaksbehandlingsperiodeId `should equal` it.last().id
             }
         }

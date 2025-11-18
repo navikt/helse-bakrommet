@@ -2,9 +2,9 @@ package no.nav.helse.bakrommet.behandling
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.BrukerOgToken
+import no.nav.helse.bakrommet.behandling.BehandlingStatus.REVURDERT
+import no.nav.helse.bakrommet.behandling.BehandlingStatus.UNDER_BEHANDLING
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType.REVURDERING_STARTET
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus.REVURDERT
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus.UNDER_BEHANDLING
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.behandling.dagoversikt.initialiserDager
@@ -30,7 +30,7 @@ import java.util.*
 interface SaksbehandlingsperiodeServiceDaoer :
     SaksbehandlingsperiodeKafkaDtoDaoer,
     Beregningsdaoer {
-    val saksbehandlingsperiodeEndringerDao: SaksbehandlingsperiodeEndringerDao
+    val behandlingEndringerDao: BehandlingEndringerDao
     val dokumentDao: DokumentDao
 }
 
@@ -95,7 +95,7 @@ class BehandlingService(
             }
 
             behandlingDao.opprettPeriode(nyPeriode)
-            saksbehandlingsperiodeEndringerDao.leggTilEndring(
+            behandlingEndringerDao.leggTilEndring(
                 nyPeriode.endring(
                     endringType = SaksbehandlingsperiodeEndringType.STARTET,
                     saksbehandler = saksbehandler.bruker,
@@ -167,15 +167,15 @@ class BehandlingService(
                     fun Behandling.harAlleredeBeslutter() = this.beslutterNavIdent != null
                     val nyStatus =
                         if (periode.harAlleredeBeslutter()) {
-                            SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
+                            BehandlingStatus.UNDER_BESLUTNING
                         } else {
-                            SaksbehandlingsperiodeStatus.TIL_BESLUTNING
+                            BehandlingStatus.TIL_BESLUTNING
                         }
                     periode.verifiserNyStatusGyldighet(nyStatus)
                     dao.endreStatusOgIndividuellBegrunnelse(periode, nyStatus = nyStatus, individuellBegrunnelse)
                     dao.reload(periode)
                 }.also { oppdatertPeriode ->
-                    saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                    behandlingEndringerDao.leggTilEndring(
                         oppdatertPeriode.endring(
                             endringType = SaksbehandlingsperiodeEndringType.SENDT_TIL_BESLUTNING,
                             saksbehandler = saksbehandler,
@@ -190,7 +190,7 @@ class BehandlingService(
     ): Behandling =
         db.transactional {
             val forrigePeriode = behandlingDao.hentPeriode(periodeRef, null)
-            if (forrigePeriode.status != SaksbehandlingsperiodeStatus.GODKJENT) {
+            if (forrigePeriode.status != BehandlingStatus.GODKJENT) {
                 throw InputValideringException("Kun godkjente perioder kan revurderes")
             }
             // TODO sjekke at ingen andre revurderer den? Eller bare stole på unique constraint i db?
@@ -241,8 +241,8 @@ class BehandlingService(
                 }
             }
 
-            saksbehandlingsperiodeEndringerDao.hentEndringerFor(forrigePeriode.id).forEach { e ->
-                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+            behandlingEndringerDao.hentEndringerFor(forrigePeriode.id).forEach { e ->
+                behandlingEndringerDao.leggTilEndring(
                     nyPeriode.endring(
                         endringType = e.endringType,
                         saksbehandler = saksbehandler,
@@ -253,7 +253,7 @@ class BehandlingService(
                     ),
                 )
             }
-            saksbehandlingsperiodeEndringerDao.leggTilEndring(
+            behandlingEndringerDao.leggTilEndring(
                 nyPeriode.endring(
                     endringType = REVURDERING_STARTET,
                     saksbehandler = saksbehandler,
@@ -289,7 +289,7 @@ class BehandlingService(
         db.transactional {
             val periode = behandlingDao.hentPeriode(periodeRef, krav = null)
             // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
-            val nyStatus = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING
+            val nyStatus = BehandlingStatus.UNDER_BESLUTNING
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatusOgBeslutter(
                 periode,
@@ -297,7 +297,7 @@ class BehandlingService(
                 beslutterNavIdent = saksbehandler.navIdent,
             )
             behandlingDao.reload(periode).also { oppdatertPeriode ->
-                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                behandlingEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.TATT_TIL_BESLUTNING,
                         saksbehandler = saksbehandler,
@@ -320,7 +320,7 @@ class BehandlingService(
                 nyStatus = nyStatus,
             )
             behandlingDao.reload(periode).also { oppdatertPeriode ->
-                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                behandlingEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.SENDT_I_RETUR,
                         saksbehandler = saksbehandler,
@@ -336,7 +336,7 @@ class BehandlingService(
     ): Behandling {
         return db.transactional {
             val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
-            val nyStatus = SaksbehandlingsperiodeStatus.GODKJENT
+            val nyStatus = BehandlingStatus.GODKJENT
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatusOgBeslutter(
                 periode,
@@ -360,7 +360,7 @@ class BehandlingService(
             }
 
             val oppdatertPeriode = behandlingDao.reload(periode)
-            saksbehandlingsperiodeEndringerDao.leggTilEndring(
+            behandlingEndringerDao.leggTilEndring(
                 oppdatertPeriode.endring(
                     endringType = SaksbehandlingsperiodeEndringType.GODKJENT,
                     saksbehandler = saksbehandler,
@@ -374,7 +374,7 @@ class BehandlingService(
     suspend fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> =
         db.nonTransactional {
             val periode = behandlingDao.hentPeriode(periodeRef, krav = null)
-            saksbehandlingsperiodeEndringerDao.hentEndringerFor(periode.id)
+            behandlingEndringerDao.hentEndringerFor(periode.id)
         }
 
     suspend fun oppdaterSkjæringstidspunkt(
@@ -387,7 +387,7 @@ class BehandlingService(
                 behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
             behandlingDao.oppdaterSkjæringstidspunkt(periode.id, skjæringstidspunkt)
             behandlingDao.reload(periode).also { oppdatertPeriode ->
-                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                behandlingEndringerDao.leggTilEndring(
                     oppdatertPeriode.endring(
                         endringType = SaksbehandlingsperiodeEndringType.OPPDATERT_SKJÆRINGSTIDSPUNKT,
                         saksbehandler = saksbehandler,
@@ -400,7 +400,7 @@ class BehandlingService(
 private fun Behandling.endring(
     endringType: SaksbehandlingsperiodeEndringType,
     saksbehandler: Bruker,
-    status: SaksbehandlingsperiodeStatus = this.status,
+    status: BehandlingStatus = this.status,
     beslutterNavIdent: String? = this.beslutterNavIdent,
     endretTidspunkt: OffsetDateTime = OffsetDateTime.now(),
     endringKommentar: String? = null,
@@ -414,8 +414,8 @@ private fun Behandling.endring(
     endringKommentar = endringKommentar,
 )
 
-private fun Behandling.verifiserNyStatusGyldighet(nyStatus: SaksbehandlingsperiodeStatus) {
-    if (!SaksbehandlingsperiodeStatus.erGyldigEndring(status to nyStatus)) {
+private fun Behandling.verifiserNyStatusGyldighet(nyStatus: BehandlingStatus) {
+    if (!BehandlingStatus.erGyldigEndring(status to nyStatus)) {
         throw InputValideringException("Ugyldig statusendring: $status til $nyStatus")
     }
 }

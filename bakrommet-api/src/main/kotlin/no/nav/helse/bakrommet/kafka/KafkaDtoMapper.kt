@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.kafka
 
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeStatus
+import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.DagtypeKafkaDto
@@ -29,11 +29,11 @@ fun Kilde?.tilKafkaDto(): KildeKafkaDto? =
         null -> null
     }
 
-fun SaksbehandlingsperiodeStatus.tilKafkaDto(): SaksbehandlingsperiodeStatusKafkaDto =
+fun BehandlingStatus.tilKafkaDto(): SaksbehandlingsperiodeStatusKafkaDto =
     when (this) {
-        SaksbehandlingsperiodeStatus.UNDER_BEHANDLING -> SaksbehandlingsperiodeStatusKafkaDto.UNDER_BEHANDLING
-        SaksbehandlingsperiodeStatus.TIL_BESLUTNING -> SaksbehandlingsperiodeStatusKafkaDto.TIL_BESLUTNING
-        SaksbehandlingsperiodeStatus.UNDER_BESLUTNING -> SaksbehandlingsperiodeStatusKafkaDto.UNDER_BESLUTNING
-        SaksbehandlingsperiodeStatus.GODKJENT -> SaksbehandlingsperiodeStatusKafkaDto.GODKJENT
-        SaksbehandlingsperiodeStatus.REVURDERT -> SaksbehandlingsperiodeStatusKafkaDto.REVURDERT
+        BehandlingStatus.UNDER_BEHANDLING -> SaksbehandlingsperiodeStatusKafkaDto.UNDER_BEHANDLING
+        BehandlingStatus.TIL_BESLUTNING -> SaksbehandlingsperiodeStatusKafkaDto.TIL_BESLUTNING
+        BehandlingStatus.UNDER_BESLUTNING -> SaksbehandlingsperiodeStatusKafkaDto.UNDER_BESLUTNING
+        BehandlingStatus.GODKJENT -> SaksbehandlingsperiodeStatusKafkaDto.GODKJENT
+        BehandlingStatus.REVURDERT -> SaksbehandlingsperiodeStatusKafkaDto.REVURDERT
     }

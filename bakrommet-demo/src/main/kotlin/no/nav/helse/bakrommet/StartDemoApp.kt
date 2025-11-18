@@ -36,7 +36,7 @@ val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 class FakeDaoer : AlleDaoer {
     override val behandlingDao = BehandlingDaoFake()
-    override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoFake()
+    override val behandlingEndringerDao = BehandlingEndringerDaoFake()
     override val personDao = PersonDaoFake()
     override val dokumentDao = DokumentDaoFake()
     override val yrkesaktivitetDao = YrkesaktivitetDaoFake()

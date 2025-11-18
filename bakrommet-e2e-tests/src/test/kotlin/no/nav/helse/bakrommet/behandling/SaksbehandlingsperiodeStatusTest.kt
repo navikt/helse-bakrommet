@@ -47,7 +47,7 @@ class SaksbehandlingsperiodeStatusTest {
             assertEquals(1, outboxAfterCreation.size, "Det skal være én melding i outbox etter opprettelse av perioden")
 
             assertEquals(
-                SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
+                BehandlingStatus.UNDER_BEHANDLING,
                 periodeOpprinnelig.status,
                 "Status skal være UNDER_BEHANDLING for nyopprettet saksbehandlingsperiode",
             )
@@ -83,7 +83,7 @@ class SaksbehandlingsperiodeStatusTest {
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
-                                status = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING,
+                                status = BehandlingStatus.UNDER_BESLUTNING,
                                 individuellBegrunnelse = "En begrunnelse",
                                 beslutterNavIdent = "B111111",
                             ).truncateTidspunkt(),
@@ -118,7 +118,7 @@ class SaksbehandlingsperiodeStatusTest {
             assertEquals(
                 periodeOpprinnelig
                     .copy(
-                        status = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
+                        status = BehandlingStatus.UNDER_BEHANDLING,
                         individuellBegrunnelse = "En begrunnelse",
                         beslutterNavIdent = "B111111",
                     ).truncateTidspunkt(),
@@ -137,7 +137,7 @@ class SaksbehandlingsperiodeStatusTest {
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
-                                status = SaksbehandlingsperiodeStatus.UNDER_BESLUTNING,
+                                status = BehandlingStatus.UNDER_BESLUTNING,
                                 individuellBegrunnelse = "En ny begrunnelse",
                                 beslutterNavIdent = "B111111",
                             ).truncateTidspunkt(),
@@ -166,7 +166,7 @@ class SaksbehandlingsperiodeStatusTest {
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
-                                status = SaksbehandlingsperiodeStatus.GODKJENT,
+                                status = BehandlingStatus.GODKJENT,
                                 individuellBegrunnelse = "En ny begrunnelse",
                                 beslutterNavIdent = "B111111",
                             ).truncateTidspunkt(),

@@ -24,7 +24,7 @@ enum class SaksbehandlingsperiodeEndringType {
 data class SaksbehandlingsperiodeEndring(
     val saksbehandlingsperiodeId: UUID,
     // //
-    val status: SaksbehandlingsperiodeStatus,
+    val status: BehandlingStatus,
     val beslutterNavIdent: String?,
     // //
     val endretTidspunkt: OffsetDateTime,
@@ -33,15 +33,15 @@ data class SaksbehandlingsperiodeEndring(
     val endringKommentar: String? = null,
 )
 
-interface SaksbehandlingsperiodeEndringerDao {
+interface BehandlingEndringerDao {
     fun leggTilEndring(hist: SaksbehandlingsperiodeEndring)
 
     fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring>
 }
 
-class SaksbehandlingsperiodeEndringerDaoPg private constructor(
+class BehandlingEndringerDaoPg private constructor(
     private val db: QueryRunner,
-) : SaksbehandlingsperiodeEndringerDao {
+) : BehandlingEndringerDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
@@ -77,7 +77,7 @@ class SaksbehandlingsperiodeEndringerDaoPg private constructor(
     private fun rowTilHistorikk(row: Row) =
         SaksbehandlingsperiodeEndring(
             saksbehandlingsperiodeId = row.uuid("behandling_id"),
-            status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
+            status = BehandlingStatus.valueOf(row.string("status")),
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
             endretTidspunkt = row.offsetDateTime("endret_tidspunkt"),
             endretAvNavIdent = row.string("endret_av_nav_ident"),

@@ -21,7 +21,7 @@ data class Behandling(
     val opprettetAvNavn: String,
     val fom: LocalDate,
     val tom: LocalDate,
-    val status: SaksbehandlingsperiodeStatus = SaksbehandlingsperiodeStatus.UNDER_BEHANDLING,
+    val status: BehandlingStatus = BehandlingStatus.UNDER_BEHANDLING,
     val beslutterNavIdent: String? = null,
     val skjæringstidspunkt: LocalDate,
     val individuellBegrunnelse: String? = null,
@@ -30,7 +30,7 @@ data class Behandling(
     val revurdertAvBehandlingId: UUID? = null,
 )
 
-enum class SaksbehandlingsperiodeStatus {
+enum class BehandlingStatus {
     UNDER_BEHANDLING,
     TIL_BESLUTNING,
     UNDER_BESLUTNING,
@@ -39,7 +39,7 @@ enum class SaksbehandlingsperiodeStatus {
     ;
 
     companion object {
-        val GYLDIGE_ENDRINGER: Set<Pair<SaksbehandlingsperiodeStatus, SaksbehandlingsperiodeStatus>> =
+        val GYLDIGE_ENDRINGER: Set<Pair<BehandlingStatus, BehandlingStatus>> =
             setOf(
                 UNDER_BEHANDLING to TIL_BESLUTNING,
                 TIL_BESLUTNING to UNDER_BESLUTNING,
@@ -51,7 +51,7 @@ enum class SaksbehandlingsperiodeStatus {
                 GODKJENT to REVURDERT,
             )
 
-        fun erGyldigEndring(fraTil: Pair<SaksbehandlingsperiodeStatus, SaksbehandlingsperiodeStatus>) = GYLDIGE_ENDRINGER.contains(fraTil)
+        fun erGyldigEndring(fraTil: Pair<BehandlingStatus, BehandlingStatus>) = GYLDIGE_ENDRINGER.contains(fraTil)
     }
 }
 
@@ -70,18 +70,18 @@ interface BehandlingDao {
 
     fun endreStatus(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
     )
 
     fun endreStatusOgIndividuellBegrunnelse(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
         individuellBegrunnelse: String?,
     )
 
     fun endreStatusOgBeslutter(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
         beslutterNavIdent: String?,
     )
 
@@ -175,7 +175,7 @@ class BehandlingDaoPg private constructor(
             opprettetAvNavn = row.string("opprettet_av_navn"),
             fom = row.localDate("fom"),
             tom = row.localDate("tom"),
-            status = SaksbehandlingsperiodeStatus.valueOf(row.string("status")),
+            status = BehandlingStatus.valueOf(row.string("status")),
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
             skjæringstidspunkt = row.localDate("skjaeringstidspunkt"),
             individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
@@ -186,9 +186,9 @@ class BehandlingDaoPg private constructor(
 
     override fun endreStatus(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
     ) {
-        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
+        check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
         db.update(
             """
             UPDATE behandling SET status = :status
@@ -201,10 +201,10 @@ class BehandlingDaoPg private constructor(
 
     override fun endreStatusOgIndividuellBegrunnelse(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
         individuellBegrunnelse: String?,
     ) {
-        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
+        check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
         db.update(
             """
             UPDATE behandling SET status = :status, individuell_begrunnelse = :individuell_begrunnelse
@@ -218,10 +218,10 @@ class BehandlingDaoPg private constructor(
 
     override fun endreStatusOgBeslutter(
         periode: Behandling,
-        nyStatus: SaksbehandlingsperiodeStatus,
+        nyStatus: BehandlingStatus,
         beslutterNavIdent: String?,
     ) {
-        check(SaksbehandlingsperiodeStatus.erGyldigEndring(periode.status to nyStatus))
+        check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
         db.update(
             """
             UPDATE behandling SET status = :status, beslutter_nav_ident = :beslutter_nav_ident

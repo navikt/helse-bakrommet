@@ -3,10 +3,10 @@ package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
+import no.nav.helse.bakrommet.behandling.BehandlingEndringerDao
 import no.nav.helse.bakrommet.behandling.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndring
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringerDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
@@ -37,7 +37,7 @@ interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
     override val beregningDao: UtbetalingsberegningDao
     override val personDao: PersonDao
     override val sykepengegrunnlagDao: SykepengegrunnlagDao
-    val saksbehandlingsperiodeEndringerDao: SaksbehandlingsperiodeEndringerDao
+    val behandlingEndringerDao: BehandlingEndringerDao
 }
 
 typealias DagerSomSkalOppdateres = JsonNode
@@ -135,7 +135,7 @@ class YrkesaktivitetService(
 
             // Legg til endring i historikk hvis hovedkategorisering endrer seg
             if (hovedkategoriseringEndret) {
-                saksbehandlingsperiodeEndringerDao.leggTilEndring(
+                behandlingEndringerDao.leggTilEndring(
                     SaksbehandlingsperiodeEndring(
                         saksbehandlingsperiodeId = periode.id,
                         status = periode.status,

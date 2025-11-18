@@ -1,11 +1,11 @@
 package no.nav.helse.bakrommet.fakedaos
 
+import no.nav.helse.bakrommet.behandling.BehandlingEndringerDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndring
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringerDao
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-class SaksbehandlingsperiodeEndringerDaoFake : SaksbehandlingsperiodeEndringerDao {
+class BehandlingEndringerDaoFake : BehandlingEndringerDao {
     private val endringer = ConcurrentHashMap<UUID, MutableList<SaksbehandlingsperiodeEndring>>()
 
     override fun leggTilEndring(hist: SaksbehandlingsperiodeEndring) {

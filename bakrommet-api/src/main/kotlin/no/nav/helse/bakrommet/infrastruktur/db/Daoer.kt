@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.infrastruktur.db
 
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringerDaoPg
+import no.nav.helse.bakrommet.behandling.BehandlingEndringerDaoPg
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeServiceDaoer
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.behandling.inntekter.InntektServiceDaoer
@@ -36,7 +36,7 @@ class DaoerFelles(
     dataSource: DataSource,
 ) : AlleDaoer {
     override val behandlingDao = BehandlingDaoPg(dataSource)
-    override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoPg(dataSource)
+    override val behandlingEndringerDao = BehandlingEndringerDaoPg(dataSource)
     override val personDao = PersonDaoPg(dataSource)
     override val dokumentDao = DokumentDaoPg(dataSource)
     override val yrkesaktivitetDao = YrkesaktivitetDaoPg(dataSource)
@@ -50,7 +50,7 @@ class SessionDaoerFelles(
     session: Session,
 ) : AlleDaoer {
     override val behandlingDao = BehandlingDaoPg(session)
-    override val saksbehandlingsperiodeEndringerDao = SaksbehandlingsperiodeEndringerDaoPg(session)
+    override val behandlingEndringerDao = BehandlingEndringerDaoPg(session)
     override val personDao = PersonDaoPg(session)
     override val dokumentDao = DokumentDaoPg(session)
     override val yrkesaktivitetDao = YrkesaktivitetDaoPg(session)
