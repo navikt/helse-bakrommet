@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.behandling.tilkommen
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
@@ -37,7 +38,7 @@ internal fun Route.tilkommenInntektRoute(service: TilkommenInntektService) {
                     tilkommenInntekt = request.tilTilkommenInntekt(),
                     saksbehandler = call.saksbehandler(),
                 )
-            call.respondJson(nyTilkommenInntekt.tilTilkommenInntektResponse())
+            call.respondJson(nyTilkommenInntekt.tilTilkommenInntektResponse(), status = HttpStatusCode.Created)
         }
 
         put("/{tilkommenInntektId}") {
