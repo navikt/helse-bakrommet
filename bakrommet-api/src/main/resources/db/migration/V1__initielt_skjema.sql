@@ -19,22 +19,22 @@ CREATE TABLE IF NOT EXISTS sykepengegrunnlag
 
 CREATE TABLE IF NOT EXISTS behandling
 (
-    id                                   UUID                        NOT NULL PRIMARY KEY,
-    spillerom_personid                   TEXT                        NOT NULL
+    id                         UUID                        NOT NULL PRIMARY KEY,
+    spillerom_personid         TEXT                        NOT NULL
         REFERENCES ident (spillerom_id),
-    sykepengegrunnlag_id                 UUID                        NULL
+    sykepengegrunnlag_id       UUID                        NULL
         REFERENCES sykepengegrunnlag (id),
-    opprettet                            TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    opprettet_av_nav_ident               TEXT                        NOT NULL,
-    opprettet_av_navn                    TEXT                        NOT NULL,
-    fom                                  DATE                        NOT NULL,
-    tom                                  DATE                        NOT NULL,
-    skjaeringstidspunkt                  DATE                        NOT NULL,
-    status                               TEXT                        NOT NULL,
-    beslutter_nav_ident                  TEXT                        NULL,
-    individuell_begrunnelse              TEXT                        NULL,
-    revurderer_behandling_id             UUID                        NULL UNIQUE REFERENCES behandling (id),
-    revurdert_av_behandling_id           UUID                        NULL UNIQUE REFERENCES behandling (id)
+    opprettet                  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    opprettet_av_nav_ident     TEXT                        NOT NULL,
+    opprettet_av_navn          TEXT                        NOT NULL,
+    fom                        DATE                        NOT NULL,
+    tom                        DATE                        NOT NULL,
+    skjaeringstidspunkt        DATE                        NOT NULL,
+    status                     TEXT                        NOT NULL,
+    beslutter_nav_ident        TEXT                        NULL,
+    individuell_begrunnelse    TEXT                        NULL,
+    revurderer_behandling_id   UUID                        NULL UNIQUE REFERENCES behandling (id),
+    revurdert_av_behandling_id UUID                        NULL UNIQUE REFERENCES behandling (id)
 );
 
 ALTER TABLE sykepengegrunnlag
@@ -45,10 +45,10 @@ ALTER TABLE sykepengegrunnlag
 
 CREATE TABLE IF NOT EXISTS vurdert_vilkaar
 (
-    behandling_id             UUID                        NOT NULL REFERENCES behandling (id),
-    kode                      TEXT                        NOT NULL,
-    vurdering                 TEXT                        NOT NULL,
-    vurdering_tidspunkt       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    behandling_id       UUID                        NOT NULL REFERENCES behandling (id),
+    kode                TEXT                        NOT NULL,
+    vurdering           TEXT                        NOT NULL,
+    vurdering_tidspunkt TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     PRIMARY KEY (behandling_id, kode)
 );
 
@@ -66,31 +66,31 @@ CREATE TABLE IF NOT EXISTS dokument
 
 CREATE TABLE IF NOT EXISTS yrkesaktivitet
 (
-    id                        UUID                        NOT NULL PRIMARY KEY,
-    kategorisering            TEXT                        NOT NULL,
-    kategorisering_generert   TEXT                        NULL,
-    dagoversikt               TEXT                        NULL,
-    dagoversikt_generert      TEXT                        NULL,
-    behandling_id             UUID                        NOT NULL REFERENCES behandling (id),
-    opprettet                 TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    generert_fra_dokumenter   TEXT                        NULL,
-    perioder                  TEXT                        NULL,
-    inntekt_request           TEXT                        NULL,
-    inntekt_data              TEXT                        NULL,
-    refusjon                  TEXT                        NULL
+    id                      UUID                        NOT NULL PRIMARY KEY,
+    behandling_id           UUID                        NOT NULL REFERENCES behandling (id),
+    kategorisering          TEXT                        NOT NULL,
+    kategorisering_generert TEXT                        NULL,
+    dagoversikt             TEXT                        NULL,
+    dagoversikt_generert    TEXT                        NULL,
+    opprettet               TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    generert_fra_dokumenter TEXT                        NULL,
+    perioder                TEXT                        NULL,
+    inntekt_request         TEXT                        NULL,
+    inntekt_data            TEXT                        NULL,
+    refusjon                TEXT                        NULL
 );
 
 
 CREATE TABLE IF NOT EXISTS behandling_endringer
 (
-    id                        BIGSERIAL PRIMARY KEY,
-    behandling_id             UUID                        NOT NULL REFERENCES behandling (id),
-    status                    TEXT                        NOT NULL,
-    beslutter_nav_ident       TEXT                        NULL,
-    endret_tidspunkt          TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    endret_av_nav_ident       TEXT                        NOT NULL,
-    endring_type              TEXT                        NOT NULL,
-    endring_kommentar         TEXT                        NULL
+    id                  BIGSERIAL PRIMARY KEY,
+    behandling_id       UUID                        NOT NULL REFERENCES behandling (id),
+    status              TEXT                        NOT NULL,
+    beslutter_nav_ident TEXT                        NULL,
+    endret_tidspunkt    TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    endret_av_nav_ident TEXT                        NOT NULL,
+    endring_type        TEXT                        NOT NULL,
+    endring_kommentar   TEXT                        NULL
 );
 
 
@@ -117,3 +117,12 @@ CREATE TABLE IF NOT EXISTS kafka_outbox
 CREATE INDEX IF NOT EXISTS idx_kafka_outbox_unpublished
     ON kafka_outbox (publisert)
     WHERE publisert IS NULL;
+
+CREATE TABLE IF NOT EXISTS tilkommen_inntekt
+(
+    id                     UUID                        NOT NULL PRIMARY KEY,
+    behandling_id          UUID                        NOT NULL REFERENCES behandling (id),
+    tilkommen_inntekt      TEXT                        NOT NULL,
+    opprettet              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    opprettet_av_nav_ident TEXT                        NOT NULL
+);

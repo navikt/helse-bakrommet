@@ -1,0 +1,129 @@
+package no.nav.helse.bakrommet.behandling.tilkommen
+
+import kotliquery.Row
+import kotliquery.Session
+import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
+import no.nav.helse.bakrommet.infrastruktur.db.MedSession
+import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.serialisertTilString
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.util.UUID
+import javax.sql.DataSource
+
+data class TilkommenInntektDbRecord(
+    val id: UUID,
+    val behandlingId: UUID,
+    val tilkommenInntekt: TilkommenInntekt,
+    val opprettet: OffsetDateTime,
+    val opprettetAvNavIdent: String,
+)
+
+enum class TilkommenInntektYrkesaktivitetType {
+    VIRKSOMHET,
+    PRIVATPERSON,
+    NÆRINGSDRIVENDE,
+}
+
+data class TilkommenInntekt(
+    val ident: String,
+    val yrkesaktivitetType: TilkommenInntektYrkesaktivitetType,
+    val fom: LocalDate,
+    val tom: LocalDate,
+    val inntektForPerioden: BigDecimal,
+    val notatTilBeslutter: String,
+    val ekskluderteDager: List<LocalDate>,
+)
+
+interface TilkommenInntektDao {
+    fun opprett(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord
+
+    fun hentForBehandling(behandlingId: UUID): List<TilkommenInntektDbRecord>
+
+    fun oppdater(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord
+
+    fun slett(id: UUID)
+}
+
+class TilkommenInntektDaoPg private constructor(
+    private val db: QueryRunner,
+) : TilkommenInntektDao {
+    constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
+    constructor(session: Session) : this(MedSession(session))
+
+    override fun opprett(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord {
+        db.update(
+            """
+            insert into tilkommen_inntekt
+                (id, behandling_id, tilkommen_inntekt, opprettet, opprettet_av_nav_ident)
+            values
+                (:id, :behandling_id, :tilkommen_inntekt, :opprettet, :opprettet_av_nav_ident)
+            """.trimIndent(),
+            "id" to tilkommenInntektDbRecord.id,
+            "behandling_id" to tilkommenInntektDbRecord.behandlingId,
+            "tilkommen_inntekt" to tilkommenInntektDbRecord.tilkommenInntekt.serialisertTilString(),
+            "opprettet" to tilkommenInntektDbRecord.opprettet,
+            "opprettet_av_nav_ident" to tilkommenInntektDbRecord.opprettetAvNavIdent,
+        )
+        return hent(tilkommenInntektDbRecord.id)!!
+    }
+
+    override fun hentForBehandling(behandlingId: UUID): List<TilkommenInntektDbRecord> =
+        db.list(
+            """
+            select id, behandling_id, tilkommen_inntekt, opprettet, opprettet_av_nav_ident
+            from tilkommen_inntekt
+            where behandling_id = :behandling_id
+            order by opprettet
+            """.trimIndent(),
+            "behandling_id" to behandlingId,
+            mapper = ::tilkommenInntektFraRad,
+        )
+
+    override fun oppdater(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord {
+        db.update(
+            """
+            update tilkommen_inntekt
+               set tilkommen_inntekt = :tilkommen_inntekt,
+                   opprettet_av_nav_ident = :opprettet_av_nav_ident
+             where id = :id
+            """.trimIndent(),
+            "id" to tilkommenInntektDbRecord.id,
+            "tilkommen_inntekt" to tilkommenInntektDbRecord.tilkommenInntekt.serialisertTilString(),
+            "opprettet_av_nav_ident" to tilkommenInntektDbRecord.opprettetAvNavIdent,
+        )
+        return hent(tilkommenInntektDbRecord.id)!!
+    }
+
+    override fun slett(id: UUID) {
+        db.update(
+            """
+            delete from tilkommen_inntekt
+            where id = :id
+            """.trimIndent(),
+            "id" to id,
+        )
+    }
+
+    private fun hent(id: UUID): TilkommenInntektDbRecord? =
+        db.single(
+            """
+            select id, behandling_id, tilkommen_inntekt, opprettet, opprettet_av_nav_ident
+            from tilkommen_inntekt
+            where id = :id
+            """.trimIndent(),
+            "id" to id,
+            mapper = ::tilkommenInntektFraRad,
+        )
+
+    private fun tilkommenInntektFraRad(row: Row) =
+        TilkommenInntektDbRecord(
+            id = row.uuid("id"),
+            behandlingId = row.uuid("behandling_id"),
+            tilkommenInntekt = objectMapper.readValue(row.string("tilkommen_inntekt"), TilkommenInntekt::class.java),
+            opprettet = row.offsetDateTime("opprettet"),
+            opprettetAvNavIdent = row.string("opprettet_av_nav_ident"),
+        )
+}

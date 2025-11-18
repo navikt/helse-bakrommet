@@ -27,5 +27,6 @@ object TestDataSource {
         db.execute("truncate table ident cascade")
         db.execute("truncate table yrkesaktivitet cascade")
         db.execute("truncate table dokument cascade")
+        db.execute("truncate table tilkommen_inntekt cascade")
     }
 }
