@@ -213,17 +213,13 @@ class BehandlingService(
                     ),
                 )
             }
-            /*
-            // TODO bare gjøre en reberegning istedenfor?
-            beregningDao.hentBeregning(forrigePeriode.id)?.let {
-                beregningDao.settBeregning(
-                    nyPeriode.id,
-                    it,
-                    saksbehandler,
+
+            tilkommenInntektDao.hentForBehandling(forrigePeriode.id).forEach { tilkommenInntektDbRecord ->
+                tilkommenInntektDao.opprett(
+                    tilkommenInntektDbRecord.copy(id = UUID.randomUUID(), behandlingId = nyPeriode.id),
                 )
             }
 
-             */
             if (forrigePeriode.sykepengegrunnlagId != null) {
                 sykepengegrunnlagDao.hentSykepengegrunnlag(forrigePeriode.sykepengegrunnlagId).let { spg ->
                     if (spg.opprettetForBehandling == forrigePeriode.id) {
