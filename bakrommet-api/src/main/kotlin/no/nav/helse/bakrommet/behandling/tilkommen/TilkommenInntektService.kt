@@ -55,7 +55,9 @@ class TilkommenInntektService(
     ) {
         db.transactional {
             val behandling = behandlingDao.hentPeriode(ref.behandling, saksbehandler.erSaksbehandlerPåSaken())
-            tilkommenInntektDao.slett(behandlingId = behandling.id, id = ref.tilkommenInntektId)
+            tilkommenInntektDao.slett(behandlingId = behandling.id, id = ref.tilkommenInntektId).also {
+                beregnUtbetaling(ref.behandling, saksbehandler)
+            }
         }
     }
 
@@ -77,6 +79,8 @@ class TilkommenInntektService(
                         "TilkommenInntekt med id $tilkommenInntektId hører ikke til behandling ${behandling.id}"
                     }
                 }
-            tilkommenInntektDao.oppdater(tilkommenInntektId, tilkommenInntekt)
+            tilkommenInntektDao.oppdater(tilkommenInntektId, tilkommenInntekt).also {
+                beregnUtbetaling(ref.behandling, saksbehandler)
+            }
         }
 }
