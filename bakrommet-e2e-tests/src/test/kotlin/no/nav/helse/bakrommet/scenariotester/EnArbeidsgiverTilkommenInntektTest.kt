@@ -55,7 +55,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                 beregning!!
                     .beregningData.spilleromOppdrag.oppdrag
                     .first()
-                    .totalbeløp `should equal` 6000 // TODO skal bli mindre
+                    .totalbeløp `should equal` 1000
             }
         }
     }

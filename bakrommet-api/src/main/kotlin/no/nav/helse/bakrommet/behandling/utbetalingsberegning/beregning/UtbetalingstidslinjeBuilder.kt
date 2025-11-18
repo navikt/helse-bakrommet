@@ -31,12 +31,12 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
     input: UtbetalingsberegningInput,
     refusjonstidslinje: Beløpstidslinje,
     fastsattÅrsinntekt: Inntekt,
+    inntektjusteringer: Beløpstidslinje,
 ): Utbetalingstidslinje {
     val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
     val arbeidsgiverperiode = yrkesaktivitet.hentPerioderForType(Periodetype.ARBEIDSGIVERPERIODE)
     val dagerNavOvertarAnsvar = dager.tilDagerNavOvertarAnsvar()
     val sykdomstidslinje = dager.tilSykdomstidslinje(arbeidsgiverperiode)
-    val inntektjusteringer = Beløpstidslinje(emptyList()) // TODO: Dette er tilkommen inntekt?
 
     // Valider at dagerNavOvertarAnsvar er innenfor arbeidsgiverperioden
     if (dagerNavOvertarAnsvar.any { navPeriode -> arbeidsgiverperiode.none { agp -> navPeriode in agp } }) {

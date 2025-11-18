@@ -51,6 +51,7 @@ fun Beregningsdaoer.beregnUtbetaling(
         sykepengegrunnlagDao = sykepengegrunnlagDao,
         yrkesaktivitetDao = yrkesaktivitetDao,
         personDao = personDao,
+        tilkommenInntektDao = tilkommenInntektDao,
     ).settBeregning(
         referanse = ref,
         saksbehandler = saksbehandler,

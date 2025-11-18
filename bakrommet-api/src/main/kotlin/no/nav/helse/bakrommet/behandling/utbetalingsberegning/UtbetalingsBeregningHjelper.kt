@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
@@ -28,6 +29,7 @@ class UtbetalingsBeregningHjelper(
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
     private val personDao: PersonDao,
+    private val tilkommenInntektDao: TilkommenInntektDao,
 ) {
     fun settBeregning(
         referanse: SaksbehandlingsperiodeReferanse,
@@ -39,16 +41,19 @@ class UtbetalingsBeregningHjelper(
             personDao.hentNaturligIdent(periode.spilleromPersonId)
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
-            sykepengegrunnlagDao.finnSykepengegrunnlag(periode.sykepengegrunnlagId ?: return)?.sykepengegrunnlag ?: return
+            sykepengegrunnlagDao.finnSykepengegrunnlag(periode.sykepengegrunnlagId ?: return)?.sykepengegrunnlag
+                ?: return
 
         // Hent yrkesaktivitet
         val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
 
+        val tilkommenInntekt = tilkommenInntektDao.hentForBehandling(periode.id)
         // Opprett input for beregning
         val beregningInput =
             UtbetalingsberegningInput(
                 sykepengegrunnlag = sykepengegrunnlag,
                 yrkesaktivitet = yrkesaktiviteter,
+                tilkommenInntekt = tilkommenInntekt,
                 saksbehandlingsperiode =
                     PeriodeDto(
                         fom = periode.fom,
@@ -68,7 +73,11 @@ class UtbetalingsBeregningHjelper(
                 tidligereBeregning?.beregningData?.spilleromOppdrag?.spilleromUtbetalingId
             }
         val spilleromUtbetalingId = spilleromUtbetalingIdViRevurderer ?: UUID.randomUUID().toString()
-        val beregningData = BeregningData(beregnet, oppdrag.tilSpilleromoppdrag(fnr = ident, spilleromUtbetalingId = spilleromUtbetalingId))
+        val beregningData =
+            BeregningData(
+                beregnet,
+                oppdrag.tilSpilleromoppdrag(fnr = ident, spilleromUtbetalingId = spilleromUtbetalingId),
+            )
 
         // Opprett response
         val beregningResponse =

@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.behandling.tilkommen
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
+import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -43,7 +44,9 @@ class TilkommenInntektService(
                     opprettetAvNavIdent = saksbehandler.navIdent,
                 )
 
-            tilkommenInntektDao.opprett(tilkommenInntektDbRecord)
+            tilkommenInntektDao.opprett(tilkommenInntektDbRecord).also {
+                beregnUtbetaling(ref, saksbehandler)
+            }
         }
 
     suspend fun slettTilkommenInntekt(

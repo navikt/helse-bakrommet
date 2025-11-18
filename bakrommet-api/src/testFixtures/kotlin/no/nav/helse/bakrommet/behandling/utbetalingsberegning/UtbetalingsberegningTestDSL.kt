@@ -109,6 +109,7 @@ class UtbetalingsberegningTestBuilder {
             yrkesaktivitet = yrkesaktivitetListe,
             saksbehandlingsperiode = periode,
             arbeidsgiverperiode = arbeidsgiverperiode,
+            tilkommenInntekt = emptyList(),
         )
     }
 }
