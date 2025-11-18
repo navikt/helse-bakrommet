@@ -24,7 +24,6 @@ val bosseBunntrål =
                     fom = LocalDate.of(2025, 6, 9),
                     tom = LocalDate.of(2025, 6, 15),
                 ) {
-                    id = "1b002e4f-1559-3415-a940-56eddf83e4d3"
                     type = SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
                     status = SoknadsstatusDTO.SENDT
                     arbeidssituasjon = ArbeidssituasjonDTO.FISKER

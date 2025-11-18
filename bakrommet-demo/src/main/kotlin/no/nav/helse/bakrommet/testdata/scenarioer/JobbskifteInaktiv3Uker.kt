@@ -105,7 +105,7 @@ val jobbskifteInaktiv3uker =
                             fom = LocalDate.of(2025, 9, 30),
                             tom = LocalDate.of(2025, 10, 30),
                         ) {
-                            id = UUID.randomUUID().toString()
+                            id = UUID.randomUUID()
                             type = SoknadstypeDTO.ARBEIDSTAKERE
                             status = SoknadsstatusDTO.SENDT
                             arbeidstaker(klonelabben)

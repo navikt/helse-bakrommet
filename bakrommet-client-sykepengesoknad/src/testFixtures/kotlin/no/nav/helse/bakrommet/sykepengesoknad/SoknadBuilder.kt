@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class SoknadDsl(
-    var id: String = UUID.randomUUID().toString(),
+    var id: UUID = UUID.randomUUID(),
     var fnr: String,
     var type: SoknadstypeDTO = SoknadstypeDTO.ARBEIDSTAKERE,
     var status: SoknadsstatusDTO = SoknadsstatusDTO.SENDT,
@@ -41,7 +41,7 @@ class SoknadDsl(
         val sendtNavDato = sendtNav ?: tom.plusDays(1)
 
         return SykepengesoknadDTO(
-            id = id,
+            id = id.toString(),
             fnr = fnr,
             type = type,
             status = status,

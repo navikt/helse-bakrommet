@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
 
-private val søknadsid = UUID.randomUUID().toString()
+private val søknadsid = UUID.randomUUID()
 
 private val inntektData =
     genererAinntektsdata(

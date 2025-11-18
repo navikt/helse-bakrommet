@@ -17,10 +17,10 @@ import java.time.YearMonth
 import java.util.UUID
 
 private val fnr = "15078712345"
-private val arbeidstakerSøknadIdNov = UUID.randomUUID().toString()
-private val selvstendigSøknadIdDes = UUID.randomUUID().toString()
-private val arbeidstakerSøknadIdJan = UUID.randomUUID().toString()
-private val selvstendigSøknadIdJan = UUID.randomUUID().toString()
+private val arbeidstakerSøknadIdNov = UUID.randomUUID()
+private val selvstendigSøknadIdDes = UUID.randomUUID()
+private val arbeidstakerSøknadIdJan = UUID.randomUUID()
+private val selvstendigSøknadIdJan = UUID.randomUUID()
 
 private val arbeidstakerInntektData =
     genererAinntektsdata(

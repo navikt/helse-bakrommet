@@ -80,7 +80,7 @@ val jobbskifteInaktivSykmeldt =
                             fom = LocalDate.of(2025, 9, 20),
                             tom = LocalDate.of(2025, 10, 20),
                         ) {
-                            id = UUID.randomUUID().toString()
+                            id = UUID.randomUUID()
                             type = SoknadstypeDTO.ARBEIDSLEDIG
                             status = SoknadsstatusDTO.SENDT
                             arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSLEDIG // Ikke i jobb på sykmeldingstidspunktet

@@ -89,7 +89,7 @@ val tidsbegrensetArbeidsforhold =
                             fom = LocalDate.of(2025, 7, 7),
                             tom = LocalDate.of(2025, 8, 4),
                         ) {
-                            id = UUID.randomUUID().toString()
+                            id = UUID.randomUUID()
                             type = SoknadstypeDTO.ARBEIDSTAKERE
                             status = SoknadsstatusDTO.SENDT
                             arbeidstaker(veihjelpenAS)

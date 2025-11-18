@@ -6,6 +6,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import java.time.LocalDate
+import java.util.UUID
 
 val mattisMatros =
     Testperson(
@@ -23,7 +24,7 @@ val mattisMatros =
                     fom = LocalDate.of(2025, 6, 1),
                     tom = LocalDate.of(2025, 6, 24),
                 ) {
-                    id = "ab0c5c03-0acf-3e42-a0cc-fa74281d5bba"
+                    id = UUID.randomUUID()
                     type = SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
                     status = SoknadsstatusDTO.SENDT
                     arbeidssituasjon = ArbeidssituasjonDTO.FRILANSER

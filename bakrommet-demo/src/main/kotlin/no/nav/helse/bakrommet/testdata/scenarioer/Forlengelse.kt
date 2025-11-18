@@ -44,8 +44,8 @@ private val inntektsmeldinger =
     )
 
 // Søknads-IDer
-private val førsteSøknadId = UUID.randomUUID().toString()
-private val andreSøknadId = UUID.randomUUID().toString()
+private val førsteSøknadId = UUID.randomUUID()
+private val andreSøknadId = UUID.randomUUID()
 
 val forlengelse =
     Testscenario(
@@ -111,7 +111,7 @@ val forlengelse =
                         Saksbehandingsperiode(
                             fom = LocalDate.of(2025, 5, 1),
                             tom = LocalDate.of(2025, 5, 31),
-                            søknadIder = listOf(førsteSøknadId),
+                            søknadIder = setOf(førsteSøknadId),
                             avsluttet = true,
                             inntektRequest =
                                 InntektRequest.Arbeidstaker(
@@ -124,7 +124,7 @@ val forlengelse =
                         Saksbehandingsperiode(
                             fom = LocalDate.of(2025, 6, 1),
                             tom = LocalDate.of(2025, 6, 30),
-                            søknadIder = listOf(andreSøknadId),
+                            søknadIder = setOf(andreSøknadId),
                         ),
                     ),
             ),

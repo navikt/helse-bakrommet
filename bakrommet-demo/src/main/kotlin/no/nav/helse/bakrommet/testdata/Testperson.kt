@@ -8,6 +8,7 @@ import no.nav.helse.juli
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 import java.time.LocalDate
 import java.time.Year
+import java.util.UUID
 
 data class Testperson(
     val fnr: String,
@@ -35,7 +36,7 @@ data class Testperson(
 data class Saksbehandingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
-    val søknadIder: List<String> = emptyList(),
+    val søknadIder: Set<UUID> = emptySet(),
     val avsluttet: Boolean = false,
     val inntektRequest: InntektRequest? = null,
 )

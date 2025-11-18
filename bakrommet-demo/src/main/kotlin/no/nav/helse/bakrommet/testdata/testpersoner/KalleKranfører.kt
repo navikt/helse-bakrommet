@@ -18,6 +18,16 @@ import java.time.LocalDate
 import java.util.*
 
 private val kalleFnr = "12345678901"
+val SOKNAD_ID_1 = UUID.randomUUID()
+val SOKNAD_ID_2 = UUID.randomUUID()
+val SOKNAD_ID_3 = UUID.randomUUID()
+val SOKNAD_ID_4 = UUID.randomUUID()
+val SOKNAD_ID_5 = UUID.randomUUID()
+val SOKNAD_ID_6 = UUID.randomUUID()
+val SOKNAD_ID_7 = UUID.randomUUID()
+val SOKNAD_ID_8 = UUID.randomUUID()
+val SOKNAD_ID_9 = UUID.randomUUID()
+
 val kalleKranfører =
     Testperson(
         fnr = kalleFnr,
@@ -55,12 +65,12 @@ val kalleKranfører =
                 Saksbehandingsperiode(
                     fom = LocalDate.of(2025, 1, 1),
                     tom = LocalDate.of(2025, 2, 28),
-                    søknadIder = listOf("3", "4", "5"),
+                    søknadIder = setOf(SOKNAD_ID_3, SOKNAD_ID_4, SOKNAD_ID_5),
                 ),
                 Saksbehandingsperiode(
                     fom = LocalDate.of(2024, 8, 2),
                     tom = LocalDate.of(2024, 8, 9),
-                    søknadIder = listOf("1"),
+                    søknadIder = setOf(SOKNAD_ID_1),
                     avsluttet = true,
                     inntektRequest =
                         InntektRequest.Arbeidstaker(
@@ -79,7 +89,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2024, 8, 2),
                     tom = LocalDate.of(2024, 8, 9),
                 ) {
-                    id = "1"
+                    id = SOKNAD_ID_1
                     arbeidsgiverNavn = "Kranførerkompaniet"
                     arbeidsgiverOrgnummer = "987654321"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -89,7 +99,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2024, 8, 10),
                     tom = LocalDate.of(2024, 9, 22),
                 ) {
-                    id = "2"
+                    id = SOKNAD_ID_2
                     arbeidsgiverNavn = "Kranførerkompaniet"
                     arbeidsgiverOrgnummer = "987654321"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -99,7 +109,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2025, 1, 1),
                     tom = LocalDate.of(2025, 1, 31),
                 ) {
-                    id = "3"
+                    id = SOKNAD_ID_3
                     arbeidsgiverNavn = "Kranførerkompaniet"
                     arbeidsgiverOrgnummer = "987654321"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -109,7 +119,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2025, 2, 1),
                     tom = LocalDate.of(2025, 2, 28),
                 ) {
-                    id = "4"
+                    id = SOKNAD_ID_4
                     arbeidsgiverNavn = "Kranførerkompaniet"
                     arbeidsgiverOrgnummer = "987654321"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -119,7 +129,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2025, 1, 1),
                     tom = LocalDate.of(2025, 1, 31),
                 ) {
-                    id = "5"
+                    id = SOKNAD_ID_5
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -129,7 +139,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2024, 1, 1),
                     tom = LocalDate.of(2024, 1, 31),
                 ) {
-                    id = "6"
+                    id = SOKNAD_ID_6
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -139,7 +149,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 31),
                 ) {
-                    id = "7"
+                    id = SOKNAD_ID_7
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -149,7 +159,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2025, 9, 1),
                     tom = LocalDate.of(2025, 9, 20),
                 ) {
-                    id = "8"
+                    id = SOKNAD_ID_8
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -159,7 +169,7 @@ val kalleKranfører =
                     fom = LocalDate.of(2025, 9, 21),
                     tom = LocalDate.of(2025, 9, 30),
                 ) {
-                    id = "9"
+                    id = SOKNAD_ID_9
                     arbeidsgiverNavn = "Krankompisen"
                     arbeidsgiverOrgnummer = "123456789"
                     arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER

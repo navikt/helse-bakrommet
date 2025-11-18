@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
+import java.util.UUID
 
 val muggeMcMurstein =
     Testperson(
@@ -40,7 +41,7 @@ private fun generateMuggeSoknader(): List<SykepengesoknadDTO> {
                 fom = fom1,
                 tom = tom1,
             ) {
-                id = "mugge-1-${i + 1}"
+                id = UUID.randomUUID()
                 arbeidsgiverNavn = arbeidsgiver1.navn
                 arbeidsgiverOrgnummer = arbeidsgiver1.orgnummer
                 arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
@@ -62,7 +63,7 @@ private fun generateMuggeSoknader(): List<SykepengesoknadDTO> {
                 fom = fom2,
                 tom = tom2,
             ) {
-                id = "mugge-2-${i + 1}"
+                id = UUID.randomUUID()
                 arbeidsgiverNavn = arbeidsgiver2.navn
                 arbeidsgiverOrgnummer = arbeidsgiver2.orgnummer
                 arbeidssituasjon = ArbeidssituasjonDTO.ARBEIDSTAKER
