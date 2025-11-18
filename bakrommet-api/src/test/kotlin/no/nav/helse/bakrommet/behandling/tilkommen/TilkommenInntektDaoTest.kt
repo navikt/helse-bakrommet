@@ -62,13 +62,12 @@ class TilkommenInntektDaoTest {
         val eksisterende = dao.opprett(nyTilkommenInntekt())
         val oppdatert =
             dao.oppdater(
-                eksisterende.copy(
-                    tilkommenInntekt =
-                        eksisterende.tilkommenInntekt.copy(
-                            inntektForPerioden = BigDecimal("4000.00"),
-                            notatTilBeslutter = "Oppdatert notat",
-                        ),
-                ),
+                id = eksisterende.id,
+                tilkommenInntekt =
+                    eksisterende.tilkommenInntekt.copy(
+                        inntektForPerioden = BigDecimal("4000.00"),
+                        notatTilBeslutter = "Oppdatert notat",
+                    ),
             )
 
         assertEquals(BigDecimal("4000.00"), oppdatert.tilkommenInntekt.inntektForPerioden)

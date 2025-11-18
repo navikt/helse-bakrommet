@@ -11,6 +11,11 @@ import java.util.*
 
 interface TilkommenInntektServiceDaoer : Beregningsdaoer
 
+data class TilkommenInntektReferanse(
+    val behandling: SaksbehandlingsperiodeReferanse,
+    val tilkommenInntektId: UUID,
+)
+
 class TilkommenInntektService(
     private val db: DbDaoer<TilkommenInntektServiceDaoer>,
 ) {
@@ -42,13 +47,33 @@ class TilkommenInntektService(
         }
 
     suspend fun slettTilkommenInntekt(
-        ref: SaksbehandlingsperiodeReferanse,
-        tilkommenInntektId: UUID,
+        ref: TilkommenInntektReferanse,
         saksbehandler: Bruker,
     ) {
         db.transactional {
-            val behandling = behandlingDao.hentPeriode(ref, saksbehandler.erSaksbehandlerPåSaken())
-            tilkommenInntektDao.slett(behandlingId = behandling.id, id = tilkommenInntektId)
+            val behandling = behandlingDao.hentPeriode(ref.behandling, saksbehandler.erSaksbehandlerPåSaken())
+            tilkommenInntektDao.slett(behandlingId = behandling.id, id = ref.tilkommenInntektId)
         }
     }
+
+    suspend fun endreTilkommenInntekt(
+        ref: TilkommenInntektReferanse,
+        tilkommenInntekt: TilkommenInntekt,
+        saksbehandler: Bruker,
+    ): TilkommenInntektDbRecord =
+        db.transactional {
+            val behandling = behandlingDao.hentPeriode(ref.behandling, saksbehandler.erSaksbehandlerPåSaken())
+            val tilkommenInntektId = ref.tilkommenInntektId
+            tilkommenInntektDao
+                .hent(tilkommenInntektId)
+                .also {
+                    requireNotNull(it) {
+                        "Fant ingen TilkommenInntekt med id $tilkommenInntektId"
+                    }
+                    require(behandling.id == it.behandlingId) {
+                        "TilkommenInntekt med id $tilkommenInntektId hører ikke til behandling ${behandling.id}"
+                    }
+                }
+            tilkommenInntektDao.oppdater(tilkommenInntektId, tilkommenInntekt)
+        }
 }

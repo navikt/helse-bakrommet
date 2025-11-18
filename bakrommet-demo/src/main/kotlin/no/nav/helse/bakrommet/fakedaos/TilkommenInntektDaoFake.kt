@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.fakedaos
 
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntekt
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
 import java.util.UUID
@@ -15,12 +16,17 @@ class TilkommenInntektDaoFake : TilkommenInntektDao {
 
     override fun hentForBehandling(behandlingId: UUID): List<TilkommenInntektDbRecord> = storage.values.filter { it.behandlingId == behandlingId }
 
-    override fun oppdater(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord {
-        if (!storage.contains(tilkommenInntektDbRecord.id)) {
-            throw IllegalArgumentException("TilkommenInntekt med id ${tilkommenInntektDbRecord.id} finnes ikke og kan derfor ikke oppdateres.")
+    override fun oppdater(
+        id: UUID,
+        tilkommenInntekt: TilkommenInntekt,
+    ): TilkommenInntektDbRecord {
+        if (!storage.contains(id)) {
+            throw IllegalArgumentException("TilkommenInntekt med id $id finnes ikke og kan derfor ikke oppdateres.")
         }
-        storage[tilkommenInntektDbRecord.id] = tilkommenInntektDbRecord
-        return tilkommenInntektDbRecord
+        val existingRecord = storage[id]!!
+        val updatedRecord = existingRecord.copy(tilkommenInntekt = tilkommenInntekt)
+        storage[id] = updatedRecord
+        return updatedRecord
     }
 
     override fun slett(
@@ -32,4 +38,6 @@ class TilkommenInntektDaoFake : TilkommenInntektDao {
         }
         storage.remove(id)
     }
+
+    override fun hent(id: UUID): TilkommenInntektDbRecord? = storage[id]
 }

@@ -42,12 +42,17 @@ interface TilkommenInntektDao {
 
     fun hentForBehandling(behandlingId: UUID): List<TilkommenInntektDbRecord>
 
-    fun oppdater(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord
+    fun oppdater(
+        id: UUID,
+        tilkommenInntekt: TilkommenInntekt,
+    ): TilkommenInntektDbRecord
 
     fun slett(
         behandlingId: UUID,
         id: UUID,
     )
+
+    fun hent(id: UUID): TilkommenInntektDbRecord?
 }
 
 class TilkommenInntektDaoPg private constructor(
@@ -85,19 +90,20 @@ class TilkommenInntektDaoPg private constructor(
             mapper = ::tilkommenInntektFraRad,
         )
 
-    override fun oppdater(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord {
+    override fun oppdater(
+        id: UUID,
+        tilkommenInntekt: TilkommenInntekt,
+    ): TilkommenInntektDbRecord {
         db.update(
             """
             update tilkommen_inntekt
-               set tilkommen_inntekt = :tilkommen_inntekt,
-                   opprettet_av_nav_ident = :opprettet_av_nav_ident
+               set tilkommen_inntekt = :tilkommen_inntekt
              where id = :id
             """.trimIndent(),
-            "id" to tilkommenInntektDbRecord.id,
-            "tilkommen_inntekt" to tilkommenInntektDbRecord.tilkommenInntekt.serialisertTilString(),
-            "opprettet_av_nav_ident" to tilkommenInntektDbRecord.opprettetAvNavIdent,
+            "id" to id,
+            "tilkommen_inntekt" to tilkommenInntekt.serialisertTilString(),
         )
-        return hent(tilkommenInntektDbRecord.id)!!
+        return hent(id)!!
     }
 
     override fun slett(
@@ -120,7 +126,7 @@ class TilkommenInntektDaoPg private constructor(
             }
     }
 
-    private fun hent(id: UUID): TilkommenInntektDbRecord? =
+    override fun hent(id: UUID): TilkommenInntektDbRecord? =
         db.single(
             """
             select id, behandling_id, tilkommen_inntekt, opprettet, opprettet_av_nav_ident

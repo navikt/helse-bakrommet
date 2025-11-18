@@ -26,6 +26,8 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.sykepengegrunnlagRoute
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektService
+import no.nav.helse.bakrommet.behandling.tilkommen.tilkommenInntektRoute
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
@@ -143,6 +145,7 @@ fun Route.setupRoutes(
     beregningRoute(service = services.utbetalingsberegningService)
     brukerRoute()
     organisasjonRoute(services.organisasjonService)
+    tilkommenInntektRoute(services.tilkommenInntektService)
 }
 
 class Clienter(
@@ -193,6 +196,7 @@ data class Services(
     val utbetalingsberegningService: UtbetalingsberegningService,
     val personIdService: PersonIdService,
     val organisasjonService: OrganisasjonService,
+    val tilkommenInntektService: TilkommenInntektService,
 )
 
 fun createServices(
@@ -237,6 +241,7 @@ fun createServices(
         utbetalingsberegningService = UtbetalingsberegningService(db),
         personIdService = PersonIdService(db),
         organisasjonService = OrganisasjonService(clienter.eregClient),
+        tilkommenInntektService = TilkommenInntektService(db),
     )
 }
 
