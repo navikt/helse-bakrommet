@@ -203,6 +203,7 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                     tom = behandling.tom,
                                     behandlingId = behandling.id,
                                     tilkommenInntektId = ti.id,
+                                    status = behandling.status,
                                 ),
                             ),
                     ),
@@ -231,6 +232,7 @@ private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<Tidslinje
                         tidslinjeElementer = rader.flatMap { it.tidslinjeElementer } as List<BehandlingTidslinjeElement>,
                     )
                 }
+
                 is SykmeldtYrkesaktivitet -> {
                     SykmeldtYrkesaktivitet(
                         id = førsteRad.id,
@@ -238,6 +240,7 @@ private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<Tidslinje
                         tidslinjeElementer = rader.flatMap { (it as SykmeldtYrkesaktivitet).tidslinjeElementer },
                     )
                 }
+
                 is Ghost -> {
                     Ghost(
                         id = førsteRad.id,
@@ -245,6 +248,7 @@ private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<Tidslinje
                         tidslinjeElementer = rader.flatMap { (it as Ghost).tidslinjeElementer },
                     )
                 }
+
                 is TilkommenInntekt -> {
                     TilkommenInntekt(
                         id = førsteRad.id,
@@ -265,28 +269,32 @@ data class TilkommenInntektTidslinjeElement(
     override val tom: LocalDate,
     override val behandlingId: UUID,
     val tilkommenInntektId: UUID,
+    override val status: BehandlingStatus,
 ) : BehandlingTidslinjeElement(
         fom = fom,
         tom = tom,
         behandlingId = behandlingId,
+        status = status,
     )
 
 data class YrkesaktivitetTidslinjeElement(
     override val fom: LocalDate,
     override val tom: LocalDate,
     override val behandlingId: UUID,
+    override val status: BehandlingStatus,
     val yrkesaktivitetId: UUID,
-    val status: BehandlingStatus,
 ) : BehandlingTidslinjeElement(
         fom = fom,
         tom = tom,
         behandlingId = behandlingId,
+        status = status,
     )
 
 open class BehandlingTidslinjeElement(
     override val fom: LocalDate,
     override val tom: LocalDate,
     open val behandlingId: UUID,
+    open val status: BehandlingStatus,
 ) : TidslinjeElement()
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "tidslinjeRadType")
