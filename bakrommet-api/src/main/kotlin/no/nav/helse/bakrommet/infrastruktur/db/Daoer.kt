@@ -21,6 +21,7 @@ import no.nav.helse.bakrommet.kafka.OutboxDaoPg
 import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.person.PersonIdServiceDaoer
 import no.nav.helse.bakrommet.person.PersonsokDaoer
+import no.nav.helse.bakrommet.tidslinje.TidslinjeServiceDaoer
 import javax.sql.DataSource
 
 interface AlleDaoer :
@@ -33,7 +34,8 @@ interface AlleDaoer :
     PersonsokDaoer,
     PersonIdServiceDaoer,
     UtbetalingsberegningDaoer,
-    TilkommenInntektServiceDaoer
+    TilkommenInntektServiceDaoer,
+    TidslinjeServiceDaoer
 
 class DaoerFelles(
     dataSource: DataSource,

@@ -35,6 +35,12 @@ data class YrkesaktivitetDbRecord(
     val refusjon: List<Refusjonsperiode>? = null,
 )
 
+data class YrkesaktivitetForenkletDbRecord(
+    val id: UUID,
+    val kategorisering: YrkesaktivitetKategorisering,
+    val behandlingId: UUID,
+)
+
 data class Refusjonsperiode(
     val fom: LocalDate,
     val tom: LocalDate?,
@@ -140,6 +146,8 @@ interface YrkesaktivitetDao {
         yrkesaktivitetID: UUID,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord
+
+    fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord>
 }
 
 class YrkesaktivitetDaoPg private constructor(
@@ -368,5 +376,24 @@ class YrkesaktivitetDaoPg private constructor(
             "refusjon" to refusjonsdata?.serialisertTilString(),
         )
         return hentYrkesaktivitetDbRecord(yrkesaktivitetID)!!
+    }
+
+    override fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord> {
+        if (map.isEmpty()) return emptyList()
+        val params = map.mapIndexed { i, id -> "p$i" to id }
+        val placeholderList = params.joinToString(",") { ":${it.first}" }
+        return db.list(
+            """
+            select id, kategorisering, behandling_id from yrkesaktivitet where behandling_id IN ($placeholderList)
+            """.trimIndent(),
+            *params.toTypedArray(),
+            mapper = { row ->
+                YrkesaktivitetForenkletDbRecord(
+                    id = row.uuid("id"),
+                    kategorisering = objectMapper.readValue(row.string("kategorisering"), YrkesaktivitetKategorisering::class.java),
+                    behandlingId = row.uuid("behandling_id"),
+                )
+            },
+        )
     }
 }

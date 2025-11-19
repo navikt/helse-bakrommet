@@ -196,6 +196,10 @@ val regler =
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/tilkommeninntekt/{tilkommenInntektId}/(method:DELETE)",
             role = setOf(SAKSBEHANDLER),
         ),
+        Rule(
+            path = "/v1/{personId}/tidslinje/(method:GET)",
+            role = setOf(SAKSBEHANDLER, BESLUTTER, LES),
+        ),
     )
 
 val RolleMatrise =

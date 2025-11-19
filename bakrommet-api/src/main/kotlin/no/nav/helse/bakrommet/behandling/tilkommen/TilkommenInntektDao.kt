@@ -53,6 +53,8 @@ interface TilkommenInntektDao {
     )
 
     fun hent(id: UUID): TilkommenInntektDbRecord?
+
+    fun finnTilkommenInntektForBehandlinger(map: List<UUID>): List<TilkommenInntektDbRecord>
 }
 
 class TilkommenInntektDaoPg private constructor(
@@ -136,6 +138,21 @@ class TilkommenInntektDaoPg private constructor(
             "id" to id,
             mapper = ::tilkommenInntektFraRad,
         )
+
+    override fun finnTilkommenInntektForBehandlinger(map: List<UUID>): List<TilkommenInntektDbRecord> {
+        if (map.isEmpty()) return emptyList()
+        val params = map.mapIndexed { i, id -> "p$i" to id }
+        val placeholderList = params.joinToString(",") { ":${it.first}" }
+        return db.list(
+            """
+            select id, behandling_id, tilkommen_inntekt, opprettet, opprettet_av_nav_ident
+            from tilkommen_inntekt
+            where behandling_id IN ($placeholderList)
+            """.trimIndent(),
+            *params.toTypedArray(),
+            mapper = ::tilkommenInntektFraRad,
+        )
+    }
 
     private fun tilkommenInntektFraRad(row: Row) =
         TilkommenInntektDbRecord(

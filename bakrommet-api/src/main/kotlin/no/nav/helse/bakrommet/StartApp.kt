@@ -57,6 +57,8 @@ import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
+import no.nav.helse.bakrommet.tidslinje.TidslinjeService
+import no.nav.helse.bakrommet.tidslinje.tidslinjeRoute
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.Logger
@@ -146,6 +148,7 @@ fun Route.setupRoutes(
     brukerRoute()
     organisasjonRoute(services.organisasjonService)
     tilkommenInntektRoute(services.tilkommenInntektService)
+    tidslinjeRoute(services.tidslinjeService)
 }
 
 class Clienter(
@@ -197,6 +200,7 @@ data class Services(
     val personIdService: PersonIdService,
     val organisasjonService: OrganisasjonService,
     val tilkommenInntektService: TilkommenInntektService,
+    val tidslinjeService: TidslinjeService,
 )
 
 fun createServices(
@@ -242,6 +246,7 @@ fun createServices(
         personIdService = PersonIdService(db),
         organisasjonService = OrganisasjonService(clienter.eregClient),
         tilkommenInntektService = TilkommenInntektService(db),
+        tidslinjeService = TidslinjeService(db, clienter.eregClient),
     )
 }
 

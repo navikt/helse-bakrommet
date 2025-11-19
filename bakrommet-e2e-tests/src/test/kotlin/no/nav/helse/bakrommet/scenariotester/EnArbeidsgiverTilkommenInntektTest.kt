@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Scenario
 import no.nav.helse.bakrommet.testutils.SkjønnsfastsattManglendeRapportering
 import no.nav.helse.bakrommet.testutils.SykAlleDager
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentTidslinje
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.leggTilTilkommenInntekt
 import no.nav.helse.bakrommet.testutils.`should equal`
@@ -24,7 +25,7 @@ class EnArbeidsgiverTilkommenInntektTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "888888888",
                         inntekt = SkjønnsfastsattManglendeRapportering(260000.0),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -56,6 +57,10 @@ class EnArbeidsgiverTilkommenInntektTest {
                     .beregningData.spilleromOppdrag.oppdrag
                     .first()
                     .totalbeløp `should equal` 1000
+
+                hentTidslinje(personId).also { tidslinje ->
+                    tidslinje.size `should equal` 2
+                }
             }
         }
     }

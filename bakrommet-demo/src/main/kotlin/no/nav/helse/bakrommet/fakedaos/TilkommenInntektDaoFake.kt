@@ -40,4 +40,6 @@ class TilkommenInntektDaoFake : TilkommenInntektDao {
     }
 
     override fun hent(id: UUID): TilkommenInntektDbRecord? = storage[id]
+
+    override fun finnTilkommenInntektForBehandlinger(map: List<UUID>): List<TilkommenInntektDbRecord> = storage.values.filter { map.contains(it.behandlingId) }
 }
