@@ -199,8 +199,8 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                         tidslinjeElementer =
                             listOf(
                                 TilkommenInntektTidslinjeElement(
-                                    fom = behandling.fom,
-                                    tom = behandling.tom,
+                                    fom = ti.tilkommenInntekt.fom,
+                                    tom = ti.tilkommenInntekt.tom,
                                     behandlingId = behandling.id,
                                     tilkommenInntektId = ti.id,
                                     status = behandling.status,
