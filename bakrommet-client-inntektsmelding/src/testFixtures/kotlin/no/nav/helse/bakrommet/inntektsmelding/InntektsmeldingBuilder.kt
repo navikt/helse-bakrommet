@@ -176,6 +176,7 @@ fun skapInntektsmelding(
     refusjon: Refusjon = Refusjon(beloepPrMnd = BigDecimal("0.00"), opphoersdato = null),
     endringIRefusjoner: List<EndringIRefusjon> = emptyList(),
     arbeidsgiverperioder: List<Periode> = listOf(Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 16))),
+    mottattDato: LocalDateTime = LocalDateTime.of(2025, 5, 5, 13, 58, 1),
     block: (InntektsmeldingBuilder.() -> Unit)? = null,
 ): Inntektsmelding =
     InntektsmeldingBuilder(
@@ -187,4 +188,5 @@ fun skapInntektsmelding(
         refusjon = refusjon,
         endringIRefusjoner = endringIRefusjoner,
         arbeidsgiverperioder = arbeidsgiverperioder,
+        mottattDato = mottattDato,
     ).apply { block?.invoke(this) }.build()

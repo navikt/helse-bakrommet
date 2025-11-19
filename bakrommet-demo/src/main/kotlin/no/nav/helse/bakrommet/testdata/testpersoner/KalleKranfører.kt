@@ -15,6 +15,7 @@ import no.nav.inntektsmeldingkontrakt.Periode
 import no.nav.inntektsmeldingkontrakt.Refusjon
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 private val kalleFnr = "12345678901"
@@ -39,6 +40,7 @@ val kalleKranfører =
         inntektsmeldinger =
             listOf(
                 skapInntektsmelding(
+                    mottattDato = LocalDateTime.of(2025, 5, 5, 11, 50, 0),
                     inntektsmeldingId = UUID.randomUUID().toString(),
                     organisasjon = kranførerkompaniet,
                     arbeidstakerFnr = kalleFnr,
