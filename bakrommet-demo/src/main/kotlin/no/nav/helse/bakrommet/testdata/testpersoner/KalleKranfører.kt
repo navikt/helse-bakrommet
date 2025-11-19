@@ -57,7 +57,8 @@ val kalleKranfører =
                     månedsinntekt = 50000.0,
                 ),
                 skapInntektsmelding(
-                    UUID.randomUUID().toString(),
+                    inntektsmeldingId = UUID.randomUUID().toString(),
+                    organisasjon = kranførerkompaniet,
                     månedsinntekt = 89000.0,
                     arbeidstakerFnr = kalleFnr,
                 ),
