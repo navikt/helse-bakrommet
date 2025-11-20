@@ -35,7 +35,7 @@ class DokumentHenter(
 ) {
     suspend fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> =
         db.nonTransactional {
-            val periode = behandlingDao.hentPeriode(ref, krav = null)
+            val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
             dokumentDao.hentDokumenterFor(periode.id)
         }
 

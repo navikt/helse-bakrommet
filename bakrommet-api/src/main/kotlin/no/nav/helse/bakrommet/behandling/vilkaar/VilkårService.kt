@@ -54,7 +54,7 @@ class VilkårService(
 ) {
     suspend fun hentVilkårsvurderingerFor(ref: SaksbehandlingsperiodeReferanse): List<VurdertVilkår> =
         db.nonTransactional {
-            val periode = behandlingDao.hentPeriode(ref, krav = null)
+            val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
             vurdertVilkårDao.hentVilkårsvurderinger(periode.id)
         }
 
