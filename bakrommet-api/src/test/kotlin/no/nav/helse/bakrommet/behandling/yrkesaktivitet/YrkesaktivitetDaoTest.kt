@@ -16,7 +16,6 @@ import no.nav.helse.dto.PeriodeDto
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.sql.SQLException
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -103,7 +102,7 @@ class YrkesaktivitetDaoTest {
                 refusjon = null,
             )
 
-        assertThrows<SQLException> {
+        assertThrows<IllegalStateException> {
             dao.opprettYrkesaktivitet(
                 id = yrkesaktivitetDbRecord.id,
                 kategorisering = yrkesaktivitetDbRecord.kategorisering,

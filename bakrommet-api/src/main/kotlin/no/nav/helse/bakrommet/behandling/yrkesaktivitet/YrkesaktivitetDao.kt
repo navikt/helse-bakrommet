@@ -157,6 +157,7 @@ private val verifiserOppdatert: (Int) -> Unit = {
 }
 
 private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = yrkesaktivitet.behandling_id) = 'UNDER_BEHANDLING'"
+private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :behandling_id and status = 'UNDER_BEHANDLING')"
 
 class YrkesaktivitetDaoPg private constructor(
     private val db: QueryRunner,
@@ -192,29 +193,31 @@ class YrkesaktivitetDaoPg private constructor(
                 inntektData = inntektData,
                 refusjon = refusjonsdata,
             )
-        db.update(
-            """
-            insert into yrkesaktivitet
-                (id, kategorisering, kategorisering_generert,
-                dagoversikt, dagoversikt_generert,
-                behandling_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon)
-            values
-                (:id, :kategorisering, :kategorisering_generert,
-                :dagoversikt, :dagoversikt_generert,
-                :behandling_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon)
-            """.trimIndent(),
-            "id" to yrkesaktivitetDbRecord.id,
-            "kategorisering" to yrkesaktivitetDbRecord.kategorisering.serialisertTilString(),
-            "kategorisering_generert" to yrkesaktivitetDbRecord.kategoriseringGenerert?.serialisertTilString(),
-            "dagoversikt" to yrkesaktivitetDbRecord.dagoversikt?.serialisertTilString(),
-            "dagoversikt_generert" to yrkesaktivitetDbRecord.dagoversiktGenerert?.serialisertTilString(),
-            "behandling_id" to yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
-            "opprettet" to yrkesaktivitetDbRecord.opprettet,
-            "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
-            "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
-            "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.serialisertTilString(),
-            "refusjon" to yrkesaktivitetDbRecord.refusjon?.serialisertTilString(),
-        )
+        db
+            .update(
+                """
+                insert into yrkesaktivitet
+                    (id, kategorisering, kategorisering_generert,
+                    dagoversikt, dagoversikt_generert,
+                    behandling_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon)
+                select
+                    :id, :kategorisering, :kategorisering_generert,
+                    :dagoversikt, :dagoversikt_generert,
+                    :behandling_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon
+                $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
+                """.trimIndent(),
+                "id" to yrkesaktivitetDbRecord.id,
+                "kategorisering" to yrkesaktivitetDbRecord.kategorisering.serialisertTilString(),
+                "kategorisering_generert" to yrkesaktivitetDbRecord.kategoriseringGenerert?.serialisertTilString(),
+                "dagoversikt" to yrkesaktivitetDbRecord.dagoversikt?.serialisertTilString(),
+                "dagoversikt_generert" to yrkesaktivitetDbRecord.dagoversiktGenerert?.serialisertTilString(),
+                "behandling_id" to yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
+                "opprettet" to yrkesaktivitetDbRecord.opprettet,
+                "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
+                "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
+                "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.serialisertTilString(),
+                "refusjon" to yrkesaktivitetDbRecord.refusjon?.serialisertTilString(),
+            ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
