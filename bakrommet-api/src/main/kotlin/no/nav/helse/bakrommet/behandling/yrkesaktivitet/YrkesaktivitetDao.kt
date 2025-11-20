@@ -150,6 +150,14 @@ interface YrkesaktivitetDao {
     fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord>
 }
 
+private val verifiserOppdatert: (Int) -> Unit = {
+    if (it == 0) {
+        throw IllegalStateException("Yrkesaktivitet kunne ikke oppdateres")
+    }
+}
+
+private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = yrkesaktivitet.behandling_id) = 'UNDER_BEHANDLING'"
+
 class YrkesaktivitetDaoPg private constructor(
     private val db: QueryRunner,
 ) : YrkesaktivitetDao {
@@ -289,13 +297,15 @@ class YrkesaktivitetDaoPg private constructor(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         kategorisering: YrkesaktivitetKategorisering,
     ): YrkesaktivitetDbRecord {
-        db.update(
-            """
-            update yrkesaktivitet set kategorisering = :kategorisering, inntekt_data=null, inntekt_request=null where id = :id
-            """.trimIndent(),
-            "id" to yrkesaktivitetDbRecord.id,
-            "kategorisering" to kategorisering.serialisertTilString(),
-        )
+        db
+            .update(
+                """
+                update yrkesaktivitet set kategorisering = :kategorisering, inntekt_data=null, inntekt_request=null where id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to yrkesaktivitetDbRecord.id,
+                "kategorisering" to kategorisering.serialisertTilString(),
+            ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
@@ -303,13 +313,15 @@ class YrkesaktivitetDaoPg private constructor(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: List<Dag>,
     ): YrkesaktivitetDbRecord {
-        db.update(
-            """
-            update yrkesaktivitet set dagoversikt = :dagoversikt where id = :id
-            """.trimIndent(),
-            "id" to yrkesaktivitetDbRecord.id,
-            "dagoversikt" to oppdatertDagoversikt.serialisertTilString(),
-        )
+        db
+            .update(
+                """
+                update yrkesaktivitet set dagoversikt = :dagoversikt where id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to yrkesaktivitetDbRecord.id,
+                "dagoversikt" to oppdatertDagoversikt.serialisertTilString(),
+            ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
@@ -317,36 +329,42 @@ class YrkesaktivitetDaoPg private constructor(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         perioder: Perioder?,
     ): YrkesaktivitetDbRecord {
-        db.update(
-            """
-            update yrkesaktivitet set perioder = :perioder where id = :id
-            """.trimIndent(),
-            "id" to yrkesaktivitetDbRecord.id,
-            "perioder" to perioder?.serialisertTilString(),
-        )
+        db
+            .update(
+                """
+                update yrkesaktivitet set perioder = :perioder where id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to yrkesaktivitetDbRecord.id,
+                "perioder" to perioder?.serialisertTilString(),
+            ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
 
     override fun slettYrkesaktivitet(id: UUID) {
-        db.update(
-            """
-            delete from yrkesaktivitet where id = :id
-            """.trimIndent(),
-            "id" to id,
-        )
+        db
+            .update(
+                """
+                delete from yrkesaktivitet where id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to id,
+            ).also(verifiserOppdatert)
     }
 
     override fun oppdaterInntektrequest(
         yrkesaktivitet: Yrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord {
-        db.update(
-            """
-            update yrkesaktivitet set inntekt_request = :inntekt_request where id = :id
-            """.trimIndent(),
-            "id" to yrkesaktivitet.id,
-            "inntekt_request" to request.serialisertTilString(),
-        )
+        db
+            .update(
+                """
+                update yrkesaktivitet set inntekt_request = :inntekt_request where id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to yrkesaktivitet.id,
+                "inntekt_request" to request.serialisertTilString(),
+            ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
 
@@ -354,13 +372,15 @@ class YrkesaktivitetDaoPg private constructor(
         yrkesaktivitet: Yrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord {
-        db.update(
-            """
-            update yrkesaktivitet set inntekt_data = :inntekt_data where id = :id
-            """.trimIndent(),
-            "id" to yrkesaktivitet.id,
-            "inntekt_data" to inntektData.serialisertTilString(),
-        )
+        db
+            .update(
+                """
+                update yrkesaktivitet set inntekt_data = :inntekt_data where id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to yrkesaktivitet.id,
+                "inntekt_data" to inntektData.serialisertTilString(),
+            ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
 
@@ -368,13 +388,15 @@ class YrkesaktivitetDaoPg private constructor(
         yrkesaktivitetID: UUID,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
-        db.update(
-            """
-            update yrkesaktivitet set refusjon = :refusjon where id = :id
-            """.trimIndent(),
-            "id" to yrkesaktivitetID,
-            "refusjon" to refusjonsdata?.serialisertTilString(),
-        )
+        db
+            .update(
+                """
+                update yrkesaktivitet set refusjon = :refusjon where id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to yrkesaktivitetID,
+                "refusjon" to refusjonsdata?.serialisertTilString(),
+            ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetID)!!
     }
 
