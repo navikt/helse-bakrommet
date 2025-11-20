@@ -100,12 +100,13 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                 OpprettetBehandling(
                     tidslinjeElementer =
                         listOf(
-                            BehandlingTidslinjeElement(
+                            TidslinjeElement(
                                 fom = behandling.fom,
                                 tom = behandling.tom,
                                 behandlingId = behandling.id,
                                 status = behandling.status,
                                 skjæringstidspunkt = behandling.skjæringstidspunkt,
+                                historiske = emptyList(),
                             ),
                         ),
                 ),
@@ -158,6 +159,8 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                 status = behandling.status,
                                 ghost = !ya.kategorisering.sykmeldt,
                                 skjæringstidspunkt = behandling.skjæringstidspunkt,
+                                historiske = emptyList(),
+                                historisk = false,
                             ),
                         ),
                 ),
@@ -165,37 +168,42 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
         }
 
         if (behandling.status != BehandlingStatus.REVURDERT) {
-            tilkommenInntekt.filter { it.behandlingId == behandling.id }.forEach { ti ->
-                // TODO sikre at ved overlapp så viser vi bare den som gjelder den man er i?
+            tilkommenInntekt
+                .filter { it.behandlingId == behandling.id }
+                .forEach { ti ->
+                    // TODO sikre at ved overlapp så viser vi bare den som gjelder den man er i?
 
-                tidslinjeRader.add(
-                    TilkommenInntekt(
-                        id = ti.tilkommenInntekt.ident,
-                        navn =
-                            if (ti.tilkommenInntekt.yrkesaktivitetType != TilkommenInntektYrkesaktivitetType.PRIVATPERSON) {
-                                organisasjonsnavnMap[ti.tilkommenInntekt.ident]?.navn ?: "Ukjent arbeidsgiver"
-                            } else {
-                                "Privat " + ti.tilkommenInntekt.ident
-                            },
-                        tidslinjeElementer =
-                            listOf(
-                                TilkommenInntektTidslinjeElement(
-                                    fom = ti.tilkommenInntekt.fom,
-                                    tom = ti.tilkommenInntekt.tom,
-                                    behandlingId = behandling.id,
-                                    tilkommenInntektId = ti.id,
-                                    status = behandling.status,
-                                    skjæringstidspunkt = behandling.skjæringstidspunkt,
+                    tidslinjeRader.add(
+                        TilkommenInntekt(
+                            id = ti.tilkommenInntekt.ident,
+                            navn =
+                                if (ti.tilkommenInntekt.yrkesaktivitetType != TilkommenInntektYrkesaktivitetType.PRIVATPERSON) {
+                                    organisasjonsnavnMap[ti.tilkommenInntekt.ident]?.navn ?: "Ukjent arbeidsgiver"
+                                } else {
+                                    "Privat " + ti.tilkommenInntekt.ident
+                                },
+                            tidslinjeElementer =
+                                listOf(
+                                    TilkommenInntektTidslinjeElement(
+                                        fom = ti.tilkommenInntekt.fom,
+                                        tom = ti.tilkommenInntekt.tom,
+                                        behandlingId = behandling.id,
+                                        tilkommenInntektId = ti.id,
+                                        status = behandling.status,
+                                        skjæringstidspunkt = behandling.skjæringstidspunkt,
+                                        historiske = emptyList(),
+                                    ),
                                 ),
-                            ),
-                    ),
-                )
-            }
+                        ),
+                    )
+                }
         }
     }
 
-    return tidslinjeRader.gruppertPerTidslinjeRadTypeOgId()
+    return tidslinjeRader.gruppertPerTidslinjeRadTypeOgId().grupperInnHistoriske()
 }
+
+private fun List<TidslinjeRad>.grupperInnHistoriske(): List<TidslinjeRad> = this
 
 private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<TidslinjeRad> =
     this
@@ -210,7 +218,7 @@ private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<Tidslinje
             when (førsteRad) {
                 is OpprettetBehandling -> {
                     OpprettetBehandling(
-                        tidslinjeElementer = rader.flatMap { (it as OpprettetBehandling).tidslinjeElementer },
+                        tidslinjeElementer = rader.flatMap { it.tidslinjeElementer },
                     )
                 }
 
@@ -232,11 +240,6 @@ private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<Tidslinje
             }
         }
 
-abstract class TidslinjeElement {
-    abstract val fom: LocalDate
-    abstract val tom: LocalDate
-}
-
 data class TilkommenInntektTidslinjeElement(
     override val fom: LocalDate,
     override val tom: LocalDate,
@@ -244,12 +247,14 @@ data class TilkommenInntektTidslinjeElement(
     override val behandlingId: UUID,
     val tilkommenInntektId: UUID,
     override val status: BehandlingStatus,
-) : BehandlingTidslinjeElement(
+    override val historiske: List<TilkommenInntektTidslinjeElement>,
+) : TidslinjeElement(
         fom = fom,
         tom = tom,
         behandlingId = behandlingId,
         status = status,
         skjæringstidspunkt = skjæringstidspunkt,
+        historiske = historiske,
     )
 
 data class YrkesaktivitetTidslinjeElement(
@@ -258,23 +263,31 @@ data class YrkesaktivitetTidslinjeElement(
     override val skjæringstidspunkt: LocalDate,
     override val behandlingId: UUID,
     override val status: BehandlingStatus,
+    override val historisk: Boolean,
     val yrkesaktivitetId: UUID,
     val ghost: Boolean,
-) : BehandlingTidslinjeElement(
+    override val historiske: List<YrkesaktivitetTidslinjeElement>,
+) : TidslinjeElement(
         fom = fom,
         tom = tom,
         behandlingId = behandlingId,
+        historisk = historisk,
         status = status,
         skjæringstidspunkt = skjæringstidspunkt,
+        historiske = historiske,
     )
 
-open class BehandlingTidslinjeElement(
-    override val fom: LocalDate,
-    override val tom: LocalDate,
+open class TidslinjeElement(
+    open val fom: LocalDate,
+    open val tom: LocalDate,
     open val skjæringstidspunkt: LocalDate,
     open val behandlingId: UUID,
     open val status: BehandlingStatus,
-) : TidslinjeElement()
+    open val historisk: Boolean = false,
+    open val revurderesAv: UUID? = null,
+    open val revurdertAv: UUID? = null,
+    open val historiske: List<TidslinjeElement>,
+)
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "tidslinjeRadType")
 @JsonSubTypes(
@@ -290,7 +303,7 @@ sealed class TidslinjeRad {
     abstract val navn: String
 
     data class OpprettetBehandling(
-        override val tidslinjeElementer: List<BehandlingTidslinjeElement>,
+        override val tidslinjeElementer: List<TidslinjeElement>,
     ) : TidslinjeRad() {
         override val id: String = "OPPRETTET_BEHANDLING"
         override val navn: String = "Opprettet behandling"
