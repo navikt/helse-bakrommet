@@ -191,7 +191,7 @@ internal class SaksbehandlingsperiodeDaoTest {
                 seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(540000.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(540000.0),
                 næringsdel = null,
             )
         val lagretGrunnlag = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, id)

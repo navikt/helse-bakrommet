@@ -43,7 +43,7 @@ class InntektbeløpDtoSerializerTest {
         val sykepengegrunnlag =
             no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(400000.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(400000.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(400000.0),
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
@@ -55,7 +55,7 @@ class InntektbeløpDtoSerializerTest {
 
         // Verifiser at InntektbeløpDto feltene er serialisert som tall, ikke objekter
         assert(json.contains("\"grunnbeløp\":130160.0"))
-        assert(json.contains("\"totaltInntektsgrunnlag\":400000.0"))
+        assert(json.contains("\"beregningsgrunnlag\":400000.0"))
         assert(json.contains("\"sykepengegrunnlag\":400000.0"))
         assert(json.contains("\"seksG\":780960.0"))
 

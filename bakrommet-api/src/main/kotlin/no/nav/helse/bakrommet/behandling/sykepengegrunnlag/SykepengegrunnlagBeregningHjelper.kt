@@ -107,7 +107,7 @@ fun beregnSykepengegrunnlag(
             )
         }
 
-    val totaltInntektsgrunnlag =
+    val beregningsgrunnlag =
         when {
             kombinert ->
                 yrkesaktiviteter
@@ -122,13 +122,13 @@ fun beregnSykepengegrunnlag(
                     .summer()
         }
 
-    val sykepengegrunnlag = minOf(totaltInntektsgrunnlag, grunnbeløp6G)
-    val begrensetTil6G = totaltInntektsgrunnlag > grunnbeløp6G
+    val sykepengegrunnlag = minOf(beregningsgrunnlag, grunnbeløp6G)
+    val begrensetTil6G = beregningsgrunnlag > grunnbeløp6G
 
     return Sykepengegrunnlag(
         næringsdel = næringsdel,
         grunnbeløp = grunnbeløp.dto().årlig,
-        totaltInntektsgrunnlag = totaltInntektsgrunnlag.dto().årlig,
+        beregningsgrunnlag = beregningsgrunnlag.dto().årlig,
         sykepengegrunnlag = sykepengegrunnlag.dto().årlig,
         seksG = grunnbeløp6G.dto().årlig,
         begrensetTil6G = begrensetTil6G,

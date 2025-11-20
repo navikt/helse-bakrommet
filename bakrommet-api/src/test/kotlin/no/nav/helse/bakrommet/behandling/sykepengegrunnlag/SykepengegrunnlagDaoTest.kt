@@ -48,7 +48,7 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(124028.0),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(744168.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
                 seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
@@ -81,7 +81,7 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(900000.0), // Høyere enn 6G
+                beregningsgrunnlag = InntektbeløpDto.Årlig(900000.0), // Høyere enn 6G
                 sykepengegrunnlag = InntektbeløpDto.Årlig(780960.0), // Begrenset til 6G
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = true,
@@ -106,7 +106,7 @@ class SykepengegrunnlagDaoTest {
         val opprinneligGrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(480000.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(480000.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(480000.0),
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
@@ -119,7 +119,7 @@ class SykepengegrunnlagDaoTest {
         val oppdatertGrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(660000.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(660000.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(660000.0),
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
@@ -143,7 +143,7 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(540000.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(540000.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
                 seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
@@ -182,7 +182,7 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(124028.0),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(744168.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
                 seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
@@ -196,8 +196,8 @@ class SykepengegrunnlagDaoTest {
         // Verifiser at alle felter er korrekt deserialisert
         assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag!!.grunnbeløp.beløp)
         assertEquals(
-            sykepengegrunnlag.totaltInntektsgrunnlag.beløp,
-            hentetGrunnlag.sykepengegrunnlag!!.totaltInntektsgrunnlag.beløp,
+            sykepengegrunnlag.beregningsgrunnlag.beløp,
+            hentetGrunnlag.sykepengegrunnlag!!.beregningsgrunnlag.beløp,
         )
         assertEquals(
             sykepengegrunnlag.sykepengegrunnlag.beløp,
@@ -219,7 +219,7 @@ class SykepengegrunnlagDaoTest {
         val sykepengegrunnlag =
             Sykepengegrunnlag(
                 grunnbeløp = InntektbeløpDto.Årlig(124028.0),
-                totaltInntektsgrunnlag = InntektbeløpDto.Årlig(744168.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
                 sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
                 seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,

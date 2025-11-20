@@ -124,7 +124,7 @@ class InntektService(
                                 100.0
                             } else {
                                 (
-                                    abs(rec.sykepengegrunnlag.totaltInntektsgrunnlag.beløp - sammenlikningsgrunnlag.beløp) /
+                                    abs(rec.sykepengegrunnlag.beregningsgrunnlag.beløp - sammenlikningsgrunnlag.beløp) /
                                         sammenlikningsgrunnlag.beløp
                                 ) * 100.0
                             }
@@ -135,7 +135,7 @@ class InntektService(
                                 Sammenlikningsgrunnlag(
                                     totaltSammenlikningsgrunnlag = sammenlikningsgrunnlag,
                                     avvikProsent = avvikProsent,
-                                    avvikMotInntektsgrunnlag = rec.sykepengegrunnlag.totaltInntektsgrunnlag,
+                                    avvikMotInntektsgrunnlag = rec.sykepengegrunnlag.beregningsgrunnlag,
                                     basertPåDokumentId = dokument.id,
                                 ),
                         )

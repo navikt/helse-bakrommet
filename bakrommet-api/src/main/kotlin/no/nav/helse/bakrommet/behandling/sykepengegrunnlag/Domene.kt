@@ -8,7 +8,7 @@ import java.util.UUID
 
 data class Sykepengegrunnlag(
     val grunnbeløp: InntektbeløpDto.Årlig,
-    val totaltInntektsgrunnlag: InntektbeløpDto.Årlig,
+    val beregningsgrunnlag: InntektbeløpDto.Årlig,
     val sykepengegrunnlag: InntektbeløpDto.Årlig,
     val seksG: InntektbeløpDto.Årlig,
     val begrensetTil6G: Boolean,
