@@ -156,7 +156,7 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                 behandlingId = behandling.id,
                                 yrkesaktivitetId = ya.id,
                                 status = behandling.status,
-                                ghost = ya.kategorisering.sykmeldt,
+                                ghost = !ya.kategorisering.sykmeldt,
                                 skjæringstidspunkt = behandling.skjæringstidspunkt,
                             ),
                         ),
