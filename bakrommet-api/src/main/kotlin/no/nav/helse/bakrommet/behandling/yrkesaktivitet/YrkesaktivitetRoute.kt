@@ -58,7 +58,7 @@ fun YrkesaktivitetDbRecord.tilDto() =
         refusjon = refusjon,
     )
 
-internal fun Route.saksbehandlingsperiodeYrkesaktivitetRoute(
+internal fun Route.yrkesaktivitetRoute(
     yrkesaktivitetService: YrkesaktivitetService,
     inntektservice: InntektService,
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,

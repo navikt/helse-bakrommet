@@ -33,7 +33,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.saksbehandlingsperiodeYrkesaktivitetRoute
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.yrkesaktivitetRoute
 import no.nav.helse.bakrommet.bruker.brukerRoute
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
@@ -138,7 +138,7 @@ fun Route.setupRoutes(
     behandlingRoute(service = services.behandlingService)
     dokumenterRoute(dokumentHenter = services.dokumentHenter)
     saksbehandlingsperiodeVilkårRoute(service = services.vilkårService)
-    saksbehandlingsperiodeYrkesaktivitetRoute(
+    yrkesaktivitetRoute(
         yrkesaktivitetService = services.yrkesaktivitetService,
         inntektservice = services.inntektService,
         inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,

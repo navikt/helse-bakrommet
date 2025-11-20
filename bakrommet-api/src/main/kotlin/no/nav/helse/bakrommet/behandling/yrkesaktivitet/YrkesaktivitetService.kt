@@ -69,7 +69,7 @@ class YrkesaktivitetService(
 
     suspend fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<YrkesaktivitetDbRecord> =
         db.nonTransactional {
-            val periode = behandlingDao.hentPeriode(ref, krav = null)
+            val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
             yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         }
 
