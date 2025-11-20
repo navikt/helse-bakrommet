@@ -105,6 +105,7 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                 tom = behandling.tom,
                                 behandlingId = behandling.id,
                                 status = behandling.status,
+                                skjæringstidspunkt = behandling.skjæringstidspunkt,
                             ),
                         ),
                 ),
@@ -156,6 +157,7 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                 yrkesaktivitetId = ya.id,
                                 status = behandling.status,
                                 ghost = ya.kategorisering.sykmeldt,
+                                skjæringstidspunkt = behandling.skjæringstidspunkt,
                             ),
                         ),
                 ),
@@ -183,6 +185,7 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                     behandlingId = behandling.id,
                                     tilkommenInntektId = ti.id,
                                     status = behandling.status,
+                                    skjæringstidspunkt = behandling.skjæringstidspunkt,
                                 ),
                             ),
                     ),
@@ -237,6 +240,7 @@ abstract class TidslinjeElement {
 data class TilkommenInntektTidslinjeElement(
     override val fom: LocalDate,
     override val tom: LocalDate,
+    override val skjæringstidspunkt: LocalDate,
     override val behandlingId: UUID,
     val tilkommenInntektId: UUID,
     override val status: BehandlingStatus,
@@ -245,11 +249,13 @@ data class TilkommenInntektTidslinjeElement(
         tom = tom,
         behandlingId = behandlingId,
         status = status,
+        skjæringstidspunkt = skjæringstidspunkt,
     )
 
 data class YrkesaktivitetTidslinjeElement(
     override val fom: LocalDate,
     override val tom: LocalDate,
+    override val skjæringstidspunkt: LocalDate,
     override val behandlingId: UUID,
     override val status: BehandlingStatus,
     val yrkesaktivitetId: UUID,
@@ -259,11 +265,13 @@ data class YrkesaktivitetTidslinjeElement(
         tom = tom,
         behandlingId = behandlingId,
         status = status,
+        skjæringstidspunkt = skjæringstidspunkt,
     )
 
 open class BehandlingTidslinjeElement(
     override val fom: LocalDate,
     override val tom: LocalDate,
+    open val skjæringstidspunkt: LocalDate,
     open val behandlingId: UUID,
     open val status: BehandlingStatus,
 ) : TidslinjeElement()
