@@ -49,6 +49,11 @@ class FakeDaoer : AlleDaoer {
 
 val sessionsDaoer = mutableMapOf<String, FakeDaoer>()
 val sessionsBrukere = mutableMapOf<String, Bruker>()
+private val helsesjekkPaths = setOf("/isalive", "/isready")
+
+private fun ApplicationCall.erHelsesjekk() = request.path() in helsesjekkPaths
+
+private fun ApplicationCall.erApiKall() = request.path().startsWith("/v1") || request.path().startsWith("/v2") || request.path().startsWith("/v2")
 
 class DbDaoerFake : DbDaoer<AlleDaoer> {
     private suspend fun hentSessionDaoer(): AlleDaoer = sessionsDaoer[hentSession()] ?: throw IllegalStateException("Ingen Daoer funnet for session")
@@ -88,7 +93,7 @@ fun main() {
             disableDefaultColors()
             logger = appLogger
             level = Level.INFO
-            filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
+            filter { call -> !call.erHelsesjekk() }
         }
 
         val clienter = skapClienter(alleTestdata)
@@ -102,6 +107,12 @@ fun main() {
         }
 
         intercept(ApplicationCallPipeline.Plugins) {
+            if (!call.erApiKall()) {
+                // Starter ikke sesjoner for ikke-API kall
+                proceed()
+                return@intercept
+            }
+
             val sessionIdFraCookie = call.sessions.get("bakrommet-demo-session") as String?
 
             val sessionId =
