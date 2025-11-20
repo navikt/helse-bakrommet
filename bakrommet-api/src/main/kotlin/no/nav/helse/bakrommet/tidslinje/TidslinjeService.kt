@@ -88,7 +88,7 @@ class TidslinjeService(
         }
 }
 
-private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
+internal fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
     // Her kan du bruke organisasjonsnavnMap og de øvrige feltene
     val (behandlinger, yrkesaktiviteter, tilkommenInntekt, organisasjonsnavnMap) = this
 
@@ -106,7 +106,10 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                 behandlingId = behandling.id,
                                 status = behandling.status,
                                 skjæringstidspunkt = behandling.skjæringstidspunkt,
+                                revurdertAv = behandling.revurdertAvBehandlingId,
+                                revurdererBehandlingId = behandling.revurdererSaksbehandlingsperiodeId,
                                 historiske = emptyList(),
+                                historisk = false,
                             ),
                         ),
                 ),
@@ -161,6 +164,8 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                 skjæringstidspunkt = behandling.skjæringstidspunkt,
                                 historiske = emptyList(),
                                 historisk = false,
+                                revurdertAv = behandling.revurdertAvBehandlingId,
+                                revurdererBehandlingId = behandling.revurdererSaksbehandlingsperiodeId,
                             ),
                         ),
                 ),
@@ -191,6 +196,9 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                                         tilkommenInntektId = ti.id,
                                         status = behandling.status,
                                         skjæringstidspunkt = behandling.skjæringstidspunkt,
+                                        revurdertAv = behandling.revurdertAvBehandlingId,
+                                        revurdererBehandlingId = behandling.revurdererSaksbehandlingsperiodeId,
+                                        historisk = false,
                                         historiske = emptyList(),
                                     ),
                                 ),
@@ -200,10 +208,514 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
         }
     }
 
-    return tidslinjeRader.gruppertPerTidslinjeRadTypeOgId().grupperInnHistoriske()
+    val behandlingerMap = behandlinger.associateBy { it.id }
+    return tidslinjeRader.gruppertPerTidslinjeRadTypeOgId().grupperInnHistoriske(behandlingerMap)
 }
 
-private fun List<TidslinjeRad>.grupperInnHistoriske(): List<TidslinjeRad> = this
+private fun List<TidslinjeRad>.grupperInnHistoriske(behandlingerMap: Map<UUID, Behandling>): List<TidslinjeRad> {
+    // Bygg mapping av hvilke behandlinger som er revurdert (har revurdertAvBehandlingId satt)
+    val revurderteBehandlinger =
+        behandlingerMap.values
+            .filter { it.revurdertAvBehandlingId != null }
+            .map { it.id }
+            .toSet()
+
+    // Bygg mapping av revurderingskjeder: behandlingId -> behandlingId som revurderer den
+    val revurdererMap =
+        behandlingerMap.values
+            .filter { it.revurdererSaksbehandlingsperiodeId != null }
+            .associate { it.revurdererSaksbehandlingsperiodeId!! to it.id }
+
+    return this.map { rad ->
+        when (rad) {
+            is TidslinjeRad.OpprettetBehandling -> {
+                val grupperteElementer =
+                    grupperElementerIRevurderingskjede(
+                        rad.tidslinjeElementer,
+                        revurderteBehandlinger,
+                        revurdererMap,
+                        behandlingerMap,
+                    )
+                rad.copy(tidslinjeElementer = grupperteElementer)
+            }
+
+            is TidslinjeRad.SykmeldtYrkesaktivitet -> {
+                val grupperteElementer =
+                    grupperYrkesaktivitetElementerIRevurderingskjede(
+                        rad.tidslinjeElementer,
+                        revurderteBehandlinger,
+                        revurdererMap,
+                        behandlingerMap,
+                    )
+                rad.copy(tidslinjeElementer = grupperteElementer)
+            }
+
+            is TidslinjeRad.TilkommenInntekt -> {
+                val grupperteElementer =
+                    grupperTilkommenInntektElementerIRevurderingskjede(
+                        rad.tidslinjeElementer,
+                        revurderteBehandlinger,
+                        revurdererMap,
+                        behandlingerMap,
+                    )
+                rad.copy(tidslinjeElementer = grupperteElementer)
+            }
+        }
+    }
+}
+
+private fun grupperElementerIRevurderingskjede(
+    elementer: List<TidslinjeElement>,
+    revurderteBehandlinger: Set<UUID>,
+    revurdererMap: Map<UUID, UUID>,
+    behandlingerMap: Map<UUID, Behandling>,
+): List<TidslinjeElement> {
+    if (elementer.isEmpty()) return elementer
+
+    // Sjekk om noen elementer revurderer andre elementer i listen
+    // Hvis ja, må vi gruppere dem sammen uavhengig av kjede-ID
+    val behandlingIdSet = elementer.map { it.behandlingId }.toSet()
+    val elementerSomRevurdererAndre =
+        elementer.filter { element ->
+            val revurdererBehandlingId = behandlingerMap[element.behandlingId]?.revurdererSaksbehandlingsperiodeId
+            revurdererBehandlingId != null && revurdererBehandlingId in behandlingIdSet
+        }
+
+    // Hvis noen elementer revurderer andre i listen, behandle alle sammen som én gruppe
+    if (elementerSomRevurdererAndre.isNotEmpty()) {
+        return grupperKjedeElementer(elementer, revurderteBehandlinger, behandlingerMap)
+    }
+
+    // Ellers, grupper elementer i revurderingskjeder som før
+    val kjeder = mutableMapOf<UUID, MutableList<TidslinjeElement>>()
+    val elementerUtenKjede = mutableListOf<TidslinjeElement>()
+
+    elementer.forEach { element ->
+        val kjedeId = finnKjedeId(element.behandlingId, revurdererMap, behandlingerMap)
+        if (kjedeId != null) {
+            kjeder.getOrPut(kjedeId) { mutableListOf() }.add(element)
+        } else {
+            elementerUtenKjede.add(element)
+        }
+    }
+
+    val resultat = mutableListOf<TidslinjeElement>()
+
+    // Behandle hver kjede
+    kjeder.values.forEach { kjedeElementer ->
+        val gruppertKjede =
+            grupperKjedeElementer(kjedeElementer, revurderteBehandlinger, behandlingerMap)
+        resultat.addAll(gruppertKjede)
+    }
+
+    // Legg til elementer uten kjede
+    resultat.addAll(elementerUtenKjede)
+
+    return resultat
+}
+
+private fun grupperYrkesaktivitetElementerIRevurderingskjede(
+    elementer: List<YrkesaktivitetTidslinjeElement>,
+    revurderteBehandlinger: Set<UUID>,
+    revurdererMap: Map<UUID, UUID>,
+    behandlingerMap: Map<UUID, Behandling>,
+): List<YrkesaktivitetTidslinjeElement> {
+    if (elementer.isEmpty()) return elementer
+
+    // Sjekk om noen elementer revurderer andre elementer i listen
+    // Hvis ja, må vi gruppere dem sammen uavhengig av kjede-ID
+    val behandlingIdSet = elementer.map { it.behandlingId }.toSet()
+    val elementerSomRevurdererAndre =
+        elementer.filter { element ->
+            val revurdererBehandlingId = behandlingerMap[element.behandlingId]?.revurdererSaksbehandlingsperiodeId
+            revurdererBehandlingId != null && revurdererBehandlingId in behandlingIdSet
+        }
+
+    // Hvis noen elementer revurderer andre i listen, behandle alle sammen som én gruppe
+    if (elementerSomRevurdererAndre.isNotEmpty()) {
+        return grupperYrkesaktivitetKjedeElementer(elementer, revurderteBehandlinger, behandlingerMap)
+    }
+
+    // Ellers, grupper elementer i revurderingskjeder som før
+    val kjeder = mutableMapOf<UUID, MutableList<YrkesaktivitetTidslinjeElement>>()
+    val elementerUtenKjede = mutableListOf<YrkesaktivitetTidslinjeElement>()
+
+    elementer.forEach { element ->
+        val kjedeId = finnKjedeId(element.behandlingId, revurdererMap, behandlingerMap)
+        if (kjedeId != null) {
+            kjeder.getOrPut(kjedeId) { mutableListOf() }.add(element)
+        } else {
+            elementerUtenKjede.add(element)
+        }
+    }
+
+    val resultat = mutableListOf<YrkesaktivitetTidslinjeElement>()
+
+    // Behandle hver kjede
+    kjeder.values.forEach { kjedeElementer ->
+        val gruppertKjede =
+            grupperYrkesaktivitetKjedeElementer(kjedeElementer, revurderteBehandlinger, behandlingerMap)
+        resultat.addAll(gruppertKjede)
+    }
+
+    // Legg til elementer uten kjede
+    resultat.addAll(elementerUtenKjede)
+
+    return resultat
+}
+
+private fun grupperTilkommenInntektElementerIRevurderingskjede(
+    elementer: List<TilkommenInntektTidslinjeElement>,
+    revurderteBehandlinger: Set<UUID>,
+    revurdererMap: Map<UUID, UUID>,
+    behandlingerMap: Map<UUID, Behandling>,
+): List<TilkommenInntektTidslinjeElement> {
+    if (elementer.isEmpty()) return elementer
+
+    // Sjekk om noen elementer revurderer andre elementer i listen
+    // Hvis ja, må vi gruppere dem sammen uavhengig av kjede-ID
+    val behandlingIdSet = elementer.map { it.behandlingId }.toSet()
+    val elementerSomRevurdererAndre =
+        elementer.filter { element ->
+            val revurdererBehandlingId = behandlingerMap[element.behandlingId]?.revurdererSaksbehandlingsperiodeId
+            revurdererBehandlingId != null && revurdererBehandlingId in behandlingIdSet
+        }
+
+    // Hvis noen elementer revurderer andre i listen, behandle alle sammen som én gruppe
+    if (elementerSomRevurdererAndre.isNotEmpty()) {
+        return grupperTilkommenInntektKjedeElementer(
+            elementer,
+            revurderteBehandlinger,
+            revurdererMap,
+            behandlingerMap,
+        )
+    }
+
+    // Ellers, grupper elementer i revurderingskjeder som før
+    val kjeder = mutableMapOf<UUID, MutableList<TilkommenInntektTidslinjeElement>>()
+    val elementerUtenKjede = mutableListOf<TilkommenInntektTidslinjeElement>()
+
+    elementer.forEach { element ->
+        val kjedeId = finnKjedeId(element.behandlingId, revurdererMap, behandlingerMap)
+        if (kjedeId != null) {
+            kjeder.getOrPut(kjedeId) { mutableListOf() }.add(element)
+        } else {
+            elementerUtenKjede.add(element)
+        }
+    }
+
+    val resultat = mutableListOf<TilkommenInntektTidslinjeElement>()
+
+    // Behandle hver kjede
+    kjeder.values.forEach { kjedeElementer ->
+        val gruppertKjede =
+            grupperTilkommenInntektKjedeElementer(
+                kjedeElementer,
+                revurderteBehandlinger,
+                revurdererMap,
+                behandlingerMap,
+            )
+        resultat.addAll(gruppertKjede)
+    }
+
+    // Legg til elementer uten kjede
+    resultat.addAll(elementerUtenKjede)
+
+    return resultat
+}
+
+/**
+ * Finner kjede-ID for en behandling. Kjede-ID er den nyeste behandlingen i kjeden som ikke er revurdert av noen annen.
+ * En behandling er del av en kjede hvis den revurderer en annen behandling eller er revurdert av en annen.
+ */
+private fun finnKjedeId(
+    behandlingId: UUID,
+    revurdererMap: Map<UUID, UUID>,
+    behandlingerMap: Map<UUID, Behandling>,
+): UUID? {
+    val behandling = behandlingerMap[behandlingId] ?: return null
+
+    // Sjekk om behandlingen er del av en kjede
+    val erDelAvKjede =
+        behandling.revurdererSaksbehandlingsperiodeId != null || behandling.revurdertAvBehandlingId != null
+    if (!erDelAvKjede) {
+        return null
+    }
+
+    // Finn toppen av kjeden ved å følge revurderer-kjeden oppover
+    var current = behandlingId
+    var visited = mutableSetOf<UUID>()
+
+    while (true) {
+        if (current in visited) {
+            // Sirkulær referanse, returner current
+            return current
+        }
+        visited.add(current)
+
+        val currentBehandling = behandlingerMap[current] ?: return current
+
+        // Finn behandlingen som revurderer current (hvis noen)
+        val revurderer =
+            revurdererMap.values.find { revurdererId ->
+                behandlingerMap[revurdererId]?.revurdererSaksbehandlingsperiodeId == current
+            }
+
+        if (revurderer == null) {
+            // Ingen revurderer denne behandlingen, vi er på toppen
+            return current
+        }
+
+        current = revurderer
+    }
+}
+
+/**
+ * Grupperer elementer i en kjede. Finner det nyeste elementet som ikke er revurdert av noen annen,
+ * og legger de andre i historisk listen.
+ */
+private fun grupperKjedeElementer(
+    elementer: List<TidslinjeElement>,
+    revurderteBehandlinger: Set<UUID>,
+    behandlingerMap: Map<UUID, Behandling>,
+): List<TidslinjeElement> {
+    if (elementer.isEmpty()) return elementer
+    if (elementer.size == 1) {
+        val element = elementer.first()
+        val erHistorisk = element.behandlingId in revurderteBehandlinger
+        return listOf(
+            TidslinjeElement(
+                fom = element.fom,
+                tom = element.tom,
+                skjæringstidspunkt = element.skjæringstidspunkt,
+                behandlingId = element.behandlingId,
+                status = element.status,
+                historisk = erHistorisk,
+                revurdererBehandlingId = element.revurdererBehandlingId,
+                revurdertAv = element.revurdertAv,
+                historiske = emptyList(),
+            ),
+        )
+    }
+
+    // Finn det nyeste elementet som ikke er revurdert av noen annen
+    val elementerSortert = elementer.sortedByDescending { behandlingerMap[it.behandlingId]?.opprettet }
+
+    val hovedElement =
+        elementerSortert.firstOrNull { element ->
+            val behandling = behandlingerMap[element.behandlingId]
+            behandling?.revurdertAvBehandlingId == null
+        } ?: elementerSortert.first()
+
+    // Hvis hovedelementet revurderer en annen behandling, så skal den revurderte behandlingen legges i historiske
+    val revurdertBehandlingId = behandlingerMap[hovedElement.behandlingId]?.revurdererSaksbehandlingsperiodeId
+    val revurdertElement =
+        revurdertBehandlingId?.let { revurdertId ->
+            elementer.find { it.behandlingId == revurdertId }
+        }
+
+    val historiskeElementer =
+        elementer
+            .filter { it.behandlingId != hovedElement.behandlingId }
+            .sortedBy { behandlingerMap[it.behandlingId]?.opprettet }
+
+    // Legg til det revurderte elementet i historiske hvis det ikke allerede er der
+    val alleHistoriske =
+        if (revurdertElement != null && revurdertElement.behandlingId != hovedElement.behandlingId) {
+            val eksistererAllerede = historiskeElementer.any { it.behandlingId == revurdertElement.behandlingId }
+            if (!eksistererAllerede) {
+                historiskeElementer + revurdertElement
+            } else {
+                historiskeElementer
+            }
+        } else {
+            historiskeElementer
+        }
+
+    // Sorter historiske elementer slik at den eldste som ikke revurderer noen ligger sist
+    // Først: elementer som revurderer noen (sortert etter opprettet, nyeste først)
+    // Så: elementer som ikke revurderer noen (sortert etter opprettet, eldste sist)
+    val elementerSomRevurderer =
+        alleHistoriske
+            .filter {
+                behandlingerMap[it.behandlingId]?.revurdererSaksbehandlingsperiodeId != null
+            }.sortedByDescending { behandlingerMap[it.behandlingId]?.opprettet }
+
+    val elementerSomIkkeRevurderer =
+        alleHistoriske
+            .filter {
+                behandlingerMap[it.behandlingId]?.revurdererSaksbehandlingsperiodeId == null
+            }.sortedBy { behandlingerMap[it.behandlingId]?.opprettet } // Eldste først, så reverserer vi
+
+    val sorterteHistoriske = elementerSomRevurderer + elementerSomIkkeRevurderer.reversed()
+
+    val erHistorisk = hovedElement.behandlingId in revurderteBehandlinger
+
+    return listOf(
+        TidslinjeElement(
+            fom = hovedElement.fom,
+            tom = hovedElement.tom,
+            skjæringstidspunkt = hovedElement.skjæringstidspunkt,
+            behandlingId = hovedElement.behandlingId,
+            status = hovedElement.status,
+            historisk = erHistorisk,
+            revurdererBehandlingId = hovedElement.revurdererBehandlingId,
+            revurdertAv = hovedElement.revurdertAv,
+            historiske =
+                sorterteHistoriske.map {
+                    TidslinjeElement(
+                        fom = it.fom,
+                        tom = it.tom,
+                        skjæringstidspunkt = it.skjæringstidspunkt,
+                        behandlingId = it.behandlingId,
+                        status = it.status,
+                        historisk = true,
+                        revurdererBehandlingId = it.revurdererBehandlingId,
+                        revurdertAv = it.revurdertAv,
+                        historiske = emptyList(),
+                    )
+                },
+        ),
+    )
+}
+
+private fun grupperYrkesaktivitetKjedeElementer(
+    elementer: List<YrkesaktivitetTidslinjeElement>,
+    revurderteBehandlinger: Set<UUID>,
+    behandlingerMap: Map<UUID, Behandling>,
+): List<YrkesaktivitetTidslinjeElement> {
+    if (elementer.isEmpty()) return elementer
+    if (elementer.size == 1) {
+        val element = elementer.first()
+        val erHistorisk = element.behandlingId in revurderteBehandlinger
+        return listOf(
+            element.copy(
+                historisk = erHistorisk,
+                historiske = emptyList(),
+            ),
+        )
+    }
+
+    // Finn det nyeste elementet som ikke er revurdert av noen annen
+    val elementerSortert = elementer.sortedByDescending { behandlingerMap[it.behandlingId]?.opprettet }
+
+    val hovedElement =
+        elementerSortert.firstOrNull { element ->
+            val behandling = behandlingerMap[element.behandlingId]
+            behandling?.revurdertAvBehandlingId == null
+        } ?: elementerSortert.first()
+
+    // Hvis hovedelementet revurderer en annen behandling, så skal den revurderte behandlingen legges i historiske
+    val revurdertBehandlingId = behandlingerMap[hovedElement.behandlingId]?.revurdererSaksbehandlingsperiodeId
+    val revurdertElement =
+        revurdertBehandlingId?.let { revurdertId ->
+            elementer.find { it.behandlingId == revurdertId }
+        }
+
+    val historiskeElementer = elementer.filter { it.behandlingId != hovedElement.behandlingId }
+
+    // Legg til det revurderte elementet i historiske hvis det ikke allerede er der
+    val alleHistoriske =
+        if (revurdertElement != null && revurdertElement.behandlingId != hovedElement.behandlingId) {
+            val eksistererAllerede = historiskeElementer.any { it.behandlingId == revurdertElement.behandlingId }
+            if (!eksistererAllerede) {
+                historiskeElementer + revurdertElement
+            } else {
+                historiskeElementer
+            }
+        } else {
+            historiskeElementer
+        }
+
+    // Sorter historiske elementer slik at den eldste som ikke revurderer noen ligger sist
+    val elementerSomRevurderer =
+        alleHistoriske
+            .filter {
+                behandlingerMap[it.behandlingId]?.revurdererSaksbehandlingsperiodeId != null
+            }.sortedByDescending { behandlingerMap[it.behandlingId]?.opprettet }
+
+    val elementerSomIkkeRevurderer =
+        alleHistoriske
+            .filter {
+                behandlingerMap[it.behandlingId]?.revurdererSaksbehandlingsperiodeId == null
+            }.sortedBy { behandlingerMap[it.behandlingId]?.opprettet }
+
+    val sorterteHistoriske = elementerSomRevurderer + elementerSomIkkeRevurderer.reversed()
+
+    val erHistorisk = hovedElement.behandlingId in revurderteBehandlinger
+
+    return listOf(
+        hovedElement.copy(
+            historisk = erHistorisk,
+            historiske = sorterteHistoriske.map { it.copy(historisk = true, historiske = emptyList()) },
+        ),
+    )
+}
+
+private fun grupperTilkommenInntektKjedeElementer(
+    elementer: List<TilkommenInntektTidslinjeElement>,
+    revurderteBehandlinger: Set<UUID>,
+    revurdererMap: Map<UUID, UUID>,
+    behandlingerMap: Map<UUID, Behandling>,
+): List<TilkommenInntektTidslinjeElement> {
+    if (elementer.isEmpty()) return elementer
+    if (elementer.size == 1) {
+        val element = elementer.first()
+        return listOf(element.copy(historiske = emptyList()))
+    }
+
+    // Finn det nyeste elementet som ikke er revurdert av noen annen
+    val elementerSortert = elementer.sortedByDescending { behandlingerMap[it.behandlingId]?.opprettet }
+
+    val hovedElement =
+        elementerSortert.firstOrNull { element ->
+            val behandling = behandlingerMap[element.behandlingId]
+            behandling?.revurdertAvBehandlingId == null
+        } ?: elementerSortert.first()
+
+    // Hvis hovedelementet revurderer en annen behandling, så skal den revurderte behandlingen legges i historiske
+    val revurdertBehandlingId = behandlingerMap[hovedElement.behandlingId]?.revurdererSaksbehandlingsperiodeId
+    val revurdertElement =
+        revurdertBehandlingId?.let { revurdertId ->
+            elementer.find { it.behandlingId == revurdertId }
+        }
+
+    val historiskeElementer = elementer.filter { it.behandlingId != hovedElement.behandlingId }
+
+    // Legg til det revurderte elementet i historiske hvis det ikke allerede er der
+    val alleHistoriske =
+        if (revurdertElement != null && revurdertElement.behandlingId != hovedElement.behandlingId) {
+            val eksistererAllerede = historiskeElementer.any { it.behandlingId == revurdertElement.behandlingId }
+            if (!eksistererAllerede) {
+                historiskeElementer + revurdertElement
+            } else {
+                historiskeElementer
+            }
+        } else {
+            historiskeElementer
+        }
+
+    // Sorter historiske elementer slik at den eldste som ikke revurderer noen ligger sist
+    val elementerSomRevurderer =
+        alleHistoriske
+            .filter {
+                behandlingerMap[it.behandlingId]?.revurdererSaksbehandlingsperiodeId != null
+            }.sortedByDescending { behandlingerMap[it.behandlingId]?.opprettet }
+
+    val elementerSomIkkeRevurderer =
+        alleHistoriske
+            .filter {
+                behandlingerMap[it.behandlingId]?.revurdererSaksbehandlingsperiodeId == null
+            }.sortedBy { behandlingerMap[it.behandlingId]?.opprettet }
+
+    val sorterteHistoriske = elementerSomRevurderer + elementerSomIkkeRevurderer.reversed()
+
+    return listOf(
+        hovedElement.copy(
+            historiske = sorterteHistoriske.map { it.copy(historiske = emptyList()) },
+        ),
+    )
+}
 
 private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<TidslinjeRad> =
     this
@@ -247,6 +759,9 @@ data class TilkommenInntektTidslinjeElement(
     override val behandlingId: UUID,
     val tilkommenInntektId: UUID,
     override val status: BehandlingStatus,
+    override val historisk: Boolean,
+    override val revurdererBehandlingId: UUID?,
+    override val revurdertAv: UUID?,
     override val historiske: List<TilkommenInntektTidslinjeElement>,
 ) : TidslinjeElement(
         fom = fom,
@@ -255,6 +770,9 @@ data class TilkommenInntektTidslinjeElement(
         status = status,
         skjæringstidspunkt = skjæringstidspunkt,
         historiske = historiske,
+        historisk = historisk,
+        revurdertAv = revurdertAv,
+        revurdererBehandlingId = revurdererBehandlingId,
     )
 
 data class YrkesaktivitetTidslinjeElement(
@@ -264,6 +782,8 @@ data class YrkesaktivitetTidslinjeElement(
     override val behandlingId: UUID,
     override val status: BehandlingStatus,
     override val historisk: Boolean,
+    override val revurdererBehandlingId: UUID?,
+    override val revurdertAv: UUID?,
     val yrkesaktivitetId: UUID,
     val ghost: Boolean,
     override val historiske: List<YrkesaktivitetTidslinjeElement>,
@@ -275,6 +795,8 @@ data class YrkesaktivitetTidslinjeElement(
         status = status,
         skjæringstidspunkt = skjæringstidspunkt,
         historiske = historiske,
+        revurdertAv = revurdertAv,
+        revurdererBehandlingId = revurdererBehandlingId,
     )
 
 open class TidslinjeElement(
@@ -283,9 +805,9 @@ open class TidslinjeElement(
     open val skjæringstidspunkt: LocalDate,
     open val behandlingId: UUID,
     open val status: BehandlingStatus,
-    open val historisk: Boolean = false,
-    open val revurderesAv: UUID? = null,
-    open val revurdertAv: UUID? = null,
+    open val historisk: Boolean,
+    open val revurdererBehandlingId: UUID?,
+    open val revurdertAv: UUID?,
     open val historiske: List<TidslinjeElement>,
 )
 
