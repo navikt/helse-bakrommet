@@ -15,11 +15,9 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetForenkletDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.person.SpilleromPersonId
-import no.nav.helse.bakrommet.tidslinje.TidslinjeRad.Ghost
 import no.nav.helse.bakrommet.tidslinje.TidslinjeRad.OpprettetBehandling
 import no.nav.helse.bakrommet.tidslinje.TidslinjeRad.SykmeldtYrkesaktivitet
 import no.nav.helse.bakrommet.tidslinje.TidslinjeRad.TilkommenInntekt
@@ -102,11 +100,10 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                 OpprettetBehandling(
                     tidslinjeElementer =
                         listOf(
-                            YrkesaktivitetTidslinjeElement(
+                            BehandlingTidslinjeElement(
                                 fom = behandling.fom,
                                 tom = behandling.tom,
                                 behandlingId = behandling.id,
-                                yrkesaktivitetId = UUID.randomUUID(),
                                 status = behandling.status,
                             ),
                         ),
@@ -146,41 +143,23 @@ private fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {
                     is YrkesaktivitetKategorisering.Arbeidsledig -> IdNavnPair("ARBEIDSLEDIG", "Arbeidsledig")
                 }
 
-            if (ya.kategorisering.sykmeldt) {
-                tidslinjeRader.add(
-                    SykmeldtYrkesaktivitet(
-                        id = kat.id,
-                        navn = kat.navn,
-                        tidslinjeElementer =
-                            listOf(
-                                YrkesaktivitetTidslinjeElement(
-                                    fom = behandling.fom,
-                                    tom = behandling.tom,
-                                    behandlingId = behandling.id,
-                                    yrkesaktivitetId = ya.id,
-                                    status = behandling.status,
-                                ),
+            tidslinjeRader.add(
+                SykmeldtYrkesaktivitet(
+                    id = kat.id,
+                    navn = kat.navn,
+                    tidslinjeElementer =
+                        listOf(
+                            YrkesaktivitetTidslinjeElement(
+                                fom = behandling.fom,
+                                tom = behandling.tom,
+                                behandlingId = behandling.id,
+                                yrkesaktivitetId = ya.id,
+                                status = behandling.status,
+                                ghost = ya.kategorisering.sykmeldt,
                             ),
-                    ),
-                )
-            } else {
-                tidslinjeRader.add(
-                    Ghost(
-                        id = kat.id,
-                        navn = kat.navn,
-                        tidslinjeElementer =
-                            listOf(
-                                YrkesaktivitetTidslinjeElement(
-                                    fom = behandling.fom,
-                                    tom = behandling.tom,
-                                    behandlingId = behandling.id,
-                                    yrkesaktivitetId = ya.id,
-                                    status = behandling.status,
-                                ),
-                            ),
-                    ),
-                )
-            }
+                        ),
+                ),
+            )
         }
 
         if (behandling.status != BehandlingStatus.REVURDERT) {
@@ -221,7 +200,6 @@ private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<Tidslinje
             when (rad) {
                 is OpprettetBehandling -> Pair(OpprettetBehandling::class, rad.id)
                 is SykmeldtYrkesaktivitet -> Pair(SykmeldtYrkesaktivitet::class, rad.id)
-                is Ghost -> Pair(Ghost::class, rad.id)
                 is TilkommenInntekt -> Pair(TilkommenInntekt::class, rad.id)
             }
         }.map { (_, rader) ->
@@ -229,7 +207,7 @@ private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<Tidslinje
             when (førsteRad) {
                 is OpprettetBehandling -> {
                     OpprettetBehandling(
-                        tidslinjeElementer = rader.flatMap { it.tidslinjeElementer } as List<BehandlingTidslinjeElement>,
+                        tidslinjeElementer = rader.flatMap { (it as OpprettetBehandling).tidslinjeElementer },
                     )
                 }
 
@@ -238,14 +216,6 @@ private fun List<TidslinjeRad>.gruppertPerTidslinjeRadTypeOgId(): List<Tidslinje
                         id = førsteRad.id,
                         navn = førsteRad.navn,
                         tidslinjeElementer = rader.flatMap { (it as SykmeldtYrkesaktivitet).tidslinjeElementer },
-                    )
-                }
-
-                is Ghost -> {
-                    Ghost(
-                        id = førsteRad.id,
-                        navn = førsteRad.navn,
-                        tidslinjeElementer = rader.flatMap { (it as Ghost).tidslinjeElementer },
                     )
                 }
 
@@ -283,6 +253,7 @@ data class YrkesaktivitetTidslinjeElement(
     override val behandlingId: UUID,
     override val status: BehandlingStatus,
     val yrkesaktivitetId: UUID,
+    val ghost: Boolean,
 ) : BehandlingTidslinjeElement(
         fom = fom,
         tom = tom,
@@ -302,7 +273,6 @@ open class BehandlingTidslinjeElement(
     value = [
         JsonSubTypes.Type(value = OpprettetBehandling::class, name = "OpprettetBehandling"),
         JsonSubTypes.Type(value = SykmeldtYrkesaktivitet::class, name = "SykmeldtYrkesaktivitet"),
-        JsonSubTypes.Type(value = Ghost::class, name = "Ghost"),
         JsonSubTypes.Type(value = TilkommenInntekt::class, name = "TilkommenInntekt"),
     ],
 )
@@ -319,12 +289,6 @@ sealed class TidslinjeRad {
     }
 
     data class SykmeldtYrkesaktivitet(
-        override val tidslinjeElementer: List<YrkesaktivitetTidslinjeElement>,
-        override val id: String,
-        override val navn: String,
-    ) : TidslinjeRad()
-
-    data class Ghost(
         override val tidslinjeElementer: List<YrkesaktivitetTidslinjeElement>,
         override val id: String,
         override val navn: String,
