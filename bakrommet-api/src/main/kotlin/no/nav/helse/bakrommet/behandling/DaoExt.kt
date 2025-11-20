@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetExce
 fun BehandlingDao.hentPeriode(
     ref: SaksbehandlingsperiodeReferanse,
     krav: BrukerHarRollePåSakenKrav?,
+    måVæreUnderBehandling: Boolean = true,
 ): Behandling {
     val periode =
         this.finnBehandling(ref.periodeUUID)
@@ -14,6 +15,9 @@ fun BehandlingDao.hentPeriode(
         throw InputValideringException("Ugyldig saksbehandlingsperiode")
     }
     krav?.valider(periode)
+    if (måVæreUnderBehandling && periode.status != BehandlingStatus.UNDER_BEHANDLING) {
+        throw InputValideringException("Saksbehandlingsperiode er ikke under behandling")
+    }
     return periode
 }
 

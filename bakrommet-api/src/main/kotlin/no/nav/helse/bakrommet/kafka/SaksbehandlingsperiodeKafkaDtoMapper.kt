@@ -84,7 +84,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
     private val personDao: PersonDao,
 ) {
     fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): SaksbehandlingsperiodeKafkaDto {
-        val periode = behandlingDao.hentPeriode(referanse, null)
+        val periode = behandlingDao.hentPeriode(referanse, null, måVæreUnderBehandling = false)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent =
             personDao.hentNaturligIdent(periode.spilleromPersonId)

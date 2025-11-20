@@ -189,7 +189,7 @@ class BehandlingService(
         saksbehandler: Bruker,
     ): Behandling =
         db.transactional {
-            val forrigePeriode = behandlingDao.hentPeriode(periodeRef, null)
+            val forrigePeriode = behandlingDao.hentPeriode(periodeRef, null, måVæreUnderBehandling = false)
             if (forrigePeriode.status != BehandlingStatus.GODKJENT) {
                 throw InputValideringException("Kun godkjente perioder kan revurderes")
             }
@@ -283,7 +283,7 @@ class BehandlingService(
         saksbehandler: Bruker,
     ): Behandling =
         db.transactional {
-            val periode = behandlingDao.hentPeriode(periodeRef, krav = null)
+            val periode = behandlingDao.hentPeriode(periodeRef, krav = null, måVæreUnderBehandling = false)
             // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
             val nyStatus = BehandlingStatus.UNDER_BESLUTNING
             periode.verifiserNyStatusGyldighet(nyStatus)
@@ -308,7 +308,7 @@ class BehandlingService(
         kommentar: String,
     ): Behandling =
         db.transactional {
-            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
+            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken(), måVæreUnderBehandling = false)
             val nyStatus = UNDER_BEHANDLING
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatus(
@@ -331,7 +331,7 @@ class BehandlingService(
         saksbehandler: Bruker,
     ): Behandling {
         return db.transactional {
-            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken())
+            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken(), måVæreUnderBehandling = false)
             val nyStatus = BehandlingStatus.GODKJENT
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatusOgBeslutter(
@@ -369,7 +369,7 @@ class BehandlingService(
 
     suspend fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> =
         db.nonTransactional {
-            val periode = behandlingDao.hentPeriode(periodeRef, krav = null)
+            val periode = behandlingDao.hentPeriode(periodeRef, krav = null, måVæreUnderBehandling = false)
             behandlingEndringerDao.hentEndringerFor(periode.id)
         }
 
