@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.appLogger
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -102,6 +103,14 @@ interface BehandlingDao {
         revurdertAvBehandlingId: UUID,
     )
 }
+
+private val verifiserOppdatert: (Int) -> Unit = {
+    if (it == 0) {
+        throw KunneIkkeOppdatereDbException("Behandling kunne ikke oppdateres")
+    }
+}
+
+private const val AND_ER_UNDER_BEHANDLING = "AND status  = '$STATUS_UNDER_BEHANDLING_STR'"
 
 class BehandlingDaoPg private constructor(
     private val db: QueryRunner,
@@ -261,44 +270,58 @@ class BehandlingDaoPg private constructor(
         periodeId: UUID,
         skjæringstidspunkt: LocalDate,
     ) {
-        db.update(
-            """
-            UPDATE behandling 
-            SET skjaeringstidspunkt = :skjaeringstidspunkt
-            WHERE id = :id
-            """.trimIndent(),
-            "id" to periodeId,
-            "skjaeringstidspunkt" to skjæringstidspunkt,
-        )
+        db
+            .update(
+                """
+                UPDATE behandling 
+                SET skjaeringstidspunkt = :skjaeringstidspunkt
+                WHERE id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to periodeId,
+                "skjaeringstidspunkt" to skjæringstidspunkt,
+            ).also(verifiserOppdatert)
     }
 
     override fun oppdaterSykepengegrunnlagId(
         periodeId: UUID,
         sykepengegrunnlagId: UUID?,
     ) {
-        db.update(
-            """
-            UPDATE behandling 
-            SET sykepengegrunnlag_id = :sykepengegrunnlag_id
-            WHERE id = :id
-            """.trimIndent(),
-            "id" to periodeId,
-            "sykepengegrunnlag_id" to sykepengegrunnlagId,
-        )
+        db
+            .update(
+                """
+                UPDATE behandling 
+                SET sykepengegrunnlag_id = :sykepengegrunnlag_id
+                WHERE id = :id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to periodeId,
+                "sykepengegrunnlag_id" to sykepengegrunnlagId,
+            ).also(verifiserOppdatert)
     }
 
     override fun oppdaterRevurdertAvBehandlingId(
         behandlingId: UUID,
         revurdertAvBehandlingId: UUID,
     ) {
-        db.update(
-            """
-            UPDATE behandling 
-            SET revurdert_av_behandling_id = :revurdert_av_behandling_id
-            WHERE id = :id
-            """.trimIndent(),
-            "id" to behandlingId,
-            "revurdert_av_behandling_id" to revurdertAvBehandlingId,
-        )
+        db
+            .update(
+                """
+                UPDATE behandling 
+                SET revurdert_av_behandling_id = :revurdert_av_behandling_id
+                WHERE id = :id
+                """.trimIndent() +
+                    /*
+                     TODO: Det blir vel riktig dette ?
+                     status settes til REVURDERT rett før (i en transaksjon).
+                     Skal ikke kunne være tidligere revurdert, da må man vel heller revurdere revurderingen ?
+                     */
+                    """
+            AND status = 'REVURDERT'
+            AND revurdert_av_behandling_id IS NULL
+            """,
+                "id" to behandlingId,
+                "revurdert_av_behandling_id" to revurdertAvBehandlingId,
+            ).also(verifiserOppdatert)
     }
 }
