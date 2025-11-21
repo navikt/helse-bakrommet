@@ -3,6 +3,8 @@ package no.nav.helse.bakrommet.behandling.dokumenter
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Row
 import kotliquery.Session
+import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -57,6 +59,15 @@ interface DokumentDao {
     fun hentDokumenterFor(behandlingId: UUID): List<Dokument>
 }
 
+private val verifiserOppdatert: (Int) -> Unit = {
+    if (it == 0) {
+        throw KunneIkkeOppdatereDbException("Dokument kunne ikke oppdateres")
+    }
+}
+
+// Ved eventuell delete/update: private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = dokument.opprettet_for_behandling) = '$STATUS_UNDER_BEHANDLING_STR'"
+private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :opprettet_for_behandling and status = '$STATUS_UNDER_BEHANDLING_STR')"
+
 class DokumentDaoPg private constructor(
     private val db: QueryRunner,
 ) : DokumentDao {
@@ -100,22 +111,24 @@ class DokumentDaoPg private constructor(
         )
 
     override fun opprettDokument(dokument: Dokument): Dokument {
-        db.update(
-            """
-            insert into dokument
-                (id, dokument_type, ekstern_id, innhold, opprettet, sporing, opprettet_for_behandling, forespurte_data)
-            values
-                (:id, :dokument_type, :ekstern_id, :innhold, :opprettet, :sporing, :opprettet_for_behandling, :forespurte_data)
-            """.trimIndent(),
-            "id" to dokument.id,
-            "dokument_type" to dokument.dokumentType,
-            "ekstern_id" to dokument.eksternId,
-            "innhold" to dokument.innhold,
-            "opprettet" to dokument.opprettet,
-            "sporing" to dokument.sporing.kilde,
-            "opprettet_for_behandling" to dokument.opprettetForBehandling,
-            "forespurte_data" to dokument.forespurteData,
-        )
+        db
+            .update(
+                """
+                insert into dokument
+                    (id, dokument_type, ekstern_id, innhold, opprettet, sporing, opprettet_for_behandling, forespurte_data)
+                select
+                    :id, :dokument_type, :ekstern_id, :innhold, :opprettet, :sporing, :opprettet_for_behandling, :forespurte_data
+                $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
+                """.trimIndent(),
+                "id" to dokument.id,
+                "dokument_type" to dokument.dokumentType,
+                "ekstern_id" to dokument.eksternId,
+                "innhold" to dokument.innhold,
+                "opprettet" to dokument.opprettet,
+                "sporing" to dokument.sporing.kilde,
+                "opprettet_for_behandling" to dokument.opprettetForBehandling,
+                "forespurte_data" to dokument.forespurteData,
+            ).also(verifiserOppdatert)
         return hentDokument(dokument.id)!!
     }
 
