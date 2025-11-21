@@ -3,6 +3,8 @@ package no.nav.helse.bakrommet.behandling.vilkaar
 import com.fasterxml.jackson.databind.JsonNode
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -46,6 +48,15 @@ interface VurdertVilkårDao {
         vurdering: JsonNode,
     ): Int
 }
+
+private val verifiserOppdatert: (Int) -> Unit = {
+    if (it == 0) {
+        throw KunneIkkeOppdatereDbException("Vurder vilkår kunne ikke oppdateres")
+    }
+}
+
+private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = vurdert_vilkaar.behandling_id) = '$STATUS_UNDER_BEHANDLING_STR'"
+private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :behandling_id and status = '$STATUS_UNDER_BEHANDLING_STR')"
 
 class VurdertVilkårDaoPg private constructor(
     private val db: QueryRunner,
@@ -92,15 +103,17 @@ class VurdertVilkårDaoPg private constructor(
         saksbehandlingsperiodeId: UUID,
         kode: String,
     ): Int =
-        db.update(
-            """
-            DELETE FROM vurdert_vilkaar
-            where behandling_id = :behandling_id
-            and kode = :kode
-            """.trimIndent(),
-            "behandling_id" to saksbehandlingsperiodeId,
-            "kode" to kode,
-        )
+        db
+            .update(
+                """
+                DELETE FROM vurdert_vilkaar
+                where behandling_id = :behandling_id
+                and kode = :kode
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "behandling_id" to saksbehandlingsperiodeId,
+                "kode" to kode,
+            ).also(verifiserOppdatert)
 
     override fun eksisterer(
         behandling: Behandling,
@@ -122,34 +135,38 @@ class VurdertVilkårDaoPg private constructor(
         kode: Kode,
         oppdatertVurdering: JsonNode,
     ): Int =
-        db.update(
-            """
-            update vurdert_vilkaar 
-            set vurdering = :vurdering,
-            vurdering_tidspunkt = :vurdering_tidspunkt
-            where behandling_id = :behandling_id
-            and kode = :kode 
-            """.trimIndent(),
-            "vurdering" to oppdatertVurdering.serialisertTilString(),
-            "vurdering_tidspunkt" to Instant.now(),
-            "behandling_id" to behandling.id,
-            "kode" to kode.kode,
-        )
+        db
+            .update(
+                """
+                update vurdert_vilkaar 
+                set vurdering = :vurdering,
+                vurdering_tidspunkt = :vurdering_tidspunkt
+                where behandling_id = :behandling_id
+                and kode = :kode 
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "vurdering" to oppdatertVurdering.serialisertTilString(),
+                "vurdering_tidspunkt" to Instant.now(),
+                "behandling_id" to behandling.id,
+                "kode" to kode.kode,
+            ).also(verifiserOppdatert)
 
     override fun leggTil(
         behandling: Behandling,
         kode: Kode,
         vurdering: JsonNode,
     ): Int =
-        db.update(
-            """
-            insert into vurdert_vilkaar
-             (vurdering, vurdering_tidspunkt, behandling_id, kode)
-            values (:vurdering, :vurdering_tidspunkt, :behandling_id, :kode) 
-            """.trimIndent(),
-            "vurdering" to vurdering.serialisertTilString(),
-            "vurdering_tidspunkt" to Instant.now(),
-            "behandling_id" to behandling.id,
-            "kode" to kode.kode,
-        )
+        db
+            .update(
+                """
+                insert into vurdert_vilkaar
+                 (vurdering, vurdering_tidspunkt, behandling_id, kode)
+                select :vurdering, :vurdering_tidspunkt, :behandling_id, :kode
+                 $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
+                """.trimIndent(),
+                "vurdering" to vurdering.serialisertTilString(),
+                "vurdering_tidspunkt" to Instant.now(),
+                "behandling_id" to behandling.id,
+                "kode" to kode.kode,
+            ).also(verifiserOppdatert)
 }

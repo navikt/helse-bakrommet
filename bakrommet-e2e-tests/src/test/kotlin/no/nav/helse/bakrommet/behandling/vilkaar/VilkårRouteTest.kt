@@ -205,7 +205,7 @@ class VilkårRouteTest {
                 ) {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
-                    assertEquals(HttpStatusCode.NotFound, status, "skal gi 404 når koden ikke fantes")
+                    assertEquals(HttpStatusCode.BadRequest, status, "skal gi 400 når koden ikke fantes")
                 }
 
             client
