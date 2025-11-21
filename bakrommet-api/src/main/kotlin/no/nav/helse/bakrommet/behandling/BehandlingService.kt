@@ -308,7 +308,12 @@ class BehandlingService(
         kommentar: String,
     ): Behandling =
         db.transactional {
-            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken(), måVæreUnderBehandling = false)
+            val periode =
+                behandlingDao.hentPeriode(
+                    periodeRef,
+                    krav = saksbehandler.erBeslutterPåSaken(),
+                    måVæreUnderBehandling = false,
+                )
             val nyStatus = UNDER_BEHANDLING
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatus(
@@ -331,7 +336,12 @@ class BehandlingService(
         saksbehandler: Bruker,
     ): Behandling {
         return db.transactional {
-            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken(), måVæreUnderBehandling = false)
+            val periode =
+                behandlingDao.hentPeriode(
+                    periodeRef,
+                    krav = saksbehandler.erBeslutterPåSaken(),
+                    måVæreUnderBehandling = false,
+                )
             val nyStatus = BehandlingStatus.GODKJENT
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatusOgBeslutter(

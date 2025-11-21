@@ -25,11 +25,13 @@ internal fun Route.saksbehandlingsperiodeVilkårRoute(service: VilkårService) {
 
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaarsvurdering/{hovedspørsmål}") {
         put {
+            val hovedsporsmalKode = call.parameters["hovedspørsmål"]!!
             val request = call.receive<VilkaarsvurderingRequest>()
+
             val (lagretVurdering, opprettetEllerEndret) =
                 service.leggTilEllerOpprettVurdertVilkår(
                     ref = call.periodeReferanse(),
-                    vilkårsKode = Kode(call.parameters["hovedspørsmål"]!!),
+                    vilkårsKode = Kode(hovedsporsmalKode),
                     request = request,
                     saksbehandler = call.saksbehandler(),
                 )

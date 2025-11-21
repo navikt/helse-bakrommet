@@ -215,6 +215,7 @@ fun createServices(
             aaRegClient = clienter.aaRegClient,
             sigrunClient = clienter.sigrunClient,
         )
+    val yrkesaktivitetService = YrkesaktivitetService(db)
     return Services(
         personsøkService =
             PersonsøkService(
@@ -228,8 +229,8 @@ fun createServices(
                 dokumentHenter = dokumentHenter,
             ),
         dokumentHenter = dokumentHenter,
-        vilkårService = VilkårService(db),
-        yrkesaktivitetService = YrkesaktivitetService(db),
+        yrkesaktivitetService = yrkesaktivitetService,
+        vilkårService = VilkårService(db, yrkesaktivitetService),
         inntektService =
             InntektService(
                 db,
