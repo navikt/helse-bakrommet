@@ -200,8 +200,8 @@ fun createServices(
                 dokumentHenter = dokumentHenter,
             ),
         dokumentHenter = dokumentHenter,
-        vilkårService = VilkårService(db),
-        yrkesaktivitetService = YrkesaktivitetService(db),
+        yrkesaktivitetService = yrkesaktivitetService,
+        vilkårService = VilkårService(db, yrkesaktivitetService),
         inntektService =
             InntektService(
                 db,

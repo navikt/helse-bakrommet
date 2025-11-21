@@ -6,6 +6,11 @@ import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.VariantAvInaktiv
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import java.util.UUID
@@ -43,13 +48,14 @@ enum class OpprettetEllerEndret {
     ENDRET,
 }
 
-interface VilkårServiceDaoer {
+interface VilkårServiceDaoer : YrkesaktivitetServiceDaoer {
     val vurdertVilkårDao: VurdertVilkårDao
-    val behandlingDao: BehandlingDao
+    override val behandlingDao: BehandlingDao
 }
 
 class VilkårService(
     private val db: DbDaoer<VilkårServiceDaoer>,
+    private val yrkesaktivitetService: YrkesaktivitetService,
 ) {
     suspend fun hentVilkårsvurderingerFor(ref: BehandlingReferanse): List<VurdertVilkår> =
         db.nonTransactional {
@@ -73,6 +79,7 @@ class VilkårService(
                     underspørsmål = request.underspørsmål,
                     notat = request.notat,
                 )
+
             val opprettetEllerEndret =
                 if (finnesFraFør) {
                     vurdertVilkårDao.oppdater(periode, vilkårsKode, vilkaarsvurdering)
@@ -81,6 +88,24 @@ class VilkårService(
                     vurdertVilkårDao.leggTil(periode, vilkårsKode, vilkaarsvurdering)
                     OpprettetEllerEndret.OPPRETTET
                 }
+
+            if (vilkaarsvurdering.underspørsmål.any {  listOf("I_ARBEIDE_84").contains(it.svar)  }) {
+                val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(ref)
+                if (yrkesaktiviteter.size == 1) {
+                    val aktiviteten = yrkesaktiviteter.first()
+                    if (aktiviteten.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
+                        yrkesaktivitetService.oppdaterKategorisering(
+                            YrkesaktivitetReferanse(ref, aktiviteten.id),
+                            YrkesaktivitetKategorisering.Inaktiv(
+                                variant = VariantAvInaktiv.INAKTIV_VARIANT_A, //TODO denne skal fjernes etterhvert
+                            ),
+                            saksbehandler,
+                            this,
+                        )
+                    }
+                }
+            }
+
             Pair(
                 vurdertVilkårDao.hentVilkårsvurdering(periode.id, vilkårsKode.kode)!!,
                 opprettetEllerEndret,

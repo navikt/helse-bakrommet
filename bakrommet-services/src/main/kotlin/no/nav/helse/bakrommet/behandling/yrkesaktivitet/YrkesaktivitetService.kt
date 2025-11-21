@@ -109,12 +109,13 @@ class YrkesaktivitetService(
         ref: YrkesaktivitetReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
+        eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
     ) {
         val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         val gammelKategorisering = yrkesaktivtet.kategorisering
         val hovedkategoriseringEndret = hovedkategoriseringEndret(gammelKategorisering, kategorisering)
 
-        db.nonTransactional {
+        db.transactional(eksisterendeTranaksjon) {
             yrkesaktivitetDao.oppdaterKategoriseringOgSlettInntektData(yrkesaktivtet, kategorisering)
 
             // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
