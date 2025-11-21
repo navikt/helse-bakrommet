@@ -3,6 +3,8 @@ package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -28,8 +30,20 @@ interface UtbetalingsberegningDao {
 
     fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse?
 
-    fun slettBeregning(saksbehandlingsperiodeId: UUID)
+    fun slettBeregning(
+        saksbehandlingsperiodeId: UUID,
+        failSilently: Boolean = false,
+    )
 }
+
+private val verifiserOppdatert: (Int) -> Unit = {
+    if (it == 0) {
+        throw KunneIkkeOppdatereDbException("Utbetalingsberegning kunne ikke oppdateres")
+    }
+}
+
+private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = utbetalingsberegning.behandling_id) = '$STATUS_UNDER_BEHANDLING_STR'"
+private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :behandling_id and status = '$STATUS_UNDER_BEHANDLING_STR')"
 
 class UtbetalingsberegningDaoPg private constructor(
     private val db: QueryRunner,
@@ -52,33 +66,37 @@ class UtbetalingsberegningDaoPg private constructor(
 
         if (eksisterende != null) {
             // Oppdater eksisterende
-            db.update(
-                """
-                UPDATE utbetalingsberegning 
-                SET 
-                    utbetalingsberegning_data = :utbetalingsberegning_data,
-                    opprettet_av_nav_ident = :opprettet_av_nav_ident,
-                    sist_oppdatert = NOW()
-                WHERE behandling_id = :behandling_id
-                """.trimIndent(),
-                "behandling_id" to saksbehandlingsperiodeId,
-                "utbetalingsberegning_data" to beregningJson,
-                "opprettet_av_nav_ident" to saksbehandler.navIdent,
-            )
+            db
+                .update(
+                    """
+                    UPDATE utbetalingsberegning 
+                    SET 
+                        utbetalingsberegning_data = :utbetalingsberegning_data,
+                        opprettet_av_nav_ident = :opprettet_av_nav_ident,
+                        sist_oppdatert = NOW()
+                    WHERE behandling_id = :behandling_id
+                    $AND_ER_UNDER_BEHANDLING
+                    """.trimIndent(),
+                    "behandling_id" to saksbehandlingsperiodeId,
+                    "utbetalingsberegning_data" to beregningJson,
+                    "opprettet_av_nav_ident" to saksbehandler.navIdent,
+                ).also(verifiserOppdatert)
         } else {
             // Opprett nytt
-            db.update(
-                """
-                INSERT INTO utbetalingsberegning 
-                    (id, behandling_id, utbetalingsberegning_data, opprettet, opprettet_av_nav_ident, sist_oppdatert)
-                VALUES 
-                    (:id, :behandling_id, :utbetalingsberegning_data, NOW(), :opprettet_av_nav_ident, NOW())
-                """.trimIndent(),
-                "id" to beregning.id,
-                "behandling_id" to saksbehandlingsperiodeId,
-                "utbetalingsberegning_data" to beregningJson,
-                "opprettet_av_nav_ident" to saksbehandler.navIdent,
-            )
+            db
+                .update(
+                    """
+                    INSERT INTO utbetalingsberegning 
+                        (id, behandling_id, utbetalingsberegning_data, opprettet, opprettet_av_nav_ident, sist_oppdatert)
+                    SELECT 
+                        :id, :behandling_id, :utbetalingsberegning_data, NOW(), :opprettet_av_nav_ident, NOW()
+                    $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
+                    """.trimIndent(),
+                    "id" to beregning.id,
+                    "behandling_id" to saksbehandlingsperiodeId,
+                    "utbetalingsberegning_data" to beregningJson,
+                    "opprettet_av_nav_ident" to saksbehandler.navIdent,
+                ).also(verifiserOppdatert)
         }
 
         return hentBeregning(saksbehandlingsperiodeId)!!
@@ -94,14 +112,23 @@ class UtbetalingsberegningDaoPg private constructor(
             mapper = ::beregningFraRow,
         )
 
-    override fun slettBeregning(saksbehandlingsperiodeId: UUID) {
-        db.update(
-            """
-            DELETE FROM utbetalingsberegning 
-            WHERE behandling_id = :behandling_id
-            """.trimIndent(),
-            "behandling_id" to saksbehandlingsperiodeId,
-        )
+    override fun slettBeregning(
+        saksbehandlingsperiodeId: UUID,
+        failSilently: Boolean,
+    ) {
+        db
+            .update(
+                """
+                DELETE FROM utbetalingsberegning 
+                WHERE behandling_id = :behandling_id
+                $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "behandling_id" to saksbehandlingsperiodeId,
+            ).also {
+                if (!failSilently) {
+                    verifiserOppdatert(it)
+                }
+            }
     }
 
     private fun beregningFraRow(row: Row): BeregningResponse {

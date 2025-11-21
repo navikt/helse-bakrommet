@@ -43,7 +43,7 @@ fun Beregningsdaoer.beregnUtbetaling(
     ref: SaksbehandlingsperiodeReferanse,
     saksbehandler: Bruker,
 ) {
-    beregningDao.slettBeregning(ref.periodeUUID)
+    beregningDao.slettBeregning(ref.periodeUUID, failSilently = true)
 
     UtbetalingsBeregningHjelper(
         beregningDao = beregningDao,

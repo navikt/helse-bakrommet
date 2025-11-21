@@ -27,7 +27,10 @@ class UtbetalingsberegningDaoFake : UtbetalingsberegningDao {
 
     override fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse? = storage[saksbehandlingsperiodeId]
 
-    override fun slettBeregning(saksbehandlingsperiodeId: UUID) {
+    override fun slettBeregning(
+        saksbehandlingsperiodeId: UUID,
+        failSilently: Boolean,
+    ) {
         storage.remove(saksbehandlingsperiodeId)
     }
 }
