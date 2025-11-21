@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.dto.InntektbeløpDto
@@ -102,7 +103,7 @@ class YrkesaktivitetDaoTest {
                 refusjon = null,
             )
 
-        assertThrows<IllegalStateException> {
+        assertThrows<KunneIkkeOppdatereDbException> {
             dao.opprettYrkesaktivitet(
                 id = yrkesaktivitetDbRecord.id,
                 kategorisering = yrkesaktivitetDbRecord.kategorisering,

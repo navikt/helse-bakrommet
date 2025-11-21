@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -153,7 +154,7 @@ interface YrkesaktivitetDao {
 
 private val verifiserOppdatert: (Int) -> Unit = {
     if (it == 0) {
-        throw IllegalStateException("Yrkesaktivitet kunne ikke oppdateres")
+        throw KunneIkkeOppdatereDbException("Yrkesaktivitet kunne ikke oppdateres")
     }
 }
 

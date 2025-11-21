@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.behandling.tilkommen
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -60,7 +61,7 @@ interface TilkommenInntektDao {
 
 private val verifiserOppdatert: (Int) -> Unit = {
     if (it == 0) {
-        throw IllegalStateException("Tilkommen inntekt kunne ikke oppdateres")
+        throw KunneIkkeOppdatereDbException("Tilkommen inntekt kunne ikke oppdateres")
     }
 }
 
