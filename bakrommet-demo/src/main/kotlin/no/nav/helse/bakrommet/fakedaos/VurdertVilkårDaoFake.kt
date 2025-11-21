@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
+import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import java.util.UUID
@@ -31,7 +31,7 @@ class VurdertVilkårDaoFake : VurdertVilkårDao {
     override fun oppdater(
         behandling: Behandling,
         kode: Kode,
-        oppdatertVurdering: JsonNode,
+        oppdatertVurdering: Vilkaarsvurdering,
     ): Int {
         val key = behandling.id to kode.kode
         val eksisterende = vurderinger[key] ?: return 0
@@ -42,7 +42,7 @@ class VurdertVilkårDaoFake : VurdertVilkårDao {
     override fun leggTil(
         behandling: Behandling,
         kode: Kode,
-        vurdering: JsonNode,
+        vurdering: Vilkaarsvurdering,
     ): Int {
         vurderinger[behandling.id to kode.kode] = VurdertVilkår(kode = kode.kode, vurdering = vurdering)
         return 1

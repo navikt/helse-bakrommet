@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.behandling.vilkaar
 
 import com.fasterxml.jackson.annotation.JsonValue
-import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
@@ -61,18 +60,25 @@ class VilkårService(
     suspend fun leggTilEllerOpprettVurdertVilkår(
         ref: SaksbehandlingsperiodeReferanse,
         vilkårsKode: Kode,
-        vurdertVilkår: JsonNode,
+        request: VilkaarsvurderingRequest,
         saksbehandler: Bruker,
     ): Pair<VurdertVilkår, OpprettetEllerEndret> =
         db.transactional {
             val periode = behandlingDao.hentPeriode(ref, krav = saksbehandler.erSaksbehandlerPåSaken())
             val finnesFraFør = vurdertVilkårDao.eksisterer(periode, vilkårsKode)
+            val vilkaarsvurdering =
+                Vilkaarsvurdering(
+                    hovedspørsmål = vilkårsKode.kode,
+                    vurdering = request.vurdering,
+                    underspørsmål = request.underspørsmål,
+                    notat = request.notat,
+                )
             val opprettetEllerEndret =
                 if (finnesFraFør) {
-                    vurdertVilkårDao.oppdater(periode, vilkårsKode, vurdertVilkår)
+                    vurdertVilkårDao.oppdater(periode, vilkårsKode, vilkaarsvurdering)
                     OpprettetEllerEndret.ENDRET
                 } else {
-                    vurdertVilkårDao.leggTil(periode, vilkårsKode, vurdertVilkår)
+                    vurdertVilkårDao.leggTil(periode, vilkårsKode, vilkaarsvurdering)
                     OpprettetEllerEndret.OPPRETTET
                 }
             Pair(

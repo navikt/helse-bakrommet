@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.behandling.vilkaar
 
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
@@ -15,7 +15,7 @@ import javax.sql.DataSource
 
 data class VurdertVilkår(
     val kode: String,
-    val vurdering: JsonNode,
+    val vurdering: Vilkaarsvurdering,
 )
 
 interface VurdertVilkårDao {
@@ -39,13 +39,13 @@ interface VurdertVilkårDao {
     fun oppdater(
         behandling: Behandling,
         kode: Kode,
-        oppdatertVurdering: JsonNode,
+        oppdatertVurdering: Vilkaarsvurdering,
     ): Int
 
     fun leggTil(
         behandling: Behandling,
         kode: Kode,
-        vurdering: JsonNode,
+        vurdering: Vilkaarsvurdering,
     ): Int
 }
 
@@ -73,9 +73,11 @@ class VurdertVilkårDaoPg private constructor(
                 """.trimIndent(),
             "behandling_id" to saksbehandlingsperiodeId,
         ) {
+            val vurderingJson = it.string("vurdering")
+            val vurdering: Vilkaarsvurdering = objectMapper.readValue(vurderingJson)
             VurdertVilkår(
                 kode = it.string("kode"),
-                vurdering = it.string("vurdering").asJsonNode(),
+                vurdering = vurdering,
             )
         }
 
@@ -93,9 +95,11 @@ class VurdertVilkårDaoPg private constructor(
             "behandling_id" to saksbehandlingsperiodeId,
             "kode" to kode,
         ) {
+            val vurderingJson = it.string("vurdering")
+            val vurdering: Vilkaarsvurdering = objectMapper.readValue(vurderingJson)
             VurdertVilkår(
                 kode = it.string("kode"),
-                vurdering = it.string("vurdering").asJsonNode(),
+                vurdering = vurdering,
             )
         }
 
@@ -133,7 +137,7 @@ class VurdertVilkårDaoPg private constructor(
     override fun oppdater(
         behandling: Behandling,
         kode: Kode,
-        oppdatertVurdering: JsonNode,
+        oppdatertVurdering: Vilkaarsvurdering,
     ): Int =
         db
             .update(
@@ -154,7 +158,7 @@ class VurdertVilkårDaoPg private constructor(
     override fun leggTil(
         behandling: Behandling,
         kode: Kode,
-        vurdering: JsonNode,
+        vurdering: Vilkaarsvurdering,
     ): Int =
         db
             .update(

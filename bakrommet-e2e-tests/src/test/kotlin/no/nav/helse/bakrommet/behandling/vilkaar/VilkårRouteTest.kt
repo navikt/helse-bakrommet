@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.behandling.vilkaar
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -10,7 +11,6 @@ import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -59,17 +59,18 @@ class VilkårRouteTest {
                         """
                         {
                             "vurdering": "OPPFYLT",
-                            "årsak": "derfor"
+                            "underspørsmål": [],
+                            "notat": "derfor"
                         }
                         """.trimIndent(),
                     )
                 }
 
             assertEquals(HttpStatusCode.Created, vilkårPutResponse.status)
-            assertEquals(
-                """{"vurdering":"OPPFYLT","årsak":"derfor","hovedspørsmål":"BOR_I_NORGE"}""",
-                vilkårPutResponse.bodyAsText(),
-            )
+            val responseBody = vilkårPutResponse.bodyAsText()
+            assertEquals("OPPFYLT", objectMapper.readValue<Map<String, Any>>(responseBody)["vurdering"])
+            assertEquals("BOR_I_NORGE", objectMapper.readValue<Map<String, Any>>(responseBody)["hovedspørsmål"])
+            assertEquals("derfor", objectMapper.readValue<Map<String, Any>>(responseBody)["notat"])
         }
 
     @Test
@@ -85,19 +86,18 @@ class VilkårRouteTest {
                     setBody(
                         """
                         {
-                            
-                                "vurdering": "OPPFYLT",
-                                "årsak": "derfor"
-                            
+                            "vurdering": "OPPFYLT",
+                            "underspørsmål": [],
+                            "notat": "derfor"
                         }
                         """.trimIndent(),
                     )
                 }.apply {
                     assertEquals(HttpStatusCode.Created, status)
-                    assertEquals(
-                        """{"vurdering":"OPPFYLT","årsak":"derfor","hovedspørsmål":"BOR_I_NORGE"}""",
-                        bodyAsText(),
-                    )
+                    val responseBody = bodyAsText()
+                    assertEquals("OPPFYLT", objectMapper.readValue<Map<String, Any>>(responseBody)["vurdering"])
+                    assertEquals("BOR_I_NORGE", objectMapper.readValue<Map<String, Any>>(responseBody)["hovedspørsmål"])
+                    assertEquals("derfor", objectMapper.readValue<Map<String, Any>>(responseBody)["notat"])
                 }
 
             client
@@ -105,10 +105,12 @@ class VilkårRouteTest {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
-                    assertEquals(
-                        """[{"vurdering":"OPPFYLT","årsak":"derfor","hovedspørsmål":"BOR_I_NORGE"}]""",
-                        bodyAsText(),
-                    )
+                    val responseBody = bodyAsText()
+                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
+                    assertEquals(1, list.size)
+                    assertEquals("OPPFYLT", list[0]["vurdering"])
+                    assertEquals("BOR_I_NORGE", list[0]["hovedspørsmål"])
+                    assertEquals("derfor", list[0]["notat"])
                 }
 
             client
@@ -120,19 +122,18 @@ class VilkårRouteTest {
                     setBody(
                         """
                         {
-                          
-                                "vurdering": "IKKE_OPPFYLT",
-                                "årsak": "BOR_IKKE_I_NORGE"
-                            
+                            "vurdering": "IKKE_OPPFYLT",
+                            "underspørsmål": [],
+                            "notat": "BOR_IKKE_I_NORGE"
                         }
                         """.trimIndent(),
                     )
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
-                    assertEquals(
-                        """{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}""",
-                        bodyAsText(),
-                    )
+                    val responseBody = bodyAsText()
+                    assertEquals("IKKE_OPPFYLT", objectMapper.readValue<Map<String, Any>>(responseBody)["vurdering"])
+                    assertEquals("BOR_I_NORGE", objectMapper.readValue<Map<String, Any>>(responseBody)["hovedspørsmål"])
+                    assertEquals("BOR_IKKE_I_NORGE", objectMapper.readValue<Map<String, Any>>(responseBody)["notat"])
                 }
 
             client
@@ -140,10 +141,12 @@ class VilkårRouteTest {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
-                    assertEquals(
-                        """[{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}]""",
-                        bodyAsText(),
-                    )
+                    val responseBody = bodyAsText()
+                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
+                    assertEquals(1, list.size)
+                    assertEquals("IKKE_OPPFYLT", list[0]["vurdering"])
+                    assertEquals("BOR_I_NORGE", list[0]["hovedspørsmål"])
+                    assertEquals("BOR_IKKE_I_NORGE", list[0]["notat"])
                 }
 
             client
@@ -155,18 +158,16 @@ class VilkårRouteTest {
                     setBody(
                         """
                         {
-                        
-                                "vurdering": "IKKE_AKTUELT"
-                            
+                            "vurdering": "IKKE_RELEVANT",
+                            "underspørsmål": []
                         }
                         """.trimIndent(),
                     )
                 }.apply {
                     assertEquals(HttpStatusCode.Created, status)
-                    assertEquals(
-                        """{"vurdering":"IKKE_AKTUELT","hovedspørsmål":"ET_VILKÅR_TIL"}""",
-                        bodyAsText(),
-                    )
+                    val responseBody = bodyAsText()
+                    assertEquals("IKKE_RELEVANT", objectMapper.readValue<Map<String, Any>>(responseBody)["vurdering"])
+                    assertEquals("ET_VILKÅR_TIL", objectMapper.readValue<Map<String, Any>>(responseBody)["hovedspørsmål"])
                 }
 
             client
@@ -174,19 +175,24 @@ class VilkårRouteTest {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
+                    val responseBody = bodyAsText()
+                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
+                    assertEquals(2, list.size)
+                    val set = list.map { mapOf("vurdering" to (it["vurdering"] as String), "hovedspørsmål" to (it["hovedspørsmål"] as String), "notat" to (it["notat"] as? String)) }.toSet()
                     assertEquals(
                         setOf(
                             mapOf(
                                 "vurdering" to "IKKE_OPPFYLT",
-                                "årsak" to "BOR_IKKE_I_NORGE",
+                                "notat" to "BOR_IKKE_I_NORGE",
                                 "hovedspørsmål" to "BOR_I_NORGE",
                             ),
                             mapOf(
-                                "vurdering" to "IKKE_AKTUELT",
+                                "vurdering" to "IKKE_RELEVANT",
                                 "hovedspørsmål" to "ET_VILKÅR_TIL",
+                                "notat" to null,
                             ),
                         ),
-                        bodyAsText().somListe<Map<String, String>>().toSet(),
+                        set,
                     )
                 }
 
@@ -213,15 +219,11 @@ class VilkårRouteTest {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
-                    assertEquals(
-                        setOf(
-                            mapOf(
-                                "hovedspørsmål" to "ET_VILKÅR_TIL",
-                                "vurdering" to "IKKE_AKTUELT",
-                            ),
-                        ),
-                        bodyAsText().somListe<Map<String, String>>().toSet(),
-                    )
+                    val responseBody = bodyAsText()
+                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
+                    assertEquals(1, list.size)
+                    assertEquals("IKKE_RELEVANT", list[0]["vurdering"])
+                    assertEquals("ET_VILKÅR_TIL", list[0]["hovedspørsmål"])
                 }
         }
 
@@ -238,10 +240,8 @@ class VilkårRouteTest {
                     setBody(
                         """
                         {
-                            "vurdering": {
-                                "vurdering": "OPPFYLT",
-                                "årsak": "derfor"
-                            }
+                            "vurdering": "OPPFYLT",
+                            "underspørsmål": []
                         }
                         """.trimIndent(),
                     )
@@ -268,7 +268,8 @@ class VilkårRouteTest {
                 """
                 {
                     "vurdering": "IKKE_OPPFYLT",
-                    "årsak": "BOR_IKKE_I_NORGE"
+                    "underspørsmål": [],
+                    "notat": "BOR_IKKE_I_NORGE"
                 }
                 """.trimIndent()
 
@@ -328,10 +329,12 @@ class VilkårRouteTest {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
-                    assertEquals(
-                        """[{"vurdering":"IKKE_OPPFYLT","årsak":"BOR_IKKE_I_NORGE","hovedspørsmål":"BOR_I_NORGE"}]""",
-                        bodyAsText(),
-                    )
+                    val responseBody = bodyAsText()
+                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
+                    assertEquals(1, list.size)
+                    assertEquals("IKKE_OPPFYLT", list[0]["vurdering"])
+                    assertEquals("BOR_I_NORGE", list[0]["hovedspørsmål"])
+                    assertEquals("BOR_IKKE_I_NORGE", list[0]["notat"])
                 }
 
             client
