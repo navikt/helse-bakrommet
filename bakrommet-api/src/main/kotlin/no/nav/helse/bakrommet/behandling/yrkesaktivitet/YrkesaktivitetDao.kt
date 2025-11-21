@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
@@ -156,8 +157,8 @@ private val verifiserOppdatert: (Int) -> Unit = {
     }
 }
 
-private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = yrkesaktivitet.behandling_id) = 'UNDER_BEHANDLING'"
-private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :behandling_id and status = 'UNDER_BEHANDLING')"
+private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = yrkesaktivitet.behandling_id) = '$STATUS_UNDER_BEHANDLING_STR'"
+private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :behandling_id and status = '$STATUS_UNDER_BEHANDLING_STR')"
 
 class YrkesaktivitetDaoPg private constructor(
     private val db: QueryRunner,

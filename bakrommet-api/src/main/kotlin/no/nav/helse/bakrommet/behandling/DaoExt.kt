@@ -22,3 +22,5 @@ fun BehandlingDao.hentPeriode(
 }
 
 fun BehandlingDao.reload(periode: Behandling) = finnBehandling(periode.id)!!
+
+internal const val STATUS_UNDER_BEHANDLING_STR: String = "UNDER_BEHANDLING"
