@@ -4,6 +4,7 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.person.PersonDaoPg
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.dto.InntektbeløpDto
@@ -230,22 +231,22 @@ class SykepengegrunnlagDaoTest {
         val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
 
         dao.settLåst(lagretGrunnlag.id)
-        assertThrows<IllegalStateException> {
+        assertThrows<KunneIkkeOppdatereDbException> {
             dao.oppdaterSykepengegrunnlag(
                 lagretGrunnlag.id,
                 sykepengegrunnlag.copy(sykepengegrunnlag = InntektbeløpDto.Årlig(600000.0)),
             )
         }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
 
-        assertThrows<IllegalStateException> {
+        assertThrows<KunneIkkeOppdatereDbException> {
             dao.slettSykepengegrunnlag(lagretGrunnlag.id)
         }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
 
-        assertThrows<IllegalStateException> {
+        assertThrows<KunneIkkeOppdatereDbException> {
             dao.settLåst(lagretGrunnlag.id)
         }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
 
-        assertThrows<IllegalStateException> {
+        assertThrows<KunneIkkeOppdatereDbException> {
             dao.oppdaterSammenlikningsgrunnlag(lagretGrunnlag.id, null)
         }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
     }

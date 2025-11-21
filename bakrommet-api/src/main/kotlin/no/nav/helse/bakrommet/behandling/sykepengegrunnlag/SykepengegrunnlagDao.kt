@@ -3,6 +3,8 @@ package no.nav.helse.bakrommet.behandling.sykepengegrunnlag
 import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
+import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -38,6 +40,9 @@ interface SykepengegrunnlagDao {
     fun settLåst(sykepengegrunnlagId: UUID)
 }
 
+private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = sykepengegrunnlag.opprettet_for_behandling) = '$STATUS_UNDER_BEHANDLING_STR'"
+private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :opprettet_for_behandling and status = '$STATUS_UNDER_BEHANDLING_STR')"
+
 class SykepengegrunnlagDaoPg private constructor(
     private val db: QueryRunner,
 ) : SykepengegrunnlagDao {
@@ -53,18 +58,20 @@ class SykepengegrunnlagDaoPg private constructor(
         val nå = java.time.Instant.now()
         val sykepengegrunnlagJson = objectMapperCustomSerde.writeValueAsString(sykepengegrunnlag)
 
-        db.update(
-            """
-            INSERT INTO sykepengegrunnlag (id, sykepengegrunnlag, opprettet_av_nav_ident, opprettet, oppdatert, opprettet_for_behandling, laast)
-            VALUES (:id, :sykepengegrunnlag, :opprettet_av_nav_ident, :opprettet, :oppdatert, :opprettet_for_behandling, false)
-            """.trimIndent(),
-            "id" to id,
-            "sykepengegrunnlag" to sykepengegrunnlagJson,
-            "opprettet_av_nav_ident" to saksbehandler.navIdent,
-            "opprettet" to nå,
-            "oppdatert" to nå,
-            "opprettet_for_behandling" to opprettetForBehandling,
-        )
+        db
+            .update(
+                """
+                INSERT INTO sykepengegrunnlag (id, sykepengegrunnlag, opprettet_av_nav_ident, opprettet, oppdatert, opprettet_for_behandling, laast)
+                SELECT :id, :sykepengegrunnlag, :opprettet_av_nav_ident, :opprettet, :oppdatert, :opprettet_for_behandling, false
+                $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
+                """.trimIndent(),
+                "id" to id,
+                "sykepengegrunnlag" to sykepengegrunnlagJson,
+                "opprettet_av_nav_ident" to saksbehandler.navIdent,
+                "opprettet" to nå,
+                "oppdatert" to nå,
+                "opprettet_for_behandling" to opprettetForBehandling,
+            ).also(verifiserOppdatert)
 
         return finnSykepengegrunnlag(id)!!
     }
@@ -94,6 +101,7 @@ class SykepengegrunnlagDaoPg private constructor(
                 UPDATE sykepengegrunnlag 
                 SET sykepengegrunnlag = :sykepengegrunnlag, oppdatert = :oppdatert
                 WHERE id = :id and not laast
+                $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to sykepengegrunnlagId,
                 "sykepengegrunnlag" to sykepengegrunnlagJson,
@@ -118,6 +126,7 @@ class SykepengegrunnlagDaoPg private constructor(
                 UPDATE sykepengegrunnlag 
                 SET sammenlikningsgrunnlag = :sammenlikningsgrunnlag, oppdatert = :oppdatert
                 WHERE id = :id and not laast
+                $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to sykepengegrunnlagId,
                 "sammenlikningsgrunnlag" to sammenlikningsgrunnlagJson,
@@ -133,6 +142,7 @@ class SykepengegrunnlagDaoPg private constructor(
                 """
                 DELETE FROM sykepengegrunnlag 
                 WHERE id = :id and not laast
+                $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to sykepengegrunnlagId,
             ).also(verifiserOppdatert)
@@ -155,7 +165,7 @@ class SykepengegrunnlagDaoPg private constructor(
 
     private val verifiserOppdatert: (Int) -> Unit = {
         if (it == 0) {
-            throw IllegalStateException("Sykepengegrunnlag kunne ikke oppdateres")
+            throw KunneIkkeOppdatereDbException("Sykepengegrunnlag kunne ikke oppdateres")
         }
     }
 
