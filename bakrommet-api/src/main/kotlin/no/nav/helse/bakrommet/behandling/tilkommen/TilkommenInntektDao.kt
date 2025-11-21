@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.behandling.tilkommen
 
 import kotliquery.Row
 import kotliquery.Session
+import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
@@ -57,6 +58,15 @@ interface TilkommenInntektDao {
     fun finnTilkommenInntektForBehandlinger(map: List<UUID>): List<TilkommenInntektDbRecord>
 }
 
+private val verifiserOppdatert: (Int) -> Unit = {
+    if (it == 0) {
+        throw IllegalStateException("Tilkommen inntekt kunne ikke oppdateres")
+    }
+}
+
+private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = tilkommen_inntekt.behandling_id) = '$STATUS_UNDER_BEHANDLING_STR'"
+private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :behandling_id and status = '$STATUS_UNDER_BEHANDLING_STR')"
+
 class TilkommenInntektDaoPg private constructor(
     private val db: QueryRunner,
 ) : TilkommenInntektDao {
@@ -64,19 +74,21 @@ class TilkommenInntektDaoPg private constructor(
     constructor(session: Session) : this(MedSession(session))
 
     override fun opprett(tilkommenInntektDbRecord: TilkommenInntektDbRecord): TilkommenInntektDbRecord {
-        db.update(
-            """
-            insert into tilkommen_inntekt
-                (id, behandling_id, tilkommen_inntekt, opprettet, opprettet_av_nav_ident)
-            values
-                (:id, :behandling_id, :tilkommen_inntekt, :opprettet, :opprettet_av_nav_ident)
-            """.trimIndent(),
-            "id" to tilkommenInntektDbRecord.id,
-            "behandling_id" to tilkommenInntektDbRecord.behandlingId,
-            "tilkommen_inntekt" to tilkommenInntektDbRecord.tilkommenInntekt.serialisertTilString(),
-            "opprettet" to tilkommenInntektDbRecord.opprettet,
-            "opprettet_av_nav_ident" to tilkommenInntektDbRecord.opprettetAvNavIdent,
-        )
+        db
+            .update(
+                """
+                insert into tilkommen_inntekt
+                    (id, behandling_id, tilkommen_inntekt, opprettet, opprettet_av_nav_ident)
+                select
+                    :id, :behandling_id, :tilkommen_inntekt, :opprettet, :opprettet_av_nav_ident
+                $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
+                """.trimIndent(),
+                "id" to tilkommenInntektDbRecord.id,
+                "behandling_id" to tilkommenInntektDbRecord.behandlingId,
+                "tilkommen_inntekt" to tilkommenInntektDbRecord.tilkommenInntekt.serialisertTilString(),
+                "opprettet" to tilkommenInntektDbRecord.opprettet,
+                "opprettet_av_nav_ident" to tilkommenInntektDbRecord.opprettetAvNavIdent,
+            ).also(verifiserOppdatert)
         return hent(tilkommenInntektDbRecord.id)!!
     }
 
@@ -96,15 +108,17 @@ class TilkommenInntektDaoPg private constructor(
         id: UUID,
         tilkommenInntekt: TilkommenInntekt,
     ): TilkommenInntektDbRecord {
-        db.update(
-            """
-            update tilkommen_inntekt
-               set tilkommen_inntekt = :tilkommen_inntekt
-             where id = :id
-            """.trimIndent(),
-            "id" to id,
-            "tilkommen_inntekt" to tilkommenInntekt.serialisertTilString(),
-        )
+        db
+            .update(
+                """
+                update tilkommen_inntekt
+                   set tilkommen_inntekt = :tilkommen_inntekt
+                 where id = :id
+                 $AND_ER_UNDER_BEHANDLING
+                """.trimIndent(),
+                "id" to id,
+                "tilkommen_inntekt" to tilkommenInntekt.serialisertTilString(),
+            ).also(verifiserOppdatert)
         return hent(id)!!
     }
 
@@ -118,14 +132,11 @@ class TilkommenInntektDaoPg private constructor(
                 delete from tilkommen_inntekt
                 where id = :id
                 and behandling_id = :behandling_id
+                $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to id,
                 "behandling_id" to behandlingId,
-            ).also {
-                if (it != 1) {
-                    throw IllegalArgumentException("Kunne ikke slette tilkommen inntekt med id $id for behandling $behandlingId")
-                }
-            }
+            ).also(verifiserOppdatert)
     }
 
     override fun hent(id: UUID): TilkommenInntektDbRecord? =
