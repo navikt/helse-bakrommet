@@ -33,8 +33,9 @@ class TilkommenInntektDaoFake : TilkommenInntektDao {
         behandlingId: UUID,
         id: UUID,
     ) {
-        if (!storage.contains(id)) {
-            throw IllegalArgumentException("TilkommenInntekt med id $id finnes ikke og kan derfor ikke slettes.")
+        val existingRecord = storage[id] ?: throw IllegalArgumentException("TilkommenInntekt med id $id finnes ikke og kan derfor ikke slettes.")
+        if (existingRecord.behandlingId != behandlingId) {
+            throw IllegalArgumentException("TilkommenInntekt med id $id tilhører ikke behandling $behandlingId.")
         }
         storage.remove(id)
     }
