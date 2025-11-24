@@ -5,7 +5,6 @@ import no.nav.helse.bakrommet.BeregningskoderKombinasjonerSykepengegrunnlag
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
-import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Arbeidstaker
@@ -18,7 +17,6 @@ import no.nav.helse.økonomi.Inntekt.Companion.summer
 import java.time.LocalDate
 
 class SykepengegrunnlagBeregningHjelper(
-    private val beregningDao: UtbetalingsberegningDao,
     private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,

@@ -28,7 +28,6 @@ fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     saksbehandler: Bruker,
 ): SykepengegrunnlagDbRecord? =
     SykepengegrunnlagBeregningHjelper(
-        beregningDao = beregningDao,
         behandlingDao = behandlingDao,
         sykepengegrunnlagDao = sykepengegrunnlagDao,
         yrkesaktivitetDao = yrkesaktivitetDao,

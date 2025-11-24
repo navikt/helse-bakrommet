@@ -67,7 +67,7 @@ object ScenarioDefaults {
 data class ScenarioData(
     val scenario: Scenario,
     val periode: Behandling,
-    val sykepengegrunnlag: SykepengegrunnlagBase,
+    val sykepengegrunnlag: SykepengegrunnlagBase?,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     val yrkesaktiviteter: List<YrkesaktivitetDTO>,
     val utbetalingsberegning: BeregningResponseUtDto?,
@@ -75,7 +75,7 @@ data class ScenarioData(
     val beslutterToken: String,
 ) {
     fun `skal ha sykepengegrunnlag`(beløp: Double) {
-        assertEquals(beløp, sykepengegrunnlag.sykepengegrunnlag.beløp)
+        assertEquals(beløp, sykepengegrunnlag!!.sykepengegrunnlag.beløp)
     }
 
     fun `skal ha nærings del`(beløp: Double) {
@@ -234,7 +234,9 @@ data class Scenario(
 
             yaMedId.forEach { (ya, yrkesaktivitetId) ->
                 // Oppdater inntekt via action
-                oppdaterInntekt(personId, periode.id, yrkesaktivitetId, ya.inntekt.request)
+                if (ya.inntekt != null) {
+                    oppdaterInntekt(personId, periode.id, yrkesaktivitetId, ya.inntekt.request)
+                }
             }
 
             yaMedId.forEach { (ya, yrkesaktivitetId) ->
@@ -264,8 +266,8 @@ data class Scenario(
                     this,
                     ScenarioData(
                         periode = reloadedPeriode,
-                        sykepengegrunnlag = sykepengegrunnlag!!.sykepengegrunnlag!!,
-                        sammenlikningsgrunnlag = sykepengegrunnlag.sammenlikningsgrunnlag,
+                        sykepengegrunnlag = sykepengegrunnlag?.sykepengegrunnlag,
+                        sammenlikningsgrunnlag = sykepengegrunnlag?.sammenlikningsgrunnlag,
                         utbetalingsberegning = beregning,
                         yrkesaktiviteter = yrkesaktiviteter,
                         daoer = daoer,
@@ -279,13 +281,13 @@ data class Scenario(
 }
 
 sealed class YA(
-    val inntekt: YAInntekt,
+    val inntekt: YAInntekt?,
     val dagoversikt: YADagoversikt? = null,
 )
 
 class Arbeidstaker(
     val orgnr: String,
-    inntekt: YAInntekt,
+    inntekt: YAInntekt? = null,
     dagoversikt: YADagoversikt? = null,
 ) : YA(inntekt, dagoversikt)
 

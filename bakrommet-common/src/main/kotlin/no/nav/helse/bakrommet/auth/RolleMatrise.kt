@@ -70,6 +70,10 @@ val regler =
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
+            path = "/v2/{personId}/saksbehandlingsperioder/{periodeUUID}/sykepengegrunnlag/(method:POST)",
+            role = setOf(SAKSBEHANDLER),
+        ),
+        Rule(
             path = "/v1/{personId}/saksbehandlingsperioder/{periodeUUID}/dokumenter/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),

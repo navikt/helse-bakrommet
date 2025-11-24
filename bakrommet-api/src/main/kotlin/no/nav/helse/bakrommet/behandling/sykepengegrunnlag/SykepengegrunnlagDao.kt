@@ -173,7 +173,7 @@ class SykepengegrunnlagDaoPg private constructor(
         val sykepengegrunnlagJson = row.stringOrNull("sykepengegrunnlag")
         val sykepengegrunnlag =
             sykepengegrunnlagJson?.let {
-                objectMapperCustomSerde.readValue(sykepengegrunnlagJson, Sykepengegrunnlag::class.java)
+                objectMapperCustomSerde.readValue(sykepengegrunnlagJson, SykepengegrunnlagBase::class.java)
             }
 
         val sammenlikningsgrunnlagJson = row.stringOrNull("sammenlikningsgrunnlag")
