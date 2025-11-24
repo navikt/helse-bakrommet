@@ -1,21 +1,63 @@
 package no.nav.helse.bakrommet.behandling.sykepengegrunnlag
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import no.nav.helse.bakrommet.BeregningskoderKombinasjonerSykepengegrunnlag
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(value = Sykepengegrunnlag::class, name = "SYKEPENGEGRUNNLAG"),
+    JsonSubTypes.Type(value = FrihåndSykepengegrunnlag::class, name = "FRIHÅND_SYKEPENGEGRUNNLAG"),
+)
+sealed class SykepengegrunnlagBase(
+    open val grunnbeløp: InntektbeløpDto.Årlig,
+    open val sykepengegrunnlag: InntektbeløpDto.Årlig,
+    open val seksG: InntektbeløpDto.Årlig,
+    open val begrensetTil6G: Boolean,
+    open val grunnbeløpVirkningstidspunkt: LocalDate,
+    open val beregningsgrunnlag: InntektbeløpDto.Årlig,
+)
+
 data class Sykepengegrunnlag(
-    val grunnbeløp: InntektbeløpDto.Årlig,
-    val beregningsgrunnlag: InntektbeløpDto.Årlig,
-    val sykepengegrunnlag: InntektbeløpDto.Årlig,
-    val seksG: InntektbeløpDto.Årlig,
-    val begrensetTil6G: Boolean,
-    val grunnbeløpVirkningstidspunkt: LocalDate,
+    override val grunnbeløp: InntektbeløpDto.Årlig,
+    override val sykepengegrunnlag: InntektbeløpDto.Årlig,
+    override val seksG: InntektbeløpDto.Årlig,
+    override val begrensetTil6G: Boolean,
+    override val grunnbeløpVirkningstidspunkt: LocalDate,
+    override val beregningsgrunnlag: InntektbeløpDto.Årlig,
     val næringsdel: Næringsdel?,
     val kombinertBeregningskode: BeregningskoderKombinasjonerSykepengegrunnlag? = null,
-)
+) : SykepengegrunnlagBase(
+        grunnbeløp = grunnbeløp,
+        sykepengegrunnlag = sykepengegrunnlag,
+        seksG = seksG,
+        begrensetTil6G = begrensetTil6G,
+        grunnbeløpVirkningstidspunkt = grunnbeløpVirkningstidspunkt,
+        beregningsgrunnlag = beregningsgrunnlag,
+    )
+
+data class FrihåndSykepengegrunnlag(
+    override val grunnbeløp: InntektbeløpDto.Årlig,
+    override val sykepengegrunnlag: InntektbeløpDto.Årlig,
+    override val seksG: InntektbeløpDto.Årlig,
+    override val begrensetTil6G: Boolean,
+    override val grunnbeløpVirkningstidspunkt: LocalDate,
+    override val beregningsgrunnlag: InntektbeløpDto.Årlig,
+    val begrunnelse: String,
+    val beregningskoder: List<BeregningskoderSykepengegrunnlag>,
+) : SykepengegrunnlagBase(
+        grunnbeløp = grunnbeløp,
+        sykepengegrunnlag = sykepengegrunnlag,
+        seksG = seksG,
+        begrensetTil6G = begrensetTil6G,
+        grunnbeløpVirkningstidspunkt = grunnbeløpVirkningstidspunkt,
+        beregningsgrunnlag = beregningsgrunnlag,
+    )
 
 data class Næringsdel(
     val pensjonsgivendeÅrsinntekt: InntektbeløpDto.Årlig,
@@ -33,7 +75,7 @@ data class Sammenlikningsgrunnlag(
 )
 
 data class SykepengegrunnlagDbRecord(
-    val sykepengegrunnlag: Sykepengegrunnlag?,
+    val sykepengegrunnlag: SykepengegrunnlagBase?,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?, // null for rene næringsdrivende mm++(?)
     val id: UUID,
     val opprettetAv: String,
@@ -44,7 +86,7 @@ data class SykepengegrunnlagDbRecord(
 )
 
 data class SykepengegrunnlagResponse(
-    val sykepengegrunnlag: Sykepengegrunnlag?,
+    val sykepengegrunnlag: SykepengegrunnlagBase?,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     val opprettetForBehandling: UUID,
 )

@@ -1,9 +1,8 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.dto.PeriodeDto
@@ -14,18 +13,11 @@ import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import java.util.UUID
 
 data class UtbetalingsberegningInput(
-    val sykepengegrunnlag: Sykepengegrunnlag,
+    val sykepengegrunnlag: SykepengegrunnlagBase,
     val yrkesaktivitet: List<Yrkesaktivitet>,
     val saksbehandlingsperiode: PeriodeDto,
     val arbeidsgiverperiode: PeriodeDto? = null,
     val tilkommenInntekt: List<TilkommenInntektDbRecord>,
-)
-
-data class DemoUtbetalingsberegningInput(
-    val sykepengegrunnlag: Sykepengegrunnlag,
-    val yrkesaktivitet: List<YrkesaktivitetDbRecord>,
-    val saksbehandlingsperiode: PeriodeDto,
-    val arbeidsgiverperiode: PeriodeDto? = null,
 )
 
 data class Sporbar<T>(

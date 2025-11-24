@@ -14,7 +14,7 @@ import javax.sql.DataSource
 
 interface SykepengegrunnlagDao {
     fun lagreSykepengegrunnlag(
-        sykepengegrunnlag: Sykepengegrunnlag?,
+        sykepengegrunnlag: SykepengegrunnlagBase?,
         saksbehandler: Bruker,
         opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord
@@ -27,7 +27,7 @@ interface SykepengegrunnlagDao {
 
     fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,
-        sykepengegrunnlag: Sykepengegrunnlag?,
+        sykepengegrunnlag: SykepengegrunnlagBase?,
     ): SykepengegrunnlagDbRecord
 
     fun oppdaterSammenlikningsgrunnlag(
@@ -50,7 +50,7 @@ class SykepengegrunnlagDaoPg private constructor(
     constructor(session: Session) : this(MedSession(session))
 
     override fun lagreSykepengegrunnlag(
-        sykepengegrunnlag: Sykepengegrunnlag?,
+        sykepengegrunnlag: SykepengegrunnlagBase?,
         saksbehandler: Bruker,
         opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord {
@@ -90,7 +90,7 @@ class SykepengegrunnlagDaoPg private constructor(
 
     override fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,
-        sykepengegrunnlag: Sykepengegrunnlag?,
+        sykepengegrunnlag: SykepengegrunnlagBase?,
     ): SykepengegrunnlagDbRecord {
         val nå = java.time.Instant.now()
         val sykepengegrunnlagJson = sykepengegrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }

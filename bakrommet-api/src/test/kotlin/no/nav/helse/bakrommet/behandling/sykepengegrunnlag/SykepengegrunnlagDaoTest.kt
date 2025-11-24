@@ -198,11 +198,11 @@ class SykepengegrunnlagDaoTest {
         assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag!!.grunnbeløp.beløp)
         assertEquals(
             sykepengegrunnlag.beregningsgrunnlag.beløp,
-            hentetGrunnlag.sykepengegrunnlag!!.beregningsgrunnlag.beløp,
+            hentetGrunnlag.sykepengegrunnlag.beregningsgrunnlag.beløp,
         )
         assertEquals(
             sykepengegrunnlag.sykepengegrunnlag.beløp,
-            hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp,
+            hentetGrunnlag.sykepengegrunnlag.sykepengegrunnlag.beløp,
         )
         assertEquals(sykepengegrunnlag.seksG.beløp, hentetGrunnlag.sykepengegrunnlag!!.seksG.beløp)
         assertEquals(sykepengegrunnlag.begrensetTil6G, hentetGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
@@ -210,6 +210,7 @@ class SykepengegrunnlagDaoTest {
             sykepengegrunnlag.grunnbeløpVirkningstidspunkt,
             hentetGrunnlag.sykepengegrunnlag!!.grunnbeløpVirkningstidspunkt,
         )
+        require(hentetGrunnlag.sykepengegrunnlag is Sykepengegrunnlag)
         assertEquals(sykepengegrunnlag.næringsdel, hentetGrunnlag.sykepengegrunnlag!!.næringsdel)
     }
 

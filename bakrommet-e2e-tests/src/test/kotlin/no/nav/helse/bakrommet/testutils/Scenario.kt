@@ -19,6 +19,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningResponseUtDto
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDTO
@@ -66,7 +67,7 @@ object ScenarioDefaults {
 data class ScenarioData(
     val scenario: Scenario,
     val periode: Behandling,
-    val sykepengegrunnlag: Sykepengegrunnlag,
+    val sykepengegrunnlag: SykepengegrunnlagBase,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     val yrkesaktiviteter: List<YrkesaktivitetDTO>,
     val utbetalingsberegning: BeregningResponseUtDto?,
@@ -78,6 +79,7 @@ data class ScenarioData(
     }
 
     fun `skal ha nærings del`(beløp: Double) {
+        require(sykepengegrunnlag is Sykepengegrunnlag)
         assertEquals(beløp, sykepengegrunnlag.næringsdel!!.næringsdel.beløp)
     }
 

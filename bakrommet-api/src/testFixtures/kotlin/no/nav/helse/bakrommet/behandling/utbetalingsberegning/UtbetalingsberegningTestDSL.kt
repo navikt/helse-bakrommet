@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.beregnSykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
@@ -615,7 +615,7 @@ fun utbetalingsberegningTestOgBeregn(
 data class BeregningResultat(
     val beregnet: List<YrkesaktivitetUtbetalingsberegning>,
     val oppdrag: List<Oppdrag>,
-    val sykepengegrunnlag: Sykepengegrunnlag,
+    val sykepengegrunnlag: SykepengegrunnlagBase,
 )
 
 // Hjelpefunksjoner for å lage sykepengegrunnlag

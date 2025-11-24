@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.fakedaos
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
 import java.time.Instant
@@ -13,7 +13,7 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
     private val storage = ConcurrentHashMap<UUID, SykepengegrunnlagDbRecord>()
 
     override fun lagreSykepengegrunnlag(
-        sykepengegrunnlag: Sykepengegrunnlag?,
+        sykepengegrunnlag: SykepengegrunnlagBase?,
         saksbehandler: Bruker,
         opprettetForBehandling: UUID,
     ): SykepengegrunnlagDbRecord {
@@ -41,7 +41,7 @@ class SykepengegrunnlagDaoFake : SykepengegrunnlagDao {
 
     override fun oppdaterSykepengegrunnlag(
         sykepengegrunnlagId: UUID,
-        sykepengegrunnlag: Sykepengegrunnlag?,
+        sykepengegrunnlag: SykepengegrunnlagBase?,
     ): SykepengegrunnlagDbRecord {
         val eksisterende = storage[sykepengegrunnlagId] ?: throw IllegalArgumentException("Ukjent id")
         eksisterende.verifiserIkkeLåst()

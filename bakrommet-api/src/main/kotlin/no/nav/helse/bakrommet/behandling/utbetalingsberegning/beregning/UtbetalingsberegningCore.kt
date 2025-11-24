@@ -41,6 +41,7 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
         yrkesaktivitetMedDekningsgrad.map { (yrkesaktivitet, dekningsgrad) ->
             val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet] ?: emptyMap()
             val refusjonstidslinje = opprettRefusjonstidslinjeFraData(refusjonstidslinjeData)
+            // TODO her hvis ikke vanlig sykepengegrunnlag eller en forlengelse med ny inntekt så må vi finne fastsatt årsinntekt på annen måte
             val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, yrkesaktivitet)
             val inntektjusteringer = input.tilkommenInntekt.tilBeløpstidslinje(input.saksbehandlingsperiode)
 
