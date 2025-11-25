@@ -39,15 +39,24 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
 
     val inntekterForYrkesaktiviteter =
         input.yrkesaktivitet.map {
-            it.id to (finnManuellInntektForYrkesaktivitet(it) ?: finnInntektForYrkesaktivitet(input.sykepengegrunnlag, it) ?: Inntekt.INGEN)
+            it.id to (
+                finnManuellInntektForYrkesaktivitet(it) ?: finnInntektForYrkesaktivitet(
+                    input.sykepengegrunnlag,
+                    it,
+                ) ?: Inntekt.INGEN
+            )
         }
 
     val sumAvAlleInntekter = inntekterForYrkesaktiviteter.sumOf { it.second.årlig }
 
     val andelTilFordelingForYrkesaktiviteter =
-        inntekterForYrkesaktiviteter.associate { inntekt ->
-            val andel = if (sumAvAlleInntekter == 0.0) 0.0 else inntekt.second.årlig / sumAvAlleInntekter
-            inntekt.first to InntektbeløpDto.Årlig((sykepengennlag * andel)).tilInntekt()
+        if (input.yrkesaktivitet.size == 1) {
+            mapOf(input.yrkesaktivitet.first().id to InntektbeløpDto.Årlig(sykepengennlag).tilInntekt())
+        } else {
+            inntekterForYrkesaktiviteter.associate { inntekt ->
+                val andel = if (sumAvAlleInntekter == 0.0) 0.0 else inntekt.second.årlig / sumAvAlleInntekter
+                inntekt.first to InntektbeløpDto.Årlig((sykepengennlag * andel)).tilInntekt()
+            }
         }
 
     val utbetalingstidslinjer =

@@ -6,7 +6,6 @@ import no.nav.helse.bakrommet.testutils.Scenario
 import no.nav.helse.bakrommet.testutils.SykAlleDager
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSykepengegrunnlag
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settInntekt
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
 import no.nav.helse.mars
@@ -32,12 +31,7 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
 
             val personId = førsteBehandling.scenario.personId
             val periodeId = førsteBehandling.periode.id
-            settInntekt(
-                personId = personId,
-                periodeId = periodeId,
-                yrkesaktivitetId = førsteBehandling.yrkesaktiviteter.first().id,
-                inntekt = BigDecimal(10.0),
-            )
+
             opprettSykepengegrunnlag(
                 personId,
                 periodeId,
