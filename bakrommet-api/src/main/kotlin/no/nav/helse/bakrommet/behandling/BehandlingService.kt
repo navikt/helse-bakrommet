@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.behandling.BehandlingStatus.UNDER_BEHANDLING
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType.REVURDERING_STARTET
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
+import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.behandling.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
@@ -89,7 +90,7 @@ class BehandlingService(
             tidligerePeriodeInntilNyPeriode?.let {
                 nyPeriode =
                     nyPeriode.copy(
-                        skjæringstidspunkt = it.skjæringstidspunkt ?: fom,
+                        skjæringstidspunkt = it.skjæringstidspunkt,
                         sykepengegrunnlagId = it.sykepengegrunnlagId,
                     )
             }
@@ -114,8 +115,8 @@ class BehandlingService(
             } else {
                 emptyList()
             }
-
-        db.nonTransactional {
+// TODO kan vi få alt i samme trans. ?
+        db.transactional {
             val tidligereYrkesaktiviteter =
                 tidligerePeriodeInntilNyPeriode
                     ?.let { yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(it) }
@@ -137,8 +138,8 @@ class BehandlingService(
                     opprettet = yrkesaktivitet.opprettet,
                     generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
                     perioder = yrkesaktivitet.perioder,
-                    inntektData = null,
-                    refusjonsdata = null,
+                    inntektData = yrkesaktivitet.inntektData,
+                    refusjonsdata = yrkesaktivitet.refusjon,
                     inntekt = yrkesaktivitet.inntekt,
                 )
             }
@@ -148,6 +149,7 @@ class BehandlingService(
                     behandlingDao.oppdaterSykepengegrunnlagId(nyPeriode.id, spgid)
                 }
             }
+            beregnUtbetaling(nyPeriode.somReferanse(), saksbehandler.bruker)
         }
 
         return nyPeriode
@@ -547,6 +549,8 @@ fun lagYrkesaktiviteter(
                         behandling.fom,
                         behandling.tom,
                     )
+                val tidligere = tidligereMap[kategori]
+
                 YrkesaktivitetDbRecord(
                     id = UUID.randomUUID(),
                     kategorisering = kategori,
@@ -556,7 +560,10 @@ fun lagYrkesaktiviteter(
                     saksbehandlingsperiodeId = behandling.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
-                    inntekt = null,
+                    refusjon = tidligere?.refusjon,
+                    inntekt = tidligere?.inntekt,
+                    inntektData = tidligere?.inntektData,
+                    inntektRequest = tidligere?.inntektRequest,
                 )
             } ?: tidligereMap[kategori]?.let { tidligere ->
                 val nyId = UUID.randomUUID()
