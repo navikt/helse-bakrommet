@@ -3,12 +3,10 @@ package no.nav.helse.bakrommet.scenariotester
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.OpprettSykepengegrunnlagRequest
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Scenario
-import no.nav.helse.bakrommet.testutils.SkjønnsfastsattManglendeRapportering
 import no.nav.helse.bakrommet.testutils.SykAlleDager
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settInntekt
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settRefusjon
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
 import no.nav.helse.mars
@@ -26,7 +24,7 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
                 listOf(
                     Arbeidstaker(
                         "888888888",
-                        inntekt = SkjønnsfastsattManglendeRapportering(400000.0), // TODO sett denne lavere i en annen test
+                        inntekt = null,
                         dagoversikt = SykAlleDager(),
                     ),
                 ),
@@ -38,13 +36,7 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
                 personId = personId,
                 periodeId = periodeId,
                 yrkesaktivitetId = førsteBehandling.yrkesaktiviteter.first().id,
-                inntekt = BigDecimal(400000.0),
-            )
-            settRefusjon(
-                personId = personId,
-                periodeId = periodeId,
-                yrkesaktivitetId = førsteBehandling.yrkesaktiviteter.first().id,
-                refusjon = emptyList(),
+                inntekt = BigDecimal(10.0),
             )
             opprettSykepengegrunnlag(
                 personId,

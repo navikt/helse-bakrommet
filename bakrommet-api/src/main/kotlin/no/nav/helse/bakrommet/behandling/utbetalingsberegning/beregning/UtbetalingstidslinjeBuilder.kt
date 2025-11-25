@@ -30,7 +30,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
     dekningsgrad: ProsentdelDto,
     input: UtbetalingsberegningInput,
     refusjonstidslinje: Beløpstidslinje,
-    fastsattÅrsinntekt: Inntekt,
+    maksÅrsinntektTilFordeling: Inntekt,
     inntektjusteringer: Beløpstidslinje,
 ): Utbetalingstidslinje {
     val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
@@ -46,7 +46,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
     return when (yrkesaktivitet.kategorisering) {
         is YrkesaktivitetKategorisering.Inaktiv ->
             byggInaktivUtbetalingstidslinje(
-                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
                 dekningsgrad = dekningsgrad,
                 inntektjusteringer = inntektjusteringer,
                 yrkesaktivitet = yrkesaktivitet,
@@ -55,7 +55,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
 
         is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende ->
             byggSelvstendigUtbetalingstidslinje(
-                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
                 dekningsgrad = dekningsgrad,
                 yrkesaktivitet = yrkesaktivitet,
                 sykdomstidslinje = sykdomstidslinje,
@@ -63,7 +63,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
 
         is YrkesaktivitetKategorisering.Arbeidsledig ->
             byggArbeidsledigtidslinje(
-                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
                 dekningsgrad = dekningsgrad,
                 sykdomstidslinje = sykdomstidslinje,
             )
@@ -75,7 +75,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 dekningsgrad = dekningsgrad,
                 dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
                 refusjonstidslinje = refusjonstidslinje,
-                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
                 inntektjusteringer = inntektjusteringer,
                 sykdomstidslinje = sykdomstidslinje,
             )
@@ -86,7 +86,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 dekningsgrad = dekningsgrad,
                 dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
                 refusjonstidslinje = refusjonstidslinje,
-                fastsattÅrsinntekt = fastsattÅrsinntekt,
+                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
                 inntektjusteringer = inntektjusteringer,
                 sykdomstidslinje = sykdomstidslinje,
             )

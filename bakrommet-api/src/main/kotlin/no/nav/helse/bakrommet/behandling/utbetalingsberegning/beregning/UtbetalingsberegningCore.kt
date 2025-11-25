@@ -35,14 +35,25 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
             ya to ya.kategorisering.hentDekningsgrad()
         }
 
-    // TODO her tror jeg vi skal hente den virituelle inntekten
+    val sykepengennlag = input.sykepengegrunnlag.sykepengegrunnlag.beløp
+
+    val inntekterForYrkesaktiviteter =
+        input.yrkesaktivitet.map {
+            it.id to (finnManuellInntektForYrkesaktivitet(it) ?: finnInntektForYrkesaktivitet(input.sykepengegrunnlag, it) ?: Inntekt.INGEN)
+        }
+
+    val sumAvAlleInntekter = inntekterForYrkesaktiviteter.sumOf { it.second.årlig }
+
+    val andelTilFordelingForYrkesaktiviteter =
+        inntekterForYrkesaktiviteter.associate { inntekt ->
+            val andel = if (sumAvAlleInntekter == 0.0) 0.0 else inntekt.second.årlig / sumAvAlleInntekter
+            inntekt.first to InntektbeløpDto.Årlig((sykepengennlag * andel)).tilInntekt()
+        }
 
     val utbetalingstidslinjer =
         yrkesaktivitetMedDekningsgrad.map { (yrkesaktivitet, dekningsgrad) ->
             val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet] ?: emptyMap()
             val refusjonstidslinje = opprettRefusjonstidslinjeFraData(refusjonstidslinjeData)
-            // TODO her hvis ikke vanlig sykepengegrunnlag eller en forlengelse med ny inntekt så må vi finne fastsatt årsinntekt på annen måte
-            val fastsattÅrsinntekt = finnInntektForYrkesaktivitet(input.sykepengegrunnlag, yrkesaktivitet)
             val inntektjusteringer = input.tilkommenInntekt.tilBeløpstidslinje(input.saksbehandlingsperiode)
 
             byggUtbetalingstidslinjeForYrkesaktivitet(
@@ -50,7 +61,7 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
                 dekningsgrad = dekningsgrad.verdi,
                 input = input,
                 refusjonstidslinje = refusjonstidslinje,
-                fastsattÅrsinntekt = fastsattÅrsinntekt ?: Inntekt.INGEN,
+                maksÅrsinntektTilFordeling = andelTilFordelingForYrkesaktiviteter[yrkesaktivitet.id]!!,
                 inntektjusteringer = inntektjusteringer,
             )
         }
@@ -97,7 +108,8 @@ private fun List<TilkommenInntektDbRecord>.tilBeløpstidslinje(periode: PeriodeD
                 .toMutableSet()
         val beløpPerDag = t.inntektForPerioden / dagerIPerioden.size.toBigDecimal()
         dagerIPerioden.forEach { dag ->
-            mapMedTommeInntekter[dag] = mapMedTommeInntekter[dag]!! + InntektbeløpDto.DagligDouble(beløpPerDag.toDouble()).tilInntekt()
+            mapMedTommeInntekter[dag] =
+                mapMedTommeInntekter[dag]!! + InntektbeløpDto.DagligDouble(beløpPerDag.toDouble()).tilInntekt()
         }
     }
 
