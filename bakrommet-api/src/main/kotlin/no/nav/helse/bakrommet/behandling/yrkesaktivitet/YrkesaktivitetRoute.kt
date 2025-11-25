@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import hentPensjonsgivendeInntektForYrkesaktivitet
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -137,7 +138,10 @@ internal fun Route.yrkesaktivitetRoute(
 
             route("/refusjon") {
                 put {
-                    val refusjon = call.receiveWithCustomMapper<List<Refusjonsperiode>?>(objectMapperCustomSerde)
+                    val refusjonBody = call.receiveText()
+
+                    val refusjon: List<Refusjonsperiode>? = objectMapperCustomSerde.readValue(refusjonBody)
+
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
 
                     yrkesaktivitetService.oppdaterRefusjon(yrkesaktivitetRef, refusjon, call.saksbehandler())

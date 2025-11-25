@@ -14,6 +14,7 @@ import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.util.*
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.LocalDate
@@ -230,7 +231,7 @@ class YrkesaktivitetDaoPg private constructor(
                 "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
                 "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
                 "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.serialisertTilString(),
-                "refusjon" to yrkesaktivitetDbRecord.refusjon?.serialisertTilString(),
+                "refusjon" to yrkesaktivitetDbRecord.refusjon?.let { objectMapperCustomSerde.writeValueAsString(it) },
                 "inntekt" to yrkesaktivitetDbRecord.inntekt,
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
@@ -302,7 +303,7 @@ class YrkesaktivitetDaoPg private constructor(
             inntektData = row.stringOrNull("inntekt_data")?.let { objectMapper.readValue(it, InntektData::class.java) },
             refusjon =
                 row.stringOrNull("refusjon")?.let {
-                    objectMapper.readValue(
+                    objectMapperCustomSerde.readValue(
                         it,
                         object : com.fasterxml.jackson.core.type.TypeReference<List<Refusjonsperiode>>() {},
                     )
@@ -415,7 +416,7 @@ class YrkesaktivitetDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to yrkesaktivitetID,
-                "refusjon" to refusjonsdata?.serialisertTilString(),
+                "refusjon" to refusjonsdata?.let { objectMapperCustomSerde.writeValueAsString(it) },
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetID)!!
     }
