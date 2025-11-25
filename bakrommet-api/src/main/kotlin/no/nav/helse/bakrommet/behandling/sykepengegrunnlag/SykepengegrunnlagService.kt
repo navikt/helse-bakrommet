@@ -48,11 +48,7 @@ class SykepengegrunnlagService(
                     krav = saksbehandler.erSaksbehandlerPåSaken(),
                 )
             if (behandling.sykepengegrunnlagId != null) {
-                // TODO dette er
-                //
-                behandlingDao.oppdaterSykepengegrunnlagId(behandling.id, null)
-                sykepengegrunnlagDao.slettSykepengegrunnlag(behandling.sykepengegrunnlagId)
-                //  throw IllegalStateException("Sykepengegrunnlag er allerede opprettet for behandling ${behandling.id}")
+                throw IllegalStateException("Sykepengegrunnlag er allerede opprettet for behandling ${behandling.id}")
             }
 
             val spg = skapSykepengegrunnlag(behandling, request)
