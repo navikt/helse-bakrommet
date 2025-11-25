@@ -270,8 +270,9 @@ class YrkesaktivitetService(
         saksbehandler: Bruker,
     ) {
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        db.nonTransactional {
+        db.transactional {
             yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, refusjon)
+            beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
         }
     }
 
@@ -281,8 +282,10 @@ class YrkesaktivitetService(
         saksbehandler: Bruker,
     ): YrkesaktivitetDbRecord {
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        return db.nonTransactional {
-            yrkesaktivitetDao.oppdaterInntekt(yrkesaktivitet.id, inntekt)
+        return db.transactional {
+            yrkesaktivitetDao.oppdaterInntekt(yrkesaktivitet.id, inntekt).also {
+                beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
+            }
         }
     }
 }

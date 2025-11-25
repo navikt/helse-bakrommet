@@ -14,11 +14,13 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktivit
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settInntekt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settRefusjon
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.Test
+import java.math.BigDecimal
 
 class ArbeidsgiverForlengelseNyArbeidsgiverTest {
     @Test
@@ -44,6 +46,8 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
 
             førsteBehandling.`skal ha utbetaling`(2310)
             førsteBehandling.`skal ha refusjon`(6920, "888")
+
+            førsteBehandling.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 240000.0
             val forrigePeriode = førsteBehandling.periode
 
             val personId = førsteBehandling.scenario.personId
@@ -64,22 +68,38 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                         typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "654"),
                     ),
                 )
+            settInntekt(
+                personId = personId,
+                periodeId = nestePeriode.id,
+                yrkesaktivitetId = nyYrkesaktivitet,
+                inntekt = BigDecimal(600000.0),
+            )
             settDagoversikt(personId, nestePeriode.id, nyYrkesaktivitet, lagSykedager(fom, tom, grad = 100))
             settRefusjon(
-                personId,
-                nestePeriode.id,
-                nyYrkesaktivitet,
-                listOf(
-                    Refusjonsperiode(
-                        fom,
-                        tom,
-                        InntektbeløpDto.MånedligDouble(4000.0),
+                personId = personId,
+                periodeId = nestePeriode.id,
+                yrkesaktivitetId = nyYrkesaktivitet,
+                refusjon =
+                    listOf(
+                        Refusjonsperiode(
+                            fom,
+                            tom,
+                            InntektbeløpDto.MånedligDouble(4000.0),
+                        ),
                     ),
-                ),
             )
             hentUtbetalingsberegning(personId, nestePeriode.id).also { beregning ->
                 beregning!!
-                    .beregningData.spilleromOppdrag.oppdrag.size `should equal` 0 // TODO når impl så skal dette være 2!
+                    .beregningData.spilleromOppdrag.oppdrag.size `should equal` 2
+
+                beregning.beregningData.spilleromOppdrag.oppdrag.first().also {
+                    it.fagområde `should equal` "SPREF"
+                    it.totalbeløp `should equal` 1850
+                }
+                beregning.beregningData.spilleromOppdrag.oppdrag.last().also {
+                    it.fagområde `should equal` "SP"
+                    it.totalbeløp `should equal` 7380
+                }
             }
         }
     }
