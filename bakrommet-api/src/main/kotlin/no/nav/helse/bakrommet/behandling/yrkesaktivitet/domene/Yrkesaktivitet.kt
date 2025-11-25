@@ -23,6 +23,7 @@ data class Yrkesaktivitet(
     val inntektRequest: InntektRequest? = null,
     val inntektData: InntektData? = null,
     val refusjon: List<Refusjonsperiode>? = null,
+    val inntekt: java.math.BigDecimal? = null,
 ) {
     fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
         if (this.perioder?.type == periodetype) {

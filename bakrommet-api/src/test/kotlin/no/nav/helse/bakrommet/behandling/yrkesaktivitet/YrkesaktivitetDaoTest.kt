@@ -64,6 +64,7 @@ class YrkesaktivitetDaoTest {
                 inntektRequest = null,
                 inntektData = null,
                 refusjon = null,
+                inntekt = null,
             )
         val ekko =
             dao.opprettYrkesaktivitet(
@@ -76,6 +77,7 @@ class YrkesaktivitetDaoTest {
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
                 refusjonsdata = yrkesaktivitetDbRecord.refusjon,
+                inntekt = yrkesaktivitetDbRecord.inntekt,
             )
         assertEquals(yrkesaktivitetDbRecord.tidsstuttet(), ekko.tidsstuttet())
 
@@ -101,6 +103,7 @@ class YrkesaktivitetDaoTest {
                 inntektRequest = null,
                 inntektData = null,
                 refusjon = null,
+                inntekt = null,
             )
 
         assertThrows<KunneIkkeOppdatereDbException> {
@@ -114,6 +117,7 @@ class YrkesaktivitetDaoTest {
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
                 refusjonsdata = yrkesaktivitetDbRecord.refusjon,
+                inntekt = yrkesaktivitetDbRecord.inntekt,
             )
         }
     }
@@ -135,6 +139,7 @@ class YrkesaktivitetDaoTest {
                 inntektRequest = null,
                 inntektData = null,
                 refusjon = null,
+                inntekt = null,
             )
         val opprettetYrkesaktivitet =
             dao.opprettYrkesaktivitet(
@@ -147,6 +152,7 @@ class YrkesaktivitetDaoTest {
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
                 refusjonsdata = yrkesaktivitetDbRecord.refusjon,
+                inntekt = yrkesaktivitetDbRecord.inntekt,
             )
 
         // Oppdater perioder
@@ -186,6 +192,7 @@ class YrkesaktivitetDaoTest {
                 inntektRequest = null,
                 inntektData = null,
                 refusjon = null,
+                inntekt = null,
             )
 
         // Opprett yrkesaktivitet
@@ -200,6 +207,7 @@ class YrkesaktivitetDaoTest {
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
                 refusjonsdata = yrkesaktivitetDbRecord.refusjon,
+                inntekt = yrkesaktivitetDbRecord.inntekt,
             )
 
         // Verifiser at inntektRequest er null ved opprettelse
@@ -230,6 +238,7 @@ class YrkesaktivitetDaoTest {
                     perioder = opprettetYrkesaktivitet.perioder,
                     inntektRequest = null,
                     inntektData = null,
+                    inntekt = opprettetYrkesaktivitet.inntekt,
                 ),
                 inntektRequest,
             )
@@ -262,6 +271,7 @@ class YrkesaktivitetDaoTest {
                 inntektRequest = null,
                 inntektData = null,
                 refusjon = null,
+                inntekt = null,
             )
 
         // Opprett yrkesaktivitet
@@ -276,6 +286,7 @@ class YrkesaktivitetDaoTest {
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
                 refusjonsdata = yrkesaktivitetDbRecord.refusjon,
+                inntekt = yrkesaktivitetDbRecord.inntekt,
             )
 
         // Verifiser at inntektData er null ved opprettelse
@@ -304,6 +315,7 @@ class YrkesaktivitetDaoTest {
                     perioder = opprettetYrkesaktivitet.perioder,
                     inntektRequest = null,
                     inntektData = null,
+                    inntekt = opprettetYrkesaktivitet.inntekt,
                 ),
                 inntektData,
             )
@@ -336,6 +348,7 @@ class YrkesaktivitetDaoTest {
                 inntektRequest = null,
                 inntektData = null,
                 refusjon = null,
+                inntekt = null,
             )
 
         // Opprett yrkesaktivitet
@@ -350,6 +363,7 @@ class YrkesaktivitetDaoTest {
                 perioder = yrkesaktivitetDbRecord.perioder,
                 inntektData = yrkesaktivitetDbRecord.inntektData,
                 refusjonsdata = yrkesaktivitetDbRecord.refusjon,
+                inntekt = yrkesaktivitetDbRecord.inntekt,
             )
 
         // Verifiser at refusjonsdata er null ved opprettelse

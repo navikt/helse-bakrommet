@@ -139,6 +139,7 @@ class BehandlingService(
                     perioder = yrkesaktivitet.perioder,
                     inntektData = null,
                     refusjonsdata = null,
+                    inntekt = yrkesaktivitet.inntekt,
                 )
             }
 
@@ -518,6 +519,7 @@ fun lagYrkesaktivitetFraSøknader(
             saksbehandlingsperiodeId = behandling.id,
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = dok.map { it.id },
+            inntekt = null,
         )
     }
 }
@@ -554,6 +556,7 @@ fun lagYrkesaktiviteter(
                     saksbehandlingsperiodeId = behandling.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
+                    inntekt = null,
                 )
             } ?: tidligereMap[kategori]?.let { tidligere ->
                 val nyId = UUID.randomUUID()

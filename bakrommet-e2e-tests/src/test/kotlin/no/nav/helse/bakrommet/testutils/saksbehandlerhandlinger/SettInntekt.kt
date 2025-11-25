@@ -7,22 +7,23 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetInntektRequest
+import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import org.junit.jupiter.api.Assertions.assertEquals
+import java.math.BigDecimal
 import java.util.UUID
 
-internal suspend fun ApplicationTestBuilder.settRefusjon(
+internal suspend fun ApplicationTestBuilder.settInntekt(
     personId: String,
     periodeId: UUID,
     yrkesaktivitetId: UUID,
-    refusjon: List<Refusjonsperiode>?,
+    inntekt: BigDecimal?,
 ) {
     val response =
-        client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/refusjon") {
+        client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/fri-inntekt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
-            setBody(refusjon?.serialisertTilString() ?: "null")
+            setBody(objectMapperCustomSerde.writeValueAsString(YrkesaktivitetInntektRequest(inntekt)))
         }
     assertEquals(204, response.status.value)
 }
