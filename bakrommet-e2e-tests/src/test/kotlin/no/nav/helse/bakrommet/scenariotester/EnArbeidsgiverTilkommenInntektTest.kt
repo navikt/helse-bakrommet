@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.testutils.SykAlleDager
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentTidslinje
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.leggTilTilkommenInntekt
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettTilkommenInntekt
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
 import org.junit.jupiter.api.Test
@@ -35,20 +36,21 @@ class EnArbeidsgiverTilkommenInntektTest {
 
             val personId = førsteBehandling.scenario.personId
             val periodeId = førsteBehandling.periode.id
-            leggTilTilkommenInntekt(
-                periodeId = periodeId,
-                personId = personId,
-                tilkommenInntekt =
-                    OpprettTilkommenInntektRequest(
-                        ident = "999444555",
-                        fom = 4.januar(2021),
-                        tom = 10.januar(2021),
-                        yrkesaktivitetType = TilkommenInntektYrkesaktivitetType.VIRKSOMHET,
-                        inntektForPerioden = BigDecimal(14000),
-                        notatTilBeslutter = "har jobbet og svarte dette i søknaden",
-                        ekskluderteDager = emptyList(),
-                    ),
-            )
+            val tilkommen =
+                leggTilTilkommenInntekt(
+                    periodeId = periodeId,
+                    personId = personId,
+                    tilkommenInntekt =
+                        OpprettTilkommenInntektRequest(
+                            ident = "999444555",
+                            fom = 4.januar(2021),
+                            tom = 10.januar(2021),
+                            yrkesaktivitetType = TilkommenInntektYrkesaktivitetType.VIRKSOMHET,
+                            inntektForPerioden = BigDecimal(14000),
+                            notatTilBeslutter = "har jobbet og svarte dette i søknaden",
+                            ekskluderteDager = emptyList(),
+                        ),
+                )
             hentUtbetalingsberegning(personId, periodeId).also { beregning ->
                 beregning!!
                     .beregningData.spilleromOppdrag.oppdrag.size `should equal` 1
@@ -62,6 +64,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                     tidslinje.size `should equal` 2
                 }
             }
+            slettTilkommenInntekt(periodeId = periodeId, personId = personId, tilkommenInntektId = tilkommen.id)
         }
     }
 }

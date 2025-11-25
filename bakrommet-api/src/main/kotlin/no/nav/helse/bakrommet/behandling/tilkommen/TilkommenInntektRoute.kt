@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.behandling.tilkommen
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
@@ -62,6 +63,7 @@ internal fun Route.tilkommenInntektRoute(service: TilkommenInntektService) {
                 ref = ref,
                 saksbehandler = call.saksbehandler(),
             )
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 }
