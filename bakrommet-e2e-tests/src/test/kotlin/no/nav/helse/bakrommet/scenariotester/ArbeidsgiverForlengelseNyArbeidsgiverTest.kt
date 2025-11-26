@@ -24,9 +24,8 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class ArbeidsgiverForlengelseNyArbeidsgiverTest {
-    // TODO
+
     @Test
-    @Disabled("Må fikses når vi har riktig input i utbetalinsberegning core")
     fun `ny periode kant i kant arver sykepengegrunnlag`() {
         Scenario(
             yrkesaktiviteter =

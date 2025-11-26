@@ -24,7 +24,7 @@ data class Beløpstidslinje(private val dager: SortedMap<LocalDate, Beløpsdag>)
 
     private val periode = if (dager.isEmpty()) null else dager.firstKey() til dager.lastKey()
 
-    internal operator fun get(dato: LocalDate): Dag = dager[dato] ?: UkjentDag
+    operator fun get(dato: LocalDate): Dag = dager[dato] ?: UkjentDag
 
     override operator fun iterator(): Iterator<Dag> {
         if (periode == null) return emptyList<Dag>().iterator()

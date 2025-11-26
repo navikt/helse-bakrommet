@@ -93,7 +93,6 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
         }
     }
 
-
     @Test
     fun `to arbeidsgivere med 6g hvor den ene refunderer 9g og den andre 3g`() {
         val seksG = Grunnbeløp.`6G`.beløp(ScenarioDefaults.fom)
@@ -111,10 +110,13 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         dagoversikt = SykAlleDager(),
                     ),
                     Arbeidstaker(
-                        "999", inntekt = Inntektsmelding(
-                            seksG.månedlig,
-                            Refusjonsperiode(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble()),
-                        ), dagoversikt = SykAlleDager()
+                        "999",
+                        inntekt =
+                            Inntektsmelding(
+                                seksG.månedlig,
+                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble()),
+                            ),
+                        dagoversikt = SykAlleDager(),
                     ),
                 ),
         ).run {
@@ -124,7 +126,6 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
             `skal ha direkteutbetaling`(0)
         }
     }
-
 
     @Test
     fun `to arbeidsgivere med 1 9g og en 6g hvor den ene refunderer 9g og den andre 3g`() {
@@ -143,10 +144,13 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         dagoversikt = SykAlleDager(),
                     ),
                     Arbeidstaker(
-                        "999", inntekt = Inntektsmelding(
-                            seksG.månedlig,
-                            Refusjonsperiode(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble()),
-                        ), dagoversikt = SykAlleDager()
+                        "999",
+                        inntekt =
+                            Inntektsmelding(
+                                seksG.månedlig,
+                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble()),
+                            ),
+                        dagoversikt = SykAlleDager(),
                     ),
                 ),
         ).run {

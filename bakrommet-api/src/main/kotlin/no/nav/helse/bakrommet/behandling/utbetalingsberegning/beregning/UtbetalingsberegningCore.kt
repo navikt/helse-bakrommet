@@ -1,12 +1,14 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning
 
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
+import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Sporbar
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
+import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.erHelg
 import no.nav.helse.hendelser.Avsender
 import no.nav.helse.hendelser.MeldingsreferanseId
@@ -15,6 +17,7 @@ import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.person.beløp.Kilde
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.collections.set
@@ -36,55 +39,43 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
             ya to ya.kategorisering.hentDekningsgrad()
         }
 
-    val sykepengennlag = input.sykepengegrunnlag.sykepengegrunnlag.beløp
+    val sykepengegrunnlagDaglig = input.sykepengegrunnlag.sykepengegrunnlag.tilInntekt().daglig
 
-    val inntekterForYrkesaktiviteter =
-        input.yrkesaktivitet.map {
-            it.id to (
-                finnManuellInntektForYrkesaktivitet(it) ?: finnInntektForYrkesaktivitet(
-                    input.sykepengegrunnlag,
-                    it,
-                ) ?: Inntekt.INGEN
-            )
-        }
+    val maksInntektTilFordelingPerDagMap =
+        konstruerMaksInntektTilFordelingPerDagMap(
+            yrkesaktivitetMedDekningsgrad = yrkesaktivitetMedDekningsgrad,
+            refusjonstidslinjer = refusjonstidslinjer,
+            sykepengegrunnlag = input.sykepengegrunnlag,
+            saksbehandlingsperiode = input.saksbehandlingsperiode,
+        )
 
-    val sumAvAlleInntekter = inntekterForYrkesaktiviteter.sumOf { it.second.årlig }
+    val justerteBeløpPerDagOgYrkesaktivitet =
+        justerBeløpPerDag(
+            maksInntektTilFordelingPerDagMap = maksInntektTilFordelingPerDagMap,
+            sykepengegrunnlagDaglig = sykepengegrunnlagDaglig,
+            saksbehandlingsperiode = input.saksbehandlingsperiode,
+        )
 
-    val andelTilFordelingForYrkesaktiviteter =
-        if (input.yrkesaktivitet.size == 1) {
-            mapOf(input.yrkesaktivitet.first().id to InntektbeløpDto.Årlig(sykepengennlag).tilInntekt())
-        } else {
-            inntekterForYrkesaktiviteter.associate { inntekt ->
-                val andel = if (sumAvAlleInntekter == 0.0) 0.0 else inntekt.second.årlig / sumAvAlleInntekter
-                inntekt.first to InntektbeløpDto.Årlig((sykepengennlag * andel)).tilInntekt()
-            }
-        }
+    val justerteMaksInntektTilFordelingPerDagMap =
+        byggBeløpstidslinjeFraJusterteBeløp(
+            maksInntektTilFordelingPerDagMap = maksInntektTilFordelingPerDagMap,
+            justerteBeløpPerDagOgYrkesaktivitet = justerteBeløpPerDagOgYrkesaktivitet,
+            saksbehandlingsperiode = input.saksbehandlingsperiode,
+        )
+
+    verifiserSumMaksInntektTilFordelingPerDag(
+        justerteMaksInntektTilFordelingPerDagMap = justerteMaksInntektTilFordelingPerDagMap,
+        maksInntektTilFordelingPerDagMap = maksInntektTilFordelingPerDagMap,
+        sykepengegrunnlagDaglig = sykepengegrunnlagDaglig,
+        saksbehandlingsperiode = input.saksbehandlingsperiode,
+    )
 
     val utbetalingstidslinjer =
         yrkesaktivitetMedDekningsgrad.map { (yrkesaktivitet, dekningsgrad) ->
             val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet] ?: emptyMap()
             val refusjonstidslinje = opprettRefusjonstidslinjeFraData(refusjonstidslinjeData)
             val inntektjusteringer = input.tilkommenInntekt.tilBeløpstidslinje(input.saksbehandlingsperiode)
-            val andel = andelTilFordelingForYrkesaktiviteter[yrkesaktivitet.id]!!
-
-            val beløpsdager =
-                input.saksbehandlingsperiode.fom
-                    .datesUntil(input.saksbehandlingsperiode.tom.plusDays(1))
-                    .map { dato ->
-                        Beløpsdag(
-                            dato,
-                            finnInntektForYrkesaktivitet(
-                                input.sykepengegrunnlag,
-                                yrkesaktivitet,
-                            ) ?: Inntekt.INGEN,
-                            Kilde(
-                                meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()),
-                                avsender = Avsender.SYKMELDT,
-                                tidsstempel = LocalDateTime.now(),
-                            ),
-                        )
-                    }.toList()
-            val maksInntektTilFordelingPerDag = Beløpstidslinje(beløpsdager)
+            val maksInntektTilFordelingPerDag = justerteMaksInntektTilFordelingPerDagMap[yrkesaktivitet.id]!!
 
             byggUtbetalingstidslinjeForYrkesaktivitet(
                 yrkesaktivitet = yrkesaktivitet,
@@ -115,6 +106,175 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
                 dekningsgrad = dekningsgrad,
             )
         }
+}
+
+/**
+ * Konstruerer maksInntektTilFordelingPerDag for alle yrkesaktiviteter
+ */
+fun konstruerMaksInntektTilFordelingPerDagMap(
+    yrkesaktivitetMedDekningsgrad: List<Pair<no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet, Sporbar<ProsentdelDto>>>,
+    refusjonstidslinjer: Map<no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet, Map<LocalDate, Inntekt>>,
+    sykepengegrunnlag: no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase,
+    saksbehandlingsperiode: PeriodeDto,
+): Map<UUID, Beløpstidslinje> {
+    return yrkesaktivitetMedDekningsgrad.associate { (yrkesaktivitet, _) ->
+        val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet] ?: emptyMap()
+        val refusjonstidslinje = opprettRefusjonstidslinjeFraData(refusjonstidslinjeData)
+
+        val beløpsdager =
+            saksbehandlingsperiode.fom
+                .datesUntil(saksbehandlingsperiode.tom.plusDays(1))
+                .map { dato ->
+                    val inntektFraSykepengegrunnlag =
+                        finnInntektForYrkesaktivitet(
+                            sykepengegrunnlag,
+                            yrkesaktivitet,
+                        )
+                    val inntektTilBruk =
+                        inntektFraSykepengegrunnlag
+                            ?: (refusjonstidslinje[dato] as? Beløpsdag)?.beløp
+                            ?: Inntekt.INGEN
+
+                    Beløpsdag(
+                        dato = dato,
+                        beløp = inntektTilBruk,
+                        kilde =
+                            Kilde(
+                                meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()),
+                                avsender = Avsender.SYKMELDT,
+                                tidsstempel = LocalDateTime.now(),
+                            ),
+                    )
+                }.toList()
+        yrkesaktivitet.id to Beløpstidslinje(beløpsdager)
+    }
+}
+
+/**
+ * Justerer beløpene dag for dag hvis summen overstiger sykepengegrunnlaget/260
+ * Returnerer en map med justerte beløp per dag per yrkesaktivitet
+ */
+fun justerBeløpPerDag(
+    maksInntektTilFordelingPerDagMap: Map<UUID, Beløpstidslinje>,
+    sykepengegrunnlagDaglig: Double,
+    saksbehandlingsperiode: PeriodeDto,
+): Map<Pair<LocalDate, UUID>, Inntekt> {
+    val alleDatoer = saksbehandlingsperiode.fom
+        .datesUntil(saksbehandlingsperiode.tom.plusDays(1))
+        .toList()
+
+    val justerteBeløpPerDagOgYrkesaktivitet = mutableMapOf<Pair<LocalDate, UUID>, Inntekt>()
+
+    alleDatoer.forEach { dato ->
+        val totalBeløpForDag = maksInntektTilFordelingPerDagMap.values
+            .sumOf { (it[dato] as? Beløpsdag)?.beløp?.daglig ?: 0.0 }
+
+        if (totalBeløpForDag > sykepengegrunnlagDaglig && sykepengegrunnlagDaglig > 0.0) {
+            // Juster proporsjonalt
+            maksInntektTilFordelingPerDagMap.forEach { (yrkesaktivitetId, tidslinje) ->
+                val beløpForDag = (tidslinje[dato] as? Beløpsdag)?.beløp ?: Inntekt.INGEN
+                val andel = if (totalBeløpForDag > 0.0) beløpForDag.daglig / totalBeløpForDag else 0.0
+                val justertBeløp = InntektbeløpDto.DagligDouble(sykepengegrunnlagDaglig * andel).tilInntekt()
+                justerteBeløpPerDagOgYrkesaktivitet[dato to yrkesaktivitetId] = justertBeløp
+            }
+
+            // Beregn summen av justerte beløp og juster differansen
+            val sumJusterteBeløp = justerteBeløpPerDagOgYrkesaktivitet
+                .filterKeys { it.first == dato }
+                .values
+                .sumOf { it.daglig }
+            val differanse = sykepengegrunnlagDaglig - sumJusterteBeløp
+
+            // Legg til differansen på den største yrkesaktiviteten for denne dagen
+            if (differanse != 0.0) {
+                val størsteYrkesaktivitetId = maksInntektTilFordelingPerDagMap.maxByOrNull { (_, t) ->
+                    (t[dato] as? Beløpsdag)?.beløp?.daglig ?: 0.0
+                }?.key
+
+                størsteYrkesaktivitetId?.let { id ->
+                    val eksisterendeBeløp = justerteBeløpPerDagOgYrkesaktivitet[dato to id] ?: Inntekt.INGEN
+                    justerteBeløpPerDagOgYrkesaktivitet[dato to id] =
+                        InntektbeløpDto.DagligDouble(eksisterendeBeløp.daglig + differanse).tilInntekt()
+                }
+            }
+        } else {
+            // Ingen justering nødvendig
+            maksInntektTilFordelingPerDagMap.forEach { (yrkesaktivitetId, tidslinje) ->
+                val beløpForDag = (tidslinje[dato] as? Beløpsdag)?.beløp ?: Inntekt.INGEN
+                justerteBeløpPerDagOgYrkesaktivitet[dato to yrkesaktivitetId] = beløpForDag
+            }
+        }
+    }
+
+    return justerteBeløpPerDagOgYrkesaktivitet
+}
+
+/**
+ * Bygger Beløpstidslinje for hver yrkesaktivitet fra justerte beløp
+ */
+fun byggBeløpstidslinjeFraJusterteBeløp(
+    maksInntektTilFordelingPerDagMap: Map<UUID, Beløpstidslinje>,
+    justerteBeløpPerDagOgYrkesaktivitet: Map<Pair<LocalDate, UUID>, Inntekt>,
+    saksbehandlingsperiode: PeriodeDto,
+): Map<UUID, Beløpstidslinje> {
+    val alleDatoer = saksbehandlingsperiode.fom
+        .datesUntil(saksbehandlingsperiode.tom.plusDays(1))
+        .toList()
+
+    return maksInntektTilFordelingPerDagMap.mapValues { (yrkesaktivitetId, tidslinje) ->
+        val justerteBeløpsdager = alleDatoer.map { dato ->
+            val justertBeløp = justerteBeløpPerDagOgYrkesaktivitet[dato to yrkesaktivitetId]
+                ?: ((tidslinje[dato] as? Beløpsdag)?.beløp ?: Inntekt.INGEN)
+
+            Beløpsdag(
+                dato = dato,
+                beløp = justertBeløp,
+                kilde = (tidslinje[dato] as? Beløpsdag)?.kilde
+                    ?: Kilde(
+                        meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()),
+                        avsender = Avsender.SYKMELDT,
+                        tidsstempel = LocalDateTime.now(),
+                    ),
+            )
+        }
+        Beløpstidslinje(justerteBeløpsdager)
+    }
+}
+
+/**
+ * Verifiserer at summen av maksInntektTilFordelingPerDag per dag er lik sykepengegrunnlagDaglig
+ */
+fun verifiserSumMaksInntektTilFordelingPerDag(
+    justerteMaksInntektTilFordelingPerDagMap: Map<UUID, Beløpstidslinje>,
+    maksInntektTilFordelingPerDagMap: Map<UUID, Beløpstidslinje>,
+    sykepengegrunnlagDaglig: Double,
+    saksbehandlingsperiode: PeriodeDto,
+) {
+    val alleDatoer = saksbehandlingsperiode.fom
+        .datesUntil(saksbehandlingsperiode.tom.plusDays(1))
+        .toList()
+
+    alleDatoer.forEach { dato ->
+        val sumMaksInntektTilFordelingPerDag = justerteMaksInntektTilFordelingPerDagMap.values
+            .sumOf { (it[dato] as? Beløpsdag)?.beløp?.daglig ?: 0.0 }
+        val totalBeløpForDag = maksInntektTilFordelingPerDagMap.values
+            .sumOf { (it[dato] as? Beløpsdag)?.beløp?.daglig ?: 0.0 }
+
+        // Hvis totalbeløpet overstiger sykepengegrunnlagDaglig, må summen av justerte beløp være nøyaktig lik sykepengegrunnlagDaglig
+        // Hvis ikke, må summen være lik totalbeløpet
+        val forventetSum = if (totalBeløpForDag > sykepengegrunnlagDaglig && sykepengegrunnlagDaglig > 0.0) {
+            sykepengegrunnlagDaglig
+        } else {
+            totalBeløpForDag
+        }
+
+        check(kotlin.math.abs(sumMaksInntektTilFordelingPerDag - forventetSum) < 0.01) {
+            "Verifikasjon feilet for dato $dato: Sum av maksInntektTilFordelingPerDag ($sumMaksInntektTilFordelingPerDag) " +
+                "er ikke lik forventet sum ($forventetSum). " +
+                "SykepengegrunnlagDaglig: $sykepengegrunnlagDaglig, " +
+                "TotalBeløpForDag: $totalBeløpForDag"
+        }
+    }
 }
 
 fun InntektbeløpDto.DagligDouble.tilInntekt(): Inntekt = Inntekt.gjenopprett(this)
