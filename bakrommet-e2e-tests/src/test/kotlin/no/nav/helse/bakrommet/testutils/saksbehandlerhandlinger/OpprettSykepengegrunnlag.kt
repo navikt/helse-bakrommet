@@ -11,7 +11,7 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.OpprettSykepengegrunnlagRequest
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagResponse
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
@@ -28,5 +28,5 @@ internal suspend fun ApplicationTestBuilder.opprettSykepengegrunnlag(
             setBody(req.serialisertTilString())
         }
     assertEquals(201, response.status.value)
-    return objectMapper.readValue(response.bodyAsText())
+    return objectMapperCustomSerde.readValue(response.bodyAsText())
 }

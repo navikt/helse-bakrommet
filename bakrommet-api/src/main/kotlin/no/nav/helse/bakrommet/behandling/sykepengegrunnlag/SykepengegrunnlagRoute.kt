@@ -9,7 +9,6 @@ import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.behandling.periodeReferanse
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
-import no.nav.helse.bakrommet.serde.respondJson
 
 internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
     route("/v2/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
@@ -25,7 +24,11 @@ internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
         post {
             val request = call.receive<OpprettSykepengegrunnlagRequest>()
             val grunnlag = service.opprettSykepengegrunnlag(request, call.periodeReferanse(), call.saksbehandler())
-            call.respondJson(grunnlag, HttpStatusCode.Created)
+            call.respondText(
+                objectMapperCustomSerde.writeValueAsString(grunnlag),
+                ContentType.Application.Json,
+                HttpStatusCode.Created,
+            )
         }
     }
 }
