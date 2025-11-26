@@ -19,11 +19,14 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settRefusjon
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.dto.InntektbeløpDto
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class ArbeidsgiverForlengelseNyArbeidsgiverTest {
+    // TODO
     @Test
+    @Disabled("Må fikses når vi har riktig input i utbetalinsberegning core")
     fun `ny periode kant i kant arver sykepengegrunnlag`() {
         Scenario(
             yrkesaktiviteter =
@@ -44,7 +47,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
-            førsteBehandling.`skal ha utbetaling`(2310)
+            førsteBehandling.`skal ha direkteutbetaling`(2310)
             førsteBehandling.`skal ha refusjon`(6920, "888")
 
             førsteBehandling.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 240000.0

@@ -19,7 +19,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha utbetaling`(28630)
+            `skal ha direkteutbetaling`(28630)
             `skal ha nærings del`(744168.0 - (10000.0 * 12))
             `næringsdrivende yrkesaktivitet`().harBeregningskode(SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL)
         }
@@ -42,7 +42,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
             // Når to yrkesaktiviteter deler på 6G (2400.646 + 461.538 = 2862.184) blir begge avrundet opp separat → 2863 kr/dag
             // Når én yrkesaktivitet får alt (2862.184) blir det avrundet ned → 2862 kr/dag
             // Differanse: 1 kr/dag × 10 dager = 10 kr
-            `skal ha utbetaling`(28620)
+            `skal ha direkteutbetaling`(28620)
             `skal ha nærings del`(0.0)
             `næringsdrivende yrkesaktivitet`().harBeregningskode(SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL)
         }

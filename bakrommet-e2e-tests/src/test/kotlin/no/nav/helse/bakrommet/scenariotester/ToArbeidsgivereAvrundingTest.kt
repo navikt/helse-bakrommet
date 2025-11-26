@@ -22,7 +22,7 @@ class ToArbeidsgivereAvrundingTest {
             // Arbeidsgiver 1: 120000 kr/år = 461.538 kr/dag → avrundet til 462 kr/dag
             // Arbeidsgiver 2: 624168 kr/år = 2400.646 kr/dag → avrundet til 2401 kr/dag
             // Sum: 2863 kr/dag × 10 dager = 28630 kr
-            `skal ha utbetaling`(28630)
+            `skal ha direkteutbetaling`(28630)
         }
     }
 
@@ -40,7 +40,7 @@ class ToArbeidsgivereAvrundingTest {
             // Separat avrunding: 462 + 2401 = 2863 kr/dag
             // Samlet avrunding: 2862 kr/dag
             // Differanse: 1 kr/dag × 10 dager = 10 kr
-            `skal ha utbetaling`(28620)
+            `skal ha direkteutbetaling`(28620)
         }
     }
 }

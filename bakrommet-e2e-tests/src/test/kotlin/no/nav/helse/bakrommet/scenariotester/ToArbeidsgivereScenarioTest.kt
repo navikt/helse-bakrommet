@@ -22,7 +22,7 @@ class ToArbeidsgivereScenarioTest {
             `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
             `skal ha refusjon`(0, orgnummer = "888")
             `skal ha refusjon`(0, orgnummer = "999")
-            `skal ha utbetaling`(11540)
+            `skal ha direkteutbetaling`(11540)
         }
     }
 
@@ -51,7 +51,7 @@ class ToArbeidsgivereScenarioTest {
             `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
             `skal ha refusjon`(0, orgnummer = "888")
             `skal ha refusjon`(6920, orgnummer = "999")
-            `skal ha utbetaling`(4620)
+            `skal ha direkteutbetaling`(4620)
         }
     }
 

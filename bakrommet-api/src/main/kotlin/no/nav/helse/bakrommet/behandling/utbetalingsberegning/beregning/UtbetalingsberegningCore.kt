@@ -73,7 +73,10 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
                     .map { dato ->
                         Beløpsdag(
                             dato,
-                            andel,
+                            finnInntektForYrkesaktivitet(
+                                input.sykepengegrunnlag,
+                                yrkesaktivitet,
+                            ) ?: Inntekt.INGEN,
                             Kilde(
                                 meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()),
                                 avsender = Avsender.SYKMELDT,

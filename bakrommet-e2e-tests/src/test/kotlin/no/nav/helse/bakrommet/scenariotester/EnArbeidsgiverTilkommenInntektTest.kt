@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.scenariotester
 
-import io.ktor.http.*
 import no.nav.helse.bakrommet.behandling.tilkommen.OpprettTilkommenInntektRequest
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
@@ -32,7 +31,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                     ),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
-            førsteBehandling.`skal ha utbetaling`(6000)
+            førsteBehandling.`skal ha direkteutbetaling`(6000)
 
             val personId = førsteBehandling.scenario.personId
             val periodeId = førsteBehandling.periode.id

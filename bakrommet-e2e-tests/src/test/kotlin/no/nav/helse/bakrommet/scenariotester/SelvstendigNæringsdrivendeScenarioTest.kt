@@ -13,7 +13,7 @@ class SelvstendigNæringsdrivendeScenarioTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha utbetaling`(22900)
+            `skal ha direkteutbetaling`(22900)
             `skal ikke ha sammenlikningsgrunnlag`()
         }
     }
@@ -26,7 +26,7 @@ class SelvstendigNæringsdrivendeScenarioTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha utbetaling`(28620)
+            `skal ha direkteutbetaling`(28620)
             `skal ikke ha sammenlikningsgrunnlag`()
         }
     }
@@ -39,7 +39,7 @@ class SelvstendigNæringsdrivendeScenarioTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(450823.0)
-            `skal ha utbetaling`(13870)
+            `skal ha direkteutbetaling`(13870)
             `skal ikke ha sammenlikningsgrunnlag`()
         }
     }
@@ -52,7 +52,7 @@ class SelvstendigNæringsdrivendeScenarioTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(450823.0)
-            `skal ha utbetaling`(13870)
+            `skal ha direkteutbetaling`(13870)
             `skal ikke ha sammenlikningsgrunnlag`()
         }
     }
@@ -65,7 +65,7 @@ class SelvstendigNæringsdrivendeScenarioTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(472527.0)
-            `skal ha utbetaling`(14540)
+            `skal ha direkteutbetaling`(14540)
         }
     }
 
@@ -77,7 +77,7 @@ class SelvstendigNæringsdrivendeScenarioTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(300190.0)
-            `skal ha utbetaling`(9240)
+            `skal ha direkteutbetaling`(9240)
         }
     }
 }

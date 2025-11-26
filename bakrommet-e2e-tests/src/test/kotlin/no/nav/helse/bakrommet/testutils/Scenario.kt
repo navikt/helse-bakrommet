@@ -87,7 +87,7 @@ data class ScenarioData(
         assertNull(sammenlikningsgrunnlag, "Forventet at sammenlikningsgrunnlag er null")
     }
 
-    fun `skal ha utbetaling`(beløp: Int) {
+    fun `skal ha direkteutbetaling`(beløp: Int) {
         val nettoDirekte =
             utbetalingsberegning
                 ?.beregningData
@@ -96,7 +96,7 @@ data class ScenarioData(
                 ?.filter { it.mottaker == scenario.fnr }
                 ?.sumOf { it.totalbeløp } ?: 0
 
-        assertEquals(beløp, nettoDirekte, "Feil nettobeløp i utbetalingsberegning")
+        assertEquals(beløp, nettoDirekte, "Feil direkteutbetaling i oppdraget")
     }
 
     fun `skal ha refusjon`(
