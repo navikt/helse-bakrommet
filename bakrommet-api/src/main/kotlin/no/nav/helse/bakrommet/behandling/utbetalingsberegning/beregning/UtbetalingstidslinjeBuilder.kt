@@ -30,7 +30,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
     dekningsgrad: ProsentdelDto,
     input: UtbetalingsberegningInput,
     refusjonstidslinje: Beløpstidslinje,
-    maksÅrsinntektTilFordeling: Inntekt,
+    maksInntektTilFordelingPerDag: Beløpstidslinje,
     inntektjusteringer: Beløpstidslinje,
 ): Utbetalingstidslinje {
     val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
@@ -46,7 +46,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
     return when (yrkesaktivitet.kategorisering) {
         is YrkesaktivitetKategorisering.Inaktiv ->
             byggInaktivUtbetalingstidslinje(
-                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
+                maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
                 inntektjusteringer = inntektjusteringer,
                 yrkesaktivitet = yrkesaktivitet,
@@ -55,7 +55,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
 
         is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende ->
             byggSelvstendigUtbetalingstidslinje(
-                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
+                maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
                 yrkesaktivitet = yrkesaktivitet,
                 sykdomstidslinje = sykdomstidslinje,
@@ -63,7 +63,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
 
         is YrkesaktivitetKategorisering.Arbeidsledig ->
             byggArbeidsledigtidslinje(
-                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
+                maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
                 sykdomstidslinje = sykdomstidslinje,
             )
@@ -75,7 +75,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 dekningsgrad = dekningsgrad,
                 dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
                 refusjonstidslinje = refusjonstidslinje,
-                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
+                maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 inntektjusteringer = inntektjusteringer,
                 sykdomstidslinje = sykdomstidslinje,
             )
@@ -86,7 +86,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 dekningsgrad = dekningsgrad,
                 dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
                 refusjonstidslinje = refusjonstidslinje,
-                fastsattÅrsinntekt = maksÅrsinntektTilFordeling,
+                maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 inntektjusteringer = inntektjusteringer,
                 sykdomstidslinje = sykdomstidslinje,
             )
@@ -97,14 +97,14 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
  * Bygger inaktiv utbetalingstidslinje
  */
 private fun byggInaktivUtbetalingstidslinje(
-    fastsattÅrsinntekt: Inntekt,
+    maksInntektTilFordelingPerDag: Beløpstidslinje,
     dekningsgrad: ProsentdelDto,
     inntektjusteringer: Beløpstidslinje,
     yrkesaktivitet: Yrkesaktivitet,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     InaktivUtbetalingstidslinjeBuilder(
-        fastsattÅrsinntekt = fastsattÅrsinntekt,
+        maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         inntektjusteringer = inntektjusteringer,
         venteperiode = yrkesaktivitet.hentPerioderForType(Periodetype.VENTETID_INAKTIV),
@@ -114,13 +114,13 @@ private fun byggInaktivUtbetalingstidslinje(
  * Bygger selvstendig utbetalingstidslinje
  */
 private fun byggSelvstendigUtbetalingstidslinje(
-    fastsattÅrsinntekt: Inntekt,
+    maksInntektTilFordelingPerDag: Beløpstidslinje,
     dekningsgrad: ProsentdelDto,
     yrkesaktivitet: Yrkesaktivitet,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
-        fastsattÅrsinntekt = fastsattÅrsinntekt,
+        maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         ventetid = yrkesaktivitet.hentPerioderForType(Periodetype.VENTETID),
     ).result(sykdomstidslinje)
@@ -129,12 +129,12 @@ private fun byggSelvstendigUtbetalingstidslinje(
  * Bygger selvstendig utbetalingstidslinje
  */
 private fun byggArbeidsledigtidslinje(
-    fastsattÅrsinntekt: Inntekt,
+    maksInntektTilFordelingPerDag: Beløpstidslinje,
     dekningsgrad: ProsentdelDto,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode(
-        fastsattÅrsinntekt = fastsattÅrsinntekt,
+        maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
         dekningsgrad = dekningsgrad.tilProsentdel(),
     ).result(sykdomstidslinje)
 
@@ -146,7 +146,7 @@ private fun byggArbeidstakerUtbetalingstidslinje(
     dekningsgrad: ProsentdelDto,
     dagerNavOvertarAnsvar: List<Periode>,
     refusjonstidslinje: Beløpstidslinje,
-    fastsattÅrsinntekt: Inntekt,
+    maksInntektTilFordelingPerDag: Beløpstidslinje,
     inntektjusteringer: Beløpstidslinje,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
@@ -155,7 +155,7 @@ private fun byggArbeidstakerUtbetalingstidslinje(
         dekningsgrad = dekningsgrad.tilProsentdel(),
         dagerNavOvertarAnsvar = dagerNavOvertarAnsvar,
         refusjonstidslinje = refusjonstidslinje,
-        fastsattÅrsinntekt = fastsattÅrsinntekt,
+        maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
         inntektjusteringer = inntektjusteringer,
     ).result(sykdomstidslinje)
 

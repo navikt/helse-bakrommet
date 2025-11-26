@@ -1,9 +1,10 @@
 package no.nav.helse.utbetalingstidslinje
 
 import no.nav.helse.hendelser.Periode
+import no.nav.helse.person.beløp.Beløpsdag
+import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.sykdomstidslinje.Dag
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
-import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.INGEN
 import no.nav.helse.økonomi.Prosentdel
 import no.nav.helse.økonomi.Prosentdel.Companion.prosent
@@ -11,18 +12,18 @@ import no.nav.helse.økonomi.Økonomi
 import java.time.LocalDate
 
 class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
-    private val fastsattÅrsinntekt: Inntekt,
+    private val maksInntektTilFordelingPerDag: Beløpstidslinje,
     private val dekningsgrad: Prosentdel,
     private val ventetid: List<Periode>,
 ) {
-    private fun medInntektHvisFinnes(grad: Prosentdel): Økonomi {
-        return medInntekt(grad)
+    private fun medInntektHvisFinnes(dato: LocalDate,  grad: Prosentdel): Økonomi {
+        return medInntekt(dato, grad)
     }
 
-    private fun medInntekt(grad: Prosentdel): Økonomi {
+    private fun medInntekt(dato: LocalDate, grad: Prosentdel): Økonomi {
         return Økonomi.inntekt(
             sykdomsgrad = grad,
-            aktuellDagsinntekt = fastsattÅrsinntekt,
+            aktuellDagsinntekt = (maksInntektTilFordelingPerDag[dato] as? Beløpsdag)?.beløp ?: INGEN,
             dekningsgrad = dekningsgrad,
             refusjonsbeløp = INGEN,
             inntektjustering = INGEN,
@@ -97,7 +98,7 @@ class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         dato: LocalDate,
         grad: Prosentdel,
     ) {
-        builder.addHelg(dato, medInntektHvisFinnes(grad).ikkeBetalt())
+        builder.addHelg(dato, medInntektHvisFinnes(dato, grad).ikkeBetalt())
     }
 
     private fun navDag(
@@ -105,14 +106,14 @@ class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         dato: LocalDate,
         grad: Prosentdel,
     ) {
-        builder.addNAVdag(dato, medInntektHvisFinnes(grad))
+        builder.addNAVdag(dato, medInntektHvisFinnes(dato, grad))
     }
 
     private fun arbeidsdag(
         builder: Utbetalingstidslinje.Builder,
         dato: LocalDate,
     ) {
-        builder.addArbeidsdag(dato, medInntektHvisFinnes(0.prosent).ikkeBetalt())
+        builder.addArbeidsdag(dato, medInntektHvisFinnes(dato, 0.prosent).ikkeBetalt())
     }
 
     private fun ventetidsdag(
@@ -120,7 +121,7 @@ class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         dato: LocalDate,
         sykdomsgrad: Prosentdel,
     ) {
-        builder.addVentetidsdag(dato, medInntektHvisFinnes(sykdomsgrad).ikkeBetalt())
+        builder.addVentetidsdag(dato, medInntektHvisFinnes(dato, sykdomsgrad).ikkeBetalt())
     }
 
     private fun foreldetdag(
@@ -128,7 +129,7 @@ class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         dato: LocalDate,
         sykdomsgrad: Prosentdel,
     ) {
-        builder.addForeldetDag(dato, medInntektHvisFinnes(sykdomsgrad).ikkeBetalt())
+        builder.addForeldetDag(dato, medInntektHvisFinnes(dato, sykdomsgrad).ikkeBetalt())
     }
 
     private fun avvistDag(
@@ -137,6 +138,6 @@ class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         grad: Prosentdel,
         begrunnelse: Begrunnelse,
     ) {
-        builder.addAvvistDag(dato, medInntektHvisFinnes(grad).ikkeBetalt(), listOf(begrunnelse))
+        builder.addAvvistDag(dato, medInntektHvisFinnes(dato, grad).ikkeBetalt(), listOf(begrunnelse))
     }
 }

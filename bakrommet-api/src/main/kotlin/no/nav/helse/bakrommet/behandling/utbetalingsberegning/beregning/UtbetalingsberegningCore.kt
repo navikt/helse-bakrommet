@@ -17,6 +17,7 @@ import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.set
 
 /**
  * Kjernefunksjoner for utbetalingsberegning - ren funksjonell tilnærming
@@ -64,13 +65,30 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
             val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet] ?: emptyMap()
             val refusjonstidslinje = opprettRefusjonstidslinjeFraData(refusjonstidslinjeData)
             val inntektjusteringer = input.tilkommenInntekt.tilBeløpstidslinje(input.saksbehandlingsperiode)
+            val andel = andelTilFordelingForYrkesaktiviteter[yrkesaktivitet.id]!!
+
+            val beløpsdager =
+                input.saksbehandlingsperiode.fom
+                    .datesUntil(input.saksbehandlingsperiode.tom.plusDays(1))
+                    .map { dato ->
+                        Beløpsdag(
+                            dato,
+                            andel,
+                            Kilde(
+                                meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()),
+                                avsender = Avsender.SYKMELDT,
+                                tidsstempel = LocalDateTime.now(),
+                            ),
+                        )
+                    }.toList()
+            val maksInntektTilFordelingPerDag = Beløpstidslinje(beløpsdager)
 
             byggUtbetalingstidslinjeForYrkesaktivitet(
                 yrkesaktivitet = yrkesaktivitet,
                 dekningsgrad = dekningsgrad.verdi,
                 input = input,
                 refusjonstidslinje = refusjonstidslinje,
-                maksÅrsinntektTilFordeling = andelTilFordelingForYrkesaktiviteter[yrkesaktivitet.id]!!,
+                maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 inntektjusteringer = inntektjusteringer,
             )
         }

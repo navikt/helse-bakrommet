@@ -6,7 +6,6 @@ import no.nav.helse.person.beløp.Beløpsdag
 import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.sykdomstidslinje.Dag
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
-import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.INGEN
 import no.nav.helse.økonomi.Prosentdel
 import no.nav.helse.økonomi.Prosentdel.Companion.prosent
@@ -16,7 +15,7 @@ import java.time.LocalDate
 
 
 class InaktivUtbetalingstidslinjeBuilder(
-    private val fastsattÅrsinntekt: Inntekt,
+    private val maksInntektTilFordelingPerDag: Beløpstidslinje,
     private val dekningsgrad: Prosentdel,
     private val inntektjusteringer: Beløpstidslinje,
     private val venteperiode: List<Periode>,
@@ -35,7 +34,7 @@ class InaktivUtbetalingstidslinjeBuilder(
     ): Økonomi {
         return Økonomi.inntekt(
             sykdomsgrad = grad,
-            aktuellDagsinntekt = fastsattÅrsinntekt,
+            aktuellDagsinntekt = (maksInntektTilFordelingPerDag[dato] as? Beløpsdag)?.beløp ?: INGEN,
             dekningsgrad = dekningsgrad,
             refusjonsbeløp = INGEN,
             inntektjustering = (inntektjusteringer[dato] as? Beløpsdag)?.beløp ?: INGEN,

@@ -7,7 +7,6 @@ import no.nav.helse.person.beløp.Beløpsdag
 import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.sykdomstidslinje.Dag
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
-import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.INGEN
 import no.nav.helse.økonomi.Prosentdel
 import no.nav.helse.økonomi.Prosentdel.Companion.prosent
@@ -29,7 +28,7 @@ class ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
     private val arbeidsgiverperiode: List<Periode>,
     private val dagerNavOvertarAnsvar: List<Periode>,
     private val refusjonstidslinje: Beløpstidslinje,
-    private val fastsattÅrsinntekt: Inntekt,
+    private val maksInntektTilFordelingPerDag: Beløpstidslinje,
     private val inntektjusteringer: Beløpstidslinje,
     private val dekningsgrad: Prosentdel,
 ) {
@@ -46,7 +45,7 @@ class ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode(
     ): Økonomi {
         return Økonomi.inntekt(
             sykdomsgrad = grad,
-            aktuellDagsinntekt = fastsattÅrsinntekt,
+            aktuellDagsinntekt =  (maksInntektTilFordelingPerDag[dato] as? Beløpsdag)?.beløp ?: INGEN,
             dekningsgrad = dekningsgrad,
             refusjonsbeløp = (refusjonstidslinje[dato] as? Beløpsdag)?.beløp ?: INGEN,
             inntektjustering = (inntektjusteringer[dato] as? Beløpsdag)?.beløp ?: INGEN,
