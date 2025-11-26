@@ -58,6 +58,29 @@ class SykepengegrunnlagService(
         }
         return hentSykepengegrunnlag(referanse)!!
     }
+
+    suspend fun slettSykepengegrunnlag(
+        ref: SaksbehandlingsperiodeReferanse,
+        saksbehandler: Bruker,
+    ) {
+        db.transactional {
+            val behandling =
+                behandlingDao.hentPeriode(
+                    ref,
+                    krav = saksbehandler.erSaksbehandlerPåSaken(),
+                )
+            if (behandling.sykepengegrunnlagId == null) {
+                return@transactional
+            }
+
+            val hentetSykepengegrunnlag = sykepengegrunnlagDao.hentSykepengegrunnlag(behandling.sykepengegrunnlagId)
+            behandlingDao.oppdaterSykepengegrunnlagId(behandling.id, null)
+            if (hentetSykepengegrunnlag.opprettetForBehandling == behandling.id && !hentetSykepengegrunnlag.låst) {
+                sykepengegrunnlagDao.slettSykepengegrunnlag(behandling.sykepengegrunnlagId)
+            }
+            beregnUtbetaling(ref, saksbehandler)
+        }
+    }
 }
 
 fun skapSykepengegrunnlag(

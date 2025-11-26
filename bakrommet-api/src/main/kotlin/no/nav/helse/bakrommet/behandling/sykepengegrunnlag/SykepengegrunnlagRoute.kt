@@ -30,5 +30,14 @@ internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
                 HttpStatusCode.Created,
             )
         }
+        delete {
+            val ref = call.periodeReferanse()
+
+            service.slettSykepengegrunnlag(
+                ref = ref,
+                saksbehandler = call.saksbehandler(),
+            )
+            call.respond(HttpStatusCode.NoContent)
+        }
     }
 }
