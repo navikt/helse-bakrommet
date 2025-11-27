@@ -14,13 +14,11 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktivit
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settInntekt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settRefusjon
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.Test
-import java.math.BigDecimal
 
 class ArbeidsgiverForlengelseNyArbeidsgiverTest {
     @Test
@@ -68,12 +66,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                         typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "654"),
                     ),
                 )
-            settInntekt(
-                personId = personId,
-                periodeId = nestePeriode.id,
-                yrkesaktivitetId = nyYrkesaktivitet,
-                inntekt = BigDecimal(600000.0),
-            )
+
             settDagoversikt(personId, nestePeriode.id, nyYrkesaktivitet, lagSykedager(fom, tom, grad = 100))
             settRefusjon(
                 personId = personId,

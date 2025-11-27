@@ -26,7 +26,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -53,7 +52,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -80,7 +78,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -107,7 +104,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -133,7 +129,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -156,7 +151,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -179,7 +173,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -202,7 +195,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -225,7 +217,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()
@@ -248,7 +239,6 @@ class YrkesaktivitetExtensionsTest {
                 saksbehandlingsperiodeId = UUID.randomUUID(),
                 opprettet = OffsetDateTime.now(),
                 generertFraDokumenter = emptyList(),
-                inntekt = null,
             )
 
         val dekningsgrad = yrkesaktivitetDbRecord.hentDekningsgrad()

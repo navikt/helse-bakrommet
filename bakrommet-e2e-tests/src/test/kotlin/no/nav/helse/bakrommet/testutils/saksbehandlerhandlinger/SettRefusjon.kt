@@ -16,13 +16,13 @@ internal suspend fun ApplicationTestBuilder.settRefusjon(
     personId: String,
     periodeId: UUID,
     yrkesaktivitetId: UUID,
-    refusjon: List<Refusjonsperiode>?,
+    refusjon: List<Refusjonsperiode>,
 ) {
     val response =
         client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/refusjon") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
-            setBody(refusjon?.serialisertTilString() ?: "null")
+            setBody(refusjon.serialisertTilString())
         }
     assertEquals(204, response.status.value)
 }

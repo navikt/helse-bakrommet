@@ -28,7 +28,6 @@ import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
-import java.math.BigDecimal
 import java.util.UUID
 
 fun RoutingCall.yrkesaktivitetReferanse() =
@@ -46,7 +45,6 @@ data class YrkesaktivitetDTO(
     val inntektRequest: InntektRequest?,
     val inntektData: InntektData?,
     val refusjon: List<Refusjonsperiode>? = null,
-    val inntekt: BigDecimal? = null,
 )
 
 fun YrkesaktivitetDbRecord.tilDto() =
@@ -59,7 +57,6 @@ fun YrkesaktivitetDbRecord.tilDto() =
         inntektRequest = inntektRequest,
         inntektData = inntektData,
         refusjon = refusjon,
-        inntekt = inntekt,
     )
 
 internal fun Route.yrkesaktivitetRoute(
@@ -148,15 +145,6 @@ internal fun Route.yrkesaktivitetRoute(
                     call.respond(HttpStatusCode.NoContent)
                 }
             }
-            route("/fri-inntekt") {
-                put {
-                    val inntektRequest = call.receiveWithCustomMapper<YrkesaktivitetInntektRequest>(objectMapperCustomSerde)
-                    val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
-
-                    yrkesaktivitetService.oppdaterInntekt(yrkesaktivitetRef, inntektRequest.inntekt, call.saksbehandler())
-                    call.respond(HttpStatusCode.NoContent)
-                }
-            }
             get("/inntektsmeldinger") {
                 call.medIdent(personIdService) { fnr, personId ->
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
@@ -227,10 +215,6 @@ internal fun Route.yrkesaktivitetRoute(
 
 data class YrkesaktivitetCreateRequest(
     val kategorisering: YrkesaktivitetKategorisering,
-)
-
-data class YrkesaktivitetInntektRequest(
-    val inntekt: BigDecimal?,
 )
 
 data class PensjonsgivendeInntektSuccessResponse(

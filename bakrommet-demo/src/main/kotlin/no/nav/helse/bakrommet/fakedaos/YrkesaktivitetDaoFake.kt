@@ -12,7 +12,6 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetForenkletD
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitet
-import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -30,7 +29,6 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         perioder: Perioder?,
         inntektData: InntektData?,
         refusjonsdata: List<Refusjonsperiode>?,
-        inntekt: java.math.BigDecimal?,
     ): YrkesaktivitetDbRecord {
         val record =
             YrkesaktivitetDbRecord(
@@ -46,7 +44,6 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
                 inntektRequest = null,
                 inntektData = inntektData,
                 refusjon = refusjonsdata,
-                inntekt = inntekt,
             )
         storage[id] = record
         return record
@@ -131,18 +128,6 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
             storage[yrkesaktivitetID]
                 ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id $yrkesaktivitetID")
         val oppdatert = eksisterende.copy(refusjon = refusjonsdata)
-        storage[oppdatert.id] = oppdatert
-        return oppdatert
-    }
-
-    override fun oppdaterInntekt(
-        yrkesaktivitetID: UUID,
-        inntekt: java.math.BigDecimal?,
-    ): YrkesaktivitetDbRecord {
-        val eksisterende =
-            storage[yrkesaktivitetID]
-                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id $yrkesaktivitetID")
-        val oppdatert = eksisterende.copy(inntekt = inntekt)
         storage[oppdatert.id] = oppdatert
         return oppdatert
     }

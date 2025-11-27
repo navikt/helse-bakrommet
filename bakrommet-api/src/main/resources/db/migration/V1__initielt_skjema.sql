@@ -75,10 +75,9 @@ CREATE TABLE IF NOT EXISTS yrkesaktivitet
     opprettet               TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     generert_fra_dokumenter TEXT                        NULL,
     perioder                TEXT                        NULL,
-    inntekt_request         TEXT                        NULL, -- Requesten fra frontend for fastsetting av spg for denne yrkesaktiviteten
-    inntekt_data            TEXT                        NULL, -- Denne yrkesaktivitetens inputbidrag til utregning av sykepengegrunnlaget
-    refusjon                TEXT                        NULL,
-    inntekt                 NUMERIC                     NULL -- En inntekt som brukes til fordeling når vi ikke kjenner inntekten via sykepengegrunnalagsinputen
+    inntekt_request         TEXT                        NULL,
+    inntekt_data            TEXT                        NULL,
+    refusjon                TEXT                        NULL
 );
 
 

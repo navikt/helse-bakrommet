@@ -101,7 +101,6 @@ class YrkesaktivitetService(
                     perioder = null,
                     inntektData = null,
                     refusjonsdata = null,
-                    inntekt = null,
                 )
 
             yrkesaktivitet
@@ -273,19 +272,6 @@ class YrkesaktivitetService(
         db.transactional {
             yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, refusjon)
             beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
-        }
-    }
-
-    suspend fun oppdaterInntekt(
-        ref: YrkesaktivitetReferanse,
-        inntekt: java.math.BigDecimal?,
-        saksbehandler: Bruker,
-    ): YrkesaktivitetDbRecord {
-        val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        return db.transactional {
-            yrkesaktivitetDao.oppdaterInntekt(yrkesaktivitet.id, inntekt).also {
-                beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
-            }
         }
     }
 }

@@ -36,7 +36,6 @@ data class YrkesaktivitetDbRecord(
     val inntektRequest: InntektRequest? = null,
     val inntektData: InntektData? = null,
     val refusjon: List<Refusjonsperiode>? = null,
-    val inntekt: java.math.BigDecimal? = null,
 )
 
 data class YrkesaktivitetForenkletDbRecord(
@@ -65,7 +64,6 @@ fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): Yrkesaktivitet =
         inntektRequest = this.inntektRequest,
         inntektData = this.inntektData,
         refusjon = this.refusjon,
-        inntekt = this.inntekt,
     )
 
 fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
@@ -82,7 +80,6 @@ fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
         inntektRequest = this.inntektRequest,
         inntektData = this.inntektData,
         refusjon = this.refusjon,
-        inntekt = this.inntekt,
     )
 
 interface YrkesaktivitetDao {
@@ -99,7 +96,6 @@ interface YrkesaktivitetDao {
             perioder = yrkesaktivitetDbRecord.perioder,
             inntektData = yrkesaktivitetDbRecord.inntektData,
             refusjonsdata = yrkesaktivitetDbRecord.refusjon,
-            inntekt = yrkesaktivitetDbRecord.inntekt,
         )
 
     fun opprettYrkesaktivitet(
@@ -112,7 +108,6 @@ interface YrkesaktivitetDao {
         perioder: Perioder?,
         inntektData: InntektData?,
         refusjonsdata: List<Refusjonsperiode>?,
-        inntekt: java.math.BigDecimal?,
     ): YrkesaktivitetDbRecord
 
     fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord?
@@ -155,11 +150,6 @@ interface YrkesaktivitetDao {
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord
 
-    fun oppdaterInntekt(
-        yrkesaktivitetID: UUID,
-        inntekt: java.math.BigDecimal?,
-    ): YrkesaktivitetDbRecord
-
     fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord>
 }
 
@@ -191,7 +181,6 @@ class YrkesaktivitetDaoPg private constructor(
         perioder: Perioder?,
         inntektData: InntektData?,
         refusjonsdata: List<Refusjonsperiode>?,
-        inntekt: java.math.BigDecimal?,
     ): YrkesaktivitetDbRecord {
         val yrkesaktivitetDbRecord =
             YrkesaktivitetDbRecord(
@@ -206,7 +195,6 @@ class YrkesaktivitetDaoPg private constructor(
                 perioder = perioder,
                 inntektData = inntektData,
                 refusjon = refusjonsdata,
-                inntekt = inntekt,
             )
         db
             .update(
@@ -214,11 +202,11 @@ class YrkesaktivitetDaoPg private constructor(
                 insert into yrkesaktivitet
                     (id, kategorisering, kategorisering_generert,
                     dagoversikt, dagoversikt_generert,
-                    behandling_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon, inntekt)
+                    behandling_id, opprettet, generert_fra_dokumenter, perioder, inntekt_data, refusjon)
                 select
                     :id, :kategorisering, :kategorisering_generert,
                     :dagoversikt, :dagoversikt_generert,
-                    :behandling_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon, :inntekt
+                    :behandling_id, :opprettet, :generert_fra_dokumenter, :perioder, :inntekt_data, :refusjon
                 $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
                 """.trimIndent(),
                 "id" to yrkesaktivitetDbRecord.id,
@@ -232,7 +220,6 @@ class YrkesaktivitetDaoPg private constructor(
                 "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
                 "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.serialisertTilString(),
                 "refusjon" to yrkesaktivitetDbRecord.refusjon?.let { objectMapperCustomSerde.writeValueAsString(it) },
-                "inntekt" to yrkesaktivitetDbRecord.inntekt,
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
@@ -261,7 +248,6 @@ class YrkesaktivitetDaoPg private constructor(
                 inntektRequest = dbRecord.inntektRequest,
                 inntektData = dbRecord.inntektData,
                 refusjon = dbRecord.refusjon,
-                inntekt = dbRecord.inntekt,
             )
         }
 
@@ -308,7 +294,6 @@ class YrkesaktivitetDaoPg private constructor(
                         object : com.fasterxml.jackson.core.type.TypeReference<List<Refusjonsperiode>>() {},
                     )
                 },
-            inntekt = row.bigDecimalOrNull("inntekt"),
         )
 
     /**
@@ -417,22 +402,6 @@ class YrkesaktivitetDaoPg private constructor(
                 """.trimIndent(),
                 "id" to yrkesaktivitetID,
                 "refusjon" to refusjonsdata?.let { objectMapperCustomSerde.writeValueAsString(it) },
-            ).also(verifiserOppdatert)
-        return hentYrkesaktivitetDbRecord(yrkesaktivitetID)!!
-    }
-
-    override fun oppdaterInntekt(
-        yrkesaktivitetID: UUID,
-        inntekt: java.math.BigDecimal?,
-    ): YrkesaktivitetDbRecord {
-        db
-            .update(
-                """
-                update yrkesaktivitet set inntekt = :inntekt where id = :id
-                $AND_ER_UNDER_BEHANDLING
-                """.trimIndent(),
-                "id" to yrkesaktivitetID,
-                "inntekt" to inntekt,
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetID)!!
     }

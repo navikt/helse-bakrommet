@@ -140,7 +140,6 @@ class BehandlingService(
                     perioder = yrkesaktivitet.perioder,
                     inntektData = yrkesaktivitet.inntektData,
                     refusjonsdata = yrkesaktivitet.refusjon,
-                    inntekt = yrkesaktivitet.inntekt,
                 )
             }
 
@@ -521,7 +520,6 @@ fun lagYrkesaktivitetFraSøknader(
             saksbehandlingsperiodeId = behandling.id,
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = dok.map { it.id },
-            inntekt = null,
         )
     }
 }
@@ -561,7 +559,6 @@ fun lagYrkesaktiviteter(
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
                     refusjon = tidligere?.refusjon,
-                    inntekt = tidligere?.inntekt,
                     inntektData = tidligere?.inntektData,
                     inntektRequest = tidligere?.inntektRequest,
                 )
