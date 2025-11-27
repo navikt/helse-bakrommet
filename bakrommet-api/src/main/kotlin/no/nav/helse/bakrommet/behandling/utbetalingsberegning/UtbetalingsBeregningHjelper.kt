@@ -17,7 +17,6 @@ import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.UtbetalingslinjeDto
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.dto.PeriodeDto
-import no.nav.helse.utbetalingslinjer.Klassekode
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingslinjer.UtbetalingkladdBuilder
 import java.time.LocalDateTime
@@ -146,14 +145,13 @@ fun byggOppdragFraBeregning(
             }
 
         val mottakerBruker = ident
-        val klassekodeBruker = Klassekode.SykepengerArbeidstakerOrdinær
 
         val utbetalingkladdBuilder =
             UtbetalingkladdBuilder(
                 tidslinje = yrkesaktivitetBeregning.utbetalingstidslinje,
                 mottakerRefusjon = mottakerRefusjon,
                 mottakerBruker = mottakerBruker,
-                klassekodeBruker = klassekodeBruker,
+                klassekodeBruker = yrkesaktivitet.kategorisering.tilKlassekode(),
             )
 
         val utbetalingkladd = utbetalingkladdBuilder.build()

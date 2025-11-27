@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.scenariotester
 
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.testutils.*
+import no.nav.helse.utbetalingslinjer.Klassekode
 import kotlin.test.Test
 
 class SelvstendigNæringsdrivendeScenarioTest {
@@ -14,12 +15,13 @@ class SelvstendigNæringsdrivendeScenarioTest {
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
             `skal ha direkteutbetaling`(22900)
+            `skal ha klassekode`(Klassekode.SelvstendigNæringsdrivendeOppgavepliktig)
             `skal ikke ha sammenlikningsgrunnlag`()
         }
     }
 
     @Test
-    fun `enkel selvstendig næringsdrivende 100prosemt forsikring`() {
+    fun `enkel selvstendig næringsdrivende 100prosent forsikring`() {
         Scenario(
             listOf(
                 Selvstendig(forsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG, inntekt = SigrunInntekt(700000, 900000, 1000000), dagoversikt = SykAlleDager()),

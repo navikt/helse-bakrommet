@@ -49,7 +49,9 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.mai
+import no.nav.helse.utbetalingslinjer.Klassekode
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.assertNull
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -97,6 +99,20 @@ data class ScenarioData(
                 ?.sumOf { it.totalbeløp } ?: 0
 
         assertEquals(beløp, nettoDirekte, "Feil direkteutbetaling i oppdraget")
+    }
+
+    fun `skal ha klassekode`(klassekode: Klassekode) {
+        val klassekoder =
+            utbetalingsberegning
+                ?.beregningData
+                ?.spilleromOppdrag
+                ?.oppdrag
+                ?.filter { it.mottaker == scenario.fnr }
+                ?.flatMap { it.linjer }
+                ?.map { it.klassekode }
+
+        assertTrue(klassekoder?.all { it == klassekode.verdi } == true, "Feil klassekode i oppdraget")
+        assertTrue(klassekoder?.isNotEmpty() == true, "Ingen klassekoder funnet for mottaker ${scenario.fnr}")
     }
 
     fun `skal ha refusjon`(
