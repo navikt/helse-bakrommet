@@ -53,6 +53,7 @@ class TidslinjeService(
             val behandlinger = behandlingDao.finnBehandlingerForPerson(personid.personId)
             val yrkesaktivteter = yrkesaktivitetDao.finnYrkesaktiviteterForBehandlinger(behandlinger.map { it.id })
             val tilkommen = tilkommenInntektDao.finnTilkommenInntektForBehandlinger(behandlinger.map { it.id })
+
             val alleOrgnummer =
                 (
                     yrkesaktivteter.mapNotNull { it.kategorisering.maybeOrgnummer() } +

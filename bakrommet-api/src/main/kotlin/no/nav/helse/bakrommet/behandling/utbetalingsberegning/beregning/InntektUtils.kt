@@ -5,7 +5,6 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.økonomi.tilInntekt
-import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
 /**
@@ -23,13 +22,4 @@ fun finnInntektForYrkesaktivitet(
     }
 
     return yrkesaktivitet.inntektData?.omregnetÅrsinntekt?.tilInntekt()
-}
-
-fun finnManuellInntektForYrkesaktivitet(
-    yrkesaktivitet: Yrkesaktivitet,
-): Inntekt? {
-    if (yrkesaktivitet.inntekt != null) {
-        return InntektbeløpDto.Årlig(yrkesaktivitet.inntekt.toDouble()).tilInntekt()
-    }
-    return null
 }

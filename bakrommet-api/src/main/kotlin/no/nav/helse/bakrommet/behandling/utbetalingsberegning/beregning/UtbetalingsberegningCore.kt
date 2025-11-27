@@ -1,8 +1,10 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning
 
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
@@ -15,6 +17,7 @@ import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.person.beløp.Kilde
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.collections.set
@@ -36,55 +39,24 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
             ya to ya.kategorisering.hentDekningsgrad()
         }
 
-    val sykepengennlag = input.sykepengegrunnlag.sykepengegrunnlag.beløp
-
-    val inntekterForYrkesaktiviteter =
-        input.yrkesaktivitet.map {
-            it.id to (
-                finnManuellInntektForYrkesaktivitet(it) ?: finnInntektForYrkesaktivitet(
-                    input.sykepengegrunnlag,
-                    it,
-                ) ?: Inntekt.INGEN
-            )
-        }
-
-    val sumAvAlleInntekter = inntekterForYrkesaktiviteter.sumOf { it.second.årlig }
-
-    val andelTilFordelingForYrkesaktiviteter =
-        if (input.yrkesaktivitet.size == 1) {
-            mapOf(input.yrkesaktivitet.first().id to InntektbeløpDto.Årlig(sykepengennlag).tilInntekt())
-        } else {
-            inntekterForYrkesaktiviteter.associate { inntekt ->
-                val andel = if (sumAvAlleInntekter == 0.0) 0.0 else inntekt.second.årlig / sumAvAlleInntekter
-                inntekt.first to InntektbeløpDto.Årlig((sykepengennlag * andel)).tilInntekt()
-            }
-        }
+    val allerDagersMaksInntekter =
+        input.saksbehandlingsperiode.fom
+            .datesUntil(input.saksbehandlingsperiode.tom.plusDays(1))
+            .map { it to input.yrkesaktivitet }
+            .toList()
+            .associate { it.first to it.second }
+            .berikMedAlleYrkesaktivitetersMaksInntektPerDag(
+                sykepengenngrunnlag = input.sykepengegrunnlag,
+                refusjonstidslinjer = refusjonstidslinjer,
+            ).justerOppForLaveDager(sykepengegrunnlag = input.sykepengegrunnlag)
 
     val utbetalingstidslinjer =
         yrkesaktivitetMedDekningsgrad.map { (yrkesaktivitet, dekningsgrad) ->
             val refusjonstidslinjeData = refusjonstidslinjer[yrkesaktivitet] ?: emptyMap()
             val refusjonstidslinje = opprettRefusjonstidslinjeFraData(refusjonstidslinjeData)
             val inntektjusteringer = input.tilkommenInntekt.tilBeløpstidslinje(input.saksbehandlingsperiode)
-            val andel = andelTilFordelingForYrkesaktiviteter[yrkesaktivitet.id]!!
-
-            val beløpsdager =
-                input.saksbehandlingsperiode.fom
-                    .datesUntil(input.saksbehandlingsperiode.tom.plusDays(1))
-                    .map { dato ->
-                        Beløpsdag(
-                            dato,
-                            finnInntektForYrkesaktivitet(
-                                input.sykepengegrunnlag,
-                                yrkesaktivitet,
-                            ) ?: Inntekt.INGEN,
-                            Kilde(
-                                meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()),
-                                avsender = Avsender.SYKMELDT,
-                                tidsstempel = LocalDateTime.now(),
-                            ),
-                        )
-                    }.toList()
-            val maksInntektTilFordelingPerDag = Beløpstidslinje(beløpsdager)
+            val maksInntektTilFordelingPerDag =
+                allerDagersMaksInntekter.skapBeløpstidslinjeForYrkesaktivitet(yrkesaktivitet)
 
             byggUtbetalingstidslinjeForYrkesaktivitet(
                 yrkesaktivitet = yrkesaktivitet,
@@ -116,6 +88,77 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
             )
         }
 }
+
+private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.skapBeløpstidslinjeForYrkesaktivitet(
+    yrkesaktivitet: Yrkesaktivitet,
+): Beløpstidslinje {
+    val beløpsdager =
+        this.mapNotNull { (dato, inntekter) ->
+            val inntektForYrkesaktivitet = inntekter.firstOrNull { it.first == yrkesaktivitet }?.second
+            if (inntektForYrkesaktivitet != null) {
+                Beløpsdag(
+                    dato = dato,
+                    beløp = inntektForYrkesaktivitet,
+                    kilde =
+                        Kilde(
+                            meldingsreferanseId = MeldingsreferanseId(UUID.randomUUID()),
+                            avsender = Avsender.SYKMELDT,
+                            tidsstempel = LocalDateTime.now(),
+                        ),
+                )
+            } else {
+                null
+            }
+        }
+    return Beløpstidslinje(beløpsdager)
+}
+
+private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.justerOppForLaveDager(sykepengegrunnlag: SykepengegrunnlagBase): Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>> {
+    return this
+        .map {
+            // Vi finner summen av dagens inntekter for alle yrkesaktiviteter. Hvis summen er lavere enn sykepengegrunnlaget så justerer vi det opp forholdsmessig per yrkesaktivitet gitt deres andel av inntekt
+            val dagensSum = it.value.sumOf { (_, inntekt) -> inntekt.daglig }
+            if (dagensSum >= sykepengegrunnlag.sykepengegrunnlag.tilInntekt().daglig) {
+                return@map it.key to it.value
+            } else if (dagensSum == 0.0) {
+                // TODO vi må bare fordele sykepengegrunnlaget likt på alle yrkesaktiviteter ? Blir dette riktig?
+                val antallYrkesaktiviteter = it.value.size
+                val liktFordeltInntektPerYa = sykepengegrunnlag.sykepengegrunnlag.tilInntekt().daglig / antallYrkesaktiviteter
+                val inntekterForDato =
+                    it.value.map { (yrkesaktivitet, _) ->
+                        yrkesaktivitet to InntektbeløpDto.DagligDouble(liktFordeltInntektPerYa).tilInntekt()
+                    }
+
+                return@map it.key to inntekterForDato
+            } else {
+                // Her må vi justere opp.
+                val justeringsfaktor = sykepengegrunnlag.sykepengegrunnlag.tilInntekt().daglig / dagensSum
+                val justerteInntekterForDato =
+                    it.value.map { (yrkesaktivitet, inntekt) ->
+                        val justertInntekt =
+                            InntektbeløpDto.DagligDouble(inntekt.daglig * justeringsfaktor).tilInntekt()
+                        yrkesaktivitet to justertInntekt
+                    }
+                return@map it.key to justerteInntekterForDato
+            }
+        }.toMap()
+}
+
+private fun Map<LocalDate, List<Yrkesaktivitet>>.berikMedAlleYrkesaktivitetersMaksInntektPerDag(
+    sykepengenngrunnlag: SykepengegrunnlagBase,
+    refusjonstidslinjer: Map<Yrkesaktivitet, Map<LocalDate, Inntekt>>,
+): Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>> =
+    this
+        .map {
+            val inntekterForAlleYrkesaktiviteter =
+                it.value.map { ya ->
+                    val refusjonstidslinjeForYa = refusjonstidslinjer[ya] ?: emptyMap()
+                    // Primært hent inntekt fra sykepengegrunnlag, sekundært fra refusjonstidslinje, tertiært ingen inntekt
+                    val inntektForDato = finnInntektForYrkesaktivitet(sykepengenngrunnlag, ya) ?: refusjonstidslinjeForYa[it.key] ?: Inntekt.INGEN
+                    ya to inntektForDato
+                }
+            it.key to inntekterForAlleYrkesaktiviteter
+        }.toMap()
 
 fun InntektbeløpDto.DagligDouble.tilInntekt(): Inntekt = Inntekt.gjenopprett(this)
 
