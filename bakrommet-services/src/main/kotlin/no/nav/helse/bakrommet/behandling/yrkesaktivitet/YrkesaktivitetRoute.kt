@@ -21,7 +21,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.periodeReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.person.PersonIdService
+import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.medIdent
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
@@ -63,7 +63,7 @@ internal fun Route.yrkesaktivitetRoute(
     yrkesaktivitetService: YrkesaktivitetService,
     inntektservice: InntektService,
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
-    personIdService: PersonIdService,
+    personService: PersonService,
 ) {
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
@@ -146,7 +146,7 @@ internal fun Route.yrkesaktivitetRoute(
                 }
             }
             get("/inntektsmeldinger") {
-                call.medIdent(personIdService) { fnr, personId ->
+                call.medIdent(personService) { fnr, personId ->
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
 
                     val inntektsmeldinger =

@@ -19,7 +19,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import no.nav.helse.bakrommet.kafka.OutboxDaoPg
 import no.nav.helse.bakrommet.person.PersonDaoPg
-import no.nav.helse.bakrommet.person.PersonIdServiceDaoer
+import no.nav.helse.bakrommet.person.PersonServiceDaoer
 import no.nav.helse.bakrommet.person.PersonsokDaoer
 import no.nav.helse.bakrommet.tidslinje.TidslinjeServiceDaoer
 import javax.sql.DataSource
@@ -32,7 +32,7 @@ interface AlleDaoer :
     InntektServiceDaoer,
     VilkårServiceDaoer,
     PersonsokDaoer,
-    PersonIdServiceDaoer,
+    PersonServiceDaoer,
     UtbetalingsberegningDaoer,
     TilkommenInntektServiceDaoer,
     TidslinjeServiceDaoer

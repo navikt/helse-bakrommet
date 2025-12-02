@@ -45,9 +45,8 @@ import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
 import no.nav.helse.bakrommet.kafka.OutboxService
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.pdl.PdlClient
-import no.nav.helse.bakrommet.person.PersonIdService
+import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PersonsøkService
-import no.nav.helse.bakrommet.person.personinfoRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
@@ -129,14 +128,13 @@ fun Route.setupRoutes(
     services: Services,
     clienter: Clienter,
 ) {
-    personinfoRoute(clienter.pdlClient, services.personIdService)
-    soknaderRoute(clienter.sykepengesoknadBackendClient, services.personIdService)
+    soknaderRoute(clienter.sykepengesoknadBackendClient, services.personService)
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)
     yrkesaktivitetRoute(
         yrkesaktivitetService = services.yrkesaktivitetService,
         inntektservice = services.inntektService,
         inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
-        personIdService = services.personIdService,
+        personService = services.personService,
     )
     beregningRoute(service = services.utbetalingsberegningService)
     tidslinjeRoute(services.tidslinjeService)
@@ -188,7 +186,7 @@ data class Services(
     val inntektService: InntektService,
     val inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     val utbetalingsberegningService: UtbetalingsberegningService,
-    val personIdService: PersonIdService,
+    val personService: PersonService,
     val organisasjonService: OrganisasjonService,
     val tilkommenInntektService: TilkommenInntektService,
     val tidslinjeService: TidslinjeService,
@@ -235,7 +233,7 @@ fun createServices(
                 clienter.inntektsmeldingClient,
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
-        personIdService = PersonIdService(db),
+        personService = PersonService(db, clienter.pdlClient),
         organisasjonService = OrganisasjonService(clienter.eregClient),
         tilkommenInntektService = TilkommenInntektService(db),
         tidslinjeService = TidslinjeService(db, clienter.eregClient),
