@@ -26,7 +26,6 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.sykepengegrunnlagRoute
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektService
-import no.nav.helse.bakrommet.behandling.tilkommen.tilkommenInntektRoute
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
@@ -147,7 +146,6 @@ fun Route.setupRoutes(
     beregningRoute(service = services.utbetalingsberegningService)
     brukerRoute()
     organisasjonRoute(services.organisasjonService)
-    tilkommenInntektRoute(services.tilkommenInntektService)
     tidslinjeRoute(services.tidslinjeService)
 }
 

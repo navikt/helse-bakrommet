@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.scenariotester
 
-import no.nav.helse.bakrommet.behandling.tilkommen.OpprettTilkommenInntektRequest
-import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivitetType
+import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType
+import no.nav.helse.bakrommet.api.dto.tilkommen.OpprettTilkommenInntektRequestDto
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Scenario
 import no.nav.helse.bakrommet.testutils.SkjønnsfastsattManglendeRapportering
@@ -41,7 +41,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                     periodeId = periodeId,
                     personId = personId,
                     tilkommenInntekt =
-                        OpprettTilkommenInntektRequest(
+                        OpprettTilkommenInntektRequestDto(
                             ident = "999444555",
                             fom = 4.januar(2021),
                             tom = 10.januar(2021),
