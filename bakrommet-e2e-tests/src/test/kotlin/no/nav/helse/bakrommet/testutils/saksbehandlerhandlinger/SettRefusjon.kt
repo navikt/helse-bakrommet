@@ -7,7 +7,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
@@ -16,7 +16,7 @@ internal suspend fun ApplicationTestBuilder.settRefusjon(
     personId: String,
     periodeId: UUID,
     yrkesaktivitetId: UUID,
-    refusjon: List<Refusjonsperiode>,
+    refusjon: List<RefusjonsperiodeDto>,
 ) {
     val response =
         client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/refusjon") {

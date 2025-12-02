@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import io.ktor.http.*
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
 import no.nav.helse.bakrommet.testutils.AInntekt
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Scenario
@@ -14,6 +14,7 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehan
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
+import java.util.UUID
 import kotlin.test.assertEquals
 
 class ArbeidsgiverForlengelseTest {
@@ -52,10 +53,10 @@ class ArbeidsgiverForlengelseTest {
             oppdaterInntekt(
                 personId = personId,
                 periodeId = periode.id,
-                yrkesaktivitetId = ya.id,
+                yrkesaktivitetId = UUID.fromString(ya.id),
                 inntektRequest =
-                    InntektRequest.Arbeidstaker(
-                        data = ArbeidstakerInntektRequest.Ainntekt(begrunnelse = "test"),
+                    InntektRequestDto.Arbeidstaker(
+                        data = ArbeidstakerInntektRequestDto.Ainntekt(begrunnelse = "test"),
                     ),
                 expectedResponseStatus = HttpStatusCode.BadRequest,
             )

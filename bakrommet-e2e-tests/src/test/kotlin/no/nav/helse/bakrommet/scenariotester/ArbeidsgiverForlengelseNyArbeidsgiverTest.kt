@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.scenariotester
 
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
@@ -17,8 +17,8 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settRefusjon
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 class ArbeidsgiverForlengelseNyArbeidsgiverTest {
     @Test
@@ -31,10 +31,10 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                         inntekt =
                             Inntektsmelding(
                                 20000.0,
-                                Refusjonsperiode(
+                                RefusjonsperiodeDto(
                                     ScenarioDefaults.fom,
                                     ScenarioDefaults.tom,
-                                    InntektbeløpDto.MånedligDouble(15000.0),
+                                    15000.0,
                                 ),
                             ),
                         dagoversikt = SykAlleDager(),
@@ -55,7 +55,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                 opprettSaksbehandlingsperiode(personId, fom, tom)
 
             hentYrkesaktiviteter(personId, nestePeriode.id).first().also {
-                slettYrkesaktivitet(personId, nestePeriode.id, it.id)
+                slettYrkesaktivitet(personId, nestePeriode.id, UUID.fromString(it.id))
             }
             val nyYrkesaktivitet =
                 opprettYrkesaktivitet(
@@ -74,10 +74,10 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                 yrkesaktivitetId = nyYrkesaktivitet,
                 refusjon =
                     listOf(
-                        Refusjonsperiode(
+                        RefusjonsperiodeDto(
                             fom,
                             tom,
-                            InntektbeløpDto.MånedligDouble(4000.0),
+                            4000.0,
                         ),
                     ),
             )

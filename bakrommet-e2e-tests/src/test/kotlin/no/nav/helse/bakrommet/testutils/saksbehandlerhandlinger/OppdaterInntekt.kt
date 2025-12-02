@@ -8,7 +8,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
@@ -17,7 +17,7 @@ internal suspend fun ApplicationTestBuilder.oppdaterInntekt(
     personId: String,
     periodeId: UUID,
     yrkesaktivitetId: UUID,
-    inntektRequest: InntektRequest,
+    inntektRequest: InntektRequestDto,
     expectedResponseStatus: HttpStatusCode = HttpStatusCode.NoContent,
 ) {
     val response =

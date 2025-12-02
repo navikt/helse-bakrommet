@@ -29,7 +29,6 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.yrkesaktivitetRoute
 import no.nav.helse.bakrommet.bruker.BrukerService
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
@@ -130,12 +129,6 @@ fun Route.setupRoutes(
 ) {
     soknaderRoute(clienter.sykepengesoknadBackendClient, services.personService)
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)
-    yrkesaktivitetRoute(
-        yrkesaktivitetService = services.yrkesaktivitetService,
-        inntektservice = services.inntektService,
-        inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
-        personService = services.personService,
-    )
     beregningRoute(service = services.utbetalingsberegningService)
     tidslinjeRoute(services.tidslinjeService)
 }

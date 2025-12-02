@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import no.nav.helse.Grunnbeløp
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.testutils.*
 import kotlin.test.Test
 import kotlin.time.times
@@ -19,7 +19,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
-                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.dtoMånedligDouble()),
+                                RefusjonsperiodeDto(ScenarioDefaults.fom, null, seksG.dtoMånedligDouble().beløp),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -45,7 +45,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
-                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.times(1.5).dtoMånedligDouble()),
+                                RefusjonsperiodeDto(ScenarioDefaults.fom, null, seksG.times(1.5).dtoMånedligDouble().beløp),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -71,7 +71,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
-                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.dtoMånedligDouble()),
+                                RefusjonsperiodeDto(ScenarioDefaults.fom, null, seksG.dtoMånedligDouble().beløp),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -80,7 +80,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
-                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble()),
+                                RefusjonsperiodeDto(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble().beløp),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -105,7 +105,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
-                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.times(1.5).dtoMånedligDouble()),
+                                RefusjonsperiodeDto(ScenarioDefaults.fom, null, seksG.times(1.5).dtoMånedligDouble().beløp),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -114,7 +114,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
-                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble()),
+                                RefusjonsperiodeDto(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble().beløp),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -139,7 +139,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig.times(1.5),
-                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.times(1.5).dtoMånedligDouble()),
+                                RefusjonsperiodeDto(ScenarioDefaults.fom, null, seksG.times(1.5).dtoMånedligDouble().beløp),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -148,7 +148,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
-                                Refusjonsperiode(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble()),
+                                RefusjonsperiodeDto(ScenarioDefaults.fom, null, seksG.div(2).dtoMånedligDouble().beløp),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),

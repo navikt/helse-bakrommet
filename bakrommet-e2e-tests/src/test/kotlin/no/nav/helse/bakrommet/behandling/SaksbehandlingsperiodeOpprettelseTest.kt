@@ -8,10 +8,9 @@ import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dokumenter.tilDokumentDto
 import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDTO
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -165,7 +164,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 client
                     .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<YrkesaktivitetDTO>>()
+                    }.body<List<YrkesaktivitetDto>>()
 
             assertEquals(3, yrkesaktivitet.size)
             assertEquals(
@@ -173,8 +172,15 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 yrkesaktivitet
                     .map {
                         when (val k = it.kategorisering) {
-                            is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer()
-                            is YrkesaktivitetKategorisering.Frilanser -> k.orgnummer
+                            is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
+                                when (val type = k.typeArbeidstaker) {
+                                    is TypeArbeidstakerDto.Ordinær -> type.orgnummer
+                                    is TypeArbeidstakerDto.Maritim -> type.orgnummer
+                                    is TypeArbeidstakerDto.Fisker -> type.orgnummer
+                                    else -> null
+                                }
+                            }
+                            is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer
                             else -> null
                         }
                     }.toSet(),
@@ -183,19 +189,28 @@ class SaksbehandlingsperiodeOpprettelseTest {
             val arbgiver1Yrkesaktivitet =
                 yrkesaktivitet.find {
                     when (val k = it.kategorisering) {
-                        is YrkesaktivitetKategorisering.Arbeidstaker -> k.orgnummer() == arbeidsgiver1.identifikator
-                        is YrkesaktivitetKategorisering.Frilanser -> k.orgnummer == arbeidsgiver1.identifikator
+                        is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
+                            when (val type = k.typeArbeidstaker) {
+                                is TypeArbeidstakerDto.Ordinær -> type.orgnummer == arbeidsgiver1.identifikator
+                                is TypeArbeidstakerDto.Maritim -> type.orgnummer == arbeidsgiver1.identifikator
+                                is TypeArbeidstakerDto.Fisker -> type.orgnummer == arbeidsgiver1.identifikator
+                                else -> false
+                            }
+                        }
+                        is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer == arbeidsgiver1.identifikator
                         else -> false
                     }
                 }!!
 
-            assertEquals(
-                YrkesaktivitetKategorisering.Arbeidstaker(
-                    sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123321123"),
-                ),
-                arbgiver1Yrkesaktivitet.kategorisering,
+            assertTrue(
+                arbgiver1Yrkesaktivitet.kategorisering is YrkesaktivitetKategoriseringDto.Arbeidstaker,
+                "Kategorisering skal være Arbeidstaker",
             )
+            val arbeidstakerKategorisering = arbgiver1Yrkesaktivitet.kategorisering as YrkesaktivitetKategoriseringDto.Arbeidstaker
+            assertEquals(true, arbeidstakerKategorisering.sykmeldt)
+            assertTrue(arbeidstakerKategorisering.typeArbeidstaker is TypeArbeidstakerDto.Ordinær)
+            val ordinærType = arbeidstakerKategorisering.typeArbeidstaker as TypeArbeidstakerDto.Ordinær
+            assertEquals("123321123", ordinærType.orgnummer)
         }
     }
 

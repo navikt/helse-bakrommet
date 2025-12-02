@@ -7,7 +7,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagerSomSkalOppdateresDto
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
@@ -16,14 +17,14 @@ internal suspend fun ApplicationTestBuilder.settDagoversikt(
     personId: String,
     periodeId: UUID,
     yrkesaktivitetId: UUID,
-    dager: List<Dag>,
+    dager: List<DagDto>,
 ) {
-    val dagoversikt = dager.serialisertTilString()
+    val req = DagerSomSkalOppdateresDto(dager)
     val response =
         client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
-            setBody(dagoversikt)
+            setBody(req.serialisertTilString())
         }
     assertEquals(204, response.status.value)
 }

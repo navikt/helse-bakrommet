@@ -1,11 +1,12 @@
 package no.nav.helse.bakrommet.scenariotester
 
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.testutils.*
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
+import java.util.UUID
 import kotlin.test.Test
 
 class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
@@ -28,11 +29,22 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
                 it.scenario.personId,
                 it.periode.id,
             ).first {
-                it.kategorisering.orgnummer() == "777"
+                when (val k = it.kategorisering) {
+                    is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
+                        when (val type = k.typeArbeidstaker) {
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Ordinær -> type.orgnummer == "777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Maritim -> type.orgnummer == "777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Fisker -> type.orgnummer == "777"
+                            else -> false
+                        }
+                    }
+                    is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer == "777"
+                    else -> false
+                }
             }.let { yrkesaktivitet777 ->
                 slettYrkesaktivitet(
                     periodeId = it.periode.id,
-                    yrkesaktivitetId = yrkesaktivitet777.id,
+                    yrkesaktivitetId = UUID.fromString(yrkesaktivitet777.id),
                     personId = it.scenario.personId,
                 )
             }
@@ -71,11 +83,22 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             ).also {
                 it.size `should equal` 2
             }.first {
-                it.kategorisering.orgnummer() == "777"
+                when (val k = it.kategorisering) {
+                    is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
+                        when (val type = k.typeArbeidstaker) {
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Ordinær -> type.orgnummer == "777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Maritim -> type.orgnummer == "777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Fisker -> type.orgnummer == "777"
+                            else -> false
+                        }
+                    }
+                    is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer == "777"
+                    else -> false
+                }
             }.let { yrkesaktivitet777 ->
                 slettYrkesaktivitet(
                     periodeId = nyPeriode.id,
-                    yrkesaktivitetId = yrkesaktivitet777.id,
+                    yrkesaktivitetId = UUID.fromString(yrkesaktivitet777.id),
                     personId = it.scenario.personId,
                 )
             }

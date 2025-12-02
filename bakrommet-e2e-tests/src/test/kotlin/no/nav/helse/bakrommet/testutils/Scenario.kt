@@ -9,25 +9,25 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.Inntekt
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.KildeDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PensjonsgivendeInntektRequestDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.behandling.Behandling
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningResponseUtDto
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
@@ -47,7 +47,6 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehan
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
-import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.mai
 import no.nav.helse.utbetalingslinjer.Klassekode
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -71,7 +70,7 @@ data class ScenarioData(
     val periode: Behandling,
     val sykepengegrunnlag: SykepengegrunnlagBase?,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
-    val yrkesaktiviteter: List<YrkesaktivitetDTO>,
+    val yrkesaktiviteter: List<YrkesaktivitetDto>,
     val utbetalingsberegning: BeregningResponseUtDto?,
     val daoer: Daoer,
     val beslutterToken: String,
@@ -130,19 +129,30 @@ data class ScenarioData(
         assertEquals(beløp, nettoRefusjon)
     }
 
-    fun `næringsdrivende yrkesaktivitet`(): YrkesaktivitetDTO =
+    fun `næringsdrivende yrkesaktivitet`(): YrkesaktivitetDto =
         yrkesaktiviteter
-            .first { it.kategorisering is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende }
+            .first { it.kategorisering is YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende }
 
-    fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDTO =
-        yrkesaktiviteter
-            .filter { it.kategorisering is YrkesaktivitetKategorisering.Arbeidstaker }
-            .first { (it.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker).maybeOrgnummer() == orgnummer }
+    fun `arbeidstaker yrkesaktivitet`(orgnummer: String): YrkesaktivitetDto {
+        val arbeidstaker =
+            yrkesaktiviteter
+                .filter { it.kategorisering is YrkesaktivitetKategoriseringDto.Arbeidstaker }
+                .first {
+                    val k = it.kategorisering as YrkesaktivitetKategoriseringDto.Arbeidstaker
+                    when (val type = k.typeArbeidstaker) {
+                        is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Ordinær -> type.orgnummer == orgnummer
+                        is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Maritim -> type.orgnummer == orgnummer
+                        is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Fisker -> type.orgnummer == orgnummer
+                        else -> false
+                    }
+                }
+        return arbeidstaker
+    }
 }
 
-infix fun YrkesaktivitetDTO.harBeregningskode(expectedKode: BeregningskoderSykepengegrunnlag) {
+infix fun YrkesaktivitetDto.harBeregningskode(expectedKode: BeregningskoderSykepengegrunnlag) {
     val beregningskodeActual = this.inntektData?.sporing
-    assertEquals(expectedKode, beregningskodeActual, "Feil beregningskode for yrkesaktivitet ${this.id}")
+    assertEquals(expectedKode.name, beregningskodeActual, "Feil beregningskode for yrkesaktivitet ${this.id}")
 }
 
 data class Scenario(
@@ -317,41 +327,41 @@ sealed class YADagoversikt {
     abstract fun lagDagListe(
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Dag>
+    ): List<DagDto>
 }
 
 class SykAlleDager : YADagoversikt() {
     override fun lagDagListe(
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Dag> = lagSykedager(fom, tom, grad = 100)
+    ): List<DagDto> = lagSykedager(fom, tom, grad = 100)
 }
 
 fun lagSykedager(
     fom: LocalDate,
     tom: LocalDate,
     grad: Int,
-): List<Dag> =
+): List<DagDto> =
     fom
         .datesUntil(tom.plusDays(1))
         .map { dato ->
-            Dag(
+            DagDto(
                 dato = dato,
-                dagtype = Dagtype.Syk,
+                dagtype = DagtypeDto.Syk,
                 grad = grad,
                 avslåttBegrunnelse = listOf(),
                 andreYtelserBegrunnelse = listOf(),
-                kilde = Kilde.Søknad,
+                kilde = KildeDto.Søknad,
             )
         }.toList()
 
 sealed class YAInntekt {
-    abstract val request: InntektRequest
+    abstract val request: InntektRequestDto
 }
 
 class Inntektsmelding(
     val beregnetInntekt: Double,
-    vararg val refusjon: Refusjonsperiode,
+    vararg val refusjon: RefusjonsperiodeDto,
 ) : YAInntekt() {
     fun skapInntektsmelding(
         fnr: String,
@@ -366,10 +376,10 @@ class Inntektsmelding(
 
     val inntektmeldingid = UUID.randomUUID()
 
-    override val request: InntektRequest =
-        InntektRequest.Arbeidstaker(
+    override val request: InntektRequestDto =
+        InntektRequestDto.Arbeidstaker(
             data =
-                ArbeidstakerInntektRequest.Inntektsmelding(
+                ArbeidstakerInntektRequestDto.Inntektsmelding(
                     begrunnelse = "Velger inntektsmelding for arbeidstaker",
                     inntektsmeldingId = inntektmeldingid.toString(),
                     refusjon = refusjon.toList(),
@@ -381,13 +391,13 @@ class SkjønnsfastsattManglendeRapportering(
     årsinntekt: Double,
     begrunnelse: String = "Fordi arbeidsgiver har ikke rapportert inntekten på vanlig måte",
 ) : YAInntekt() {
-    override val request: InntektRequest =
-        InntektRequest.Arbeidstaker(
+    override val request: InntektRequestDto =
+        InntektRequestDto.Arbeidstaker(
             data =
-                ArbeidstakerInntektRequest.Skjønnsfastsatt(
+                ArbeidstakerInntektRequestDto.Skjønnsfastsatt(
                     begrunnelse = begrunnelse,
-                    årsinntekt = InntektbeløpDto.Årlig(årsinntekt),
-                    årsak = ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING,
+                    årsinntekt = årsinntekt,
+                    årsak = ArbeidstakerSkjønnsfastsettelseÅrsakDto.MANGELFULL_RAPPORTERING,
                 ),
         )
 }
@@ -419,9 +429,9 @@ class AInntekt(
             }.reversed()
 
     override val request =
-        InntektRequest.Arbeidstaker(
+        InntektRequestDto.Arbeidstaker(
             data =
-                ArbeidstakerInntektRequest.Ainntekt(
+                ArbeidstakerInntektRequestDto.Ainntekt(
                     begrunnelse = "Velger inntektsmelding for arbeidstaker",
                     refusjon = emptyList(),
                 ),
@@ -458,9 +468,9 @@ class SigrunInntekt(
     }
 
     override val request =
-        InntektRequest.SelvstendigNæringsdrivende(
+        InntektRequestDto.SelvstendigNæringsdrivende(
             data =
-                PensjonsgivendeInntektRequest.PensjonsgivendeInntekt(
+                PensjonsgivendeInntektRequestDto.PensjonsgivendeInntekt(
                     begrunnelse = "8-35",
                 ),
         )

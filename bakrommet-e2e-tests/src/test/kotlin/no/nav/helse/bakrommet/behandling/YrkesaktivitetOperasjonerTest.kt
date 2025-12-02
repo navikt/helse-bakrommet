@@ -6,9 +6,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
@@ -64,30 +64,35 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<YrkesaktivitetDTO>>()
+                    }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .id
+                    .let { UUID.fromString(it.id) }
 
-            // Oppdater dagoversikt med array av spesifikke dager
-            val oppdateringer = """[
-                {
-                    "dato": "2023-01-02",
-                    "dagtype": "Syk",
-                    "grad": 100,
-                    "avslåttBegrunnelse": []
-                },
-                {
-                    "dato": "2023-01-03",
-                    "dagtype": "Arbeidsdag", 
-                    "grad": 0
-                },
-                {
-                    "dato": "2023-01-07",
-                    "dagtype": "Syk",
-                    "grad": 50,
-                    "avslåttBegrunnelse": []
+            val oppdateringer =
+                """
+                   {
+                    "dager": [
+                      {
+                        "dato": "2023-01-02",
+                        "dagtype": "Syk",
+                        "grad": 100,
+                        "avslåttBegrunnelse": []
+                    },
+                    {
+                        "dato": "2023-01-03",
+                        "dagtype": "Arbeidsdag", 
+                        "grad": 0
+                    },
+                    {
+                        "dato": "2023-01-07",
+                        "dagtype": "Syk",
+                        "grad": 50,
+                        "avslåttBegrunnelse": []
+                    }
+                    ],
+                    "notat": "Test notat"
                 }
-            ]"""
+                """.trimIndent()
 
             val response =
                 client.put("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
@@ -167,9 +172,9 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<YrkesaktivitetDTO>>()
+                    }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .id
+                    .let { UUID.fromString(it.id) }
 
             // Oppdater dagoversikt med nytt format (objekt med dager og notat)
             val oppdateringer = """{
@@ -272,9 +277,9 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<YrkesaktivitetDTO>>()
+                    }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .id
+                    .let { UUID.fromString(it.id) }
 
             // Oppdater perioder med ARBEIDSGIVERPERIODE
             val perioder = """{
@@ -419,9 +424,9 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<YrkesaktivitetDTO>>()
+                    }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .id
+                    .let { UUID.fromString(it.id) }
 
             // Hent inntektsmeldinger for yrkesaktivitet
             val response =
@@ -521,9 +526,9 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<YrkesaktivitetDTO>>()
+                    }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .id
+                    .let { UUID.fromString(it.id) }
 
             // Hent inntektsmeldinger for yrkesaktivitet
             val response =

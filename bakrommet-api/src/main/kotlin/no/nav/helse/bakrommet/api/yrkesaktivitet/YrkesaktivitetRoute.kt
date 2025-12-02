@@ -1,7 +1,5 @@
-package no.nav.helse.bakrommet.behandling.yrkesaktivitet
+package no.nav.helse.bakrommet.api.yrkesaktivitet
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import hentPensjonsgivendeInntektForYrkesaktivitet
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -9,26 +7,23 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.PARAM_YRKESAKTIVITETUUID
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
+import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
-import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.AInntektResponse
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
+import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentPensjonsgivendeInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.periodeReferanse
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.medIdent
-import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
-import no.nav.helse.bakrommet.serde.receiveWithCustomMapper
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
-import java.util.UUID
 
 fun RoutingCall.yrkesaktivitetReferanse() =
     YrkesaktivitetReferanse(
@@ -36,30 +31,7 @@ fun RoutingCall.yrkesaktivitetReferanse() =
         yrkesaktivitetUUID = parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID(),
     )
 
-data class YrkesaktivitetDTO(
-    val id: UUID,
-    val kategorisering: YrkesaktivitetKategorisering,
-    val dagoversikt: List<Dag>?,
-    val generertFraDokumenter: List<UUID>,
-    val perioder: Perioder?,
-    val inntektRequest: InntektRequest?,
-    val inntektData: InntektData?,
-    val refusjon: List<Refusjonsperiode>? = null,
-)
-
-fun YrkesaktivitetDbRecord.tilDto() =
-    YrkesaktivitetDTO(
-        id = id,
-        kategorisering = kategorisering,
-        dagoversikt = dagoversikt,
-        generertFraDokumenter = generertFraDokumenter,
-        perioder = perioder,
-        inntektRequest = inntektRequest,
-        inntektData = inntektData,
-        refusjon = refusjon,
-    )
-
-internal fun Route.yrkesaktivitetRoute(
+fun Route.yrkesaktivitetRoute(
     yrkesaktivitetService: YrkesaktivitetService,
     inntektservice: InntektService,
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
@@ -68,28 +40,19 @@ internal fun Route.yrkesaktivitetRoute(
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
             val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(call.periodeReferanse())
-            val yrkesaktivitetDto = yrkesaktiviteter.map { it.tilDto() }
-            call.respondText(
-                objectMapperCustomSerde.writeValueAsString(yrkesaktivitetDto),
-                ContentType.Application.Json,
-                HttpStatusCode.OK,
-            )
+            val yrkesaktivitetDto = yrkesaktiviteter.map { it.tilYrkesaktivitetDto() }
+            call.respondJson(yrkesaktivitetDto)
         }
 
         post {
-            val yrkesaktivitetCreateRequest = call.receive<YrkesaktivitetCreateRequest>()
-
+            val request = call.receive<YrkesaktivitetCreateRequestDto>()
             val yrkesaktivitet =
                 yrkesaktivitetService.opprettYrkesaktivitet(
                     call.periodeReferanse(),
-                    yrkesaktivitetCreateRequest.kategorisering,
+                    request.tilYrkesaktivitetKategorisering(),
                     call.saksbehandler(),
                 )
-            call.respondText(
-                yrkesaktivitet.tilDto().serialisertTilString(),
-                ContentType.Application.Json,
-                HttpStatusCode.Created,
-            )
+            call.respondJson(yrkesaktivitet.tilYrkesaktivitetDto(), status = HttpStatusCode.Created)
         }
 
         route("/{$PARAM_YRKESAKTIVITETUUID}") {
@@ -97,38 +60,40 @@ internal fun Route.yrkesaktivitetRoute(
                 yrkesaktivitetService.slettYrkesaktivitet(call.yrkesaktivitetReferanse(), call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
+
             put("/dagoversikt") {
-                val dagerSomSkalOppdateres = call.receive<DagerSomSkalOppdateres>()
+                val request = call.receive<DagerSomSkalOppdateresDto>()
                 yrkesaktivitetService.oppdaterDagoversiktDager(
                     call.yrkesaktivitetReferanse(),
-                    dagerSomSkalOppdateres,
+                    request.dager.tilJsonNode(),
                     call.saksbehandler(),
                 )
                 call.respond(HttpStatusCode.NoContent)
             }
-            put("/kategorisering") {
-                val kategorisering = call.receive<YrkesaktivitetKategorisering>()
 
+            put("/kategorisering") {
+                val kategorisering = call.receive<YrkesaktivitetKategoriseringDto>()
                 yrkesaktivitetService.oppdaterKategorisering(
                     call.yrkesaktivitetReferanse(),
-                    kategorisering,
+                    kategorisering.tilYrkesaktivitetKategorisering(),
                     call.saksbehandler(),
                 )
                 call.respond(HttpStatusCode.NoContent)
             }
+
             put("/perioder") {
                 val perioderJson = call.receiveText()
-                val perioder: Perioder? =
-                    if (perioderJson == "null") null else objectMapper.readValue(perioderJson, Perioder::class.java)
-                yrkesaktivitetService.oppdaterPerioder(call.yrkesaktivitetReferanse(), perioder, call.saksbehandler())
+                val perioder: PerioderDto? = if (perioderJson == "null") null else objectMapper.readValue(perioderJson, PerioderDto::class.java)
+                val perioderDomain = perioder?.tilPerioder()
+                yrkesaktivitetService.oppdaterPerioder(call.yrkesaktivitetReferanse(), perioderDomain, call.saksbehandler())
                 call.respond(HttpStatusCode.NoContent)
             }
+
             route("/inntekt") {
                 put {
-                    val inntektRequest = call.receiveWithCustomMapper<InntektRequest>(objectMapperCustomSerde)
+                    val inntektRequest = call.receive<InntektRequestDto>()
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
-
-                    inntektservice.oppdaterInntekt(yrkesaktivitetRef, inntektRequest, call.saksbehandlerOgToken())
+                    inntektservice.oppdaterInntekt(yrkesaktivitetRef, inntektRequest.tilInntektRequest(), call.saksbehandlerOgToken())
                     call.respond(HttpStatusCode.NoContent)
                 }
             }
@@ -136,26 +101,23 @@ internal fun Route.yrkesaktivitetRoute(
             route("/refusjon") {
                 put {
                     val refusjonBody = call.receiveText()
-
-                    val refusjon: List<Refusjonsperiode>? = objectMapperCustomSerde.readValue(refusjonBody)
-
+                    val refusjon: List<RefusjonsperiodeDto>? = if (refusjonBody == "null") null else objectMapper.readValue(refusjonBody, objectMapper.typeFactory.constructCollectionType(List::class.java, RefusjonsperiodeDto::class.java))
+                    val refusjonDomain = refusjon?.map { it.tilRefusjonsperiode() }
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
-
-                    yrkesaktivitetService.oppdaterRefusjon(yrkesaktivitetRef, refusjon, call.saksbehandler())
+                    yrkesaktivitetService.oppdaterRefusjon(yrkesaktivitetRef, refusjonDomain, call.saksbehandler())
                     call.respond(HttpStatusCode.NoContent)
                 }
             }
+
             get("/inntektsmeldinger") {
                 call.medIdent(personService) { fnr, personId ->
                     val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
-
                     val inntektsmeldinger =
                         inntektsmeldingMatcherService.hentInntektsmeldingerForYrkesaktivitet(
                             ref = yrkesaktivitetRef,
                             fnr = fnr,
                             saksbehandlerToken = call.request.bearerToken(),
                         )
-
                     call.respondText(
                         inntektsmeldinger.serialisertTilString(),
                         ContentType.Application.Json,
@@ -163,6 +125,7 @@ internal fun Route.yrkesaktivitetRoute(
                     )
                 }
             }
+
             get("/pensjonsgivendeinntekt") {
                 val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
                 val response =
@@ -170,22 +133,9 @@ internal fun Route.yrkesaktivitetRoute(
                         ref = yrkesaktivitetRef,
                         saksbehandler = call.saksbehandlerOgToken(),
                     )
-
-                val responseDto =
-                    when (response) {
-                        is PensjonsgivendeInntektResponse.Suksess ->
-                            PensjonsgivendeInntektSuccessResponse(data = response.data)
-
-                        is PensjonsgivendeInntektResponse.Feil ->
-                            PensjonsgivendeInntektFeilResponse(feilmelding = response.feilmelding)
-                    }
-
-                call.respondText(
-                    objectMapperCustomSerde.writeValueAsString(responseDto),
-                    ContentType.Application.Json,
-                    HttpStatusCode.OK,
-                )
+                call.respondJson(response.tilPensjonsgivendeInntektResponseDto())
             }
+
             get("/ainntekt") {
                 val yrkesaktivitetRef = call.yrkesaktivitetReferanse()
                 val response =
@@ -193,46 +143,8 @@ internal fun Route.yrkesaktivitetRoute(
                         ref = yrkesaktivitetRef,
                         saksbehandler = call.saksbehandlerOgToken(),
                     )
-
-                val responseDto =
-                    when (response) {
-                        is AInntektResponse.Suksess ->
-                            AinntektSuccessResponse(data = response.data)
-
-                        is AInntektResponse.Feil ->
-                            AinntektFeilResponse(feilmelding = response.feilmelding)
-                    }
-
-                call.respondText(
-                    objectMapperCustomSerde.writeValueAsString(responseDto),
-                    ContentType.Application.Json,
-                    HttpStatusCode.OK,
-                )
+                call.respondJson(response.tilAinntektResponseDto())
             }
         }
     }
 }
-
-data class YrkesaktivitetCreateRequest(
-    val kategorisering: YrkesaktivitetKategorisering,
-)
-
-data class PensjonsgivendeInntektSuccessResponse(
-    val success: Boolean = true,
-    val data: InntektData,
-)
-
-data class PensjonsgivendeInntektFeilResponse(
-    val success: Boolean = false,
-    val feilmelding: String,
-)
-
-data class AinntektSuccessResponse(
-    val success: Boolean = true,
-    val data: InntektData,
-)
-
-data class AinntektFeilResponse(
-    val success: Boolean = false,
-    val feilmelding: String,
-)

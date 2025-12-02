@@ -9,7 +9,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetCreateRequest
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetCreateRequestDto
+import no.nav.helse.bakrommet.api.yrkesaktivitet.tilYrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,7 +26,7 @@ internal suspend fun ApplicationTestBuilder.opprettYrkesaktivitet(
         client.post("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
-            setBody(YrkesaktivitetCreateRequest(kategorisering).serialisertTilString())
+            setBody(YrkesaktivitetCreateRequestDto(kategorisering.tilYrkesaktivitetKategoriseringDto()).serialisertTilString())
         }
 
     assertEquals(201, response.status.value, "Yrkesaktivitet skal opprettes med status 201")

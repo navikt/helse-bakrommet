@@ -2,9 +2,8 @@ package no.nav.helse.bakrommet.scenariotester
 
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.testutils.*
-import no.nav.helse.dto.InntektbeløpDto
 import kotlin.test.Test
 
 class ToArbeidsgivereScenarioTest {
@@ -36,10 +35,10 @@ class ToArbeidsgivereScenarioTest {
                     inntekt =
                         Inntektsmelding(
                             15000.0,
-                            Refusjonsperiode(
+                            RefusjonsperiodeDto(
                                 ScenarioDefaults.fom,
                                 ScenarioDefaults.tom,
-                                InntektbeløpDto.MånedligDouble(15000.0),
+                                15000.0,
                             ),
                         ),
                     dagoversikt = SykAlleDager(),

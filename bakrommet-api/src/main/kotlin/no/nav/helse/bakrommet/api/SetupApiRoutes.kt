@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.api.person.personsøkRoute
 import no.nav.helse.bakrommet.api.tidslinje.tidslinjeRoute
 import no.nav.helse.bakrommet.api.tilkommen.tilkommenInntektRoute
 import no.nav.helse.bakrommet.api.vilkaar.vilkårRoute
+import no.nav.helse.bakrommet.api.yrkesaktivitet.yrkesaktivitetRoute
 
 fun Route.setupApiRoutes(
     services: Services,
@@ -24,4 +25,10 @@ fun Route.setupApiRoutes(
     organisasjonRoute(services.organisasjonService)
     personsøkRoute(services.personsøkService)
     personinfoRoute(services.personService)
+    yrkesaktivitetRoute(
+        yrkesaktivitetService = services.yrkesaktivitetService,
+        inntektservice = services.inntektService,
+        inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
+        personService = services.personService,
+    )
 }

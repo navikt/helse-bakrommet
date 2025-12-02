@@ -7,6 +7,7 @@ dependencies {
     testImplementation(project(":bakrommet-services"))
     testImplementation(project(":bakrommet-common"))
     testImplementation(project(":bakrommet-api-dto"))
+    testImplementation(project(":bakrommet-api"))
     testImplementation(project(":bakrommet-client-aareg"))
     testImplementation(project(":bakrommet-client-ainntekt"))
     testImplementation(project(":bakrommet-client-ereg"))

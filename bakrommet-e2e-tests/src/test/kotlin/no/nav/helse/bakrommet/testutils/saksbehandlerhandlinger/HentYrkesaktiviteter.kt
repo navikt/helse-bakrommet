@@ -1,23 +1,24 @@
 package no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDTO
-import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
+import no.nav.helse.bakrommet.util.objectMapper
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(
     personId: String,
     periodeId: UUID,
-): List<YrkesaktivitetDTO> {
+): List<YrkesaktivitetDto> {
     val response =
         client
             .get("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
             }
     val json = response.body<String>()
-    return objectMapperCustomSerde.readValue(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, YrkesaktivitetDTO::class.java))
+    return objectMapper.readValue<List<YrkesaktivitetDto>>(json)
 }

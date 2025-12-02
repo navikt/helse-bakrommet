@@ -8,11 +8,11 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.behandling.Behandling
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
@@ -29,7 +29,6 @@ import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
-import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.dto.serialisering.ØkonomiUtDto
@@ -142,17 +141,17 @@ class UtbetalingsberegningIntegrasjonTest {
     ) {
         // Månedsinntekt på 50 000 kr (5 000 000 øre) med skjønnsfastsettelse
         val inntektRequest =
-            InntektRequest.Arbeidstaker(
-                ArbeidstakerInntektRequest.Skjønnsfastsatt(
-                    årsinntekt = InntektbeløpDto.Årlig(50000.0 * 12),
-                    årsak = ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING,
+            InntektRequestDto.Arbeidstaker(
+                ArbeidstakerInntektRequestDto.Skjønnsfastsatt(
+                    årsinntekt = 50000.0 * 12,
+                    årsak = ArbeidstakerSkjønnsfastsettelseÅrsakDto.MANGELFULL_RAPPORTERING,
                     begrunnelse = "Test skjønnsfastsettelse",
                     refusjon =
                         listOf(
-                            Refusjonsperiode(
+                            RefusjonsperiodeDto(
                                 fom = LocalDate.of(2024, 1, 1),
                                 tom = LocalDate.of(2024, 1, 31),
-                                beløp = InntektbeløpDto.MånedligDouble(10000.0),
+                                beløp = 10000.0,
                             ),
                         ),
                 ),
@@ -173,7 +172,8 @@ class UtbetalingsberegningIntegrasjonTest {
     ) {
         val dagoversikt =
             """
-            [
+            {
+            "dager": [
                 {
                     "dato": "2024-01-01",
                     "dagtype": "Syk",
@@ -208,6 +208,7 @@ class UtbetalingsberegningIntegrasjonTest {
                     "kilde": "Saksbehandler"
                 }
             ]
+            }
             """.trimIndent()
 
         val response =

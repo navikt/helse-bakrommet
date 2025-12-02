@@ -1,3 +1,5 @@
+package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting
+
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastSigrunDokument
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somPensjonsgivendeInntekt
