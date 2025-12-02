@@ -31,7 +31,6 @@ import no.nav.helse.bakrommet.behandling.tilkommen.tilkommenInntektRoute
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
-import no.nav.helse.bakrommet.behandling.vilkaar.saksbehandlingsperiodeVilkårRoute
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.yrkesaktivitetRoute
 import no.nav.helse.bakrommet.bruker.brukerRoute
@@ -141,7 +140,6 @@ fun Route.setupRoutes(
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)
     behandlingRoute(service = services.behandlingService)
     dokumenterRoute(dokumentHenter = services.dokumentHenter)
-    saksbehandlingsperiodeVilkårRoute(service = services.vilkårService)
     yrkesaktivitetRoute(
         yrkesaktivitetService = services.yrkesaktivitetService,
         inntektservice = services.inntektService,
