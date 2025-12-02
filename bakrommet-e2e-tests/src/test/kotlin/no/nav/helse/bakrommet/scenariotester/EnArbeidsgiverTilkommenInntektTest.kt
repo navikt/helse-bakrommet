@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.testutils.Scenario
 import no.nav.helse.bakrommet.testutils.SkjønnsfastsattManglendeRapportering
 import no.nav.helse.bakrommet.testutils.SykAlleDager
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentTidslinje
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentTidslinjeV2
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.leggTilTilkommenInntekt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettTilkommenInntekt
@@ -61,6 +62,17 @@ class EnArbeidsgiverTilkommenInntektTest {
 
                 hentTidslinje(personId).also { tidslinje ->
                     tidslinje.size `should equal` 2
+                }
+                hentTidslinjeV2(personId).also { tidslinjeV2 ->
+                    tidslinjeV2.size `should equal` 1
+                    val behandlingMedTilkommen = tidslinjeV2.first { it.tilkommenInntekt.isNotEmpty() }
+                    behandlingMedTilkommen.tilkommenInntekt.size `should equal` 1
+                    val tilkommenInntektDto = behandlingMedTilkommen.tilkommenInntekt.first()
+                    tilkommenInntektDto.id `should equal` tilkommen.id
+                    tilkommenInntektDto.ident `should equal` "999444555"
+                    tilkommenInntektDto.fom `should equal` 4.januar(2021)
+                    tilkommenInntektDto.tom `should equal` 10.januar(2021)
+                    tilkommenInntektDto.yrkesaktivitetType `should equal` no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType.VIRKSOMHET
                 }
             }
             slettTilkommenInntekt(periodeId = periodeId, personId = personId, tilkommenInntektId = tilkommen.id)

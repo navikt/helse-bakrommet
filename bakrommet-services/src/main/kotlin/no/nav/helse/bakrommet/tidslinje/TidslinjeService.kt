@@ -16,6 +16,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetForenkletD
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
 import no.nav.helse.bakrommet.ereg.EregClient
+import no.nav.helse.bakrommet.ereg.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.bakrommet.tidslinje.TidslinjeRad.OpprettetBehandling
@@ -35,7 +36,7 @@ data class TidslinjeData(
     val behandlinger: List<Behandling>,
     val yrkesaktiviteter: List<YrkesaktivitetForenkletDbRecord>,
     val tilkommen: List<TilkommenInntektDbRecord>,
-    val organisasjonsnavnMap: Map<String, no.nav.helse.bakrommet.ereg.Organisasjon?>,
+    val organisasjonsnavnMap: Map<String, Organisasjon?>,
 )
 
 data class Tidslinje(
@@ -46,9 +47,9 @@ class TidslinjeService(
     private val db: DbDaoer<TidslinjeServiceDaoer>,
     private val eregClient: EregClient,
 ) {
-    suspend fun hentTidslinje(
+    suspend fun hentTidslinjeData(
         personid: SpilleromPersonId,
-    ): List<TidslinjeRad> =
+    ): TidslinjeData =
         db.nonTransactional {
             val behandlinger = behandlingDao.finnBehandlingerForPerson(personid.personId)
             val yrkesaktivteter = yrkesaktivitetDao.finnYrkesaktiviteterForBehandlinger(behandlinger.map { it.id })
@@ -85,8 +86,10 @@ class TidslinjeService(
                         }
                 }
 
-            TidslinjeData(behandlinger, yrkesaktivteter, tilkommen, organisasjonsnavnMap).tilTidslinje()
+            TidslinjeData(behandlinger, yrkesaktivteter, tilkommen, organisasjonsnavnMap)
         }
+
+    suspend fun hentTidslinje(personid: SpilleromPersonId) = hentTidslinjeData(personid).tilTidslinje()
 }
 
 internal fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {

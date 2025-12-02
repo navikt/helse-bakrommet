@@ -208,6 +208,10 @@ val regler =
             path = "/v1/{personId}/tidslinje/(method:GET)",
             role = setOf(SAKSBEHANDLER, BESLUTTER, LES),
         ),
+        Rule(
+            path = "/v2/{personId}/tidslinje/(method:GET)",
+            role = setOf(SAKSBEHANDLER, BESLUTTER, LES),
+        ),
     )
 
 val RolleMatrise =
