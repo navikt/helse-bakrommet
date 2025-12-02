@@ -19,7 +19,6 @@ import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.RolleMatrise
 import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.behandling.BehandlingService
-import no.nav.helse.bakrommet.behandling.behandlingRoute
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
@@ -136,7 +135,6 @@ fun Route.setupRoutes(
     personinfoRoute(clienter.pdlClient, services.personIdService)
     soknaderRoute(clienter.sykepengesoknadBackendClient, services.personIdService)
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)
-    behandlingRoute(service = services.behandlingService)
     yrkesaktivitetRoute(
         yrkesaktivitetService = services.yrkesaktivitetService,
         inntektservice = services.inntektService,

@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.behandling
+package no.nav.helse.bakrommet.api.behandling
 
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -6,40 +6,39 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.dto.behandling.CreatePeriodeRequestDto
+import no.nav.helse.bakrommet.api.dto.behandling.OppdaterSkjæringstidspunktRequestDto
+import no.nav.helse.bakrommet.api.dto.behandling.SendTilBeslutningRequestDto
+import no.nav.helse.bakrommet.api.dto.behandling.SendTilbakeRequestDto
+import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
+import no.nav.helse.bakrommet.behandling.BehandlingService
+import no.nav.helse.bakrommet.behandling.periodeReferanse
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.periodeUUID
 import no.nav.helse.bakrommet.personId
-import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.LocalDate
-import java.util.*
 
 fun RoutingCall.periodeReferanse() =
-    SaksbehandlingsperiodeReferanse(
+    no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse(
         spilleromPersonId = personId(),
         periodeUUID = periodeUUID(),
     )
 
-internal fun Route.behandlingRoute(service: BehandlingService) {
+fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/behandlinger") {
         get {
             val perioder = service.hentAlleSaksbehandlingsperioder()
-            call.respondPerioder(perioder)
+            call.respondJson(perioder.map { it.tilBehandlingDto() })
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/behandlinger") {
-        data class CreatePeriodeRequest(
-            val fom: String,
-            val tom: String,
-            val søknader: List<UUID>? = null,
-        )
-
         /** Opprett en ny periode */
         post {
-            val body = call.receive<CreatePeriodeRequest>()
+            val body = call.receive<CreatePeriodeRequestDto>()
             val nyPeriode =
                 service.opprettNySaksbehandlingsperiode(
                     spilleromPersonId = call.personId(),
@@ -48,13 +47,13 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
                     søknader = body.søknader?.toSet() ?: emptySet(),
                     saksbehandler = call.saksbehandlerOgToken(),
                 )
-            call.respondPeriode(nyPeriode, HttpStatusCode.Created)
+            call.respondJson(nyPeriode.tilBehandlingDto(), status = HttpStatusCode.Created)
         }
 
         /** Hent alle perioder for en person */
         get {
             service.finnPerioderForPerson(call.personId()).let { perioder ->
-                call.respondPerioder(perioder)
+                call.respondJson(perioder.map { it.tilBehandlingDto() })
             }
         }
     }
@@ -62,7 +61,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}") {
         get {
             service.hentPeriode(call.periodeReferanse()).let {
-                call.respondPeriode(it)
+                call.respondJson(it.tilBehandlingDto())
             }
         }
     }
@@ -70,21 +69,17 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/historikk") {
         get {
             val historikk = service.hentHistorikkFor(call.periodeReferanse())
-            call.respondText(historikk.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            call.respondJson(historikk.map { it.tilSaksbehandlingsperiodeEndringDto() })
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sendtilbeslutning") {
-        data class SendTilBeslutningRequest(
-            val individuellBegrunnelse: String?,
-        )
-
         post {
-            val body = call.receive<SendTilBeslutningRequest>()
+            val body = call.receive<SendTilBeslutningRequestDto>()
             service
                 .sendTilBeslutning(call.periodeReferanse(), body.individuellBegrunnelse, call.saksbehandler())
                 .let { oppdatertPeriode ->
-                    call.respondPeriode(oppdatertPeriode)
+                    call.respondJson(oppdatertPeriode.tilBehandlingDto())
                 }
         }
     }
@@ -92,19 +87,16 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/tatilbeslutning") {
         post {
             service.taTilBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
-                call.respondPeriode(oppdatertPeriode)
+                call.respondJson(oppdatertPeriode.tilBehandlingDto())
             }
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sendtilbake") {
-        data class SendTilbakeRequest(
-            val kommentar: String,
-        )
         post {
             val kommentar =
                 try {
-                    call.receive<SendTilbakeRequest>().kommentar
+                    call.receive<SendTilbakeRequestDto>().kommentar
                 } catch (ex: io.ktor.server.plugins.BadRequestException) {
                     sikkerLogger.warn("Klarte ikke parse SendTilbakeRequest", ex)
                     throw InputValideringException("Ugyldig innhold i POST-body")
@@ -112,7 +104,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
             service
                 .sendTilbakeFraBeslutning(call.periodeReferanse(), call.saksbehandler(), kommentar = kommentar)
                 .let { oppdatertPeriode ->
-                    call.respondPeriode(oppdatertPeriode)
+                    call.respondJson(oppdatertPeriode.tilBehandlingDto())
                 }
         }
     }
@@ -120,7 +112,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/godkjenn") {
         post {
             service.godkjennPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
-                call.respondPeriode(oppdatertPeriode)
+                call.respondJson(oppdatertPeriode.tilBehandlingDto())
             }
         }
     }
@@ -128,18 +120,14 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/revurder") {
         post {
             service.revurderPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
-                call.respondPeriode(oppdatertPeriode, status = HttpStatusCode.Created)
+                call.respondJson(oppdatertPeriode.tilBehandlingDto(), status = HttpStatusCode.Created)
             }
         }
     }
 
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/skjaeringstidspunkt") {
-        data class OppdaterSkjæringstidspunktRequest(
-            val skjaeringstidspunkt: String,
-        )
-
         put {
-            val body = call.receive<OppdaterSkjæringstidspunktRequest>()
+            val body = call.receive<OppdaterSkjæringstidspunktRequestDto>()
             val skjæringstidspunkt = body.skjaeringstidspunkt.let { LocalDate.parse(it) }
             service
                 .oppdaterSkjæringstidspunkt(
@@ -147,22 +135,8 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
                     skjæringstidspunkt = skjæringstidspunkt,
                     saksbehandler = call.saksbehandler(),
                 ).let { oppdatertPeriode ->
-                    call.respondPeriode(oppdatertPeriode)
+                    call.respondJson(oppdatertPeriode.tilBehandlingDto())
                 }
         }
     }
-}
-
-private suspend fun RoutingCall.respondPeriode(
-    periode: Behandling,
-    status: HttpStatusCode = HttpStatusCode.OK,
-) {
-    respondText(periode.serialisertTilString(), ContentType.Application.Json, status)
-}
-
-private suspend fun RoutingCall.respondPerioder(
-    perioder: List<Behandling>,
-    status: HttpStatusCode = HttpStatusCode.OK,
-) {
-    respondText(perioder.serialisertTilString(), ContentType.Application.Json, status)
 }
