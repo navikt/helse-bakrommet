@@ -1,11 +1,9 @@
-package no.nav.helse.bakrommet.behandling.dokumenter
+package no.nav.helse.bakrommet.api.dokumenter
 
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
@@ -14,9 +12,11 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
+import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
+import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.periodeReferanse
-import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.somGyldigUUID
 
 fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
@@ -33,14 +33,14 @@ private suspend fun RoutingCall.respondDokument(
     dokument: Dokument,
     status: HttpStatusCode = HttpStatusCode.OK,
 ) {
-    respondText(dokument.tilDto().serialisertTilString(), ContentType.Application.Json, status)
+    respondJson(dokument.tilDokumentDto(), status)
 }
 
-fun Route.dokumenterRoute(dokumentHenter: DokumentHenter) {
+fun Route.dokumentRoute(dokumentHenter: DokumentHenter) {
     route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
-            val dokumenterDto = dokumentHenter.hentDokumenterFor(call.periodeReferanse()).map { it.tilDto() }
-            call.respondText(dokumenterDto.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
+            val dokumenterDto = dokumentHenter.hentDokumenterFor(call.periodeReferanse()).map { it.tilDokumentDto() }
+            call.respondJson(dokumenterDto)
         }
 
         route("/{dokumentUUID}") {

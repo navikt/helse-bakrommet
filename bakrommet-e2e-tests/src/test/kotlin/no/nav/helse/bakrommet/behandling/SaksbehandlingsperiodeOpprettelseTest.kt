@@ -6,8 +6,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDto
-import no.nav.helse.bakrommet.behandling.dokumenter.tilDto
+import no.nav.helse.bakrommet.api.dokumenter.tilDokumentDto
+import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDTO
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
@@ -117,7 +117,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter") {
                         bearerAuth(TestOppsett.userToken)
                     }.body()
-            assertEquals(dokumenterFraDB.map { it.tilDto() }.toSet(), dokumenter.toSet())
+            assertEquals(dokumenterFraDB.map { it.tilDokumentDto() }.toSet(), dokumenter.toSet())
         }
     }
 

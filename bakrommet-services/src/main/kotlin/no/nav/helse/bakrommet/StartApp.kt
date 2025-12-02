@@ -21,7 +21,6 @@ import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.behandling.behandlingRoute
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
-import no.nav.helse.bakrommet.behandling.dokumenter.dokumenterRoute
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
@@ -139,7 +138,6 @@ fun Route.setupRoutes(
     soknaderRoute(clienter.sykepengesoknadBackendClient, services.personIdService)
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)
     behandlingRoute(service = services.behandlingService)
-    dokumenterRoute(dokumentHenter = services.dokumentHenter)
     yrkesaktivitetRoute(
         yrkesaktivitetService = services.yrkesaktivitetService,
         inntektservice = services.inntektService,
