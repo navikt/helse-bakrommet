@@ -50,7 +50,6 @@ import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
 import no.nav.helse.bakrommet.tidslinje.TidslinjeService
-import no.nav.helse.bakrommet.tidslinje.tidslinjeRoute
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.Logger
@@ -130,7 +129,6 @@ fun Route.setupRoutes(
     soknaderRoute(clienter.sykepengesoknadBackendClient, services.personService)
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)
     beregningRoute(service = services.utbetalingsberegningService)
-    tidslinjeRoute(services.tidslinjeService)
 }
 
 class Clienter(
