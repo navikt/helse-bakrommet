@@ -30,7 +30,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.yrkesaktivitetRoute
-import no.nav.helse.bakrommet.bruker.brukerRoute
+import no.nav.helse.bakrommet.bruker.BrukerService
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
@@ -142,7 +142,6 @@ fun Route.setupRoutes(
         personIdService = services.personIdService,
     )
     beregningRoute(service = services.utbetalingsberegningService)
-    brukerRoute()
     organisasjonRoute(services.organisasjonService)
     tidslinjeRoute(services.tidslinjeService)
 }
@@ -197,6 +196,7 @@ data class Services(
     val organisasjonService: OrganisasjonService,
     val tilkommenInntektService: TilkommenInntektService,
     val tidslinjeService: TidslinjeService,
+    val brukerService: BrukerService,
 )
 
 fun createServices(
@@ -243,6 +243,7 @@ fun createServices(
         organisasjonService = OrganisasjonService(clienter.eregClient),
         tilkommenInntektService = TilkommenInntektService(db),
         tidslinjeService = TidslinjeService(db, clienter.eregClient),
+        brukerService = BrukerService(),
     )
 }
 
