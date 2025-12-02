@@ -4,6 +4,8 @@ include(
     "bakrommet-common",
     "bakrommet-demo",
     "bakrommet-services",
+    "bakrommet-api",
+    "bakrommet-api-dto",
     "bakrommet-kafka-dto",
     "bakrommet-client-aareg",
     "bakrommet-client-ainntekt",

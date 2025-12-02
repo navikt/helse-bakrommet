@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
+import no.nav.helse.bakrommet.api.setupApiRoutes
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
@@ -151,7 +152,9 @@ fun runApplicationTest(
                 db = skapDbDaoer(dataSource),
             )
 
-        settOppKtor(dataSource, config, clienter, services)
+        settOppKtor(dataSource, config, clienter, services) { services ->
+            setupApiRoutes(services)
+        }
     }
     client =
         createClient {

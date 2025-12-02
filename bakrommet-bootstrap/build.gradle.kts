@@ -1,5 +1,6 @@
 dependencies {
     api(project(":bakrommet-services"))
+    api(project(":bakrommet-api"))
     api(project(":bakrommet-common"))
 }
 

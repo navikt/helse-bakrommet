@@ -17,6 +17,7 @@ import io.ktor.server.sessions.cookie
 import io.ktor.server.sessions.sessions
 import io.ktor.utils.io.InternalAPI
 import kotlinx.coroutines.withContext
+import no.nav.helse.bakrommet.api.setupApiRoutes
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.fakedaos.*
@@ -153,6 +154,7 @@ fun main() {
             demoTestdataRoute()
             demoOutboxRoute()
             authenticate("manual") {
+                setupApiRoutes(services)
                 setupRoutes(services, clienter)
             }
         }

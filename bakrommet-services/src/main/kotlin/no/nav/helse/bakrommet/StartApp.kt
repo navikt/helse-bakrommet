@@ -69,13 +69,16 @@ import javax.sql.DataSource
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
-fun startApp(configuration: Configuration) {
+fun startApp(
+    configuration: Configuration,
+    setupApiRoutes: Route.(Services) -> Unit,
+) {
     appLogger.info("Setter opp data source")
     val dataSource = instansierDatabase(configuration.db)
 
     embeddedServer(CIO, port = 8080) {
         appLogger.info("Setter opp ktor")
-        settOppKtor(dataSource, configuration)
+        settOppKtor(dataSource = dataSource, configuration = configuration, setupApiRoutes = setupApiRoutes)
         appLogger.info("Starter bakrommet")
         monitor.subscribe(ApplicationStarted) {
             val kafkaProducer = KafkaProducerImpl()
@@ -109,11 +112,12 @@ fun Application.settOppKtor(
             clienter,
             skapDbDaoer(dataSource),
         ),
+    setupApiRoutes: Route.(Services) -> Unit,
 ) {
     azureAdAppAuthentication(configuration.auth, configuration.roller)
     helsesjekker()
 
-    appModul(configuration, services, clienter)
+    appModul(configuration = configuration, services = services, clienter = clienter, setupApiRoutes = setupApiRoutes)
 }
 
 fun Application.helsesjekker() {
@@ -254,6 +258,7 @@ internal fun Application.appModul(
     configuration: Configuration,
     services: Services,
     clienter: Clienter,
+    setupApiRoutes: Route.(Services) -> Unit,
 ) {
     install(ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter(objectMapper))
@@ -272,6 +277,7 @@ internal fun Application.appModul(
         authenticate("entraid") {
             install(RolleMatrise)
             setupRoutes(services, clienter)
+            setupApiRoutes(services)
         }
     }
 }
