@@ -11,6 +11,10 @@ import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.inntektsmeldingkontrakt.EndringIRefusjon
+import no.nav.inntektsmeldingkontrakt.GjenopptakelseNaturalytelse
+import no.nav.inntektsmeldingkontrakt.InntektEndringAarsak
+import no.nav.inntektsmeldingkontrakt.Naturalytelse
+import no.nav.inntektsmeldingkontrakt.OpphoerAvNaturalytelse
 import no.nav.inntektsmeldingkontrakt.Periode
 import no.nav.inntektsmeldingkontrakt.Refusjon
 import java.math.BigDecimal
@@ -52,9 +56,52 @@ val kalleKranfører =
                                 endringsdato = LocalDate.of(2025, 2, 1),
                                 beloep = BigDecimal("45000.00"),
                             ),
+                            EndringIRefusjon(
+                                endringsdato = LocalDate.of(2025, 2, 4),
+                                beloep = BigDecimal("46000.00"),
+                            ),
                         ),
                     arbeidsgiverperioder = listOf(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16))),
+                    ferieperioder = listOf(Periode(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 16))),
                     månedsinntekt = 50000.0,
+                    inntektEndringÅrsaker =
+                        listOf(
+                            InntektEndringAarsak(
+                                aarsak = "NyStilling",
+                                listOf(
+                                    Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
+                                    Periode(LocalDate.of(2025, 1, 17), LocalDate.of(2025, 1, 19)),
+                                ),
+                                gjelderFra = LocalDate.of(2025, 1, 17),
+                                bleKjent = LocalDate.of(2025, 1, 17),
+                            ),
+                            InntektEndringAarsak(
+                                aarsak = "VarigLonnsendring",
+                                listOf(
+                                    Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 1, 28)),
+                                ),
+                                gjelderFra = LocalDate.of(2025, 1, 20),
+                                bleKjent = LocalDate.of(2025, 1, 20),
+                            ),
+                        ),
+                    begrunnelseForReduksjonEllerIkkeUtbetalt = "BetvilerArbeidsufoerhet",
+                    nærRelasjon = true,
+                    opphørAvNaturalytelser =
+                        listOf(
+                            OpphoerAvNaturalytelse(
+                                naturalytelse = Naturalytelse.ANNET,
+                                fom = LocalDate.of(2025, 1, 1),
+                                beloepPrMnd = BigDecimal("2000.00"),
+                            ),
+                        ),
+                    gjenopptakelseNaturalytelser =
+                        listOf(
+                            GjenopptakelseNaturalytelse(
+                                naturalytelse = Naturalytelse.ANNET,
+                                fom = LocalDate.of(2025, 1, 10),
+                                beloepPrMnd = BigDecimal("2000.00"),
+                            ),
+                        ),
                 ),
                 skapInntektsmelding(
                     inntektsmeldingId = UUID.randomUUID().toString(),
