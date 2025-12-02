@@ -4,20 +4,12 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
 }
 
-val githubPassword: String by project
-
 allprojects {
     group = "no.nav.helse"
 
     repositories {
         mavenCentral()
-        maven {
-            url = uri("https://maven.pkg.github.com/navikt/*")
-            credentials {
-                username = "x-access-token"
-                password = githubPassword
-            }
-        }
+        maven("https://maven.pkg.github.com/navikt/*")
         maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
 
