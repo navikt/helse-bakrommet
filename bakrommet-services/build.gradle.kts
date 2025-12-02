@@ -46,7 +46,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("no.nav.security:mock-oauth2-server")
-    testImplementation(testFixtures(project(":bakrommet-api")))
+    testImplementation(testFixtures(project(":bakrommet-services")))
     testImplementation(testFixtures(project(":bakrommet-client-pdl")))
 
     testFixturesImplementation("io.ktor:ktor-server-test-host")

@@ -3,7 +3,7 @@ include(
     "bakrommet-dependencies",
     "bakrommet-common",
     "bakrommet-demo",
-    "bakrommet-api",
+    "bakrommet-services",
     "bakrommet-kafka-dto",
     "bakrommet-client-aareg",
     "bakrommet-client-ainntekt",

@@ -4,7 +4,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP")
 
     testImplementation(project(":bakrommet-bootstrap"))
-    testImplementation(project(":bakrommet-api"))
+    testImplementation(project(":bakrommet-services"))
     testImplementation(project(":bakrommet-common"))
     testImplementation(project(":bakrommet-client-aareg"))
     testImplementation(project(":bakrommet-client-ainntekt"))
@@ -32,7 +32,7 @@ dependencies {
     testImplementation("no.nav.helse.flex:sykepengesoknad-kafka")
     testImplementation("com.github.navikt.spleis:sykepenger-okonomi")
 
-    testImplementation(testFixtures(project(":bakrommet-api")))
+    testImplementation(testFixtures(project(":bakrommet-services")))
     testImplementation(testFixtures(project(":bakrommet-common")))
     testImplementation(testFixtures(project(":bakrommet-client-inntektsmelding")))
     testImplementation(testFixtures(project(":bakrommet-client-ainntekt")))

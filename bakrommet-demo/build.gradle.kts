@@ -1,5 +1,5 @@
 dependencies {
-    api(project(":bakrommet-api"))
+    api(project(":bakrommet-services"))
     api(project(":bakrommet-common"))
 
     implementation("no.nav.helse.flex:sykepengesoknad-kafka")
