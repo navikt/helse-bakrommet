@@ -23,14 +23,14 @@ fun RoutingCall.periodeReferanse() =
     )
 
 internal fun Route.behandlingRoute(service: BehandlingService) {
-    route("/v1/saksbehandlingsperioder") {
+    route("/v1/behandlinger") {
         get {
             val perioder = service.hentAlleSaksbehandlingsperioder()
             call.respondPerioder(perioder)
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger") {
         data class CreatePeriodeRequest(
             val fom: String,
             val tom: String,
@@ -59,7 +59,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}") {
         get {
             service.hentPeriode(call.periodeReferanse()).let {
                 call.respondPeriode(it)
@@ -67,14 +67,14 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/historikk") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/historikk") {
         get {
             val historikk = service.hentHistorikkFor(call.periodeReferanse())
             call.respondText(historikk.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sendtilbeslutning") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sendtilbeslutning") {
         data class SendTilBeslutningRequest(
             val individuellBegrunnelse: String?,
         )
@@ -89,7 +89,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/tatilbeslutning") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/tatilbeslutning") {
         post {
             service.taTilBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondPeriode(oppdatertPeriode)
@@ -97,7 +97,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sendtilbake") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sendtilbake") {
         data class SendTilbakeRequest(
             val kommentar: String,
         )
@@ -117,7 +117,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/godkjenn") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/godkjenn") {
         post {
             service.godkjennPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondPeriode(oppdatertPeriode)
@@ -125,7 +125,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/revurder") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/revurder") {
         post {
             service.revurderPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondPeriode(oppdatertPeriode, status = HttpStatusCode.Created)
@@ -133,7 +133,7 @@ internal fun Route.behandlingRoute(service: BehandlingService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/skjaeringstidspunkt") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/skjaeringstidspunkt") {
         data class OppdaterSkjæringstidspunktRequest(
             val skjaeringstidspunkt: String,
         )

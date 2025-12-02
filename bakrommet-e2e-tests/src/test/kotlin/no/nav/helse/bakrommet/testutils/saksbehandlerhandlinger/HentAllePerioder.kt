@@ -13,7 +13,7 @@ internal suspend fun ApplicationTestBuilder.hentAllePerioder(
     personId: String,
 ): List<Behandling> {
     val response =
-        client.get("/v1/$personId/saksbehandlingsperioder") {
+        client.get("/v1/$personId/behandlinger") {
             bearerAuth(TestOppsett.userToken)
         }
 

@@ -65,7 +65,7 @@ internal fun Route.yrkesaktivitetRoute(
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     personIdService: PersonIdService,
 ) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
         get {
             val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(call.periodeReferanse())
             val yrkesaktivitetDto = yrkesaktiviteter.map { it.tilDto() }

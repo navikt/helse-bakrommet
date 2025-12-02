@@ -17,7 +17,7 @@ internal suspend fun ApplicationTestBuilder.settSkjaeringstidspunkt(
     skjaeringstidspunkt: LocalDate,
 ) {
     val response =
-        client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/skjaeringstidspunkt") {
+        client.put("/v1/$personId/behandlinger/$periodeId/skjaeringstidspunkt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody("""{ "skjaeringstidspunkt": "$skjaeringstidspunkt" }""")

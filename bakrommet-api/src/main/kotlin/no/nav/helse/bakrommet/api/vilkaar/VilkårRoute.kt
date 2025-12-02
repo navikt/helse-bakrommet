@@ -15,7 +15,7 @@ import no.nav.helse.bakrommet.behandling.vilkaar.OpprettetEllerEndret
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 
 fun Route.vilkårRoute(service: VilkårService) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaarsvurdering") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/vilkaarsvurdering") {
         get {
             val vurderteVilkår =
                 service.hentVilkårsvurderingerFor(call.periodeReferanse()).map {
@@ -25,7 +25,7 @@ fun Route.vilkårRoute(service: VilkårService) {
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/vilkaarsvurdering/{hovedspørsmål}") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/vilkaarsvurdering/{hovedspørsmål}") {
         put {
             val request = call.receive<VilkaarsvurderingRequestDto>()
             val (lagretVurdering, opprettetEllerEndret) =

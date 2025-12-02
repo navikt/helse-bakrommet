@@ -24,7 +24,7 @@ internal suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(
     token: String = TestOppsett.userToken,
 ): Behandling {
     val response =
-        client.post("/v1/$personId/saksbehandlingsperioder") {
+        client.post("/v1/$personId/behandlinger") {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
             setBody("""{ "fom": "$fom", "tom": "$tom" }""")
@@ -38,7 +38,7 @@ internal suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(
     assertTrue(periodeId != null, "Periode ID skal være gyldig UUID")
 
     val getResponse =
-        client.get("/v1/$personId/saksbehandlingsperioder") {
+        client.get("/v1/$personId/behandlinger") {
             bearerAuth(TestOppsett.userToken)
         }
 

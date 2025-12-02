@@ -53,7 +53,7 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
                     bearerAuth(tokenSaksbehandler2)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "individuellBegrunnelse" : "En begrunnelse" }""".trimIndent())
@@ -75,7 +75,7 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/tatilbeslutning") {
+                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/tatilbeslutning") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(200, response.status.value)
@@ -92,7 +92,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbake") {
+                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
                     bearerAuth(tokenBeslutter)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "mangler" : "kommentar-felt" }""")
@@ -101,7 +101,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbake") {
+                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(415, response.status.value, "Mangler POST-body som application/json")
@@ -127,7 +127,7 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
                     bearerAuth(tokenSaksbehandler)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "individuellBegrunnelse" : "En ny begrunnelse" }""".trimIndent())
@@ -147,7 +147,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/godkjenn") {
+                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
                     bearerAuth(tokenBeslutter2)
                 }.let { response ->
                     assertEquals(
@@ -158,7 +158,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/godkjenn") {
+                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(200, response.status.value)
@@ -178,7 +178,7 @@ class SaksbehandlingsperiodeStatusTest {
             assertEquals(3, outboxAfterApproval.size, "Det skal være 3 meldinger i outbox etter godkjenning av perioden")
 
             client
-                .get("/v1/$personId/saksbehandlingsperioder/${periodeOpprinnelig.id}/historikk") {
+                .get("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/historikk") {
                     bearerAuth(tokenSaksbehandler)
                 }.let { response ->
                     val historikk = response.bodyAsText().somListe<SaksbehandlingsperiodeEndring>()

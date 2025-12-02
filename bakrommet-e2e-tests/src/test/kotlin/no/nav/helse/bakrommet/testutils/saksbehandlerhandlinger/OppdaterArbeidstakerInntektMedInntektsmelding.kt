@@ -30,7 +30,7 @@ internal suspend fun ApplicationTestBuilder.oppdaterArbeidstakerInntektMedInntek
         )
 
     val response =
-        client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
+        client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(objectMapperCustomSerde.writeValueAsString(inntektRequest))

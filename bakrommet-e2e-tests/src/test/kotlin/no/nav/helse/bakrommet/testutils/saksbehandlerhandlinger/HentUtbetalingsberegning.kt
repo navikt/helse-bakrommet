@@ -15,7 +15,7 @@ internal suspend fun ApplicationTestBuilder.hentUtbetalingsberegning(
     periodeId: UUID,
 ): BeregningResponseUtDto? {
     val response =
-        client.get("/v1/$personId/saksbehandlingsperioder/$periodeId/utbetalingsberegning") {
+        client.get("/v1/$personId/behandlinger/$periodeId/utbetalingsberegning") {
             bearerAuth(TestOppsett.userToken)
         }
     assertEquals(200, response.status.value)

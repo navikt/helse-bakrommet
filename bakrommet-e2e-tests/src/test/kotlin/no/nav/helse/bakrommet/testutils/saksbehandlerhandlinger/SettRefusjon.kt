@@ -19,7 +19,7 @@ internal suspend fun ApplicationTestBuilder.settRefusjon(
     refusjon: List<Refusjonsperiode>,
 ) {
     val response =
-        client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/refusjon") {
+        client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/refusjon") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(refusjon.serialisertTilString())

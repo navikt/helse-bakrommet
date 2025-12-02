@@ -22,7 +22,7 @@ internal suspend fun ApplicationTestBuilder.opprettYrkesaktivitet(
     kategorisering: YrkesaktivitetKategorisering,
 ): UUID {
     val response =
-        client.post("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet") {
+        client.post("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(YrkesaktivitetCreateRequest(kategorisering).serialisertTilString())

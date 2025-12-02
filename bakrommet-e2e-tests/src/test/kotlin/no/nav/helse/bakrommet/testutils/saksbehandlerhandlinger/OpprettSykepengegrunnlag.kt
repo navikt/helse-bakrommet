@@ -22,7 +22,7 @@ internal suspend fun ApplicationTestBuilder.opprettSykepengegrunnlag(
     req: OpprettSykepengegrunnlagRequest,
 ): SykepengegrunnlagResponse {
     val response =
-        client.post("/v2/$personId/saksbehandlingsperioder/$periodeId/sykepengegrunnlag") {
+        client.post("/v2/$personId/behandlinger/$periodeId/sykepengegrunnlag") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(req.serialisertTilString())

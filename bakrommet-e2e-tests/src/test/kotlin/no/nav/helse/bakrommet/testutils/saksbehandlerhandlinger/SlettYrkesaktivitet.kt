@@ -13,7 +13,7 @@ internal suspend fun ApplicationTestBuilder.slettYrkesaktivitet(
     yrkesaktivitetId: UUID,
 ) {
     val response =
-        client.delete("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId") {
+        client.delete("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId") {
             bearerAuth(TestOppsett.userToken)
         }
     assertEquals(204, response.status.value)

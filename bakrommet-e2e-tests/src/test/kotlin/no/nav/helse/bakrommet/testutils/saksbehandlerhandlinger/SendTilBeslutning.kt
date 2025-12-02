@@ -19,7 +19,7 @@ internal suspend fun ApplicationTestBuilder.sendTilBeslutning(
     individuellBegrunnelse: String = "En begrunnelse",
 ): Behandling {
     val response =
-        client.post("/v1/$personId/saksbehandlingsperioder/$periodeId/sendtilbeslutning") {
+        client.post("/v1/$personId/behandlinger/$periodeId/sendtilbeslutning") {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
             setBody("""{ "individuellBegrunnelse" : "$individuellBegrunnelse" }""")

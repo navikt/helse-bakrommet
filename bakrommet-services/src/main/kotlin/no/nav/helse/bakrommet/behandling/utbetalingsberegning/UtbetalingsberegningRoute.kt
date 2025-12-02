@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.behandling.periodeReferanse
 import no.nav.helse.bakrommet.util.serialisertTilString
 
 internal fun Route.beregningRoute(service: UtbetalingsberegningService) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/utbetalingsberegning") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/utbetalingsberegning") {
         /** Hent eksisterende beregning */
         get {
             val beregning = service.hentUtbetalingsberegning(call.periodeReferanse())

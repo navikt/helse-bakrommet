@@ -56,7 +56,7 @@ class SaksbehandlingsperiodeTest {
 
             suspend fun lagPeriodePåPerson(personId: String) =
                 client
-                    .post("/v1/$personId/saksbehandlingsperioder") {
+                    .post("/v1/$personId/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                         contentType(ContentType.Application.Json)
                         setBody(
@@ -76,7 +76,7 @@ class SaksbehandlingsperiodeTest {
 
             val absoluttAllePerioder: List<Behandling> =
                 client
-                    .get("/v1/saksbehandlingsperioder") {
+                    .get("/v1/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                     }.let { resp ->
                         assertEquals(200, resp.status.value)
@@ -95,7 +95,7 @@ class SaksbehandlingsperiodeTest {
             it.personDao.opprettPerson(fnr, personId)
             val opprettetPeriode =
                 client
-                    .post("/v1/$personId/saksbehandlingsperioder") {
+                    .post("/v1/$personId/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                         contentType(ContentType.Application.Json)
                         setBody(
@@ -109,7 +109,7 @@ class SaksbehandlingsperiodeTest {
             val nyttSkjæringstidspunkt = "2023-01-15"
             val oppdatertPeriode =
                 client
-                    .put("/v1/$personId/saksbehandlingsperioder/${opprettetPeriode.id}/skjaeringstidspunkt") {
+                    .put("/v1/$personId/behandlinger/${opprettetPeriode.id}/skjaeringstidspunkt") {
                         bearerAuth(TestOppsett.userToken)
                         contentType(ContentType.Application.Json)
                         setBody(

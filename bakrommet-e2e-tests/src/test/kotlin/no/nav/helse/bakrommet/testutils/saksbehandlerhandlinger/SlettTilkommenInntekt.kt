@@ -12,7 +12,7 @@ internal suspend fun ApplicationTestBuilder.slettTilkommenInntekt(
     tilkommenInntektId: UUID,
 ) {
     val response =
-        client.delete("/v1/$personId/saksbehandlingsperioder/$periodeId/tilkommeninntekt/$tilkommenInntektId") {
+        client.delete("/v1/$personId/behandlinger/$periodeId/tilkommeninntekt/$tilkommenInntektId") {
             bearerAuth(TestOppsett.userToken)
         }
     assertEquals(204, response.status.value)

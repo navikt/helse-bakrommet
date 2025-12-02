@@ -14,7 +14,7 @@ internal suspend fun ApplicationTestBuilder.hentSykepengegrunnlag(
     periodeId: UUID,
 ): SykepengegrunnlagResponse? {
     val response =
-        client.get("/v2/$personId/saksbehandlingsperioder/$periodeId/sykepengegrunnlag") {
+        client.get("/v2/$personId/behandlinger/$periodeId/sykepengegrunnlag") {
             bearerAuth(TestOppsett.userToken)
         }
 

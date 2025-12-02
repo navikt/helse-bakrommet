@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.behandling.periodeReferanse
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 
 internal fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
-    route("/v2/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
+    route("/v2/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
         get {
             val grunnlag = service.hentSykepengegrunnlag(call.periodeReferanse())
             call.respondText(

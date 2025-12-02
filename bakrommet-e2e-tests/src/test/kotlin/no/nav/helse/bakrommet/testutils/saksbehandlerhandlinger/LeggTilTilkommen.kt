@@ -22,7 +22,7 @@ internal suspend fun ApplicationTestBuilder.leggTilTilkommenInntekt(
     tilkommenInntekt: OpprettTilkommenInntektRequestDto,
 ): TilkommenInntektResponseDto {
     val response =
-        client.post("/v1/$personId/saksbehandlingsperioder/$periodeId/tilkommeninntekt") {
+        client.post("/v1/$personId/behandlinger/$periodeId/tilkommeninntekt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(tilkommenInntekt.serialisertTilString())

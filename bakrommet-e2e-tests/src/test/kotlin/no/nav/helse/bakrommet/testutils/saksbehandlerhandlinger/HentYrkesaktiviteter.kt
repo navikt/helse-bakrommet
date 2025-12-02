@@ -15,7 +15,7 @@ internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(
 ): List<YrkesaktivitetDTO> {
     val response =
         client
-            .get("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet") {
+            .get("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
             }
     val json = response.body<String>()

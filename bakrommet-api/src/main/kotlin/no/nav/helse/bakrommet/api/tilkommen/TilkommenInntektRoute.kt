@@ -22,7 +22,7 @@ fun RoutingCall.tilkommenInntektReferanse() =
     )
 
 fun Route.tilkommenInntektRoute(service: TilkommenInntektService) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/tilkommeninntekt") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/tilkommeninntekt") {
         get {
             val ref = call.periodeReferanse()
             val tilkommenInntektDbRecords = service.hentTilkommenInntekt(ref)

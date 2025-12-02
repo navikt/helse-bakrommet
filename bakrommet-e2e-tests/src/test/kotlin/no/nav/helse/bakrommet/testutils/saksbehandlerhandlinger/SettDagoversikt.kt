@@ -20,7 +20,7 @@ internal suspend fun ApplicationTestBuilder.settDagoversikt(
 ) {
     val dagoversikt = dager.serialisertTilString()
     val response =
-        client.put("/v1/$personId/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
+        client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(dagoversikt)

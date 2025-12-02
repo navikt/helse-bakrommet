@@ -69,7 +69,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
             // Opprett saksbehandlingsperiode
             client
-                .post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                .post("/v1/$PERSON_ID/behandlinger") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(
@@ -83,7 +83,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
             // Hent alle perioder
             val allePerioder =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                client.get("/v1/$PERSON_ID/behandlinger") {
                     bearerAuth(TestOppsett.userToken)
                 }
             assertEquals(200, allePerioder.status.value)
@@ -114,7 +114,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             // Verifiser API for dokumenter
             val dokumenter: List<DokumentDto> =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter") {
+                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/dokumenter") {
                         bearerAuth(TestOppsett.userToken)
                     }.body()
             assertEquals(dokumenterFraDB.map { it.tilDokumentDto() }.toSet(), dokumenter.toSet())
@@ -145,7 +145,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
         ) { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+            client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -155,7 +155,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
             val periode =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    .get("/v1/$PERSON_ID/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<Behandling>>()
                     .first()
@@ -163,7 +163,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             // Verifiser yrkesaktivitet
             val yrkesaktivitet =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDTO>>()
 
@@ -209,7 +209,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 person: String,
                 fom: String,
                 tom: String,
-            ) = client.post("/v1/$person/saksbehandlingsperioder") {
+            ) = client.post("/v1/$person/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(

@@ -13,7 +13,7 @@ class RolleAutoriseringTest {
     fun `kan ikke opprette saksbehandlingsperiode med LES-rolle`() =
         runApplicationTest {
             val response =
-                client.post("/v1/12345/saksbehandlingsperioder") {
+                client.post("/v1/12345/behandlinger") {
                     bearerAuth(TestOppsett.oAuthMock.token(grupper = listOf("GRUPPE_LES")))
                     contentType(ContentType.Application.Json)
                     setBody(
@@ -32,7 +32,7 @@ class RolleAutoriseringTest {
             // Forsøk å sette vilkår med LES-rolle
             val vilkårResponse =
                 client.put(
-                    "/v1/12345/saksbehandlingsperioder/d12266e7-b88b-403e-883d-de24205f526c/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/12345/behandlinger/d12266e7-b88b-403e-883d-de24205f526c/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.oAuthMock.token(grupper = listOf("GRUPPE_LES")))
                     contentType(ContentType.Application.Json)

@@ -45,7 +45,7 @@ class DokumentHentingTest {
 
             // Hent ainntekt dokument
             client
-                .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent-8-28") {
+                .post("/v1/$PERSON_ID/behandlinger/${periode.id}/dokumenter/ainntekt/hent-8-28") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "fom" : "2022-08", "tom" : "2022-11" }""")
@@ -89,7 +89,7 @@ class DokumentHentingTest {
 
             // Hent ainntekt dokument
             client
-                .post("/v1/$personIdForbidden/saksbehandlingsperioder/${periode.id}/dokumenter/ainntekt/hent-8-28") {
+                .post("/v1/$personIdForbidden/behandlinger/${periode.id}/dokumenter/ainntekt/hent-8-28") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "fom" : "2024-05", "tom" : "2025-06" }""")
@@ -141,7 +141,7 @@ class DokumentHentingTest {
 
             // Hent arbeidsforhold dokument
             client
-                .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter/arbeidsforhold/hent") {
+                .post("/v1/$PERSON_ID/behandlinger/${periode.id}/dokumenter/arbeidsforhold/hent") {
                     bearerAuth(TestOppsett.userToken)
                 }.let { postResponse ->
                     val location = postResponse.headers["Location"]!!
@@ -182,7 +182,7 @@ class DokumentHentingTest {
 
             // Hent arbeidsforhold dokument
             client
-                .post("/v1/$personIdForbidden/saksbehandlingsperioder/${periode.id}/dokumenter/arbeidsforhold/hent") {
+                .post("/v1/$personIdForbidden/behandlinger/${periode.id}/dokumenter/arbeidsforhold/hent") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(403, status.value)
@@ -212,7 +212,7 @@ class DokumentHentingTest {
 
             // Hent pensjonsgivendeinntekt dokument
             client
-                .post("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/dokumenter/pensjonsgivendeinntekt/hent") {
+                .post("/v1/$PERSON_ID/behandlinger/${periode.id}/dokumenter/pensjonsgivendeinntekt/hent") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                 }.let { postResponse ->

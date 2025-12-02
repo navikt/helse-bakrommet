@@ -38,7 +38,7 @@ class YrkesaktivitetOperasjonerTest {
         runApplicationTest { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+            client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("""{ "fom": "2023-01-01", "tom": "2023-01-10" }""")
@@ -46,7 +46,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val periode =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    .get("/v1/$PERSON_ID/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<Behandling>>()
                     .first()
@@ -62,7 +62,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val yrkesaktivitetId =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDTO>>()
                     .first()
@@ -90,7 +90,7 @@ class YrkesaktivitetOperasjonerTest {
             ]"""
 
             val response =
-                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
+                client.put("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(oppdateringer)
@@ -98,7 +98,7 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             client
-                .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
                 }.also {
                     assertEquals(HttpStatusCode.OK, it.status)
@@ -141,7 +141,7 @@ class YrkesaktivitetOperasjonerTest {
         runApplicationTest { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+            client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("""{ "fom": "2023-01-01", "tom": "2023-01-10" }""")
@@ -149,7 +149,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val periode =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    .get("/v1/$PERSON_ID/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<Behandling>>()
                     .first()
@@ -165,7 +165,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val yrkesaktivitetId =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDTO>>()
                     .first()
@@ -191,7 +191,7 @@ class YrkesaktivitetOperasjonerTest {
             }"""
 
             val response =
-                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
+                client.put("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(oppdateringer)
@@ -246,7 +246,7 @@ class YrkesaktivitetOperasjonerTest {
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+            client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
@@ -254,7 +254,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val periode =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    .get("/v1/$PERSON_ID/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<Behandling>>()
                     .first()
@@ -270,7 +270,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val yrkesaktivitetId =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDTO>>()
                     .first()
@@ -292,7 +292,7 @@ class YrkesaktivitetOperasjonerTest {
             }"""
 
             val response =
-                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                client.put("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(perioder)
@@ -331,7 +331,7 @@ class YrkesaktivitetOperasjonerTest {
             }"""
 
             client
-                .put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                .put("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(ventetidPerioder)
@@ -346,7 +346,7 @@ class YrkesaktivitetOperasjonerTest {
 
             // Slett perioder ved å sende null
             client
-                .put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
+                .put("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/perioder") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody("null")
@@ -385,7 +385,7 @@ class YrkesaktivitetOperasjonerTest {
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+            client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
@@ -393,13 +393,13 @@ class YrkesaktivitetOperasjonerTest {
 
             val periode =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    .get("/v1/$PERSON_ID/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<Behandling>>()
                     .first()
 
             // Sett skjæringstidspunkt for perioden
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/skjaeringstidspunkt") {
+            client.put("/v1/$PERSON_ID/behandlinger/${periode.id}/skjaeringstidspunkt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("""{ "skjaeringstidspunkt": "2023-01-15" }""")
@@ -417,7 +417,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val yrkesaktivitetId =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDTO>>()
                     .first()
@@ -425,7 +425,7 @@ class YrkesaktivitetOperasjonerTest {
 
             // Hent inntektsmeldinger for yrkesaktivitet
             val response =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntektsmeldinger") {
+                client.get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntektsmeldinger") {
                     bearerAuth(TestOppsett.userToken)
                 }
 
@@ -437,7 +437,7 @@ class YrkesaktivitetOperasjonerTest {
             assertEquals("[${im1.serialisertTilString()},${im2.serialisertTilString()}]".asJsonNode(), inntektsmeldinger)
 
             suspend fun velgIm(inntektsmeldingId: String) =
-                client.put("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
+                client.put("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     val req =
@@ -495,7 +495,7 @@ class YrkesaktivitetOperasjonerTest {
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode uten skjæringstidspunkt
-            client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+            client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
@@ -503,7 +503,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val periode =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                    .get("/v1/$PERSON_ID/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<Behandling>>()
                     .first()
@@ -519,7 +519,7 @@ class YrkesaktivitetOperasjonerTest {
 
             val yrkesaktivitetId =
                 client
-                    .get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet") {
+                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDTO>>()
                     .first()
@@ -527,7 +527,7 @@ class YrkesaktivitetOperasjonerTest {
 
             // Hent inntektsmeldinger for yrkesaktivitet
             val response =
-                client.get("/v1/$PERSON_ID/saksbehandlingsperioder/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntektsmeldinger") {
+                client.get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntektsmeldinger") {
                     bearerAuth(TestOppsett.userToken)
                 }
 

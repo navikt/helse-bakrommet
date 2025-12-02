@@ -18,7 +18,7 @@ internal suspend fun ApplicationTestBuilder.sendTilbake(
     kommentar: String = "Dette blir litt feil",
 ): Behandling {
     val response =
-        client.post("/v1/$personId/saksbehandlingsperioder/$periodeId/sendtilbake") {
+        client.post("/v1/$personId/behandlinger/$periodeId/sendtilbake") {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
             setBody("""{ "kommentar": "$kommentar" }""")

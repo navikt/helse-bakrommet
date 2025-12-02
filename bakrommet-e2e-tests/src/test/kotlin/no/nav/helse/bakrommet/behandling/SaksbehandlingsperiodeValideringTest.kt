@@ -23,7 +23,7 @@ class SaksbehandlingsperiodeValideringTest {
         runApplicationTest { daoer ->
             daoer.personDao.opprettPerson(FNR, PERSON_ID)
             val response =
-                client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+                client.post("/v1/$PERSON_ID/behandlinger") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(

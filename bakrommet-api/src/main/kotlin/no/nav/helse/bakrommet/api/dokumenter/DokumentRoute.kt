@@ -22,7 +22,7 @@ import no.nav.helse.bakrommet.util.somGyldigUUID
 fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
     val periodeId = call.parameters[PARAM_PERIODEUUID].somGyldigUUID()
     val personId = call.parameters[PARAM_PERSONID]!!
-    val dokUri = "/v1/$personId/saksbehandlingsperioder/$periodeId/dokumenter"
+    val dokUri = "/v1/$personId/behandlinger/$periodeId/dokumenter"
     check(call.request.uri.startsWith(dokUri)) {
         "Forventet å være i kontekst av /dokumenter for å kunne resolve dokument-uri"
     }
@@ -37,7 +37,7 @@ private suspend fun RoutingCall.respondDokument(
 }
 
 fun Route.dokumentRoute(dokumentHenter: DokumentHenter) {
-    route("/v1/{$PARAM_PERSONID}/saksbehandlingsperioder/{$PARAM_PERIODEUUID}/dokumenter") {
+    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
             val dokumenterDto = dokumentHenter.hentDokumenterFor(call.periodeReferanse()).map { it.tilDokumentDto() }
             call.respondJson(dokumenterDto)

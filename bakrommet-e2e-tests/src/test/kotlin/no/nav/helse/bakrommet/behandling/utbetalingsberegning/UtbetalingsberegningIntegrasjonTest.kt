@@ -115,7 +115,7 @@ class UtbetalingsberegningIntegrasjonTest {
     private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto = objectMapper.readValue(this)
 
     private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Behandling {
-        client.post("/v1/$PERSON_ID/saksbehandlingsperioder") {
+        client.post("/v1/$PERSON_ID/behandlinger") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(
@@ -129,7 +129,7 @@ class UtbetalingsberegningIntegrasjonTest {
         }
 
         val response =
-            client.get("/v1/$PERSON_ID/saksbehandlingsperioder") {
+            client.get("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
             }
         assertEquals(200, response.status.value)
@@ -159,7 +159,7 @@ class UtbetalingsberegningIntegrasjonTest {
             )
 
         val response =
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
+            client.put("/v1/$PERSON_ID/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(inntektRequest.serialisertTilString())
@@ -211,7 +211,7 @@ class UtbetalingsberegningIntegrasjonTest {
             """.trimIndent()
 
         val response =
-            client.put("/v1/$PERSON_ID/saksbehandlingsperioder/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
+            client.put("/v1/$PERSON_ID/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(dagoversikt)
@@ -221,7 +221,7 @@ class UtbetalingsberegningIntegrasjonTest {
 
     private suspend fun ApplicationTestBuilder.hentUtbetalingsberegning(periodeId: UUID): BeregningResponse? {
         val response =
-            client.get("/v1/$PERSON_ID/saksbehandlingsperioder/$periodeId/utbetalingsberegning") {
+            client.get("/v1/$PERSON_ID/behandlinger/$periodeId/utbetalingsberegning") {
                 bearerAuth(TestOppsett.userToken)
             }
         assertEquals(200, response.status.value)
