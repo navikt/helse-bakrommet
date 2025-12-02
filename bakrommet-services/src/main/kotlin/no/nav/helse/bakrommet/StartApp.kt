@@ -48,7 +48,6 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonIdService
 import no.nav.helse.bakrommet.person.PersonsøkService
 import no.nav.helse.bakrommet.person.personinfoRoute
-import no.nav.helse.bakrommet.person.personsøkRoute
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
@@ -130,7 +129,6 @@ fun Route.setupRoutes(
     services: Services,
     clienter: Clienter,
 ) {
-    personsøkRoute(services.personsøkService)
     personinfoRoute(clienter.pdlClient, services.personIdService)
     soknaderRoute(clienter.sykepengesoknadBackendClient, services.personIdService)
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)

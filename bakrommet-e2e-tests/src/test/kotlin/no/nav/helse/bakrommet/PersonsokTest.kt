@@ -22,7 +22,7 @@ class PersonsokTest {
                     bearerAuth(TestOppsett.userToken)
                 }
             assertEquals(200, response.status.value)
-            val regex = Regex("""\{ "personId": "[a-z0-9]{5}" }""")
+            val regex = Regex("""\{"personId":"[a-z0-9]{5}"}""")
             assertTrue(response.bodyAsText().matches(regex))
         }
 
