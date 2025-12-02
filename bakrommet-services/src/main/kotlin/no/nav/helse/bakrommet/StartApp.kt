@@ -44,7 +44,6 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
 import no.nav.helse.bakrommet.kafka.OutboxService
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
-import no.nav.helse.bakrommet.organisasjon.organisasjonRoute
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonIdService
 import no.nav.helse.bakrommet.person.PersonsøkService
@@ -142,7 +141,6 @@ fun Route.setupRoutes(
         personIdService = services.personIdService,
     )
     beregningRoute(service = services.utbetalingsberegningService)
-    organisasjonRoute(services.organisasjonService)
     tidslinjeRoute(services.tidslinjeService)
 }
 
