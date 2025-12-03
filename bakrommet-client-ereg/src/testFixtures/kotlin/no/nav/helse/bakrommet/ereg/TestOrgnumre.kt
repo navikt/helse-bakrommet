@@ -72,6 +72,12 @@ val malermesternAS =
         orgnummer = "834567890",
     )
 
+val plankeFabrikken =
+    Organisasjon(
+        navn = "Fredrikstad Plankefabrikk AS",
+        orgnummer = "834567000",
+    )
+
 val veihjelpenAS =
     Organisasjon(
         navn = "Veihjelpen AS",
@@ -86,6 +92,7 @@ val skogenSFO =
 val organisasjonsnavnMap: Map<String, Organisasjon> =
     mapOf(
         kranførerkompaniet.orgnummer to kranførerkompaniet,
+        plankeFabrikken.orgnummer to plankeFabrikken,
         krankompisen.orgnummer to krankompisen,
         danskebåten.orgnummer to danskebåten,
         pengeløsSparebank.orgnummer to pengeløsSparebank,

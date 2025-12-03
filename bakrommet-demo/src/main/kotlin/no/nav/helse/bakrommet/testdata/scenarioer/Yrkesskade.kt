@@ -27,7 +27,7 @@ private val inntektData =
         organisasjon = betongbyggAS,
         antallMaanederTilbake = 16,
     )
-val søknadFom = LocalDate.of(2025, 9, 29)
+private val søknadFom = LocalDate.of(2025, 9, 29)
 
 private val fnr = "20029712322"
 
