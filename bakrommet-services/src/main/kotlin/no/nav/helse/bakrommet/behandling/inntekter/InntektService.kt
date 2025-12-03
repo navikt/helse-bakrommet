@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.behandling.inntekter
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDao
@@ -14,16 +15,23 @@ import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.sammenli
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonDao
 import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.dto.PeriodeDto
+import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 import kotlin.math.abs
 
 interface InntektServiceDaoer :
@@ -69,25 +77,30 @@ class InntektService(
                 "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
             }
 
-            val feilKategori = { throw IllegalStateException("Feil inntektkategori for oppdatering av inntekt med tyoe ${request.javaClass.name}") }
+            val feilKategori =
+                { throw IllegalStateException("Feil inntektkategori for oppdatering av inntekt med tyoe ${request.javaClass.name}") }
 
             when (request) {
                 is InntektRequest.Arbeidstaker ->
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
                         feilKategori()
                     }
+
                 is InntektRequest.SelvstendigNæringsdrivende ->
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende) {
                         feilKategori()
                     }
+
                 is InntektRequest.Frilanser ->
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Frilanser) {
                         feilKategori()
                     }
+
                 is InntektRequest.Inaktiv ->
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
                         feilKategori()
                     }
+
                 is InntektRequest.Arbeidsledig ->
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidsledig) {
                         feilKategori()
@@ -107,6 +120,23 @@ class InntektService(
                     aInntektClient = aInntektClient,
                     sigrunClient = sigrunClient,
                 )
+
+            if (inntektData is InntektData.ArbeidstakerInntektsmelding) {
+                val inntektsmeldingJson =
+                    this
+                        .lastInntektsmeldingDokument(
+                            periode = periode,
+                            inntektsmeldingId = inntektData.inntektsmeldingId,
+                            inntektsmeldingClient = inntektsmeldingClient,
+                            saksbehandler = saksbehandler,
+                        ).somInntektsmelding()
+                val inntektsmelding: Inntektsmelding = objectMapper.readValue(inntektsmeldingJson.serialisertTilString())
+
+                yrkesaktivitetDao.oppdaterPerioder(
+                    yrkesaktivitet.tilYrkesaktivitetDbRecord(),
+                    Perioder(Periodetype.ARBEIDSGIVERPERIODE, inntektsmelding.arbeidsgiverperioder.map { PeriodeDto(it.fom, it.tom) }),
+                )
+            }
 
             yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
             beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)?.let { rec ->
