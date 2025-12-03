@@ -3,11 +3,11 @@ package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
+import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
@@ -24,6 +24,7 @@ import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
@@ -91,7 +92,7 @@ class UtbetalingsberegningIntegrasjonTest {
             settDagoversikt(periode.id, yrkesaktivitetId)
 
             // Hent utbetalingsberegning
-            val beregning = hentUtbetalingsberegning(periode.id)
+            val beregning = hentUtbetalingsberegning(PERSON_ID, periode.id)
 
             // Verifiser resultatet
             verifiserBeregning(beregning!!)
@@ -220,29 +221,6 @@ class UtbetalingsberegningIntegrasjonTest {
         assertEquals(204, response.status.value)
     }
 
-    private suspend fun ApplicationTestBuilder.hentUtbetalingsberegning(periodeId: UUID): BeregningResponse? {
-        val response =
-            client.get("/v1/$PERSON_ID/behandlinger/$periodeId/utbetalingsberegning") {
-                bearerAuth(TestOppsett.userToken)
-            }
-        assertEquals(200, response.status.value)
-        val responseText = response.bodyAsText()
-        if (responseText == "null") return null
-
-        // API-et sender BeregningResponseUtDto (med InntektDto som har alle felt)
-        val responseUtDto = objectMapper.readValue(responseText, BeregningResponseUtDto::class.java)
-
-        // Konverter til domenemodell
-        return BeregningResponse(
-            id = responseUtDto.id,
-            saksbehandlingsperiodeId = responseUtDto.saksbehandlingsperiodeId,
-            beregningData = responseUtDto.beregningData.tilBeregningData(),
-            opprettet = responseUtDto.opprettet,
-            opprettetAv = responseUtDto.opprettetAv,
-            sistOppdatert = responseUtDto.sistOppdatert,
-        )
-    }
-
     private fun BeregningDataUtDto.tilBeregningData(): BeregningData {
         // Konverter UtDto til InnDto for å bruke den eksisterende gjenopprett-logikken
         val innDto = this.tilBeregningDataInnDto()
@@ -354,69 +332,69 @@ class UtbetalingsberegningIntegrasjonTest {
             reservertPersonbeløp = reservertPersonbeløp?.dagligDouble,
         )
 
-    private fun verifiserBeregning(beregning: BeregningResponse) {
+    private fun verifiserBeregning(beregning: BeregningResponseDto) {
         assertEquals(1, beregning.beregningData.yrkesaktiviteter.size)
 
         val yrkesaktivitet = beregning.beregningData.yrkesaktiviteter.first()
-        assertEquals(31, yrkesaktivitet.utbetalingstidslinje.size) // Januar 2024 har 31 dager
+        assertEquals(31, yrkesaktivitet.utbetalingstidslinje.dager.size) // Januar 2024 har 31 dager
         yrkesaktivitet.dekningsgrad!!.verdi.prosentDesimal `should equal` 1.0
 
         // Dag 1: 100% syk - skal ha refusjon
-        val dag1 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 1) }!!
+        val dag1 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 1) }!!
         assertEquals(
-            1846,
-            dag1.økonomi.personbeløp?.dagligInt,
+            1846.0,
+            dag1.økonomi.personbeløp,
             "Dag 1 skal ha personutbetaling siden refusjon ikke dekker alt",
         )
         assertEquals(
-            462,
-            dag1.økonomi.arbeidsgiverbeløp?.dagligInt,
+            462.0,
+            dag1.økonomi.arbeidsgiverbeløp,
             "Dag 1 skal ha 462 i refusjon",
         )
-        assertEquals(100, dag1.økonomi.brukTotalGrad { it }, "Dag 1 skal ha 100% total grad")
+        assertEquals(1.0, dag1.økonomi.totalGrad, "Dag 1 skal ha 100% total grad")
 
         // Dag 2: 70% syk - skal ha 70% refusjon
-        val dag2 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 2) }!!
+        val dag2 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 2) }!!
         assertEquals(
-            1292,
-            dag2.økonomi.personbeløp?.dagligInt,
+            1292.0,
+            dag2.økonomi.personbeløp,
             "Dag 2 skal ha personutbetaling siden refusjon ikke dekker alt",
         )
         assertEquals(
-            323,
-            dag2.økonomi.arbeidsgiverbeløp?.dagligInt,
+            323.0,
+            dag2.økonomi.arbeidsgiverbeløp,
             "Dag 2 skal ha 323 kr refusjon (70% av dag 1, avrundet)",
         )
-        assertEquals(70, dag2.økonomi.brukTotalGrad { it }, "Dag 2 skal ha 70% total grad")
+        assertEquals(0.7, dag2.økonomi.totalGrad, "Dag 2 skal ha 70% total grad")
 
         // Dag 3: Ferie - skal ikke ha utbetaling
-        val dag3 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 3) }!!
-        assertEquals(0, (dag3.økonomi.personbeløp?.dagligInt ?: 0) * 100, "Dag 3 (Ferie) skal ikke ha utbetaling")
-        assertEquals(0, (dag3.økonomi.arbeidsgiverbeløp?.dagligInt ?: 0) * 100, "Dag 3 (Ferie) skal ikke ha refusjon")
-        assertEquals(0, dag3.økonomi.brukTotalGrad { it }, "Dag 3 (Ferie) skal ha 0% total grad")
+        val dag3 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 3) }!!
+        assertEquals(0.0, (dag3.økonomi.personbeløp ?: 0.0) * 100, "Dag 3 (Ferie) skal ikke ha utbetaling")
+        assertEquals(0.0, (dag3.økonomi.arbeidsgiverbeløp ?: 0.0) * 100, "Dag 3 (Ferie) skal ikke ha refusjon")
+        assertEquals(0.0, dag3.økonomi.totalGrad, "Dag 3 (Ferie) skal ha 0% total grad")
 
         // Dag 4: 100% syk - skal ha samme refusjon som dag 1
-        val dag4 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 4) }!!
+        val dag4 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 4) }!!
         assertEquals(
-            1846,
-            dag4.økonomi.personbeløp?.dagligInt,
+            1846.0,
+            dag4.økonomi.personbeløp,
             "Dag 4 skal ha samme personutbetaling som dag 1",
         )
         assertEquals(
-            462,
-            dag4.økonomi.arbeidsgiverbeløp?.dagligInt,
+            462.0,
+            dag4.økonomi.arbeidsgiverbeløp,
             "Dag 4 skal ha samme refusjon som dag 1",
         )
-        assertEquals(100, dag4.økonomi.brukTotalGrad { it }, "Dag 4 skal ha 100% total grad")
+        assertEquals(1.0, dag4.økonomi.totalGrad, "Dag 4 skal ha 100% total grad")
 
         // Dag 5: Arbeidsdag - skal ikke ha utbetaling
-        val dag5 = yrkesaktivitet.utbetalingstidslinje.find { it.dato == LocalDate.of(2024, 1, 5) }!!
-        assertEquals(0, (dag5.økonomi.personbeløp?.dagligInt ?: 0) * 100, "Dag 5 (Arbeidsdag) skal ikke ha utbetaling")
+        val dag5 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 5) }!!
+        assertEquals(0.0, (dag5.økonomi.personbeløp ?: 0.0) * 100, "Dag 5 (Arbeidsdag) skal ikke ha utbetaling")
         assertEquals(
-            0,
-            dag5.økonomi.arbeidsgiverbeløp?.dagligInt,
+            0.0,
+            dag5.økonomi.arbeidsgiverbeløp,
             "Dag 5 (Arbeidsdag) skal ikke ha refusjon",
         )
-        assertEquals(0, dag5.økonomi.brukTotalGrad { it }, "Dag 5 (Arbeidsdag) skal ha 0% total grad")
+        assertEquals(0.0, dag5.økonomi.totalGrad, "Dag 5 (Arbeidsdag) skal ha 0% total grad")
     }
 }

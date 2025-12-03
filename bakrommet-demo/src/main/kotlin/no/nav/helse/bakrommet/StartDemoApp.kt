@@ -155,7 +155,6 @@ fun main() {
             demoOutboxRoute()
             authenticate("manual") {
                 setupApiRoutes(services)
-                setupRoutes(services, clienter)
             }
         }
 

@@ -25,7 +25,6 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
-import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.bruker.BrukerService
@@ -107,7 +106,7 @@ fun Application.settOppKtor(
     azureAdAppAuthentication(configuration.auth, configuration.roller)
     helsesjekker()
 
-    appModul(configuration = configuration, services = services, clienter = clienter, setupApiRoutes = setupApiRoutes)
+    appModul(configuration = configuration, services = services, setupApiRoutes = setupApiRoutes)
 }
 
 fun Application.helsesjekker() {
@@ -119,13 +118,6 @@ fun Application.helsesjekker() {
             call.respondText("I'm alive")
         }
     }
-}
-
-fun Route.setupRoutes(
-    services: Services,
-    clienter: Clienter,
-) {
-    beregningRoute(service = services.utbetalingsberegningService)
 }
 
 class Clienter(
@@ -239,7 +231,6 @@ fun createServices(
 internal fun Application.appModul(
     configuration: Configuration,
     services: Services,
-    clienter: Clienter,
     setupApiRoutes: Route.(Services) -> Unit,
 ) {
     install(ContentNegotiation) {
@@ -258,7 +249,6 @@ internal fun Application.appModul(
     routing {
         authenticate("entraid") {
             install(RolleMatrise)
-            setupRoutes(services, clienter)
             setupApiRoutes(services)
         }
     }

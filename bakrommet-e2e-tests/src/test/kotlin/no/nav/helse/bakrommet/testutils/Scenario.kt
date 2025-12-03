@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.Inntekt
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
+import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
@@ -23,7 +24,6 @@ import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
-import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningResponseUtDto
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
@@ -71,7 +71,7 @@ data class ScenarioData(
     val sykepengegrunnlag: SykepengegrunnlagBase?,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     val yrkesaktiviteter: List<YrkesaktivitetDto>,
-    val utbetalingsberegning: BeregningResponseUtDto?,
+    val utbetalingsberegning: BeregningResponseDto?,
     val daoer: Daoer,
     val beslutterToken: String,
 ) {
