@@ -23,7 +23,6 @@ import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.sykepengegrunnlagRoute
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregningRoute
@@ -127,7 +126,6 @@ fun Route.setupRoutes(
     clienter: Clienter,
 ) {
     soknaderRoute(clienter.sykepengesoknadBackendClient, services.personService)
-    sykepengegrunnlagRoute(services.sykepengegrunnlagService)
     beregningRoute(service = services.utbetalingsberegningService)
 }
 
