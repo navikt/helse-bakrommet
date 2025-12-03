@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.api.dokumenter.dokumentRoute
 import no.nav.helse.bakrommet.api.organisasjon.organisasjonRoute
 import no.nav.helse.bakrommet.api.person.personinfoRoute
 import no.nav.helse.bakrommet.api.person.personsøkRoute
+import no.nav.helse.bakrommet.api.soknader.soknaderRoute
 import no.nav.helse.bakrommet.api.sykepengegrunnlag.sykepengegrunnlagRoute
 import no.nav.helse.bakrommet.api.tidslinje.tidslinjeRoute
 import no.nav.helse.bakrommet.api.tilkommen.tilkommenInntektRoute
@@ -26,6 +27,7 @@ fun Route.setupApiRoutes(
     organisasjonRoute(services.organisasjonService)
     personsøkRoute(services.personsøkService)
     personinfoRoute(services.personService)
+    soknaderRoute(services.soknaderService)
     sykepengegrunnlagRoute(services.sykepengegrunnlagService)
     yrkesaktivitetRoute(
         yrkesaktivitetService = services.yrkesaktivitetService,

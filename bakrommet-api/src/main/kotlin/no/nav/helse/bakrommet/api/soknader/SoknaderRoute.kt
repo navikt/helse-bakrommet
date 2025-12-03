@@ -1,23 +1,23 @@
-package no.nav.helse.bakrommet.sykepengesoknad
+package no.nav.helse.bakrommet.api.soknader
 
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.route
 import no.nav.helse.bakrommet.PARAM_PERSONID
 import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.person.PersonService
-import no.nav.helse.bakrommet.person.medIdent
+import no.nav.helse.bakrommet.personId
+import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
 import no.nav.helse.bakrommet.util.serialisertTilString
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
 
-internal fun Route.soknaderRoute(
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient,
-    personService: PersonService,
-) {
-    get("/v1/{$PARAM_PERSONID}/soknader") {
-        call.medIdent(personService) { fnr, personId ->
+fun Route.soknaderRoute(service: SoknaderService) {
+    route("/v1/{$PARAM_PERSONID}/soknader") {
+        get {
+            val personId = call.personId()
             val fomParam = call.request.queryParameters["fom"]
             val fom =
                 fomParam?.let {
@@ -30,25 +30,27 @@ internal fun Route.soknaderRoute(
 
             val medSporsmal = call.request.queryParameters["medSporsmal"]?.toBoolean() ?: false
 
-            val soknader: List<SykepengesoknadDTO> =
-                sykepengesoknadBackendClient.hentSoknader(
+            val soknader =
+                service.hentSoknader(
                     saksbehandlerToken = call.request.bearerToken(),
-                    fnr = fnr,
-                    fom,
+                    personId = personId,
+                    fom = fom,
                     medSporsmal = medSporsmal,
                 )
             call.respondText(soknader.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
         }
     }
 
-    get("/v1/{$PARAM_PERSONID}/soknader/{soknadId}") {
-        call.medIdent(personService) { fnr, personId ->
+    route("/v1/{$PARAM_PERSONID}/soknader/{soknadId}") {
+        get {
+            val personId = call.personId()
             val soknadId = call.parameters["soknadId"] ?: throw InputValideringException("Mangler søknadId")
 
-            val soknad: SykepengesoknadDTO =
-                sykepengesoknadBackendClient.hentSoknad(
+            val soknad =
+                service.hentSoknad(
                     saksbehandlerToken = call.request.bearerToken(),
-                    id = soknadId,
+                    personId = personId,
+                    soknadId = soknadId,
                 )
             call.respondText(soknad.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)
         }

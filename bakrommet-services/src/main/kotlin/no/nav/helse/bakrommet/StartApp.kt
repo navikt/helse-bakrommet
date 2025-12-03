@@ -46,8 +46,8 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PersonsøkService
 import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
-import no.nav.helse.bakrommet.sykepengesoknad.soknaderRoute
 import no.nav.helse.bakrommet.tidslinje.TidslinjeService
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
@@ -125,7 +125,6 @@ fun Route.setupRoutes(
     services: Services,
     clienter: Clienter,
 ) {
-    soknaderRoute(clienter.sykepengesoknadBackendClient, services.personService)
     beregningRoute(service = services.utbetalingsberegningService)
 }
 
@@ -180,6 +179,7 @@ data class Services(
     val tilkommenInntektService: TilkommenInntektService,
     val tidslinjeService: TidslinjeService,
     val brukerService: BrukerService,
+    val soknaderService: SoknaderService,
 )
 
 fun createServices(
@@ -194,6 +194,7 @@ fun createServices(
             aaRegClient = clienter.aaRegClient,
             sigrunClient = clienter.sigrunClient,
         )
+    val personService = PersonService(db, clienter.pdlClient)
     return Services(
         personsøkService =
             PersonsøkService(
@@ -222,11 +223,16 @@ fun createServices(
                 clienter.inntektsmeldingClient,
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
-        personService = PersonService(db, clienter.pdlClient),
+        personService = personService,
         organisasjonService = OrganisasjonService(clienter.eregClient),
         tilkommenInntektService = TilkommenInntektService(db),
         tidslinjeService = TidslinjeService(db, clienter.eregClient),
         brukerService = BrukerService(),
+        soknaderService =
+            SoknaderService(
+                sykepengesoknadBackendClient = clienter.sykepengesoknadBackendClient,
+                personService = personService,
+            ),
     )
 }
 
