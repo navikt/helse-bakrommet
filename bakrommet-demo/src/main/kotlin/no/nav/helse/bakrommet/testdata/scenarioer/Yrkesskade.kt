@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.testdata.scenarioer
 
 import no.nav.helse.bakrommet.ainntekt.genererAinntektsdata
 import no.nav.helse.bakrommet.ereg.betongbyggAS
+import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
@@ -9,8 +10,11 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SporsmalDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SvarDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SvartypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.VisningskriteriumDTO
+import no.nav.inntektsmeldingkontrakt.Periode
+import no.nav.inntektsmeldingkontrakt.Refusjon
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.UUID
 
@@ -23,23 +27,40 @@ private val inntektData =
         organisasjon = betongbyggAS,
         antallMaanederTilbake = 16,
     )
+val søknadFom = LocalDate.of(2025, 9, 29)
+
+private val fnr = "20029712322"
+
+private val inntektsmeldinger =
+    listOf(
+        skapInntektsmelding(
+            månedsinntekt = 14000.0,
+            organisasjon = betongbyggAS,
+            arbeidstakerFnr = fnr,
+            mottattDato = LocalDateTime.of(2025, 5, 5, 11, 50, 0),
+            foersteFravaersdag = søknadFom,
+            refusjon = Refusjon(beloepPrMnd = BigDecimal("14000.00"), opphoersdato = null),
+            arbeidsgiverperioder = listOf(Periode(søknadFom, søknadFom.plusDays(14))),
+        ),
+    )
 
 val yrkesskade =
     Testscenario(
-        tittel = "Sykmeldt pga yrkesskade som er 4 år gammel",
+        tittel = "Sykmeldt pga yrkesskade som er 3 år gammel",
         testperson =
             Testperson(
                 fornavn = "Uheldig",
                 fødselsdato = LocalDate.now().minusYears(20),
-                fnr = "20029712322",
+                fnr = fnr,
                 spilleromId = "uheldigarbeidskar",
                 etternavn = "Arbeidskar",
                 ainntektData = inntektData,
+                inntektsmeldinger = inntektsmeldinger,
                 soknader =
                     listOf(
                         soknad(
-                            fnr = "20029712322",
-                            fom = LocalDate.of(2025, 9, 29),
+                            fnr = fnr,
+                            fom = søknadFom,
                             tom = LocalDate.of(2025, 10, 26),
                         ) {
                             arbeidstaker(betongbyggAS)
@@ -131,16 +152,16 @@ val yrkesskade =
                                     ),
                                 )
                             grad = 100
-                            sykmeldingSkrevet = LocalDate.of(2025, 9, 29)
-                            startSyketilfelle = LocalDate.of(2025, 9, 29)
-                            opprettet = LocalDate.of(2025, 9, 29)
+                            sykmeldingSkrevet = søknadFom
+                            startSyketilfelle = søknadFom
+                            opprettet = søknadFom
                             sendtNav = LocalDate.of(2025, 10, 1)
                         },
                     ),
             ),
         beskrivelse =
             """
-            Hevder seg sykmeldt pga yrkesskade.
+            Opplyser i søknad at han er sykmeldt pga yrkesskade. 
 
             Tjente vesentlig mer på yrkessakde tidspunktet enn nåværende inntekt.
             """.trimIndent(),
