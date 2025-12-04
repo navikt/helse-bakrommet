@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(value = ArbeidstakerInntektRequestDto.Inntektsmelding::class, name = "INNTEKTSMELDING"),
     JsonSubTypes.Type(value = ArbeidstakerInntektRequestDto.Ainntekt::class, name = "AINNTEKT"),
     JsonSubTypes.Type(value = ArbeidstakerInntektRequestDto.Skjønnsfastsatt::class, name = "SKJONNSFASTSETTELSE"),
-    JsonSubTypes.Type(value = ArbeidstakerInntektRequestDto.ManueltBeregnet::class, name = "MANUELT_BEREGNET"),
 )
 @JsonInclude(JsonInclude.Include.NON_NULL)
 sealed class ArbeidstakerInntektRequestDto {
@@ -31,12 +30,6 @@ sealed class ArbeidstakerInntektRequestDto {
     data class Skjønnsfastsatt(
         val årsinntekt: Double, // Årlig beløp som Double i stedet for InntektbeløpDto.Årlig
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsakDto,
-        override val begrunnelse: String,
-        override val refusjon: List<RefusjonsperiodeDto>? = null,
-    ) : ArbeidstakerInntektRequestDto()
-
-    data class ManueltBeregnet(
-        val årsinntekt: Double, // Årlig beløp som Double i stedet for InntektbeløpDto.Årlig
         override val begrunnelse: String,
         override val refusjon: List<RefusjonsperiodeDto>? = null,
     ) : ArbeidstakerInntektRequestDto()

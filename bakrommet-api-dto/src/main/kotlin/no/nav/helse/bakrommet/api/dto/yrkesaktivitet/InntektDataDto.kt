@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(value = InntektDataDto.Arbeidsledig::class, name = "ARBEIDSLEDIG"),
     JsonSubTypes.Type(value = InntektDataDto.InaktivPensjonsgivende::class, name = "INAKTIV_PENSJONSGIVENDE"),
     JsonSubTypes.Type(value = InntektDataDto.InaktivSkjønnsfastsatt::class, name = "INAKTIV_SKJØNNSFASTSATT"),
-    JsonSubTypes.Type(value = InntektDataDto.ArbeidstakerManueltBeregnet::class, name = "ARBEIDSTAKER_MANUELT_BEREGNET"),
     JsonSubTypes.Type(value = InntektDataDto.SelvstendigNæringsdrivendePensjonsgivende::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_PENSJONSGIVENDE"),
     JsonSubTypes.Type(value = InntektDataDto.SelvstendigNæringsdrivendeSkjønnsfastsatt::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_SKJØNNSFASTSATT"),
 )
@@ -25,11 +24,6 @@ sealed class InntektDataDto {
         val inntektsmeldingId: String,
         override val omregnetÅrsinntekt: Double,
         val inntektsmelding: Map<String, Any>, // JsonNode som Map
-        override val sporing: String,
-    ) : InntektDataDto()
-
-    data class ArbeidstakerManueltBeregnet(
-        override val omregnetÅrsinntekt: Double,
         override val sporing: String,
     ) : InntektDataDto()
 

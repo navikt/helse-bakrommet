@@ -12,7 +12,6 @@ import no.nav.helse.dto.InntektbeløpDto
     JsonSubTypes.Type(value = ArbeidstakerInntektRequest.Inntektsmelding::class, name = "INNTEKTSMELDING"),
     JsonSubTypes.Type(value = ArbeidstakerInntektRequest.Ainntekt::class, name = "AINNTEKT"),
     JsonSubTypes.Type(value = ArbeidstakerInntektRequest.Skjønnsfastsatt::class, name = "SKJONNSFASTSETTELSE"),
-    JsonSubTypes.Type(value = ArbeidstakerInntektRequest.ManueltBeregnet::class, name = "MANUELT_BEREGNET"),
 )
 @JsonInclude(JsonInclude.Include.NON_NULL)
 sealed class ArbeidstakerInntektRequest {
@@ -36,13 +35,6 @@ sealed class ArbeidstakerInntektRequest {
     data class Skjønnsfastsatt(
         val årsinntekt: InntektbeløpDto.Årlig,
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsak,
-        override val begrunnelse: String,
-        override val refusjon: List<Refusjonsperiode>? = null,
-    ) : ArbeidstakerInntektRequest()
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    data class ManueltBeregnet(
-        val årsinntekt: InntektbeløpDto.Årlig,
         override val begrunnelse: String,
         override val refusjon: List<Refusjonsperiode>? = null,
     ) : ArbeidstakerInntektRequest()

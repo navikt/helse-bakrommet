@@ -82,11 +82,5 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                 inntektsmelding = inntektsmelding,
             )
         }
-
-        is ArbeidstakerInntektRequest.ManueltBeregnet -> {
-            InntektData.ArbeidstakerManueltBeregnet(
-                omregnetÅrsinntekt = data.årsinntekt,
-            )
-        }
     }
 }

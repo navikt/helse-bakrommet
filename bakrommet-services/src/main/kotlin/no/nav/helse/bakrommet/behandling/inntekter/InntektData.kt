@@ -20,7 +20,6 @@ import java.time.YearMonth
     JsonSubTypes.Type(value = InntektData.Arbeidsledig::class, name = "ARBEIDSLEDIG"),
     JsonSubTypes.Type(value = InntektData.InaktivPensjonsgivende::class, name = "INAKTIV_PENSJONSGIVENDE"),
     JsonSubTypes.Type(value = InntektData.InaktivSkjønnsfastsatt::class, name = "INAKTIV_SKJØNNSFASTSATT"),
-    JsonSubTypes.Type(value = InntektData.ArbeidstakerManueltBeregnet::class, name = "ARBEIDSTAKER_MANUELT_BEREGNET"),
     JsonSubTypes.Type(value = InntektData.SelvstendigNæringsdrivendePensjonsgivende::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_PENSJONSGIVENDE"),
     JsonSubTypes.Type(value = InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_SKJØNNSFASTSATT"),
 )
@@ -31,11 +30,6 @@ sealed class InntektData {
     data class ArbeidstakerInntektsmelding(
         val inntektsmeldingId: String,
         val inntektsmelding: JsonNode,
-        override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        override val sporing: BeregningskoderSykepengegrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
-    ) : InntektData()
-
-    data class ArbeidstakerManueltBeregnet(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
     ) : InntektData()

@@ -53,13 +53,6 @@ fun ArbeidstakerInntektRequest.tilArbeidstakerInntektRequestDto(): ArbeidstakerI
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.tilRefusjonsperiodeDto() },
             )
-
-        is ArbeidstakerInntektRequest.ManueltBeregnet ->
-            ArbeidstakerInntektRequestDto.ManueltBeregnet(
-                årsinntekt = årsinntekt.beløp.toDouble(),
-                begrunnelse = begrunnelse,
-                refusjon = refusjon?.map { it.tilRefusjonsperiodeDto() },
-            )
     }
 
 fun PensjonsgivendeInntektRequest.tilPensjonsgivendeInntektRequestDto(): PensjonsgivendeInntektRequestDto =

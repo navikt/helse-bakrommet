@@ -16,12 +16,6 @@ fun InntektData.tilInntektDataDto(): InntektDataDto =
                 sporing = sporing.name,
             )
 
-        is InntektData.ArbeidstakerManueltBeregnet ->
-            InntektDataDto.ArbeidstakerManueltBeregnet(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
-                sporing = sporing.name,
-            )
-
         is InntektData.ArbeidstakerAinntekt ->
             InntektDataDto.ArbeidstakerAinntekt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
