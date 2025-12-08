@@ -8,5 +8,5 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:6.0.1")
 }
