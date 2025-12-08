@@ -43,7 +43,7 @@ dependencies {
         api("com.github.seratch:kotliquery:1.9.1")
 
         // Kafka
-        api("org.apache.kafka:kafka-clients:3.8.0")
+        api("org.apache.kafka:kafka-clients:4.1.1")
 
         // Monitoring
         api("io.micrometer:micrometer-registry-prometheus:1.15.4")
