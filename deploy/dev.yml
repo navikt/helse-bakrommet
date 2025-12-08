@@ -40,6 +40,11 @@ spec:
         databases:
           - name: bakrommet
             envVarPrefix: DATABASE
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
   accessPolicy:
     inbound:
       rules:
