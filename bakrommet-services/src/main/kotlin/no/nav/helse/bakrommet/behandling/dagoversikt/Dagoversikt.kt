@@ -24,6 +24,7 @@ enum class Dagtype {
     Permisjon,
     Avslått,
     AndreYtelser,
+    Behandlingsdag,
 }
 
 enum class Kilde {

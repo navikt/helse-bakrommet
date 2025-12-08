@@ -51,20 +51,29 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                 when (spilleromDag.dagtype) {
                     Dagtype.Syk,
                     Dagtype.SykNav,
-                    ->
+                    Dagtype.Behandlingsdag,
+                    -> {
+                        val grad =
+                            if (spilleromDag.dagtype == Dagtype.Behandlingsdag) {
+                                100
+                            } else {
+                                spilleromDag.grad ?: throw IllegalArgumentException("Grad må være satt for dagtype ${spilleromDag.dagtype} på dato ${spilleromDag.dato}")
+                            }
+
                         if (spilleromDag.dato.erAGP()) {
                             Arbeidsgiverdag(
                                 dato = spilleromDag.dato,
-                                grad = spilleromDag.grad!!.somProsentdel(),
+                                grad = grad.somProsentdel(),
                                 kilde = kilde_HARDKODET,
                             )
                         } else {
                             Sykedag(
                                 dato = spilleromDag.dato,
-                                grad = spilleromDag.grad!!.somProsentdel(),
+                                grad = grad.somProsentdel(),
                                 kilde = kilde_HARDKODET,
                             )
                         }
+                    }
 
                     Dagtype.Arbeidsdag ->
                         Arbeidsdag(
@@ -87,6 +96,7 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                     Dagtype.Avslått ->
                         // TODO eller bruke en felles avslått-dag i Sykdomstidslinje?
                         // TODO eller bare ikke ha dagen i tidslinjen?
+                        // TODO vi skal legge disse dagene på siden av tidslinjen i og overstyre i utbetalingen
                         no.nav.helse.sykdomstidslinje.Dag.Avslått(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,

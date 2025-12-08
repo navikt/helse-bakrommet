@@ -20,6 +20,7 @@ fun Dagtype.tilKafkaDto(): DagtypeKafkaDto =
         Dagtype.Permisjon -> DagtypeKafkaDto.Permisjon
         Dagtype.Avslått -> DagtypeKafkaDto.Avslått
         Dagtype.AndreYtelser -> DagtypeKafkaDto.AndreYtelser
+        Dagtype.Behandlingsdag -> DagtypeKafkaDto.Behandlingsdag
     }
 
 fun Kilde?.tilKafkaDto(): KildeKafkaDto? =

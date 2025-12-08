@@ -15,6 +15,7 @@ enum class DagtypeKafkaDto {
     Permisjon,
     Avslått,
     AndreYtelser,
+    Behandlingsdag,
 }
 
 /**

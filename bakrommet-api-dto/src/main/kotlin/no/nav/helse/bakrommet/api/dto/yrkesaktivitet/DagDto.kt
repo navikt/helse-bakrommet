@@ -17,6 +17,7 @@ data class DagDto(
 enum class DagtypeDto {
     Syk,
     SykNav,
+    Behandlingsdag,
     Arbeidsdag,
     Ferie,
     Permisjon,

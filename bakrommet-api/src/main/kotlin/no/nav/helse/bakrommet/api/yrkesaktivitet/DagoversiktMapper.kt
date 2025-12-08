@@ -24,6 +24,7 @@ fun Dagtype.tilDagtypeDto(): DagtypeDto =
         Dagtype.Permisjon -> DagtypeDto.Permisjon
         Dagtype.Avslått -> DagtypeDto.Avslått
         Dagtype.AndreYtelser -> DagtypeDto.AndreYtelser
+        Dagtype.Behandlingsdag -> DagtypeDto.Behandlingsdag
     }
 
 fun DagDto.tilDag(): Dag =
@@ -51,4 +52,5 @@ fun DagtypeDto.tilDagtype(): Dagtype =
         DagtypeDto.Permisjon -> Dagtype.Permisjon
         DagtypeDto.Avslått -> Dagtype.Avslått
         DagtypeDto.AndreYtelser -> Dagtype.AndreYtelser
+        DagtypeDto.Behandlingsdag -> Dagtype.Behandlingsdag
     }
