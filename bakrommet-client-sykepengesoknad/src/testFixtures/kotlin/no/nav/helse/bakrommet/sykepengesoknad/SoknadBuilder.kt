@@ -26,6 +26,7 @@ class SoknadDsl(
     var sykmeldingstype: SykmeldingstypeDTO = SykmeldingstypeDTO.AKTIVITET_IKKE_MULIG
     var grad: Int = 100
     var sykmeldingsgrad: Int? = null
+    var valgteBehandlingsdager: List<LocalDate>? = null
 
     fun arbeidstaker(organisasjon: Organisasjon) {
         arbeidsgiverOrgnummer = organisasjon.orgnummer
@@ -34,7 +35,60 @@ class SoknadDsl(
         type = SoknadstypeDTO.ARBEIDSTAKERE
     }
 
+    fun medBehandlingsdager(vararg dager: LocalDate) {
+        valgteBehandlingsdager = dager.toList()
+    }
+
+    fun medBehandlingsdager(dager: List<LocalDate>) {
+        valgteBehandlingsdager = dager
+    }
+
+    fun medBehandlingsdagerSporsmal() {
+        val behandlingsdagerPerioder =
+            listOf(
+                SoknadsperiodeDTO(
+                    fom = fom,
+                    tom = tom,
+                    grad = grad,
+                    sykmeldingsgrad = sykmeldingsgrad ?: grad,
+                    faktiskGrad = null,
+                    sykmeldingstype = sykmeldingstype,
+                    avtaltTimer = null,
+                    faktiskTimer = null,
+                ),
+            ).filter { it.sykmeldingstype == SykmeldingstypeDTO.BEHANDLINGSDAGER }
+                .sortedBy { it.fom }
+
+        if (behandlingsdagerPerioder.isEmpty()) return
+
+        val behandlingsdagerSporsmal =
+            behandlingsdagerPerioder
+                .mapIndexed { index, periode ->
+                    val uker = splittPeriodeIUker(periode.fom!!, periode.tom!!)
+                    val sporsmalstekst =
+                        if (arbeidssituasjon == ArbeidssituasjonDTO.ARBEIDSLEDIG) {
+                            "Hvilke dager kunne du ikke være arbeidssøker på grunn av behandling mellom ${formatterPeriode(periode.fom!!, periode.tom!!)}?"
+                        } else {
+                            "Hvilke dager måtte du være helt borte fra jobben på grunn av behandling mellom ${formatterPeriode(periode.fom!!, periode.tom!!)}?"
+                        }
+
+                    SporsmalDTO(
+                        tag = "ENKELTSTAENDE_BEHANDLINGSDAGER_$index",
+                        sporsmalstekst = sporsmalstekst,
+                        svartype = SvartypeDTO.INFO_BEHANDLINGSDAGER,
+                        undersporsmal = skapUndersporsmalUke(uker, index, valgteBehandlingsdager),
+                    )
+                }
+
+        sporsmal = sporsmal + behandlingsdagerSporsmal
+    }
+
     fun build(): SykepengesoknadDTO {
+        // Legg automatisk til behandlingsdager-spørsmål hvis det finnes behandlingsdager-perioder
+        if (sykmeldingstype == SykmeldingstypeDTO.BEHANDLINGSDAGER) {
+            medBehandlingsdagerSporsmal()
+        }
+
         val sykmeldingSkrevetDato = sykmeldingSkrevet ?: fom
         val startSyketilfelleDato = startSyketilfelle ?: fom
         val opprettetDato = opprettet ?: fom
@@ -89,6 +143,7 @@ class SoknadDsl(
             dodsdato = null,
             friskmeldt = null,
             opprinneligSendt = null,
+            behandlingsdager = valgteBehandlingsdager,
         )
     }
 }
