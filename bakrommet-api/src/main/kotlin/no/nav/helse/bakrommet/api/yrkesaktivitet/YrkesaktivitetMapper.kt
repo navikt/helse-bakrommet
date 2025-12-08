@@ -1,8 +1,6 @@
 package no.nav.helse.bakrommet.api.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
@@ -22,27 +20,6 @@ fun YrkesaktivitetDbRecord.tilYrkesaktivitetDto(): YrkesaktivitetDto =
         inntektData = inntektData?.tilInntektDataDto(),
         refusjon = refusjon?.map { it.tilRefusjonsperiodeDto() },
     )
-
-fun Dag.tilDagDto(): DagDto =
-    DagDto(
-        dato = dato,
-        dagtype = dagtype.tilDagtypeDto(),
-        grad = grad,
-        avslåttBegrunnelse = avslåttBegrunnelse,
-        andreYtelserBegrunnelse = andreYtelserBegrunnelse,
-        kilde = kilde?.tilKildeDto(),
-    )
-
-fun Dagtype.tilDagtypeDto(): DagtypeDto =
-    when (this) {
-        Dagtype.Syk -> DagtypeDto.Syk
-        Dagtype.SykNav -> DagtypeDto.SykNav
-        Dagtype.Arbeidsdag -> DagtypeDto.Arbeidsdag
-        Dagtype.Ferie -> DagtypeDto.Ferie
-        Dagtype.Permisjon -> DagtypeDto.Permisjon
-        Dagtype.Avslått -> DagtypeDto.Avslått
-        Dagtype.AndreYtelser -> DagtypeDto.AndreYtelser
-    }
 
 fun Kilde.tilKildeDto(): KildeDto =
     when (this) {
@@ -73,5 +50,5 @@ fun Refusjonsperiode.tilRefusjonsperiodeDto(): RefusjonsperiodeDto =
     RefusjonsperiodeDto(
         fom = fom,
         tom = tom,
-        beløp = beløp.beløp.toDouble(),
+        beløp = beløp.beløp,
     )

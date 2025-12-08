@@ -65,7 +65,7 @@ fun Route.yrkesaktivitetRoute(
                 val request = call.receive<DagerSomSkalOppdateresDto>()
                 yrkesaktivitetService.oppdaterDagoversiktDager(
                     call.yrkesaktivitetReferanse(),
-                    request.dager.tilJsonNode(),
+                    request.dager.map { it.tilDag() },
                     call.saksbehandler(),
                 )
                 call.respond(HttpStatusCode.NoContent)
