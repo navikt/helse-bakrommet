@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykmeldingstypeDTO
 import no.nav.helse.oktober
 import no.nav.helse.september
@@ -65,6 +66,7 @@ val behandlingsdager =
                             arbeidstaker(plankeFabrikken)
                             id = søknadsid
                             status = SoknadsstatusDTO.SENDT
+                            type = SoknadstypeDTO.BEHANDLINGSDAGER
                             sykmeldingstype = SykmeldingstypeDTO.BEHANDLINGSDAGER
                             grad = 100
                             valgteBehandlingsdager = listOf(29.september(2025), 8.oktober(2025))

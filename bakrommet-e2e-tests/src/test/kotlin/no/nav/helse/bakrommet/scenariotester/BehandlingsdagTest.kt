@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.testutils.AInntekt
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Scenario
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykmeldingstypeDTO
 import no.nav.helse.juli
 import no.nav.helse.juni
@@ -31,6 +32,7 @@ class BehandlingsdagTest {
                         arbeidstaker(plankeFabrikken)
                         id = soknadId
                         status = SoknadsstatusDTO.SENDT
+                        type = SoknadstypeDTO.BEHANDLINGSDAGER
                         sykmeldingstype = SykmeldingstypeDTO.BEHANDLINGSDAGER
                         grad = 100
                         valgteBehandlingsdager = listOf(1.juni(2024), 13.juni(2024))
