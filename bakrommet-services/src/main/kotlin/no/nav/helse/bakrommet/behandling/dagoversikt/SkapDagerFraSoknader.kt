@@ -45,7 +45,7 @@ private fun oppdaterDagerMedSøknadsdata(
     // Legg til sykedager fra søknadsperioder
     søknad.soknadsperioder?.forEach { periode ->
         if (periode.sykmeldingstype == BEHANDLINGSDAGER) {
-            // Behandlingsdager skal ikke legges inn som sykedager
+            oppdaterDagerMedPeriode(dagerMap, periode, fom, tom, Dagtype.Arbeidsdag)
             return@forEach
         }
         oppdaterDagerMedPeriode(dagerMap, periode, fom, tom, Dagtype.Syk) {
