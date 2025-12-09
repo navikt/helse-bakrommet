@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
+import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
@@ -46,6 +47,7 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegru
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterInntekt
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterVilkårsvurdering
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
@@ -181,6 +183,7 @@ data class Scenario(
     val tom: LocalDate = ScenarioDefaults.tom,
     val besluttOgGodkjenn: Boolean = true,
     val soknader: List<SykepengesoknadDTO>? = null,
+    val vilkår: List<VilkaarsvurderingDto>? = null,
 ) {
     fun run(
         testBlock: ScenarioData.() -> Unit,
@@ -326,6 +329,13 @@ data class Scenario(
                 }
             }
 
+            vilkår?.forEach { vilkårDto ->
+                oppdaterVilkårsvurdering(
+                    personId = personId,
+                    periodeId = periode.id,
+                    vilkår = vilkårDto,
+                )
+            }
             // Hent sykepengegrunnlag via action
             val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
 

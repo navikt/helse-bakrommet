@@ -2,8 +2,11 @@ package no.nav.helse.bakrommet.behandling
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.BrukerOgToken
+import no.nav.helse.bakrommet.behandling.BehandlingStatus.GODKJENT
 import no.nav.helse.bakrommet.behandling.BehandlingStatus.REVURDERT
+import no.nav.helse.bakrommet.behandling.BehandlingStatus.TIL_BESLUTNING
 import no.nav.helse.bakrommet.behandling.BehandlingStatus.UNDER_BEHANDLING
+import no.nav.helse.bakrommet.behandling.BehandlingStatus.UNDER_BESLUTNING
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType.REVURDERING_STARTET
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
@@ -85,7 +88,17 @@ class BehandlingService(
                 throw InputValideringException("Angitte datoer overlapper med en eksisterende periode")
             }
 
-            tidligerePeriodeInntilNyPeriode = perioder.find { it.tom.plusDays(1).isEqual(fom) }
+            tidligerePeriodeInntilNyPeriode =
+                perioder
+                    .filter {
+                        it.status in
+                            listOf(
+                                UNDER_BEHANDLING, // TODO denne bør egentlig bort, vi bør også sikre kun 1 UNDER_BEHANDLING per person
+                                TIL_BESLUTNING,
+                                UNDER_BESLUTNING,
+                                GODKJENT,
+                            )
+                    }.find { it.tom.plusDays(1).isEqual(fom) }
 
             tidligerePeriodeInntilNyPeriode?.let {
                 nyPeriode =
@@ -102,6 +115,15 @@ class BehandlingService(
                     saksbehandler = saksbehandler.bruker,
                 ),
             )
+            tidligerePeriodeInntilNyPeriode?.let {
+                vurdertVilkårDao.hentVilkårsvurderinger(it.id).forEach { v ->
+                    vurdertVilkårDao.leggTil(
+                        nyPeriode,
+                        Kode(v.kode),
+                        v.vurdering,
+                    )
+                }
+            }
             leggTilOutbox(nyPeriode)
         }
 
@@ -169,9 +191,9 @@ class BehandlingService(
                     fun Behandling.harAlleredeBeslutter() = this.beslutterNavIdent != null
                     val nyStatus =
                         if (periode.harAlleredeBeslutter()) {
-                            BehandlingStatus.UNDER_BESLUTNING
+                            UNDER_BESLUTNING
                         } else {
-                            BehandlingStatus.TIL_BESLUTNING
+                            TIL_BESLUTNING
                         }
                     periode.verifiserNyStatusGyldighet(nyStatus)
                     dao.endreStatusOgIndividuellBegrunnelse(periode, nyStatus = nyStatus, individuellBegrunnelse)
@@ -192,7 +214,7 @@ class BehandlingService(
     ): Behandling =
         db.transactional {
             val forrigePeriode = behandlingDao.hentPeriode(periodeRef, null, måVæreUnderBehandling = false)
-            if (forrigePeriode.status != BehandlingStatus.GODKJENT) {
+            if (forrigePeriode.status != GODKJENT) {
                 throw InputValideringException("Kun godkjente perioder kan revurderes")
             }
             // TODO sjekke at ingen andre revurderer den? Eller bare stole på unique constraint i db?
@@ -287,7 +309,7 @@ class BehandlingService(
         db.transactional {
             val periode = behandlingDao.hentPeriode(periodeRef, krav = null, måVæreUnderBehandling = false)
             // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
-            val nyStatus = BehandlingStatus.UNDER_BESLUTNING
+            val nyStatus = UNDER_BESLUTNING
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatusOgBeslutter(
                 periode,
@@ -310,7 +332,12 @@ class BehandlingService(
         kommentar: String,
     ): Behandling =
         db.transactional {
-            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken(), måVæreUnderBehandling = false)
+            val periode =
+                behandlingDao.hentPeriode(
+                    periodeRef,
+                    krav = saksbehandler.erBeslutterPåSaken(),
+                    måVæreUnderBehandling = false,
+                )
             val nyStatus = UNDER_BEHANDLING
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatus(
@@ -333,8 +360,13 @@ class BehandlingService(
         saksbehandler: Bruker,
     ): Behandling {
         return db.transactional {
-            val periode = behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erBeslutterPåSaken(), måVæreUnderBehandling = false)
-            val nyStatus = BehandlingStatus.GODKJENT
+            val periode =
+                behandlingDao.hentPeriode(
+                    periodeRef,
+                    krav = saksbehandler.erBeslutterPåSaken(),
+                    måVæreUnderBehandling = false,
+                )
+            val nyStatus = GODKJENT
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatusOgBeslutter(
                 periode,
