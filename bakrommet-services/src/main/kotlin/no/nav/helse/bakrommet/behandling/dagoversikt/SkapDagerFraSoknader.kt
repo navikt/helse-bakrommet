@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.behandling.dagoversikt
 
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SykmeldingstypeDTO.BEHANDLINGSDAGER
 import java.time.LocalDate
 
 fun skapDagoversiktFraSoknader(
@@ -43,11 +44,26 @@ private fun oppdaterDagerMedSøknadsdata(
 
     // Legg til sykedager fra søknadsperioder
     søknad.soknadsperioder?.forEach { periode ->
+        if (periode.sykmeldingstype == BEHANDLINGSDAGER) {
+            // Behandlingsdager skal ikke legges inn som sykedager
+            return@forEach
+        }
         oppdaterDagerMedPeriode(dagerMap, periode, fom, tom, Dagtype.Syk) {
             periode.faktiskGrad?.let { 100 - it } ?: periode.grad ?: periode.sykmeldingsgrad
         }
     }
 
+    søknad.behandlingsdager?.forEach { dag ->
+        val eksisterendeDag = dagerMap[dag]
+        if (eksisterendeDag != null) {
+            dagerMap[dag] =
+                eksisterendeDag.copy(
+                    dagtype = Dagtype.Behandlingsdag,
+                    grad = null,
+                    kilde = Kilde.Søknad,
+                )
+        }
+    }
     // Legg til permisjon fra fraværslisten
     søknad.fravar?.filter { it.type == FravarstypeDTO.PERMISJON }?.forEach { fravær ->
         oppdaterDagerMedFravær(dagerMap, fravær, fom, tom, Dagtype.Permisjon)
