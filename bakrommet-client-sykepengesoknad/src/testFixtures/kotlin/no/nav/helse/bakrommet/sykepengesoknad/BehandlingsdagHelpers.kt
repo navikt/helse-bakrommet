@@ -62,13 +62,38 @@ internal fun splittPeriodeIUker(
     }
 
     val uker = mutableListOf<Uke>()
-    var ukestart = fom.forsteHverdag()
+    // Start fra første hverdag i uken som inneholder fom, men ikke tidligere enn fom
+    var ukestart = maxOf(fom, fom.forsteHverdag())
+    var maksIterasjoner = 1000 // Sikkerhet mot evig loop
 
-    do {
+    while (ukestart <= tom && maksIterasjoner > 0) {
         val ukeslutt = min(ukestart.fredagISammeUke(), tom)
-        uker.add(Uke(ukestart, ukeslutt))
-        ukestart = ukeslutt.plusDays(1).forsteHverdag()
-    } while (!tom.isBefore(ukestart))
+
+        // Kun legg til uke hvis den overlapper med perioden
+        if (ukestart <= tom && ukeslutt >= fom) {
+            uker.add(Uke(ukestart, ukeslutt))
+        }
+
+        // Hvis ukeslutt er tom eller etter tom, er vi ferdig
+        if (ukeslutt >= tom) {
+            break
+        }
+
+        // Gå til neste mandag (alltid fremover i tid)
+        val nesteMandag = ukeslutt.nesteMandag()
+
+        // Sikkerhet: sjekk at vi faktisk beveger oss fremover
+        if (nesteMandag <= ukestart) {
+            throw IllegalStateException("Evig loop detektert: nesteMandag ($nesteMandag) er ikke etter ukestart ($ukestart). fom=$fom, tom=$tom, ukeslutt=$ukeslutt")
+        }
+
+        ukestart = nesteMandag
+        maksIterasjoner--
+    }
+
+    if (maksIterasjoner == 0) {
+        throw IllegalStateException("Maksimalt antall iterasjoner nådd i splittPeriodeIUker. fom=$fom, tom=$tom")
+    }
 
     return uker
 }
@@ -82,6 +107,17 @@ internal fun LocalDate.forsteHverdag(): LocalDate =
         DayOfWeek.FRIDAY -> minusDays(4)
         DayOfWeek.SATURDAY -> minusDays(5)
         DayOfWeek.SUNDAY -> minusDays(6)
+    }
+
+internal fun LocalDate.nesteMandag(): LocalDate =
+    when (dayOfWeek) {
+        DayOfWeek.MONDAY -> plusDays(7)
+        DayOfWeek.TUESDAY -> plusDays(6)
+        DayOfWeek.WEDNESDAY -> plusDays(5)
+        DayOfWeek.THURSDAY -> plusDays(4)
+        DayOfWeek.FRIDAY -> plusDays(3)
+        DayOfWeek.SATURDAY -> plusDays(2)
+        DayOfWeek.SUNDAY -> plusDays(1)
     }
 
 internal fun LocalDate.fredagISammeUke(): LocalDate =

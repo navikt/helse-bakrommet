@@ -13,4 +13,5 @@ val alleScenarioer =
         forlengelseMedNyJobbOgRefusjon,
         jobbskifteInaktiv3uker,
         jobbskifteInaktivSykmeldt,
+        behandlingsdager,
     )
