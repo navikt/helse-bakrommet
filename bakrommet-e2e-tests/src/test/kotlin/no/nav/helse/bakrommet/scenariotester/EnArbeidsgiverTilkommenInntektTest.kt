@@ -20,9 +20,6 @@ class EnArbeidsgiverTilkommenInntektTest {
     @Test
     fun `tilkommen midt utti en vanlig sak`() {
         Scenario(
-            fom = 1.januar(2021),
-            tom = 10.januar(2021),
-            besluttOgGodkjenn = false,
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
@@ -31,6 +28,9 @@ class EnArbeidsgiverTilkommenInntektTest {
                         dagoversikt = SykAlleDager(),
                     ),
                 ),
+            fom = 1.januar(2021),
+            tom = 10.januar(2021),
+            besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder { førsteBehandling ->
             førsteBehandling.`skal ha direkteutbetaling`(6000)
 

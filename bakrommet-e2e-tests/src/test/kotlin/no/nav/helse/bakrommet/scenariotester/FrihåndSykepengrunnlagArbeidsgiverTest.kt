@@ -16,9 +16,6 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
     @Test
     fun `frihånd sykepengegrunnlag`() {
         Scenario(
-            fom = 1.januar(2021),
-            tom = 10.januar(2021),
-            besluttOgGodkjenn = false,
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
@@ -27,6 +24,9 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
                         dagoversikt = SykAlleDager(),
                     ),
                 ),
+            fom = 1.januar(2021),
+            tom = 10.januar(2021),
+            besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
             val personId = førsteBehandling.scenario.personId

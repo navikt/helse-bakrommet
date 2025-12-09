@@ -6,7 +6,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentAllePerioder
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
@@ -28,7 +28,7 @@ class SaksbehandlingsperiodeTest {
 
             // Opprett saksbehandlingsperiode via action
             val saksbehandlingsperiode =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     personId,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),

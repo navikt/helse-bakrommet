@@ -11,14 +11,13 @@ import no.nav.helse.bakrommet.testutils.SykAlleDager
 import no.nav.helse.bakrommet.testutils.lagSykedager
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settRefusjon
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
-import java.util.UUID
 
 class ArbeidsgiverForlengelseNyArbeidsgiverTest {
     @Test
@@ -52,10 +51,10 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
             val fom = forrigePeriode.tom.plusDays(1)
             val tom = forrigePeriode.tom.plusDays(14)
             val nestePeriode =
-                opprettSaksbehandlingsperiode(personId, fom, tom)
+                opprettBehandling(personId, fom, tom)
 
             hentYrkesaktiviteter(personId, nestePeriode.id).first().also {
-                slettYrkesaktivitet(personId, nestePeriode.id, UUID.fromString(it.id))
+                slettYrkesaktivitet(personId, nestePeriode.id, it.id)
             }
             val nyYrkesaktivitet =
                 opprettYrkesaktivitet(

@@ -10,11 +10,10 @@ import no.nav.helse.bakrommet.testutils.SykAlleDager
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterInntekt
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
-import java.util.UUID
 import kotlin.test.assertEquals
 
 class ArbeidsgiverForlengelseTest {
@@ -28,7 +27,7 @@ class ArbeidsgiverForlengelseTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode
             val personId = førsteBehandling.scenario.personId
-            val periode = opprettSaksbehandlingsperiode(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
+            val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
             val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
 
             assertEquals(førsteBehandling.sykepengegrunnlag, sykepengegrunnlag!!.sykepengegrunnlag)
@@ -46,14 +45,14 @@ class ArbeidsgiverForlengelseTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode
             val personId = førsteBehandling.scenario.personId
-            val periode = opprettSaksbehandlingsperiode(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
+            val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
 
             val yaer = hentYrkesaktiviteter(personId, periode.id)
             val ya = yaer.first()
             oppdaterInntekt(
                 personId = personId,
                 periodeId = periode.id,
-                yrkesaktivitetId = UUID.fromString(ya.id),
+                yrkesaktivitetId = ya.id,
                 inntektRequest =
                     InntektRequestDto.Arbeidstaker(
                         data = ArbeidstakerInntektRequestDto.Ainntekt(begrunnelse = "test"),
@@ -73,7 +72,7 @@ class ArbeidsgiverForlengelseTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode
             val personId = førsteBehandling.scenario.personId
-            val periode = opprettSaksbehandlingsperiode(personId, forrigePeriode.tom.plusDays(2), forrigePeriode.tom.plusDays(14))
+            val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(2), forrigePeriode.tom.plusDays(14))
             val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
 
             assertNotEquals(førsteBehandling.sykepengegrunnlag, sykepengegrunnlag?.sykepengegrunnlag)

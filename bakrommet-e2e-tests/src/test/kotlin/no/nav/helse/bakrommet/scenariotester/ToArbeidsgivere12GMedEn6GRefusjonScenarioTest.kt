@@ -4,7 +4,6 @@ import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.testutils.*
 import kotlin.test.Test
-import kotlin.time.times
 
 class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
     @Test

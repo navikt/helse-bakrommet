@@ -2,12 +2,11 @@ package no.nav.helse.bakrommet.api.behandling
 
 import io.ktor.http.*
 import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.PARAM_PERIODEUUID
 import no.nav.helse.bakrommet.PARAM_PERSONID
-import no.nav.helse.bakrommet.api.dto.behandling.CreatePeriodeRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.OppdaterSkjæringstidspunktRequestDto
+import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.SendTilBeslutningRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.SendTilbakeRequestDto
 import no.nav.helse.bakrommet.api.serde.respondJson
@@ -16,16 +15,9 @@ import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.behandling.periodeReferanse
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.periodeUUID
 import no.nav.helse.bakrommet.personId
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.LocalDate
-
-fun RoutingCall.periodeReferanse() =
-    no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse(
-        spilleromPersonId = personId(),
-        periodeUUID = periodeUUID(),
-    )
 
 fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/behandlinger") {
@@ -36,21 +28,19 @@ fun Route.behandlingRoute(service: BehandlingService) {
     }
 
     route("/v1/{$PARAM_PERSONID}/behandlinger") {
-        /** Opprett en ny periode */
         post {
-            val body = call.receive<CreatePeriodeRequestDto>()
+            val body = call.receive<OpprettBehandlingRequestDto>()
             val nyPeriode =
-                service.opprettNySaksbehandlingsperiode(
+                service.opprettNyBehandling(
                     spilleromPersonId = call.personId(),
-                    fom = LocalDate.parse(body.fom),
-                    tom = LocalDate.parse(body.tom),
+                    fom = body.fom,
+                    tom = body.tom,
                     søknader = body.søknader?.toSet() ?: emptySet(),
                     saksbehandler = call.saksbehandlerOgToken(),
                 )
             call.respondJson(nyPeriode.tilBehandlingDto(), status = HttpStatusCode.Created)
         }
 
-        /** Hent alle perioder for en person */
         get {
             service.finnPerioderForPerson(call.personId()).let { perioder ->
                 call.respondJson(perioder.map { it.tilBehandlingDto() })

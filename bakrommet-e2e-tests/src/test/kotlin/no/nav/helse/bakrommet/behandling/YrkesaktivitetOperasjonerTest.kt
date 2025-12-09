@@ -66,7 +66,7 @@ class YrkesaktivitetOperasjonerTest {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .let { UUID.fromString(it.id) }
+                    .id
 
             val oppdateringer =
                 """
@@ -174,7 +174,7 @@ class YrkesaktivitetOperasjonerTest {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .let { UUID.fromString(it.id) }
+                    .id
 
             // Oppdater dagoversikt med nytt format (objekt med dager og notat)
             val oppdateringer = """{
@@ -279,7 +279,7 @@ class YrkesaktivitetOperasjonerTest {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .let { UUID.fromString(it.id) }
+                    .id
 
             // Oppdater perioder med ARBEIDSGIVERPERIODE
             val perioder = """{
@@ -426,7 +426,7 @@ class YrkesaktivitetOperasjonerTest {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .let { UUID.fromString(it.id) }
+                    .id
 
             // Hent inntektsmeldinger for yrkesaktivitet
             val response =
@@ -528,7 +528,7 @@ class YrkesaktivitetOperasjonerTest {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
                     .first()
-                    .let { UUID.fromString(it.id) }
+                    .id
 
             // Hent inntektsmeldinger for yrkesaktivitet
             val response =

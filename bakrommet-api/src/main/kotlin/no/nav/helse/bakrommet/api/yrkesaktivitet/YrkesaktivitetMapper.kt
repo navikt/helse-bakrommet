@@ -11,10 +11,10 @@ import no.nav.helse.dto.PeriodeDto as SpleisPeriodeDto
 
 fun YrkesaktivitetDbRecord.tilYrkesaktivitetDto(): YrkesaktivitetDto =
     YrkesaktivitetDto(
-        id = id.toString(),
+        id = id,
         kategorisering = kategorisering.tilYrkesaktivitetKategoriseringDto(),
         dagoversikt = dagoversikt?.map { it.tilDagDto() },
-        generertFraDokumenter = generertFraDokumenter.map { it.toString() },
+        generertFraDokumenter = generertFraDokumenter.map { it },
         perioder = perioder?.tilPerioderDto(),
         inntektRequest = inntektRequest?.tilInntektRequestDto(),
         inntektData = inntektData?.tilInntektDataDto(),

@@ -1,12 +1,13 @@
 package no.nav.helse.bakrommet.api.dto.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.interfaces.ApiResponse
+import java.util.UUID
 
 data class YrkesaktivitetDto(
-    val id: String, // UUID som String
+    val id: UUID,
     val kategorisering: YrkesaktivitetKategoriseringDto,
     val dagoversikt: List<DagDto>?,
-    val generertFraDokumenter: List<String>, // List<UUID> som List<String>
+    val generertFraDokumenter: List<UUID>,
     val perioder: PerioderDto?,
     val inntektRequest: InntektRequestDto?,
     val inntektData: InntektDataDto?,

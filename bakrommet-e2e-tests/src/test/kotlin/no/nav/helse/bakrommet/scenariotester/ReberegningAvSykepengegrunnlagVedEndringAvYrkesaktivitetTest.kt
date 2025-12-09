@@ -4,9 +4,8 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriserin
 import no.nav.helse.bakrommet.testutils.*
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
-import java.util.UUID
 import kotlin.test.Test
 
 class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
@@ -44,7 +43,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             }.let { yrkesaktivitet777 ->
                 slettYrkesaktivitet(
                     periodeId = it.periode.id,
-                    yrkesaktivitetId = UUID.fromString(yrkesaktivitet777.id),
+                    yrkesaktivitetId = yrkesaktivitet777.id,
                     personId = it.scenario.personId,
                 )
             }
@@ -67,7 +66,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder {
             val nyPeriode =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     personId = it.scenario.personId,
                     fom = it.periode.tom.plusDays(1),
                     tom = it.periode.tom.plusDays(14),
@@ -98,7 +97,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             }.let { yrkesaktivitet777 ->
                 slettYrkesaktivitet(
                     periodeId = nyPeriode.id,
-                    yrkesaktivitetId = UUID.fromString(yrkesaktivitet777.id),
+                    yrkesaktivitetId = yrkesaktivitet777.id,
                     personId = it.scenario.personId,
                 )
             }

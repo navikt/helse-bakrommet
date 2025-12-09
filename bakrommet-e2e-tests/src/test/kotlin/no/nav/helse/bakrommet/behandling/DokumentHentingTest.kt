@@ -13,7 +13,7 @@ import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sigrun.client2010to2050
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -37,7 +37,7 @@ class DokumentHentingTest {
 
             // Opprett saksbehandlingsperiode via action
             val periode =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     PERSON_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
@@ -81,7 +81,7 @@ class DokumentHentingTest {
 
             // Opprett saksbehandlingsperiode via action
             val periode =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     personIdForbidden,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
@@ -133,7 +133,7 @@ class DokumentHentingTest {
 
             // Opprett saksbehandlingsperiode via action
             val periode =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     PERSON_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
@@ -174,7 +174,7 @@ class DokumentHentingTest {
 
             // Opprett saksbehandlingsperiode via action
             val periode =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     personIdForbidden,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
@@ -204,7 +204,7 @@ class DokumentHentingTest {
 
             // Opprett saksbehandlingsperiode via action
             val periode =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     PERSON_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),

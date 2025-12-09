@@ -115,3 +115,17 @@ sealed class YrkesaktivitetKategoriseringDto {
         val sykmeldt: Boolean = true,
     ) : YrkesaktivitetKategoriseringDto()
 }
+
+fun YrkesaktivitetKategoriseringDto.maybeOrgnummer(): String? =
+    when (this) {
+        is YrkesaktivitetKategoriseringDto.Arbeidstaker ->
+            when (val type = this.typeArbeidstaker) {
+                is TypeArbeidstakerDto.Ordinær -> type.orgnummer
+                is TypeArbeidstakerDto.Maritim -> type.orgnummer
+                is TypeArbeidstakerDto.Fisker -> type.orgnummer
+                else -> null
+            }
+
+        is YrkesaktivitetKategoriseringDto.Frilanser -> this.orgnummer
+        else -> null
+    }

@@ -54,7 +54,7 @@ class BehandlingService(
 
     suspend fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { behandlingDao.hentPeriode(ref, krav = null) }
 
-    suspend fun opprettNySaksbehandlingsperiode(
+    suspend fun opprettNyBehandling(
         spilleromPersonId: SpilleromPersonId,
         fom: LocalDate,
         tom: LocalDate,

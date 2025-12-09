@@ -6,7 +6,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilbake
 import no.nav.helse.bakrommet.testutils.`should equal`
@@ -36,7 +36,7 @@ class SaksbehandlingsperiodeStatusTest {
 
             // Opprett saksbehandlingsperiode via action
             val periodeOpprinnelig =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     personId,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),

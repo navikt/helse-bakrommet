@@ -14,7 +14,6 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutnin
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Test
-import java.util.UUID
 
 class RevurderingTest {
     @Test
@@ -44,7 +43,7 @@ class RevurderingTest {
             settDagoversikt(
                 personId = personId,
                 periodeId = revurderendePeriode.id,
-                yrkesaktivitetId = UUID.fromString(yrkesaktivitet.id),
+                yrkesaktivitetId = yrkesaktivitet.id,
                 dager = lagSykedager(fom = revurderendePeriode.fom, tom = revurderendePeriode.tom, grad = 50),
             )
             sendTilBeslutning(

@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.Inntekt
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
+import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
@@ -20,6 +21,7 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PensjonsgivendeInntektReque
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.maybeOrgnummer
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
@@ -36,6 +38,7 @@ import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.sigrun.sigrunÅr
+import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock
 import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentAllePerioder
@@ -43,10 +46,11 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegru
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterInntekt
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.mai
 import no.nav.helse.utbetalingslinjer.Klassekode
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -98,6 +102,19 @@ data class ScenarioData(
                 ?.sumOf { it.totalbeløp } ?: 0
 
         assertEquals(beløp, nettoDirekte, "Feil direkteutbetaling i oppdraget")
+    }
+
+    fun `skal ha dagtype`(
+        expectedDagtype: DagtypeDto,
+        dato: LocalDate,
+    ) {
+        val dagoversikt =
+            yrkesaktiviteter
+                .flatMap { it.dagoversikt ?: emptyList() }
+        val dag = dagoversikt.firstOrNull { it.dato == dato }
+
+        assertTrue(dag != null, "Fant ikke dag for dato $dato")
+        assertEquals(expectedDagtype, dag!!.dagtype, "Feil dagtype for dato $dato, forventet $expectedDagtype, fikk ${dag.dagtype}")
     }
 
     fun `skal ha klassekode`(klassekode: Klassekode) {
@@ -163,6 +180,7 @@ data class Scenario(
     val fom: LocalDate = ScenarioDefaults.fom,
     val tom: LocalDate = ScenarioDefaults.tom,
     val besluttOgGodkjenn: Boolean = true,
+    val soknader: List<SykepengesoknadDTO>? = null,
 ) {
     fun run(
         testBlock: ScenarioData.() -> Unit,
@@ -202,6 +220,12 @@ data class Scenario(
                 .firstOrNull() ?: emptyMap()
 
         runApplicationTest(
+            sykepengesoknadBackendClient =
+                SykepengesoknadBackendMock.sykepengesoknadMock(
+                    configuration = TestOppsett.configuration.sykepengesoknadBackend,
+                    oboClient = TestOppsett.oboClient,
+                    fnrTilSoknader = mapOf(fnr to (soknader ?: emptyList())),
+                ),
             inntektsmeldingClient =
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
                     configuration = TestOppsett.configuration.inntektsmelding,
@@ -221,7 +245,15 @@ data class Scenario(
         ) { daoer ->
             daoer.personDao.opprettPerson(fnr, personId)
 
-            val periode = opprettSaksbehandlingsperiode(personId, fom, tom)
+            val periode =
+                opprettBehandling(
+                    personId,
+                    OpprettBehandlingRequestDto(
+                        fom = fom,
+                        tom = tom,
+                        søknader = soknader?.map { UUID.fromString(it.id) },
+                    ),
+                )
             val beslutterToken = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
 
             if (skjæringstidspunkt != fom) {
@@ -233,28 +265,46 @@ data class Scenario(
                 yrkesaktiviteter.map { ya ->
                     ya to
                         when (ya) {
-                            is Arbeidstaker ->
-                                opprettYrkesaktivitet(
-                                    personId = personId,
-                                    periode.id,
-                                    YrkesaktivitetKategorisering.Arbeidstaker(
-                                        sykmeldt = true,
-                                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = ya.orgnr),
-                                    ),
-                                )
+                            is Arbeidstaker -> {
+                                // sjekk om vi har en som passer fra før
+                                val eksisterendeYa =
+                                    hentYrkesaktiviteter(personId, periode.id)
+                                        .filter {
+                                            it.kategorisering is YrkesaktivitetKategoriseringDto.Arbeidstaker
+                                        }.firstOrNull { it.kategorisering.maybeOrgnummer() == ya.orgnr }
 
-                            is Selvstendig ->
-                                opprettYrkesaktivitet(
-                                    personId = personId,
-                                    periode.id,
-                                    YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
-                                        sykmeldt = true,
-                                        typeSelvstendigNæringsdrivende =
-                                            TypeSelvstendigNæringsdrivende.Ordinær(
-                                                forsikring = ya.forsikring,
-                                            ),
-                                    ),
-                                )
+                                eksisterendeYa?.id
+                                    ?: opprettYrkesaktivitet(
+                                        personId = personId,
+                                        periode.id,
+                                        YrkesaktivitetKategorisering.Arbeidstaker(
+                                            sykmeldt = true,
+                                            typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = ya.orgnr),
+                                        ),
+                                    )
+                            }
+
+                            is Selvstendig -> {
+                                // sjekk om vi har en som passer fra før
+                                val eksisterendeYa =
+                                    hentYrkesaktiviteter(personId, periode.id)
+                                        .firstOrNull {
+                                            it.kategorisering is YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende
+                                        }
+
+                                eksisterendeYa?.id
+                                    ?: opprettYrkesaktivitet(
+                                        personId = personId,
+                                        periode.id,
+                                        YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+                                            sykmeldt = true,
+                                            typeSelvstendigNæringsdrivende =
+                                                TypeSelvstendigNæringsdrivende.Ordinær(
+                                                    forsikring = ya.forsikring,
+                                                ),
+                                        ),
+                                    )
+                            }
                         }
                 }
 

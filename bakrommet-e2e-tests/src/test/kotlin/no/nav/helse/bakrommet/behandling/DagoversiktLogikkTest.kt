@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettSaksbehandlingsperiode
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ class DagoversiktLogikkTest {
 
             // Test med februar (kortere måned) via action
             val periode =
-                opprettSaksbehandlingsperiode(
+                opprettBehandling(
                     PERSON_ID,
                     LocalDate.parse("2023-02-01"),
                     LocalDate.parse("2023-02-28"),

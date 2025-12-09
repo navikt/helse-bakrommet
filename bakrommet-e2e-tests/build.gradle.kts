@@ -41,5 +41,6 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-client-aareg")))
     testImplementation(testFixtures(project(":bakrommet-client-ereg")))
     testImplementation(testFixtures(project(":bakrommet-client-sigrun")))
+    testImplementation(testFixtures(project(":bakrommet-client-sykepengesoknad")))
     testImplementation(testFixtures(project(":bakrommet-client-pdl")))
 }

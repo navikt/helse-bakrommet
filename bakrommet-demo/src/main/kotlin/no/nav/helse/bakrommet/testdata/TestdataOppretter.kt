@@ -42,7 +42,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                 val søknadUUIDer = periode.søknadIder.toSet()
 
                 val nySaksbehandlingsperiode =
-                    this.behandlingService.opprettNySaksbehandlingsperiode(
+                    this.behandlingService.opprettNyBehandling(
                         id = faker.random.nextUUID().somGyldigUUID(),
                         spilleromPersonId = SpilleromPersonId(testperson.spilleromId),
                         fom = periode.fom,

@@ -54,16 +54,9 @@ private fun oppdaterDagerMedSøknadsdata(
     }
 
     søknad.behandlingsdager?.forEach { dag ->
-        val eksisterendeDag = dagerMap[dag]
-        if (eksisterendeDag != null) {
-            dagerMap[dag] =
-                eksisterendeDag.copy(
-                    dagtype = Dagtype.Behandlingsdag,
-                    grad = null,
-                    kilde = Kilde.Søknad,
-                )
-        }
+        oppdaterDagerIIntervall(dagerMap, dag, dag, Dagtype.Behandlingsdag)
     }
+
     // Legg til permisjon fra fraværslisten
     søknad.fravar?.filter { it.type == FravarstypeDTO.PERMISJON }?.forEach { fravær ->
         oppdaterDagerMedFravær(dagerMap, fravær, fom, tom, Dagtype.Permisjon)
