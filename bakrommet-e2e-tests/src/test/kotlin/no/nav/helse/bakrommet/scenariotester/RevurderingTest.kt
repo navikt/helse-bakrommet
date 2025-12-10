@@ -27,7 +27,7 @@ class RevurderingTest {
             val forsteOppdrag = scenarioData.utbetalingsberegning!!.beregningData.spilleromOppdrag
             val personId = scenarioData.scenario.pseudoId
 
-            val revurderendePeriode = revurder(scenarioData.periode)
+            val revurderendePeriode = revurder(personId, scenarioData.periode.id)
             revurderendePeriode.revurdererSaksbehandlingsperiodeId `should equal` scenarioData.periode.id
 
             forsteOppdrag.oppdrag.size `should equal` 1
@@ -51,8 +51,8 @@ class RevurderingTest {
                 personId = personId,
                 individuellBegrunnelse = "Revurdering med lavere grad",
             )
-            taTilBesluting(revurderendePeriode, token = scenarioData.beslutterToken)
-            godkjenn(revurderendePeriode, token = scenarioData.beslutterToken)
+            taTilBesluting(personId,revurderendePeriode.id, token = scenarioData.beslutterToken)
+            godkjenn(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
 
             val utbetalingKafkaMeldinger =
                 scenarioData.daoer.outboxDao

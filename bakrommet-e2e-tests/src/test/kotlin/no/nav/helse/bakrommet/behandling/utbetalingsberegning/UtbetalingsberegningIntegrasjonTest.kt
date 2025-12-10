@@ -99,10 +99,10 @@ class UtbetalingsberegningIntegrasjonTest {
             // Verifiser resultatet
             verifiserBeregning(beregning!!)
 
-            sendTilBeslutning(periode)
-            taTilBesluting(periode, tokenBeslutter)
+            sendTilBeslutning(PERSON_PSEUDO_ID, periode.id)
+            taTilBesluting(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
 
-            godkjenn(periode, tokenBeslutter)
+            godkjenn(PERSON_PSEUDO_ID,  periode.id, tokenBeslutter)
             val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()
             upubliserteEntries.size `should equal` 4
 

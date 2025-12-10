@@ -46,7 +46,7 @@ class SaksbehandlingsperiodeTest {
             // Hent alle perioder via action
             val perioder = hentAllePerioder(personPseudoId)
             perioder.size `should equal` 1
-            perioder.map { it.tilBehandlingDto() } `should equal` listOf(saksbehandlingsperiode)
+            perioder `should equal` listOf(saksbehandlingsperiode)
             println(perioder)
         }
 

@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.Inntekt
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
@@ -74,7 +75,7 @@ object ScenarioDefaults {
 
 data class ScenarioData(
     val scenario: Scenario,
-    val periode: Behandling,
+    val periode: BehandlingDto,
     val sykepengegrunnlag: SykepengegrunnlagBase?,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     val yrkesaktiviteter: List<YrkesaktivitetDto>,
@@ -178,7 +179,7 @@ infix fun YrkesaktivitetDto.harBeregningskode(expectedKode: BeregningskoderSykep
 data class Scenario(
     val yrkesaktiviteter: List<YA>,
     val fnr: String = "01019011111",
-    val pseudoId: UUID = UUID.fromString("wseadrfgh"),
+    val pseudoId: UUID = UUID.nameUUIDFromBytes("wseadrfgh".toByteArray()),
     val skjæringstidspunkt: LocalDate = ScenarioDefaults.skjæringstidspunkt,
     val fom: LocalDate = ScenarioDefaults.fom,
     val tom: LocalDate = ScenarioDefaults.tom,
@@ -344,9 +345,9 @@ data class Scenario(
             val yrkesaktiviteter = hentYrkesaktiviteter(pseudoId, periode.id)
             val reloadedPeriode = hentAllePerioder(pseudoId).first { it.id == periode.id }
             if (besluttOgGodkjenn) {
-                sendTilBeslutning(reloadedPeriode)
-                taTilBesluting(reloadedPeriode, beslutterToken)
-                godkjenn(reloadedPeriode, beslutterToken)
+                sendTilBeslutning(pseudoId, reloadedPeriode.id)
+                taTilBesluting(pseudoId, reloadedPeriode.id, beslutterToken)
+                godkjenn(pseudoId, reloadedPeriode.id, beslutterToken)
             }
             if (testBlock != null) {
                 testBlock.invoke(
