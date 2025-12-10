@@ -1,9 +1,7 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.bakrommet.api.dto.tidslinje.BehandlingStatusV1Dto
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
-import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.kafka.OutboxDbRecord
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.taTilBesluting
@@ -53,7 +51,7 @@ class RevurderingTest {
                 personId = personId,
                 individuellBegrunnelse = "Revurdering med lavere grad",
             )
-            taTilBesluting(personId,revurderendePeriode.id, token = scenarioData.beslutterToken)
+            taTilBesluting(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
             godkjenn(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
 
             val utbetalingKafkaMeldinger =

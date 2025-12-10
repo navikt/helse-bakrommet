@@ -11,7 +11,6 @@ internal class PersonDaoTest {
     val db = MedDataSource(TestDataSource.dbModule.dataSource)
     private val personDao = PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource)
 
-
     @Test
     fun `returnerer spillerom-ID for kjent person-ID`() {
         val fnr = "12121299999"
@@ -20,8 +19,6 @@ internal class PersonDaoTest {
         assertEquals(pseudoId, personDao.finnPseudoID(fnr.somNaturligIdent()))
     }
 
-
-
     @Test
     fun `kan finne naturlig ident fra pseudo id`() {
         val fnr = "12121255888"
@@ -29,7 +26,6 @@ internal class PersonDaoTest {
         val pseudoId = UUID.randomUUID()
         opprettTestdata(fnr, pseudoId)
         assertEquals(fnr, personDao.finnNaturligIdent(pseudoId)!!.naturligIdent)
-
     }
 
     @Test

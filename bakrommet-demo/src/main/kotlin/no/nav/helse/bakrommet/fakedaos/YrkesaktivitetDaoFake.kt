@@ -56,9 +56,8 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
     override fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet> = storage.values.filter { it.saksbehandlingsperiodeId == periode.id }.map { it.tilYrkesaktivitet() }
 
     override fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord> = hentYrkesaktiviteterDbRecord(periode.id)
-    override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> {
-        return storage.values.filter { it.saksbehandlingsperiodeId == behandlingId }
-    }
+
+    override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> = storage.values.filter { it.saksbehandlingsperiodeId == behandlingId }
 
     override fun oppdaterKategoriseringOgSlettInntektData(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,

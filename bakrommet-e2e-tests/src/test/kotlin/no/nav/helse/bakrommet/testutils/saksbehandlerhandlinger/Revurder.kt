@@ -20,7 +20,7 @@ suspend fun ApplicationTestBuilder.revurder(
 ): BehandlingDto {
     val response =
         this.client.post(
-            "/v1/${pseudoId}/behandlinger/${behandlingId}/revurder",
+            "/v1/$pseudoId/behandlinger/$behandlingId/revurder",
         ) {
             bearerAuth(token)
             contentType(ContentType.Application.Json)

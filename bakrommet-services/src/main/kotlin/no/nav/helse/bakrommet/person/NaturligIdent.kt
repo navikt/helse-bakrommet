@@ -12,8 +12,4 @@ data class NaturligIdent(
     override fun toString() = naturligIdent
 }
 
-
-
- fun String.somNaturligIdent(): NaturligIdent {
-    return NaturligIdent(this)
-}
+fun String.somNaturligIdent(): NaturligIdent = NaturligIdent(this)

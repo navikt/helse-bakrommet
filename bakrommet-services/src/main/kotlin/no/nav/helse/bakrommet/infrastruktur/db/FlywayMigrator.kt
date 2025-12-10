@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.infrastruktur.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.november
+import no.nav.helse.desember
 import org.flywaydb.core.Flyway
 import java.time.Instant
 import java.time.LocalTime
@@ -23,7 +23,7 @@ class FlywayMigrator(
             maximumPoolSize = 2
         }
 
-    val tillattNukeFør = ZonedDateTime.of(27.november(2025), LocalTime.of(21, 0, 0), ZoneId.of("Europe/Oslo")).toInstant()
+    val tillattNukeFør = ZonedDateTime.of(10.desember(2025), LocalTime.of(21, 0, 0), ZoneId.of("Europe/Oslo")).toInstant()
 
     val nukeDb = Instant.now().isBefore(tillattNukeFør)
 

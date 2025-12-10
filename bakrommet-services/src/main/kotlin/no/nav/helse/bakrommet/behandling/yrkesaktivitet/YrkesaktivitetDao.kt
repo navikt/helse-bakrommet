@@ -117,6 +117,7 @@ interface YrkesaktivitetDao {
     fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet>
 
     fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord>
+
     fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord>
 
     fun oppdaterKategoriseringOgSlettInntektData(
@@ -257,18 +258,16 @@ class YrkesaktivitetDaoPg private constructor(
             it.tilYrkesaktivitet()
         }
 
-    override fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord> =
-        hentYrkesaktiviteterDbRecord(periode.id)
+    override fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord> = hentYrkesaktiviteterDbRecord(periode.id)
 
-    override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> {
-        return db.list(
+    override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> =
+        db.list(
             """
             select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where behandling_id = :behandling_id
             """.trimIndent(),
             "behandling_id" to behandlingId,
             mapper = ::yrkesaktivitetFraRow,
         )
-    }
 
     private fun yrkesaktivitetFraRow(row: Row) =
         YrkesaktivitetDbRecord(

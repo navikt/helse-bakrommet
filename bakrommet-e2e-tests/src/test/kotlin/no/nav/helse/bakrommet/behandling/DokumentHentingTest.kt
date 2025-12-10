@@ -11,10 +11,10 @@ import no.nav.helse.bakrommet.aareg.fastAnsettelse
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sigrun.client2010to2050
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
