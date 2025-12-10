@@ -9,6 +9,7 @@ data class TidslinjeBehandlingDto(
     val status: TidslinjeBehandlingStatus,
     val fom: LocalDate,
     val tom: LocalDate,
+    val skjæringstidspunkt: LocalDate,
     val yrkesaktiviteter: List<TidlinjeYrkesaktivitetDto>,
     val tilkommenInntekt: List<TidlinjeTilkommenInntektDto>,
     val revurdererBehandlingId: UUID?,

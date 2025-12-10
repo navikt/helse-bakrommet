@@ -19,6 +19,7 @@ fun TidslinjeData.tilTidslinjeDto(): List<TidslinjeBehandlingDto> =
             status = behandling.status.tilTidslinjeBehandlingStatus(),
             fom = behandling.fom,
             tom = behandling.tom,
+            skjæringstidspunkt = behandling.skjæringstidspunkt,
             revurdertAvBehandlingId = behandling.revurdertAvBehandlingId,
             revurdererBehandlingId = behandling.revurdererSaksbehandlingsperiodeId,
             yrkesaktiviteter =
