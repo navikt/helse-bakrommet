@@ -36,7 +36,7 @@ class YrkesaktivitetOperasjonerTest {
     @Test
     fun `oppdaterer dagoversikt for yrkesaktivitet`() {
         runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
@@ -144,7 +144,7 @@ class YrkesaktivitetOperasjonerTest {
     @Test
     fun `oppdaterer dagoversikt for yrkesaktivitet med nytt format`() {
         runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
@@ -248,7 +248,7 @@ class YrkesaktivitetOperasjonerTest {
     @Test
     fun `oppdaterer perioder for yrkesaktivitet`() {
         runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode
             client.post("/v1/$PERSON_ID/behandlinger") {
@@ -387,7 +387,7 @@ class YrkesaktivitetOperasjonerTest {
                         ),
                 ),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode
             client.post("/v1/$PERSON_ID/behandlinger") {
@@ -497,7 +497,7 @@ class YrkesaktivitetOperasjonerTest {
     @Test
     fun `henter inntektsmeldinger feiler når skjæringstidspunkt ikke er satt`() {
         runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode uten skjæringstidspunkt
             client.post("/v1/$PERSON_ID/behandlinger") {

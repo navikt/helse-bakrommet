@@ -33,7 +33,7 @@ class DokumentHentingTest {
         runApplicationTest(
             aInntektClient = AInntektMock.aInntektClientMock(fnrTilInntektApiUt = mapOf(FNR to fakeInntektForFnrRespons)),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode via action
             val periode =
@@ -77,7 +77,7 @@ class DokumentHentingTest {
                 AInntektMock.aInntektClientMock(fnrTilInntektApiUt = emptyMap()),
         ) {
             val personIdForbidden = "ab403"
-            it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
+            it.personPseudoIdDao.opprettPerson("01019000" + "403", personIdForbidden)
 
             // Opprett saksbehandlingsperiode via action
             val periode =
@@ -129,7 +129,7 @@ class DokumentHentingTest {
         runApplicationTest(
             aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = mapOf(FNR to fakeAARegForFnrRespons)),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode via action
             val periode =
@@ -170,7 +170,7 @@ class DokumentHentingTest {
             aaRegClient = AARegMock.aaRegClientMock(),
         ) {
             val personIdForbidden = "ab403"
-            it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
+            it.personPseudoIdDao.opprettPerson("01019000" + "403", personIdForbidden)
 
             // Opprett saksbehandlingsperiode via action
             val periode =
@@ -200,7 +200,7 @@ class DokumentHentingTest {
         runApplicationTest(
             sigrunClient = client2010to2050(FNR),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode via action
             val periode =

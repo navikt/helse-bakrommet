@@ -13,7 +13,7 @@ import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.Saksbehandlingspe
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
 import no.nav.helse.bakrommet.meldingomvedtak.skalHaMeldingOmVedtak
 import no.nav.helse.bakrommet.meldingomvedtak.tilMeldingOmVedtak
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.util.HashUtils
 import no.nav.helse.bakrommet.util.serialisertTilString
 
@@ -22,7 +22,7 @@ interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val behandlingDao: BehandlingDao
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val yrkesaktivitetDao: YrkesaktivitetDao
-    val personDao: PersonDao
+    val personPseudoIdDao: PersonPseudoIdDao
     val outboxDao: OutboxDao
     val vurdertVilkårDao: VurdertVilkårDao
 }
@@ -38,7 +38,6 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: Saksbehandlings
             behandlingDao = behandlingDao,
             sykepengegrunnlagDao = sykepengegrunnlagDao,
             yrkesaktivitetDao = yrkesaktivitetDao,
-            personDao = personDao,
         )
     val saksbehandlingsperiodeKafkaDto = saksbehandlingsperiodeKafkaDtoMapper.genererKafkaMelding(referanse)
     outboxDao.lagreTilOutbox(
@@ -81,19 +80,17 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
     private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
-    private val personDao: PersonDao,
 ) {
     fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): SaksbehandlingsperiodeKafkaDto {
         val periode = behandlingDao.hentPeriode(referanse, null, måVæreUnderBehandling = false)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
-        val naturligIdent =
-            personDao.hentNaturligIdent(periode.spilleromPersonId)
-        val beregning = beregningDao.hentBeregning(referanse.periodeUUID)
+        val naturligIdent = periode.naturligIdent
+        val beregning = beregningDao.hentBeregning(referanse.behandlingId)
 
         val saksbehandlingsperiodeKafkaDto =
             SaksbehandlingsperiodeKafkaDto(
                 id = periode.id,
-                fnr = naturligIdent,
+                fnr = naturligIdent.naturligIdent,
                 opprettet = periode.opprettet,
                 opprettetAvNavIdent = periode.opprettetAvNavIdent,
                 opprettetAvNavn = periode.opprettetAvNavn,

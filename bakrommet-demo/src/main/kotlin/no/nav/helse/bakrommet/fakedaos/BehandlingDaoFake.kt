@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.fakedaos
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
+import no.nav.helse.bakrommet.person.NaturligIdent
 import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -14,15 +15,15 @@ class BehandlingDaoFake : BehandlingDao {
 
     override fun finnBehandling(id: UUID): Behandling? = perioder[id]
 
-    override fun finnBehandlingerForPerson(spilleromPersonId: String): List<Behandling> = perioder.values.filter { it.spilleromPersonId == spilleromPersonId }
+    override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<Behandling> = perioder.values.filter { it.naturligIdent == naturligIdent }
 
-    override fun finnBehandlingerForPersonSomOverlapper(
-        spilleromPersonId: String,
+    override fun finnBehandlingerForNaturligIdentSomOverlapper(
+        naturligIdent: NaturligIdent,
         fom: LocalDate,
         tom: LocalDate,
     ): List<Behandling> =
         perioder.values.filter {
-            it.spilleromPersonId == spilleromPersonId && it.fom <= tom && it.tom >= fom
+            it.naturligIdent == naturligIdent && it.fom <= tom && it.tom >= fom
         }
 
     override fun endreStatus(

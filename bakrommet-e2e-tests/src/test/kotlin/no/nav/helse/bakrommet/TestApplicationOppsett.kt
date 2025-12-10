@@ -31,8 +31,8 @@ import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.kafka.OutboxDaoPg
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
-import no.nav.helse.bakrommet.person.PersonDao
-import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.person.PersonPseudoIdDao
+import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
@@ -100,7 +100,7 @@ object TestOppsett {
 }
 
 class Daoer(
-    val personDao: PersonDao,
+    val personPseudoIdDao: PersonPseudoIdDao,
     val dokumentDao: DokumentDao,
     val yrkesaktivitetDao: YrkesaktivitetDao,
     val outboxDao: OutboxDao,
@@ -109,7 +109,7 @@ class Daoer(
     companion object {
         fun instansier(dataSource: DataSource): Daoer =
             Daoer(
-                PersonDaoPg(dataSource),
+                PersonPseudoIdDaoPg(dataSource),
                 DokumentDaoPg(dataSource),
                 YrkesaktivitetDaoPg(dataSource),
                 OutboxDaoPg(dataSource),

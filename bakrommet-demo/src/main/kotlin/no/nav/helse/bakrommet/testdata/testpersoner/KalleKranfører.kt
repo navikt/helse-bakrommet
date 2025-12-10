@@ -36,8 +36,6 @@ val SOKNAD_ID_9 = UUID.randomUUID()
 val kalleKranfører =
     Testperson(
         fnr = kalleFnr,
-        aktorId = "1234567891011",
-        spilleromId = "8j4ns",
         fornavn = "Kalle",
         etternavn = "Kranfører",
         fødselsdato = LocalDate.of(1977, 1, 1), // ca. 47 år basert på alder 47

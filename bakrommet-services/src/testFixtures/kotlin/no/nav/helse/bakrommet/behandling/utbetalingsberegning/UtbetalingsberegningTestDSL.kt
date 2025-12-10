@@ -17,6 +17,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigN√
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.VariantAvInaktiv
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.dto.Inntektbel√∏pDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -594,7 +595,7 @@ fun beregnOgByggOppdrag(
     ident: String = "TESTIDENT",
 ): BeregningResultat {
     val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, ident)
+    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, NaturligIdent(ident))
     return BeregningResultat(beregnet, oppdrag, input.sykepengegrunnlag)
 }
 

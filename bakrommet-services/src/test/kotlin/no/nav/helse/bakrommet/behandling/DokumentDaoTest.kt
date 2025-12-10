@@ -4,7 +4,8 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.util.Kildespor
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,12 +19,12 @@ import java.util.*
 class DokumentDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
     val fnr = "01019012345"
-    val personId = "0h0a1"
+    val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
     val saksbehandler = Bruker("ABC", "A. B. C", "Saksbehandersen@nav.no", roller = emptySet())
     val periode =
         Behandling(
             id = UUID.randomUUID(),
-            spilleromPersonId = personId,
+            naturligIdent = NaturligIdent(fnr),
             opprettet = OffsetDateTime.now(),
             opprettetAvNavIdent = saksbehandler.navIdent,
             opprettetAvNavn = saksbehandler.navn,
@@ -35,8 +36,8 @@ class DokumentDaoTest {
     @BeforeEach
     fun setOpp() {
         TestDataSource.resetDatasource()
-        val dao = PersonDaoPg(dataSource)
-        dao.opprettPerson(fnr, personId)
+        val dao = PersonPseudoIdDaoPg(dataSource)
+        dao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
         val behandlingDao = BehandlingDaoPg(dataSource)
         behandlingDao.opprettPeriode(periode)
     }

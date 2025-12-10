@@ -77,7 +77,6 @@ private fun DokumentInnhentingDaoer.lastAInntektDok(
     tomMinus: Long,
     saksbehandler: BrukerOgToken,
 ): Dokument {
-    val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
     val skjæringstidspunkt =
         periode.skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt for å hente inntekt")
 
@@ -101,7 +100,7 @@ private fun DokumentInnhentingDaoer.lastAInntektDok(
     return runBlocking {
         aInntektClient
             .hentInntekterForMedSporing(
-                fnr = fnr,
+                fnr = periode.naturligIdent.naturligIdent,
                 maanedFom = fom,
                 maanedTom = tom,
                 filter = filter,

@@ -21,7 +21,7 @@ class SaksbehandlingsperiodeValideringTest {
     @Test
     fun `returnerer 400 hvis fom er etter tom`() {
         runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
             val response =
                 client.post("/v1/$PERSON_ID/behandlinger") {
                     bearerAuth(TestOppsett.userToken)

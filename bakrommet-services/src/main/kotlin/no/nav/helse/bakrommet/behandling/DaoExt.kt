@@ -9,9 +9,9 @@ fun BehandlingDao.hentPeriode(
     måVæreUnderBehandling: Boolean = true,
 ): Behandling {
     val periode =
-        this.finnBehandling(ref.periodeUUID)
+        this.finnBehandling(ref.behandlingId)
             ?: throw SaksbehandlingsperiodeIkkeFunnetException()
-    if (periode.spilleromPersonId != ref.spilleromPersonId.personId) {
+    if (periode.naturligIdent != ref.naturligIdent) {
         throw InputValideringException("Ugyldig saksbehandlingsperiode")
     }
     krav?.valider(periode)

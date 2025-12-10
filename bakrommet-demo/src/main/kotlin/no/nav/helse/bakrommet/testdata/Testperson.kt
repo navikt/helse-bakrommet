@@ -12,8 +12,7 @@ import java.util.UUID
 
 data class Testperson(
     val fnr: String,
-    val aktorId: String? = null,
-    val spilleromId: String,
+    val pseudoId: UUID = UUID.nameUUIDFromBytes(fnr.toByteArray()),
     val fornavn: String,
     val mellomnavn: String? = null,
     val etternavn: String,
@@ -27,9 +26,6 @@ data class Testperson(
 ) {
     init {
         require(fnr.length == 11) { "Fnr skal være 11 siffer" }
-        if (aktorId != null) {
-            require(aktorId.length == 13) { "aktørid skal være 13 siffer" }
-        }
     }
 }
 
@@ -45,7 +41,7 @@ fun Testperson.tilTestpersonForFrontend(erScenarie: Boolean = false): Testperson
     TestpersonForFrontend(
         navn = this.fornavn + " " + this.etternavn,
         fnr = this.fnr,
-        spilleromId = this.spilleromId,
+        spilleromId = this.pseudoId,
         alder = 22,
         erScenarie = erScenarie,
     )
@@ -53,7 +49,7 @@ fun Testperson.tilTestpersonForFrontend(erScenarie: Boolean = false): Testperson
 data class TestpersonForFrontend(
     val navn: String,
     val alder: Number,
-    val spilleromId: String,
+    val spilleromId: UUID,
     val fnr: String,
     val erScenarie: Boolean,
 )

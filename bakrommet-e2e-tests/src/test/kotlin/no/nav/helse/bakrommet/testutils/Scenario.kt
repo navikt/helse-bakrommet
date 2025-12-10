@@ -246,7 +246,7 @@ data class Scenario(
                     fnrTilInntektApiUt = mapOf(fnr to ainntekt828),
                 ),
         ) { daoer ->
-            daoer.personDao.opprettPerson(fnr, personId)
+            daoer.personPseudoIdDao.opprettPerson(fnr, personId)
 
             val periode =
                 opprettBehandling(
@@ -337,10 +337,10 @@ data class Scenario(
                 )
             }
             // Hent sykepengegrunnlag via action
-            val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
+            val sykepengegrunnlag = hentSykepengegrunnlag(periode.naturligIdent, periode.id)
 
-            val beregning = hentUtbetalingsberegning(periode.spilleromPersonId, periode.id)
-            val yrkesaktiviteter = hentYrkesaktiviteter(periode.spilleromPersonId, periode.id)
+            val beregning = hentUtbetalingsberegning(periode.naturligIdent, periode.id)
+            val yrkesaktiviteter = hentYrkesaktiviteter(periode.naturligIdent, periode.id)
             if (besluttOgGodkjenn) {
                 sendTilBeslutning(periode)
                 taTilBesluting(periode, beslutterToken)

@@ -85,7 +85,7 @@ class SoknaderTest {
                     oboClient = TestOppsett.oboClient,
                 ),
         ) {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPerson(fnr, personId)
 
             client
                 .get("/v1/$personId/soknader/b8079801-ff72-3e31-ad48-118df088343b") {
@@ -114,7 +114,7 @@ class SoknaderTest {
                     oboClient = TestOppsett.oboClient,
                 ),
         ) {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPerson(fnr, personId)
 
             client
                 .get("/v1/$personId/soknader") {
@@ -135,7 +135,7 @@ class SoknaderTest {
                     oboClient = TestOppsett.oboClient,
                 ),
         ) {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPerson(fnr, personId)
 
             client
                 .get("/v1/$personId/soknader?fom=2025-04-01") {

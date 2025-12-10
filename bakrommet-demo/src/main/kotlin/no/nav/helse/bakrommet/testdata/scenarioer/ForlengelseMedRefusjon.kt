@@ -14,7 +14,6 @@ import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
-import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 import no.nav.inntektsmeldingkontrakt.Refusjon
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -61,7 +60,6 @@ val forlengelseMedNyJobbOgRefusjon =
                 fornavn = "Forleng",
                 fødselsdato = LocalDate.now().minusYears(35),
                 fnr = fnr,
-                spilleromId = "gefddfg",
                 etternavn = "Forlang",
                 aaregData =
                     listOf(

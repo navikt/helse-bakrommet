@@ -3,23 +3,27 @@ package no.nav.helse.bakrommet.api.behandling
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
+import no.nav.helse.bakrommet.api.PARAM_PERSONID
 import no.nav.helse.bakrommet.api.dto.behandling.OppdaterSkjæringstidspunktRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.SendTilBeslutningRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.SendTilbakeRequestDto
+import no.nav.helse.bakrommet.api.naturligIdent
+import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingService
-import no.nav.helse.bakrommet.behandling.periodeReferanse
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.personId
+import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.LocalDate
 
-fun Route.behandlingRoute(service: BehandlingService) {
+fun Route.behandlingRoute(
+    service: BehandlingService,
+    personService: PersonService,
+) {
     route("/v1/behandlinger") {
         get {
             val perioder = service.hentAlleSaksbehandlingsperioder()
@@ -30,9 +34,10 @@ fun Route.behandlingRoute(service: BehandlingService) {
     route("/v1/{$PARAM_PERSONID}/behandlinger") {
         post {
             val body = call.receive<OpprettBehandlingRequestDto>()
+            val naturligIDent = call.naturligIdent(personService)
             val nyPeriode =
                 service.opprettNyBehandling(
-                    spilleromPersonId = call.personId(),
+                    naturligIdent = naturligIDent,
                     fom = body.fom,
                     tom = body.tom,
                     søknader = body.søknader?.toSet() ?: emptySet(),
@@ -42,7 +47,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
         }
 
         get {
-            service.finnPerioderForPerson(call.personId()).let { perioder ->
+            service.finnPerioderForPerson(call.naturligIdent(personService)).let { perioder ->
                 call.respondJson(perioder.map { it.tilBehandlingDto() })
             }
         }
@@ -50,7 +55,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
 
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}") {
         get {
-            service.hentPeriode(call.periodeReferanse()).let {
+            service.hentPeriode(call.periodeReferanse(personService)).let {
                 call.respondJson(it.tilBehandlingDto())
             }
         }
@@ -58,7 +63,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
 
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/historikk") {
         get {
-            val historikk = service.hentHistorikkFor(call.periodeReferanse())
+            val historikk = service.hentHistorikkFor(call.periodeReferanse(personService))
             call.respondJson(historikk.map { it.tilSaksbehandlingsperiodeEndringDto() })
         }
     }
@@ -67,7 +72,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
         post {
             val body = call.receive<SendTilBeslutningRequestDto>()
             service
-                .sendTilBeslutning(call.periodeReferanse(), body.individuellBegrunnelse, call.saksbehandler())
+                .sendTilBeslutning(call.periodeReferanse(personService), body.individuellBegrunnelse, call.saksbehandler())
                 .let { oppdatertPeriode ->
                     call.respondJson(oppdatertPeriode.tilBehandlingDto())
                 }
@@ -76,7 +81,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
 
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/tatilbeslutning") {
         post {
-            service.taTilBeslutning(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+            service.taTilBeslutning(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto())
             }
         }
@@ -92,7 +97,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
                     throw InputValideringException("Ugyldig innhold i POST-body")
                 }
             service
-                .sendTilbakeFraBeslutning(call.periodeReferanse(), call.saksbehandler(), kommentar = kommentar)
+                .sendTilbakeFraBeslutning(call.periodeReferanse(personService), call.saksbehandler(), kommentar = kommentar)
                 .let { oppdatertPeriode ->
                     call.respondJson(oppdatertPeriode.tilBehandlingDto())
                 }
@@ -101,7 +106,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
 
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/godkjenn") {
         post {
-            service.godkjennPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+            service.godkjennPeriode(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto())
             }
         }
@@ -109,7 +114,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
 
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/revurder") {
         post {
-            service.revurderPeriode(call.periodeReferanse(), call.saksbehandler()).let { oppdatertPeriode ->
+            service.revurderPeriode(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto(), status = HttpStatusCode.Created)
             }
         }
@@ -121,7 +126,7 @@ fun Route.behandlingRoute(service: BehandlingService) {
             val skjæringstidspunkt = body.skjaeringstidspunkt.let { LocalDate.parse(it) }
             service
                 .oppdaterSkjæringstidspunkt(
-                    periodeRef = call.periodeReferanse(),
+                    periodeRef = call.periodeReferanse(personService),
                     skjæringstidspunkt = skjæringstidspunkt,
                     saksbehandler = call.saksbehandler(),
                 ).let { oppdatertPeriode ->

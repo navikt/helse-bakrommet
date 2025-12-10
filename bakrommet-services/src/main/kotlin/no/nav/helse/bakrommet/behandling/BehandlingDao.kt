@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.person.NaturligIdent
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -16,7 +17,7 @@ import javax.sql.DataSource
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class Behandling(
     val id: UUID,
-    val spilleromPersonId: String,
+    val naturligIdent: NaturligIdent,
     val opprettet: OffsetDateTime,
     val opprettetAvNavIdent: String,
     val opprettetAvNavn: String,
@@ -61,10 +62,10 @@ interface BehandlingDao {
 
     fun finnBehandling(id: UUID): Behandling?
 
-    fun finnBehandlingerForPerson(spilleromPersonId: String): List<Behandling>
+    fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<Behandling>
 
-    fun finnBehandlingerForPersonSomOverlapper(
-        spilleromPersonId: String,
+    fun finnBehandlingerForNaturligIdentSomOverlapper(
+        naturligIdent: NaturligIdent,
         fom: LocalDate,
         tom: LocalDate,
     ): List<Behandling>
@@ -147,18 +148,18 @@ class BehandlingDaoPg private constructor(
             "id" to id,
         ) { rowTilPeriode(it) }
 
-    override fun finnBehandlingerForPerson(spilleromPersonId: String): List<Behandling> =
+    override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<Behandling> =
         db.list(
             """
             select *
               from behandling
-             where spillerom_personid = :spillerom_personid
+             where naturlig_ident = :naturlig_ident
             """.trimIndent(),
-            "spillerom_personid" to spilleromPersonId,
+            "naturlig_ident" to naturligIdent.naturligIdent,
         ) { rowTilPeriode(it) }
 
-    override fun finnBehandlingerForPersonSomOverlapper(
-        spilleromPersonId: String,
+    override fun finnBehandlingerForNaturligIdentSomOverlapper(
+        naturligIdent: NaturligIdent,
         fom: LocalDate,
         tom: LocalDate,
     ): List<Behandling> =
@@ -166,11 +167,11 @@ class BehandlingDaoPg private constructor(
             """
             select *
               from behandling
-             where spillerom_personid = :spillerom_personid
+             where naturlig_ident = :naturlig_ident
              AND fom <= :tom
              AND tom >= :fom
             """.trimIndent(),
-            "spillerom_personid" to spilleromPersonId,
+            "naturlig_ident" to naturligIdent.naturligIdent,
             "fom" to fom,
             "tom" to tom,
         ) { rowTilPeriode(it) }
@@ -178,7 +179,7 @@ class BehandlingDaoPg private constructor(
     private fun rowTilPeriode(row: Row) =
         Behandling(
             id = row.uuid("id"),
-            spilleromPersonId = row.string("spillerom_personid"),
+            naturligIdent = NaturligIdent(row.string("naturlig_ident")),
             opprettet = row.offsetDateTime("opprettet"),
             opprettetAvNavIdent = row.string("opprettet_av_nav_ident"),
             opprettetAvNavn = row.string("opprettet_av_navn"),
@@ -246,12 +247,12 @@ class BehandlingDaoPg private constructor(
         db.update(
             """
             insert into behandling
-                (id, spillerom_personid, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse, sykepengegrunnlag_id, revurderer_behandling_id)
+                (id, naturlig_ident, opprettet, opprettet_av_nav_ident, opprettet_av_navn, fom, tom, status, beslutter_nav_ident, skjaeringstidspunkt, individuell_begrunnelse, sykepengegrunnlag_id, revurderer_behandling_id)
             values
-                (:id, :spillerom_personid, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id, :revurderer_behandling_id)
+                (:id, :naturlig_ident, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id, :revurderer_behandling_id)
             """.trimIndent(),
             "id" to periode.id,
-            "spillerom_personid" to periode.spilleromPersonId,
+            "naturlig_ident" to periode.naturligIdent,
             "opprettet" to periode.opprettet,
             "opprettet_av_nav_ident" to periode.opprettetAvNavIdent,
             "opprettet_av_navn" to periode.opprettetAvNavn,

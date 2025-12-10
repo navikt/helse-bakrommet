@@ -48,7 +48,6 @@ val jobbskifteInaktivSykmeldt =
                 fornavn = "Liv",
                 fødselsdato = LocalDate.now().minusYears(42),
                 fnr = fnr,
-                spilleromId = "liv-jobbskifte-inaktiv",
                 etternavn = "Lindgren",
                 aaregData =
                     listOf(

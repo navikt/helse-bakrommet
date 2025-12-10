@@ -3,7 +3,8 @@ package no.nav.helse.bakrommet.behandling.tilkommen
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -15,12 +16,10 @@ import java.util.UUID
 
 class TilkommenInntektDaoTest {
     private val dataSource = TestDataSource.dbModule.dataSource
-    private val personDao = PersonDaoPg(dataSource)
+    private val personDao = PersonPseudoIdDaoPg(dataSource)
     private val behandlingDao = BehandlingDaoPg(dataSource)
     private val dao = TilkommenInntektDaoPg(dataSource)
 
-    private val spilleromId = "spiller-1"
-    private val naturligIdent = "01019012345"
     private val behandlingId = UUID.randomUUID()
     private val saksbehandlerNavn = "Zara Saksbehandler"
     private val saksbehandlerIdent = "Z12345"
@@ -28,11 +27,13 @@ class TilkommenInntektDaoTest {
     @BeforeEach
     fun setUp() {
         TestDataSource.resetDatasource()
-        personDao.opprettPerson(naturligIdent, spilleromId)
+        val fnr = "01019012345"
+        val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
+        personDao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
         behandlingDao.opprettPeriode(
             Behandling(
                 id = behandlingId,
-                spilleromPersonId = spilleromId,
+                naturligIdent = NaturligIdent(fnr),
                 opprettet = OffsetDateTime.now(),
                 opprettetAvNavIdent = saksbehandlerIdent,
                 opprettetAvNavn = saksbehandlerNavn,

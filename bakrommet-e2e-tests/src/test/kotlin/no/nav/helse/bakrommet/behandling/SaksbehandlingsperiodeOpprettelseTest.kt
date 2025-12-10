@@ -64,7 +64,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3, søknad3b).associateBy { it.søknadId },
                 ),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             // Opprett saksbehandlingsperiode
             client
@@ -142,7 +142,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3).associateBy { it.søknadId },
                 ),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             client.post("/v1/$PERSON_ID/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
@@ -217,8 +217,8 @@ class SaksbehandlingsperiodeOpprettelseTest {
     @Test
     fun `saksbehandlingsperioder for samme person skal ikke kunne overlappe`() {
         runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
-            daoer.personDao.opprettPerson(FNR2, PERSON_ID2)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR2, PERSON_ID2)
 
             suspend fun opprettPeriode(
                 person: String,

@@ -56,7 +56,6 @@ val tidsbegrensetArbeidsforhold =
                 fornavn = "Viktor",
                 fødselsdato = LocalDate.now().minusYears(32),
                 fnr = fnr1,
-                spilleromId = "viktor",
                 etternavn = "Vikar",
                 aaregData =
                     listOf(

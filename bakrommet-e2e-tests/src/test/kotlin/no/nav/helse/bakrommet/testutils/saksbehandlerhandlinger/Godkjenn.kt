@@ -13,7 +13,7 @@ suspend fun ApplicationTestBuilder.godkjenn(
     token: String,
 ) {
     val response =
-        this.client.post("/v1/${behandling.spilleromPersonId}/behandlinger/${behandling.id}/godkjenn") {
+        this.client.post("/v1/${behandling.naturligIdent}/behandlinger/${behandling.id}/godkjenn") {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
         }

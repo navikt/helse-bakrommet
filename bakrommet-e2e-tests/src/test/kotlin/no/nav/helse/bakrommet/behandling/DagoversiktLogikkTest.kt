@@ -18,7 +18,7 @@ class DagoversiktLogikkTest {
     @Test
     fun `dagoversikt inneholder riktig antall dager for perioden`() {
         runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
 
             // Test med februar (kortere måned) via action
             val periode =

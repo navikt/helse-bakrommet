@@ -19,18 +19,18 @@ import no.nav.helse.bakrommet.api.yrkesaktivitet.yrkesaktivitetRoute
 fun Route.setupApiRoutes(
     services: Services,
 ) {
-    behandlingRoute(services.behandlingService)
+    behandlingRoute(services.behandlingService, services.personService)
     brukerRoute(services.brukerService)
-    tidslinjeRoute(services.tidslinjeService)
-    vilkårRoute(services.vilkårService)
-    dokumentRoute(services.dokumentHenter)
-    tilkommenInntektRoute(services.tilkommenInntektService)
+    tidslinjeRoute(services.tidslinjeService, services.personService)
+    vilkårRoute(services.vilkårService, services.personService)
+    dokumentRoute(services.dokumentHenter, services.personService)
+    tilkommenInntektRoute(services.tilkommenInntektService, services.personService)
     organisasjonRoute(services.organisasjonService)
     personsøkRoute(services.personsøkService)
     personinfoRoute(services.personService)
-    soknaderRoute(services.soknaderService)
-    sykepengegrunnlagRoute(services.sykepengegrunnlagService)
-    beregningRoute(services.utbetalingsberegningService)
+    soknaderRoute(services.soknaderService, services.personService)
+    sykepengegrunnlagRoute(services.sykepengegrunnlagService, services.personService)
+    beregningRoute(services.utbetalingsberegningService, services.personService)
     yrkesaktivitetRoute(
         yrkesaktivitetService = services.yrkesaktivitetService,
         inntektservice = services.inntektService,

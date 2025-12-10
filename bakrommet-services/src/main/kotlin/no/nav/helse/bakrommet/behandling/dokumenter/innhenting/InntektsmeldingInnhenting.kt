@@ -33,9 +33,8 @@ fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
                 saksbehandlerToken = saksbehandler.token,
             )
         }
-    val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
     require(
-        fnr == inntektsmelding["arbeidstakerFnr"].asText(),
+        periode.naturligIdent.naturligIdent == inntektsmelding["arbeidstakerFnr"].asText(),
         { "arbeidstakerFnr i inntektsmelding må være lik sykmeldts naturligIdent" },
     )
     return dokumentDao.opprettDokument(

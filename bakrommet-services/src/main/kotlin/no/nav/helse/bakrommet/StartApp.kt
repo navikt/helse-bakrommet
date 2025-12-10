@@ -190,7 +190,6 @@ fun createServices(
     return Services(
         personsøkService =
             PersonsøkService(
-                pdlClient = clienter.pdlClient,
                 db = db,
             ),
         sykepengegrunnlagService = SykepengegrunnlagService(db),

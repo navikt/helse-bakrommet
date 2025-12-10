@@ -12,14 +12,14 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKat
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitet
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 
 interface InntektsmeldingMatcherDaoer {
     val behandlingDao: BehandlingDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val beregningDao: UtbetalingsberegningDao
-    val personDao: PersonDao
+    val personPseudoIdDao: PersonPseudoIdDao
 }
 
 class InntektsmeldingMatcherService(

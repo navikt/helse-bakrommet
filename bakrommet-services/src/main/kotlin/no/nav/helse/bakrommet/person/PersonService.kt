@@ -6,9 +6,10 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlIdent
 import no.nav.helse.bakrommet.pdl.alder
 import no.nav.helse.bakrommet.pdl.formattert
+import java.util.UUID
 
 interface PersonServiceDaoer {
-    val personDao: PersonDao
+    val personPseudoIdDao: PersonPseudoIdDao
 }
 
 data class PersonInfo(
@@ -22,28 +23,24 @@ class PersonService(
     private val db: DbDaoer<PersonServiceDaoer>,
     private val pdlClient: PdlClient,
 ) {
-    suspend fun finnNaturligIdent(spilleromId: String): String? =
+    suspend fun finnNaturligIdent(pseudoId: UUID): NaturligIdent? =
         db.nonTransactional {
-            personDao.finnNaturligIdent(spilleromId)
+            personPseudoIdDao.finnNaturligIdent(pseudoId)
         }
 
     suspend fun hentPersonInfo(
-        spilleromPersonId: SpilleromPersonId,
+        naturligIdent: NaturligIdent,
         saksbehandlerToken: SpilleromBearerToken,
     ): PersonInfo {
-        val fnr =
-            finnNaturligIdent(spilleromPersonId.personId)
-                ?: throw IllegalStateException("Fant ikke naturligIdent for personId ${spilleromPersonId.personId}")
-
         val hentPersonInfo =
             pdlClient.hentPersonInfo(
                 saksbehandlerToken = saksbehandlerToken,
-                ident = fnr,
+                ident = naturligIdent.naturligIdent,
             )
-        val identer = pdlClient.hentIdenterFor(saksbehandlerToken, fnr)
+        val identer = pdlClient.hentIdenterFor(saksbehandlerToken, naturligIdent.naturligIdent)
 
         return PersonInfo(
-            fødselsnummer = fnr,
+            fødselsnummer = naturligIdent.naturligIdent,
             aktørId = identer.first { it.gruppe == PdlIdent.AKTORID }.ident,
             navn = hentPersonInfo.navn.formattert(),
             alder = hentPersonInfo.alder(),

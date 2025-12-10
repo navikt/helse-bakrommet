@@ -10,7 +10,7 @@ import java.util.UUID
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class BehandlingDto(
     val id: UUID,
-    val spilleromPersonId: String,
+    val naturligIdent: String,
     val opprettet: OffsetDateTime,
     val opprettetAvNavIdent: String,
     val opprettetAvNavn: String,

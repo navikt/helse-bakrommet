@@ -24,7 +24,7 @@ class SaksbehandlingsperiodeTest {
     @Test
     fun `oppretter saksbehandlingsperiode`() =
         runApplicationTest {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPerson(fnr, personId)
 
             // Opprett saksbehandlingsperiode via action
             val saksbehandlingsperiode =
@@ -35,7 +35,7 @@ class SaksbehandlingsperiodeTest {
                 ).truncateTidspunkt()
             saksbehandlingsperiode.fom.toString() `should equal` "2023-01-01"
             saksbehandlingsperiode.tom.toString() `should equal` "2023-01-31"
-            saksbehandlingsperiode.spilleromPersonId `should equal` personId
+            saksbehandlingsperiode.naturligIdent `should equal` personId
             saksbehandlingsperiode.opprettetAvNavIdent `should equal` "tullebruker"
             saksbehandlingsperiode.opprettetAvNavn `should equal` "Tulla Bruker"
 
@@ -51,8 +51,8 @@ class SaksbehandlingsperiodeTest {
         runApplicationTest {
             val fnr2 = "02029200000"
             val personId2 = "2ndnd"
-            it.personDao.opprettPerson(fnr, personId)
-            it.personDao.opprettPerson(fnr2, personId2)
+            it.personPseudoIdDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPerson(fnr2, personId2)
 
             suspend fun lagPeriodePåPerson(personId: String) =
                 client
@@ -67,11 +67,11 @@ class SaksbehandlingsperiodeTest {
                     }.body<Behandling>()
             val periode1 =
                 lagPeriodePåPerson(personId).also {
-                    assertEquals(personId, it.spilleromPersonId)
+                    assertEquals(personId, it.naturligIdent)
                 }
             val periode2 =
                 lagPeriodePåPerson(personId2).also {
-                    assertEquals(personId2, it.spilleromPersonId)
+                    assertEquals(personId2, it.naturligIdent)
                 }
 
             val absoluttAllePerioder: List<Behandling> =
@@ -92,7 +92,7 @@ class SaksbehandlingsperiodeTest {
     @Test
     fun `kan oppdatere skjæringstidspunkt`() =
         runApplicationTest {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPerson(fnr, personId)
             val opprettetPeriode =
                 client
                     .post("/v1/$personId/behandlinger") {

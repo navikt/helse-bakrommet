@@ -25,7 +25,7 @@ class SaksbehandlingsperiodeStatusTest {
     @Test
     fun `diverse statusendringer på saksbehandlingsperiode`() =
         runApplicationTest {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPerson(fnr, personId)
 
             val tokenSaksbehandler = oAuthMock.token(navIdent = "S111111", grupper = listOf("GRUPPE_SAKSBEHANDLER"))
             val tokenSaksbehandler2 = oAuthMock.token(navIdent = "S222222", grupper = listOf("GRUPPE_SAKSBEHANDLER"))

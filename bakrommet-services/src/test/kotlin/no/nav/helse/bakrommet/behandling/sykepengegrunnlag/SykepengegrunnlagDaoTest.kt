@@ -5,7 +5,8 @@ import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeEach
@@ -27,11 +28,13 @@ class SykepengegrunnlagDaoTest {
     @BeforeEach
     fun setOpp() {
         TestDataSource.resetDatasource()
-        PersonDaoPg(TestDataSource.dbModule.dataSource).opprettPerson("01019012345", "6512a")
+        val fnr = "01019012345"
+        val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
+        PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource).opprettPseudoId(pseudoId, NaturligIdent(fnr))
         BehandlingDaoPg(TestDataSource.dbModule.dataSource).opprettPeriode(
             Behandling(
                 id = saksbehandlingsperiodeId,
-                spilleromPersonId = "6512a",
+                naturligIdent = NaturligIdent(fnr),
                 opprettet = OffsetDateTime.now(),
                 opprettetAvNavIdent = saksbehandler.navIdent,
                 opprettetAvNavn = saksbehandler.navn,

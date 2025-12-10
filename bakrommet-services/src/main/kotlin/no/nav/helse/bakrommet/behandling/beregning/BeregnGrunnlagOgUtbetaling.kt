@@ -12,14 +12,14 @@ import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 
 interface Beregningsdaoer {
     val beregningDao: UtbetalingsberegningDao
     val behandlingDao: BehandlingDao
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val yrkesaktivitetDao: YrkesaktivitetDao
-    val personDao: PersonDao
+    val personPseudoIdDao: PersonPseudoIdDao
     val tilkommenInntektDao: TilkommenInntektDao
 }
 
@@ -42,14 +42,14 @@ fun Beregningsdaoer.beregnUtbetaling(
     ref: SaksbehandlingsperiodeReferanse,
     saksbehandler: Bruker,
 ) {
-    beregningDao.slettBeregning(ref.periodeUUID, failSilently = true)
+    beregningDao.slettBeregning(ref.behandlingId, failSilently = true)
 
     UtbetalingsBeregningHjelper(
         beregningDao = beregningDao,
         behandlingDao = behandlingDao,
         sykepengegrunnlagDao = sykepengegrunnlagDao,
         yrkesaktivitetDao = yrkesaktivitetDao,
-        personDao = personDao,
+        personPseudoIdDao = personPseudoIdDao,
         tilkommenInntektDao = tilkommenInntektDao,
     ).settBeregning(
         referanse = ref,

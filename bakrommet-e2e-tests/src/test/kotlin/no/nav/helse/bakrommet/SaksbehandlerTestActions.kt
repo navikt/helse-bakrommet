@@ -16,7 +16,7 @@ suspend fun ApplicationTestBuilder.sendTilBeslutning(
 ) {
     val response =
         this.client.post(
-            "/v1/${behandling.spilleromPersonId}/behandlinger/${behandling.id}/sendtilbeslutning",
+            "/v1/${behandling.naturligIdent}/behandlinger/${behandling.id}/sendtilbeslutning",
         ) {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
@@ -31,7 +31,7 @@ suspend fun ApplicationTestBuilder.taTilBesluting(
 ) {
     val response =
         this.client.post(
-            "/v1/${behandling.spilleromPersonId}/behandlinger/${behandling.id}/tatilbeslutning",
+            "/v1/${behandling.naturligIdent}/behandlinger/${behandling.id}/tatilbeslutning",
         ) {
             bearerAuth(token)
             contentType(ContentType.Application.Json)

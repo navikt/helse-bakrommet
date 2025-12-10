@@ -53,7 +53,6 @@ val behandlingsdager =
                 fødselsdato = LocalDate.now().minusYears(30),
                 fnr = fnr,
                 inntektsmeldinger = inntektsmeldinger,
-                spilleromId = "behandling",
                 etternavn = "Dag",
                 ainntektData = inntektData,
                 soknader =

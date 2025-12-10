@@ -67,7 +67,7 @@ class UtbetalingsberegningIntegrasjonTest {
                     søknadIdTilSvar = mapOf(søknad["id"].asText() to søknad),
                 ),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
             daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 0
 
             val tokenBeslutter = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))

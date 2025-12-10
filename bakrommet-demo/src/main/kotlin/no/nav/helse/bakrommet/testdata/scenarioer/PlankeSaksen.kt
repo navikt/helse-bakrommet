@@ -49,7 +49,6 @@ val plankeSak =
                 fødselsdato = LocalDate.now().minusYears(30),
                 fnr = fnr,
                 inntektsmeldinger = inntektsmeldinger,
-                spilleromId = "planke",
                 etternavn = "Sachsen",
                 ainntektData = inntektData,
                 soknader =

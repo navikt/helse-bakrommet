@@ -22,7 +22,7 @@ class VilkårRouteTest {
 
     fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(Pair<Daoer, Behandling>) -> Unit) =
         runApplicationTest {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPerson(fnr, personId)
             val response =
                 client.post("/v1/$personId/behandlinger") {
                     bearerAuth(TestOppsett.userToken)
@@ -273,7 +273,7 @@ class VilkårRouteTest {
                 }
                 """.trimIndent()
 
-            daoer.personDao.opprettPerson("0101018888", annenPersonId)
+            daoer.personPseudoIdDao.opprettPerson("0101018888", annenPersonId)
 
             client
                 .put(

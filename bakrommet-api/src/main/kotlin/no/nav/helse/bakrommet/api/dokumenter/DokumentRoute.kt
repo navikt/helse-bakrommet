@@ -10,13 +10,14 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.helse.bakrommet.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
+import no.nav.helse.bakrommet.api.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
-import no.nav.helse.bakrommet.behandling.periodeReferanse
+import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.util.somGyldigUUID
 
 fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
@@ -36,16 +37,19 @@ private suspend fun RoutingCall.respondDokument(
     respondJson(dokument.tilDokumentDto(), status)
 }
 
-fun Route.dokumentRoute(dokumentHenter: DokumentHenter) {
+fun Route.dokumentRoute(
+    dokumentHenter: DokumentHenter,
+    personService: PersonService,
+) {
     route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/dokumenter") {
         get {
-            val dokumenterDto = dokumentHenter.hentDokumenterFor(call.periodeReferanse()).map { it.tilDokumentDto() }
+            val dokumenterDto = dokumentHenter.hentDokumenterFor(call.periodeReferanse(personService)).map { it.tilDokumentDto() }
             call.respondJson(dokumenterDto)
         }
 
         route("/{dokumentUUID}") {
             get {
-                val ref = call.periodeReferanse()
+                val ref = call.periodeReferanse(personService)
                 val dokumentId = call.parameters["dokumentUUID"].somGyldigUUID()
                 val dok = dokumentHenter.hentDokument(ref, dokumentId)
                 if (dok == null) {
@@ -61,7 +65,7 @@ fun Route.dokumentRoute(dokumentHenter: DokumentHenter) {
                 post {
                     val inntektDokument =
                         dokumentHenter.hentOgLagreAInntekt828(
-                            call.periodeReferanse(),
+                            call.periodeReferanse(personService),
                             call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(inntektDokument))
@@ -72,7 +76,7 @@ fun Route.dokumentRoute(dokumentHenter: DokumentHenter) {
                 post {
                     val inntektDokument =
                         dokumentHenter.hentOgLagreAInntekt830(
-                            call.periodeReferanse(),
+                            call.periodeReferanse(personService),
                             call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(inntektDokument))
@@ -86,7 +90,7 @@ fun Route.dokumentRoute(dokumentHenter: DokumentHenter) {
                 post {
                     val aaregDokument =
                         dokumentHenter.hentOgLagreArbeidsforhold(
-                            ref = call.periodeReferanse(),
+                            ref = call.periodeReferanse(personService),
                             saksbehandler = call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(aaregDokument))
@@ -100,7 +104,7 @@ fun Route.dokumentRoute(dokumentHenter: DokumentHenter) {
                 post {
                     val pensjonsgivendeinntektDokument =
                         dokumentHenter.hentOgLagrePensjonsgivendeInntekt(
-                            ref = call.periodeReferanse(),
+                            ref = call.periodeReferanse(personService),
                             saksbehandler = call.saksbehandlerOgToken(),
                         )
                     call.response.headers.append(HttpHeaders.Location, dokumentUriFor(pensjonsgivendeinntektDokument))

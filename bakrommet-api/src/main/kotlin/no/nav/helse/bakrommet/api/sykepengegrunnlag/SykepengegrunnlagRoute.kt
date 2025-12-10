@@ -10,18 +10,22 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.helse.bakrommet.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
+import no.nav.helse.bakrommet.api.PARAM_PERSONID
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.OpprettSykepengegrunnlagRequestDto
+import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.auth.saksbehandler
-import no.nav.helse.bakrommet.behandling.periodeReferanse
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
+import no.nav.helse.bakrommet.person.PersonService
 
-fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
+fun Route.sykepengegrunnlagRoute(
+    service: SykepengegrunnlagService,
+    personService: PersonService,
+) {
     route("/v2/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
         get {
-            val grunnlag = service.hentSykepengegrunnlag(call.periodeReferanse())
+            val grunnlag = service.hentSykepengegrunnlag(call.periodeReferanse(personService))
             if (grunnlag == null) {
                 call.respondText("null", ContentType.Application.Json, HttpStatusCode.OK)
             } else {
@@ -36,7 +40,7 @@ fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
             val grunnlag =
                 service.opprettSykepengegrunnlag(
                     request = request,
-                    referanse = call.periodeReferanse(),
+                    referanse = call.periodeReferanse(personService),
                     saksbehandler = call.saksbehandler(),
                 )
             val response = grunnlag.tilSykepengegrunnlagResponseDto()
@@ -44,7 +48,7 @@ fun Route.sykepengegrunnlagRoute(service: SykepengegrunnlagService) {
         }
 
         delete {
-            val ref = call.periodeReferanse()
+            val ref = call.periodeReferanse(personService)
             service.slettSykepengegrunnlag(
                 ref = ref,
                 saksbehandler = call.saksbehandler(),

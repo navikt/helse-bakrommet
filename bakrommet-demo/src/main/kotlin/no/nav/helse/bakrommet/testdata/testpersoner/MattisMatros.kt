@@ -11,8 +11,6 @@ import java.util.UUID
 val mattisMatros =
     Testperson(
         fnr = "13065212348",
-        aktorId = "1234567891011",
-        spilleromId = "jf74h",
         fornavn = "Mattis",
         etternavn = "Matros",
         fødselsdato = LocalDate.of(2006, 6, 12), // ca. 18 år basert på alder 18

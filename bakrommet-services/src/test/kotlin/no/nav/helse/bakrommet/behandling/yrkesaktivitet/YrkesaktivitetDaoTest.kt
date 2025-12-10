@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
@@ -30,7 +30,7 @@ class YrkesaktivitetDaoTest {
     val periode =
         Behandling(
             id = UUID.randomUUID(),
-            spilleromPersonId = personId,
+            naturligIdent = personId,
             opprettet = OffsetDateTime.now(),
             opprettetAvNavIdent = saksbehandler.navIdent,
             opprettetAvNavn = saksbehandler.navn,
@@ -42,7 +42,7 @@ class YrkesaktivitetDaoTest {
     @BeforeEach
     fun setOpp() {
         TestDataSource.resetDatasource()
-        val dao = PersonDaoPg(dataSource)
+        val dao = PersonPseudoIdDaoPg(dataSource)
         dao.opprettPerson(fnr, personId)
         val behandlingDao = BehandlingDaoPg(dataSource)
         behandlingDao.opprettPeriode(periode)

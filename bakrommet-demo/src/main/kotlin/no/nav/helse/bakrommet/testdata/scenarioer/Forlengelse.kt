@@ -55,7 +55,6 @@ val forlengelse =
                 fornavn = "Forleng",
                 fødselsdato = LocalDate.now().minusYears(35),
                 fnr = fnr,
-                spilleromId = "forlengelse",
                 etternavn = "Grunnlag",
                 aaregData =
                     listOf(
