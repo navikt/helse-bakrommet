@@ -1,16 +1,16 @@
 package no.nav.helse.bakrommet.testutils
 
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import java.time.temporal.ChronoUnit.MILLIS
 import java.time.temporal.ChronoUnit.SECONDS
 import kotlin.collections.map
 
-fun Behandling.truncateTidspunkt() = copy(opprettet = opprettet.truncatedTo(SECONDS))
+fun BehandlingDto.truncateTidspunkt() = copy(opprettet = opprettet.truncatedTo(SECONDS))
 
 @JvmName("tidsstuttetSaksbehandlingsperiode")
-fun Iterable<Behandling>.tidsstuttet() = map(Behandling::truncateTidspunkt)
+fun Iterable<BehandlingDto>.tidsstuttet() = map(BehandlingDto::truncateTidspunkt)
 
 @JvmName("tidsstuttetDokument")
 fun Iterable<Dokument>.tidsstuttet() = map(Dokument::tidsstuttet)

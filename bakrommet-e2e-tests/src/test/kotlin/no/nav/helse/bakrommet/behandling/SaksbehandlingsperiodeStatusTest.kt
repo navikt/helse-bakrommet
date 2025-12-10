@@ -5,17 +5,15 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
+import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilbake
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.bakrommet.person.NaturligIdent
-import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
-import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
-import no.nav.helse.bakrommet.api.behandling.tilBehandlingDto
-import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -59,7 +57,7 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             client
-                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                .post("/v1/$personPseudoId/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
                     bearerAuth(tokenSaksbehandler2)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "individuellBegrunnelse" : "En begrunnelse" }""".trimIndent())
@@ -81,11 +79,11 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             client
-                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/tatilbeslutning") {
+                .post("/v1/$personPseudoId/behandlinger/${periodeOpprinnelig.id}/tatilbeslutning") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(200, response.status.value)
-                    val periode = response.body<Behandling>()
+                    val periode = response.body<BehandlingDto>()
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
@@ -93,12 +91,12 @@ class SaksbehandlingsperiodeStatusTest {
                                 individuellBegrunnelse = "En begrunnelse",
                                 beslutterNavIdent = "B111111",
                             ),
-                        periode.tilBehandlingDto(),
+                        periode,
                     )
                 }
 
             client
-                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
+                .post("/v1/$personPseudoId/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
                     bearerAuth(tokenBeslutter)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "mangler" : "kommentar-felt" }""")
@@ -107,7 +105,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
+                .post("/v1/$personPseudoId/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(415, response.status.value, "Mangler POST-body som application/json")
@@ -128,18 +126,18 @@ class SaksbehandlingsperiodeStatusTest {
                         individuellBegrunnelse = "En begrunnelse",
                         beslutterNavIdent = "B111111",
                     ),
-                periode.tilBehandlingDto(),
+                periode,
                 "Tilbake til 'under_behandling', men beslutter beholdes",
             )
 
             client
-                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                .post("/v1/$personPseudoId/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
                     bearerAuth(tokenSaksbehandler)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "individuellBegrunnelse" : "En ny begrunnelse" }""".trimIndent())
                 }.let { response ->
                     assertEquals(200, response.status.value)
-                    val periode = response.body<Behandling>()
+                    val periode = response.body<BehandlingDto>()
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
@@ -147,13 +145,13 @@ class SaksbehandlingsperiodeStatusTest {
                                 individuellBegrunnelse = "En ny begrunnelse",
                                 beslutterNavIdent = "B111111",
                             ),
-                        periode.tilBehandlingDto(),
+                        periode,
                         "Skal nå gå tilbake til opprinnelig beslutter, og ikke legges i beslutterkø",
                     )
                 }
 
             client
-                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
+                .post("/v1/$personPseudoId/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
                     bearerAuth(tokenBeslutter2)
                 }.let { response ->
                     assertEquals(
@@ -164,11 +162,11 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
+                .post("/v1/$personPseudoId/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(200, response.status.value)
-                    val periode = response.body<Behandling>()
+                    val periode = response.body<BehandlingDto>()
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
@@ -176,7 +174,7 @@ class SaksbehandlingsperiodeStatusTest {
                                 individuellBegrunnelse = "En ny begrunnelse",
                                 beslutterNavIdent = "B111111",
                             ),
-                        periode.tilBehandlingDto(),
+                        periode,
                     )
                 }
 
@@ -184,7 +182,7 @@ class SaksbehandlingsperiodeStatusTest {
             assertEquals(3, outboxAfterApproval.size, "Det skal være 3 meldinger i outbox etter godkjenning av perioden")
 
             client
-                .get("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/historikk") {
+                .get("/v1/$personPseudoId/behandlinger/${periodeOpprinnelig.id}/historikk") {
                     bearerAuth(tokenSaksbehandler)
                 }.let { response ->
                     val historikk = response.bodyAsText().somListe<SaksbehandlingsperiodeEndring>()

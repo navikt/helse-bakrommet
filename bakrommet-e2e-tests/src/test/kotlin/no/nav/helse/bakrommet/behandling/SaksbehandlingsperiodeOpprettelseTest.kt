@@ -7,10 +7,12 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dokumenter.tilDokumentDto
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -19,7 +21,6 @@ import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
-import no.nav.helse.bakrommet.person.NaturligIdent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -89,7 +90,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     bearerAuth(TestOppsett.userToken)
                 }
             assertEquals(200, allePerioder.status.value)
-            val perioder: List<Behandling> = allePerioder.body()
+            val perioder: List<BehandlingDto> = allePerioder.body()
 
             perioder.size `should equal` 1
             val periode = perioder.first()
@@ -146,7 +147,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 ),
         ) { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
-
+            println("1111")
             client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -154,13 +155,15 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     """{ "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.søknadId}", "${søknad2.søknadId}", "${søknad3.søknadId}"] }""",
                 )
             }
+            println("11112")
 
             val periode =
                 client
                     .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Behandling>>()
+                    }.body<List<BehandlingDto>>()
                     .first()
+            println("11113")
 
             // Verifiser yrkesaktivitet
             val yrkesaktivitet =
@@ -168,6 +171,8 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     .get("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
+
+            println("1114")
 
             assertEquals(3, yrkesaktivitet.size)
             assertEquals(

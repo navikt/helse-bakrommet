@@ -7,7 +7,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
@@ -16,7 +16,7 @@ internal suspend fun ApplicationTestBuilder.sendTilbake(
     periodeId: UUID,
     token: String,
     kommentar: String = "Dette blir litt feil",
-): Behandling {
+): BehandlingDto {
     val response =
         client.post("/v1/$personId/behandlinger/$periodeId/sendtilbake") {
             bearerAuth(token)
@@ -26,5 +26,5 @@ internal suspend fun ApplicationTestBuilder.sendTilbake(
 
     assertEquals(200, response.status.value, "Send tilbake skal returnere status 200")
 
-    return response.body<Behandling>()
+    return response.body<BehandlingDto>()
 }

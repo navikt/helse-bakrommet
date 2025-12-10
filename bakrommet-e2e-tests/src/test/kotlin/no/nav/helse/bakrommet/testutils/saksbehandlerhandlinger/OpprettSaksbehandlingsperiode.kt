@@ -31,7 +31,7 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
             setBody(req.serialisertTilString())
         }
 
-    assertEquals(201, response.status.value, "Behandling skal opprettes med status 201")
+    assertEquals(201, response.status.value, "BehandlingDto skal opprettes med status 201")
 
     val responseBody = response.body<JsonNode>()
     assertTrue(responseBody.has("id"), "Response skal inneholde ID")

@@ -7,16 +7,17 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
-import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
@@ -33,7 +34,6 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.dto.serialisering.ØkonomiUtDto
-import no.nav.helse.bakrommet.person.NaturligIdent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -102,7 +102,7 @@ class UtbetalingsberegningIntegrasjonTest {
             sendTilBeslutning(PERSON_PSEUDO_ID, periode.id)
             taTilBesluting(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
 
-            godkjenn(PERSON_PSEUDO_ID,  periode.id, tokenBeslutter)
+            godkjenn(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
             val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()
             upubliserteEntries.size `should equal` 4
 
@@ -116,7 +116,7 @@ class UtbetalingsberegningIntegrasjonTest {
 
     private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto = objectMapper.readValue(this)
 
-    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Behandling {
+    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): BehandlingDto {
         client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
@@ -135,7 +135,7 @@ class UtbetalingsberegningIntegrasjonTest {
                 bearerAuth(TestOppsett.userToken)
             }
         assertEquals(200, response.status.value)
-        return response.body<List<Behandling>>().first()
+        return response.body<List<BehandlingDto>>().first()
     }
 
     private suspend fun ApplicationTestBuilder.settInntektPåYrkesaktivitet(

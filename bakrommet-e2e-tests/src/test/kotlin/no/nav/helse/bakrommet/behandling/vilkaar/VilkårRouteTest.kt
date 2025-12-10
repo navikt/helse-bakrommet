@@ -7,9 +7,9 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.Behandling
-import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -23,7 +23,7 @@ class VilkårRouteTest {
         val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
     }
 
-    fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(Pair<Daoer, Behandling>) -> Unit) =
+    fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(Pair<Daoer, BehandlingDto>) -> Unit) =
         runApplicationTest {
             it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
             val response =
@@ -38,11 +38,11 @@ class VilkårRouteTest {
                 }
             assertEquals(201, response.status.value)
 
-            val behandling: Behandling =
+            val behandling: BehandlingDto =
                 objectMapper
                     .readValue(
                         response.bodyAsText(),
-                        Behandling::class.java,
+                        BehandlingDto::class.java,
                     ).truncateTidspunkt()
 
             this.testBlock(it to behandling)

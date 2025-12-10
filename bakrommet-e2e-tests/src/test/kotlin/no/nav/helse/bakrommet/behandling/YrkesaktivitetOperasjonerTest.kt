@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
@@ -15,6 +16,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
@@ -22,7 +24,6 @@ import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import no.nav.helse.bakrommet.person.NaturligIdent
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import java.util.*
@@ -50,11 +51,11 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Behandling>>()
+                    }.body<List<BehandlingDto>>()
                     .first()
 
-                opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID,
+            opprettYrkesaktivitet(
+                personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -158,11 +159,11 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Behandling>>()
+                    }.body<List<BehandlingDto>>()
                     .first()
 
-                opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID,
+            opprettYrkesaktivitet(
+                personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -263,11 +264,11 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Behandling>>()
+                    }.body<List<BehandlingDto>>()
                     .first()
 
-                opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID,
+            opprettYrkesaktivitet(
+                personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -402,7 +403,7 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Behandling>>()
+                    }.body<List<BehandlingDto>>()
                     .first()
 
             // Sett skjæringstidspunkt for perioden
@@ -413,8 +414,8 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             // Opprett yrkesaktivitet
-                opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID,
+            opprettYrkesaktivitet(
+                personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -512,11 +513,11 @@ class YrkesaktivitetOperasjonerTest {
                 client
                     .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
-                    }.body<List<Behandling>>()
+                    }.body<List<BehandlingDto>>()
                     .first()
 
-                opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID,
+            opprettYrkesaktivitet(
+                personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,

@@ -24,7 +24,6 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.maybeOrgnummer
-import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
@@ -35,6 +34,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKat
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sigrun.SigrunMock
@@ -64,7 +64,6 @@ import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
 import java.util.UUID
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding as InntektsmeldingKontrakt
 
 object ScenarioDefaults {

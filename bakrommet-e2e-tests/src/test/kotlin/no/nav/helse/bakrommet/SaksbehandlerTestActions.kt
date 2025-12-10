@@ -6,7 +6,6 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.helse.bakrommet.behandling.Behandling
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 import kotlin.text.trimIndent
@@ -18,7 +17,7 @@ suspend fun ApplicationTestBuilder.sendTilBeslutning(
 ) {
     val response =
         this.client.post(
-            "/v1/${pseudoId}/behandlinger/${behandlingId}/sendtilbeslutning",
+            "/v1/$pseudoId/behandlinger/$behandlingId/sendtilbeslutning",
         ) {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
@@ -34,7 +33,7 @@ suspend fun ApplicationTestBuilder.taTilBesluting(
 ) {
     val response =
         this.client.post(
-            "/v1/${pseudoId}/behandlinger/${behandlingId}/tatilbeslutning",
+            "/v1/$pseudoId/behandlinger/$behandlingId/tatilbeslutning",
         ) {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
