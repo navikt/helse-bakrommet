@@ -277,7 +277,7 @@ class VilkårRouteTest {
                 }
                 """.trimIndent()
 
-            daoer.personPseudoIdDao.opprettPseudoId(annenPersonPseudoId, NaturligIdent("0101018888"))
+            daoer.personPseudoIdDao.opprettPseudoId(annenPersonPseudoId, NaturligIdent("01010188888"))
 
             client
                 .put(
