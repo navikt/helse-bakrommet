@@ -592,7 +592,7 @@ fun utbetalingsberegningTestdata(init: UtbetalingsberegningTestBuilder.() -> Uni
  */
 fun beregnOgByggOppdrag(
     input: UtbetalingsberegningInput,
-    ident: String = "TESTIDENT",
+    ident: String = "01019012345",
 ): BeregningResultat {
     val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
     val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, NaturligIdent(ident))
@@ -603,7 +603,7 @@ fun beregnOgByggOppdrag(
  * Kombinert DSL som setter opp testdata og beregner resultatet i ett steg
  */
 fun utbetalingsberegningTestOgBeregn(
-    ident: String = "TESTIDENT",
+    ident: String = "01019012345",
     init: UtbetalingsberegningTestBuilder.() -> Unit,
 ): BeregningResultat {
     val input = utbetalingsberegningTestdata(init)
