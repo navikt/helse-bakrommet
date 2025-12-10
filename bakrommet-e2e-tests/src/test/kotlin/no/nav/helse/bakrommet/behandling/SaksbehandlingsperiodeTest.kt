@@ -10,37 +10,40 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandlin
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.util.UUID
 
 class SaksbehandlingsperiodeTest {
     private companion object {
         val fnr = "01019012349"
         val personId = "65hth"
+        val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
     }
 
     @Test
     fun `oppretter saksbehandlingsperiode`() =
         runApplicationTest {
-            it.personPseudoIdDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
 
             // Opprett saksbehandlingsperiode via action
             val saksbehandlingsperiode =
                 opprettBehandling(
-                    personId,
+                    personPseudoId.toString(),
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 ).truncateTidspunkt()
             saksbehandlingsperiode.fom.toString() `should equal` "2023-01-01"
             saksbehandlingsperiode.tom.toString() `should equal` "2023-01-31"
-            saksbehandlingsperiode.naturligIdent `should equal` personId
+            saksbehandlingsperiode.naturligIdent.naturligIdent `should equal` fnr
             saksbehandlingsperiode.opprettetAvNavIdent `should equal` "tullebruker"
             saksbehandlingsperiode.opprettetAvNavn `should equal` "Tulla Bruker"
 
             // Hent alle perioder via action
-            val perioder = hentAllePerioder(personId)
+            val perioder = hentAllePerioder(personPseudoId.toString())
             perioder.size `should equal` 1
             perioder.map { it.truncateTidspunkt() } `should equal` listOf(saksbehandlingsperiode)
             println(perioder)
@@ -51,12 +54,13 @@ class SaksbehandlingsperiodeTest {
         runApplicationTest {
             val fnr2 = "02029200000"
             val personId2 = "2ndnd"
-            it.personPseudoIdDao.opprettPerson(fnr, personId)
-            it.personPseudoIdDao.opprettPerson(fnr2, personId2)
+            val personPseudoId2 = UUID.nameUUIDFromBytes(personId2.toByteArray())
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId2, NaturligIdent(fnr2))
 
-            suspend fun lagPeriodePåPerson(personId: String) =
+            suspend fun lagPeriodePåPerson(personPseudoId: UUID) =
                 client
-                    .post("/v1/$personId/behandlinger") {
+                    .post("/v1/$personPseudoId/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                         contentType(ContentType.Application.Json)
                         setBody(
@@ -66,12 +70,12 @@ class SaksbehandlingsperiodeTest {
                         )
                     }.body<Behandling>()
             val periode1 =
-                lagPeriodePåPerson(personId).also {
-                    assertEquals(personId, it.naturligIdent)
+                lagPeriodePåPerson(personPseudoId).also {
+                    assertEquals(fnr, it.naturligIdent.naturligIdent)
                 }
             val periode2 =
-                lagPeriodePåPerson(personId2).also {
-                    assertEquals(personId2, it.naturligIdent)
+                lagPeriodePåPerson(personPseudoId2).also {
+                    assertEquals(fnr2, it.naturligIdent.naturligIdent)
                 }
 
             val absoluttAllePerioder: List<Behandling> =
@@ -92,10 +96,10 @@ class SaksbehandlingsperiodeTest {
     @Test
     fun `kan oppdatere skjæringstidspunkt`() =
         runApplicationTest {
-            it.personPseudoIdDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
             val opprettetPeriode =
                 client
-                    .post("/v1/$personId/behandlinger") {
+                    .post("/v1/${personPseudoId}/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                         contentType(ContentType.Application.Json)
                         setBody(
@@ -109,7 +113,7 @@ class SaksbehandlingsperiodeTest {
             val nyttSkjæringstidspunkt = "2023-01-15"
             val oppdatertPeriode =
                 client
-                    .put("/v1/$personId/behandlinger/${opprettetPeriode.id}/skjaeringstidspunkt") {
+                    .put("/v1/${personPseudoId}/behandlinger/${opprettetPeriode.id}/skjaeringstidspunkt") {
                         bearerAuth(TestOppsett.userToken)
                         contentType(ContentType.Application.Json)
                         setBody(

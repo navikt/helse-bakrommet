@@ -33,6 +33,7 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.dto.serialisering.ØkonomiUtDto
+import no.nav.helse.bakrommet.person.NaturligIdent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -42,6 +43,7 @@ class UtbetalingsberegningIntegrasjonTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
+        val PERSON_PSEUDO_ID = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
         const val ARBEIDSGIVER_ORGNR = "123321123"
         const val ARBEIDSGIVER_NAVN = "Test Bedrift AS"
     }
@@ -67,7 +69,7 @@ class UtbetalingsberegningIntegrasjonTest {
                     søknadIdTilSvar = mapOf(søknad["id"].asText() to søknad),
                 ),
         ) { daoer ->
-            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
             daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 0
 
             val tokenBeslutter = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
@@ -78,7 +80,7 @@ class UtbetalingsberegningIntegrasjonTest {
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId =
                 opprettYrkesaktivitet(
-                    personId = PERSON_ID,
+                    personId = PERSON_PSEUDO_ID.toString(),
                     periode.id,
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
@@ -92,7 +94,7 @@ class UtbetalingsberegningIntegrasjonTest {
             settDagoversikt(periode.id, yrkesaktivitetId)
 
             // Hent utbetalingsberegning
-            val beregning = hentUtbetalingsberegning(PERSON_ID, periode.id)
+            val beregning = hentUtbetalingsberegning(PERSON_PSEUDO_ID.toString(), periode.id)
 
             // Verifiser resultatet
             verifiserBeregning(beregning!!)
@@ -115,7 +117,7 @@ class UtbetalingsberegningIntegrasjonTest {
     private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto = objectMapper.readValue(this)
 
     private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Behandling {
-        client.post("/v1/$PERSON_ID/behandlinger") {
+        client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(
@@ -129,7 +131,7 @@ class UtbetalingsberegningIntegrasjonTest {
         }
 
         val response =
-            client.get("/v1/$PERSON_ID/behandlinger") {
+            client.get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
             }
         assertEquals(200, response.status.value)
@@ -159,7 +161,7 @@ class UtbetalingsberegningIntegrasjonTest {
             )
 
         val response =
-            client.put("/v1/$PERSON_ID/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
+            client.put("/v1/${PERSON_PSEUDO_ID}/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(inntektRequest.serialisertTilString())
@@ -213,7 +215,7 @@ class UtbetalingsberegningIntegrasjonTest {
             """.trimIndent()
 
         val response =
-            client.put("/v1/$PERSON_ID/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
+            client.put("/v1/${PERSON_PSEUDO_ID}/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(dagoversikt)

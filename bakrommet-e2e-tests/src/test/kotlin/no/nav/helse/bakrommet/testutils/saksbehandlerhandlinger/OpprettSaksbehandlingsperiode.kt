@@ -10,6 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
@@ -23,7 +24,7 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
     personId: String,
     req: OpprettBehandlingRequestDto,
     token: String = TestOppsett.userToken,
-): Behandling {
+): BehandlingDto {
     val response =
         client.post("/v1/$personId/behandlinger") {
             bearerAuth(token)
@@ -46,7 +47,7 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
     assertEquals(200, getResponse.status.value, "Henting av behandling skal returnere status 200")
 
     val json = getResponse.body<String>()
-    val perioder = objectMapperCustomSerde.readValue<List<Behandling>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, Behandling::class.java))
+    val perioder = objectMapperCustomSerde.readValue<List<BehandlingDto>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, Behandling::class.java))
 
     assertTrue(perioder.isNotEmpty(), "Det skal finnes minst én behandling")
     val periode = perioder.first { it.id == periodeId }
@@ -59,7 +60,7 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
     fom: LocalDate,
     tom: LocalDate,
     token: String = TestOppsett.userToken,
-): Behandling {
+): BehandlingDto {
     val req = OpprettBehandlingRequestDto(fom = fom, tom = tom, søknader = null)
     return opprettBehandling(personId, req, token)
 }

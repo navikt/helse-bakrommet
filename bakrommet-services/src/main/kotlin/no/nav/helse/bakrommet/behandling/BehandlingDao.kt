@@ -252,7 +252,7 @@ class BehandlingDaoPg private constructor(
                 (:id, :naturlig_ident, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id, :revurderer_behandling_id)
             """.trimIndent(),
             "id" to periode.id,
-            "naturlig_ident" to periode.naturligIdent,
+            "naturlig_ident" to periode.naturligIdent.naturligIdent,
             "opprettet" to periode.opprettet,
             "opprettet_av_nav_ident" to periode.opprettetAvNavIdent,
             "opprettet_av_navn" to periode.opprettetAvNavn,

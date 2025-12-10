@@ -10,22 +10,25 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandlin
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilbake
 import no.nav.helse.bakrommet.testutils.`should equal`
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.util.UUID
 
 class SaksbehandlingsperiodeStatusTest {
     private companion object {
         val fnr = "01019012349"
         val personId = "65hth"
+        val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
     }
 
     @Test
     fun `diverse statusendringer på saksbehandlingsperiode`() =
         runApplicationTest {
-            it.personPseudoIdDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
 
             val tokenSaksbehandler = oAuthMock.token(navIdent = "S111111", grupper = listOf("GRUPPE_SAKSBEHANDLER"))
             val tokenSaksbehandler2 = oAuthMock.token(navIdent = "S222222", grupper = listOf("GRUPPE_SAKSBEHANDLER"))
@@ -37,7 +40,7 @@ class SaksbehandlingsperiodeStatusTest {
             // Opprett saksbehandlingsperiode via action
             val periodeOpprinnelig =
                 opprettBehandling(
-                    personId,
+                    personPseudoId.toString(),
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                     token = tokenSaksbehandler,
@@ -53,7 +56,7 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             client
-                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
                     bearerAuth(tokenSaksbehandler2)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "individuellBegrunnelse" : "En begrunnelse" }""".trimIndent())
@@ -68,14 +71,14 @@ class SaksbehandlingsperiodeStatusTest {
             // Send til beslutning via action
 
             sendTilBeslutning(
-                personId,
+                personPseudoId.toString(),
                 periodeOpprinnelig.id,
                 tokenSaksbehandler,
                 "En begrunnelse",
             )
 
             client
-                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/tatilbeslutning") {
+                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/tatilbeslutning") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(200, response.status.value)
@@ -92,7 +95,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
+                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
                     bearerAuth(tokenBeslutter)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "mangler" : "kommentar-felt" }""")
@@ -101,7 +104,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
+                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/sendtilbake") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(415, response.status.value, "Mangler POST-body som application/json")
@@ -110,7 +113,7 @@ class SaksbehandlingsperiodeStatusTest {
             // Send tilbake via action
             val periode =
                 sendTilbake(
-                    personId,
+                    personPseudoId.toString(),
                     periodeOpprinnelig.id,
                     tokenBeslutter,
                     "Dette blir litt feil",
@@ -127,7 +130,7 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             client
-                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
+                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/sendtilbeslutning") {
                     bearerAuth(tokenSaksbehandler)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "individuellBegrunnelse" : "En ny begrunnelse" }""".trimIndent())
@@ -147,7 +150,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
+                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
                     bearerAuth(tokenBeslutter2)
                 }.let { response ->
                     assertEquals(
@@ -158,7 +161,7 @@ class SaksbehandlingsperiodeStatusTest {
                 }
 
             client
-                .post("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
+                .post("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/godkjenn") {
                     bearerAuth(tokenBeslutter)
                 }.let { response ->
                     assertEquals(200, response.status.value)
@@ -178,7 +181,7 @@ class SaksbehandlingsperiodeStatusTest {
             assertEquals(3, outboxAfterApproval.size, "Det skal være 3 meldinger i outbox etter godkjenning av perioden")
 
             client
-                .get("/v1/$personId/behandlinger/${periodeOpprinnelig.id}/historikk") {
+                .get("/v1/${personPseudoId}/behandlinger/${periodeOpprinnelig.id}/historikk") {
                     bearerAuth(tokenSaksbehandler)
                 }.let { response ->
                     val historikk = response.bodyAsText().somListe<SaksbehandlingsperiodeEndring>()

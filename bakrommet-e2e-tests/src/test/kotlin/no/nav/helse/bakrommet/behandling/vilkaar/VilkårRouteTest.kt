@@ -9,22 +9,25 @@ import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 class VilkårRouteTest {
     private companion object {
         val fnr = "01019012349"
         val personId = "65hth"
+        val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
     }
 
     fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(Pair<Daoer, Behandling>) -> Unit) =
         runApplicationTest {
-            it.personPseudoIdDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
             val response =
-                client.post("/v1/$personId/behandlinger") {
+                client.post("/v1/$personPseudoId/behandlinger") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(
@@ -51,7 +54,7 @@ class VilkårRouteTest {
             saksbehandlingsperiode.id
             val vilkårPutResponse =
                 client.put(
-                    "/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -79,7 +82,7 @@ class VilkårRouteTest {
             saksbehandlingsperiode.id
             client
                 .put(
-                    "/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -101,7 +104,7 @@ class VilkårRouteTest {
                 }
 
             client
-                .get("/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
+                .get("/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
@@ -115,7 +118,7 @@ class VilkårRouteTest {
 
             client
                 .put(
-                    "/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -137,7 +140,7 @@ class VilkårRouteTest {
                 }
 
             client
-                .get("/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
+                .get("/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
@@ -151,7 +154,7 @@ class VilkårRouteTest {
 
             client
                 .put(
-                    "/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ET_VILKÅR_TIL",
+                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ET_VILKÅR_TIL",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -171,7 +174,7 @@ class VilkårRouteTest {
                 }
 
             client
-                .get("/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
+                .get("/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
@@ -198,7 +201,7 @@ class VilkårRouteTest {
 
             client
                 .delete(
-                    "/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
@@ -207,7 +210,7 @@ class VilkårRouteTest {
 
             client
                 .delete(
-                    "/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
@@ -215,7 +218,7 @@ class VilkårRouteTest {
                 }
 
             client
-                .get("/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
+                .get("/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
@@ -233,7 +236,7 @@ class VilkårRouteTest {
             saksbehandlingsperiode.id
             val vilkårPostResponse =
                 client.put(
-                    "/v1/$personId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ugyldig-KODE",
+                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ugyldig-KODE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -248,7 +251,7 @@ class VilkårRouteTest {
                 }
 
             assertEquals(HttpStatusCode.BadRequest, vilkårPostResponse.status)
-            val pers = personId
+            val pers = personPseudoId.toString()
             assertEquals(
                 """
                 {"type":"https://spillerom.ansatt.nav.no/validation/input","title":"Ugyldig format på Kode","status":400,"detail":null,"instance":"/v1/$pers/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ugyldig-KODE"}
@@ -260,9 +263,10 @@ class VilkårRouteTest {
     @Test
     fun `Feil person+periode-kombo gir 400 for både GET,PUT og DELETE`() =
         vilkårAppTest { (daoer, saksbehandlingsperiode) ->
-            val dennePersonId = personId
+            val dennePersonPseudoId = personPseudoId
             val dennePeriodeId = saksbehandlingsperiode.id
             val annenPersonId = "pers2"
+            val annenPersonPseudoId = UUID.nameUUIDFromBytes(annenPersonId.toByteArray())
 
             val someBody =
                 """
@@ -273,11 +277,11 @@ class VilkårRouteTest {
                 }
                 """.trimIndent()
 
-            daoer.personPseudoIdDao.opprettPerson("0101018888", annenPersonId)
+            daoer.personPseudoIdDao.opprettPseudoId(annenPersonPseudoId, NaturligIdent("0101018888"))
 
             client
                 .put(
-                    "/v1/$annenPersonId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$annenPersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -288,7 +292,7 @@ class VilkårRouteTest {
 
             client
                 .put(
-                    "/v1/$dennePersonId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$dennePersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -299,7 +303,7 @@ class VilkårRouteTest {
 
             client
                 .put(
-                    "/v1/$annenPersonId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$annenPersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
@@ -317,7 +321,7 @@ class VilkårRouteTest {
 
             client
                 .delete(
-                    "/v1/$annenPersonId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$annenPersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
@@ -325,7 +329,7 @@ class VilkårRouteTest {
                 }
 
             client
-                .get("/v1/$dennePersonId/behandlinger/$dennePeriodeId/vilkaarsvurdering") {
+                .get("/v1/$dennePersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
@@ -339,7 +343,7 @@ class VilkårRouteTest {
 
             client
                 .delete(
-                    "/v1/$dennePersonId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
+                    "/v1/$dennePersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
                 ) {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {

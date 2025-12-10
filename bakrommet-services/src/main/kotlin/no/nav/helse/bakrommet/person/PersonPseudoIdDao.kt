@@ -33,7 +33,7 @@ class PersonPseudoIdDaoPg private constructor(
             INSERT INTO person_pseudo_id (pseudo_id, naturlig_ident, opprettet)
             VALUES (:pseudo_id, :naturlig_ident, NOW())
             """.trimIndent(),
-            "pseudo_id" to pseudoId.toString(),
+            "pseudo_id" to pseudoId,
             "naturlig_ident" to naturligIdent.naturligIdent,
         )
     }
@@ -42,7 +42,7 @@ class PersonPseudoIdDaoPg private constructor(
         db
             .single(
                 "SELECT naturlig_ident FROM person_pseudo_id WHERE pseudo_id = :pseudo_id ",
-                "pseudo_id" to pseudoId.toString(),
+                "pseudo_id" to pseudoId,
             ) { it.string(1) }
             ?.let { NaturligIdent(it) }
 

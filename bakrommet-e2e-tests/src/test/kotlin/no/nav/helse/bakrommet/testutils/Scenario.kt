@@ -63,6 +63,7 @@ import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
 import java.util.UUID
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding as InntektsmeldingKontrakt
 
 object ScenarioDefaults {
@@ -246,11 +247,12 @@ data class Scenario(
                     fnrTilInntektApiUt = mapOf(fnr to ainntekt828),
                 ),
         ) { daoer ->
-            daoer.personPseudoIdDao.opprettPerson(fnr, personId)
+            val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
+            daoer.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
 
             val periode =
                 opprettBehandling(
-                    personId,
+                    personPseudoId.toString(),
                     OpprettBehandlingRequestDto(
                         fom = fom,
                         tom = tom,
@@ -261,7 +263,7 @@ data class Scenario(
 
             if (skjæringstidspunkt != fom) {
                 // Sett skjæringstidspunkt for perioden via action
-                settSkjaeringstidspunkt(personId, periode.id, skjæringstidspunkt)
+                settSkjaeringstidspunkt(personPseudoId.toString(), periode.id, skjæringstidspunkt)
             }
 
             val yaMedId =
@@ -271,14 +273,14 @@ data class Scenario(
                             is Arbeidstaker -> {
                                 // sjekk om vi har en som passer fra før
                                 val eksisterendeYa =
-                                    hentYrkesaktiviteter(personId, periode.id)
+                                    hentYrkesaktiviteter(personPseudoId.toString(), periode.id)
                                         .filter {
                                             it.kategorisering is YrkesaktivitetKategoriseringDto.Arbeidstaker
                                         }.firstOrNull { it.kategorisering.maybeOrgnummer() == ya.orgnr }
 
                                 eksisterendeYa?.id
                                     ?: opprettYrkesaktivitet(
-                                        personId = personId,
+                                        personId = personPseudoId.toString(),
                                         periode.id,
                                         YrkesaktivitetKategorisering.Arbeidstaker(
                                             sykmeldt = true,
@@ -290,14 +292,14 @@ data class Scenario(
                             is Selvstendig -> {
                                 // sjekk om vi har en som passer fra før
                                 val eksisterendeYa =
-                                    hentYrkesaktiviteter(personId, periode.id)
+                                    hentYrkesaktiviteter(personPseudoId.toString(), periode.id)
                                         .firstOrNull {
                                             it.kategorisering is YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende
                                         }
 
                                 eksisterendeYa?.id
                                     ?: opprettYrkesaktivitet(
-                                        personId = personId,
+                                        personId = personPseudoId.toString(),
                                         periode.id,
                                         YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                                             sykmeldt = true,
@@ -314,14 +316,14 @@ data class Scenario(
             yaMedId.forEach { (ya, yrkesaktivitetId) ->
                 // Oppdater inntekt via action
                 if (ya.inntekt != null) {
-                    oppdaterInntekt(personId, periode.id, yrkesaktivitetId, ya.inntekt.request)
+                    oppdaterInntekt(personPseudoId.toString(), periode.id, yrkesaktivitetId, ya.inntekt.request)
                 }
             }
 
             yaMedId.forEach { (ya, yrkesaktivitetId) ->
                 if (ya.dagoversikt != null) {
                     settDagoversikt(
-                        personId = personId,
+                        personId = personPseudoId.toString(),
                         periodeId = periode.id,
                         yrkesaktivitetId = yrkesaktivitetId,
                         dager = ya.dagoversikt.lagDagListe(fom = periode.fom, tom = periode.tom),
@@ -331,22 +333,22 @@ data class Scenario(
 
             vilkår?.forEach { vilkårDto ->
                 oppdaterVilkårsvurdering(
-                    personId = personId,
+                    personId = personPseudoId.toString(),
                     periodeId = periode.id,
                     vilkår = vilkårDto,
                 )
             }
             // Hent sykepengegrunnlag via action
-            val sykepengegrunnlag = hentSykepengegrunnlag(periode.naturligIdent, periode.id)
+            val sykepengegrunnlag = hentSykepengegrunnlag(periode.naturligIdent.naturligIdent, periode.id)
 
-            val beregning = hentUtbetalingsberegning(periode.naturligIdent, periode.id)
-            val yrkesaktiviteter = hentYrkesaktiviteter(periode.naturligIdent, periode.id)
+            val beregning = hentUtbetalingsberegning(periode.naturligIdent.naturligIdent, periode.id)
+            val yrkesaktiviteter = hentYrkesaktiviteter(periode.naturligIdent.naturligIdent, periode.id)
             if (besluttOgGodkjenn) {
                 sendTilBeslutning(periode)
                 taTilBesluting(periode, beslutterToken)
                 godkjenn(periode, beslutterToken)
             }
-            val reloadedPeriode = hentAllePerioder(personId).first { it.id == periode.id }
+            val reloadedPeriode = hentAllePerioder(personPseudoId.toString()).first { it.id == periode.id }
             if (testBlock != null) {
                 testBlock.invoke(
                     this,

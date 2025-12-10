@@ -19,6 +19,7 @@ import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import no.nav.helse.bakrommet.person.NaturligIdent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -28,9 +29,11 @@ class SaksbehandlingsperiodeOpprettelseTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
+        val PERSON_PSEUDO_ID = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
 
         const val FNR2 = "01019022222"
         const val PERSON_ID2 = "66hth"
+        val PERSON_PSEUDO_ID2 = UUID.nameUUIDFromBytes(PERSON_ID2.toByteArray())
     }
 
     @Test
@@ -64,11 +67,11 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3, søknad3b).associateBy { it.søknadId },
                 ),
         ) { daoer ->
-            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 
             // Opprett saksbehandlingsperiode
             client
-                .post("/v1/$PERSON_ID/behandlinger") {
+                .post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(
@@ -82,7 +85,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
             // Hent alle perioder
             val allePerioder =
-                client.get("/v1/$PERSON_ID/behandlinger") {
+                client.get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                     bearerAuth(TestOppsett.userToken)
                 }
             assertEquals(200, allePerioder.status.value)
@@ -113,7 +116,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             // Verifiser API for dokumenter
             val dokumenter: List<DokumentDto> =
                 client
-                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/dokumenter") {
+                    .get("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/dokumenter") {
                         bearerAuth(TestOppsett.userToken)
                     }.body()
             assertEquals(dokumenterFraDB.map { it.tilDokumentDto() }.toSet(), dokumenter.toSet())
@@ -142,9 +145,9 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3).associateBy { it.søknadId },
                 ),
         ) { daoer ->
-            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 
-            client.post("/v1/$PERSON_ID/behandlinger") {
+            client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -154,7 +157,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
             val periode =
                 client
-                    .get("/v1/$PERSON_ID/behandlinger") {
+                    .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<Behandling>>()
                     .first()
@@ -162,7 +165,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             // Verifiser yrkesaktivitet
             val yrkesaktivitet =
                 client
-                    .get("/v1/$PERSON_ID/behandlinger/${periode.id}/yrkesaktivitet") {
+                    .get("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/yrkesaktivitet") {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
 
@@ -217,14 +220,14 @@ class SaksbehandlingsperiodeOpprettelseTest {
     @Test
     fun `saksbehandlingsperioder for samme person skal ikke kunne overlappe`() {
         runApplicationTest { daoer ->
-            daoer.personPseudoIdDao.opprettPerson(FNR, PERSON_ID)
-            daoer.personPseudoIdDao.opprettPerson(FNR2, PERSON_ID2)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID2, NaturligIdent(FNR2))
 
             suspend fun opprettPeriode(
-                person: String,
+                personPseudoId: UUID,
                 fom: String,
                 tom: String,
-            ) = client.post("/v1/$person/behandlinger") {
+            ) = client.post("/v1/$personPseudoId/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -232,24 +235,24 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 )
             }
 
-            opprettPeriode(PERSON_ID, "2023-01-01", "2023-01-31").apply {
+            opprettPeriode(PERSON_PSEUDO_ID, "2023-01-01", "2023-01-31").apply {
                 assertEquals(HttpStatusCode.Created, status)
             }
-            opprettPeriode(PERSON_ID, "2023-02-01", "2023-02-15").apply {
+            opprettPeriode(PERSON_PSEUDO_ID, "2023-02-01", "2023-02-15").apply {
                 assertEquals(HttpStatusCode.Created, status)
             }
-            opprettPeriode(PERSON_ID, "2023-02-15", "2023-02-25").apply {
+            opprettPeriode(PERSON_PSEUDO_ID, "2023-02-15", "2023-02-25").apply {
                 assertEquals(HttpStatusCode.BadRequest, status)
                 assertEquals("Angitte datoer overlapper med en eksisterende periode", bodyAsText().asJsonNode()["title"].asText())
             }
-            opprettPeriode(PERSON_ID, "2023-02-16", "2023-02-25").apply {
+            opprettPeriode(PERSON_PSEUDO_ID, "2023-02-16", "2023-02-25").apply {
                 assertEquals(
                     HttpStatusCode.Created,
                     status,
                     "Nytt forsøk med justert FOM skal fungere",
                 )
             }
-            opprettPeriode(PERSON_ID2, "2023-02-15", "2023-02-25").apply {
+            opprettPeriode(PERSON_PSEUDO_ID2, "2023-02-15", "2023-02-25").apply {
                 assertEquals(
                     HttpStatusCode.Created,
                     status,
