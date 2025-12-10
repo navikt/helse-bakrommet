@@ -5,7 +5,6 @@ import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.helse.bakrommet.behandling.Behandling
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
