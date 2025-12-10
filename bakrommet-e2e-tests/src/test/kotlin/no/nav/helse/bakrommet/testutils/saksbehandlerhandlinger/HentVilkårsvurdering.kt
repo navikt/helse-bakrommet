@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.util.objectMapper
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentVilkårsvurdering(
-    personId: String,
+    personId: UUID,
     periodeId: UUID,
 ): List<VilkaarsvurderingDto> {
     val response =

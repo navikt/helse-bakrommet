@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.dto.InntektbeløpDto
@@ -25,12 +26,12 @@ import kotlin.test.assertEquals
 class YrkesaktivitetDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
     val fnr = "01019012345"
-    val personId = "0h0a1"
+    val pseudoId = UUID.nameUUIDFromBytes("0h0a1".toByteArray())
     val saksbehandler = Bruker("ABC", "A. B. C", "ola@nav.no", emptySet())
     val periode =
         Behandling(
             id = UUID.randomUUID(),
-            naturligIdent = personId,
+            naturligIdent = NaturligIdent(fnr),
             opprettet = OffsetDateTime.now(),
             opprettetAvNavIdent = saksbehandler.navIdent,
             opprettetAvNavn = saksbehandler.navn,
@@ -43,7 +44,7 @@ class YrkesaktivitetDaoTest {
     fun setOpp() {
         TestDataSource.resetDatasource()
         val dao = PersonPseudoIdDaoPg(dataSource)
-        dao.opprettPerson(fnr, personId)
+        dao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
         val behandlingDao = BehandlingDaoPg(dataSource)
         behandlingDao.opprettPeriode(periode)
     }

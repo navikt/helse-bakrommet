@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.oppdaterVilkårsvurdering(
-    personId: String,
+    personId: UUID,
     periodeId: UUID,
     vilkår: VilkaarsvurderingDto,
     expectedResponseStatus: HttpStatusCode = HttpStatusCode.Created,

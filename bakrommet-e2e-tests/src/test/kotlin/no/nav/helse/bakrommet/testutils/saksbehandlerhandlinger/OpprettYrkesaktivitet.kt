@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.opprettYrkesaktivitet(
-    personId: String,
+    personId: UUID,
     periodeId: UUID,
     kategorisering: YrkesaktivitetKategorisering,
 ): UUID {

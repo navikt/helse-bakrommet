@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.sendTilBeslutning(
-    personId: String,
+    personId: UUID,
     periodeId: UUID,
     token: String = TestOppsett.userToken,
     individuellBegrunnelse: String = "En begrunnelse",

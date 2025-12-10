@@ -80,7 +80,7 @@ class UtbetalingsberegningIntegrasjonTest {
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId =
                 opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID.toString(),
+                    personId = PERSON_PSEUDO_ID,
                     periode.id,
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
@@ -94,7 +94,7 @@ class UtbetalingsberegningIntegrasjonTest {
             settDagoversikt(periode.id, yrkesaktivitetId)
 
             // Hent utbetalingsberegning
-            val beregning = hentUtbetalingsberegning(PERSON_PSEUDO_ID.toString(), periode.id)
+            val beregning = hentUtbetalingsberegning(PERSON_PSEUDO_ID, periode.id)
 
             // Verifiser resultatet
             verifiserBeregning(beregning!!)

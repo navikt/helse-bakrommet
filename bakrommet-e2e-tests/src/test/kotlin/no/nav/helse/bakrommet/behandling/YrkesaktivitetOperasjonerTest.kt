@@ -54,7 +54,7 @@ class YrkesaktivitetOperasjonerTest {
                     .first()
 
                 opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID.toString(),
+                    personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -162,7 +162,7 @@ class YrkesaktivitetOperasjonerTest {
                     .first()
 
                 opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID.toString(),
+                    personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -267,7 +267,7 @@ class YrkesaktivitetOperasjonerTest {
                     .first()
 
                 opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID.toString(),
+                    personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -414,7 +414,7 @@ class YrkesaktivitetOperasjonerTest {
 
             // Opprett yrkesaktivitet
                 opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID.toString(),
+                    personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -516,7 +516,7 @@ class YrkesaktivitetOperasjonerTest {
                     .first()
 
                 opprettYrkesaktivitet(
-                    personId = PERSON_PSEUDO_ID.toString(),
+                    personId = PERSON_PSEUDO_ID,
                 periode.id,
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,

@@ -12,6 +12,7 @@ import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.somListe
+import no.nav.helse.bakrommet.api.behandling.tilBehandlingDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -35,17 +36,17 @@ class SaksbehandlingsperiodeTest {
                     personPseudoId.toString(),
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
-                ).truncateTidspunkt()
+                )
             saksbehandlingsperiode.fom.toString() `should equal` "2023-01-01"
             saksbehandlingsperiode.tom.toString() `should equal` "2023-01-31"
-            saksbehandlingsperiode.naturligIdent.naturligIdent `should equal` fnr
+            saksbehandlingsperiode.naturligIdent `should equal` fnr
             saksbehandlingsperiode.opprettetAvNavIdent `should equal` "tullebruker"
             saksbehandlingsperiode.opprettetAvNavn `should equal` "Tulla Bruker"
 
             // Hent alle perioder via action
-            val perioder = hentAllePerioder(personPseudoId.toString())
+            val perioder = hentAllePerioder(personPseudoId)
             perioder.size `should equal` 1
-            perioder.map { it.truncateTidspunkt() } `should equal` listOf(saksbehandlingsperiode)
+            perioder.map { it.tilBehandlingDto() } `should equal` listOf(saksbehandlingsperiode)
             println(perioder)
         }
 

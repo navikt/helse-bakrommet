@@ -8,9 +8,10 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
+import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentAllePerioder(
-    personId: String,
+    personId: UUID,
 ): List<Behandling> {
     val response =
         client.get("/v1/$personId/behandlinger") {

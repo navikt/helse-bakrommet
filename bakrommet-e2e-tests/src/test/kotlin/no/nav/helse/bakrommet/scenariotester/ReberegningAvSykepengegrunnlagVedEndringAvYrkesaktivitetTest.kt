@@ -20,12 +20,12 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder {
             hentSykepengegrunnlag(
-                it.scenario.personId,
+                it.scenario.pseudoId,
                 it.periode.id,
             )!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 400000.0
 
             hentYrkesaktiviteter(
-                it.scenario.personId,
+                it.scenario.pseudoId,
                 it.periode.id,
             ).first {
                 when (val k = it.kategorisering) {
@@ -44,12 +44,12 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
                 slettYrkesaktivitet(
                     periodeId = it.periode.id,
                     yrkesaktivitetId = yrkesaktivitet777.id,
-                    personId = it.scenario.personId,
+                    pseudoId = it.scenario.pseudoId,
                 )
             }
 
             hentSykepengegrunnlag(
-                it.scenario.personId,
+                it.scenario.pseudoId,
                 it.periode.id,
             )!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 120000.0
         }
@@ -67,17 +67,17 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
         ).runWithApplicationTestBuilder {
             val nyPeriode =
                 opprettBehandling(
-                    personId = it.scenario.personId,
+                    personId = it.scenario.pseudoId,
                     fom = it.periode.tom.plusDays(1),
                     tom = it.periode.tom.plusDays(14),
                 )
             hentSykepengegrunnlag(
-                it.scenario.personId,
+                it.scenario.pseudoId,
                 nyPeriode.id,
             )!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 400000.0
 
             hentYrkesaktiviteter(
-                it.scenario.personId,
+                it.scenario.pseudoId,
                 nyPeriode.id,
             ).also {
                 it.size `should equal` 2
@@ -98,19 +98,19 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
                 slettYrkesaktivitet(
                     periodeId = nyPeriode.id,
                     yrkesaktivitetId = yrkesaktivitet777.id,
-                    personId = it.scenario.personId,
+                    pseudoId = it.scenario.pseudoId,
                 )
             }
 
             hentYrkesaktiviteter(
-                it.scenario.personId,
+                it.scenario.pseudoId,
                 nyPeriode.id,
             ).also {
                 it.size `should equal` 1
             }
 
             hentSykepengegrunnlag(
-                it.scenario.personId,
+                it.scenario.pseudoId,
                 nyPeriode.id,
             )!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 400000.0
         }

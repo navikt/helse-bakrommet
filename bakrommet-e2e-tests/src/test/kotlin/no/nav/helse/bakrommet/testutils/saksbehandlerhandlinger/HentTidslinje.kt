@@ -9,9 +9,10 @@ import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingDto
 import no.nav.helse.bakrommet.tidslinje.Tidslinje
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
+import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentTidslinje(
-    personId: String,
+    personId: UUID,
 ): List<no.nav.helse.bakrommet.tidslinje.TidslinjeRad> {
     val response =
         client.get("/v1/$personId/tidslinje") {
@@ -24,7 +25,7 @@ internal suspend fun ApplicationTestBuilder.hentTidslinje(
 }
 
 internal suspend fun ApplicationTestBuilder.hentTidslinjeV2(
-    personId: String,
+    personId: UUID,
 ): List<TidslinjeBehandlingDto> {
     val response =
         client.get("/v2/$personId/tidslinje") {

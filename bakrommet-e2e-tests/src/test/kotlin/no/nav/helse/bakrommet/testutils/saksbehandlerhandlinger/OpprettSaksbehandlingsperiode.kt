@@ -47,7 +47,7 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
     assertEquals(200, getResponse.status.value, "Henting av behandling skal returnere status 200")
 
     val json = getResponse.body<String>()
-    val perioder = objectMapperCustomSerde.readValue<List<BehandlingDto>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, Behandling::class.java))
+    val perioder = objectMapperCustomSerde.readValue<List<BehandlingDto>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, BehandlingDto::class.java))
 
     assertTrue(perioder.isNotEmpty(), "Det skal finnes minst én behandling")
     val periode = perioder.first { it.id == periodeId }
@@ -63,4 +63,14 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
 ): BehandlingDto {
     val req = OpprettBehandlingRequestDto(fom = fom, tom = tom, søknader = null)
     return opprettBehandling(personId, req, token)
+}
+
+internal suspend fun ApplicationTestBuilder.opprettBehandling(
+    personId: UUID,
+    fom: LocalDate,
+    tom: LocalDate,
+    token: String = TestOppsett.userToken,
+): BehandlingDto {
+    val req = OpprettBehandlingRequestDto(fom = fom, tom = tom, søknader = null)
+    return opprettBehandling(personId.toString(), req, token)
 }

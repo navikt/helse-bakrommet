@@ -41,7 +41,7 @@ class DokumentHentingTest {
             // Opprett saksbehandlingsperiode via action
             val periode =
                 opprettBehandling(
-                    PERSON_PSEUDO_ID.toString(),
+                    PERSON_PSEUDO_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
@@ -138,7 +138,7 @@ class DokumentHentingTest {
             // Opprett saksbehandlingsperiode via action
             val periode =
                 opprettBehandling(
-                    PERSON_PSEUDO_ID.toString(),
+                    PERSON_PSEUDO_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
@@ -210,7 +210,7 @@ class DokumentHentingTest {
             // Opprett saksbehandlingsperiode via action
             val periode =
                 opprettBehandling(
-                    PERSON_PSEUDO_ID.toString(),
+                    PERSON_PSEUDO_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )

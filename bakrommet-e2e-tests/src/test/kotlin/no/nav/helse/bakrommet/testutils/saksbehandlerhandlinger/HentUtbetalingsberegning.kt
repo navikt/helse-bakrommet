@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentUtbetalingsberegning(
-    personId: String,
+    personId: UUID,
     periodeId: UUID,
 ): BeregningResponseDto? {
     val response =

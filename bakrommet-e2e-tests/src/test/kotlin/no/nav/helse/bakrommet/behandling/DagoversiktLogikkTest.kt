@@ -26,14 +26,14 @@ class DagoversiktLogikkTest {
             val personPseudoId = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
             val periode =
                 opprettBehandling(
-                    personPseudoId.toString(),
+                    personPseudoId,
                     LocalDate.parse("2023-02-01"),
                     LocalDate.parse("2023-02-28"),
                 )
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId =
                 opprettYrkesaktivitet(
-                    personId = personPseudoId.toString(),
+                    personId = personPseudoId,
                     periode.id,
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.leggTilTilkommenInntekt(
-    personId: String,
+    personId: UUID,
     periodeId: UUID,
     tilkommenInntekt: OpprettTilkommenInntektRequestDto,
 ): TilkommenInntektResponseDto {

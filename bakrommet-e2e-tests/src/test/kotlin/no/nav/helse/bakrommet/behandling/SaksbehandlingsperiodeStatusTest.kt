@@ -13,6 +13,9 @@ import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.bakrommet.util.somListe
+import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
+import no.nav.helse.bakrommet.api.behandling.tilBehandlingDto
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -50,7 +53,7 @@ class SaksbehandlingsperiodeStatusTest {
             assertEquals(1, outboxAfterCreation.size, "Det skal være én melding i outbox etter opprettelse av perioden")
 
             assertEquals(
-                BehandlingStatus.UNDER_BEHANDLING,
+                TidslinjeBehandlingStatus.UNDER_BEHANDLING,
                 periodeOpprinnelig.status,
                 "Status skal være UNDER_BEHANDLING for nyopprettet saksbehandlingsperiode",
             )
@@ -71,7 +74,7 @@ class SaksbehandlingsperiodeStatusTest {
             // Send til beslutning via action
 
             sendTilBeslutning(
-                personPseudoId.toString(),
+                personPseudoId,
                 periodeOpprinnelig.id,
                 tokenSaksbehandler,
                 "En begrunnelse",
@@ -86,11 +89,11 @@ class SaksbehandlingsperiodeStatusTest {
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
-                                status = BehandlingStatus.UNDER_BESLUTNING,
+                                status = TidslinjeBehandlingStatus.UNDER_BESLUTNING,
                                 individuellBegrunnelse = "En begrunnelse",
                                 beslutterNavIdent = "B111111",
-                            ).truncateTidspunkt(),
-                        periode.truncateTidspunkt(),
+                            ),
+                        periode.tilBehandlingDto(),
                     )
                 }
 
@@ -121,11 +124,11 @@ class SaksbehandlingsperiodeStatusTest {
             assertEquals(
                 periodeOpprinnelig
                     .copy(
-                        status = BehandlingStatus.UNDER_BEHANDLING,
+                        status = TidslinjeBehandlingStatus.UNDER_BEHANDLING,
                         individuellBegrunnelse = "En begrunnelse",
                         beslutterNavIdent = "B111111",
-                    ).truncateTidspunkt(),
-                periode.truncateTidspunkt(),
+                    ),
+                periode.tilBehandlingDto(),
                 "Tilbake til 'under_behandling', men beslutter beholdes",
             )
 
@@ -140,11 +143,11 @@ class SaksbehandlingsperiodeStatusTest {
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
-                                status = BehandlingStatus.UNDER_BESLUTNING,
+                                status = TidslinjeBehandlingStatus.UNDER_BESLUTNING,
                                 individuellBegrunnelse = "En ny begrunnelse",
                                 beslutterNavIdent = "B111111",
-                            ).truncateTidspunkt(),
-                        periode.truncateTidspunkt(),
+                            ),
+                        periode.tilBehandlingDto(),
                         "Skal nå gå tilbake til opprinnelig beslutter, og ikke legges i beslutterkø",
                     )
                 }
@@ -169,11 +172,11 @@ class SaksbehandlingsperiodeStatusTest {
                     assertEquals(
                         periodeOpprinnelig
                             .copy(
-                                status = BehandlingStatus.GODKJENT,
+                                status = TidslinjeBehandlingStatus.GODKJENT,
                                 individuellBegrunnelse = "En ny begrunnelse",
                                 beslutterNavIdent = "B111111",
-                            ).truncateTidspunkt(),
-                        periode.truncateTidspunkt(),
+                            ),
+                        periode.tilBehandlingDto(),
                     )
                 }
 

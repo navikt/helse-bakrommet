@@ -25,7 +25,7 @@ class RevurderingTest {
                 ),
         ).runWithApplicationTestBuilder { scenarioData ->
             val forsteOppdrag = scenarioData.utbetalingsberegning!!.beregningData.spilleromOppdrag
-            val personId = scenarioData.scenario.personId
+            val personId = scenarioData.scenario.pseudoId
 
             val revurderendePeriode = revurder(scenarioData.periode)
             revurderendePeriode.revurdererSaksbehandlingsperiodeId `should equal` scenarioData.periode.id
@@ -37,7 +37,7 @@ class RevurderingTest {
             val yrkesaktivitet =
                 hentYrkesaktiviteter(
                     periodeId = revurderendePeriode.id,
-                    personId = personId,
+                    pseudoID = personId,
                 ).first()
 
             settDagoversikt(
