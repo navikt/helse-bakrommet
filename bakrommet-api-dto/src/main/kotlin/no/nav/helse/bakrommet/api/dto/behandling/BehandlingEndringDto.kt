@@ -5,17 +5,17 @@ import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
 import java.time.OffsetDateTime
 import java.util.UUID
 
-data class SaksbehandlingsperiodeEndringDto(
+data class BehandlingEndringDto(
     val saksbehandlingsperiodeId: UUID,
     val status: TidslinjeBehandlingStatus,
     val beslutterNavIdent: String?,
     val endretTidspunkt: OffsetDateTime,
     val endretAvNavIdent: String,
-    val endringType: SaksbehandlingsperiodeEndringTypeDto,
+    val endringType: BehandlingEndringTypeDto,
     val endringKommentar: String? = null,
 ) : ApiResponse
 
-enum class SaksbehandlingsperiodeEndringTypeDto {
+enum class BehandlingEndringTypeDto {
     STARTET,
     SENDT_TIL_BESLUTNING,
     TATT_TIL_BESLUTNING,

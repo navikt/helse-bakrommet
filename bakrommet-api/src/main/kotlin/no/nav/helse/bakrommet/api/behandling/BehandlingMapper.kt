@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.api.behandling
 
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
-import no.nav.helse.bakrommet.api.dto.behandling.SaksbehandlingsperiodeEndringDto
-import no.nav.helse.bakrommet.api.dto.behandling.SaksbehandlingsperiodeEndringTypeDto
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingEndringDto
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingEndringTypeDto
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
@@ -36,8 +36,8 @@ private fun BehandlingStatus.tilTidslinjeBehandlingStatus(): TidslinjeBehandling
         BehandlingStatus.REVURDERT -> TidslinjeBehandlingStatus.REVURDERT
     }
 
-fun SaksbehandlingsperiodeEndring.tilSaksbehandlingsperiodeEndringDto(): SaksbehandlingsperiodeEndringDto =
-    SaksbehandlingsperiodeEndringDto(
+fun SaksbehandlingsperiodeEndring.tilSaksbehandlingsperiodeEndringDto(): BehandlingEndringDto =
+    BehandlingEndringDto(
         saksbehandlingsperiodeId = saksbehandlingsperiodeId,
         status = status.tilTidslinjeBehandlingStatus(),
         beslutterNavIdent = beslutterNavIdent,
@@ -47,15 +47,15 @@ fun SaksbehandlingsperiodeEndring.tilSaksbehandlingsperiodeEndringDto(): Saksbeh
         endringKommentar = endringKommentar,
     )
 
-private fun SaksbehandlingsperiodeEndringType.tilSaksbehandlingsperiodeEndringTypeDto(): SaksbehandlingsperiodeEndringTypeDto =
+private fun SaksbehandlingsperiodeEndringType.tilSaksbehandlingsperiodeEndringTypeDto(): BehandlingEndringTypeDto =
     when (this) {
-        SaksbehandlingsperiodeEndringType.STARTET -> SaksbehandlingsperiodeEndringTypeDto.STARTET
-        SaksbehandlingsperiodeEndringType.SENDT_TIL_BESLUTNING -> SaksbehandlingsperiodeEndringTypeDto.SENDT_TIL_BESLUTNING
-        SaksbehandlingsperiodeEndringType.TATT_TIL_BESLUTNING -> SaksbehandlingsperiodeEndringTypeDto.TATT_TIL_BESLUTNING
-        SaksbehandlingsperiodeEndringType.SENDT_I_RETUR -> SaksbehandlingsperiodeEndringTypeDto.SENDT_I_RETUR
-        SaksbehandlingsperiodeEndringType.GODKJENT -> SaksbehandlingsperiodeEndringTypeDto.GODKJENT
-        SaksbehandlingsperiodeEndringType.OPPDATERT_INDIVIDUELL_BEGRUNNELSE -> SaksbehandlingsperiodeEndringTypeDto.OPPDATERT_INDIVIDUELL_BEGRUNNELSE
-        SaksbehandlingsperiodeEndringType.OPPDATERT_SKJÆRINGSTIDSPUNKT -> SaksbehandlingsperiodeEndringTypeDto.OPPDATERT_SKJÆRINGSTIDSPUNKT
-        SaksbehandlingsperiodeEndringType.OPPDATERT_YRKESAKTIVITET_KATEGORISERING -> SaksbehandlingsperiodeEndringTypeDto.OPPDATERT_YRKESAKTIVITET_KATEGORISERING
-        SaksbehandlingsperiodeEndringType.REVURDERING_STARTET -> SaksbehandlingsperiodeEndringTypeDto.REVURDERING_STARTET
+        SaksbehandlingsperiodeEndringType.STARTET -> BehandlingEndringTypeDto.STARTET
+        SaksbehandlingsperiodeEndringType.SENDT_TIL_BESLUTNING -> BehandlingEndringTypeDto.SENDT_TIL_BESLUTNING
+        SaksbehandlingsperiodeEndringType.TATT_TIL_BESLUTNING -> BehandlingEndringTypeDto.TATT_TIL_BESLUTNING
+        SaksbehandlingsperiodeEndringType.SENDT_I_RETUR -> BehandlingEndringTypeDto.SENDT_I_RETUR
+        SaksbehandlingsperiodeEndringType.GODKJENT -> BehandlingEndringTypeDto.GODKJENT
+        SaksbehandlingsperiodeEndringType.OPPDATERT_INDIVIDUELL_BEGRUNNELSE -> BehandlingEndringTypeDto.OPPDATERT_INDIVIDUELL_BEGRUNNELSE
+        SaksbehandlingsperiodeEndringType.OPPDATERT_SKJÆRINGSTIDSPUNKT -> BehandlingEndringTypeDto.OPPDATERT_SKJÆRINGSTIDSPUNKT
+        SaksbehandlingsperiodeEndringType.OPPDATERT_YRKESAKTIVITET_KATEGORISERING -> BehandlingEndringTypeDto.OPPDATERT_YRKESAKTIVITET_KATEGORISERING
+        SaksbehandlingsperiodeEndringType.REVURDERING_STARTET -> BehandlingEndringTypeDto.REVURDERING_STARTET
     }

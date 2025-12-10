@@ -80,6 +80,6 @@ class BehandlingDaoFake : BehandlingDao {
         revurdertAvBehandlingId: UUID,
     ) {
         val eksisterende = perioder[behandlingId] ?: return
-        perioder[behandlingId] = eksisterende.copy(revurdererSaksbehandlingsperiodeId = revurdertAvBehandlingId)
+        perioder[behandlingId] = eksisterende.copy(revurdertAvBehandlingId = revurdertAvBehandlingId)
     }
 }
