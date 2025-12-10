@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.tilkommen
 
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
@@ -13,7 +13,7 @@ import java.util.*
 interface TilkommenInntektServiceDaoer : Beregningsdaoer
 
 data class TilkommenInntektReferanse(
-    val behandling: SaksbehandlingsperiodeReferanse,
+    val behandling: BehandlingReferanse,
     val tilkommenInntektId: UUID,
 )
 
@@ -21,14 +21,14 @@ class TilkommenInntektService(
     private val db: DbDaoer<TilkommenInntektServiceDaoer>,
 ) {
     suspend fun hentTilkommenInntekt(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
     ): List<TilkommenInntektDbRecord> =
         db.nonTransactional {
             tilkommenInntektDao.hentForBehandling(ref.behandlingId)
         }
 
     suspend fun lagreTilkommenInntekt(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         tilkommenInntekt: TilkommenInntekt,
         saksbehandler: Bruker,
     ): TilkommenInntektDbRecord =

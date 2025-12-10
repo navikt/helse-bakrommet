@@ -59,7 +59,7 @@ class InntektService(
         db.transactional {
             val periode =
                 behandlingDao.hentPeriode(
-                    ref = ref.saksbehandlingsperiodeReferanse,
+                    ref = ref.behandlingReferanse,
                     krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
                 )
 
@@ -139,7 +139,7 @@ class InntektService(
             }
 
             yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
-            beregnSykepengegrunnlagOgUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler.bruker)?.let { rec ->
+            beregnSykepengegrunnlagOgUtbetaling(ref.behandlingReferanse, saksbehandler.bruker)?.let { rec ->
                 requireNotNull(rec.sykepengegrunnlag)
                 val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
                 if (yrkesaktiviteter.skalBeregneSammenlikningsgrunnlag()) {

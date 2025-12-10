@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingEndringerDao
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.BrukerHarRollePåSakenKrav
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndring
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
@@ -26,7 +26,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 data class YrkesaktivitetReferanse(
-    val saksbehandlingsperiodeReferanse: SaksbehandlingsperiodeReferanse,
+    val behandlingReferanse: BehandlingReferanse,
     val yrkesaktivitetUUID: UUID,
 )
 
@@ -53,7 +53,7 @@ class YrkesaktivitetService(
         db.nonTransactional {
             behandlingDao
                 .hentPeriode(
-                    ref = ref.saksbehandlingsperiodeReferanse,
+                    ref = ref.behandlingReferanse,
                     krav = krav,
                 ).let { periode ->
                     val yrkesaktivitet =
@@ -66,14 +66,14 @@ class YrkesaktivitetService(
                 }
         }
 
-    suspend fun hentYrkesaktivitetFor(ref: SaksbehandlingsperiodeReferanse): List<YrkesaktivitetDbRecord> =
+    suspend fun hentYrkesaktivitetFor(ref: BehandlingReferanse): List<YrkesaktivitetDbRecord> =
         db.nonTransactional {
             val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
             yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         }
 
     suspend fun opprettYrkesaktivitet(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
     ): YrkesaktivitetDbRecord =
@@ -120,10 +120,10 @@ class YrkesaktivitetService(
             // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
             // Slett sykepengegrunnlag og utbetalingsberegning når yrkesaktivitet endres
             // Vi må alltid beregne på nytt når kategorisering endres
-            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.behandlingId)
+            beregningDao.slettBeregning(ref.behandlingReferanse.behandlingId)
 
             // hvis sykepengegrunnlaget eies av denne perioden, slett det
-            val periode = behandlingDao.hentPeriode(ref.saksbehandlingsperiodeReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+            val periode = behandlingDao.hentPeriode(ref.behandlingReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())
             periode.sykepengegrunnlagId?.let { sykepengegrunnlagId ->
                 val spgRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)
                 if (spgRecord.opprettetForBehandling == periode.id) {
@@ -171,7 +171,7 @@ class YrkesaktivitetService(
         db.transactional {
             yrkesaktivitetDao.slettYrkesaktivitet(yrkesaktivitet.id)
             beregnSykepengegrunnlagOgUtbetaling(
-                ref.saksbehandlingsperiodeReferanse,
+                ref.behandlingReferanse,
                 saksbehandler = saksbehandler,
             )
         }
@@ -213,7 +213,7 @@ class YrkesaktivitetService(
 
             val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(yrkesaktivitet, oppdatertDagoversikt)
 
-            beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
+            beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
             oppdatertYrkesaktivitet
         }
     }
@@ -226,7 +226,7 @@ class YrkesaktivitetService(
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.transactional {
             yrkesaktivitetDao.oppdaterPerioder(yrkesaktivitet, perioder)
-            beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
+            beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
         }
     }
 
@@ -238,7 +238,7 @@ class YrkesaktivitetService(
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.transactional {
             yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, refusjon)
-            beregnUtbetaling(ref.saksbehandlingsperiodeReferanse, saksbehandler)
+            beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
         }
     }
 }

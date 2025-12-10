@@ -31,31 +31,31 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
-interface SaksbehandlingsperiodeServiceDaoer :
+interface BehandlingServiceDaoer :
     SaksbehandlingsperiodeKafkaDtoDaoer,
     Beregningsdaoer {
     val behandlingEndringerDao: BehandlingEndringerDao
     val dokumentDao: DokumentDao
 }
 
-data class SaksbehandlingsperiodeReferanse(
+data class BehandlingReferanse(
     val naturligIdent: NaturligIdent,
     val behandlingId: UUID,
 )
 
 fun Behandling.somReferanse() =
-    SaksbehandlingsperiodeReferanse(
+    BehandlingReferanse(
         naturligIdent = this.naturligIdent,
         behandlingId = this.id,
     )
 
 class BehandlingService(
-    private val db: DbDaoer<SaksbehandlingsperiodeServiceDaoer>,
+    private val db: DbDaoer<BehandlingServiceDaoer>,
     private val dokumentHenter: DokumentHenter,
 ) {
     suspend fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { behandlingDao.hentAlleBehandlinger() }
 
-    suspend fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { behandlingDao.hentPeriode(ref, krav = null) }
+    suspend fun hentPeriode(ref: BehandlingReferanse) = db.nonTransactional { behandlingDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNyBehandling(
         naturligIdent: NaturligIdent,
@@ -179,7 +179,7 @@ class BehandlingService(
     suspend fun finnPerioderForPerson(naturligIdent: NaturligIdent): List<Behandling> = db.nonTransactional { behandlingDao.finnBehandlingerForNaturligIdent(naturligIdent) }
 
     suspend fun sendTilBeslutning(
-        periodeRef: SaksbehandlingsperiodeReferanse,
+        periodeRef: BehandlingReferanse,
         individuellBegrunnelse: String?,
         saksbehandler: Bruker,
     ): Behandling =
@@ -209,7 +209,7 @@ class BehandlingService(
         }
 
     suspend fun revurderPeriode(
-        periodeRef: SaksbehandlingsperiodeReferanse,
+        periodeRef: BehandlingReferanse,
         saksbehandler: Bruker,
     ): Behandling =
         db.transactional {
@@ -303,7 +303,7 @@ class BehandlingService(
         }
 
     suspend fun taTilBeslutning(
-        periodeRef: SaksbehandlingsperiodeReferanse,
+        periodeRef: BehandlingReferanse,
         saksbehandler: Bruker,
     ): Behandling =
         db.transactional {
@@ -327,7 +327,7 @@ class BehandlingService(
         }
 
     suspend fun sendTilbakeFraBeslutning(
-        periodeRef: SaksbehandlingsperiodeReferanse,
+        periodeRef: BehandlingReferanse,
         saksbehandler: Bruker,
         kommentar: String,
     ): Behandling =
@@ -356,7 +356,7 @@ class BehandlingService(
         }
 
     suspend fun godkjennPeriode(
-        periodeRef: SaksbehandlingsperiodeReferanse,
+        periodeRef: BehandlingReferanse,
         saksbehandler: Bruker,
     ): Behandling {
         return db.transactional {
@@ -401,14 +401,14 @@ class BehandlingService(
         }
     }
 
-    suspend fun hentHistorikkFor(periodeRef: SaksbehandlingsperiodeReferanse): List<SaksbehandlingsperiodeEndring> =
+    suspend fun hentHistorikkFor(periodeRef: BehandlingReferanse): List<SaksbehandlingsperiodeEndring> =
         db.nonTransactional {
             val periode = behandlingDao.hentPeriode(periodeRef, krav = null, måVæreUnderBehandling = false)
             behandlingEndringerDao.hentEndringerFor(periode.id)
         }
 
     suspend fun oppdaterSkjæringstidspunkt(
-        periodeRef: SaksbehandlingsperiodeReferanse,
+        periodeRef: BehandlingReferanse,
         skjæringstidspunkt: LocalDate,
         saksbehandler: Bruker,
     ): Behandling =

@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.infrastruktur.db
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.behandling.BehandlingEndringerDaoPg
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeServiceDaoer
+import no.nav.helse.bakrommet.behandling.BehandlingServiceDaoer
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.behandling.inntekter.InntektServiceDaoer
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherDaoer
@@ -25,7 +25,7 @@ import no.nav.helse.bakrommet.tidslinje.TidslinjeServiceDaoer
 import javax.sql.DataSource
 
 interface AlleDaoer :
-    SaksbehandlingsperiodeServiceDaoer,
+    BehandlingServiceDaoer,
     YrkesaktivitetServiceDaoer,
     SykepengegrunnlagServiceDaoer,
     InntektsmeldingMatcherDaoer,

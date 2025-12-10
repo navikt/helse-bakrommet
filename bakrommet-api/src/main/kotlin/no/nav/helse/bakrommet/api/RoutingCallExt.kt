@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.api
 
 import io.ktor.server.routing.RoutingCall
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
@@ -26,7 +26,7 @@ suspend fun RoutingCall.naturligIdent(personService: PersonService): NaturligIde
 }
 
 suspend fun RoutingCall.periodeReferanse(personService: PersonService) =
-    SaksbehandlingsperiodeReferanse(
+    BehandlingReferanse(
         naturligIdent = naturligIdent(personService),
         behandlingId = behandlingId(),
     )
@@ -39,6 +39,6 @@ suspend fun RoutingCall.tilkommenInntektReferanse(personService: PersonService) 
 
 suspend fun RoutingCall.yrkesaktivitetReferanse(personService: PersonService): YrkesaktivitetReferanse =
     YrkesaktivitetReferanse(
-        saksbehandlingsperiodeReferanse = periodeReferanse(personService),
+        behandlingReferanse = periodeReferanse(personService),
         yrkesaktivitetUUID = parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID(),
     )

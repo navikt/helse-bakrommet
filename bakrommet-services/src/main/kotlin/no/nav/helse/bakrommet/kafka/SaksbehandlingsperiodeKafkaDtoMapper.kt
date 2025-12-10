@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.kafka
 
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.somReferanse
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
@@ -31,7 +31,7 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: Behandling) {
     leggTilOutbox(periode.somReferanse())
 }
 
-fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: SaksbehandlingsperiodeReferanse) {
+fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: BehandlingReferanse) {
     val saksbehandlingsperiodeKafkaDtoMapper =
         SaksbehandlingsperiodeKafkaDtoMapper(
             beregningDao = beregningDao,
@@ -81,7 +81,7 @@ class SaksbehandlingsperiodeKafkaDtoMapper(
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
 ) {
-    fun genererKafkaMelding(referanse: SaksbehandlingsperiodeReferanse): SaksbehandlingsperiodeKafkaDto {
+    fun genererKafkaMelding(referanse: BehandlingReferanse): SaksbehandlingsperiodeKafkaDto {
         val periode = behandlingDao.hentPeriode(referanse, null, måVæreUnderBehandling = false)
         val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent = periode.naturligIdent

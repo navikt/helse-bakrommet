@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling.vilkaar
 import com.fasterxml.jackson.annotation.JsonValue
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
@@ -51,14 +51,14 @@ interface VilkårServiceDaoer {
 class VilkårService(
     private val db: DbDaoer<VilkårServiceDaoer>,
 ) {
-    suspend fun hentVilkårsvurderingerFor(ref: SaksbehandlingsperiodeReferanse): List<VurdertVilkår> =
+    suspend fun hentVilkårsvurderingerFor(ref: BehandlingReferanse): List<VurdertVilkår> =
         db.nonTransactional {
             val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
             vurdertVilkårDao.hentVilkårsvurderinger(periode.id)
         }
 
     suspend fun leggTilEllerOpprettVurdertVilkår(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         vilkårsKode: Kode,
         request: VilkaarsvurderingRequest,
         saksbehandler: Bruker,
@@ -88,7 +88,7 @@ class VilkårService(
         }
 
     suspend fun slettVilkårsvurdering(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         vilkårsKode: Kode,
         saksbehandler: Bruker,
     ): Boolean =

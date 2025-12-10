@@ -17,7 +17,7 @@ interface SykepengegrunnlagServiceDaoer : Beregningsdaoer
 class SykepengegrunnlagService(
     private val db: DbDaoer<SykepengegrunnlagServiceDaoer>,
 ) {
-    suspend fun hentSykepengegrunnlag(referanse: SaksbehandlingsperiodeReferanse): SykepengegrunnlagResponse? =
+    suspend fun hentSykepengegrunnlag(referanse: BehandlingReferanse): SykepengegrunnlagResponse? =
         db.nonTransactional {
             behandlingDao
                 .hentPeriode(
@@ -38,7 +38,7 @@ class SykepengegrunnlagService(
 
     suspend fun opprettSykepengegrunnlag(
         request: OpprettSykepengegrunnlagRequest,
-        referanse: SaksbehandlingsperiodeReferanse,
+        referanse: BehandlingReferanse,
         saksbehandler: Bruker,
     ): SykepengegrunnlagResponse {
         db.transactional {
@@ -60,7 +60,7 @@ class SykepengegrunnlagService(
     }
 
     suspend fun slettSykepengegrunnlag(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         saksbehandler: Bruker,
     ) {
         db.transactional {

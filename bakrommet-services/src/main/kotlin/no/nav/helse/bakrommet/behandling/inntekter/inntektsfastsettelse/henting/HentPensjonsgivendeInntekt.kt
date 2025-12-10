@@ -21,7 +21,7 @@ suspend fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
     return db.transactional {
         val periode =
             behandlingDao.hentPeriode(
-                ref = ref.saksbehandlingsperiodeReferanse,
+                ref = ref.behandlingReferanse,
                 krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
             )
 

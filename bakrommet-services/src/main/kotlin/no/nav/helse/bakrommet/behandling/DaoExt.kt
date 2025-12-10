@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 
 fun BehandlingDao.hentPeriode(
-    ref: SaksbehandlingsperiodeReferanse,
+    ref: BehandlingReferanse,
     krav: BrukerHarRollePåSakenKrav?,
     måVæreUnderBehandling: Boolean = true,
 ): Behandling {

@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
@@ -32,7 +32,7 @@ class UtbetalingsBeregningHjelper(
     private val tilkommenInntektDao: TilkommenInntektDao,
 ) {
     fun settBeregning(
-        referanse: SaksbehandlingsperiodeReferanse,
+        referanse: BehandlingReferanse,
         saksbehandler: Bruker,
     ) {
         // Hent nødvendige data for beregningen

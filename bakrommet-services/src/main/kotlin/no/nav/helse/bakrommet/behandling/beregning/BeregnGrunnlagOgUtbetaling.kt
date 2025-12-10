@@ -4,7 +4,7 @@ package no.nav.helse.bakrommet.behandling.beregning
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBeregningHjelper
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
@@ -24,7 +24,7 @@ interface Beregningsdaoer {
 }
 
 fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
-    ref: SaksbehandlingsperiodeReferanse,
+    ref: BehandlingReferanse,
     saksbehandler: Bruker,
 ): SykepengegrunnlagDbRecord? =
     SykepengegrunnlagBeregningHjelper(
@@ -39,7 +39,7 @@ fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     }
 
 fun Beregningsdaoer.beregnUtbetaling(
-    ref: SaksbehandlingsperiodeReferanse,
+    ref: BehandlingReferanse,
     saksbehandler: Bruker,
 ) {
     beregningDao.slettBeregning(ref.behandlingId, failSilently = true)

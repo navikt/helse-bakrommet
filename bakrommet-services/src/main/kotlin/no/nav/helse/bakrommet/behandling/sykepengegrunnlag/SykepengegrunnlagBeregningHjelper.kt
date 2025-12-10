@@ -4,7 +4,7 @@ import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.BeregningskoderKombinasjonerSykepengegrunnlag
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Arbeidstaker
@@ -22,7 +22,7 @@ class SykepengegrunnlagBeregningHjelper(
     private val yrkesaktivitetDao: YrkesaktivitetDao,
 ) {
     fun beregnOgLagreSykepengegrunnlag(
-        referanse: SaksbehandlingsperiodeReferanse,
+        referanse: BehandlingReferanse,
         saksbehandler: Bruker,
     ): SykepengegrunnlagDbRecord? {
         // Hent nødvendige data for beregningen

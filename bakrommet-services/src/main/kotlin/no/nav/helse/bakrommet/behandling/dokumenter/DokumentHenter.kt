@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeReferanse
+import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektSammenlikningsgrunnlag
@@ -33,14 +33,14 @@ class DokumentHenter(
     private val aaRegClient: AARegClient,
     private val sigrunClient: SigrunClient,
 ) {
-    suspend fun hentDokumenterFor(ref: SaksbehandlingsperiodeReferanse): List<Dokument> =
+    suspend fun hentDokumenterFor(ref: BehandlingReferanse): List<Dokument> =
         db.nonTransactional {
             val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
             dokumentDao.hentDokumenterFor(periode.id)
         }
 
     suspend fun hentDokument(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         dokumentId: UUID,
     ): Dokument? =
         db.nonTransactional {
@@ -55,7 +55,7 @@ class DokumentHenter(
         }
 
     suspend fun hentOgLagreSøknader(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         søknadsIder: List<UUID>,
         saksbehandler: BrukerOgToken,
     ): List<Dokument> =
@@ -92,7 +92,7 @@ class DokumentHenter(
         }
 
     suspend fun hentOgLagreAInntekt828(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument =
         db.nonTransactional {
@@ -107,7 +107,7 @@ class DokumentHenter(
         }
 
     suspend fun hentOgLagreAInntekt830(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument =
         db.nonTransactional {
@@ -122,7 +122,7 @@ class DokumentHenter(
         }
 
     suspend fun hentOgLagreArbeidsforhold(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument {
         return db.nonTransactional {
@@ -149,7 +149,7 @@ class DokumentHenter(
     }
 
     suspend fun hentOgLagrePensjonsgivendeInntekt(
-        ref: SaksbehandlingsperiodeReferanse,
+        ref: BehandlingReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument =
         db.nonTransactional {
