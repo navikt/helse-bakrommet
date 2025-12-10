@@ -1,6 +1,8 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import no.nav.helse.bakrommet.api.dto.tidslinje.BehandlingStatusV1Dto
+import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.kafka.OutboxDbRecord
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
@@ -25,9 +27,9 @@ class RevurderingTest {
                 ),
         ).runWithApplicationTestBuilder { scenarioData ->
             val forsteOppdrag = scenarioData.utbetalingsberegning!!.beregningData.spilleromOppdrag
-            val personId = scenarioData.scenario.personId
+            val personId = scenarioData.scenario.pseudoId
 
-            val revurderendePeriode = revurder(scenarioData.periode)
+            val revurderendePeriode = revurder(personId, scenarioData.periode.id)
             revurderendePeriode.revurdererSaksbehandlingsperiodeId `should equal` scenarioData.periode.id
 
             forsteOppdrag.oppdrag.size `should equal` 1
@@ -37,7 +39,7 @@ class RevurderingTest {
             val yrkesaktivitet =
                 hentYrkesaktiviteter(
                     periodeId = revurderendePeriode.id,
-                    personId = personId,
+                    pseudoID = personId,
                 ).first()
 
             settDagoversikt(
@@ -51,8 +53,8 @@ class RevurderingTest {
                 personId = personId,
                 individuellBegrunnelse = "Revurdering med lavere grad",
             )
-            taTilBesluting(revurderendePeriode, token = scenarioData.beslutterToken)
-            godkjenn(revurderendePeriode, token = scenarioData.beslutterToken)
+            taTilBesluting(personId,revurderendePeriode.id, token = scenarioData.beslutterToken)
+            godkjenn(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
 
             val utbetalingKafkaMeldinger =
                 scenarioData.daoer.outboxDao
@@ -69,9 +71,9 @@ class RevurderingTest {
 
             hentAllePerioder(personId).also {
                 it.size `should equal` 2
-                it.last().status `should equal` BehandlingStatus.REVURDERT
+                it.last().status `should equal` TidslinjeBehandlingStatus.REVURDERT
                 it.last().revurdertAvBehandlingId `should equal` it.first().id
-                it.first().status `should equal` BehandlingStatus.GODKJENT
+                it.first().status `should equal` TidslinjeBehandlingStatus.GODKJENT
                 it.first().revurdererSaksbehandlingsperiodeId `should equal` it.last().id
             }
         }

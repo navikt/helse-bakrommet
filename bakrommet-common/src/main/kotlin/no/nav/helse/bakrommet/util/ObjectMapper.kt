@@ -49,10 +49,10 @@ inline fun <reified T> JsonNode.somListe(): List<T> =
 inline fun <reified T> JsonNode.deserialize(): T = objectMapper.convertValue(this, T::class.java)
 
 fun String?.somGyldigUUID(): UUID {
-    if (this == null) throw InputValideringException("Ugyldig UUID. Forventet UUID-format")
+    if (this == null) throw InputValideringException("Ugyldig UUID. Forventet UUID-format. Fant $this")
     return try {
         UUID.fromString(this)
     } catch (ex: IllegalArgumentException) {
-        throw InputValideringException("Ugyldig UUID. Forventet UUID-format")
+        throw InputValideringException("Ugyldig UUID. Forventet UUID-format.  Fant $this")
     }
 }

@@ -18,7 +18,7 @@ import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDaoPg
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import no.nav.helse.bakrommet.kafka.OutboxDaoPg
-import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.person.PersonServiceDaoer
 import no.nav.helse.bakrommet.person.PersonsokDaoer
 import no.nav.helse.bakrommet.tidslinje.TidslinjeServiceDaoer
@@ -42,7 +42,7 @@ class DaoerFelles(
 ) : AlleDaoer {
     override val behandlingDao = BehandlingDaoPg(dataSource)
     override val behandlingEndringerDao = BehandlingEndringerDaoPg(dataSource)
-    override val personDao = PersonDaoPg(dataSource)
+    override val personPseudoIdDao = PersonPseudoIdDaoPg(dataSource)
     override val dokumentDao = DokumentDaoPg(dataSource)
     override val yrkesaktivitetDao = YrkesaktivitetDaoPg(dataSource)
     override val vurdertVilkårDao = VurdertVilkårDaoPg(dataSource)
@@ -57,7 +57,7 @@ class SessionDaoerFelles(
 ) : AlleDaoer {
     override val behandlingDao = BehandlingDaoPg(session)
     override val behandlingEndringerDao = BehandlingEndringerDaoPg(session)
-    override val personDao = PersonDaoPg(session)
+    override val personPseudoIdDao = PersonPseudoIdDaoPg(session)
     override val dokumentDao = DokumentDaoPg(session)
     override val yrkesaktivitetDao = YrkesaktivitetDaoPg(session)
     override val vurdertVilkårDao = VurdertVilkårDaoPg(session)

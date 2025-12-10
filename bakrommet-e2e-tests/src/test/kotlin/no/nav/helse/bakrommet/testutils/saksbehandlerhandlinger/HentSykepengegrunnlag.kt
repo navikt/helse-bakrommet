@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentSykepengegrunnlag(
-    personId: String,
+    personId: UUID,
     periodeId: UUID,
 ): SykepengegrunnlagResponse? {
     val response =

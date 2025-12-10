@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.behandling.somReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.beritBeslutter
 import no.nav.helse.bakrommet.hentSession
-import no.nav.helse.bakrommet.person.SpilleromPersonId
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.saksMcBehandlersen
 import no.nav.helse.bakrommet.sessionsDaoer
 import no.nav.helse.bakrommet.util.somGyldigUUID
@@ -25,9 +25,9 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
         )
     testpersoner
         .forEach { testperson ->
-            db.personDao.opprettPerson(
-                naturligIdent = testperson.fnr,
-                spilleromId = testperson.spilleromId,
+            db.personPseudoIdDao.opprettPseudoId(
+                naturligIdent = NaturligIdent(testperson.fnr),
+                pseudoId = testperson.pseudoId,
             )
             val seed = testperson.fnr.toLong()
             val config =
@@ -44,7 +44,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                 val nySaksbehandlingsperiode =
                     this.behandlingService.opprettNyBehandling(
                         id = faker.random.nextUUID().somGyldigUUID(),
-                        spilleromPersonId = SpilleromPersonId(testperson.spilleromId),
+                        naturligIdent = NaturligIdent(testperson.fnr),
                         fom = periode.fom,
                         tom = periode.tom,
                         søknader = søknadUUIDer,

@@ -24,7 +24,7 @@ object TestDataSource {
         val db = MedDataSource(dbModule.dataSource)
         db.execute("truncate table kafka_outbox cascade")
         db.execute("truncate table behandling cascade")
-        db.execute("truncate table ident cascade")
+        db.execute("truncate table person_pseudo_id cascade")
         db.execute("truncate table yrkesaktivitet cascade")
         db.execute("truncate table dokument cascade")
         db.execute("truncate table tilkommen_inntekt cascade")

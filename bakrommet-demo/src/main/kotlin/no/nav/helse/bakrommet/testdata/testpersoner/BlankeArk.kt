@@ -7,8 +7,6 @@ import java.time.LocalDate
 val blankeArk =
     Testperson(
         fnr = "13064512348",
-        aktorId = "1234567891011",
-        spilleromId = "blank",
         fornavn = "Blanke",
         etternavn = "Ark",
         fødselsdato = LocalDate.of(2003, 6, 13), // ca. 22 år basert på alder 22

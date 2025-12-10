@@ -26,7 +26,7 @@ import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -41,7 +41,7 @@ interface InntektServiceDaoer :
     override val yrkesaktivitetDao: YrkesaktivitetDao
     override val sykepengegrunnlagDao: SykepengegrunnlagDao
     override val beregningDao: UtbetalingsberegningDao
-    override val personDao: PersonDao
+    override val personPseudoIdDao: PersonPseudoIdDao
     override val dokumentDao: DokumentDao
 }
 

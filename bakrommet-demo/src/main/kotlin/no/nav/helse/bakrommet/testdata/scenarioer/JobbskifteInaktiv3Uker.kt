@@ -73,7 +73,6 @@ val jobbskifteInaktiv3uker =
                 fornavn = "Liv",
                 fødselsdato = LocalDate.now().minusYears(42),
                 fnr = fnr,
-                spilleromId = "liv-jobbskifte",
                 etternavn = "Lindgren",
                 aaregData =
                     listOf(

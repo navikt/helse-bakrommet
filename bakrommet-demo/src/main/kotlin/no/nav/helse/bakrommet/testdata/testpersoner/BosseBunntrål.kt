@@ -10,8 +10,6 @@ import java.time.LocalDate
 val bosseBunntrål =
     Testperson(
         fnr = "30816199456",
-        aktorId = "3081619945600",
-        spilleromId = "bosse",
         fornavn = "Bosse",
         mellomnavn = "B",
         etternavn = "Bunntrål",

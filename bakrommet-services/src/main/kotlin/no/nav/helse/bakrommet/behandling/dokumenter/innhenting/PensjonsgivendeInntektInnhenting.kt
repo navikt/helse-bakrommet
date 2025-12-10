@@ -17,7 +17,6 @@ fun DokumentInnhentingDaoer.lastSigrunDokument(
     saksbehandlerToken: SpilleromBearerToken,
     sigrunClient: SigrunClient,
 ): Dokument {
-    val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
     val skjæringstidspunkt = periode.skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt for å hente pensjonsgivende inntekt")
     val senesteÅrTom = skjæringstidspunkt.year - 1
     val antallÅrBakover = 3
@@ -36,7 +35,7 @@ fun DokumentInnhentingDaoer.lastSigrunDokument(
         runBlocking {
             sigrunClient
                 .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
-                    fnr,
+                    periode.naturligIdent.naturligIdent,
                     senesteÅrTom,
                     antallÅrBakover,
                     saksbehandlerToken,

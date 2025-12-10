@@ -1,8 +1,13 @@
-CREATE TABLE IF NOT EXISTS ident
+CREATE TABLE IF NOT EXISTS person_pseudo_id
 (
-    spillerom_id   TEXT NOT NULL PRIMARY KEY,
-    naturlig_ident TEXT NOT NULL UNIQUE
+    pseudo_id      UUID                        NOT NULL PRIMARY KEY,
+    naturlig_ident VARCHAR(11)                 NOT NULL,
+    opprettet      TIMESTAMP(6) WITH TIME ZONE NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_personpseudoid_naturlig_ident
+    ON person_pseudo_id (naturlig_ident);
+
 
 CREATE TABLE IF NOT EXISTS sykepengegrunnlag
 (
@@ -20,8 +25,7 @@ CREATE TABLE IF NOT EXISTS sykepengegrunnlag
 CREATE TABLE IF NOT EXISTS behandling
 (
     id                         UUID                        NOT NULL PRIMARY KEY,
-    spillerom_personid         TEXT                        NOT NULL
-        REFERENCES ident (spillerom_id),
+    naturlig_ident             VARCHAR(11)                 NOT NULL,
     sykepengegrunnlag_id       UUID                        NULL
         REFERENCES sykepengegrunnlag (id),
     opprettet                  TIMESTAMP(6) WITH TIME ZONE NOT NULL,

@@ -128,11 +128,10 @@ class DokumentHenter(
         return db.nonTransactional {
             val periode =
                 behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
-            val fnr = personDao.hentNaturligIdent(periode.spilleromPersonId)
             logg.info("Henter aareg for periode={}", periode.id)
             return@nonTransactional aaRegClient
                 .hentArbeidsforholdForMedSporing(
-                    fnr = fnr,
+                    fnr = periode.naturligIdent.naturligIdent,
                     saksbehandlerToken = saksbehandler.token,
                 ).let { (arbeidsforholdRes, kildespor) ->
                     // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?

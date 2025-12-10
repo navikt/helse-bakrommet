@@ -18,7 +18,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.ereg.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.person.SpilleromPersonId
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.tidslinje.TidslinjeRad.OpprettetBehandling
 import no.nav.helse.bakrommet.tidslinje.TidslinjeRad.SykmeldtYrkesaktivitet
 import no.nav.helse.bakrommet.tidslinje.TidslinjeRad.TilkommenInntekt
@@ -48,10 +48,10 @@ class TidslinjeService(
     private val eregClient: EregClient,
 ) {
     suspend fun hentTidslinjeData(
-        personid: SpilleromPersonId,
+        naturligIdent: NaturligIdent,
     ): TidslinjeData =
         db.nonTransactional {
-            val behandlinger = behandlingDao.finnBehandlingerForPerson(personid.personId)
+            val behandlinger = behandlingDao.finnBehandlingerForNaturligIdent(naturligIdent)
             val yrkesaktivteter = yrkesaktivitetDao.finnYrkesaktiviteterForBehandlinger(behandlinger.map { it.id })
             val tilkommen = tilkommenInntektDao.finnTilkommenInntektForBehandlinger(behandlinger.map { it.id })
 
@@ -89,7 +89,7 @@ class TidslinjeService(
             TidslinjeData(behandlinger, yrkesaktivteter, tilkommen, organisasjonsnavnMap)
         }
 
-    suspend fun hentTidslinje(personid: SpilleromPersonId) = hentTidslinjeData(personid).tilTidslinje()
+    suspend fun hentTidslinje(naturligIdent: NaturligIdent) = hentTidslinjeData(naturligIdent).tilTidslinje()
 }
 
 internal fun TidslinjeData.tilTidslinje(): List<TidslinjeRad> {

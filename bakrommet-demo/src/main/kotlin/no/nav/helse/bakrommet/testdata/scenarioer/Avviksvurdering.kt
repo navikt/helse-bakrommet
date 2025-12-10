@@ -35,7 +35,6 @@ val avvikendeMaler =
                 fødselsdato = LocalDate.now().minusYears(20),
                 fnr = fnr,
                 inntektsmeldinger = inntektsmeldinger,
-                spilleromId = "5433d",
                 etternavn = "Maler",
                 ainntektData = inntektData,
                 soknader =

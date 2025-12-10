@@ -15,7 +15,8 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.UtbetalingslinjeDto
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingslinjer.UtbetalingkladdBuilder
@@ -27,7 +28,7 @@ class UtbetalingsBeregningHjelper(
     private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
-    private val personDao: PersonDao,
+    private val personPseudoIdDao: PersonPseudoIdDao,
     private val tilkommenInntektDao: TilkommenInntektDao,
 ) {
     fun settBeregning(
@@ -36,8 +37,7 @@ class UtbetalingsBeregningHjelper(
     ) {
         // Hent nødvendige data for beregningen
         val periode = behandlingDao.hentPeriode(referanse, krav = saksbehandler.erSaksbehandlerPåSaken())
-        val ident =
-            personDao.hentNaturligIdent(periode.spilleromPersonId)
+
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
             sykepengegrunnlagDao.finnSykepengegrunnlag(periode.sykepengegrunnlagId ?: return)?.sykepengegrunnlag
@@ -64,7 +64,7 @@ class UtbetalingsBeregningHjelper(
         val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(beregningInput)
 
         // Bygg oppdrag for hver yrkesaktivitet
-        val oppdrag = byggOppdragFraBeregning(beregnet, yrkesaktiviteter, ident)
+        val oppdrag = byggOppdragFraBeregning(beregnet, yrkesaktiviteter, periode.naturligIdent)
 
         val spilleromUtbetalingIdViRevurderer =
             periode.revurdererSaksbehandlingsperiodeId?.let {
@@ -75,14 +75,14 @@ class UtbetalingsBeregningHjelper(
         val beregningData =
             BeregningData(
                 beregnet,
-                oppdrag.tilSpilleromoppdrag(fnr = ident, spilleromUtbetalingId = spilleromUtbetalingId),
+                oppdrag.tilSpilleromoppdrag(fnr = periode.naturligIdent.naturligIdent, spilleromUtbetalingId = spilleromUtbetalingId),
             )
 
         // Opprett response
         val beregningResponse =
             BeregningResponse(
                 id = UUID.randomUUID(),
-                saksbehandlingsperiodeId = referanse.periodeUUID,
+                saksbehandlingsperiodeId = referanse.behandlingId,
                 beregningData = beregningData,
                 opprettet = LocalDateTime.now().toString(),
                 opprettetAv = saksbehandler.navIdent,
@@ -90,7 +90,7 @@ class UtbetalingsBeregningHjelper(
             )
 
         beregningDao.settBeregning(
-            referanse.periodeUUID,
+            referanse.behandlingId,
             beregningResponse,
             saksbehandler,
         )
@@ -131,7 +131,7 @@ private fun Oppdrag.tilOppdragDto(): OppdragDto =
 fun byggOppdragFraBeregning(
     beregnet: List<YrkesaktivitetUtbetalingsberegning>,
     yrkesaktiviteter: List<Yrkesaktivitet>,
-    ident: String,
+    ident: NaturligIdent,
 ): List<Oppdrag> {
     val oppdrag = mutableListOf<Oppdrag>()
 
@@ -144,7 +144,7 @@ fun byggOppdragFraBeregning(
                 "TODO_INGEN_REFUSJON" // Dette er en hack vi bør fikse en gang
             }
 
-        val mottakerBruker = ident
+        val mottakerBruker = ident.naturligIdent
 
         val utbetalingkladdBuilder =
             UtbetalingkladdBuilder(

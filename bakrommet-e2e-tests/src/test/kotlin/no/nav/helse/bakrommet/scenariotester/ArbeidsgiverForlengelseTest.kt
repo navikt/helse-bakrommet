@@ -26,9 +26,9 @@ class ArbeidsgiverForlengelseTest {
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode
-            val personId = førsteBehandling.scenario.personId
+            val personId = førsteBehandling.scenario.pseudoId
             val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
-            val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
+            val sykepengegrunnlag = hentSykepengegrunnlag(personId, periode.id)
 
             assertEquals(førsteBehandling.sykepengegrunnlag, sykepengegrunnlag!!.sykepengegrunnlag)
             assertEquals(førsteBehandling.periode.id, sykepengegrunnlag.opprettetForBehandling)
@@ -44,7 +44,7 @@ class ArbeidsgiverForlengelseTest {
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode
-            val personId = førsteBehandling.scenario.personId
+            val personId = førsteBehandling.scenario.pseudoId
             val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
 
             val yaer = hentYrkesaktiviteter(personId, periode.id)
@@ -71,9 +71,9 @@ class ArbeidsgiverForlengelseTest {
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode
-            val personId = førsteBehandling.scenario.personId
+            val personId = førsteBehandling.scenario.pseudoId
             val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(2), forrigePeriode.tom.plusDays(14))
-            val sykepengegrunnlag = hentSykepengegrunnlag(periode.spilleromPersonId, periode.id)
+            val sykepengegrunnlag = hentSykepengegrunnlag(personId, periode.id)
 
             assertNotEquals(førsteBehandling.sykepengegrunnlag, sykepengegrunnlag?.sykepengegrunnlag)
             assertNull(sykepengegrunnlag)

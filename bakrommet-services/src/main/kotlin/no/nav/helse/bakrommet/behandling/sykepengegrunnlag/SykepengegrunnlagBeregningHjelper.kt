@@ -27,8 +27,8 @@ class SykepengegrunnlagBeregningHjelper(
     ): SykepengegrunnlagDbRecord? {
         // Hent nødvendige data for beregningen
         val periode =
-            behandlingDao.finnBehandling(referanse.periodeUUID)
-                ?: throw RuntimeException("Fant ikke saksbehandlingsperiode for id ${referanse.periodeUUID}")
+            behandlingDao.finnBehandling(referanse.behandlingId)
+                ?: throw RuntimeException("Fant ikke saksbehandlingsperiode for id ${referanse.behandlingId}")
 
         // TODO valider at sb på saken? Eller anta at det skjer senere
 

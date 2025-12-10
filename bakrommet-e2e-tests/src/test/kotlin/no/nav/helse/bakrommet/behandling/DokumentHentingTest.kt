@@ -14,16 +14,19 @@ import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sigrun.client2010to2050
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.util.UUID
 
 class DokumentHentingTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
+        val PERSON_PSEUDO_ID = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
     }
 
     @Test
@@ -33,19 +36,19 @@ class DokumentHentingTest {
         runApplicationTest(
             aInntektClient = AInntektMock.aInntektClientMock(fnrTilInntektApiUt = mapOf(FNR to fakeInntektForFnrRespons)),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 
             // Opprett saksbehandlingsperiode via action
             val periode =
                 opprettBehandling(
-                    PERSON_ID,
+                    PERSON_PSEUDO_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent ainntekt dokument
             client
-                .post("/v1/$PERSON_ID/behandlinger/${periode.id}/dokumenter/ainntekt/hent-8-28") {
+                .post("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/dokumenter/ainntekt/hent-8-28") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "fom" : "2022-08", "tom" : "2022-11" }""")
@@ -77,19 +80,20 @@ class DokumentHentingTest {
                 AInntektMock.aInntektClientMock(fnrTilInntektApiUt = emptyMap()),
         ) {
             val personIdForbidden = "ab403"
-            it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
+            val personPseudoIdForbidden = UUID.nameUUIDFromBytes(personIdForbidden.toByteArray())
+            it.personPseudoIdDao.opprettPseudoId(personPseudoIdForbidden, NaturligIdent("01019000" + "403"))
 
             // Opprett saksbehandlingsperiode via action
             val periode =
                 opprettBehandling(
-                    personIdForbidden,
+                    personPseudoIdForbidden.toString(),
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent ainntekt dokument
             client
-                .post("/v1/$personIdForbidden/behandlinger/${periode.id}/dokumenter/ainntekt/hent-8-28") {
+                .post("/v1/$personPseudoIdForbidden/behandlinger/${periode.id}/dokumenter/ainntekt/hent-8-28") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody("""{ "fom" : "2024-05", "tom" : "2025-06" }""")
@@ -129,19 +133,19 @@ class DokumentHentingTest {
         runApplicationTest(
             aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = mapOf(FNR to fakeAARegForFnrRespons)),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 
             // Opprett saksbehandlingsperiode via action
             val periode =
                 opprettBehandling(
-                    PERSON_ID,
+                    PERSON_PSEUDO_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent arbeidsforhold dokument
             client
-                .post("/v1/$PERSON_ID/behandlinger/${periode.id}/dokumenter/arbeidsforhold/hent") {
+                .post("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/dokumenter/arbeidsforhold/hent") {
                     bearerAuth(TestOppsett.userToken)
                 }.let { postResponse ->
                     val location = postResponse.headers["Location"]!!
@@ -170,19 +174,20 @@ class DokumentHentingTest {
             aaRegClient = AARegMock.aaRegClientMock(),
         ) {
             val personIdForbidden = "ab403"
-            it.personDao.opprettPerson("01019000" + "403", personIdForbidden)
+            val personPseudoIdForbidden = UUID.nameUUIDFromBytes(personIdForbidden.toByteArray())
+            it.personPseudoIdDao.opprettPseudoId(personPseudoIdForbidden, NaturligIdent("01019000" + "403"))
 
             // Opprett saksbehandlingsperiode via action
             val periode =
                 opprettBehandling(
-                    personIdForbidden,
+                    personPseudoIdForbidden.toString(),
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent arbeidsforhold dokument
             client
-                .post("/v1/$personIdForbidden/behandlinger/${periode.id}/dokumenter/arbeidsforhold/hent") {
+                .post("/v1/$personPseudoIdForbidden/behandlinger/${periode.id}/dokumenter/arbeidsforhold/hent") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(403, status.value)
@@ -200,19 +205,19 @@ class DokumentHentingTest {
         runApplicationTest(
             sigrunClient = client2010to2050(FNR),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 
             // Opprett saksbehandlingsperiode via action
             val periode =
                 opprettBehandling(
-                    PERSON_ID,
+                    PERSON_PSEUDO_ID,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent pensjonsgivendeinntekt dokument
             client
-                .post("/v1/$PERSON_ID/behandlinger/${periode.id}/dokumenter/pensjonsgivendeinntekt/hent") {
+                .post("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/dokumenter/pensjonsgivendeinntekt/hent") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                 }.let { postResponse ->

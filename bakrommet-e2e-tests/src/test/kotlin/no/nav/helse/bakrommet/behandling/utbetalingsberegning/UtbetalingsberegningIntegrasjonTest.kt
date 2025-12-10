@@ -7,16 +7,17 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
+import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
-import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
@@ -42,6 +43,7 @@ class UtbetalingsberegningIntegrasjonTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
+        val PERSON_PSEUDO_ID = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
         const val ARBEIDSGIVER_ORGNR = "123321123"
         const val ARBEIDSGIVER_NAVN = "Test Bedrift AS"
     }
@@ -67,7 +69,7 @@ class UtbetalingsberegningIntegrasjonTest {
                     søknadIdTilSvar = mapOf(søknad["id"].asText() to søknad),
                 ),
         ) { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
             daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 0
 
             val tokenBeslutter = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
@@ -78,7 +80,7 @@ class UtbetalingsberegningIntegrasjonTest {
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId =
                 opprettYrkesaktivitet(
-                    personId = PERSON_ID,
+                    personId = PERSON_PSEUDO_ID,
                     periode.id,
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
@@ -92,15 +94,15 @@ class UtbetalingsberegningIntegrasjonTest {
             settDagoversikt(periode.id, yrkesaktivitetId)
 
             // Hent utbetalingsberegning
-            val beregning = hentUtbetalingsberegning(PERSON_ID, periode.id)
+            val beregning = hentUtbetalingsberegning(PERSON_PSEUDO_ID, periode.id)
 
             // Verifiser resultatet
             verifiserBeregning(beregning!!)
 
-            sendTilBeslutning(periode)
-            taTilBesluting(periode, tokenBeslutter)
+            sendTilBeslutning(PERSON_PSEUDO_ID, periode.id)
+            taTilBesluting(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
 
-            godkjenn(periode, tokenBeslutter)
+            godkjenn(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
             val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()
             upubliserteEntries.size `should equal` 4
 
@@ -114,8 +116,8 @@ class UtbetalingsberegningIntegrasjonTest {
 
     private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto = objectMapper.readValue(this)
 
-    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): Behandling {
-        client.post("/v1/$PERSON_ID/behandlinger") {
+    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): BehandlingDto {
+        client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(
@@ -129,11 +131,11 @@ class UtbetalingsberegningIntegrasjonTest {
         }
 
         val response =
-            client.get("/v1/$PERSON_ID/behandlinger") {
+            client.get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
             }
         assertEquals(200, response.status.value)
-        return response.body<List<Behandling>>().first()
+        return response.body<List<BehandlingDto>>().first()
     }
 
     private suspend fun ApplicationTestBuilder.settInntektPåYrkesaktivitet(
@@ -159,7 +161,7 @@ class UtbetalingsberegningIntegrasjonTest {
             )
 
         val response =
-            client.put("/v1/$PERSON_ID/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
+            client.put("/v1/${PERSON_PSEUDO_ID}/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(inntektRequest.serialisertTilString())
@@ -213,7 +215,7 @@ class UtbetalingsberegningIntegrasjonTest {
             """.trimIndent()
 
         val response =
-            client.put("/v1/$PERSON_ID/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
+            client.put("/v1/${PERSON_PSEUDO_ID}/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
                 setBody(dagoversikt)

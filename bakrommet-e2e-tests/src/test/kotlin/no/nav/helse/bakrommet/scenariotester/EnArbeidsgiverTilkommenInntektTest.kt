@@ -34,7 +34,7 @@ class EnArbeidsgiverTilkommenInntektTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
             førsteBehandling.`skal ha direkteutbetaling`(6000)
 
-            val personId = førsteBehandling.scenario.personId
+            val personId = førsteBehandling.scenario.pseudoId
             val periodeId = førsteBehandling.periode.id
             val tilkommen =
                 leggTilTilkommenInntekt(

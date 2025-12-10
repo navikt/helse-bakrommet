@@ -4,7 +4,8 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.PersonDaoPg
+import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeAll
@@ -24,14 +25,14 @@ internal class SaksbehandlingsperiodeDaoTest {
 
     companion object {
         val fnr = "01019012345"
-        val personId = "6512a"
+        val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
 
         @JvmStatic
         @BeforeAll
         fun setOpp() {
             TestDataSource.resetDatasource()
-            val dao = PersonDaoPg(TestDataSource.dbModule.dataSource)
-            dao.opprettPerson(fnr, personId)
+            val dao = PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource)
+            dao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
         }
     }
 
@@ -52,7 +53,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val periode =
             Behandling(
                 id = id,
-                spilleromPersonId = personId,
+                naturligIdent = NaturligIdent(fnr),
                 opprettet = now,
                 opprettetAvNavIdent = saksbehandler.navIdent,
                 opprettetAvNavn = saksbehandler.navn,
@@ -68,7 +69,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         assertEquals(periode, hentet)
 
         // Sjekk at perioden finnes i listen over alle perioder for personen
-        val perioder = dao.finnBehandlingerForPerson(personId)
+        val perioder = dao.finnBehandlingerForNaturligIdent(NaturligIdent(fnr))
         assertTrue(perioder.any { it.id == id })
     }
 
@@ -88,7 +89,7 @@ internal class SaksbehandlingsperiodeDaoTest {
             val periode =
                 Behandling(
                     id = id,
-                    spilleromPersonId = personId,
+                    naturligIdent = NaturligIdent(fnr),
                     opprettet = now,
                     opprettetAvNavIdent = saksbehandler.navIdent,
                     opprettetAvNavn = saksbehandler.navn,
@@ -106,8 +107,8 @@ internal class SaksbehandlingsperiodeDaoTest {
             tom: String,
         ): Set<Behandling> =
             dao
-                .finnBehandlingerForPersonSomOverlapper(
-                    Companion.personId,
+                .finnBehandlingerForNaturligIdentSomOverlapper(
+                    NaturligIdent(fnr),
                     fom.toLocalDate(),
                     tom.toLocalDate(),
                 ).toSet()
@@ -138,7 +139,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val periode =
             Behandling(
                 id = id,
-                spilleromPersonId = personId,
+                naturligIdent = NaturligIdent(fnr),
                 opprettet = now,
                 opprettetAvNavIdent = saksbehandler.navIdent,
                 opprettetAvNavn = saksbehandler.navn,
@@ -170,7 +171,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val periode =
             Behandling(
                 id = id,
-                spilleromPersonId = personId,
+                naturligIdent = NaturligIdent(fnr),
                 opprettet = now,
                 opprettetAvNavIdent = saksbehandler.navIdent,
                 opprettetAvNavn = saksbehandler.navn,

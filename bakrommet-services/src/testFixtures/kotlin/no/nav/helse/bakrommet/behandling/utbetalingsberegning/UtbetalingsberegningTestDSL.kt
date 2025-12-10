@@ -17,6 +17,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNÃ
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.VariantAvInaktiv
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.dto.InntektbelÃ¸pDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -591,10 +592,10 @@ fun utbetalingsberegningTestdata(init: UtbetalingsberegningTestBuilder.() -> Uni
  */
 fun beregnOgByggOppdrag(
     input: UtbetalingsberegningInput,
-    ident: String = "TESTIDENT",
+    ident: String = "01019012345",
 ): BeregningResultat {
     val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, ident)
+    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, NaturligIdent(ident))
     return BeregningResultat(beregnet, oppdrag, input.sykepengegrunnlag)
 }
 
@@ -602,7 +603,7 @@ fun beregnOgByggOppdrag(
  * Kombinert DSL som setter opp testdata og beregner resultatet i ett steg
  */
 fun utbetalingsberegningTestOgBeregn(
-    ident: String = "TESTIDENT",
+    ident: String = "01019012345",
     init: UtbetalingsberegningTestBuilder.() -> Unit,
 ): BeregningResultat {
     val input = utbetalingsberegningTestdata(init)

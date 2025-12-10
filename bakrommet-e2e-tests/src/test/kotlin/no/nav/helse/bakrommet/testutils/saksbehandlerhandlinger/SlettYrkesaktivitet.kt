@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.slettYrkesaktivitet(
-    personId: String,
+    pseudoId: UUID,
     periodeId: UUID,
     yrkesaktivitetId: UUID,
 ) {
     val response =
-        client.delete("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId") {
+        client.delete("/v1/$pseudoId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId") {
             bearerAuth(TestOppsett.userToken)
         }
     assertEquals(204, response.status.value)

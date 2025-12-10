@@ -47,7 +47,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
             førsteBehandling.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 240000.0
             val forrigePeriode = førsteBehandling.periode
 
-            val personId = førsteBehandling.scenario.personId
+            val personId = førsteBehandling.scenario.pseudoId
             val fom = forrigePeriode.tom.plusDays(1)
             val tom = forrigePeriode.tom.plusDays(14)
             val nestePeriode =

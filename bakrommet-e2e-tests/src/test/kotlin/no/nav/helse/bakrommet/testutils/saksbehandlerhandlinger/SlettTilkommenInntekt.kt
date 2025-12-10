@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.*
 
 internal suspend fun ApplicationTestBuilder.slettTilkommenInntekt(
-    personId: String,
+    personId: UUID,
     periodeId: UUID,
     tilkommenInntektId: UUID,
 ) {

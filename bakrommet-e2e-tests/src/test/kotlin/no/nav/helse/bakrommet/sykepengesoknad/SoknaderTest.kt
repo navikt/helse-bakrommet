@@ -14,10 +14,12 @@ import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import no.nav.helse.bakrommet.person.NaturligIdent
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.util.UUID
 
 class SoknaderTest {
     val mockSoknaderClient =
@@ -73,6 +75,7 @@ class SoknaderTest {
     companion object {
         val fnr = "01019012322"
         val personId = "abcde"
+        val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
     }
 
     @Test
@@ -85,10 +88,10 @@ class SoknaderTest {
                     oboClient = TestOppsett.oboClient,
                 ),
         ) {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
 
             client
-                .get("/v1/$personId/soknader/b8079801-ff72-3e31-ad48-118df088343b") {
+                .get("/v1/$personPseudoId/soknader/b8079801-ff72-3e31-ad48-118df088343b") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)
@@ -97,7 +100,7 @@ class SoknaderTest {
 
             // Test not found case
             client
-                .get("/v1/$personId/soknader/non-existent-id") {
+                .get("/v1/$personPseudoId/soknader/non-existent-id") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(404, status.value)
@@ -114,10 +117,10 @@ class SoknaderTest {
                     oboClient = TestOppsett.oboClient,
                 ),
         ) {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
 
             client
-                .get("/v1/$personId/soknader") {
+                .get("/v1/$personPseudoId/soknader") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)
@@ -135,10 +138,10 @@ class SoknaderTest {
                     oboClient = TestOppsett.oboClient,
                 ),
         ) {
-            it.personDao.opprettPerson(fnr, personId)
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
 
             client
-                .get("/v1/$personId/soknader?fom=2025-04-01") {
+                .get("/v1/$personPseudoId/soknader?fom=2025-04-01") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)
@@ -146,7 +149,7 @@ class SoknaderTest {
                 }
 
             client
-                .get("/v1/$personId/soknader?fom=2025-01-01") {
+                .get("/v1/$personPseudoId/soknader?fom=2025-01-01") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)

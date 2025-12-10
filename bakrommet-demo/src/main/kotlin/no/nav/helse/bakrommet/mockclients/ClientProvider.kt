@@ -53,7 +53,7 @@ fun skapClienter(testpersoner: List<Testperson>): Clienter {
 private fun Testperson.skapPdlReply(): String =
     PdlMock.pdlReply(
         fnr = this.fnr,
-        aktorId = this.aktorId ?: ("${this.fnr}00"),
+        aktorId = ("${this.fnr}00"),
         fornavn = this.fornavn,
         mellomnavn = this.mellomnavn,
         etternavn = this.etternavn,

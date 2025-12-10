@@ -1,9 +1,9 @@
 package no.nav.helse.bakrommet.api.person
 
 import no.nav.helse.bakrommet.api.dto.person.PersonsøkResponseDto
-import no.nav.helse.bakrommet.person.SpilleromPersonId
+import java.util.UUID
 
-fun SpilleromPersonId.tilPersonsøkResponseDto(): PersonsøkResponseDto =
+fun UUID.tilPersonsøkResponseDto(): PersonsøkResponseDto =
     PersonsøkResponseDto(
-        personId = personId,
+        personId = this.toString(),
     )

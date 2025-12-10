@@ -4,72 +4,43 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
+import java.util.UUID
 import kotlin.test.assertEquals
 
 internal class PersonDaoTest {
     val db = MedDataSource(TestDataSource.dbModule.dataSource)
-    private val personDao = PersonDaoPg(TestDataSource.dbModule.dataSource)
+    private val personDao = PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource)
 
-    @Test
-    fun `returnerer null for ukjent person-ID`() {
-        assertNull(personDao.finnPersonId("007"))
-    }
 
     @Test
     fun `returnerer spillerom-ID for kjent person-ID`() {
         val fnr = "12121299999"
-        opprettTestdata(fnr, "123az")
-        assertEquals("123az", personDao.finnPersonId(fnr))
+        val pseudoId = UUID.randomUUID()
+        opprettTestdata(fnr, pseudoId)
+        assertEquals(pseudoId, personDao.finnPseudoID(fnr.somNaturligIdent()))
     }
 
-    @Test
-    fun `finner person så lenge en av ID-ene passer`() {
-        val fnr = "12121277777"
-        opprettTestdata(fnr, "123ab")
-        assertEquals("123ab", personDao.finnPersonId("en annen id", fnr))
-    }
+
 
     @Test
-    fun `kan inserte personer`() {
-        val fnr = "12121255555"
-        val spilleromId = "987ab"
-        personDao.opprettPerson(naturligIdent = fnr, spilleromId = spilleromId)
-        val (identFraDb, spilleromIdFraDb) =
-            db.single(
-                """select naturlig_ident, spillerom_id from ident where spillerom_id = :sid""",
-                "sid" to spilleromId,
-            ) {
-                it.string("naturlig_ident") to it.string("spillerom_id")
-            }!!
-        assertEquals(fnr, identFraDb)
-        assertEquals(spilleromId, spilleromIdFraDb)
-    }
-
-    @Test
-    fun `kan finne naturlig ident fra spillerom id`() {
+    fun `kan finne naturlig ident fra pseudo id`() {
         val fnr = "12121255888"
-        val spilleromId = "987tr"
-        personDao.opprettPerson(naturligIdent = fnr, spilleromId = spilleromId)
-        val naturligIdent = personDao.finnNaturligIdent(spilleromId = spilleromId)
-        assertEquals(naturligIdent, fnr)
+
+        val pseudoId = UUID.randomUUID()
+        opprettTestdata(fnr, pseudoId)
+        assertEquals(fnr, personDao.finnNaturligIdent(pseudoId)!!.naturligIdent)
+
     }
 
     @Test
-    fun `ukjent spilleromid returnerer null`() {
-        assertNull(personDao.finnNaturligIdent("fgj75"))
+    fun `ukjent pseudoID returnerer null`() {
+        assertNull(personDao.finnNaturligIdent(UUID.fromString("00000000-0000-0000-0000-000000000000")))
     }
 
     private fun opprettTestdata(
         fnr: String,
-        spilleromId: String,
+        pseudoId: UUID,
     ) {
-        db.update(
-            """
-            insert into ident (spillerom_id, naturlig_ident)
-            values (:spilleromId, :fnr)
-            """.trimIndent(),
-            "fnr" to fnr,
-            "spilleromId" to spilleromId,
-        )
+        personDao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
     }
 }

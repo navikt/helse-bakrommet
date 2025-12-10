@@ -21,7 +21,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.person.PersonDao
+import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -34,7 +34,7 @@ interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
     override val behandlingDao: BehandlingDao
     override val yrkesaktivitetDao: YrkesaktivitetDao
     override val beregningDao: UtbetalingsberegningDao
-    override val personDao: PersonDao
+    override val personPseudoIdDao: PersonPseudoIdDao
     override val sykepengegrunnlagDao: SykepengegrunnlagDao
     val behandlingEndringerDao: BehandlingEndringerDao
 }
@@ -120,7 +120,7 @@ class YrkesaktivitetService(
             // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
             // Slett sykepengegrunnlag og utbetalingsberegning når yrkesaktivitet endres
             // Vi må alltid beregne på nytt når kategorisering endres
-            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.periodeUUID)
+            beregningDao.slettBeregning(ref.saksbehandlingsperiodeReferanse.behandlingId)
 
             // hvis sykepengegrunnlaget eies av denne perioden, slett det
             val periode = behandlingDao.hentPeriode(ref.saksbehandlingsperiodeReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())

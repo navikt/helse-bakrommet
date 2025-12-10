@@ -10,5 +10,5 @@ interface UtbetalingsberegningDaoer {
 class UtbetalingsberegningService(
     private val db: DbDaoer<UtbetalingsberegningDaoer>,
 ) {
-    suspend fun hentUtbetalingsberegning(referanse: SaksbehandlingsperiodeReferanse): BeregningResponse? = db.nonTransactional { beregningDao.hentBeregning(referanse.periodeUUID) }
+    suspend fun hentUtbetalingsberegning(referanse: SaksbehandlingsperiodeReferanse): BeregningResponse? = db.nonTransactional { beregningDao.hentBeregning(referanse.behandlingId) }
 }

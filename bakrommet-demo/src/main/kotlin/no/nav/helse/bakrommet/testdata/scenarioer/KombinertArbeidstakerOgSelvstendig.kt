@@ -50,7 +50,6 @@ val kombinertArbeidstakerOgSelvstendig =
                 fornavn = "Dobbel",
                 fødselsdato = LocalDate.now().minusYears(37),
                 fnr = fnr,
-                spilleromId = "kombinert-arb-selv",
                 etternavn = "Gundersen",
                 aaregData =
                     genererAaregFraAinntekt(

@@ -24,7 +24,7 @@ class TilkommenInntektService(
         ref: SaksbehandlingsperiodeReferanse,
     ): List<TilkommenInntektDbRecord> =
         db.nonTransactional {
-            tilkommenInntektDao.hentForBehandling(ref.periodeUUID)
+            tilkommenInntektDao.hentForBehandling(ref.behandlingId)
         }
 
     suspend fun lagreTilkommenInntekt(

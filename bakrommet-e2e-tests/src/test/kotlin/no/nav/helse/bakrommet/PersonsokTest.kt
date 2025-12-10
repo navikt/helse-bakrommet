@@ -22,7 +22,7 @@ class PersonsokTest {
                     bearerAuth(TestOppsett.userToken)
                 }
             assertEquals(200, response.status.value)
-            val regex = Regex("""\{"personId":"[a-z0-9]{5}"}""")
+            val regex = Regex("""\{"personId":"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}""")
             assertTrue(response.bodyAsText().matches(regex))
         }
 
@@ -43,7 +43,7 @@ class PersonsokTest {
             val problemdetails = response.tilProblemDetails()
             assertEquals(400, problemdetails.status)
             assertEquals("https://spillerom.ansatt.nav.no/validation/input", problemdetails.type)
-            assertEquals("Ident må være 11 eller 13 siffer lang", problemdetails.title)
+            assertEquals("Naturlig ident må være 11 sifre", problemdetails.title)
         }
 
     @Test

@@ -5,25 +5,28 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.util.UUID
 
 class SaksbehandlingsperiodeValideringTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"
+        val PERSON_PSEUDO_ID = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
     }
 
     @Test
     fun `returnerer 400 hvis fom er etter tom`() {
         runApplicationTest { daoer ->
-            daoer.personDao.opprettPerson(FNR, PERSON_ID)
+            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
             val response =
-                client.post("/v1/$PERSON_ID/behandlinger") {
+                client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     setBody(

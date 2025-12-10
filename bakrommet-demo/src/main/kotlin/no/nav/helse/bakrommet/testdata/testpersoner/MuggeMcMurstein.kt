@@ -11,8 +11,6 @@ import java.util.UUID
 val muggeMcMurstein =
     Testperson(
         fnr = "01020304050",
-        aktorId = "0102030405099",
-        spilleromId = "mugge",
         fornavn = "Mugge",
         etternavn = "McMurstein",
         fødselsdato = LocalDate.of(1959, 1, 2), // ca. 65 år basert på alder 65

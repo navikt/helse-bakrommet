@@ -23,7 +23,7 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
 import no.nav.helse.bakrommet.kafka.leggTilOutbox
-import no.nav.helse.bakrommet.person.SpilleromPersonId
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -39,14 +39,14 @@ interface SaksbehandlingsperiodeServiceDaoer :
 }
 
 data class SaksbehandlingsperiodeReferanse(
-    val spilleromPersonId: SpilleromPersonId,
-    val periodeUUID: UUID,
+    val naturligIdent: NaturligIdent,
+    val behandlingId: UUID,
 )
 
 fun Behandling.somReferanse() =
     SaksbehandlingsperiodeReferanse(
-        spilleromPersonId = SpilleromPersonId(this.spilleromPersonId),
-        periodeUUID = this.id,
+        naturligIdent = this.naturligIdent,
+        behandlingId = this.id,
     )
 
 class BehandlingService(
@@ -58,7 +58,7 @@ class BehandlingService(
     suspend fun hentPeriode(ref: SaksbehandlingsperiodeReferanse) = db.nonTransactional { behandlingDao.hentPeriode(ref, krav = null) }
 
     suspend fun opprettNyBehandling(
-        spilleromPersonId: SpilleromPersonId,
+        naturligIdent: NaturligIdent,
         fom: LocalDate,
         tom: LocalDate,
         søknader: Set<UUID>,
@@ -69,7 +69,7 @@ class BehandlingService(
         var nyPeriode =
             Behandling(
                 id = id,
-                spilleromPersonId = spilleromPersonId.personId,
+                naturligIdent = naturligIdent,
                 opprettet = OffsetDateTime.now(),
                 opprettetAvNavIdent = saksbehandler.bruker.navIdent,
                 opprettetAvNavn = saksbehandler.bruker.navn,
@@ -82,7 +82,7 @@ class BehandlingService(
         var tidligerePeriodeInntilNyPeriode: Behandling? = null
 
         db.transactional {
-            val perioder = behandlingDao.finnBehandlingerForPerson(spilleromPersonId.personId)
+            val perioder = behandlingDao.finnBehandlingerForNaturligIdent(naturligIdent)
 
             if (perioder.any { it.fom <= tom && it.tom >= fom }) {
                 throw InputValideringException("Angitte datoer overlapper med en eksisterende periode")
@@ -176,7 +176,7 @@ class BehandlingService(
         return nyPeriode
     }
 
-    suspend fun finnPerioderForPerson(spilleromPersonId: SpilleromPersonId): List<Behandling> = db.nonTransactional { behandlingDao.finnBehandlingerForPerson(spilleromPersonId.personId) }
+    suspend fun finnPerioderForPerson(naturligIdent: NaturligIdent): List<Behandling> = db.nonTransactional { behandlingDao.finnBehandlingerForNaturligIdent(naturligIdent) }
 
     suspend fun sendTilBeslutning(
         periodeRef: SaksbehandlingsperiodeReferanse,

@@ -52,7 +52,6 @@ val yrkesskade =
                 fornavn = "Uheldig",
                 fødselsdato = LocalDate.now().minusYears(20),
                 fnr = fnr,
-                spilleromId = "uheldigarbeidskar",
                 etternavn = "Arbeidskar",
                 ainntektData = inntektData,
                 inntektsmeldinger = inntektsmeldinger,

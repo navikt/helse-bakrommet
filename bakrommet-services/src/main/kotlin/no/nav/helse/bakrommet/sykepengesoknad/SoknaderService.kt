@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.sykepengesoknad
 
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonService
-import no.nav.helse.bakrommet.person.SpilleromPersonId
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
 
@@ -12,29 +12,24 @@ class SoknaderService(
 ) {
     suspend fun hentSoknader(
         saksbehandlerToken: SpilleromBearerToken,
-        personId: SpilleromPersonId,
+        naturligIdent: NaturligIdent,
         fom: LocalDate,
         medSporsmal: Boolean = false,
-    ): List<SykepengesoknadDTO> {
-        val fnr =
-            personService.finnNaturligIdent(personId.personId)
-                ?: throw IllegalArgumentException("Kunne ikke finne fødselsnummer for person $personId")
-        return sykepengesoknadBackendClient.hentSoknader(
+    ): List<SykepengesoknadDTO> =
+        sykepengesoknadBackendClient.hentSoknader(
             saksbehandlerToken = saksbehandlerToken,
-            fnr = fnr,
+            fnr = naturligIdent.naturligIdent,
             fom = fom,
             medSporsmal = medSporsmal,
         )
-    }
 
     suspend fun hentSoknad(
         saksbehandlerToken: SpilleromBearerToken,
-        personId: SpilleromPersonId,
+        naturligIdent: NaturligIdent,
         soknadId: String,
     ): SykepengesoknadDTO {
         // Valider at personId er gyldig (hent fnr for å sjekke at personen eksisterer)
-        personService.finnNaturligIdent(personId.personId)
-            ?: throw IllegalArgumentException("Kunne ikke finne fødselsnummer for person $personId")
+// TODO valider at søknad henger sammen med fnr?
         return sykepengesoknadBackendClient.hentSoknad(
             saksbehandlerToken = saksbehandlerToken,
             id = soknadId,

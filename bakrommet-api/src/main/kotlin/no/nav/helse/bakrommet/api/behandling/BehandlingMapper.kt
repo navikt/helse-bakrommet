@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
 fun Behandling.tilBehandlingDto(): BehandlingDto =
     BehandlingDto(
         id = id,
-        spilleromPersonId = spilleromPersonId,
+        naturligIdent = naturligIdent.naturligIdent,
         opprettet = opprettet,
         opprettetAvNavIdent = opprettetAvNavIdent,
         opprettetAvNavn = opprettetAvNavn,
