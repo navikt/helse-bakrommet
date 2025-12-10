@@ -10,8 +10,8 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.api.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
+import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.OpprettSykepengegrunnlagRequestDto
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
@@ -23,7 +23,7 @@ fun Route.sykepengegrunnlagRoute(
     service: SykepengegrunnlagService,
     personService: PersonService,
 ) {
-    route("/v2/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sykepengegrunnlag") {
+    route("/v2/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/sykepengegrunnlag") {
         get {
             val grunnlag = service.hentSykepengegrunnlag(call.periodeReferanse(personService))
             if (grunnlag == null) {

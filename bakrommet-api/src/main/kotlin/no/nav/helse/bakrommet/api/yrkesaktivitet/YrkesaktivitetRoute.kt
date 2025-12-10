@@ -4,8 +4,8 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.api.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
+import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
 import no.nav.helse.bakrommet.api.PARAM_YRKESAKTIVITETUUID
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.api.naturligIdent
@@ -30,7 +30,7 @@ fun Route.yrkesaktivitetRoute(
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     personService: PersonService,
 ) {
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/yrkesaktivitet") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/yrkesaktivitet") {
         get {
             val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(call.periodeReferanse(personService))
             val yrkesaktivitetDto = yrkesaktiviteter.map { it.tilYrkesaktivitetDto() }

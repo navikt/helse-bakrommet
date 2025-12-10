@@ -4,8 +4,8 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.api.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
+import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingRequestDto
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
@@ -19,7 +19,7 @@ fun Route.vilkårRoute(
     service: VilkårService,
     personService: PersonService,
 ) {
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/vilkaarsvurdering") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/vilkaarsvurdering") {
         get {
             val vurderteVilkår =
                 service.hentVilkårsvurderingerFor(call.periodeReferanse(personService)).map {
@@ -29,7 +29,7 @@ fun Route.vilkårRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/vilkaarsvurdering/{hovedspørsmål}") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/vilkaarsvurdering/{hovedspørsmål}") {
         put {
             val request = call.receive<VilkaarsvurderingRequestDto>()
             val (lagretVurdering, opprettetEllerEndret) =

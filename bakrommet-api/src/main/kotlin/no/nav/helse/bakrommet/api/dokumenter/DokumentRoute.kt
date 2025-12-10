@@ -10,8 +10,8 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.api.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
+import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
@@ -21,8 +21,8 @@ import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.util.somGyldigUUID
 
 fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
-    val periodeId = call.parameters[PARAM_PERIODEUUID].somGyldigUUID()
-    val personId = call.parameters[PARAM_PERSONID]!!
+    val periodeId = call.parameters[PARAM_BEHANDLING_ID].somGyldigUUID()
+    val personId = call.parameters[PARAM_PSEUDO_ID]!!
     val dokUri = "/v1/$personId/behandlinger/$periodeId/dokumenter"
     check(call.request.uri.startsWith(dokUri)) {
         "Forventet å være i kontekst av /dokumenter for å kunne resolve dokument-uri"
@@ -41,7 +41,7 @@ fun Route.dokumentRoute(
     dokumentHenter: DokumentHenter,
     personService: PersonService,
 ) {
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/dokumenter") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/dokumenter") {
         get {
             val dokumenterDto = dokumentHenter.hentDokumenterFor(call.periodeReferanse(personService)).map { it.tilDokumentDto() }
             call.respondJson(dokumenterDto)

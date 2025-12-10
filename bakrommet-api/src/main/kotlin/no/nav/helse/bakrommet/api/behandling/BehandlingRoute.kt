@@ -3,8 +3,8 @@ package no.nav.helse.bakrommet.api.behandling
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.api.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
+import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
 import no.nav.helse.bakrommet.api.dto.behandling.OppdaterSkjæringstidspunktRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.SendTilBeslutningRequestDto
@@ -31,7 +31,7 @@ fun Route.behandlingRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger") {
         post {
             val body = call.receive<OpprettBehandlingRequestDto>()
             val naturligIDent = call.naturligIdent(personService)
@@ -53,7 +53,7 @@ fun Route.behandlingRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}") {
         get {
             service.hentPeriode(call.periodeReferanse(personService)).let {
                 call.respondJson(it.tilBehandlingDto())
@@ -61,14 +61,14 @@ fun Route.behandlingRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/historikk") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/historikk") {
         get {
             val historikk = service.hentHistorikkFor(call.periodeReferanse(personService))
             call.respondJson(historikk.map { it.tilSaksbehandlingsperiodeEndringDto() })
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sendtilbeslutning") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/sendtilbeslutning") {
         post {
             val body = call.receive<SendTilBeslutningRequestDto>()
             service
@@ -79,7 +79,7 @@ fun Route.behandlingRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/tatilbeslutning") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/tatilbeslutning") {
         post {
             service.taTilBeslutning(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto())
@@ -87,7 +87,7 @@ fun Route.behandlingRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/sendtilbake") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/sendtilbake") {
         post {
             val kommentar =
                 try {
@@ -104,7 +104,7 @@ fun Route.behandlingRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/godkjenn") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/godkjenn") {
         post {
             service.godkjennPeriode(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto())
@@ -112,7 +112,7 @@ fun Route.behandlingRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/revurder") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/revurder") {
         post {
             service.revurderPeriode(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto(), status = HttpStatusCode.Created)
@@ -120,7 +120,7 @@ fun Route.behandlingRoute(
         }
     }
 
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/skjaeringstidspunkt") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/skjaeringstidspunkt") {
         put {
             val body = call.receive<OppdaterSkjæringstidspunktRequestDto>()
             val skjæringstidspunkt = body.skjaeringstidspunkt.let { LocalDate.parse(it) }

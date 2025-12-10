@@ -4,8 +4,8 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.api.PARAM_PERIODEUUID
-import no.nav.helse.bakrommet.api.PARAM_PERSONID
+import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
+import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
 import no.nav.helse.bakrommet.api.dto.tilkommen.OpprettTilkommenInntektRequestDto
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
@@ -18,7 +18,7 @@ fun Route.tilkommenInntektRoute(
     service: TilkommenInntektService,
     personService: PersonService,
 ) {
-    route("/v1/{$PARAM_PERSONID}/behandlinger/{$PARAM_PERIODEUUID}/tilkommeninntekt") {
+    route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/tilkommeninntekt") {
         get {
             val ref = call.periodeReferanse(personService)
             val tilkommenInntektDbRecords = service.hentTilkommenInntekt(ref)

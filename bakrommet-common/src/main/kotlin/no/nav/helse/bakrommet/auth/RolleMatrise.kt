@@ -25,11 +25,11 @@ val regler =
             role = setOf(LES, SAKSBEHANDLER, BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         // Personsøk og personinfo
@@ -38,16 +38,16 @@ val regler =
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/personinfo/(method:GET)",
+            path = "/v1/{pseudoId}/personinfo/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         // Søknader
         Rule(
-            path = "/v1/{personId}/soknader/(method:GET)",
+            path = "/v1/{pseudoId}/soknader/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/soknader/{soknadId}/(method:GET)",
+            path = "/v1/{pseudoId}/soknader/{soknadId}/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         // Saksbehandlingsperioder - ikke knyttet til spesifikk person
@@ -57,155 +57,155 @@ val regler =
         ),
         // Saksbehandlingsperioder - spesifikke endepunkter
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/historikk/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/historikk/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         // Sykepengegrunnlag
         Rule(
-            path = "/v2/{personId}/behandlinger/{periodeUUID}/sykepengegrunnlag/(method:GET)",
+            path = "/v2/{pseudoId}/behandlinger/{behandlingId}/sykepengegrunnlag/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
-            path = "/v2/{personId}/behandlinger/{periodeUUID}/sykepengegrunnlag/(method:DELETE)",
+            path = "/v2/{pseudoId}/behandlinger/{behandlingId}/sykepengegrunnlag/(method:DELETE)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v2/{personId}/behandlinger/{periodeUUID}/sykepengegrunnlag/(method:POST)",
+            path = "/v2/{pseudoId}/behandlinger/{behandlingId}/sykepengegrunnlag/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/dokumenter/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/dokumenter/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/utbetalingsberegning/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/utbetalingsberegning/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/dokumenter/{dokumentUUID}/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/dokumenter/{dokumentUUID}/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         // Vilkårsvurdering
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/vilkaarsvurdering/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/vilkaarsvurdering/(method:GET)",
             role = setOf(SAKSBEHANDLER, LES, BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/vilkaarsvurdering/{hovedspørsmål}/(method:PUT)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/vilkaarsvurdering/{hovedspørsmål}/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/vilkaarsvurdering/{hovedspørsmål}/(method:DELETE)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/vilkaarsvurdering/{hovedspørsmål}/(method:DELETE)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/sendtilbeslutning/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/sendtilbeslutning/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/revurder/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/revurder/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/tatilbeslutning/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/tatilbeslutning/(method:POST)",
             role = setOf(BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/sendtilbake/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/sendtilbake/(method:POST)",
             role = setOf(BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/godkjenn/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/godkjenn/(method:POST)",
             role = setOf(BESLUTTER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/skjaeringstidspunkt/(method:PUT)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/skjaeringstidspunkt/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         // Yrkesaktivitet
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/dagoversikt/(method:PUT)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/dagoversikt/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/refusjon/(method:PUT)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/refusjon/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/kategorisering/(method:PUT)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/kategorisering/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/perioder/(method:PUT)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/perioder/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/inntekt/(method:PUT)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/inntekt/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/(method:DELETE)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/(method:DELETE)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/inntektsmeldinger/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/inntektsmeldinger/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/pensjonsgivendeinntekt/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/pensjonsgivendeinntekt/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/yrkesaktivitet/{yrkesaktivitetUUID}/ainntekt/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/yrkesaktivitet/{yrkesaktivitetUUID}/ainntekt/(method:GET)",
             role = setOf(SAKSBEHANDLER),
         ),
         // Dokumenter - relaterte ruter
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/dokumenter/ainntekt/hent-8-28/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/dokumenter/ainntekt/hent-8-28/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/dokumenter/ainntekt/hent-8-30/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/dokumenter/ainntekt/hent-8-30/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/dokumenter/arbeidsforhold/hent/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/dokumenter/arbeidsforhold/hent/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/dokumenter/pensjonsgivendeinntekt/hent/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/dokumenter/pensjonsgivendeinntekt/hent/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/tilkommeninntekt/(method:GET)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/tilkommeninntekt/(method:GET)",
             role = setOf(SAKSBEHANDLER, BESLUTTER, LES),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/tilkommeninntekt/(method:POST)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/tilkommeninntekt/(method:POST)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/tilkommeninntekt/{tilkommenInntektId}/(method:PUT)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/tilkommeninntekt/{tilkommenInntektId}/(method:PUT)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v1/{personId}/behandlinger/{periodeUUID}/tilkommeninntekt/{tilkommenInntektId}/(method:DELETE)",
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/tilkommeninntekt/{tilkommenInntektId}/(method:DELETE)",
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
-            path = "/v2/{personId}/tidslinje/(method:GET)",
+            path = "/v2/{pseudoId}/tidslinje/(method:GET)",
             role = setOf(SAKSBEHANDLER, BESLUTTER, LES),
         ),
     )

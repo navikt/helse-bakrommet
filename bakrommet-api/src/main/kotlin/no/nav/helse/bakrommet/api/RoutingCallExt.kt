@@ -12,11 +12,11 @@ import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.UUID
 
 fun RoutingCall.personPseudoId(): UUID =
-    parameters[PARAM_PERSONID]?.somGyldigUUID()
+    parameters[PARAM_PSEUDO_ID]?.somGyldigUUID()
         ?: throw InputValideringException("Mangler personId i path")
 
 fun RoutingCall.behandlingId(): UUID =
-    parameters[PARAM_PERIODEUUID]?.somGyldigUUID()
+    parameters[PARAM_BEHANDLING_ID]?.somGyldigUUID()
         ?: throw InputValideringException("Mangler behandlingId i path")
 
 suspend fun RoutingCall.naturligIdent(personService: PersonService): NaturligIdent {
