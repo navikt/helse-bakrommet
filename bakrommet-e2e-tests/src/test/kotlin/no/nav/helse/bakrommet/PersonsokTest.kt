@@ -43,7 +43,7 @@ class PersonsokTest {
             val problemdetails = response.tilProblemDetails()
             assertEquals(400, problemdetails.status)
             assertEquals("https://spillerom.ansatt.nav.no/validation/input", problemdetails.type)
-            assertEquals("Ident må være 11 eller 13 siffer lang", problemdetails.title)
+            assertEquals("Naturlig ident må være 11 sifre", problemdetails.title)
         }
 
     @Test
