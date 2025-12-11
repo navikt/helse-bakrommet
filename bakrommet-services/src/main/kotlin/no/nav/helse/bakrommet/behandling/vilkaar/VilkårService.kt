@@ -89,7 +89,7 @@ class VilkårService(
                     OpprettetEllerEndret.OPPRETTET
                 }
 
-            if (vilkaarsvurdering.underspørsmål.any {  listOf("I_ARBEIDE_84").contains(it.svar)  }) {
+            if (vilkaarsvurdering.underspørsmål.any { listOf("I_ARBEIDE_84").contains(it.svar) }) {
                 val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(ref)
                 if (yrkesaktiviteter.size == 1) {
                     val aktiviteten = yrkesaktiviteter.first()
@@ -97,7 +97,7 @@ class VilkårService(
                         yrkesaktivitetService.oppdaterKategorisering(
                             YrkesaktivitetReferanse(ref, aktiviteten.id),
                             YrkesaktivitetKategorisering.Inaktiv(
-                                variant = VariantAvInaktiv.INAKTIV_VARIANT_A, //TODO denne skal fjernes etterhvert
+                                variant = VariantAvInaktiv.INAKTIV_VARIANT_A, // TODO denne skal fjernes etterhvert
                             ),
                             saksbehandler,
                             this,

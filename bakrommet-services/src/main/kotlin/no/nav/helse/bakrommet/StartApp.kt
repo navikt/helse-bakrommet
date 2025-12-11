@@ -187,6 +187,7 @@ fun createServices(
             sigrunClient = clienter.sigrunClient,
         )
     val personService = PersonService(db, clienter.pdlClient)
+    val yrkesaktivitetService = YrkesaktivitetService(db)
     return Services(
         personsøkService =
             PersonsøkService(
