@@ -5,20 +5,21 @@ import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetMedOrgnavn
 import java.time.format.DateTimeFormatter
 import no.nav.helse.dto.PeriodeDto as SpleisPeriodeDto
 
-fun YrkesaktivitetDbRecord.tilYrkesaktivitetDto(): YrkesaktivitetDto =
+fun YrkesaktivitetMedOrgnavn.tilYrkesaktivitetDto(): YrkesaktivitetDto =
     YrkesaktivitetDto(
-        id = id,
-        kategorisering = kategorisering.tilYrkesaktivitetKategoriseringDto(),
-        dagoversikt = dagoversikt?.map { it.tilDagDto() },
-        generertFraDokumenter = generertFraDokumenter.map { it },
-        perioder = perioder?.tilPerioderDto(),
-        inntektRequest = inntektRequest?.tilInntektRequestDto(),
-        inntektData = inntektData?.tilInntektDataDto(),
-        refusjon = refusjon?.map { it.tilRefusjonsperiodeDto() },
+        id = yrkesaktivitet.id,
+        kategorisering = yrkesaktivitet.kategorisering.tilYrkesaktivitetKategoriseringDto(),
+        dagoversikt = yrkesaktivitet.dagoversikt?.map { it.tilDagDto() },
+        generertFraDokumenter = yrkesaktivitet.generertFraDokumenter.map { it },
+        perioder = yrkesaktivitet.perioder?.tilPerioderDto(),
+        inntektRequest = yrkesaktivitet.inntektRequest?.tilInntektRequestDto(),
+        inntektData = yrkesaktivitet.inntektData?.tilInntektDataDto(),
+        refusjon = yrkesaktivitet.refusjon?.map { it.tilRefusjonsperiodeDto() },
+        orgnavn = orgnavn,
     )
 
 fun Kilde.tilKildeDto(): KildeDto =

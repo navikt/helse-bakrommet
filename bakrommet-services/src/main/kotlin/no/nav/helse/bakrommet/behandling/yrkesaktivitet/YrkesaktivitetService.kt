@@ -1,26 +1,26 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
+import com.fasterxml.jackson.databind.JsonNode
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withTimeoutOrNull
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.BehandlingEndringerDao
-import no.nav.helse.bakrommet.behandling.BehandlingReferanse
-import no.nav.helse.bakrommet.behandling.BrukerHarRollePåSakenKrav
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndring
-import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
+import no.nav.helse.bakrommet.behandling.*
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.behandling.dagoversikt.initialiserDager
-import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
-import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
+import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
+import no.nav.helse.bakrommet.util.logg
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -38,8 +38,16 @@ interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
     val behandlingEndringerDao: BehandlingEndringerDao
 }
 
+typealias DagerSomSkalOppdateres = JsonNode
+
+data class YrkesaktivitetMedOrgnavn(
+    val yrkesaktivitet: YrkesaktivitetDbRecord,
+    val orgnavn: String?,
+)
+
 class YrkesaktivitetService(
     private val db: DbDaoer<YrkesaktivitetServiceDaoer>,
+    private val eregClient: EregClient,
 ) {
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean = this.sykmeldt
 
@@ -63,17 +71,46 @@ class YrkesaktivitetService(
                 }
         }
 
-    suspend fun hentYrkesaktivitetFor(ref: BehandlingReferanse): List<YrkesaktivitetDbRecord> =
+    suspend fun hentYrkesaktivitetFor(ref: BehandlingReferanse): List<YrkesaktivitetMedOrgnavn> =
         db.nonTransactional {
             val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
-            yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
+            val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
+
+            val alleOrgnummer = yrkesaktiviteter.mapNotNull { it.kategorisering.maybeOrgnummer() }.toSet()
+
+            val organisasjonsnavnMap =
+                coroutineScope {
+                    alleOrgnummer
+                        .associateWith { orgnummer ->
+                            async {
+                                withTimeoutOrNull(3_000) {
+                                    try {
+                                        eregClient.hentOrganisasjonsnavn(orgnummer)
+                                    } catch (e: Exception) {
+                                        logg.warn("Kall mot Ereg feilet for orgnummer $orgnummer", e)
+                                        null
+                                    }
+                                }
+                            }
+                        }.mapValues { (_, deferred) -> deferred.await() }
+                }
+
+            yrkesaktiviteter.map { yrkesaktivitet ->
+                YrkesaktivitetMedOrgnavn(
+                    yrkesaktivitet = yrkesaktivitet,
+                    orgnavn =
+                        yrkesaktivitet.kategorisering
+                            .maybeOrgnummer()
+                            ?.let { organisasjonsnavnMap[it]?.navn },
+                )
+            }
         }
 
     suspend fun opprettYrkesaktivitet(
         ref: BehandlingReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
-    ): YrkesaktivitetDbRecord =
+    ): YrkesaktivitetMedOrgnavn =
         db.nonTransactional {
             val periode =
                 behandlingDao.hentPeriode(
@@ -99,7 +136,17 @@ class YrkesaktivitetService(
                     refusjonsdata = null,
                 )
 
-            yrkesaktivitet
+            val orgnavn =
+                kategorisering.maybeOrgnummer()?.let { orgnummer ->
+                    try {
+                        eregClient.hentOrganisasjonsnavn(orgnummer).navn
+                    } catch (e: Exception) {
+                        logg.warn("Kall mot Ereg feilet for orgnummer $orgnummer", e)
+                        null
+                    }
+                }
+
+            YrkesaktivitetMedOrgnavn(yrkesaktivitet, orgnavn)
         }
 
     suspend fun oppdaterKategorisering(
@@ -121,7 +168,8 @@ class YrkesaktivitetService(
             beregningDao.slettBeregning(ref.behandlingReferanse.behandlingId)
 
             // hvis sykepengegrunnlaget eies av denne perioden, slett det
-            val periode = behandlingDao.hentPeriode(ref.behandlingReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())
+            val periode =
+                behandlingDao.hentPeriode(ref.behandlingReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())
             periode.sykepengegrunnlagId?.let { sykepengegrunnlagId ->
                 val spgRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)
                 if (spgRecord.opprettetForBehandling == periode.id) {
@@ -140,7 +188,11 @@ class YrkesaktivitetService(
                         endretTidspunkt = OffsetDateTime.now(),
                         endretAvNavIdent = saksbehandler.navIdent,
                         endringType = SaksbehandlingsperiodeEndringType.OPPDATERT_YRKESAKTIVITET_KATEGORISERING,
-                        endringKommentar = "Endret fra ${hovedkategoriseringNavn(gammelKategorisering)} til ${hovedkategoriseringNavn(kategorisering)}",
+                        endringKommentar = "Endret fra ${hovedkategoriseringNavn(gammelKategorisering)} til ${
+                            hovedkategoriseringNavn(
+                                kategorisering,
+                            )
+                        }",
                     ),
                 )
             }

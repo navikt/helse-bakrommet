@@ -64,13 +64,7 @@ class TidslinjeService(
                                     }
                                 }
                             }
-                        }.mapValues { (_, deferred) ->
-                            try {
-                                deferred.await()
-                            } catch (_: Exception) {
-                                null
-                            }
-                        }
+                        }.mapValues { (_, deferred) -> deferred.await() }
                 }
 
             TidslinjeData(behandlinger, yrkesaktivteter, tilkommen, organisasjonsnavnMap)

@@ -2,16 +2,12 @@ package no.nav.helse.bakrommet.testdata
 
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.fakerConfig
-import no.nav.helse.bakrommet.Services
+import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.behandling.somReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
-import no.nav.helse.bakrommet.beritBeslutter
-import no.nav.helse.bakrommet.hentSession
 import no.nav.helse.bakrommet.person.NaturligIdent
-import no.nav.helse.bakrommet.saksMcBehandlersen
-import no.nav.helse.bakrommet.sessionsDaoer
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.*
 
@@ -52,13 +48,19 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                         saksbehandlerBrukerOgToken,
                     )
                 if (periode.inntektRequest != null) {
-                    this.yrkesaktivitetService.hentYrkesaktivitetFor(nySaksbehandlingsperiode.somReferanse()).let { yrkesaktiviteter ->
-                        this.inntektService.oppdaterInntekt(
-                            ref = YrkesaktivitetReferanse(nySaksbehandlingsperiode.somReferanse(), yrkesaktiviteter.first().id),
-                            request = periode.inntektRequest,
-                            saksbehandler = saksbehandlerBrukerOgToken,
-                        )
-                    }
+                    this.yrkesaktivitetService
+                        .hentYrkesaktivitetFor(nySaksbehandlingsperiode.somReferanse())
+                        .let { yrkesaktiviteter ->
+                            this.inntektService.oppdaterInntekt(
+                                ref =
+                                    YrkesaktivitetReferanse(
+                                        nySaksbehandlingsperiode.somReferanse(),
+                                        yrkesaktiviteter.first().yrkesaktivitet.id,
+                                    ),
+                                request = periode.inntektRequest,
+                                saksbehandler = saksbehandlerBrukerOgToken,
+                            )
+                        }
                 }
                 if (periode.avsluttet) {
                     this.behandlingService.sendTilBeslutning(
