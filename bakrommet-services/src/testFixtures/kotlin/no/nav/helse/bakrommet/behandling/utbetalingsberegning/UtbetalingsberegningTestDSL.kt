@@ -110,6 +110,7 @@ class UtbetalingsberegningTestBuilder {
             saksbehandlingsperiode = periode,
             arbeidsgiverperiode = arbeidsgiverperiode,
             tilkommenInntekt = emptyList(),
+            vilkår = emptyList(),
         )
     }
 }

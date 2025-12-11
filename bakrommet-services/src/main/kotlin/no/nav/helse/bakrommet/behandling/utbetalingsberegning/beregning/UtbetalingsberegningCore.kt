@@ -36,7 +36,7 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
 
     val yrkesaktivitetMedDekningsgrad =
         input.yrkesaktivitet.map { ya ->
-            ya to ya.kategorisering.hentDekningsgrad()
+            ya to ya.kategorisering.hentDekningsgrad(input.vilkår)
         }
 
     val allerDagersMaksInntekter =

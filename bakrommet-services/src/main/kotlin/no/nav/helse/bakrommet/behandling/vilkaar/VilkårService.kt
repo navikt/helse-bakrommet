@@ -46,7 +46,6 @@ enum class OpprettetEllerEndret {
 }
 
 interface VilkårServiceDaoer : YrkesaktivitetServiceDaoer {
-    val vurdertVilkårDao: VurdertVilkårDao
     override val behandlingDao: BehandlingDao
 }
 

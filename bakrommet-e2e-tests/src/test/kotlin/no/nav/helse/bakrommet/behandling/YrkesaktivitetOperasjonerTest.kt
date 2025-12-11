@@ -140,7 +140,12 @@ class YrkesaktivitetOperasjonerTest {
             )
 
             // Verifiser at dekningsgrad er riktig
-            assertEquals(1.0, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.prosentDesimal)
+            assertEquals(
+                1.0,
+                oppdatertYrkesaktivitet.kategorisering
+                    .hentDekningsgrad(emptyList())
+                    .verdi.prosentDesimal,
+            )
         }
     }
 
@@ -244,7 +249,12 @@ class YrkesaktivitetOperasjonerTest {
             }
 
             // Verifiser at dekningsgrad er riktig
-            assertEquals(1.0, oppdatertYrkesaktivitet.hentDekningsgrad().verdi.prosentDesimal)
+            assertEquals(
+                1.0,
+                oppdatertYrkesaktivitet.kategorisering
+                    .hentDekningsgrad(emptyList())
+                    .verdi.prosentDesimal,
+            )
         }
     }
 
