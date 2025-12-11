@@ -27,9 +27,9 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
         val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(ref)
         if (yrkesaktiviteter.size == 1) {
             val aktiviteten = yrkesaktiviteter.first()
-            if (aktiviteten.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
+            if (aktiviteten.yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
                 yrkesaktivitetService.oppdaterKategorisering(
-                    YrkesaktivitetReferanse(ref, aktiviteten.id),
+                    YrkesaktivitetReferanse(ref, aktiviteten.yrkesaktivitet.id),
                     YrkesaktivitetKategorisering.Inaktiv(),
                     saksbehandler,
                     daoer,
@@ -37,7 +37,6 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
                 invalidations.add("yrkesaktiviteter")
                 invalidations.add("sykepengegrunnlag")
             }
-
         }
         daoer.beregnUtbetaling(
             ref = ref,
