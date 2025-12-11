@@ -3,12 +3,15 @@ package no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.api.dto.vilkaar.OppdaterVilkaarsvurderingResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
@@ -18,7 +21,7 @@ internal suspend fun ApplicationTestBuilder.oppdaterVilkårsvurdering(
     periodeId: UUID,
     vilkår: VilkaarsvurderingDto,
     expectedResponseStatus: HttpStatusCode = HttpStatusCode.Created,
-) {
+): OppdaterVilkaarsvurderingResponseDto {
     val response =
         client.put("/v1/$personId/behandlinger/$periodeId/vilkaarsvurdering/${vilkår.hovedspørsmål}") {
             bearerAuth(TestOppsett.userToken)
@@ -27,4 +30,6 @@ internal suspend fun ApplicationTestBuilder.oppdaterVilkårsvurdering(
         }
 
     assertEquals(expectedResponseStatus, response.status, "Vilkårsvurdering lagring skal returnere status ${expectedResponseStatus.value}")
+
+    return objectMapper.readValue(response.bodyAsText(), OppdaterVilkaarsvurderingResponseDto::class.java)
 }
