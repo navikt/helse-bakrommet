@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
-import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingEndringerDao
@@ -38,8 +37,6 @@ interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
     override val sykepengegrunnlagDao: SykepengegrunnlagDao
     val behandlingEndringerDao: BehandlingEndringerDao
 }
-
-typealias DagerSomSkalOppdateres = JsonNode
 
 class YrkesaktivitetService(
     private val db: DbDaoer<YrkesaktivitetServiceDaoer>,
