@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
+import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
@@ -45,7 +46,9 @@ enum class OpprettetEllerEndret {
     ENDRET,
 }
 
-interface VilkårServiceDaoer : YrkesaktivitetServiceDaoer {
+interface VilkårServiceDaoer :
+    YrkesaktivitetServiceDaoer,
+    Beregningsdaoer {
     override val behandlingDao: BehandlingDao
 }
 

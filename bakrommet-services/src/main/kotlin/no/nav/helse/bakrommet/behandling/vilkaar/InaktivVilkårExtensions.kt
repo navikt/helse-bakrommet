@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.behandling.vilkaar
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
+import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
@@ -36,7 +37,12 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
                 invalidations.add("yrkesaktiviteter")
                 invalidations.add("sykepengegrunnlag")
             }
+
         }
+        daoer.beregnUtbetaling(
+            ref = ref,
+            saksbehandler = saksbehandler,
+        )
     }
 
     return invalidations
