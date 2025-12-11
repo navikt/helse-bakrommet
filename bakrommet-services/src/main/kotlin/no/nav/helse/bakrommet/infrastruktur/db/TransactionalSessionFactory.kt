@@ -32,14 +32,25 @@ class DbDaoerImpl<out DaosType>(
 ) : DbDaoer<DaosType> {
     override suspend fun <RET> nonTransactional(block: suspend (DaosType.() -> RET)): RET = block(daoer)
 
-    override suspend fun <RET> transactional(block: suspend (DaosType.() -> RET)): RET =
-        sessionFactory.transactionalSessionScope { session ->
+    override suspend fun <RET> transactional(
+        eksisterendeTransaksjon: RET?,
+        block: suspend (DaosType.() -> RET),
+    ): RET {
+        eksisterendeTransaksjon?.let {
+            return block(daoer)
+        }
+
+        return sessionFactory.transactionalSessionScope { session ->
             block(session)
         }
+    }
 }
 
 interface DbDaoer<out DaosType> {
     suspend fun <RET> nonTransactional(block: suspend (DaosType.() -> RET)): RET
 
-    suspend fun <RET> transactional(block: suspend (DaosType.() -> RET)): RET
+    suspend fun <RET> transactional(
+        eksisterendeTransaksjon: RET? = null,
+        block: suspend (DaosType.() -> RET),
+    ): RET
 }

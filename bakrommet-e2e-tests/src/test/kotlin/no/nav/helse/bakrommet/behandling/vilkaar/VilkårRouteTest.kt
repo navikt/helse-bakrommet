@@ -8,6 +8,7 @@ import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
+import no.nav.helse.bakrommet.api.dto.vilkaar.OppdaterVilkaarsvurderingResponseDto
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
@@ -70,10 +71,10 @@ class VilkårRouteTest {
                 }
 
             assertEquals(HttpStatusCode.Created, vilkårPutResponse.status)
-            val responseBody = vilkårPutResponse.bodyAsText()
-            assertEquals("OPPFYLT", objectMapper.readValue<Map<String, Any>>(responseBody)["vurdering"])
-            assertEquals("BOR_I_NORGE", objectMapper.readValue<Map<String, Any>>(responseBody)["hovedspørsmål"])
-            assertEquals("derfor", objectMapper.readValue<Map<String, Any>>(responseBody)["notat"])
+            val responseBody: OppdaterVilkaarsvurderingResponseDto = objectMapper.readValue(vilkårPutResponse.bodyAsText())
+            assertEquals("OPPFYLT", responseBody.vilkaarsvurderingDto.vurdering.toString())
+            assertEquals("BOR_I_NORGE", responseBody.vilkaarsvurderingDto.hovedspørsmål)
+            assertEquals("derfor", responseBody.vilkaarsvurderingDto.notat)
         }
 
     @Test
@@ -97,10 +98,10 @@ class VilkårRouteTest {
                     )
                 }.apply {
                     assertEquals(HttpStatusCode.Created, status)
-                    val responseBody = bodyAsText()
-                    assertEquals("OPPFYLT", objectMapper.readValue<Map<String, Any>>(responseBody)["vurdering"])
-                    assertEquals("BOR_I_NORGE", objectMapper.readValue<Map<String, Any>>(responseBody)["hovedspørsmål"])
-                    assertEquals("derfor", objectMapper.readValue<Map<String, Any>>(responseBody)["notat"])
+                    val responseBody: OppdaterVilkaarsvurderingResponseDto = objectMapper.readValue(bodyAsText())
+                    assertEquals("OPPFYLT", responseBody.vilkaarsvurderingDto.vurdering.toString())
+                    assertEquals("BOR_I_NORGE", responseBody.vilkaarsvurderingDto.hovedspørsmål)
+                    assertEquals("derfor", responseBody.vilkaarsvurderingDto.notat)
                 }
 
             client
@@ -133,10 +134,10 @@ class VilkårRouteTest {
                     )
                 }.apply {
                     assertEquals(HttpStatusCode.OK, status)
-                    val responseBody = bodyAsText()
-                    assertEquals("IKKE_OPPFYLT", objectMapper.readValue<Map<String, Any>>(responseBody)["vurdering"])
-                    assertEquals("BOR_I_NORGE", objectMapper.readValue<Map<String, Any>>(responseBody)["hovedspørsmål"])
-                    assertEquals("BOR_IKKE_I_NORGE", objectMapper.readValue<Map<String, Any>>(responseBody)["notat"])
+                    val responseBody: OppdaterVilkaarsvurderingResponseDto = objectMapper.readValue(bodyAsText())
+                    assertEquals("IKKE_OPPFYLT", responseBody.vilkaarsvurderingDto.vurdering.toString())
+                    assertEquals("BOR_I_NORGE", responseBody.vilkaarsvurderingDto.hovedspørsmål)
+                    assertEquals("BOR_IKKE_I_NORGE", responseBody.vilkaarsvurderingDto.notat)
                 }
 
             client
@@ -168,9 +169,9 @@ class VilkårRouteTest {
                     )
                 }.apply {
                     assertEquals(HttpStatusCode.Created, status)
-                    val responseBody = bodyAsText()
-                    assertEquals("IKKE_RELEVANT", objectMapper.readValue<Map<String, Any>>(responseBody)["vurdering"])
-                    assertEquals("ET_VILKÅR_TIL", objectMapper.readValue<Map<String, Any>>(responseBody)["hovedspørsmål"])
+                    val responseBody: OppdaterVilkaarsvurderingResponseDto = objectMapper.readValue(bodyAsText())
+                    assertEquals("IKKE_RELEVANT", responseBody.vilkaarsvurderingDto.vurdering.toString())
+                    assertEquals("ET_VILKÅR_TIL", responseBody.vilkaarsvurderingDto.hovedspørsmål)
                 }
 
             client

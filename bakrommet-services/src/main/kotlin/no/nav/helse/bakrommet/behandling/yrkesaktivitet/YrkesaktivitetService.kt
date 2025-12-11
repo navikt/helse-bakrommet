@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
-import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingEndringerDao
@@ -38,8 +37,6 @@ interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
     override val sykepengegrunnlagDao: SykepengegrunnlagDao
     val behandlingEndringerDao: BehandlingEndringerDao
 }
-
-typealias DagerSomSkalOppdateres = JsonNode
 
 class YrkesaktivitetService(
     private val db: DbDaoer<YrkesaktivitetServiceDaoer>,
@@ -109,12 +106,13 @@ class YrkesaktivitetService(
         ref: YrkesaktivitetReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
+        eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
     ) {
         val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         val gammelKategorisering = yrkesaktivtet.kategorisering
         val hovedkategoriseringEndret = hovedkategoriseringEndret(gammelKategorisering, kategorisering)
 
-        db.nonTransactional {
+        db.transactional(eksisterendeTranaksjon) {
             yrkesaktivitetDao.oppdaterKategoriseringOgSlettInntektData(yrkesaktivtet, kategorisering)
 
             // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning

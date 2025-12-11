@@ -187,6 +187,7 @@ fun createServices(
             sigrunClient = clienter.sigrunClient,
         )
     val personService = PersonService(db, clienter.pdlClient)
+    val yrkesaktivitetService = YrkesaktivitetService(db)
     return Services(
         personsøkService =
             PersonsøkService(
@@ -200,8 +201,8 @@ fun createServices(
                 dokumentHenter = dokumentHenter,
             ),
         dokumentHenter = dokumentHenter,
-        vilkårService = VilkårService(db),
-        yrkesaktivitetService = YrkesaktivitetService(db),
+        yrkesaktivitetService = yrkesaktivitetService,
+        vilkårService = VilkårService(db, yrkesaktivitetService),
         inntektService =
             InntektService(
                 db,

@@ -6,6 +6,8 @@ import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import java.util.UUID
@@ -43,13 +45,20 @@ enum class OpprettetEllerEndret {
     ENDRET,
 }
 
-interface VilkårServiceDaoer {
+interface VilkårServiceDaoer : YrkesaktivitetServiceDaoer {
     val vurdertVilkårDao: VurdertVilkårDao
-    val behandlingDao: BehandlingDao
+    override val behandlingDao: BehandlingDao
 }
+
+class OppdatertVilkårResultat(
+    val vilkaarsvurdering: VurdertVilkår,
+    val opprettetEllerEndret: OpprettetEllerEndret,
+    val invalidations: List<String> = emptyList(),
+)
 
 class VilkårService(
     private val db: DbDaoer<VilkårServiceDaoer>,
+    private val yrkesaktivitetService: YrkesaktivitetService,
 ) {
     suspend fun hentVilkårsvurderingerFor(ref: BehandlingReferanse): List<VurdertVilkår> =
         db.nonTransactional {
@@ -62,7 +71,7 @@ class VilkårService(
         vilkårsKode: Kode,
         request: VilkaarsvurderingRequest,
         saksbehandler: Bruker,
-    ): Pair<VurdertVilkår, OpprettetEllerEndret> =
+    ): OppdatertVilkårResultat =
         db.transactional {
             val periode = behandlingDao.hentPeriode(ref, krav = saksbehandler.erSaksbehandlerPåSaken())
             val finnesFraFør = vurdertVilkårDao.eksisterer(periode, vilkårsKode)
@@ -73,6 +82,7 @@ class VilkårService(
                     underspørsmål = request.underspørsmål,
                     notat = request.notat,
                 )
+
             val opprettetEllerEndret =
                 if (finnesFraFør) {
                     vurdertVilkårDao.oppdater(periode, vilkårsKode, vilkaarsvurdering)
@@ -81,9 +91,19 @@ class VilkårService(
                     vurdertVilkårDao.leggTil(periode, vilkårsKode, vilkaarsvurdering)
                     OpprettetEllerEndret.OPPRETTET
                 }
-            Pair(
-                vurdertVilkårDao.hentVilkårsvurdering(periode.id, vilkårsKode.kode)!!,
-                opprettetEllerEndret,
+
+            val invalidations =
+                vilkaarsvurdering.håndterInaktivVilkår(
+                    ref = ref,
+                    yrkesaktivitetService = yrkesaktivitetService,
+                    saksbehandler = saksbehandler,
+                    daoer = this,
+                )
+
+            OppdatertVilkårResultat(
+                vilkaarsvurdering = vurdertVilkårDao.hentVilkårsvurdering(periode.id, vilkårsKode.kode)!!,
+                opprettetEllerEndret = opprettetEllerEndret,
+                invalidations = invalidations,
             )
         }
 

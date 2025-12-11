@@ -8,6 +8,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 object TestDataSource {
     val postgres =
         PostgreSQLContainer("postgres:17")
+            .withCommand("postgres", "-c", "max_connections=200")
             .withReuse(true)
             .withLabel("app", "bakrommet")
             .apply { start() }
