@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet
 
 import com.zaxxer.hikari.HikariConfig
-import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
@@ -14,7 +13,6 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.api.setupApiRoutes
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
@@ -29,6 +27,7 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.kafka.OutboxDaoPg
+import no.nav.helse.bakrommet.obo.OboTestSetup
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
@@ -77,26 +76,8 @@ object TestOppsett {
 
     fun OAuthScope.oboTokenFor() = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
-    private fun oboTokenFraMockTexas(scope: String) = "OBO-TOKEN_FOR_$scope"
-
-    val mockTexas =
-        mockHttpClient { request ->
-            if (request.bodyToJson()["user_token"].asText() != userToken) {
-                respondError(HttpStatusCode.Unauthorized)
-            } else {
-                val scope = request.bodyToJson()["target"].asText()
-                respond(
-                    status = HttpStatusCode.OK,
-                    content =
-                        """
-                        {"access_token": "${oboTokenFraMockTexas(scope)}"}
-                        """.trimIndent(),
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            }
-        }
-
-    val oboClient = OboClient(configuration.obo, mockTexas)
+    val oboSetup = OboTestSetup.create(userToken)
+    val oboClient = oboSetup.oboClient
 }
 
 class Daoer(
@@ -123,7 +104,7 @@ fun runApplicationTest(
     dataSource: DataSource = instansierDatabase(config.db),
     pdlClient: PdlClient = PdlMock.pdlClient(),
     resetDatabase: Boolean = true,
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
+    sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(oboClient = TestOppsett.oboClient),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient =
         AInntektMock.aInntektClientMock(fnrTilInntektApiUt = emptyMap()),

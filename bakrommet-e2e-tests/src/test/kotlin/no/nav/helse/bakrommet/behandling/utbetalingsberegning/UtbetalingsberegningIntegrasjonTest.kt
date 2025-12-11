@@ -66,6 +66,7 @@ class UtbetalingsberegningIntegrasjonTest {
         runApplicationTest(
             sykepengesoknadBackendClient =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
+                    oboClient = TestOppsett.oboClient,
                     søknadIdTilSvar = mapOf(søknad["id"].asText() to søknad),
                 ),
         ) { daoer ->

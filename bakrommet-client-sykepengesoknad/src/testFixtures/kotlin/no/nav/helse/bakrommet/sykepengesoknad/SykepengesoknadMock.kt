@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.TestOppsett.oboClient
-import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
+import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.auth.OAuthScope
+import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.mockHttpClient
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
@@ -14,21 +14,36 @@ import org.slf4j.LoggerFactory
 object SykepengesoknadMock {
     private val log = LoggerFactory.getLogger(SykepengesoknadMock::class.java)
 
+    private fun defaultConfiguration() =
+        Configuration.SykepengesoknadBackend(
+            hostname = "sykepengesoknad-backend",
+            scope = OAuthScope("sykepengesoknad-backend-scope"),
+        )
+
     fun sykepengersoknadBackendClientMock(
+        oboClient: OboClient,
+        configuration: Configuration.SykepengesoknadBackend = defaultConfiguration(),
         fnrTilSvar: Map<String, String> = emptyMap(),
         søknadIdTilSvar: Map<String, JsonNode> = emptyMap(),
     ) = SykepengesoknadBackendClient(
-        configuration = TestOppsett.configuration.sykepengesoknadBackend,
+        configuration = configuration,
         oboClient = oboClient,
-        httpClient = sykepengersoknadHttpMock(fnrTilSvar = fnrTilSvar, søknadIdTilSvar = søknadIdTilSvar),
+        httpClient =
+            sykepengersoknadHttpMock(
+                configuration = configuration,
+                fnrTilSvar = fnrTilSvar,
+                søknadIdTilSvar = søknadIdTilSvar,
+            ),
     )
 
     fun sykepengersoknadHttpMock(
+        configuration: Configuration.SykepengesoknadBackend = defaultConfiguration(),
         fnrTilSvar: Map<String, String> = emptyMap(),
         søknadIdTilSvar: Map<String, JsonNode> = emptyMap(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer ${TestOppsett.configuration.sykepengesoknadBackend.scope.oboTokenFor()}") {
+        val expectedToken = "Bearer OBO-TOKEN_FOR_api://${configuration.scope.baseValue}/.default"
+        if (auth != expectedToken) {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             log.info("URL: " + request.url)

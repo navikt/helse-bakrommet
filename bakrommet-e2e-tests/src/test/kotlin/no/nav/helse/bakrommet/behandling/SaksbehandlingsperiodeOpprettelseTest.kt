@@ -66,6 +66,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             sykepengesoknadBackendClient =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3, søknad3b).associateBy { it.søknadId },
+                    oboClient = TestOppsett.oboClient,
                 ),
         ) { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
@@ -143,6 +144,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
         runApplicationTest(
             sykepengesoknadBackendClient =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
+                    oboClient = TestOppsett.oboClient,
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3).associateBy { it.søknadId },
                 ),
         ) { daoer ->
