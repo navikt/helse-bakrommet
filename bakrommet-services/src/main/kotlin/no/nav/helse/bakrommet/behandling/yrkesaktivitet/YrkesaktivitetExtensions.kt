@@ -51,7 +51,7 @@ fun YrkesaktivitetKategorisering.hentDekningsgrad(vilkår: List<VurdertVilkår>)
         }
 
         is YrkesaktivitetKategorisering.Inaktiv -> {
-            if (vilkår.any { it.vurdering.underspørsmål.any { underspørsmål -> underspørsmål.svar == "UTE_AV_ARBEID_HOVED" } }) {
+            if (vilkår.any { it.vurdering.underspørsmål.any { underspørsmål -> underspørsmål.svar == "I_ARBEID_UTEN_OPPTJENING" } }) {
                 Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_100)
             } else {
                 Sporbar(SEKSTIFEM_PROSENT, BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_65)

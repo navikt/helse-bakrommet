@@ -105,7 +105,7 @@ class YrkesaktivitetExtensionsTest {
                                 listOf(
                                     VilkaarsvurderingUnderspørsmål(
                                         spørsmål = "2",
-                                        svar = "UTE_AV_ARBEID_HOVED",
+                                        svar = "I_ARBEID_UTEN_OPPTJENING",
                                     ),
                                 ),
                             vurdering = Vurdering.OPPFYLT,
