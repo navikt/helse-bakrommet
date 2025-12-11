@@ -14,7 +14,6 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.VariantAvInaktiv
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.person.NaturligIdent
@@ -452,12 +451,7 @@ class YrkesaktivitetBuilder {
                 YrkesaktivitetKategorisering.Arbeidsledig()
             }
             "INAKTIV" -> {
-                val variant =
-                    when (kategorisering["VARIANT_AV_INAKTIV"]) {
-                        "INAKTIV_VARIANT_B" -> VariantAvInaktiv.INAKTIV_VARIANT_B
-                        else -> VariantAvInaktiv.INAKTIV_VARIANT_A
-                    }
-                YrkesaktivitetKategorisering.Inaktiv(variant = variant)
+                YrkesaktivitetKategorisering.Inaktiv()
             }
             "SELVSTENDIG_NÆRINGSDRIVENDE" -> {
                 val erSykmeldt = kategorisering["ER_SYKMELDT"] == "ER_SYKMELDT_JA"

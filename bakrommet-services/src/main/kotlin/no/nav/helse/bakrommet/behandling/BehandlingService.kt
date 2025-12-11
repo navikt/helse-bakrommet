@@ -515,44 +515,13 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
         }
 
         ArbeidssituasjonDTO.ANNET -> {
-            YrkesaktivitetKategorisering.Inaktiv(
-                variant = VariantAvInaktiv.INAKTIV_VARIANT_A,
-            )
+            YrkesaktivitetKategorisering.Inaktiv()
         }
 
         null -> {
             logg.warn("'null'-verdi for arbeidssituasjon for søknad med id={}", id)
-            YrkesaktivitetKategorisering.Inaktiv(
-                variant = VariantAvInaktiv.INAKTIV_VARIANT_A,
-            )
+            YrkesaktivitetKategorisering.Inaktiv()
         }
-    }
-}
-
-fun lagYrkesaktivitetFraSøknader(
-    sykepengesoknader: Iterable<Dokument>,
-    behandling: Behandling,
-): List<YrkesaktivitetDbRecord> {
-    val kategorierOgSøknader =
-        sykepengesoknader
-            .groupBy { dokument -> dokument.somSøknad().kategorisering() }
-    return kategorierOgSøknader.map { (kategorisering, dok) ->
-        val dagoversikt =
-            skapDagoversiktFraSoknader(
-                dok.map { it.somSøknad() },
-                behandling.fom,
-                behandling.tom,
-            )
-        YrkesaktivitetDbRecord(
-            id = UUID.randomUUID(),
-            kategorisering = kategorisering,
-            kategoriseringGenerert = kategorisering,
-            dagoversikt = dagoversikt,
-            dagoversiktGenerert = dagoversikt,
-            saksbehandlingsperiodeId = behandling.id,
-            opprettet = OffsetDateTime.now(),
-            generertFraDokumenter = dok.map { it.id },
-        )
     }
 }
 

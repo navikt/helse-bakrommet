@@ -27,7 +27,6 @@ fun YrkesaktivitetKategorisering.tilYrkesaktivitetKategoriseringDto(): Yrkesakti
         is YrkesaktivitetKategorisering.Inaktiv ->
             YrkesaktivitetKategoriseringDto.Inaktiv(
                 sykmeldt = sykmeldt,
-                variant = variant.tilVariantAvInaktivDto(),
             )
 
         is YrkesaktivitetKategorisering.Arbeidsledig ->
@@ -94,10 +93,4 @@ fun SelvstendigForsikring.tilSelvstendigForsikringDto(): SelvstendigForsikringDt
         SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG -> SelvstendigForsikringDto.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG
         SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG -> SelvstendigForsikringDto.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG
         SelvstendigForsikring.INGEN_FORSIKRING -> SelvstendigForsikringDto.INGEN_FORSIKRING
-    }
-
-fun VariantAvInaktiv.tilVariantAvInaktivDto(): VariantAvInaktivDto =
-    when (this) {
-        VariantAvInaktiv.INAKTIV_VARIANT_A -> VariantAvInaktivDto.INAKTIV_VARIANT_A
-        VariantAvInaktiv.INAKTIV_VARIANT_B -> VariantAvInaktivDto.INAKTIV_VARIANT_B
     }

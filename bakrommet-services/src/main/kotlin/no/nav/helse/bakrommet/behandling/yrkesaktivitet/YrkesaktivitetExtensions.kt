@@ -4,7 +4,6 @@ import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Sporbar
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.VariantAvInaktiv
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.dto.ProsentdelDto
 
@@ -45,10 +44,8 @@ fun YrkesaktivitetKategorisering.hentDekningsgrad(): Sporbar<ProsentdelDto> =
             }
         }
         is YrkesaktivitetKategorisering.Inaktiv -> {
-            when (this.variant) {
-                VariantAvInaktiv.INAKTIV_VARIANT_A -> Sporbar(SEKSTIFEM_PROSENT, BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_65)
-                VariantAvInaktiv.INAKTIV_VARIANT_B -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_100)
-            }
+            // TODO Her skal vi sjekke vilkårene for å finne riktig dekningsgrad
+            Sporbar(SEKSTIFEM_PROSENT, BeregningskoderDekningsgrad.INAKTIV_DEKNINGSGRAD_65)
         }
         is YrkesaktivitetKategorisering.Arbeidstaker -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.ARBEIDSTAKER_DEKNINGSGRAD_100)
         is YrkesaktivitetKategorisering.Frilanser -> Sporbar(HUNDRE_PROSENT, BeregningskoderDekningsgrad.FRILANSER_DEKNINGSGRAD_100)

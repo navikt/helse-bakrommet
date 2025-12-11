@@ -44,11 +44,6 @@ enum class SelvstendigForsikringDto {
     INGEN_FORSIKRING,
 }
 
-enum class VariantAvInaktivDto {
-    INAKTIV_VARIANT_A,
-    INAKTIV_VARIANT_B,
-}
-
 // TypeSelvstendigNæringsdrivende
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
@@ -108,7 +103,6 @@ sealed class YrkesaktivitetKategoriseringDto {
 
     data class Inaktiv(
         val sykmeldt: Boolean = true,
-        val variant: VariantAvInaktivDto,
     ) : YrkesaktivitetKategoriseringDto()
 
     data class Arbeidsledig(

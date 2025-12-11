@@ -38,7 +38,6 @@ sealed class YrkesaktivitetKategorisering {
     // Alltid sykmeldt
     data class Inaktiv(
         override val sykmeldt: Boolean = true,
-        val variant: VariantAvInaktiv,
     ) : YrkesaktivitetKategorisering()
 
     // Alltid sykmeldt
@@ -144,9 +143,4 @@ enum class SelvstendigForsikring {
     FORSIKRING_100_PROSENT_FRA_17_SYKEDAG,
     FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
     INGEN_FORSIKRING,
-}
-
-enum class VariantAvInaktiv {
-    INAKTIV_VARIANT_A,
-    INAKTIV_VARIANT_B,
 }

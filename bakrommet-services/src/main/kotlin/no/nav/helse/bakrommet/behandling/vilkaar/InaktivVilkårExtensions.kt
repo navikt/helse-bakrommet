@@ -4,7 +4,6 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.VariantAvInaktiv
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 
 suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
@@ -30,9 +29,7 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
             if (aktiviteten.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
                 yrkesaktivitetService.oppdaterKategorisering(
                     YrkesaktivitetReferanse(ref, aktiviteten.id),
-                    YrkesaktivitetKategorisering.Inaktiv(
-                        variant = VariantAvInaktiv.INAKTIV_VARIANT_A, // TODO denne skal fjernes etterhvert
-                    ),
+                    YrkesaktivitetKategorisering.Inaktiv(),
                     saksbehandler,
                     daoer,
                 )

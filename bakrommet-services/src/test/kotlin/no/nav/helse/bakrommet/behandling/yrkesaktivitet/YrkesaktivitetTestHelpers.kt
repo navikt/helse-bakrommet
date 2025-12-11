@@ -4,7 +4,6 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.FrilanserForsikri
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.VariantAvInaktiv
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 
 fun arbeidstakerKategorisering(
@@ -46,7 +45,4 @@ fun selvstendigNæringsdrivendeKategorisering(
     )
 }
 
-fun inaktivKategorisering(variant: String = "INAKTIV_VARIANT_A"): YrkesaktivitetKategorisering =
-    YrkesaktivitetKategorisering.Inaktiv(
-        variant = VariantAvInaktiv.valueOf(variant),
-    )
+fun inaktivKategorisering(): YrkesaktivitetKategorisering = YrkesaktivitetKategorisering.Inaktiv()
