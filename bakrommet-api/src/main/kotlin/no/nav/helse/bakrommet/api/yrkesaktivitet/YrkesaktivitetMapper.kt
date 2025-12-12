@@ -6,7 +6,6 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetMedOrgnavn
-import java.time.format.DateTimeFormatter
 import no.nav.helse.dto.PeriodeDto as SpleisPeriodeDto
 
 fun YrkesaktivitetMedOrgnavn.tilYrkesaktivitetDto(): YrkesaktivitetDto =
@@ -43,8 +42,8 @@ fun Periodetype.tilPeriodetypeDto(): PeriodetypeDto =
 
 fun SpleisPeriodeDto.tilPeriodeDto(): PeriodeDto =
     PeriodeDto(
-        fom = fom.format(DateTimeFormatter.ISO_DATE),
-        tom = tom.format(DateTimeFormatter.ISO_DATE),
+        fom = fom,
+        tom = tom,
     )
 
 fun Refusjonsperiode.tilRefusjonsperiodeDto(): RefusjonsperiodeDto =

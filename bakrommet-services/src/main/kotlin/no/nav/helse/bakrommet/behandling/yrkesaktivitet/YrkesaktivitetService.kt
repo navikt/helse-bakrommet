@@ -234,9 +234,6 @@ class YrkesaktivitetService(
     ): YrkesaktivitetDbRecord {
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         return db.transactional {
-            val dagerSomSkalOppdateresJson = dagerSomSkalOppdateres
-
-            // Hent eksisterende dagoversikt
             val eksisterendeDagoversikt = yrkesaktivitet.dagoversikt ?: emptyList()
 
             // Opprett map for enkel oppslag basert på dato
@@ -272,9 +269,10 @@ class YrkesaktivitetService(
         ref: YrkesaktivitetReferanse,
         perioder: Perioder?,
         saksbehandler: Bruker,
+        eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
     ) {
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        db.transactional {
+        db.transactional(eksisterendeTranaksjon) {
             yrkesaktivitetDao.oppdaterPerioder(yrkesaktivitet, perioder)
             beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
         }

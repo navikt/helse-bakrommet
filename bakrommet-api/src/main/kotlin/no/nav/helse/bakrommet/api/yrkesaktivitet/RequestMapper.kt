@@ -9,7 +9,6 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.*
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.dto.InntektbeløpDto
-import java.time.LocalDate
 import no.nav.helse.dto.PeriodeDto as SpleisPeriodeDto
 
 fun YrkesaktivitetCreateRequestDto.tilYrkesaktivitetKategorisering(): YrkesaktivitetKategorisering = kategorisering.tilYrkesaktivitetKategorisering()
@@ -241,8 +240,8 @@ fun PeriodetypeDto.tilPeriodetype(): Periodetype =
 
 fun PeriodeDto.tilSpleisPeriodeDto(): SpleisPeriodeDto =
     SpleisPeriodeDto(
-        fom = LocalDate.parse(fom),
-        tom = LocalDate.parse(tom),
+        fom = fom,
+        tom = tom,
     )
 
 fun List<DagDto>.tilJsonNode(): JsonNode = objectMapper.valueToTree(this)

@@ -4,6 +4,7 @@ import io.ktor.http.HttpStatusCode
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingUnderspørsmålDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PeriodetypeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
@@ -50,7 +51,13 @@ class VilkårsvurderingTilInaktivTest {
                 VilkaarsvurderingDto(
                     hovedspørsmål = "VILKÅR_INAKTIV",
                     vurdering = VurderingDto.IKKE_OPPFYLT,
-                    underspørsmål = listOf(VilkaarsvurderingUnderspørsmålDto("5635008c-b025-445c-ab6f-4e265f1f4d12", "UTE_AV_ARBEID_HOVED")),
+                    underspørsmål =
+                        listOf(
+                            VilkaarsvurderingUnderspørsmålDto(
+                                "5635008c-b025-445c-ab6f-4e265f1f4d12",
+                                "UTE_AV_ARBEID_HOVED",
+                            ),
+                        ),
                     notat = "Inaktiv notat",
                 ),
             ).also {
@@ -60,6 +67,12 @@ class VilkårsvurderingTilInaktivTest {
             hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.periode.id).also { ya ->
                 ya.size `should equal` 1
                 (ya.first().kategorisering is YrkesaktivitetKategoriseringDto.Inaktiv) `should equal` true
+
+                ya.first().perioder!!.type == PeriodetypeDto.VENTETID_INAKTIV
+                ya.first().perioder!!.perioder.first().let {
+                    it.fom `should equal` ScenarioDefaults.fom
+                    it.tom `should equal` ScenarioDefaults.fom.plusDays(13)
+                }
             }
 
             oppdaterVilkårsvurdering(
@@ -68,7 +81,13 @@ class VilkårsvurderingTilInaktivTest {
                 VilkaarsvurderingDto(
                     hovedspørsmål = "VILKÅR_INAKTIV",
                     vurdering = VurderingDto.IKKE_OPPFYLT,
-                    underspørsmål = listOf(VilkaarsvurderingUnderspørsmålDto("5635008c-b025-445c-ab6f-4e265f1f4d12", "I_ARBEID_UTEN_OPPTJENING")),
+                    underspørsmål =
+                        listOf(
+                            VilkaarsvurderingUnderspørsmålDto(
+                                "5635008c-b025-445c-ab6f-4e265f1f4d12",
+                                "I_ARBEID_UTEN_OPPTJENING",
+                            ),
+                        ),
                     notat = "Inaktiv notat",
                 ),
                 HttpStatusCode.OK,
