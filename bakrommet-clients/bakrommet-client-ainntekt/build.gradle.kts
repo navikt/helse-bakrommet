@@ -5,7 +5,7 @@ plugins {
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
     api(project(":bakrommet-common"))
-    api(project(":bakrommet-client-ereg"))
+    api(project(":bakrommet-clients:bakrommet-client-ereg"))
 
     testFixturesImplementation(testFixtures(project(":bakrommet-common")))
     testFixturesImplementation("io.ktor:ktor-client-mock-jvm")

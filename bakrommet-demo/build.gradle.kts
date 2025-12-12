@@ -14,13 +14,13 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages")
     implementation("io.ktor:ktor-serialization-jackson")
 
-    implementation(testFixtures(project(":bakrommet-client-inntektsmelding")))
-    implementation(testFixtures(project(":bakrommet-client-ainntekt")))
-    implementation(testFixtures(project(":bakrommet-client-aareg")))
-    implementation(testFixtures(project(":bakrommet-client-ereg")))
-    implementation(testFixtures(project(":bakrommet-client-sykepengesoknad")))
-    implementation(testFixtures(project(":bakrommet-client-sigrun")))
-    implementation(testFixtures(project(":bakrommet-client-pdl")))
+    implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-inntektsmelding")))
+    implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
+    implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))
+    implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ereg")))
+    implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sykepengesoknad")))
+    implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
+    implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-pdl")))
 
     implementation("io.github.serpro69:kotlin-faker:1.16.0")
 }
