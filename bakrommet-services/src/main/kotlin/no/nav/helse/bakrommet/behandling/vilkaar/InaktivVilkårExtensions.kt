@@ -65,10 +65,9 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
                         )
                     }
                 }
-
-                invalidations.add("yrkesaktiviteter")
-                invalidations.add("sykepengegrunnlag")
             }
+            invalidations.add("yrkesaktiviteter")
+            invalidations.add("sykepengegrunnlag")
         }
         daoer.beregnUtbetaling(
             ref = ref,
