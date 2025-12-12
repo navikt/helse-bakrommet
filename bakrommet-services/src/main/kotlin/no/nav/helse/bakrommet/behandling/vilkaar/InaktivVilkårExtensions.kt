@@ -28,8 +28,18 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
         invalidations.add("utbetalingsberegning") // Vi kan få endret utbetaling pga endring av deknignsgrad
 
         val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(ref)
-        if (yrkesaktiviteter.size == 1) {
-            val aktiviteten = yrkesaktiviteter.first()
+        if (yrkesaktiviteter.size <= 1) {
+            val aktiviteten =
+                if (yrkesaktiviteter.isEmpty()) {
+                    yrkesaktivitetService.opprettYrkesaktivitet(
+                        ref,
+                        YrkesaktivitetKategorisering.Inaktiv(),
+                        saksbehandler,
+                        daoer,
+                    )
+                } else {
+                    yrkesaktiviteter.first()
+                }
             if (aktiviteten.yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
                 yrkesaktivitetService.oppdaterKategorisering(
                     YrkesaktivitetReferanse(ref, aktiviteten.yrkesaktivitet.id),
@@ -43,7 +53,12 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
                             YrkesaktivitetReferanse(ref, aktiviteten.yrkesaktivitet.id),
                             Perioder(
                                 type = Periodetype.VENTETID_INAKTIV,
-                                listOf(PeriodeDto(dager.first().dato, minOf(dager.first().dato.plusDays(14), dager.last().dato))),
+                                listOf(
+                                    PeriodeDto(
+                                        dager.first().dato,
+                                        minOf(dager.first().dato.plusDays(14), dager.last().dato),
+                                    ),
+                                ),
                             ),
                             saksbehandler,
                             daoer,

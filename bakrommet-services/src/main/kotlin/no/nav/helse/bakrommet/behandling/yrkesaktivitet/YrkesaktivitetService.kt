@@ -110,8 +110,9 @@ class YrkesaktivitetService(
         ref: BehandlingReferanse,
         kategorisering: YrkesaktivitetKategorisering,
         saksbehandler: Bruker,
+        eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
     ): YrkesaktivitetMedOrgnavn =
-        db.nonTransactional {
+        db.transactional(eksisterendeTranaksjon) {
             val periode =
                 behandlingDao.hentPeriode(
                     ref = ref,

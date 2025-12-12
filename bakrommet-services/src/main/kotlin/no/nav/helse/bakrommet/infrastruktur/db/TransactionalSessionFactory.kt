@@ -33,11 +33,11 @@ class DbDaoerImpl<out DaosType>(
     override suspend fun <RET> nonTransactional(block: suspend (DaosType.() -> RET)): RET = block(daoer)
 
     override suspend fun <RET> transactional(
-        eksisterendeTransaksjon: RET?,
+        eksisterendeTransaksjon: @UnsafeVariance DaosType?,
         block: suspend (DaosType.() -> RET),
     ): RET {
         eksisterendeTransaksjon?.let {
-            return block(daoer)
+            return block(it)
         }
 
         return sessionFactory.transactionalSessionScope { session ->
@@ -50,7 +50,7 @@ interface DbDaoer<out DaosType> {
     suspend fun <RET> nonTransactional(block: suspend (DaosType.() -> RET)): RET
 
     suspend fun <RET> transactional(
-        eksisterendeTransaksjon: RET? = null,
+        eksisterendeTransaksjon: @UnsafeVariance DaosType? = null,
         block: suspend (DaosType.() -> RET),
     ): RET
 }

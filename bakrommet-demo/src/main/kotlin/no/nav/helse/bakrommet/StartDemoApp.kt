@@ -62,9 +62,9 @@ class DbDaoerFake : DbDaoer<AlleDaoer> {
     override suspend fun <RET> nonTransactional(block: suspend (AlleDaoer.() -> RET)): RET = block(hentSessionDaoer())
 
     override suspend fun <RET> transactional(
-        eksisterendeTransaksjon: RET?,
+        eksisterendeTransaksjon: AlleDaoer?,
         block: suspend (AlleDaoer.() -> RET),
-    ): RET = block(hentSessionDaoer())
+    ): RET = block(eksisterendeTransaksjon ?: hentSessionDaoer())
 }
 
 @OptIn(InternalAPI::class)
