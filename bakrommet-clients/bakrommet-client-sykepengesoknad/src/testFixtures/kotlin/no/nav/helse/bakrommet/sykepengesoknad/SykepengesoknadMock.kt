@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.mockHttpClient
+import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock.createDefaultOboClient
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
 
@@ -21,7 +22,7 @@ object SykepengesoknadMock {
         )
 
     fun sykepengersoknadBackendClientMock(
-        oboClient: OboClient,
+        oboClient: OboClient = createDefaultOboClient(),
         configuration: Configuration.SykepengesoknadBackend = defaultConfiguration(),
         fnrTilSvar: Map<String, String> = emptyMap(),
         søknadIdTilSvar: Map<String, JsonNode> = emptyMap(),
