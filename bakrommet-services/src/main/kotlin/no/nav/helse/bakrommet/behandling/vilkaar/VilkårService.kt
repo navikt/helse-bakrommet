@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.util.logg
 import java.util.UUID
 
 fun String.erGyldigSomKode(): Boolean {
@@ -93,14 +94,18 @@ class VilkårService(
                     vurdertVilkårDao.leggTil(periode, vilkårsKode, vilkaarsvurdering)
                     OpprettetEllerEndret.OPPRETTET
                 }
-
             val invalidations =
-                vilkaarsvurdering.håndterInaktivVilkår(
-                    ref = ref,
-                    yrkesaktivitetService = yrkesaktivitetService,
-                    saksbehandler = saksbehandler,
-                    daoer = this,
-                )
+                try {
+                    vilkaarsvurdering.håndterInaktivVilkår(
+                        ref = ref,
+                        yrkesaktivitetService = yrkesaktivitetService,
+                        saksbehandler = saksbehandler,
+                        daoer = this,
+                    )
+                } catch (e: Exception) {
+                    logg.error("dsf", e)
+                    throw e
+                }
 
             OppdatertVilkårResultat(
                 vilkaarsvurdering = vurdertVilkårDao.hentVilkårsvurdering(periode.id, vilkårsKode.kode)!!,

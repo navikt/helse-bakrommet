@@ -96,4 +96,47 @@ class VilkårsvurderingTilInaktivTest {
             }
         }
     }
+
+    @Test
+    fun `Gjør om til inaktiv ved ingen yrkesaktiviteter`() {
+        Scenario(
+            besluttOgGodkjenn = false,
+            yrkesaktiviteter = emptyList(),
+        ).runWithApplicationTestBuilder { førsteBehandling ->
+
+            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.periode.id).also { ya ->
+                ya.size `should equal` 0
+            }
+
+            oppdaterVilkårsvurdering(
+                førsteBehandling.scenario.pseudoId,
+                førsteBehandling.periode.id,
+                VilkaarsvurderingDto(
+                    hovedspørsmål = "VILKÅR_INAKTIV",
+                    vurdering = VurderingDto.IKKE_OPPFYLT,
+                    underspørsmål =
+                        listOf(
+                            VilkaarsvurderingUnderspørsmålDto(
+                                "5635008c-b025-445c-ab6f-4e265f1f4d12",
+                                "UTE_AV_ARBEID_HOVED",
+                            ),
+                        ),
+                    notat = "Inaktiv notat",
+                ),
+            ).also {
+                it.invalidations `should equal` listOf("utbetalingsberegning", "yrkesaktiviteter", "sykepengegrunnlag")
+            }
+
+            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.periode.id).also { ya ->
+                ya.size `should equal` 1
+                (ya.first().kategorisering is YrkesaktivitetKategoriseringDto.Inaktiv) `should equal` true
+
+                ya.first().perioder!!.type == PeriodetypeDto.VENTETID_INAKTIV
+                ya.first().perioder!!.perioder.first().let {
+                    it.fom `should equal` ScenarioDefaults.fom
+                    it.tom `should equal` ScenarioDefaults.fom.plusDays(13)
+                }
+            }
+        }
+    }
 }

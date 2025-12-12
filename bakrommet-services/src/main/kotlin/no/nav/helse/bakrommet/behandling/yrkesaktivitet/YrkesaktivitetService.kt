@@ -38,8 +38,6 @@ interface YrkesaktivitetServiceDaoer : Beregningsdaoer {
     val behandlingEndringerDao: BehandlingEndringerDao
 }
 
-typealias DagerSomSkalOppdateres = JsonNode
-
 data class YrkesaktivitetMedOrgnavn(
     val yrkesaktivitet: YrkesaktivitetDbRecord,
     val orgnavn: String?,
@@ -54,8 +52,9 @@ class YrkesaktivitetService(
     private suspend fun hentYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
         krav: BrukerHarRollePåSakenKrav?,
+        eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
     ): YrkesaktivitetDbRecord =
-        db.nonTransactional {
+        db.transactional(eksisterendeTranaksjon) {
             behandlingDao
                 .hentPeriode(
                     ref = ref.behandlingReferanse,
@@ -272,8 +271,8 @@ class YrkesaktivitetService(
         saksbehandler: Bruker,
         eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
     ) {
-        val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         db.transactional(eksisterendeTranaksjon) {
+            val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken(), eksisterendeTranaksjon)
             yrkesaktivitetDao.oppdaterPerioder(yrkesaktivitet, perioder)
             beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
         }

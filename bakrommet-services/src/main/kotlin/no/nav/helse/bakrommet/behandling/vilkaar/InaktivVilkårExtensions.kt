@@ -31,6 +31,8 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
         if (yrkesaktiviteter.size <= 1) {
             val aktiviteten =
                 if (yrkesaktiviteter.isEmpty()) {
+                    invalidations.add("yrkesaktiviteter")
+                    invalidations.add("sykepengegrunnlag")
                     yrkesaktivitetService.opprettYrkesaktivitet(
                         ref,
                         YrkesaktivitetKategorisering.Inaktiv(),
@@ -41,33 +43,33 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
                     yrkesaktiviteter.first()
                 }
             if (aktiviteten.yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
+                invalidations.add("yrkesaktiviteter")
+                invalidations.add("sykepengegrunnlag")
                 yrkesaktivitetService.oppdaterKategorisering(
                     YrkesaktivitetReferanse(ref, aktiviteten.yrkesaktivitet.id),
                     YrkesaktivitetKategorisering.Inaktiv(),
                     saksbehandler,
                     daoer,
                 )
-                aktiviteten.yrkesaktivitet.dagoversikt?.let { dager ->
-                    if (dager.isNotEmpty()) {
-                        yrkesaktivitetService.oppdaterPerioder(
-                            YrkesaktivitetReferanse(ref, aktiviteten.yrkesaktivitet.id),
-                            Perioder(
-                                type = Periodetype.VENTETID_INAKTIV,
-                                listOf(
-                                    PeriodeDto(
-                                        dager.first().dato,
-                                        minOf(dager.first().dato.plusDays(14), dager.last().dato),
-                                    ),
+            }
+            aktiviteten.yrkesaktivitet.dagoversikt?.let { dager ->
+                if (dager.isNotEmpty() && (aktiviteten.yrkesaktivitet.perioder == null || aktiviteten.yrkesaktivitet.perioder.type !== Periodetype.VENTETID_INAKTIV)) {
+                    yrkesaktivitetService.oppdaterPerioder(
+                        YrkesaktivitetReferanse(ref, aktiviteten.yrkesaktivitet.id),
+                        Perioder(
+                            type = Periodetype.VENTETID_INAKTIV,
+                            listOf(
+                                PeriodeDto(
+                                    dager.first().dato,
+                                    minOf(dager.first().dato.plusDays(14), dager.last().dato),
                                 ),
                             ),
-                            saksbehandler,
-                            daoer,
-                        )
-                    }
+                        ),
+                        saksbehandler,
+                        daoer,
+                    )
                 }
             }
-            invalidations.add("yrkesaktiviteter")
-            invalidations.add("sykepengegrunnlag")
         }
         daoer.beregnUtbetaling(
             ref = ref,
