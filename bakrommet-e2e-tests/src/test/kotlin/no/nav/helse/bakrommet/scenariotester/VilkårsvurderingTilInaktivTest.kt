@@ -50,6 +50,7 @@ class VilkårsvurderingTilInaktivTest {
                 førsteBehandling.periode.id,
                 VilkaarsvurderingDto(
                     hovedspørsmål = "VILKÅR_INAKTIV",
+                    vilkårskode = "ET_VILKÅR",
                     vurdering = VurderingDto.IKKE_OPPFYLT,
                     underspørsmål =
                         listOf(
@@ -80,6 +81,7 @@ class VilkårsvurderingTilInaktivTest {
                 førsteBehandling.periode.id,
                 VilkaarsvurderingDto(
                     hovedspørsmål = "VILKÅR_INAKTIV",
+                    vilkårskode = "ET_VILKÅR",
                     vurdering = VurderingDto.IKKE_OPPFYLT,
                     underspørsmål =
                         listOf(
@@ -113,6 +115,7 @@ class VilkårsvurderingTilInaktivTest {
                 førsteBehandling.periode.id,
                 VilkaarsvurderingDto(
                     hovedspørsmål = "VILKÅR_INAKTIV",
+                    vilkårskode = "ET_VILKÅR",
                     vurdering = VurderingDto.IKKE_OPPFYLT,
                     underspørsmål =
                         listOf(

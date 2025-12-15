@@ -15,6 +15,7 @@ fun VurdertVilkår.tilVilkaarsvurderingDto(): VilkaarsvurderingDto = vurdering.t
 private fun Vilkaarsvurdering.tilVilkaarsvurderingDto(): VilkaarsvurderingDto =
     VilkaarsvurderingDto(
         hovedspørsmål = hovedspørsmål,
+        vilkårskode = vilkårskode,
         vurdering = vurdering.tilVurderingDto(),
         underspørsmål = underspørsmål.map { it.tilVilkaarsvurderingUnderspørsmålDto() },
         notat = notat,
@@ -36,6 +37,7 @@ private fun Vurdering.tilVurderingDto(): VurderingDto =
 
 fun VilkaarsvurderingRequestDto.tilVilkaarsvurderingRequest(): VilkaarsvurderingRequest =
     VilkaarsvurderingRequest(
+        vilkårskode = vilkårskode,
         vurdering = vurdering.tilVurdering(),
         underspørsmål = underspørsmål.map { it.tilVilkaarsvurderingUnderspørsmål() },
         notat = notat,

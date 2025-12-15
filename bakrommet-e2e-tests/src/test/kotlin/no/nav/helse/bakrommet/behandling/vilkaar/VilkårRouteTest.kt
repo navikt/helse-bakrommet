@@ -63,6 +63,7 @@ class VilkårRouteTest {
                         """
                         {
                             "vurdering": "OPPFYLT",
+                            "vilkårskode": "EIT_VILKÅR",
                             "underspørsmål": [],
                             "notat": "derfor"
                         }
@@ -91,6 +92,7 @@ class VilkårRouteTest {
                         """
                         {
                             "vurdering": "OPPFYLT",
+                            "vilkårskode": "EIT_VILKÅR",
                             "underspørsmål": [],
                             "notat": "derfor"
                         }
@@ -127,6 +129,7 @@ class VilkårRouteTest {
                         """
                         {
                             "vurdering": "IKKE_OPPFYLT",
+                            "vilkårskode": "EIT_VILKÅR",
                             "underspørsmål": [],
                             "notat": "BOR_IKKE_I_NORGE"
                         }
@@ -163,6 +166,7 @@ class VilkårRouteTest {
                         """
                         {
                             "vurdering": "IKKE_RELEVANT",
+                            "vilkårskode": "EIT_VILKÅR",
                             "underspørsmål": []
                         }
                         """.trimIndent(),
@@ -187,11 +191,13 @@ class VilkårRouteTest {
                         setOf(
                             mapOf(
                                 "vurdering" to "IKKE_OPPFYLT",
+                                // "vilkårskode" to "EIT_VILKÅR",
                                 "notat" to "BOR_IKKE_I_NORGE",
                                 "hovedspørsmål" to "BOR_I_NORGE",
                             ),
                             mapOf(
                                 "vurdering" to "IKKE_RELEVANT",
+                                // "vilkårskode" to "EIT_VILKÅR_TE",
                                 "hovedspørsmål" to "ET_VILKÅR_TIL",
                                 "notat" to null,
                             ),
@@ -245,6 +251,7 @@ class VilkårRouteTest {
                         """
                         {
                             "vurdering": "OPPFYLT",
+                            "vilkårskode": "EIT_VILKÅR",
                             "underspørsmål": []
                         }
                         """.trimIndent(),
@@ -273,6 +280,7 @@ class VilkårRouteTest {
                 """
                 {
                     "vurdering": "IKKE_OPPFYLT",
+                    "vilkårskode": "EIT_VILKÅR",
                     "underspørsmål": [],
                     "notat": "BOR_IKKE_I_NORGE"
                 }

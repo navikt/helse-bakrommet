@@ -21,6 +21,7 @@ class VilkårKopieresTest {
                 listOf(
                     VilkaarsvurderingDto(
                         hovedspørsmål = "VILKÅR1",
+                        vilkårskode = "ET_VILKÅR",
                         vurdering = VurderingDto.OPPFYLT,
                         underspørsmål = emptyList(),
                         notat = "Hei hei",

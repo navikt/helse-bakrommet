@@ -19,6 +19,7 @@ data class VilkaarsvurderingUnderspørsmål(
  * Mangler hovedspørsmål som kommer fra URL-parameter
  */
 data class VilkaarsvurderingRequest(
+    val vilkårskode: String,
     val vurdering: Vurdering,
     val underspørsmål: List<VilkaarsvurderingUnderspørsmål>,
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -30,6 +31,7 @@ data class VilkaarsvurderingRequest(
  * Inkluderer hovedspørsmål som kommer fra kode
  */
 data class Vilkaarsvurdering(
+    val vilkårskode: String,
     val hovedspørsmål: String,
     val vurdering: Vurdering,
     val underspørsmål: List<VilkaarsvurderingUnderspørsmål>,

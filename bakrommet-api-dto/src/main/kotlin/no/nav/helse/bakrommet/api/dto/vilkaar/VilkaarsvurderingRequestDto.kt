@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
  */
 data class VilkaarsvurderingRequestDto(
     val vurdering: VurderingDto,
+    val vilkårskode: String,
     val underspørsmål: List<VilkaarsvurderingUnderspørsmålDto>,
     @param:JsonInclude(JsonInclude.Include.NON_NULL)
     val notat: String? = null,

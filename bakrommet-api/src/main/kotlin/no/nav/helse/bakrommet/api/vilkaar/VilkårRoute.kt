@@ -36,7 +36,7 @@ fun Route.vilkårRoute(
             val res =
                 service.leggTilEllerOpprettVurdertVilkår(
                     ref = call.periodeReferanse(personService),
-                    vilkårsKode = Kode(call.parameters["hovedspørsmål"]!!),
+                    saksbehandlergrensesnittHovedspørsmålId = Kode(call.parameters["hovedspørsmål"]!!),
                     request = request.tilVilkaarsvurderingRequest(),
                     saksbehandler = call.saksbehandler(),
                 )

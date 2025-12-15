@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.api.dto.interfaces.ApiResponse
  */
 data class VilkaarsvurderingDto(
     val hovedspørsmål: String,
+    val vilkårskode: String,
     val vurdering: VurderingDto,
     val underspørsmål: List<VilkaarsvurderingUnderspørsmålDto>,
     @param:JsonInclude(JsonInclude.Include.NON_NULL)

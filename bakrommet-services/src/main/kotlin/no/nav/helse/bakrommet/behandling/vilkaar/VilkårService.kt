@@ -71,16 +71,17 @@ class VilkårService(
 
     suspend fun leggTilEllerOpprettVurdertVilkår(
         ref: BehandlingReferanse,
-        vilkårsKode: Kode,
+        saksbehandlergrensesnittHovedspørsmålId: Kode,
         request: VilkaarsvurderingRequest,
         saksbehandler: Bruker,
     ): OppdatertVilkårResultat =
         db.transactional {
             val periode = behandlingDao.hentPeriode(ref, krav = saksbehandler.erSaksbehandlerPåSaken())
-            val finnesFraFør = vurdertVilkårDao.eksisterer(periode, vilkårsKode)
+            val finnesFraFør = vurdertVilkårDao.eksisterer(periode, saksbehandlergrensesnittHovedspørsmålId)
             val vilkaarsvurdering =
                 Vilkaarsvurdering(
-                    hovedspørsmål = vilkårsKode.kode,
+                    vilkårskode = request.vilkårskode,
+                    hovedspørsmål = saksbehandlergrensesnittHovedspørsmålId.kode,
                     vurdering = request.vurdering,
                     underspørsmål = request.underspørsmål,
                     notat = request.notat,
@@ -88,10 +89,10 @@ class VilkårService(
 
             val opprettetEllerEndret =
                 if (finnesFraFør) {
-                    vurdertVilkårDao.oppdater(periode, vilkårsKode, vilkaarsvurdering)
+                    vurdertVilkårDao.oppdater(periode, saksbehandlergrensesnittHovedspørsmålId, vilkaarsvurdering)
                     OpprettetEllerEndret.ENDRET
                 } else {
-                    vurdertVilkårDao.leggTil(periode, vilkårsKode, vilkaarsvurdering)
+                    vurdertVilkårDao.leggTil(periode, saksbehandlergrensesnittHovedspørsmålId, vilkaarsvurdering)
                     OpprettetEllerEndret.OPPRETTET
                 }
             val invalidations =
@@ -108,7 +109,7 @@ class VilkårService(
                 }
 
             OppdatertVilkårResultat(
-                vilkaarsvurdering = vurdertVilkårDao.hentVilkårsvurdering(periode.id, vilkårsKode.kode)!!,
+                vilkaarsvurdering = vurdertVilkårDao.hentVilkårsvurdering(periode.id, saksbehandlergrensesnittHovedspørsmålId.kode)!!,
                 opprettetEllerEndret = opprettetEllerEndret,
                 invalidations = invalidations,
             )

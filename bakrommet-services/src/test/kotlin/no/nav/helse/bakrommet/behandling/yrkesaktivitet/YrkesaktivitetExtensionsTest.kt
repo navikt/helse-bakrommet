@@ -101,6 +101,7 @@ class YrkesaktivitetExtensionsTest {
                     vurdering =
                         Vilkaarsvurdering(
                             hovedspørsmål = "1",
+                            vilkårskode = "NOE",
                             underspørsmål =
                                 listOf(
                                     VilkaarsvurderingUnderspørsmål(
