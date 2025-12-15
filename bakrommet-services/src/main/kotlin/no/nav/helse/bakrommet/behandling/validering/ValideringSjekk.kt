@@ -10,7 +10,7 @@ data class SjekkResultat(
 internal val alleSjekker: List<ValideringSjekk> = listOf(IkkeOppfylt8_2IkkeVurdert8_47)
 
 internal interface ValideringSjekk {
-    fun sjekkOmOk(data: ValideringData): Boolean
+    fun harInkonsistens(data: ValideringData): Boolean
 
     val id: String
     val tekst: String

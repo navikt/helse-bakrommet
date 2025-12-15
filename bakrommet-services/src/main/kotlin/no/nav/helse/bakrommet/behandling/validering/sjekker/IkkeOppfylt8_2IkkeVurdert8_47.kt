@@ -16,14 +16,9 @@ object IkkeOppfylt8_2IkkeVurdert8_47 : ValideringSjekk {
     override val id = "ikke8-2ikke8-47"
     override val tekst = "8-2 vurdert til ikke oppfylt, men 8-47 er ikke vurdert"
 
-    override fun sjekkOmOk(data: ValideringData): Boolean {
-        data.vurderteVilkår
-            .let { v ->
-                val opptjeningIkkeOppfylt = v.resultat(OPPTJENING) == IKKE_OPPFYLT
-                val inaktivIkkeVurdert = v.resultat(INAKTIV) !in listOf(OPPFYLT, IKKE_OPPFYLT)
-                opptjeningIkkeOppfylt && inaktivIkkeVurdert
-            }.let { inkonsistens ->
-                return !inkonsistens
-            }
+    override fun harInkonsistens(data: ValideringData): Boolean {
+        val opptjeningIkkeOppfylt = data.vurderteVilkår.resultat(OPPTJENING) == IKKE_OPPFYLT
+        val inaktivIkkeVurdert = data.vurderteVilkår.resultat(INAKTIV) !in listOf(OPPFYLT, IKKE_OPPFYLT)
+        return opptjeningIkkeOppfylt && inaktivIkkeVurdert
     }
 }

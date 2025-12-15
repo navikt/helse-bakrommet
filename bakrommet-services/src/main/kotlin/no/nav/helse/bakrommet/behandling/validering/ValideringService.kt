@@ -22,10 +22,10 @@ class ValideringService(
     companion object {
         internal fun sjekkOmOk(data: ValideringData): List<SjekkResultat> =
             alleSjekker.mapNotNull { sjekk ->
-                if (sjekk.sjekkOmOk(data)) {
-                    null
-                } else {
+                if (sjekk.harInkonsistens(data)) {
                     SjekkResultat(id = sjekk.id, tekst = sjekk.tekst)
+                } else {
+                    null
                 }
             }
     }

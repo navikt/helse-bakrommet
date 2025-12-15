@@ -36,7 +36,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                         ),
                     ),
             )
-        assertFalse(IkkeOppfylt8_2IkkeVurdert8_47.sjekkOmOk(data))
+        assertTrue(IkkeOppfylt8_2IkkeVurdert8_47.harInkonsistens(data))
     }
 
     @Test
@@ -72,7 +72,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                         ),
                     ),
             )
-        assertTrue(IkkeOppfylt8_2IkkeVurdert8_47.sjekkOmOk(data))
+        assertFalse(IkkeOppfylt8_2IkkeVurdert8_47.harInkonsistens(data))
     }
 
     val behandling =
