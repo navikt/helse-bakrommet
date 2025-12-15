@@ -25,6 +25,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
+import no.nav.helse.bakrommet.behandling.validering.ValideringService
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.bruker.BrukerService
@@ -172,6 +173,7 @@ data class Services(
     val tidslinjeService: TidslinjeService,
     val brukerService: BrukerService,
     val soknaderService: SoknaderService,
+    val valideringService: ValideringService,
 )
 
 fun createServices(
@@ -226,6 +228,7 @@ fun createServices(
                 sykepengesoknadBackendClient = clienter.sykepengesoknadBackendClient,
                 personService = personService,
             ),
+        valideringService = ValideringService(db),
     )
 }
 

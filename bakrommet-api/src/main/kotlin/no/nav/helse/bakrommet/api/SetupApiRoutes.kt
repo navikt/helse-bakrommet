@@ -13,6 +13,7 @@ import no.nav.helse.bakrommet.api.sykepengegrunnlag.sykepengegrunnlagRoute
 import no.nav.helse.bakrommet.api.tidslinje.tidslinjeRoute
 import no.nav.helse.bakrommet.api.tilkommen.tilkommenInntektRoute
 import no.nav.helse.bakrommet.api.utbetalingsberegning.beregningRoute
+import no.nav.helse.bakrommet.api.validering.valideringRoute
 import no.nav.helse.bakrommet.api.vilkaar.vilkårRoute
 import no.nav.helse.bakrommet.api.yrkesaktivitet.yrkesaktivitetRoute
 
@@ -37,4 +38,5 @@ fun Route.setupApiRoutes(
         inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
         personService = services.personService,
     )
+    valideringRoute(services.valideringService, services.personService)
 }

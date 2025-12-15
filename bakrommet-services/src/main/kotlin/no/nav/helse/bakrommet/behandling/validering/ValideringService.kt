@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 
-internal data class ValideringData(
+data class ValideringData(
     val behandling: Behandling,
     val yrkesaktiviteter: List<Yrkesaktivitet>,
     val vurderteVilkår: List<VurdertVilkår>,
@@ -20,9 +20,13 @@ class ValideringService(
     private val db: DbDaoer<BehandlingServiceDaoer>,
 ) {
     companion object {
-        internal fun sjekk(data: ValideringData) =
-            alleSjekker.map { sjekk ->
-                sjekk.sjekk(data)
+        internal fun sjekkOmOk(data: ValideringData): List<SjekkResultat> =
+            alleSjekker.mapNotNull { sjekk ->
+                if (sjekk.sjekkOmOk(data)) {
+                    null
+                } else {
+                    SjekkResultat(id = sjekk.id, tekst = sjekk.tekst)
+                }
             }
     }
 
@@ -37,6 +41,6 @@ class ValideringService(
                     sykepengegrunnlag = behandling.sykepengegrunnlagId?.let { sykepengegrunnlagDao.hentSykepengegrunnlag(it) },
                 )
             }
-        return sjekk(data)
+        return sjekkOmOk(data)
     }
 }

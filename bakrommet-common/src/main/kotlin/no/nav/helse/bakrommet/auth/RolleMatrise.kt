@@ -205,6 +205,10 @@ val regler =
             role = setOf(SAKSBEHANDLER),
         ),
         Rule(
+            path = "/v1/{pseudoId}/behandlinger/{behandlingId}/validering/(method:GET)",
+            role = setOf(SAKSBEHANDLER, BESLUTTER, LES),
+        ),
+        Rule(
             path = "/v2/{pseudoId}/tidslinje/(method:GET)",
             role = setOf(SAKSBEHANDLER, BESLUTTER, LES),
         ),

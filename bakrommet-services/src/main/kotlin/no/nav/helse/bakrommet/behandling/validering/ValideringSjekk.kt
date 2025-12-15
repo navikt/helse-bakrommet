@@ -1,11 +1,17 @@
 package no.nav.helse.bakrommet.behandling.validering
 
+import no.nav.helse.bakrommet.behandling.validering.sjekker.IkkeOppfylt8_2IkkeVurdert8_47
+
 data class SjekkResultat(
-    val melding: String,
+    val id: String,
+    val tekst: String,
 )
 
-internal val alleSjekker: List<ValideringSjekk> = listOf()
+internal val alleSjekker: List<ValideringSjekk> = listOf(IkkeOppfylt8_2IkkeVurdert8_47)
 
 internal interface ValideringSjekk {
-    fun sjekk(data: ValideringData): SjekkResultat
+    fun sjekkOmOk(data: ValideringData): Boolean
+
+    val id: String
+    val tekst: String
 }
