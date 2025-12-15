@@ -61,7 +61,7 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
                             listOf(
                                 PeriodeDto(
                                     dager.first().dato,
-                                    minOf(dager.first().dato.plusDays(14), dager.last().dato),
+                                    minOf(dager.first().dato.plusDays(13), dager.last().dato),
                                 ),
                             ),
                         ),
