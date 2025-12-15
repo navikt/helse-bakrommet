@@ -63,7 +63,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                             kode = "1",
                             vurdering =
                                 Vilkaarsvurdering(
-                                    vilkårskode = "INAKTIV",
+                                    vilkårskode = "SYK_INAKTIV",
                                     hovedspørsmål = "1",
                                     vurdering = Vurdering.IKKE_OPPFYLT,
                                     underspørsmål = listOf(),

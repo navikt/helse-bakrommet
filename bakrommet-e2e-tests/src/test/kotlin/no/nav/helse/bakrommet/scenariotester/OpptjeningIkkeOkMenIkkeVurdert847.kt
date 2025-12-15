@@ -82,7 +82,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
                     ),
                     VilkaarsvurderingDto(
                         hovedspørsmål = "2",
-                        vilkårskode = "INAKTIV",
+                        vilkårskode = "SYK_INAKTIV",
                         vurdering = VurderingDto.IKKE_OPPFYLT,
                         underspørsmål = listOf(),
                         notat = "",

@@ -7,8 +7,8 @@ import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.IKKE_OPPFYLT
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.OPPFYLT
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode
-import no.nav.helse.bakrommet.kodeverk.Vilkårskode.INAKTIV
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.OPPTJENING
+import no.nav.helse.bakrommet.kodeverk.Vilkårskode.SYK_INAKTIV
 
 fun List<VurdertVilkår>.resultat(vilkårskode: Vilkårskode): Vurdering? = this.find { it.vurdering.vilkårskode == vilkårskode.name }?.vurdering?.vurdering
 
@@ -18,7 +18,7 @@ object IkkeOppfylt8_2IkkeVurdert8_47 : ValideringSjekk {
 
     override fun harInkonsistens(data: ValideringData): Boolean {
         val opptjeningIkkeOppfylt = data.vurderteVilkår.resultat(OPPTJENING) == IKKE_OPPFYLT
-        val inaktivIkkeVurdert = data.vurderteVilkår.resultat(INAKTIV) !in listOf(OPPFYLT, IKKE_OPPFYLT)
+        val inaktivIkkeVurdert = data.vurderteVilkår.resultat(SYK_INAKTIV) !in listOf(OPPFYLT, IKKE_OPPFYLT)
         return opptjeningIkkeOppfylt && inaktivIkkeVurdert
     }
 }

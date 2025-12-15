@@ -9,5 +9,5 @@ enum class Vilkårskode {
     OPPTJENING,
 
     @KodeVerksKode("8-47")
-    INAKTIV,
+    SYK_INAKTIV,
 }
