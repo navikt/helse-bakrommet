@@ -14,7 +14,7 @@ val bosseBunntrål =
         mellomnavn = "B",
         etternavn = "Bunntrål",
         fødselsdato = LocalDate.of(1963, 8, 16), // ca. 61 år basert på alder 61
-        saksbehandingsperioder = emptyList(),
+        behandlinger = emptyList(),
         soknader =
             listOf(
                 soknad(

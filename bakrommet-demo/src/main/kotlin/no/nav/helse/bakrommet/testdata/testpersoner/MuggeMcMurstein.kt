@@ -14,7 +14,7 @@ val muggeMcMurstein =
         fornavn = "Mugge",
         etternavn = "McMurstein",
         fødselsdato = LocalDate.of(1959, 1, 2), // ca. 65 år basert på alder 65
-        saksbehandingsperioder = emptyList(),
+        behandlinger = emptyList(),
         soknader = generateMuggeSoknader(),
     )
 

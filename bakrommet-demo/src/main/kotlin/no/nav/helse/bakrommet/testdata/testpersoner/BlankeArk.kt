@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.testdata.testpersoner
 
-import no.nav.helse.bakrommet.testdata.Saksbehandingsperiode
+import no.nav.helse.bakrommet.testdata.Behandling
 import no.nav.helse.bakrommet.testdata.Testperson
 import java.time.LocalDate
 
@@ -10,9 +10,9 @@ val blankeArk =
         fornavn = "Blanke",
         etternavn = "Ark",
         fødselsdato = LocalDate.of(2003, 6, 13), // ca. 22 år basert på alder 22
-        saksbehandingsperioder =
+        behandlinger =
             listOf(
-                Saksbehandingsperiode(
+                Behandling(
                     fom = LocalDate.of(2025, 3, 1),
                     tom = LocalDate.of(2025, 3, 31),
                 ),

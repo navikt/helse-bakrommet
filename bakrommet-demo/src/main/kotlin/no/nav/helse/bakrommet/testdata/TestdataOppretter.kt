@@ -33,7 +33,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                 }
             val faker = Faker(config)
 
-            testperson.saksbehandingsperioder.forEach { periode ->
+            testperson.behandlinger.forEach { periode ->
                 // Konverter søknad-ID-ene til UUID-er
                 val søknadUUIDer = periode.søknadIder.toSet()
 

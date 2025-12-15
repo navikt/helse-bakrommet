@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
-import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeoutOrNull

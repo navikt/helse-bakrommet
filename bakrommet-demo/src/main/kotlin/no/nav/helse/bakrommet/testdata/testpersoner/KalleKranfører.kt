@@ -6,7 +6,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.ereg.kranførerkompaniet
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
-import no.nav.helse.bakrommet.testdata.Saksbehandingsperiode
+import no.nav.helse.bakrommet.testdata.Behandling
 import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
@@ -108,14 +108,14 @@ val kalleKranfører =
                     arbeidstakerFnr = kalleFnr,
                 ),
             ),
-        saksbehandingsperioder =
+        behandlinger =
             listOf(
-                Saksbehandingsperiode(
+                Behandling(
                     fom = LocalDate.of(2025, 1, 1),
                     tom = LocalDate.of(2025, 2, 28),
                     søknadIder = setOf(SOKNAD_ID_3, SOKNAD_ID_4, SOKNAD_ID_5),
                 ),
-                Saksbehandingsperiode(
+                Behandling(
                     fom = LocalDate.of(2024, 8, 2),
                     tom = LocalDate.of(2024, 8, 9),
                     søknadIder = setOf(SOKNAD_ID_1),

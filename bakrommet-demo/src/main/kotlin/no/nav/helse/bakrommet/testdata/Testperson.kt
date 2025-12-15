@@ -17,7 +17,7 @@ data class Testperson(
     val mellomnavn: String? = null,
     val etternavn: String,
     val fødselsdato: LocalDate = 17.juli(1997),
-    val saksbehandingsperioder: List<Saksbehandingsperiode> = emptyList(),
+    val behandlinger: List<Behandling> = emptyList(),
     val soknader: List<SykepengesoknadDTO> = emptyList(),
     val inntektsmeldinger: List<Inntektsmelding>? = null,
     val sigrunData: Map<Year, String> = emptyMap(),
@@ -29,7 +29,7 @@ data class Testperson(
     }
 }
 
-data class Saksbehandingsperiode(
+data class Behandling(
     val fom: LocalDate,
     val tom: LocalDate,
     val søknadIder: Set<UUID> = emptySet(),

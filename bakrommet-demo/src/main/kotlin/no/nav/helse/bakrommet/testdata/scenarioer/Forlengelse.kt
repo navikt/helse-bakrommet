@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.ereg.betongbyggAS
 import no.nav.helse.bakrommet.ereg.veihjelpenAS
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
-import no.nav.helse.bakrommet.testdata.Saksbehandingsperiode
+import no.nav.helse.bakrommet.testdata.Behandling
 import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -105,9 +105,9 @@ val forlengelse =
                             grad = 100
                         },
                     ),
-                saksbehandingsperioder =
+                behandlinger =
                     listOf(
-                        Saksbehandingsperiode(
+                        Behandling(
                             fom = LocalDate.of(2025, 5, 1),
                             tom = LocalDate.of(2025, 5, 31),
                             søknadIder = setOf(førsteSøknadId),
@@ -120,7 +120,7 @@ val forlengelse =
                                     ),
                                 ),
                         ),
-                        Saksbehandingsperiode(
+                        Behandling(
                             fom = LocalDate.of(2025, 6, 1),
                             tom = LocalDate.of(2025, 6, 30),
                             søknadIder = setOf(andreSøknadId),

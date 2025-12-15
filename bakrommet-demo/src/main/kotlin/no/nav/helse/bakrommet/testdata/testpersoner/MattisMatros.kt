@@ -14,7 +14,7 @@ val mattisMatros =
         fornavn = "Mattis",
         etternavn = "Matros",
         fødselsdato = LocalDate.of(2006, 6, 12), // ca. 18 år basert på alder 18
-        saksbehandingsperioder = emptyList(),
+        behandlinger = emptyList(),
         soknader =
             listOf(
                 soknad(
