@@ -4,15 +4,10 @@ package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.validering.ValideringSjekk
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.IKKE_OPPFYLT
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.OPPFYLT
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
-import no.nav.helse.bakrommet.kodeverk.Vilkårskode
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.OPPTJENING
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.SYK_INAKTIV
-
-fun List<VurdertVilkår>.resultat(vilkårskode: Vilkårskode): Vurdering? = this.find { it.vurdering.vilkårskode == vilkårskode.name }?.vurdering?.vurdering
 
 object IkkeOppfylt8_2IkkeVurdert8_47 : ValideringSjekk {
     override val id = "ikke8-2ikke8-47"
