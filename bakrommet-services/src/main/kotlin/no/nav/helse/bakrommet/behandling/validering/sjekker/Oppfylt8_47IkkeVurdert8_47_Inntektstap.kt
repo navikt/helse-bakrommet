@@ -6,9 +6,9 @@ import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.validering.ValideringSjekk
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.OPPFYLT
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.SYK_INAKTIV
-import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelser.*
-import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelser.UTE_AV_ARBEID_IKKE_INNTEKTSTAP
-import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelser.UTE_AV_ARBEID_INNEKTSTAP
+import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse.*
+import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse.UTE_AV_ARBEID_IKKE_INNTEKTSTAP
+import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse.UTE_AV_ARBEID_INNEKTSTAP
 
 object Oppfylt8_47IkkeVurdert8_47_Inntektstap : ValideringSjekk {
     override val id = "OPPFYLT_8_47_IKKE_VURDERT_8_47_INNTEKTSTAP"
@@ -16,7 +16,7 @@ object Oppfylt8_47IkkeVurdert8_47_Inntektstap : ValideringSjekk {
 
     override fun harInkonsistens(data: ValideringData): Boolean {
         val inaktivErOppfyllt = data.vurderteVilkår.resultat(SYK_INAKTIV) == OPPFYLT
-        val alleSvar = data.vurderteVilkår.flatMap { it.vurdering.underspørsmål }.map { it.svar }
+        val alleSvar = data.alleSvar()
 
         val harSvartInntektstap =
             alleSvar.containsAny(

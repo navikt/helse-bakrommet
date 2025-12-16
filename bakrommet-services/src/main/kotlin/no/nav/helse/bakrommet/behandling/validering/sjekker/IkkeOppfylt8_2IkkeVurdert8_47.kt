@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.kodeverk.Vilkårskode.OPPTJENING
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.SYK_INAKTIV
 
 object IkkeOppfylt8_2IkkeVurdert8_47 : ValideringSjekk {
-    override val id = "ikke8-2ikke8-47"
+    override val id = "IKKE_OPPFYLT_8_2_IKKE_VURDERT_8_47"
     override val tekst = "8-2 vurdert til ikke oppfylt, men 8-47 er ikke vurdert"
 
     override fun harInkonsistens(data: ValideringData): Boolean {

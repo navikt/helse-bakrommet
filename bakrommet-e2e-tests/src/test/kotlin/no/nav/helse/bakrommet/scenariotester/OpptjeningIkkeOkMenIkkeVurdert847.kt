@@ -55,7 +55,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
             assertEquals(
                 listOf(
                     ValideringDto(
-                        id = "ikke8-2ikke8-47",
+                        id = "IKKE_OPPFYLT_8_2_IKKE_VURDERT_8_47",
                         tekst = "8-2 vurdert til ikke oppfylt, men 8-47 er ikke vurdert",
                     ),
                 ),
