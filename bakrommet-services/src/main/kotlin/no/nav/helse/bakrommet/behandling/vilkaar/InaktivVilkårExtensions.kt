@@ -20,7 +20,7 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
 
     if (underspørsmål.any {
             listOf(
-                "UTE_AV_ARBEID_HOVED",
+                "UTE_AV_ARBEID_SISTE_JOBB",
                 "I_ARBEID_UTEN_OPPTJENING",
             ).contains(it.svar)
         }

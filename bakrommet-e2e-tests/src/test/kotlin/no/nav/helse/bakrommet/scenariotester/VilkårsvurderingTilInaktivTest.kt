@@ -56,7 +56,7 @@ class VilkårsvurderingTilInaktivTest {
                         listOf(
                             VilkaarsvurderingUnderspørsmålDto(
                                 "5635008c-b025-445c-ab6f-4e265f1f4d12",
-                                "UTE_AV_ARBEID_HOVED",
+                                "UTE_AV_ARBEID_SISTE_JOBB",
                             ),
                         ),
                     notat = "Inaktiv notat",
@@ -121,7 +121,7 @@ class VilkårsvurderingTilInaktivTest {
                         listOf(
                             VilkaarsvurderingUnderspørsmålDto(
                                 "5635008c-b025-445c-ab6f-4e265f1f4d12",
-                                "UTE_AV_ARBEID_HOVED",
+                                "UTE_AV_ARBEID_SISTE_JOBB",
                             ),
                         ),
                     notat = "Inaktiv notat",
