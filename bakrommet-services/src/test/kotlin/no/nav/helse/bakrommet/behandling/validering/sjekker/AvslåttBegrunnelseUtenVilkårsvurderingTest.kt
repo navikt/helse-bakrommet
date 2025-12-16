@@ -19,6 +19,7 @@ class AvslåttBegrunnelseUtenVilkårsvurderingTest {
     fun `Har en avslått dag som er vurdert, Det er ok`() {
         val data =
             ValideringData(
+                beregningData = null,
                 behandling = enkelBehandling,
                 yrkesaktiviteter =
                     listOf(
@@ -58,6 +59,7 @@ class AvslåttBegrunnelseUtenVilkårsvurderingTest {
     fun `Har en avslått dag som ikke er vurdert, Det er ikke ok`() {
         val data =
             ValideringData(
+                beregningData = null,
                 behandling = enkelBehandling,
                 yrkesaktiviteter =
                     listOf(

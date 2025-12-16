@@ -4,18 +4,17 @@ package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.validering.ValideringSjekk
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.IKKE_OPPFYLT
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.OPPFYLT
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.OPPTJENING
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.SYK_INAKTIV
 
 object IkkeOppfylt8_2IkkeVurdert8_47 : ValideringSjekk {
     override val id = "IKKE_OPPFYLT_8_2_IKKE_VURDERT_8_47"
     override val tekst = "8-2 vurdert til ikke oppfylt, men 8-47 er ikke vurdert"
+    override val sluttvalidering: Boolean = false
 
     override fun harInkonsistens(data: ValideringData): Boolean {
-        val opptjeningIkkeOppfylt = data.vurderteVilkår.resultat(OPPTJENING) == IKKE_OPPFYLT
-        val inaktivIkkeVurdert = data.vurderteVilkår.resultat(SYK_INAKTIV) !in listOf(OPPFYLT, IKKE_OPPFYLT)
-        return opptjeningIkkeOppfylt && inaktivIkkeVurdert
+        data.apply {
+            return harVurdertTilIkkeOppfyllt(OPPTJENING) && harIkkeVurdert(SYK_INAKTIV)
+        }
     }
 }

@@ -16,7 +16,8 @@ fun Route.valideringRoute(
 ) {
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/validering") {
         get {
-            val resultat = valideringService.valider(call.periodeReferanse(personService))
+            val inkluderSluttvalidering = call.request.queryParameters["inkluderSluttvalidering"]?.toBoolean() ?: false
+            val resultat = valideringService.valider(call.periodeReferanse(personService), inkluderSluttvalidering)
             call.respondJson(resultat.map { it.tilValideringDto() })
         }
     }

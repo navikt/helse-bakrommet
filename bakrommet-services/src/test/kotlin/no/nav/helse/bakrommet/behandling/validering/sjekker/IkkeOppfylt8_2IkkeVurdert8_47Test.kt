@@ -19,6 +19,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                 behandling = enkelBehandling,
                 yrkesaktiviteter = emptyList(),
                 sykepengegrunnlag = null,
+                beregningData = null,
                 vurderteVilkår =
                     listOf(
                         VurdertVilkår(
@@ -44,6 +45,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                 behandling = enkelBehandling,
                 yrkesaktiviteter = emptyList(),
                 sykepengegrunnlag = null,
+                beregningData = null,
                 vurderteVilkår =
                     listOf(
                         VurdertVilkår(

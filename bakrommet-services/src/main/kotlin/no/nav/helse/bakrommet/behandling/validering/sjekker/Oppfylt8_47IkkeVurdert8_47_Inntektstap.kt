@@ -13,6 +13,7 @@ import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse.UTE_AV_ARBEID_INN
 object Oppfylt8_47IkkeVurdert8_47_Inntektstap : ValideringSjekk {
     override val id = "OPPFYLT_8_47_IKKE_VURDERT_8_47_INNTEKTSTAP"
     override val tekst = "8-47 inntektstap er ikke vurdert"
+    override val sluttvalidering: Boolean = false
 
     override fun harInkonsistens(data: ValideringData): Boolean {
         val inaktivErOppfyllt = data.vurderteVilkår.resultat(SYK_INAKTIV) == OPPFYLT

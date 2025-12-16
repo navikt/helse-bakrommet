@@ -7,6 +7,7 @@ import kotlin.collections.contains
 object AvslåttBegrunnelseUtenVilkårsvurdering : ValideringSjekk {
     override val id = "AVSLÅTT_BEGRUNNELSE_UTEN_VILKÅRSVURDERING"
     override val tekst = "Behandlingen har avslåtte dager med begrunnelser uten tilhørende vilkårsvurdering"
+    override val sluttvalidering: Boolean = false
 
     override fun harInkonsistens(data: ValideringData): Boolean {
         val avslåttBegrunnelser =

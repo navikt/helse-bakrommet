@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.behandling.validering
 
 import no.nav.helse.bakrommet.behandling.validering.sjekker.AvslåttBegrunnelseUtenVilkårsvurdering
+import no.nav.helse.bakrommet.behandling.validering.sjekker.HarIkkeOpptjeningVedUtbetaling
 import no.nav.helse.bakrommet.behandling.validering.sjekker.IkkeOppfylt8_2IkkeVurdert8_47
 import no.nav.helse.bakrommet.behandling.validering.sjekker.Oppfylt8_47IkkeVurdert8_47_Inntektstap
 import no.nav.helse.bakrommet.behandling.validering.sjekker.TjenerOverEnHalvGMenVurdertTilUnder
@@ -18,6 +19,7 @@ internal val alleSjekker: List<ValideringSjekk> =
         Oppfylt8_47IkkeVurdert8_47_Inntektstap,
         TjenerUnderEnHalvGMenVurdertTilOver,
         TjenerOverEnHalvGMenVurdertTilUnder,
+        HarIkkeOpptjeningVedUtbetaling,
     )
 
 internal interface ValideringSjekk {
@@ -25,4 +27,5 @@ internal interface ValideringSjekk {
 
     val id: String
     val tekst: String
+    val sluttvalidering: Boolean
 }
