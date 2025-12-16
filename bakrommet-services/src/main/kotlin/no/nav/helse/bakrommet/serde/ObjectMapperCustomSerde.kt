@@ -25,22 +25,7 @@ val objectMapperCustomSerde: ObjectMapper =
                 ).addDeserializer(
                     InntektbeløpDto.MånedligDouble::class.java,
                     InntektbeløpDtoMånedligDoubleDeserializer(),
-                ).addDeserializer(
-                    InntektbeløpDto.DagligInt::class.java,
-                    InntektbeløpDtoDagligIntDeserializer(),
-                ).addSerializer(
-                    InntektbeløpDto.Årlig::class.java,
-                    InntektbeløpDtoÅrligSerializer(),
-                ).addSerializer(
-                    InntektbeløpDto.MånedligDouble::class.java,
-                    InntektbeløpDtoMånedligDoubleSerializer(),
-                ).addSerializer(
-                    InntektbeløpDto.DagligDouble::class.java,
-                    InntektbeløpDtoDagligDoubleSerializer(),
-                ).addSerializer(
-                    InntektbeløpDto.DagligInt::class.java,
-                    InntektbeløpDtoDagligIntSerializer(),
-                ),
+                )
         ).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
