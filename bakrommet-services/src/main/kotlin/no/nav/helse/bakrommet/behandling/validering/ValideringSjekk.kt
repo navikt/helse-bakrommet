@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.behandling.validering
 
+import no.nav.helse.bakrommet.behandling.validering.sjekker.AvslåttBegrunnelseUtenVilkårsvurdering
 import no.nav.helse.bakrommet.behandling.validering.sjekker.IkkeOppfylt8_2IkkeVurdert8_47
 
 data class SjekkResultat(
@@ -7,7 +8,11 @@ data class SjekkResultat(
     val tekst: String,
 )
 
-internal val alleSjekker: List<ValideringSjekk> = listOf(IkkeOppfylt8_2IkkeVurdert8_47)
+internal val alleSjekker: List<ValideringSjekk> =
+    listOf(
+        IkkeOppfylt8_2IkkeVurdert8_47,
+        AvslåttBegrunnelseUtenVilkårsvurdering,
+    )
 
 internal interface ValideringSjekk {
     fun harInkonsistens(data: ValideringData): Boolean

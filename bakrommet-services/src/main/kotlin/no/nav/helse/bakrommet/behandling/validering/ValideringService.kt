@@ -13,7 +13,7 @@ data class ValideringData(
     val behandling: Behandling,
     val yrkesaktiviteter: List<Yrkesaktivitet>,
     val vurderteVilkår: List<VurdertVilkår>,
-    val sykepengegrunnlag: SykepengegrunnlagDbRecord?,
+    val sykepengegrunnlag: SykepengegrunnlagDbRecord? = null,
 )
 
 class ValideringService(
