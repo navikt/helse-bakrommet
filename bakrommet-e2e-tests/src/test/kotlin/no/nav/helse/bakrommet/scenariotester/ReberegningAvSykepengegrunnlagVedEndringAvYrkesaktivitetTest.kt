@@ -22,7 +22,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             hentSykepengegrunnlag(
                 it.scenario.pseudoId,
                 it.periode.id,
-            )!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 400000.0
+            )!!.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 400000.0
 
             hentYrkesaktiviteter(
                 it.scenario.pseudoId,
@@ -51,7 +51,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             hentSykepengegrunnlag(
                 it.scenario.pseudoId,
                 it.periode.id,
-            )!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 120000.0
+            )!!.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 120000.0
         }
     }
 
@@ -74,7 +74,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             hentSykepengegrunnlag(
                 it.scenario.pseudoId,
                 nyPeriode.id,
-            )!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 400000.0
+            )!!.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 400000.0
 
             hentYrkesaktiviteter(
                 it.scenario.pseudoId,
@@ -112,7 +112,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
             hentSykepengegrunnlag(
                 it.scenario.pseudoId,
                 nyPeriode.id,
-            )!!.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 400000.0
+            )!!.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 400000.0
         }
     }
 }

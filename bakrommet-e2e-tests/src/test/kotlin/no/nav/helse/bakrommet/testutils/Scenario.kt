@@ -11,6 +11,9 @@ import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
+import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SammenlikningsgrunnlagDto
+import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagBaseDto
+import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
@@ -24,9 +27,6 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.maybeOrgnummer
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
@@ -75,20 +75,20 @@ object ScenarioDefaults {
 data class ScenarioData(
     val scenario: Scenario,
     val periode: BehandlingDto,
-    val sykepengegrunnlag: SykepengegrunnlagBase?,
-    val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
+    val sykepengegrunnlag: SykepengegrunnlagBaseDto?,
+    val sammenlikningsgrunnlag: SammenlikningsgrunnlagDto?,
     val yrkesaktiviteter: List<YrkesaktivitetDto>,
     val utbetalingsberegning: BeregningResponseDto?,
     val daoer: Daoer,
     val beslutterToken: String,
 ) {
     fun `skal ha sykepengegrunnlag`(beløp: Double) {
-        assertEquals(beløp, sykepengegrunnlag!!.sykepengegrunnlag.beløp)
+        assertEquals(beløp, sykepengegrunnlag!!.sykepengegrunnlag)
     }
 
     fun `skal ha nærings del`(beløp: Double) {
-        require(sykepengegrunnlag is Sykepengegrunnlag)
-        assertEquals(beløp, sykepengegrunnlag.næringsdel!!.næringsdel.beløp)
+        require(sykepengegrunnlag is SykepengegrunnlagDto)
+        assertEquals(beløp, sykepengegrunnlag.næringsdel!!.næringsdel)
     }
 
     fun `skal ikke ha sammenlikningsgrunnlag`() {

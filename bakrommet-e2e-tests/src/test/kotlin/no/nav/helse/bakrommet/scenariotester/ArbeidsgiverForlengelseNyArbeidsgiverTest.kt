@@ -44,7 +44,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
             førsteBehandling.`skal ha direkteutbetaling`(2310)
             førsteBehandling.`skal ha refusjon`(6920, "888")
 
-            førsteBehandling.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 240000.0
+            førsteBehandling.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 240000.0
             val forrigePeriode = førsteBehandling.periode
 
             val personId = førsteBehandling.scenario.pseudoId

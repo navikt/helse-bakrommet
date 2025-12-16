@@ -42,7 +42,7 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
                     beregningskoder = listOf(),
                 ),
             ).also {
-                it.sykepengegrunnlag!!.sykepengegrunnlag.beløp `should equal` 308160.0
+                it.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 308160.0
             }
             hentUtbetalingsberegning(personId, periodeId).also { beregning ->
                 beregning!!

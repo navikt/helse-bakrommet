@@ -5,14 +5,14 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagResponse
-import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
+import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagResponseDto
+import no.nav.helse.bakrommet.util.objectMapper
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentSykepengegrunnlag(
     personId: UUID,
     periodeId: UUID,
-): SykepengegrunnlagResponse? {
+): SykepengegrunnlagResponseDto? {
     val response =
         client.get("/v2/$personId/behandlinger/$periodeId/sykepengegrunnlag") {
             bearerAuth(TestOppsett.userToken)
@@ -20,5 +20,5 @@ internal suspend fun ApplicationTestBuilder.hentSykepengegrunnlag(
 
     val sykepengegrunnlagStr = response.body<String>()
     if (sykepengegrunnlagStr == "null") return null
-    return objectMapperCustomSerde.readValue(sykepengegrunnlagStr, SykepengegrunnlagResponse::class.java)
+    return objectMapper.readValue(sykepengegrunnlagStr, SykepengegrunnlagResponseDto::class.java)
 }

@@ -18,14 +18,10 @@ val objectMapperCustomSerde: ObjectMapper =
         .registerModule(JavaTimeModule())
         .registerKotlinModule()
         .registerModule(
-            SimpleModule()
-                .addDeserializer(
-                    InntektbeløpDto.Årlig::class.java,
-                    InntektbeløpDtoÅrligDeserializer(),
-                ).addDeserializer(
-                    InntektbeløpDto.MånedligDouble::class.java,
-                    InntektbeløpDtoMånedligDoubleDeserializer(),
-                )
+            SimpleModule().addDeserializer(
+                InntektbeløpDto.MånedligDouble::class.java,
+                InntektbeløpDtoMånedligDoubleDeserializer(),
+            ),
         ).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

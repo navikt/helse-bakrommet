@@ -9,9 +9,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagResponseDto
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.OpprettSykepengegrunnlagRequest
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagResponse
-import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
@@ -20,7 +20,7 @@ internal suspend fun ApplicationTestBuilder.opprettSykepengegrunnlag(
     personId: UUID,
     periodeId: UUID,
     req: OpprettSykepengegrunnlagRequest,
-): SykepengegrunnlagResponse {
+): SykepengegrunnlagResponseDto {
     val response =
         client.post("/v2/$personId/behandlinger/$periodeId/sykepengegrunnlag") {
             bearerAuth(TestOppsett.userToken)
@@ -28,5 +28,5 @@ internal suspend fun ApplicationTestBuilder.opprettSykepengegrunnlag(
             setBody(req.serialisertTilString())
         }
     assertEquals(201, response.status.value)
-    return objectMapperCustomSerde.readValue(response.bodyAsText())
+    return objectMapper.readValue(response.bodyAsText())
 }
