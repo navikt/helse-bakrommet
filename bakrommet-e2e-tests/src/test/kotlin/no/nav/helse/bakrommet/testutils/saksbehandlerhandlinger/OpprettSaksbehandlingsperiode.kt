@@ -12,7 +12,7 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
-import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -46,7 +46,7 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
     assertEquals(200, getResponse.status.value, "Henting av behandling skal returnere status 200")
 
     val json = getResponse.body<String>()
-    val perioder = objectMapperCustomSerde.readValue<List<BehandlingDto>>(json, objectMapperCustomSerde.typeFactory.constructCollectionType(List::class.java, BehandlingDto::class.java))
+    val perioder = objectMapper.readValue<List<BehandlingDto>>(json, objectMapper.typeFactory.constructCollectionType(List::class.java, BehandlingDto::class.java))
 
     assertTrue(perioder.isNotEmpty(), "Det skal finnes minst én behandling")
     val periode = perioder.first { it.id == periodeId }

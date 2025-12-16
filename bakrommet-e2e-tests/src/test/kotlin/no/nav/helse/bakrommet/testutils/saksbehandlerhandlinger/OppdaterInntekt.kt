@@ -9,7 +9,7 @@ import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
-import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
+import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
@@ -24,7 +24,7 @@ internal suspend fun ApplicationTestBuilder.oppdaterInntekt(
         client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
-            setBody(objectMapperCustomSerde.writeValueAsString(inntektRequest))
+            setBody(objectMapper.writeValueAsString(inntektRequest))
         }
 
     assertEquals(expectedResponseStatus, response.status, "Inntektsoppdatering skal returnere status ${expectedResponseStatus.value}")

@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
-import no.nav.helse.bakrommet.serde.objectMapperCustomSerde
+import no.nav.helse.bakrommet.util.objectMapper
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -56,7 +56,7 @@ class SykepengegrunnlagDaoPg private constructor(
     ): SykepengegrunnlagDbRecord {
         val id = UUID.randomUUID()
         val nå = java.time.Instant.now()
-        val sykepengegrunnlagJson = objectMapperCustomSerde.writeValueAsString(sykepengegrunnlag)
+        val sykepengegrunnlagJson = objectMapper.writeValueAsString(sykepengegrunnlag)
 
         db
             .update(
@@ -93,7 +93,7 @@ class SykepengegrunnlagDaoPg private constructor(
         sykepengegrunnlag: SykepengegrunnlagBase?,
     ): SykepengegrunnlagDbRecord {
         val nå = java.time.Instant.now()
-        val sykepengegrunnlagJson = sykepengegrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }
+        val sykepengegrunnlagJson = sykepengegrunnlag?.let { objectMapper.writeValueAsString(it) }
 
         db
             .update(
@@ -118,7 +118,7 @@ class SykepengegrunnlagDaoPg private constructor(
         require(finnSykepengegrunnlag(sykepengegrunnlagId)!!.sammenlikningsgrunnlag == null)
 
         val nå = java.time.Instant.now()
-        val sammenlikningsgrunnlagJson = sammenlikningsgrunnlag?.let { objectMapperCustomSerde.writeValueAsString(it) }
+        val sammenlikningsgrunnlagJson = sammenlikningsgrunnlag?.let { objectMapper.writeValueAsString(it) }
 
         db
             .update(
@@ -173,13 +173,13 @@ class SykepengegrunnlagDaoPg private constructor(
         val sykepengegrunnlagJson = row.stringOrNull("sykepengegrunnlag")
         val sykepengegrunnlag =
             sykepengegrunnlagJson?.let {
-                objectMapperCustomSerde.readValue(sykepengegrunnlagJson, SykepengegrunnlagBase::class.java)
+                objectMapper.readValue(sykepengegrunnlagJson, SykepengegrunnlagBase::class.java)
             }
 
         val sammenlikningsgrunnlagJson = row.stringOrNull("sammenlikningsgrunnlag")
         val sammenlikningsgrunnlag =
             sammenlikningsgrunnlagJson?.let {
-                objectMapperCustomSerde.readValue(sammenlikningsgrunnlagJson, Sammenlikningsgrunnlag::class.java)
+                objectMapper.readValue(sammenlikningsgrunnlagJson, Sammenlikningsgrunnlag::class.java)
             }
 
         val opprettet = row.instant("opprettet")
