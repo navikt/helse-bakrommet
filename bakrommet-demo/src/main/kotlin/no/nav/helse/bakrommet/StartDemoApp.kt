@@ -10,12 +10,15 @@ import io.ktor.server.engine.*
 import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.*
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.sessions.SessionStorageMemory
 import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
 import io.ktor.server.sessions.sessions
 import io.ktor.utils.io.InternalAPI
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no.nav.helse.bakrommet.api.setupApiRoutes
 import no.nav.helse.bakrommet.auth.Bruker
@@ -48,8 +51,8 @@ class FakeDaoer : AlleDaoer {
     override val tilkommenInntektDao = TilkommenInntektDaoFake()
 }
 
-val sessionsDaoer = mutableMapOf<String, FakeDaoer>()
-val sessionsBrukere = mutableMapOf<String, Bruker>()
+val sessionsDaoer = java.util.concurrent.ConcurrentHashMap<String, FakeDaoer>()
+val sessionsBrukere = java.util.concurrent.ConcurrentHashMap<String, Bruker>()
 private val helsesjekkPaths = setOf("/isalive", "/isready")
 
 private fun ApplicationCall.erHelsesjekk() = request.path() in helsesjekkPaths
@@ -127,11 +130,18 @@ fun main() {
                         if (!sessionsBrukere.containsKey(sessionid)) {
                             sessionsBrukere[sessionid] = predefinerteBrukere.first()
                         }
-                        val ctx = CoroutineSessionContext(sessionid)
-                        withContext(ctx) {
-                            services.opprettTestdata(alleTestdata)
-                        }
                         call.sessions.set("bakrommet-demo-session", sessionid)
+                        // Opprett testdata asynkront for å unngå å blokkere requesten
+                        val ctx = CoroutineSessionContext(sessionid)
+                        application.launch {
+                            try {
+                                withContext(ctx) {
+                                    services.opprettTestdata(alleTestdata)
+                                }
+                            } catch (e: Exception) {
+                                appLogger.error("Feil ved opprettelse av testdata for session $sessionid", e)
+                            }
+                        }
                     }
                 } else {
                     sessionIdFraCookie
@@ -163,4 +173,15 @@ fun main() {
 
         appLogger.info("Starter bakrommet")
     }.start(true)
+}
+
+fun Application.helsesjekker() {
+    routing {
+        get("/isready") {
+            call.respondText("READY", ContentType.Text.Plain)
+        }
+        get("/isalive") {
+            call.respondText("ALIVE", ContentType.Text.Plain)
+        }
+    }
 }

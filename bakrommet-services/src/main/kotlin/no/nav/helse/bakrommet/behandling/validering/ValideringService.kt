@@ -33,7 +33,7 @@ class ValideringService(
     suspend fun valider(behandlingReferanse: BehandlingReferanse): List<SjekkResultat> {
         val data =
             db.transactional {
-                val behandling = behandlingDao.hentPeriode(behandlingReferanse, krav = null)
+                val behandling = behandlingDao.hentPeriode(behandlingReferanse, krav = null, måVæreUnderBehandling = false)
                 ValideringData(
                     behandling = behandling,
                     yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(behandling),
