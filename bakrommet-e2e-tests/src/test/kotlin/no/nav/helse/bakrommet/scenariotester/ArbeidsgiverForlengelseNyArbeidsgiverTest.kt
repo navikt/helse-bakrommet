@@ -29,8 +29,8 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                         "888",
                         inntekt =
                             Inntektsmelding(
-                                20000.0,
-                                RefusjonsperiodeDto(
+                                beregnetInntekt = 20000.0,
+                                refusjon = RefusjonsperiodeDto(
                                     ScenarioDefaults.fom,
                                     ScenarioDefaults.tom,
                                     15000.0,

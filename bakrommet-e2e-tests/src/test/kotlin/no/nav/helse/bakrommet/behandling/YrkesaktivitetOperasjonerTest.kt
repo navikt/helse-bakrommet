@@ -210,7 +210,6 @@ class YrkesaktivitetOperasjonerTest {
                     setBody(oppdateringer)
                 }
             val responseTekst = response.bodyAsText()
-            print(responseTekst)
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             // Verifiser at dagoversikten er oppdatert korrekt

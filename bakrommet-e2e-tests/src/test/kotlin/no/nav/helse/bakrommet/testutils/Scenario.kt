@@ -53,9 +53,11 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandlin
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
+import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.mai
 import no.nav.helse.utbetalingslinjer.Klassekode
+import no.nav.inntektsmeldingkontrakt.Periode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.assertNull
@@ -422,13 +424,15 @@ sealed class YAInntekt {
 
 class Inntektsmelding(
     val beregnetInntekt: Double,
-    vararg val refusjon: RefusjonsperiodeDto,
+    val  arbeidsgiverperioder: List<Periode> = emptyList(),
+    val refusjon: RefusjonsperiodeDto? = null,
 ) : YAInntekt() {
     fun skapInntektsmelding(
         fnr: String,
         orgnr: String,
     ): InntektsmeldingKontrakt =
         skapInntektsmelding(
+            arbeidsgiverperioder = arbeidsgiverperioder,
             inntektsmeldingId = inntektmeldingid.toString(),
             arbeidstakerFnr = fnr,
             virksomhetsnummer = orgnr,
@@ -443,7 +447,7 @@ class Inntektsmelding(
                 ArbeidstakerInntektRequestDto.Inntektsmelding(
                     begrunnelse = "Velger inntektsmelding for arbeidstaker",
                     inntektsmeldingId = inntektmeldingid.toString(),
-                    refusjon = refusjon.toList(),
+                    refusjon = refusjon?.let { listOf(it) },
                 ),
         )
 }

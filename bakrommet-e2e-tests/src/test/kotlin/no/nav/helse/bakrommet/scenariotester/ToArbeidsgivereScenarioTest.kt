@@ -35,6 +35,7 @@ class ToArbeidsgivereScenarioTest {
                     inntekt =
                         Inntektsmelding(
                             15000.0,
+                            emptyList(),
                             RefusjonsperiodeDto(
                                 ScenarioDefaults.fom,
                                 ScenarioDefaults.tom,

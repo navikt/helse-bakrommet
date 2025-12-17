@@ -33,12 +33,7 @@ class VilkårKopieresTest {
                         "888",
                         inntekt =
                             Inntektsmelding(
-                                20000.0,
-                                RefusjonsperiodeDto(
-                                    ScenarioDefaults.fom,
-                                    ScenarioDefaults.tom,
-                                    15000.0,
-                                ),
+                                20000.0
                             ),
                         dagoversikt = SykAlleDager(),
                     ),

@@ -149,7 +149,6 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 ),
         ) { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
-            println("1111")
             client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
                 bearerAuth(TestOppsett.userToken)
                 contentType(ContentType.Application.Json)
@@ -157,7 +156,6 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     """{ "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.søknadId}", "${søknad2.søknadId}", "${søknad3.søknadId}"] }""",
                 )
             }
-            println("11112")
 
             val periode =
                 client
@@ -165,7 +163,6 @@ class SaksbehandlingsperiodeOpprettelseTest {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<BehandlingDto>>()
                     .first()
-            println("11113")
 
             // Verifiser yrkesaktivitet
             val yrkesaktivitet =
@@ -174,7 +171,6 @@ class SaksbehandlingsperiodeOpprettelseTest {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
 
-            println("1114")
 
             assertEquals(3, yrkesaktivitet.size)
             assertEquals(
