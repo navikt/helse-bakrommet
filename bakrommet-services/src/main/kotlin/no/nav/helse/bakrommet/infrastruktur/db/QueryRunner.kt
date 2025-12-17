@@ -5,6 +5,8 @@ import kotliquery.Session
 import kotliquery.action.QueryAction
 import kotliquery.queryOf
 import kotliquery.sessionOf
+import no.nav.helse.bakrommet.util.serialisertTilString
+import org.postgresql.util.PGobject
 import javax.sql.DataSource
 
 sealed class QueryRunner protected constructor() {
@@ -48,4 +50,20 @@ class MedDataSource(
         sessionOf(dataSource = dataSource, strict = true).use { session ->
             action.runWithSession(session)
         }
+}
+
+fun Any.tilPgJson(): PGobject {
+    val innhold = this
+    return PGobject().apply {
+        type = "json"
+        value = innhold.serialisertTilString()
+    }
+}
+
+fun String.tilPgJson(): PGobject {
+    val innhold = this
+    return PGobject().apply {
+        type = "json"
+        value = innhold
+    }
 }

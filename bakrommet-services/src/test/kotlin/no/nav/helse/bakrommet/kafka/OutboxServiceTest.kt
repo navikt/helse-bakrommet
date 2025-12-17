@@ -67,9 +67,9 @@ class OutboxServiceTest {
     @Test
     fun `skal håndtere flere upubliserte meldinger`() {
         // Gitt: Flere upubliserte meldinger
-        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key1", "payload1"))
-        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key2", "payload2"))
-        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key3", "payload3"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key1", """{"test-payload": true}"""))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key2", """{"test-payload": true}"""))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key3", """{"test-payload": true}"""))
 
         // Når: OutboxService prosesserer meldingene
         val antallProsessert = outboxService.prosesserOutbox()
@@ -84,8 +84,8 @@ class OutboxServiceTest {
 
     @Test
     fun `skal støtte flere forskjellige topic`() {
-        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key-standard", "payload-standard"))
-        outboxDao.lagreTilOutbox(KafkaMelding(UTBETALINGER_TOPIC, "key-annen", "payload-annen"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key-standard", """{"test-payload": true}"""))
+        outboxDao.lagreTilOutbox(KafkaMelding(UTBETALINGER_TOPIC, "key-annen", """{"test-payload": true}"""))
 
         val antallProsessert = outboxService.prosesserOutbox()
 
@@ -108,7 +108,7 @@ class OutboxServiceTest {
     @Test
     fun `skal håndtere feil ved Kafka-sending uten å markere som publisert`() {
         // Gitt: En upublisert melding og en feilende Kafka producer
-        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "test-key", "test-payload"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "test-key", """{"test-payload": true}"""))
 
         val feilendeProducer =
             object : KafkaProducerInterface {
@@ -138,9 +138,9 @@ class OutboxServiceTest {
     @Test
     fun `skal prosessere meldinger i riktig rekkefølge basert på id`() {
         // Gitt: Meldinger lagt til i tilfeldig rekkefølge
-        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key3", "payload3"))
-        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key1", "payload1"))
-        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key2", "payload2"))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key3", """{"test-payload": true}"""))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key1", """{"test-payload": true}"""))
+        outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "key2", """{"test-payload": true}"""))
 
         // Når: OutboxService prosesserer meldingene
         outboxService.prosesserOutbox()

@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.dto.InntektDto
 import no.nav.helse.dto.InntektbeløpDto
@@ -59,7 +60,6 @@ class UtbetalingsberegningDaoPg private constructor(
         // Konverter til InnDto format for lagring (slik at deserialisering fungerer)
         val beregningDataUtDto = beregning.beregningData.tilBeregningDataUtDto()
         val beregningDataInnDto = beregningDataUtDto.tilBeregningDataInnDto()
-        val beregningJson = objectMapper.writeValueAsString(beregningDataInnDto)
 
         // Sjekk om det finnes fra før
         val eksisterende = hentBeregning(saksbehandlingsperiodeId)
@@ -78,7 +78,7 @@ class UtbetalingsberegningDaoPg private constructor(
                     $AND_ER_UNDER_BEHANDLING
                     """.trimIndent(),
                     "behandling_id" to saksbehandlingsperiodeId,
-                    "utbetalingsberegning_data" to beregningJson,
+                    "utbetalingsberegning_data" to beregningDataInnDto.tilPgJson(),
                     "opprettet_av_nav_ident" to saksbehandler.navIdent,
                 ).also(verifiserOppdatert)
         } else {
@@ -94,7 +94,7 @@ class UtbetalingsberegningDaoPg private constructor(
                     """.trimIndent(),
                     "id" to beregning.id,
                     "behandling_id" to saksbehandlingsperiodeId,
-                    "utbetalingsberegning_data" to beregningJson,
+                    "utbetalingsberegning_data" to beregningDataInnDto.tilPgJson(),
                     "opprettet_av_nav_ident" to saksbehandler.navIdent,
                 ).also(verifiserOppdatert)
         }

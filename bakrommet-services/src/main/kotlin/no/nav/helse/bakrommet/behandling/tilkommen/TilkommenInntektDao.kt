@@ -7,8 +7,8 @@ import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
 import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -86,7 +86,7 @@ class TilkommenInntektDaoPg private constructor(
                 """.trimIndent(),
                 "id" to tilkommenInntektDbRecord.id,
                 "behandling_id" to tilkommenInntektDbRecord.behandlingId,
-                "tilkommen_inntekt" to tilkommenInntektDbRecord.tilkommenInntekt.serialisertTilString(),
+                "tilkommen_inntekt" to tilkommenInntektDbRecord.tilkommenInntekt.tilPgJson(),
                 "opprettet" to tilkommenInntektDbRecord.opprettet,
                 "opprettet_av_nav_ident" to tilkommenInntektDbRecord.opprettetAvNavIdent,
             ).also(verifiserOppdatert)
@@ -118,7 +118,7 @@ class TilkommenInntektDaoPg private constructor(
                  $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to id,
-                "tilkommen_inntekt" to tilkommenInntekt.serialisertTilString(),
+                "tilkommen_inntekt" to tilkommenInntekt.tilPgJson(),
             ).also(verifiserOppdatert)
         return hent(id)!!
     }

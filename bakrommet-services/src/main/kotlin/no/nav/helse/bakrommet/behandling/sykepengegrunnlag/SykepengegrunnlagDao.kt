@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
 import no.nav.helse.bakrommet.util.objectMapper
 import java.util.UUID
 import javax.sql.DataSource
@@ -56,7 +57,6 @@ class SykepengegrunnlagDaoPg private constructor(
     ): SykepengegrunnlagDbRecord {
         val id = UUID.randomUUID()
         val nå = java.time.Instant.now()
-        val sykepengegrunnlagJson = objectMapper.writeValueAsString(sykepengegrunnlag)
 
         db
             .update(
@@ -66,7 +66,7 @@ class SykepengegrunnlagDaoPg private constructor(
                 $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
                 """.trimIndent(),
                 "id" to id,
-                "sykepengegrunnlag" to sykepengegrunnlagJson,
+                "sykepengegrunnlag" to sykepengegrunnlag?.tilPgJson(),
                 "opprettet_av_nav_ident" to saksbehandler.navIdent,
                 "opprettet" to nå,
                 "oppdatert" to nå,
@@ -93,7 +93,6 @@ class SykepengegrunnlagDaoPg private constructor(
         sykepengegrunnlag: SykepengegrunnlagBase?,
     ): SykepengegrunnlagDbRecord {
         val nå = java.time.Instant.now()
-        val sykepengegrunnlagJson = sykepengegrunnlag?.let { objectMapper.writeValueAsString(it) }
 
         db
             .update(
@@ -104,7 +103,7 @@ class SykepengegrunnlagDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to sykepengegrunnlagId,
-                "sykepengegrunnlag" to sykepengegrunnlagJson,
+                "sykepengegrunnlag" to sykepengegrunnlag?.tilPgJson(),
                 "oppdatert" to nå,
             ).also(verifiserOppdatert)
 
@@ -118,7 +117,6 @@ class SykepengegrunnlagDaoPg private constructor(
         require(finnSykepengegrunnlag(sykepengegrunnlagId)!!.sammenlikningsgrunnlag == null)
 
         val nå = java.time.Instant.now()
-        val sammenlikningsgrunnlagJson = sammenlikningsgrunnlag?.let { objectMapper.writeValueAsString(it) }
 
         db
             .update(
@@ -129,7 +127,7 @@ class SykepengegrunnlagDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to sykepengegrunnlagId,
-                "sammenlikningsgrunnlag" to sammenlikningsgrunnlagJson,
+                "sammenlikningsgrunnlag" to sammenlikningsgrunnlag?.tilPgJson(),
                 "oppdatert" to nå,
             ).also(verifiserOppdatert)
 

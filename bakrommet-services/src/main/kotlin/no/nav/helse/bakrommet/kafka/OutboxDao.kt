@@ -4,6 +4,7 @@ import kotliquery.Session
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
 import java.time.Instant
 import javax.sql.DataSource
 
@@ -45,7 +46,7 @@ class OutboxDaoPg private constructor(
                 (:key, :payload, :opprettet, :topic)
             """.trimIndent(),
             "key" to kafkaMelding.key,
-            "payload" to kafkaMelding.payload,
+            "payload" to kafkaMelding.payload.tilPgJson(),
             "opprettet" to Instant.now(),
             "topic" to kafkaMelding.topic,
         )

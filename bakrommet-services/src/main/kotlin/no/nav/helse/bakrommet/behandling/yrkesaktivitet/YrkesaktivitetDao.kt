@@ -14,7 +14,9 @@ import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
-import no.nav.helse.bakrommet.util.*
+import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.somListe
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -211,16 +213,16 @@ class YrkesaktivitetDaoPg private constructor(
                 $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
                 """.trimIndent(),
                 "id" to yrkesaktivitetDbRecord.id,
-                "kategorisering" to yrkesaktivitetDbRecord.kategorisering.serialisertTilString(),
-                "kategorisering_generert" to yrkesaktivitetDbRecord.kategoriseringGenerert?.serialisertTilString(),
-                "dagoversikt" to yrkesaktivitetDbRecord.dagoversikt?.serialisertTilString(),
-                "dagoversikt_generert" to yrkesaktivitetDbRecord.dagoversiktGenerert?.serialisertTilString(),
+                "kategorisering" to yrkesaktivitetDbRecord.kategorisering.tilPgJson(),
+                "kategorisering_generert" to yrkesaktivitetDbRecord.kategoriseringGenerert?.tilPgJson(),
+                "dagoversikt" to yrkesaktivitetDbRecord.dagoversikt?.tilPgJson(),
+                "dagoversikt_generert" to yrkesaktivitetDbRecord.dagoversiktGenerert?.tilPgJson(),
                 "behandling_id" to yrkesaktivitetDbRecord.saksbehandlingsperiodeId,
                 "opprettet" to yrkesaktivitetDbRecord.opprettet,
-                "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.serialisertTilString(),
-                "perioder" to yrkesaktivitetDbRecord.perioder?.serialisertTilString(),
-                "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.serialisertTilString(),
-                "refusjon" to yrkesaktivitetDbRecord.refusjon?.let { objectMapper.writeValueAsString(it) },
+                "generert_fra_dokumenter" to yrkesaktivitetDbRecord.generertFraDokumenter.tilPgJson(),
+                "perioder" to yrkesaktivitetDbRecord.perioder?.tilPgJson(),
+                "inntekt_data" to yrkesaktivitetDbRecord.inntektData?.tilPgJson(),
+                "refusjon" to yrkesaktivitetDbRecord.refusjon?.tilPgJson(),
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
@@ -313,7 +315,7 @@ class YrkesaktivitetDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to yrkesaktivitetDbRecord.id,
-                "kategorisering" to kategorisering.serialisertTilString(),
+                "kategorisering" to kategorisering.tilPgJson(),
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
@@ -329,7 +331,7 @@ class YrkesaktivitetDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to yrkesaktivitetDbRecord.id,
-                "dagoversikt" to oppdatertDagoversikt.serialisertTilString(),
+                "dagoversikt" to oppdatertDagoversikt.tilPgJson(),
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
@@ -345,7 +347,7 @@ class YrkesaktivitetDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to yrkesaktivitetDbRecord.id,
-                "perioder" to perioder?.serialisertTilString(),
+                "perioder" to perioder?.tilPgJson(),
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
     }
@@ -372,7 +374,7 @@ class YrkesaktivitetDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to yrkesaktivitet.id,
-                "inntekt_request" to request.serialisertTilString(),
+                "inntekt_request" to request.tilPgJson(),
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
@@ -388,7 +390,7 @@ class YrkesaktivitetDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to yrkesaktivitet.id,
-                "inntekt_data" to inntektData.serialisertTilString(),
+                "inntekt_data" to inntektData.tilPgJson(),
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
     }
@@ -404,7 +406,7 @@ class YrkesaktivitetDaoPg private constructor(
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
                 "id" to yrkesaktivitetID,
-                "refusjon" to refusjonsdata?.let { objectMapper.writeValueAsString(it) },
+                "refusjon" to refusjonsdata?.tilPgJson(),
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetID)!!
     }

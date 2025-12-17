@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
 import no.nav.helse.bakrommet.util.*
 import java.time.Instant
 import java.util.UUID
@@ -149,7 +150,7 @@ class VurdertVilkårDaoPg private constructor(
                 and kode = :kode 
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
-                "vurdering" to oppdatertVurdering.serialisertTilString(),
+                "vurdering" to oppdatertVurdering.tilPgJson(),
                 "vurdering_tidspunkt" to Instant.now(),
                 "behandling_id" to behandling.id,
                 "kode" to kode.kode,
@@ -168,7 +169,7 @@ class VurdertVilkårDaoPg private constructor(
                 select :vurdering, :vurdering_tidspunkt, :behandling_id, :kode
                  $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
                 """.trimIndent(),
-                "vurdering" to vurdering.serialisertTilString(),
+                "vurdering" to vurdering.tilPgJson(),
                 "vurdering_tidspunkt" to Instant.now(),
                 "behandling_id" to behandling.id,
                 "kode" to kode.kode,

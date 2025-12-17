@@ -12,8 +12,8 @@ CREATE INDEX IF NOT EXISTS idx_personpseudoid_naturlig_ident
 CREATE TABLE IF NOT EXISTS sykepengegrunnlag
 (
     id                       UUID PRIMARY KEY,
-    sykepengegrunnlag        TEXT                        NULL,
-    sammenlikningsgrunnlag   TEXT                        NULL,
+    sykepengegrunnlag        JSONB                        NULL,
+    sammenlikningsgrunnlag   JSONB                        NULL,
     opprettet_for_behandling UUID                        NOT NULL,
     opprettet_av_nav_ident   TEXT                        NOT NULL,
     opprettet                TIMESTAMP(6) WITH TIME ZONE NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS vurdert_vilkaar
 (
     behandling_id       UUID                        NOT NULL REFERENCES behandling (id),
     kode                TEXT                        NOT NULL,
-    vurdering           TEXT                        NOT NULL,
+    vurdering           JSONB                        NOT NULL,
     vurdering_tidspunkt TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     PRIMARY KEY (behandling_id, kode)
 );
@@ -72,16 +72,16 @@ CREATE TABLE IF NOT EXISTS yrkesaktivitet
 (
     id                      UUID                        NOT NULL PRIMARY KEY,
     behandling_id           UUID                        NOT NULL REFERENCES behandling (id),
-    kategorisering          TEXT                        NOT NULL,
-    kategorisering_generert TEXT                        NULL,
-    dagoversikt             TEXT                        NULL,
-    dagoversikt_generert    TEXT                        NULL,
+    kategorisering          JSONB                        NOT NULL,
+    kategorisering_generert JSONB                        NULL,
+    dagoversikt             JSONB                        NULL,
+    dagoversikt_generert    JSONB                        NULL,
     opprettet               TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    generert_fra_dokumenter TEXT                        NULL,
-    perioder                TEXT                        NULL,
-    inntekt_request         TEXT                        NULL,
-    inntekt_data            TEXT                        NULL,
-    refusjon                TEXT                        NULL
+    generert_fra_dokumenter JSONB                        NULL,
+    perioder                JSONB                        NULL,
+    inntekt_request         JSONB                        NULL,
+    inntekt_data            JSONB                        NULL,
+    refusjon                JSONB                        NULL
 );
 
 
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS utbetalingsberegning
 (
     id                        UUID PRIMARY KEY,
     behandling_id             UUID                     NOT NULL REFERENCES behandling (id) UNIQUE,
-    utbetalingsberegning_data TEXT                     NOT NULL,
+    utbetalingsberegning_data JSONB                    NOT NULL,
     opprettet                 TIMESTAMP WITH TIME ZONE NOT NULL,
     opprettet_av_nav_ident    TEXT                     NOT NULL,
     sist_oppdatert            TIMESTAMP WITH TIME ZONE NOT NULL
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS kafka_outbox
 (
     id        BIGSERIAL PRIMARY KEY,
     key       TEXT                        NOT NULL,
-    payload   TEXT                        NOT NULL,
+    payload   JSON                        NOT NULL,
     topic     TEXT                        NOT NULL,
     opprettet TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     publisert TIMESTAMP(6) WITH TIME ZONE NULL
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS tilkommen_inntekt
 (
     id                     UUID                        NOT NULL PRIMARY KEY,
     behandling_id          UUID                        NOT NULL REFERENCES behandling (id),
-    tilkommen_inntekt      TEXT                        NOT NULL,
+    tilkommen_inntekt      JSONB                        NOT NULL,
     opprettet              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     opprettet_av_nav_ident TEXT                        NOT NULL
 );
