@@ -171,7 +171,6 @@ class SaksbehandlingsperiodeOpprettelseTest {
                         bearerAuth(TestOppsett.userToken)
                     }.body<List<YrkesaktivitetDto>>()
 
-
             assertEquals(3, yrkesaktivitet.size)
             assertEquals(
                 setOf("123321123", null, "654321123"),

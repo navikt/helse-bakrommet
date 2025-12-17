@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PeriodetypeDto
 import no.nav.helse.bakrommet.testutils.*
-import no.nav.helse.bakrommet.testutils.prettyprint.prettyPrint
 import no.nav.inntektsmeldingkontrakt.Periode
 import org.junit.jupiter.api.Test
 
@@ -18,12 +17,13 @@ class ImportererArbeidsgiverperiodeFraInntektsmeldingTest {
                         inntekt =
                             Inntektsmelding(
                                 20000.0,
-                                arbeidsgiverperioder = listOf(
-                                    Periode(
-                                        ScenarioDefaults.fom,
-                                        ScenarioDefaults.fom.plusDays(15),
+                                arbeidsgiverperioder =
+                                    listOf(
+                                        Periode(
+                                            ScenarioDefaults.fom,
+                                            ScenarioDefaults.fom.plusDays(15),
+                                        ),
                                     ),
-                                ),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),

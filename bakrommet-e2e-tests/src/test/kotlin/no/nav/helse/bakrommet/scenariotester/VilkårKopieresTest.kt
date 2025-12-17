@@ -2,11 +2,9 @@ package no.nav.helse.bakrommet.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Inntektsmelding
 import no.nav.helse.bakrommet.testutils.Scenario
-import no.nav.helse.bakrommet.testutils.ScenarioDefaults
 import no.nav.helse.bakrommet.testutils.SykAlleDager
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentVilkårsvurdering
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
@@ -33,7 +31,7 @@ class VilkårKopieresTest {
                         "888",
                         inntekt =
                             Inntektsmelding(
-                                20000.0
+                                20000.0,
                             ),
                         dagoversikt = SykAlleDager(),
                     ),

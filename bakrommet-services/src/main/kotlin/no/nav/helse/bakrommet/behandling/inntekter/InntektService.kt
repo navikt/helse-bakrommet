@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.inntekter
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDao
@@ -28,10 +27,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.sigrun.SigrunClient
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.dto.PeriodeDto
-import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 import kotlin.math.abs
 
 interface InntektServiceDaoer :
@@ -130,11 +126,10 @@ class InntektService(
                             inntektsmeldingClient = inntektsmeldingClient,
                             saksbehandler = saksbehandler,
                         ).somInntektsmelding()
-                val inntektsmelding: Inntektsmelding = objectMapper.readValue(inntektsmeldingJson.serialisertTilString())
 
                 yrkesaktivitetDao.oppdaterPerioder(
                     yrkesaktivitet.tilYrkesaktivitetDbRecord(),
-                    Perioder(Periodetype.ARBEIDSGIVERPERIODE, inntektsmelding.arbeidsgiverperioder.map { PeriodeDto(it.fom, it.tom) }),
+                    Perioder(Periodetype.ARBEIDSGIVERPERIODE, inntektsmeldingJson.somInntektsmeldingObjekt().arbeidsgiverperioder.map { PeriodeDto(it.fom, it.tom) }),
                 )
             }
 

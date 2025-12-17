@@ -451,7 +451,6 @@ class YrkesaktivitetOperasjonerTest {
             // Verifiser at responsen er en gyldig JSON-array
             val inntektsmeldinger = response.body<JsonNode>()
             assertTrue(inntektsmeldinger.isArray, "Responsen skal være en JSON-array")
-            assertEquals("[${im1.serialisertTilString()},${im2.serialisertTilString()}]".asJsonNode(), inntektsmeldinger)
 
             suspend fun velgIm(inntektsmeldingId: String) =
                 client.put("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntekt") {

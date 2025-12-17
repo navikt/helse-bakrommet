@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.behandling.dokumenter.innhenting
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.Behandling
@@ -8,7 +9,9 @@ import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.util.asJsonNode
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 
 fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
     periode: Behandling,
@@ -52,3 +55,7 @@ fun Dokument.somInntektsmelding(): JsonNode {
     require(dokumentType == DokumentType.inntektsmelding)
     return this.innhold.asJsonNode()
 }
+
+fun JsonNode.somInntektsmeldingObjekt(): Inntektsmelding = objectMapper.readValue(this.serialisertTilString())
+
+fun JsonNode.somInntektsmeldingObjektListe(): List<Inntektsmelding> = objectMapper.readValue(this.serialisertTilString())

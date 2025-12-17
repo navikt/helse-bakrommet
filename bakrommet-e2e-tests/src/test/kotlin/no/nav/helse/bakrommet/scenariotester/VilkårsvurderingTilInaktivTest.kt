@@ -5,7 +5,6 @@ import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingUnderspørsmålDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PeriodetypeDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Inntektsmelding

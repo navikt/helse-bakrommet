@@ -12,7 +12,6 @@ import no.nav.helse.bakrommet.api.naturligIdent
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.api.yrkesaktivitetReferanse
-import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
@@ -110,7 +109,7 @@ fun Route.yrkesaktivitetRoute(
                     inntektsmeldingMatcherService.hentInntektsmeldingerForYrkesaktivitet(
                         ref = yrkesaktivitetRef,
                         fnr = naturligIdent.naturligIdent,
-                        saksbehandlerToken = call.request.bearerToken(),
+                        bruker = call.saksbehandlerOgToken(),
                     )
                 call.respondText(
                     inntektsmeldinger.serialisertTilString(),

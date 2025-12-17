@@ -30,11 +30,12 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                         inntekt =
                             Inntektsmelding(
                                 beregnetInntekt = 20000.0,
-                                refusjon = RefusjonsperiodeDto(
-                                    ScenarioDefaults.fom,
-                                    ScenarioDefaults.tom,
-                                    15000.0,
-                                ),
+                                refusjon =
+                                    RefusjonsperiodeDto(
+                                        ScenarioDefaults.fom,
+                                        ScenarioDefaults.tom,
+                                        15000.0,
+                                    ),
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
