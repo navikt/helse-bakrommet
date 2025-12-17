@@ -28,7 +28,7 @@ class VilkårKopieresTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt =
                             Inntektsmelding(
                                 20000.0,

@@ -9,7 +9,7 @@ class SykepengegrunnlagLåsesTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder {
             val sykepengegrunnlagId = it.periode.sykepengegrunnlagId!!

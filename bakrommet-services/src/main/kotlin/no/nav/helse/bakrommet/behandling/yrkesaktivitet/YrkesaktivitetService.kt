@@ -113,6 +113,11 @@ class YrkesaktivitetService(
         eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
     ): YrkesaktivitetMedOrgnavn =
         db.transactional(eksisterendeTranaksjon) {
+            val orgnavn =
+                kategorisering
+                    .maybeOrgnummer()
+                    ?.let { eregClient.hentOrganisasjonsnavn(it).navn }
+
             val periode =
                 behandlingDao.hentPeriode(
                     ref = ref,
@@ -137,16 +142,6 @@ class YrkesaktivitetService(
                     refusjonsdata = null,
                 )
 
-            val orgnavn =
-                kategorisering.maybeOrgnummer()?.let { orgnummer ->
-                    try {
-                        eregClient.hentOrganisasjonsnavn(orgnummer).navn
-                    } catch (e: Exception) {
-                        logg.warn("Kall mot Ereg feilet for orgnummer $orgnummer", e)
-                        null
-                    }
-                }
-
             YrkesaktivitetMedOrgnavn(yrkesaktivitet, orgnavn)
         }
 
@@ -159,6 +154,11 @@ class YrkesaktivitetService(
         val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         val gammelKategorisering = yrkesaktivtet.kategorisering
         val hovedkategoriseringEndret = hovedkategoriseringEndret(gammelKategorisering, kategorisering)
+
+        // Validerer at organisasjon finnes hvis orgnummer er satt
+        kategorisering
+            .maybeOrgnummer()
+            ?.let { eregClient.hentOrganisasjonsnavn(it).navn }
 
         db.transactional(eksisterendeTranaksjon) {
             yrkesaktivitetDao.oppdaterKategoriseringOgSlettInntektData(yrkesaktivtet, kategorisering)

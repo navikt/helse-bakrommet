@@ -15,7 +15,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
                     inntekt = SigrunInntekt(700000, 900000, 1000000),
                     dagoversikt = SykAlleDager(),
                 ),
-                Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
@@ -34,7 +34,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
                     inntekt = SigrunInntekt(700000, 900000, 1000000),
                     dagoversikt = SykAlleDager(),
                 ),
-                Arbeidstaker("888", inntekt = AInntekt(70000, 70000, 70000), dagoversikt = SykAlleDager()),
+                Arbeidstaker("988888888", inntekt = AInntekt(70000, 70000, 70000), dagoversikt = SykAlleDager()),
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)

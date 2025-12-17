@@ -95,7 +95,7 @@ object AInntektMock {
 
 fun etInntektSvar(
     virksomhet: String = "999999999",
-    opplysningspliktig: String = "888888888",
+    opplysningspliktig: String = "988888888",
     skjæringstidspunkt: YearMonth? = null,
     beloep: Int = 12000,
 ): InntektApiUt {

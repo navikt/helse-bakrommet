@@ -14,7 +14,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt =
                             Inntektsmelding(
                                 beregnetInntekt = seksG.månedlig,
@@ -22,12 +22,12 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
-                    Arbeidstaker("999", inntekt = Inntektsmelding(seksG.månedlig), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("999999999", inntekt = Inntektsmelding(seksG.månedlig), dagoversikt = SykAlleDager()),
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(28620, orgnummer = "888")
-            `skal ha refusjon`(0, orgnummer = "999")
+            `skal ha refusjon`(28620, orgnummer = "988888888")
+            `skal ha refusjon`(0, orgnummer = "999999999")
             `skal ha direkteutbetaling`(0)
         }
     }
@@ -40,7 +40,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -49,12 +49,12 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
-                    Arbeidstaker("999", inntekt = Inntektsmelding(seksG.månedlig), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("999999999", inntekt = Inntektsmelding(seksG.månedlig), dagoversikt = SykAlleDager()),
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(28620, orgnummer = "888")
-            `skal ha refusjon`(0, orgnummer = "999")
+            `skal ha refusjon`(28620, orgnummer = "988888888")
+            `skal ha refusjon`(0, orgnummer = "999999999")
             `skal ha direkteutbetaling`(0)
         }
     }
@@ -67,7 +67,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -77,7 +77,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         dagoversikt = SykAlleDager(),
                     ),
                     Arbeidstaker(
-                        "999",
+                        "999999999",
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -89,8 +89,8 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(19080, orgnummer = "888")
-            `skal ha refusjon`(9540, orgnummer = "999")
+            `skal ha refusjon`(19080, orgnummer = "988888888")
+            `skal ha refusjon`(9540, orgnummer = "999999999")
             `skal ha direkteutbetaling`(0)
         }
     }
@@ -103,7 +103,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -113,7 +113,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         dagoversikt = SykAlleDager(),
                     ),
                     Arbeidstaker(
-                        "999",
+                        "999999999",
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -125,8 +125,8 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(19080, orgnummer = "888")
-            `skal ha refusjon`(9540, orgnummer = "999")
+            `skal ha refusjon`(19080, orgnummer = "988888888")
+            `skal ha refusjon`(9540, orgnummer = "999999999")
             `skal ha direkteutbetaling`(0)
         }
     }
@@ -139,7 +139,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig.times(1.5),
@@ -149,7 +149,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         dagoversikt = SykAlleDager(),
                     ),
                     Arbeidstaker(
-                        "999",
+                        "999999999",
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -161,8 +161,8 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(21470, orgnummer = "888")
-            `skal ha refusjon`(7160, orgnummer = "999")
+            `skal ha refusjon`(21470, orgnummer = "988888888")
+            `skal ha refusjon`(7160, orgnummer = "999999999")
             `skal ha direkteutbetaling`(0)
         }
     }

@@ -19,7 +19,7 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888888888",
+                        "988888888",
                         inntekt = null,
                         dagoversikt = SykAlleDager(),
                     ),

@@ -22,7 +22,7 @@ class ArbeidsgiverForlengelseTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode
@@ -40,7 +40,7 @@ class ArbeidsgiverForlengelseTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode
@@ -67,7 +67,7 @@ class ArbeidsgiverForlengelseTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.periode

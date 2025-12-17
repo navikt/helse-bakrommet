@@ -14,8 +14,8 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    Arbeidstaker("777", inntekt = AInntekt(10000, 10000, 50000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("977777777", inntekt = AInntekt(10000, 10000, 50000), dagoversikt = SykAlleDager()),
                 ),
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder {
@@ -31,13 +31,13 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
                 when (val k = it.kategorisering) {
                     is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
                         when (val type = k.typeArbeidstaker) {
-                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Ordinær -> type.orgnummer == "777"
-                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Maritim -> type.orgnummer == "777"
-                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Fisker -> type.orgnummer == "777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Ordinær -> type.orgnummer == "977777777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Maritim -> type.orgnummer == "977777777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Fisker -> type.orgnummer == "977777777"
                             else -> false
                         }
                     }
-                    is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer == "777"
+                    is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer == "977777777"
                     else -> false
                 }
             }.let { yrkesaktivitet777 ->
@@ -60,8 +60,8 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    Arbeidstaker("777", inntekt = AInntekt(10000, 10000, 50000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("977777777", inntekt = AInntekt(10000, 10000, 50000), dagoversikt = SykAlleDager()),
                 ),
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder {
@@ -85,13 +85,13 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
                 when (val k = it.kategorisering) {
                     is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
                         when (val type = k.typeArbeidstaker) {
-                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Ordinær -> type.orgnummer == "777"
-                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Maritim -> type.orgnummer == "777"
-                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Fisker -> type.orgnummer == "777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Ordinær -> type.orgnummer == "977777777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Maritim -> type.orgnummer == "977777777"
+                            is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Fisker -> type.orgnummer == "977777777"
                             else -> false
                         }
                     }
-                    is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer == "777"
+                    is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer == "977777777"
                     else -> false
                 }
             }.let { yrkesaktivitet777 ->

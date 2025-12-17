@@ -13,7 +13,7 @@ class ImportererArbeidsgiverperiodeFraInntektsmeldingTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt =
                             Inntektsmelding(
                                 20000.0,
@@ -31,7 +31,7 @@ class ImportererArbeidsgiverperiodeFraInntektsmeldingTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
             førsteBehandling.`skal ha direkteutbetaling`(9230)
-            førsteBehandling.`skal ha refusjon`(0, "888")
+            førsteBehandling.`skal ha refusjon`(0, "988888888")
             førsteBehandling.yrkesaktiviteter.first().perioder!!.also {
                 it.type `should equal` PeriodetypeDto.ARBEIDSGIVERPERIODE
                 it.perioder.size `should equal` 1

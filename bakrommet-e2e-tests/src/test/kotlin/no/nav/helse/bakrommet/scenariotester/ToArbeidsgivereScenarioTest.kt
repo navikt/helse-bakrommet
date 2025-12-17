@@ -12,15 +12,15 @@ class ToArbeidsgivereScenarioTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    Arbeidstaker("999", inntekt = AInntekt(15000, 15000, 15000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("999999999", inntekt = AInntekt(15000, 15000, 15000), dagoversikt = SykAlleDager()),
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(300000.0)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
-            `skal ha refusjon`(0, orgnummer = "888")
-            `skal ha refusjon`(0, orgnummer = "999")
+            `arbeidstaker yrkesaktivitet`(orgnummer = "988888888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999999999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
+            `skal ha refusjon`(0, orgnummer = "988888888")
+            `skal ha refusjon`(0, orgnummer = "999999999")
             `skal ha direkteutbetaling`(11540)
         }
     }
@@ -29,9 +29,9 @@ class ToArbeidsgivereScenarioTest {
     fun `to arbeidsgivere med en ainntekt inntekt og en inntektsmelding med refusjon`() {
         Scenario(
             listOf(
-                Arbeidstaker("888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 Arbeidstaker(
-                    "999",
+                    "999999999",
                     inntekt =
                         Inntektsmelding(
                             15000.0,
@@ -47,10 +47,10 @@ class ToArbeidsgivereScenarioTest {
             ),
         ).run {
             `skal ha sykepengegrunnlag`(300000.0)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
-            `skal ha refusjon`(0, orgnummer = "888")
-            `skal ha refusjon`(6920, orgnummer = "999")
+            `arbeidstaker yrkesaktivitet`(orgnummer = "988888888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999999999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
+            `skal ha refusjon`(0, orgnummer = "988888888")
+            `skal ha refusjon`(6920, orgnummer = "999999999")
             `skal ha direkteutbetaling`(4620)
         }
     }
@@ -60,17 +60,17 @@ class ToArbeidsgivereScenarioTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("999", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker("999999999", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt = SkjønnsfastsattManglendeRapportering(15000.0 * 12),
                         dagoversikt = SykAlleDager(),
                     ),
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(300000.0)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
-            `arbeidstaker yrkesaktivitet`(orgnummer = "888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "999999999") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL)
+            `arbeidstaker yrkesaktivitet`(orgnummer = "988888888") harBeregningskode (ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG)
         }
     }
 }

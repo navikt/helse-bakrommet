@@ -14,8 +14,8 @@ class ToArbeidsgivereAvrundingTest {
     fun `to arbeidsgivere med lav og høy inntekt gir avrundingsgevinst`() {
         Scenario(
             listOf(
-                Arbeidstaker("111", inntekt = SkjønnsfastsattManglendeRapportering(120000.0), dagoversikt = SykAlleDager()),
-                Arbeidstaker("222", inntekt = SkjønnsfastsattManglendeRapportering(624168.0), dagoversikt = SykAlleDager()),
+                Arbeidstaker("911111111", inntekt = SkjønnsfastsattManglendeRapportering(120000.0), dagoversikt = SykAlleDager()),
+                Arbeidstaker("922222222", inntekt = SkjønnsfastsattManglendeRapportering(624168.0), dagoversikt = SykAlleDager()),
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0) // 6G
@@ -30,7 +30,7 @@ class ToArbeidsgivereAvrundingTest {
     fun `én arbeidsgiver med full 6G får lavere utbetaling pga avrundingstap`() {
         Scenario(
             listOf(
-                Arbeidstaker("111", inntekt = SkjønnsfastsattManglendeRapportering(744168.0), dagoversikt = SykAlleDager()),
+                Arbeidstaker("911111111", inntekt = SkjønnsfastsattManglendeRapportering(744168.0), dagoversikt = SykAlleDager()),
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0) // 6G (begrenset)

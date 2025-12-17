@@ -26,7 +26,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "888",
+                        "988888888",
                         inntekt =
                             Inntektsmelding(
                                 beregnetInntekt = 20000.0,
@@ -43,7 +43,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
             førsteBehandling.`skal ha direkteutbetaling`(2310)
-            førsteBehandling.`skal ha refusjon`(6920, "888")
+            førsteBehandling.`skal ha refusjon`(6920, "988888888")
 
             førsteBehandling.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 240000.0
             val forrigePeriode = førsteBehandling.periode
@@ -63,7 +63,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                     nestePeriode.id,
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "654"),
+                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "966666666"),
                     ),
                 )
 
