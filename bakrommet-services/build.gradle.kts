@@ -2,6 +2,8 @@ plugins {
     `java-test-fixtures`
 }
 
+val shedlockVersion = "7.2.2"
+
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
 
@@ -25,6 +27,9 @@ dependencies {
     implementation("io.ktor:ktor-server-call-logging")
     implementation("io.ktor:ktor-server-status-pages")
     implementation("io.ktor:ktor-serialization-jackson")
+
+    implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")

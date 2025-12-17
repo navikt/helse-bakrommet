@@ -130,3 +130,13 @@ CREATE TABLE IF NOT EXISTS tilkommen_inntekt
     opprettet              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     opprettet_av_nav_ident TEXT                        NOT NULL
 );
+
+CREATE TABLE shedlock
+(
+    name       VARCHAR(64)  NOT NULL,
+    lock_until TIMESTAMP    NOT NULL,
+    locked_at  TIMESTAMP    NOT NULL,
+    locked_by  VARCHAR(255) NOT NULL,
+    PRIMARY KEY (name)
+);
+

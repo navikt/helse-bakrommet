@@ -24,7 +24,7 @@ class OutboxServiceTest {
         TestDataSource.resetDatasource()
         outboxDao = OutboxDaoPg(dataSource)
         fakeKafkaProducer = FakeKafkaProducer()
-        outboxService = OutboxService(outboxDao, fakeKafkaProducer)
+        outboxService = OutboxService(outboxDao = outboxDao, kafkaProducer = fakeKafkaProducer, lockingDataSource = null)
     }
 
     @AfterEach
@@ -122,7 +122,7 @@ class OutboxServiceTest {
                 override fun close() {}
             }
 
-        val outboxServiceMedFeil = OutboxService(outboxDao, feilendeProducer)
+        val outboxServiceMedFeil = OutboxService(outboxDao = outboxDao, kafkaProducer = feilendeProducer, lockingDataSource = null)
 
         // Når: OutboxService prosesserer meldingen
         val antallProsessert = outboxServiceMedFeil.prosesserOutbox()
