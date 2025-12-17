@@ -42,7 +42,7 @@ fun Testperson.tilTestpersonForFrontend(erScenarie: Boolean = false): Testperson
         navn = this.fornavn + " " + this.etternavn,
         fnr = this.fnr,
         spilleromId = this.pseudoId,
-        alder = 22,
+        alder = this.fødselsdato.until(LocalDate.now()).years,
         erScenarie = erScenarie,
     )
 

@@ -73,6 +73,7 @@ val kombinertArbeidstakerOgSelvstendig =
                             status = SoknadsstatusDTO.SENDT
                             arbeidstaker(veihjelpenAS)
                             grad = 100
+                            medAndreInntektskilderNæringsdrivende()
                         },
                         // Desember 2025: Kun sykmeldt som næringsdrivende, 100%
                         soknad(
@@ -85,6 +86,7 @@ val kombinertArbeidstakerOgSelvstendig =
                             status = SoknadsstatusDTO.SENDT
                             arbeidssituasjon = ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
                             grad = 100
+                            medAndreInntektskilderArbeidstaker()
                         },
                         // Januar 2026: 50% syk som arbeidstaker
                         soknad(
@@ -97,6 +99,7 @@ val kombinertArbeidstakerOgSelvstendig =
                             status = SoknadsstatusDTO.SENDT
                             arbeidstaker(veihjelpenAS)
                             grad = 50
+                            medAndreInntektskilderNæringsdrivende()
                         },
                         // Januar 2026: 50% syk som næringsdrivende
                         soknad(
@@ -109,6 +112,7 @@ val kombinertArbeidstakerOgSelvstendig =
                             status = SoknadsstatusDTO.SENDT
                             arbeidssituasjon = ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
                             grad = 50
+                            medAndreInntektskilderArbeidstaker()
                         },
                     ),
             ),

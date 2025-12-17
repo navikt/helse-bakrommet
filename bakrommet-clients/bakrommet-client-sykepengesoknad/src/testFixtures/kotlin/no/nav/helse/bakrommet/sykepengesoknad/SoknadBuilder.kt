@@ -27,6 +27,7 @@ class SoknadDsl(
     var grad: Int = 100
     var sykmeldingsgrad: Int? = null
     var valgteBehandlingsdager: List<LocalDate>? = null
+    var andreInntektskilder = mutableListOf<InntektskildeDTO>()
 
     fun arbeidstaker(organisasjon: Organisasjon) {
         arbeidsgiverOrgnummer = organisasjon.orgnummer
@@ -41,6 +42,54 @@ class SoknadDsl(
 
     fun medBehandlingsdager(dager: List<LocalDate>) {
         valgteBehandlingsdager = dager
+    }
+
+    fun medAndreInntektskilderNæringsdrivende() {
+        this.sporsmal +=
+            SporsmalDTO(
+                tag = "ANDRE_INNTEKTSKILDER",
+                sporsmalstekst = "Hvilke andre inntektskilder har du?",
+                svartype = SvartypeDTO.CHECKBOX_GRUPPE,
+                undersporsmal =
+                    listOf(
+                        SporsmalDTO(
+                            tag = "INNTEKTSKILDE_SELVSTENDIG",
+                            sporsmalstekst = "Selvstendig næringsdrivende",
+                            svartype = SvartypeDTO.CHECKBOX,
+                            svar =
+                                listOf(
+                                    SvarDTO(
+                                        verdi = "CHECKED",
+                                    ),
+                                ),
+                        ),
+                    ),
+            )
+        andreInntektskilder.add(InntektskildeDTO(type = InntektskildetypeDTO.SELVSTENDIG_NARINGSDRIVENDE))
+    }
+
+    fun medAndreInntektskilderArbeidstaker() {
+        this.sporsmal +=
+            SporsmalDTO(
+                tag = "ANDRE_INNTEKTSKILDER",
+                sporsmalstekst = "Hvilke andre inntektskilder har du?",
+                svartype = SvartypeDTO.CHECKBOX_GRUPPE,
+                undersporsmal =
+                    listOf(
+                        SporsmalDTO(
+                            tag = "INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD",
+                            sporsmalstekst = "Andre arbeidsforhold",
+                            svartype = SvartypeDTO.CHECKBOX,
+                            svar =
+                                listOf(
+                                    SvarDTO(
+                                        verdi = "CHECKED",
+                                    ),
+                                ),
+                        ),
+                    ),
+            )
+        andreInntektskilder.add(InntektskildeDTO(type = InntektskildetypeDTO.ARBEIDSFORHOLD))
     }
 
     fun medBehandlingsdagerSporsmal() {
