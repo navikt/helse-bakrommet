@@ -4,6 +4,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
@@ -18,6 +19,7 @@ internal suspend fun ApplicationTestBuilder.settDagoversikt(
     periodeId: UUID,
     yrkesaktivitetId: UUID,
     dager: List<DagDto>,
+    expectedStatus: HttpStatusCode = HttpStatusCode.NoContent,
 ) {
     val req = DagerSomSkalOppdateresDto(dager)
     val response =
@@ -26,5 +28,5 @@ internal suspend fun ApplicationTestBuilder.settDagoversikt(
             contentType(ContentType.Application.Json)
             setBody(req.serialisertTilString())
         }
-    assertEquals(204, response.status.value)
+    assertEquals(expectedStatus, response.status)
 }

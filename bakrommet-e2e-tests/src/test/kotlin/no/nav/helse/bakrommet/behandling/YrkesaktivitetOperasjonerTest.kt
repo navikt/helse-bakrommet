@@ -7,6 +7,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
@@ -19,6 +21,7 @@ import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -26,6 +29,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
+import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -111,7 +115,6 @@ class YrkesaktivitetOperasjonerTest {
                 }.also {
                     assertEquals(HttpStatusCode.OK, it.status)
                     val body = it.bodyAsText()
-                    print(body)
                 }
             // Verifiser at dagoversikten er oppdatert korrekt
             val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
@@ -137,6 +140,24 @@ class YrkesaktivitetOperasjonerTest {
                 dager.any { (dato, dagtype, kilde) ->
                     dato == "2023-01-03" && dagtype == "Arbeidsdag" && kilde == "Saksbehandler"
                 },
+            )
+
+            // APIet gir feil hvis man sender en avslått dag uten begrunnelse
+            settDagoversikt(
+                personId = PERSON_PSEUDO_ID,
+                periodeId = periode.id,
+                yrkesaktivitetId = yrkesaktivitetId,
+                dager =
+                    listOf(
+                        DagDto(
+                            dato = LocalDate.of(2023, 1, 1),
+                            dagtype = DagtypeDto.Avslått,
+                            grad = null,
+                            kilde = null,
+                            avslåttBegrunnelse = listOf(),
+                        ),
+                    ),
+                expectedStatus = HttpStatusCode.BadRequest,
             )
 
             // Verifiser at dekningsgrad er riktig
@@ -384,7 +405,6 @@ class YrkesaktivitetOperasjonerTest {
         val imFeilPersonId = UUID.randomUUID().toString()
         val im1 = skapInntektsmelding(arbeidstakerFnr = FNR, inntektsmeldingId = im1Id)
         val im2 = skapInntektsmelding(arbeidstakerFnr = FNR, inntektsmeldingId = im2Id)
-        val imFeilPerson = skapInntektsmelding(arbeidstakerFnr = "00000011111", inntektsmeldingId = imFeilPersonId)
         val antallKallTilInntektsmeldingAPI = AtomicInteger(0)
         runApplicationTest(
             inntektsmeldingClient =

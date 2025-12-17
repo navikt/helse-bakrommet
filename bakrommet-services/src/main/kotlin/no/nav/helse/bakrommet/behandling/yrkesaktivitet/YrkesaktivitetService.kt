@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
+import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.behandling.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
@@ -17,6 +18,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKat
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.util.logg
@@ -232,6 +234,7 @@ class YrkesaktivitetService(
         saksbehandler: Bruker,
     ): YrkesaktivitetDbRecord {
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        dagerSomSkalOppdateres.validerAvslagsgrunn()
         return db.transactional {
             val eksisterendeDagoversikt = yrkesaktivitet.dagoversikt ?: emptyList()
 
@@ -286,6 +289,14 @@ class YrkesaktivitetService(
         db.transactional {
             yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, refusjon)
             beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
+        }
+    }
+}
+
+private fun List<Dag>.validerAvslagsgrunn() {
+    this.forEach { dag ->
+        if (dag.dagtype == Dagtype.Avslått && (dag.avslåttBegrunnelse ?: emptyList()).isEmpty()) {
+            throw InputValideringException("Avslåtte dager må ha avslagsgrunn")
         }
     }
 }
