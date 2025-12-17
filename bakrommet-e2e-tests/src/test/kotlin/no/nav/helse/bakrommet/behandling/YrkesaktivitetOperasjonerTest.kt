@@ -9,7 +9,10 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetCreateRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
@@ -20,6 +23,7 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmel
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.`should equal`
@@ -230,7 +234,6 @@ class YrkesaktivitetOperasjonerTest {
                     contentType(ContentType.Application.Json)
                     setBody(oppdateringer)
                 }
-            val responseTekst = response.bodyAsText()
             assertEquals(HttpStatusCode.NoContent, response.status)
 
             // Verifiser at dagoversikten er oppdatert korrekt
@@ -526,51 +529,28 @@ class YrkesaktivitetOperasjonerTest {
     }
 
     @Test
-    fun `henter inntektsmeldinger feiler når skjæringstidspunkt ikke er satt`() {
+    fun `Får 404 hvis man oppretter yrkesaktivitet på ikke eksisterende orgnummer`() {
         runApplicationTest { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 
-            // Opprett saksbehandlingsperiode uten skjæringstidspunkt
-            client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody("""{ "fom": "2023-01-01", "tom": "2023-01-31" }""")
-            }
+            val behandling =
+                opprettBehandling(PERSON_PSEUDO_ID, LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 31))
 
-            val periode =
-                client
-                    .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<BehandlingDto>>()
-                    .first()
-
-            opprettYrkesaktivitet(
-                personId = PERSON_PSEUDO_ID,
-                periode.id,
-                YrkesaktivitetKategorisering.Arbeidstaker(
-                    sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
-                ),
-            )
-
-            val yrkesaktivitetId =
-                client
-                    .get("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/yrkesaktivitet") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<YrkesaktivitetDto>>()
-                    .first()
-                    .id
-
-            // Hent inntektsmeldinger for yrkesaktivitet
-            val response =
-                client.get("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/yrkesaktivitet/$yrkesaktivitetId/inntektsmeldinger") {
+            client
+                .post("/v1/$PERSON_PSEUDO_ID/behandlinger/${behandling.id}/yrkesaktivitet") {
                     bearerAuth(TestOppsett.userToken)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        YrkesaktivitetCreateRequestDto(
+                            YrkesaktivitetKategoriseringDto.Arbeidstaker(
+                                sykmeldt = true,
+                                typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "123"),
+                            ),
+                        ).serialisertTilString(),
+                    )
+                }.also {
+                    it.status `should equal` HttpStatusCode.NotFound
                 }
-
-            assertEquals(HttpStatusCode.OK, response.status)
-
-            val errorResponse = response.bodyAsText()
-            errorResponse `should equal` "[]"
         }
     }
 }
