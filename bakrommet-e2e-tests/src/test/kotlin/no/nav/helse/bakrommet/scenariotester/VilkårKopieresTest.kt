@@ -38,7 +38,7 @@ class VilkårKopieresTest {
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
-            val forrigePeriode = førsteBehandling.periode
+            val forrigePeriode = førsteBehandling.behandling
 
             val personId = førsteBehandling.scenario.pseudoId
             val fom = forrigePeriode.tom.plusDays(1)

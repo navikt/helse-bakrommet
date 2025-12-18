@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
@@ -421,11 +422,35 @@ class YrkesaktivitetBuilder {
         // Konverter kategorisering til YrkesaktivitetKategorisering
         val yrkesaktivitetKategorisering = lagYrkesaktivitetKategorisering()
 
+        val sykdomstidlinje =
+            fullstendigDagoversikt
+                .filter {
+                    it.dagtype != Dagtype.Avslått
+                }.toMutableList()
+        val avslattTidlinje =
+            fullstendigDagoversikt
+                .filter {
+                    it.dagtype == Dagtype.Avslått
+                }.also {
+                    it.forEach {
+                        // Legg til en arbeidsdag i sykdomstidlinjen for hver avslått dag. Denne hacken kan fjernes om vi forbedrer DSLen ved å skille på sykdom og avslag
+                        sykdomstidlinje.add(
+                            Dag(
+                                dato = it.dato,
+                                dagtype = Dagtype.Syk,
+                                grad = 100,
+                                avslåttBegrunnelse = emptyList(),
+                                kilde = Kilde.Saksbehandler,
+                            ),
+                        )
+                    }
+                }
+
         return Yrkesaktivitet(
             id = id,
             kategorisering = yrkesaktivitetKategorisering,
             kategoriseringGenerert = null,
-            dagoversikt = fullstendigDagoversikt,
+            dagoversikt = Dagoversikt(sykdomstidlinje, avslattTidlinje),
             dagoversiktGenerert = null,
             saksbehandlingsperiodeId = saksbehandlingsperiodeId,
             opprettet = OffsetDateTime.now(),

@@ -12,10 +12,10 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentUtbetalingsberegning(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
 ): BeregningResponseDto? {
     val response =
-        client.get("/v1/$personId/behandlinger/$periodeId/utbetalingsberegning") {
+        client.get("/v1/$personId/behandlinger/$behandlingId/utbetalingsberegning") {
             bearerAuth(TestOppsett.userToken)
         }
     assertEquals(200, response.status.value)

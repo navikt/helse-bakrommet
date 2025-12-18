@@ -27,8 +27,8 @@ class RevurderingTest {
             val forsteOppdrag = scenarioData.utbetalingsberegning!!.beregningData.spilleromOppdrag
             val personId = scenarioData.scenario.pseudoId
 
-            val revurderendePeriode = revurder(personId, scenarioData.periode.id)
-            revurderendePeriode.revurdererSaksbehandlingsperiodeId `should equal` scenarioData.periode.id
+            val revurderendePeriode = revurder(personId, scenarioData.behandling.id)
+            revurderendePeriode.revurdererSaksbehandlingsperiodeId `should equal` scenarioData.behandling.id
 
             forsteOppdrag.oppdrag.size `should equal` 1
             val førsteOppdragslinje = forsteOppdrag.oppdrag[0]

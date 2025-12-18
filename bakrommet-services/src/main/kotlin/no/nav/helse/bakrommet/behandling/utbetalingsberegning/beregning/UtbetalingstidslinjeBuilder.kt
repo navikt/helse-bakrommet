@@ -14,8 +14,10 @@ import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.person.beløp.Kilde
 import no.nav.helse.utbetalingstidslinje.ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode
 import no.nav.helse.utbetalingstidslinje.ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode
+import no.nav.helse.utbetalingstidslinje.Begrunnelse
 import no.nav.helse.utbetalingstidslinje.InaktivUtbetalingstidslinjeBuilder
 import no.nav.helse.utbetalingstidslinje.SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode
+import no.nav.helse.utbetalingstidslinje.Utbetalingsdag.AvvistDag
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import java.time.LocalDate
@@ -33,7 +35,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
     maksInntektTilFordelingPerDag: Beløpstidslinje,
     inntektjusteringer: Beløpstidslinje,
 ): Utbetalingstidslinje {
-    val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
+    val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt?.sykdomstidlinje ?: emptyList(), input.saksbehandlingsperiode)
     val arbeidsgiverperiode = yrkesaktivitet.hentPerioderForType(Periodetype.ARBEIDSGIVERPERIODE)
     val dagerNavOvertarAnsvar = dager.tilDagerNavOvertarAnsvar()
     val sykdomstidslinje = dager.tilSykdomstidslinje(arbeidsgiverperiode)
@@ -90,7 +92,22 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 inntektjusteringer = inntektjusteringer,
                 sykdomstidslinje = sykdomstidslinje,
             )
-    }
+    }.avslåDager(yrkesaktivitet.dagoversikt?.avslagsdager?.map { it.dato })
+}
+
+private fun Utbetalingstidslinje.avslåDager(avslagsdager: List<LocalDate>?): Utbetalingstidslinje {
+    if (avslagsdager == null || avslagsdager.isEmpty()) return this
+
+    val avslagsdagerSet = avslagsdager.toSet()
+    return Utbetalingstidslinje(
+        this.map { dag ->
+            if (dag.dato in avslagsdagerSet) {
+                AvvistDag(dag.dato, dag.økonomi, listOf(Begrunnelse.AvslåttSpillerom))
+            } else {
+                dag
+            }
+        },
+    )
 }
 
 /**

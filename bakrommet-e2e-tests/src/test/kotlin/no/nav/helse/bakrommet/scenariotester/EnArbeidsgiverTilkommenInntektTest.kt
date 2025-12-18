@@ -34,7 +34,7 @@ class EnArbeidsgiverTilkommenInntektTest {
             førsteBehandling.`skal ha direkteutbetaling`(6000)
 
             val personId = førsteBehandling.scenario.pseudoId
-            val periodeId = førsteBehandling.periode.id
+            val periodeId = førsteBehandling.behandling.id
             val tilkommen =
                 leggTilTilkommenInntekt(
                     periodeId = periodeId,

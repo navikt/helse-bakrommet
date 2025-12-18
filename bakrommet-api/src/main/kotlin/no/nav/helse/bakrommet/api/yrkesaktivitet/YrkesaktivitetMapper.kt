@@ -6,13 +6,14 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetMedOrgnavn
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.dto.PeriodeDto as SpleisPeriodeDto
 
 fun YrkesaktivitetMedOrgnavn.tilYrkesaktivitetDto(): YrkesaktivitetDto =
     YrkesaktivitetDto(
         id = yrkesaktivitet.id,
         kategorisering = yrkesaktivitet.kategorisering.tilYrkesaktivitetKategoriseringDto(),
-        dagoversikt = yrkesaktivitet.dagoversikt?.map { it.tilDagDto() },
+        dagoversikt = yrkesaktivitet.dagoversikt?.tilMergetDagoversikt(),
         generertFraDokumenter = yrkesaktivitet.generertFraDokumenter.map { it },
         perioder = yrkesaktivitet.perioder?.tilPerioderDto(),
         inntektRequest = yrkesaktivitet.inntektRequest?.tilInntektRequestDto(),
@@ -20,6 +21,17 @@ fun YrkesaktivitetMedOrgnavn.tilYrkesaktivitetDto(): YrkesaktivitetDto =
         refusjon = yrkesaktivitet.refusjon?.map { it.tilRefusjonsperiodeDto() },
         orgnavn = orgnavn,
     )
+
+private fun Dagoversikt.tilMergetDagoversikt(): List<DagDto> {
+    val avslagsdager = this.avslagsdager.map { it.dato }.toSet()
+    return this.sykdomstidlinje.map { dag -> dag.tilDagDto() }.map { dag ->
+        if (avslagsdager.contains(dag.dato)) {
+            dag.copy(dagtype = DagtypeDto.Avslått)
+        } else {
+            dag
+        }
+    }
+}
 
 fun Kilde.tilKildeDto(): KildeDto =
     when (this) {

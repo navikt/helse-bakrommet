@@ -6,10 +6,12 @@ import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.erHelg
 import no.nav.helse.hendelser.Hendelseskilde
 import no.nav.helse.hendelser.Periode
+import no.nav.helse.sykdomstidslinje.Dag.AndreYtelser
 import no.nav.helse.sykdomstidslinje.Dag.Arbeidsdag
 import no.nav.helse.sykdomstidslinje.Dag.Arbeidsgiverdag
 import no.nav.helse.sykdomstidslinje.Dag.Feriedag
 import no.nav.helse.sykdomstidslinje.Dag.FriskHelgedag
+import no.nav.helse.sykdomstidslinje.Dag.Permisjonsdag
 import no.nav.helse.sykdomstidslinje.Dag.SykHelgedag
 import no.nav.helse.sykdomstidslinje.Dag.Sykedag
 import no.nav.helse.sykdomstidslinje.Sykdomstidslinje
@@ -19,7 +21,7 @@ import java.time.LocalDate
 import kotlin.collections.List
 
 val kilde_HARDKODET = Hendelseskilde.INGEN
-val annenytelse_HARDKODET = no.nav.helse.sykdomstidslinje.Dag.AndreYtelser.AnnenYtelse.Foreldrepenger
+val annenytelse_HARDKODET = AndreYtelser.AnnenYtelse.Foreldrepenger
 
 internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): Sykdomstidslinje {
     fun Int.somProsentdel() = Prosentdel.gjenopprett(ProsentdelDto(this.toDouble() / 100))
@@ -49,6 +51,7 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                 }
 
                 when (spilleromDag.dagtype) {
+                    Dagtype.Avslått -> throw IllegalStateException("Avslåtte dager skal ikke være en del av sykdomstidslinjen")
                     Dagtype.Syk,
                     Dagtype.SykNav,
                     Dagtype.Behandlingsdag,
@@ -88,23 +91,13 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                         )
 
                     Dagtype.Permisjon ->
-                        no.nav.helse.sykdomstidslinje.Dag.Permisjonsdag(
+                        Permisjonsdag(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,
-                        )
-
-                    Dagtype.Avslått ->
-                        // TODO eller bruke en felles avslått-dag i Sykdomstidslinje?
-                        // TODO eller bare ikke ha dagen i tidslinjen?
-                        // TODO vi skal legge disse dagene på siden av tidslinjen i og overstyre i utbetalingen
-                        no.nav.helse.sykdomstidslinje.Dag.Avslått(
-                            dato = spilleromDag.dato,
-                            kilde = kilde_HARDKODET,
-                            begrunnelse = spilleromDag.avslåttBegrunnelse ?: emptyList(),
                         )
 
                     Dagtype.AndreYtelser ->
-                        no.nav.helse.sykdomstidslinje.Dag.AndreYtelser(
+                        AndreYtelser(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,
                             ytelse = annenytelse_HARDKODET,

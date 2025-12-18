@@ -42,7 +42,6 @@ class SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
                 is Dag.Arbeidsdag -> arbeidsdag(builder, dag.dato)
                 is Dag.ForeldetSykedag -> foreldetdag(builder, dag.dato, dag.grad)
                 is Dag.FriskHelgedag -> arbeidsdag(builder, dag.dato)
-                is Dag.Avslått -> avvistDag(builder, dag.dato, Prosentdel.NullProsent, Begrunnelse.AvslåttSpillerom)
 
                 is Dag.SykHelgedag ->
                     if (dag.dato.erVentetid()) {

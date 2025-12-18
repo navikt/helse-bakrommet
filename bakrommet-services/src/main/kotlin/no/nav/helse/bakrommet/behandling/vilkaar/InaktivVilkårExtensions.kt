@@ -52,7 +52,7 @@ suspend fun Vilkaarsvurdering.håndterInaktivVilkår(
                     daoer,
                 )
             }
-            aktiviteten.yrkesaktivitet.dagoversikt?.let { dager ->
+            aktiviteten.yrkesaktivitet.dagoversikt?.sykdomstidlinje?.let { dager ->
                 if (dager.isNotEmpty() && (aktiviteten.yrkesaktivitet.perioder == null || aktiviteten.yrkesaktivitet.perioder.type !== Periodetype.VENTETID_INAKTIV)) {
                     yrkesaktivitetService.oppdaterPerioder(
                         YrkesaktivitetReferanse(ref, aktiviteten.yrkesaktivitet.id),

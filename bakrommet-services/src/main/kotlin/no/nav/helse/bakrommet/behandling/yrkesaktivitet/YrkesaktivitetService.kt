@@ -10,10 +10,10 @@ import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbe
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.behandling.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
 import no.nav.helse.bakrommet.ereg.EregClient
@@ -125,7 +125,7 @@ class YrkesaktivitetService(
                 )
             val dagoversikt =
                 if (kategorisering.skalHaDagoversikt()) {
-                    initialiserDager(periode.fom, periode.tom)
+                    Dagoversikt(initialiserDager(periode.fom, periode.tom), emptyList())
                 } else {
                     null
                 }
@@ -236,30 +236,7 @@ class YrkesaktivitetService(
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         dagerSomSkalOppdateres.validerAvslagsgrunn()
         return db.transactional {
-            val eksisterendeDagoversikt = yrkesaktivitet.dagoversikt ?: emptyList()
-
-            // Opprett map for enkel oppslag basert på dato
-            val eksisterendeDagerMap =
-                eksisterendeDagoversikt
-                    .associateBy { dag ->
-                        dag.dato
-                    }.toMutableMap()
-
-            // Oppdater kun dagene som finnes i input, ignorer helgedager
-            dagerSomSkalOppdateres.forEach { oppdatertDagJson ->
-                val dato = oppdatertDagJson.dato
-                val eksisterendeDag = eksisterendeDagerMap[dato]
-
-                if (eksisterendeDag != null) {
-                    // Oppdater dagen og sett kilde til Saksbehandler
-                    val oppdatertDag = oppdatertDagJson.copy(kilde = Kilde.Saksbehandler)
-                    eksisterendeDagerMap[dato] = oppdatertDag
-                }
-            }
-
-            // Konverter tilbake til List<Dag> og lagre
-            val oppdatertDagoversikt = eksisterendeDagerMap.values.toList()
-
+            val oppdatertDagoversikt = dagerSomSkalOppdateres.applikerSaksbehandlerDagoppdateringer(yrkesaktivitet.dagoversikt)
             val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(yrkesaktivitet, oppdatertDagoversikt)
 
             beregnUtbetaling(ref.behandlingReferanse, saksbehandler)

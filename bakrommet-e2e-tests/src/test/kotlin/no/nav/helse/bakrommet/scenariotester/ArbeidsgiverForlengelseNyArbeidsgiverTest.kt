@@ -46,7 +46,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
             førsteBehandling.`skal ha refusjon`(6920, "988888888")
 
             førsteBehandling.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 240000.0
-            val forrigePeriode = førsteBehandling.periode
+            val forrigePeriode = førsteBehandling.behandling
 
             val personId = førsteBehandling.scenario.pseudoId
             val fom = forrigePeriode.tom.plusDays(1)

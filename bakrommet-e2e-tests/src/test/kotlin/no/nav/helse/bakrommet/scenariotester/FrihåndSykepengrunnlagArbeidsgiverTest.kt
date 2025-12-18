@@ -30,7 +30,7 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
             val personId = førsteBehandling.scenario.pseudoId
-            val periodeId = førsteBehandling.periode.id
+            val periodeId = førsteBehandling.behandling.id
 
             opprettSykepengegrunnlag(
                 personId,

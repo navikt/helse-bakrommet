@@ -542,7 +542,7 @@ fun lagYrkesaktiviteter(
     val result =
         kategorier.mapNotNull { kategori ->
             søknadKategorierMap[kategori]?.let { søknader ->
-                val dagoversikt =
+                val sykdomstidlinje =
                     skapDagoversiktFraSoknader(
                         søknader.map { it.somSøknad() },
                         behandling.fom,
@@ -554,8 +554,8 @@ fun lagYrkesaktiviteter(
                     id = UUID.randomUUID(),
                     kategorisering = kategori,
                     kategoriseringGenerert = kategori,
-                    dagoversikt = dagoversikt,
-                    dagoversiktGenerert = dagoversikt,
+                    dagoversikt = Dagoversikt(sykdomstidlinje, emptyList()),
+                    dagoversiktGenerert = Dagoversikt(sykdomstidlinje, emptyList()),
                     saksbehandlingsperiodeId = behandling.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
@@ -568,7 +568,7 @@ fun lagYrkesaktiviteter(
                 gammelTilNyIdMap[tidligere.id] = nyId
                 tidligere.copy(
                     id = nyId,
-                    dagoversikt = initialiserDager(behandling.fom, behandling.tom),
+                    dagoversikt = Dagoversikt(initialiserDager(behandling.fom, behandling.tom), emptyList()),
                     dagoversiktGenerert = null,
                     generertFraDokumenter = emptyList(),
                     saksbehandlingsperiodeId = behandling.id,

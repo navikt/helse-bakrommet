@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene
 
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
@@ -14,8 +13,8 @@ data class Yrkesaktivitet(
     val id: UUID,
     val kategorisering: YrkesaktivitetKategorisering,
     val kategoriseringGenerert: YrkesaktivitetKategorisering?,
-    val dagoversikt: List<Dag>?,
-    val dagoversiktGenerert: List<Dag>?,
+    val dagoversikt: Dagoversikt?,
+    val dagoversiktGenerert: Dagoversikt?,
     val saksbehandlingsperiodeId: UUID,
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,

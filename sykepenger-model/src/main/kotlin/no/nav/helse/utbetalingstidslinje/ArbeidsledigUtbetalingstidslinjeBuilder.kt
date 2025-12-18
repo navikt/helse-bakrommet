@@ -40,7 +40,6 @@ class ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode(
                 is Dag.FriskHelgedag -> arbeidsdag(builder, dag.dato)
                 is Dag.SykHelgedag -> helg(builder, dag.dato, dag.grad)
                 is Dag.Sykedag -> navDag(builder, dag.dato, dag.grad)
-                is Dag.Avslått -> avvistDag(builder, dag.dato, Prosentdel.NullProsent, Begrunnelse.AvslåttSpillerom)
 
                 is Dag.AndreYtelser -> {
                     val begrunnelse =

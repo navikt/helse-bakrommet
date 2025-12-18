@@ -53,7 +53,6 @@ class InaktivUtbetalingstidslinjeBuilder(
                         helg(builder, dag.dato, dag.grad)
                     }
                 }
-                is Dag.Avslått -> avvistDag(builder, dag.dato, Prosentdel.NullProsent, Begrunnelse.AvslåttSpillerom)
 
                 is Dag.Arbeidsgiverdag -> {
                     if (erVenteperiode(dag.dato)) {
