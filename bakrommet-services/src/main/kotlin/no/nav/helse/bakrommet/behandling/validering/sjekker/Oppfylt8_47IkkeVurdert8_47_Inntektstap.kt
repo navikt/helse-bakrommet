@@ -4,11 +4,8 @@ package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.validering.ValideringSjekk
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.OPPFYLT
+import no.nav.helse.bakrommet.kodeverk.Vilkårskode.INAKTIV_INNTEKTSTAP_OG_MINSTE_SYKEPENGEGRUNNLAG
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.SYK_INAKTIV
-import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse.*
-import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse.UTE_AV_ARBEID_IKKE_INNTEKTSTAP
-import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse.UTE_AV_ARBEID_INNEKTSTAP
 
 object Oppfylt8_47IkkeVurdert8_47_Inntektstap : ValideringSjekk {
     override val id = "OPPFYLT_8_47_IKKE_VURDERT_8_47_INNTEKTSTAP"
@@ -16,18 +13,8 @@ object Oppfylt8_47IkkeVurdert8_47_Inntektstap : ValideringSjekk {
     override val sluttvalidering: Boolean = false
 
     override fun harInkonsistens(data: ValideringData): Boolean {
-        val inaktivErOppfyllt = data.vurderteVilkår.resultat(SYK_INAKTIV) == OPPFYLT
-        val alleSvar = data.alleSvar()
-
-        val harSvartInntektstap =
-            alleSvar.containsAny(
-                UTE_AV_ARBEID_INNEKTSTAP,
-                UTE_AV_ARBEID_IKKE_INNTEKTSTAP,
-            )
-
-        val harSvartMinst1G = alleSvar.containsAny(UTE_AV_ARBEID_MINST_1G, UTE_AV_ARBEID_MINDRE_ENN_1G)
-        val harSvartAltOmInntektstap = harSvartInntektstap && harSvartMinst1G
-
-        return inaktivErOppfyllt && !harSvartAltOmInntektstap
+        data.apply {
+            return harOppfyllt(SYK_INAKTIV) && harIkkeVurdert(INAKTIV_INNTEKTSTAP_OG_MINSTE_SYKEPENGEGRUNNLAG)
+        }
     }
 }
