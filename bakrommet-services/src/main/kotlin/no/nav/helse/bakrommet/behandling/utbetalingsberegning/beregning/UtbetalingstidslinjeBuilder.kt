@@ -14,8 +14,10 @@ import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.person.beløp.Kilde
 import no.nav.helse.utbetalingstidslinje.ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode
 import no.nav.helse.utbetalingstidslinje.ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode
+import no.nav.helse.utbetalingstidslinje.Begrunnelse
 import no.nav.helse.utbetalingstidslinje.InaktivUtbetalingstidslinjeBuilder
 import no.nav.helse.utbetalingstidslinje.SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode
+import no.nav.helse.utbetalingstidslinje.Utbetalingsdag.AvvistDag
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import java.time.LocalDate
@@ -96,10 +98,16 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
 private fun Utbetalingstidslinje.avslåDager(avslagsdager: List<LocalDate>?): Utbetalingstidslinje {
     if (avslagsdager == null || avslagsdager.isEmpty()) return this
 
-    this.map { avslagsdager.first() }
-    // TODO her implementerer vi
-    //                 is Dag.Avslått -> avvistDag(builder, dag.dato, Prosentdel.NullProsent, Begrunnelse.AvslåttSpillerom)
-    return this
+    val avslagsdagerSet = avslagsdager.toSet()
+    return Utbetalingstidslinje(
+        this.map { dag ->
+            if (dag.dato in avslagsdagerSet) {
+                AvvistDag(dag.dato, dag.økonomi, listOf(Begrunnelse.AvslåttSpillerom))
+            } else {
+                dag
+            }
+        },
+    )
 }
 
 /**

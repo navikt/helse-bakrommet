@@ -96,7 +96,6 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                             kilde = kilde_HARDKODET,
                         )
 
-
                     Dagtype.AndreYtelser ->
                         AndreYtelser(
                             dato = spilleromDag.dato,
