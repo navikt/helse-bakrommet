@@ -25,13 +25,13 @@ class ArbeidsgiverForlengelseTest {
                     Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
-            val forrigePeriode = førsteBehandling.periode
+            val forrigePeriode = førsteBehandling.behandling
             val personId = førsteBehandling.scenario.pseudoId
             val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
             val sykepengegrunnlag = hentSykepengegrunnlag(personId, periode.id)
 
             assertEquals(førsteBehandling.sykepengegrunnlag, sykepengegrunnlag!!.sykepengegrunnlag)
-            assertEquals(førsteBehandling.periode.id, sykepengegrunnlag.opprettetForBehandling)
+            assertEquals(førsteBehandling.behandling.id, sykepengegrunnlag.opprettetForBehandling)
         }
     }
 
@@ -43,7 +43,7 @@ class ArbeidsgiverForlengelseTest {
                     Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
-            val forrigePeriode = førsteBehandling.periode
+            val forrigePeriode = førsteBehandling.behandling
             val personId = førsteBehandling.scenario.pseudoId
             val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
 
@@ -70,7 +70,7 @@ class ArbeidsgiverForlengelseTest {
                     Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
-            val forrigePeriode = førsteBehandling.periode
+            val forrigePeriode = førsteBehandling.behandling
             val personId = førsteBehandling.scenario.pseudoId
             val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(2), forrigePeriode.tom.plusDays(14))
             val sykepengegrunnlag = hentSykepengegrunnlag(personId, periode.id)

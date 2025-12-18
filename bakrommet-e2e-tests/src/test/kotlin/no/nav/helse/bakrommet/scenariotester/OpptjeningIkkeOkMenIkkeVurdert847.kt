@@ -22,7 +22,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder { scenarioData ->
             val personId = scenarioData.scenario.pseudoId
-            val periodeId = scenarioData.periode.id
+            val periodeId = scenarioData.behandling.id
             val validering = hentValidering(personId, periodeId)
 
             assertEquals(emptyList(), validering)
@@ -49,7 +49,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder { scenarioData ->
             val personId = scenarioData.scenario.pseudoId
-            val periodeId = scenarioData.periode.id
+            val periodeId = scenarioData.behandling.id
             val validering = hentValidering(personId, periodeId)
 
             assertEquals(
@@ -91,7 +91,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder { scenarioData ->
             val personId = scenarioData.scenario.pseudoId
-            val periodeId = scenarioData.periode.id
+            val periodeId = scenarioData.behandling.id
             val validering = hentValidering(personId, periodeId)
 
             assertEquals(emptyList(), validering)

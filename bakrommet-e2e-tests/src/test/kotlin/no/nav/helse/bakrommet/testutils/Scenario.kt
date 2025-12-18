@@ -71,11 +71,20 @@ object ScenarioDefaults {
     val skjæringstidspunkt = 17.mai(2024)
     val fom = 17.mai(2024)
     val tom = fom.plusDays(13)
+    val fnr = "01019011111"
 }
+
+fun BeregningResponseDto?.direkteTotalbeløp(fnr: String = ScenarioDefaults.fnr): Int =
+    this
+        ?.beregningData
+        ?.spilleromOppdrag
+        ?.oppdrag
+        ?.filter { it.mottaker == fnr }
+        ?.sumOf { it.totalbeløp } ?: 0
 
 data class ScenarioData(
     val scenario: Scenario,
-    val periode: BehandlingDto,
+    val behandling: BehandlingDto,
     val sykepengegrunnlag: SykepengegrunnlagBaseDto?,
     val sammenlikningsgrunnlag: SammenlikningsgrunnlagDto?,
     val yrkesaktiviteter: List<YrkesaktivitetDto>,
@@ -97,15 +106,9 @@ data class ScenarioData(
     }
 
     fun `skal ha direkteutbetaling`(beløp: Int) {
-        val nettoDirekte =
-            utbetalingsberegning
-                ?.beregningData
-                ?.spilleromOppdrag
-                ?.oppdrag
-                ?.filter { it.mottaker == scenario.fnr }
-                ?.sumOf { it.totalbeløp } ?: 0
+        val totalDirekte = utbetalingsberegning.direkteTotalbeløp(scenario.fnr)
 
-        assertEquals(beløp, nettoDirekte, "Feil direkteutbetaling i oppdraget")
+        assertEquals(beløp, totalDirekte, "Feil direkteutbetaling i oppdraget")
     }
 
     fun `skal ha dagtype`(
@@ -353,7 +356,7 @@ data class Scenario(
                 testBlock.invoke(
                     this,
                     ScenarioData(
-                        periode = reloadedPeriode,
+                        behandling = reloadedPeriode,
                         sykepengegrunnlag = sykepengegrunnlag?.sykepengegrunnlag,
                         sammenlikningsgrunnlag = sykepengegrunnlag?.sammenlikningsgrunnlag,
                         utbetalingsberegning = beregning,
@@ -397,6 +400,15 @@ class SykAlleDager : YADagoversikt() {
         fom: LocalDate,
         tom: LocalDate,
     ): List<DagDto> = lagSykedager(fom, tom, grad = 100)
+}
+
+class GradertSyk(
+    val grad: Int,
+) : YADagoversikt() {
+    override fun lagDagListe(
+        fom: LocalDate,
+        tom: LocalDate,
+    ): List<DagDto> = lagSykedager(fom, tom, grad = grad)
 }
 
 fun lagSykedager(

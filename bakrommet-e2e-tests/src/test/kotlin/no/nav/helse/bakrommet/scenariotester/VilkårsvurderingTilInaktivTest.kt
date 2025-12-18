@@ -34,14 +34,14 @@ class VilkårsvurderingTilInaktivTest {
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
-            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.periode.id).also { ya ->
+            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.behandling.id).also { ya ->
                 ya.size `should equal` 1
                 (ya.first().kategorisering is YrkesaktivitetKategoriseringDto.Arbeidstaker) `should equal` true
             }
 
             oppdaterVilkårsvurdering(
                 førsteBehandling.scenario.pseudoId,
-                førsteBehandling.periode.id,
+                førsteBehandling.behandling.id,
                 VilkaarsvurderingDto(
                     hovedspørsmål = "VILKÅR_INAKTIV",
                     vilkårskode = "ET_VILKÅR",
@@ -59,7 +59,7 @@ class VilkårsvurderingTilInaktivTest {
                 it.invalidations `should equal` listOf("utbetalingsberegning", "yrkesaktiviteter", "sykepengegrunnlag")
             }
 
-            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.periode.id).also { ya ->
+            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.behandling.id).also { ya ->
                 ya.size `should equal` 1
                 (ya.first().kategorisering is YrkesaktivitetKategoriseringDto.Inaktiv) `should equal` true
 
@@ -72,7 +72,7 @@ class VilkårsvurderingTilInaktivTest {
 
             oppdaterVilkårsvurdering(
                 førsteBehandling.scenario.pseudoId,
-                førsteBehandling.periode.id,
+                førsteBehandling.behandling.id,
                 VilkaarsvurderingDto(
                     hovedspørsmål = "VILKÅR_INAKTIV",
                     vilkårskode = "ET_VILKÅR",
@@ -100,13 +100,13 @@ class VilkårsvurderingTilInaktivTest {
             yrkesaktiviteter = emptyList(),
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
-            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.periode.id).also { ya ->
+            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.behandling.id).also { ya ->
                 ya.size `should equal` 0
             }
 
             oppdaterVilkårsvurdering(
                 førsteBehandling.scenario.pseudoId,
-                førsteBehandling.periode.id,
+                førsteBehandling.behandling.id,
                 VilkaarsvurderingDto(
                     hovedspørsmål = "VILKÅR_INAKTIV",
                     vilkårskode = "ET_VILKÅR",
@@ -124,7 +124,7 @@ class VilkårsvurderingTilInaktivTest {
                 it.invalidations `should equal` listOf("utbetalingsberegning", "yrkesaktiviteter", "sykepengegrunnlag")
             }
 
-            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.periode.id).also { ya ->
+            hentYrkesaktiviteter(førsteBehandling.scenario.pseudoId, førsteBehandling.behandling.id).also { ya ->
                 ya.size `should equal` 1
                 (ya.first().kategorisering is YrkesaktivitetKategoriseringDto.Inaktiv) `should equal` true
 

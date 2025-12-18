@@ -12,7 +12,7 @@ class SykepengegrunnlagLåsesTest {
                     Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder {
-            val sykepengegrunnlagId = it.periode.sykepengegrunnlagId!!
+            val sykepengegrunnlagId = it.behandling.sykepengegrunnlagId!!
 
             val spgDbRec = it.daoer.sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)
             spgDbRec.låst `should equal` true
