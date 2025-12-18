@@ -13,7 +13,7 @@ fun YrkesaktivitetMedOrgnavn.tilYrkesaktivitetDto(): YrkesaktivitetDto =
     YrkesaktivitetDto(
         id = yrkesaktivitet.id,
         kategorisering = yrkesaktivitet.kategorisering.tilYrkesaktivitetKategoriseringDto(),
-        dagoversikt = yrkesaktivitet.dagoversikt?.tilMergetDagoversikt(), // TODO her må vi merge med avslagsdager
+        dagoversikt = yrkesaktivitet.dagoversikt?.tilMergetDagoversikt(),
         generertFraDokumenter = yrkesaktivitet.generertFraDokumenter.map { it },
         perioder = yrkesaktivitet.perioder?.tilPerioderDto(),
         inntektRequest = yrkesaktivitet.inntektRequest?.tilInntektRequestDto(),
