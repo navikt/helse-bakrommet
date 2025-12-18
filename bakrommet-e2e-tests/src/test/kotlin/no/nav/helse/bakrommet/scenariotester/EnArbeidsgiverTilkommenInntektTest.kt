@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.scenariotester
 
+import io.ktor.http.HttpStatusCode
 import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.api.dto.tilkommen.OpprettTilkommenInntektRequestDto
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
@@ -72,6 +73,23 @@ class EnArbeidsgiverTilkommenInntektTest {
                 }
             }
             slettTilkommenInntekt(periodeId = periodeId, personId = personId, tilkommenInntektId = tilkommen.id)
+
+            // Får 400 ved periode utenfor behandlingen
+            leggTilTilkommenInntekt(
+                forventetResponseKode = HttpStatusCode.BadRequest,
+                periodeId = periodeId,
+                personId = personId,
+                tilkommenInntekt =
+                    OpprettTilkommenInntektRequestDto(
+                        ident = "999444555",
+                        fom = 4.januar(1028),
+                        tom = 10.januar(4000),
+                        yrkesaktivitetType = TilkommenInntektYrkesaktivitetType.VIRKSOMHET,
+                        inntektForPerioden = BigDecimal(14000),
+                        notatTilBeslutter = "har jobbet og svarte dette i søknaden",
+                        ekskluderteDager = emptyList(),
+                    ),
+            )
         }
     }
 }

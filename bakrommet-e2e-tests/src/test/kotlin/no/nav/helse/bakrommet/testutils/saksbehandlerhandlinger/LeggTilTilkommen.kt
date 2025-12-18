@@ -6,6 +6,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
@@ -21,12 +22,28 @@ internal suspend fun ApplicationTestBuilder.leggTilTilkommenInntekt(
     periodeId: UUID,
     tilkommenInntekt: OpprettTilkommenInntektRequestDto,
 ): TilkommenInntektResponseDto {
+    leggTilTilkommenInntekt(
+        personId = personId,
+        periodeId = periodeId,
+        tilkommenInntekt = tilkommenInntekt,
+        forventetResponseKode = HttpStatusCode.Created,
+    ).apply {
+        return objectMapper.readValue(this)
+    }
+}
+
+internal suspend fun ApplicationTestBuilder.leggTilTilkommenInntekt(
+    personId: UUID,
+    periodeId: UUID,
+    tilkommenInntekt: OpprettTilkommenInntektRequestDto,
+    forventetResponseKode: HttpStatusCode,
+): String {
     val response =
         client.post("/v1/$personId/behandlinger/$periodeId/tilkommeninntekt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(tilkommenInntekt.serialisertTilString())
         }
-    assertEquals(201, response.status.value)
-    return objectMapper.readValue(response.bodyAsText())
+    assertEquals(forventetResponseKode, response.status)
+    return response.bodyAsText()
 }
