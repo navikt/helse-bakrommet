@@ -360,6 +360,18 @@ class YrkesaktivitetBuilder {
         antallDager: Int = 1,
     ) {
         repeat(antallDager) {
+            // Add a Syk day first to satisfy the Dagoversikt invariant
+            // that requires all avslått days to have a corresponding day in sykdomstidlinje
+            dagoversikt.add(
+                Dag(
+                    dato = gjeldendeDato!!,
+                    dagtype = Dagtype.Syk,
+                    grad = 100,
+                    avslåttBegrunnelse = emptyList(),
+                    kilde = Kilde.Saksbehandler,
+                ),
+            )
+            // Then add the Avslått day
             dagoversikt.add(
                 Dag(
                     dato = gjeldendeDato!!,
@@ -426,24 +438,11 @@ class YrkesaktivitetBuilder {
             fullstendigDagoversikt
                 .filter {
                     it.dagtype != Dagtype.Avslått
-                }.toMutableList()
+                }
         val avslattTidlinje =
             fullstendigDagoversikt
                 .filter {
                     it.dagtype == Dagtype.Avslått
-                }.also {
-                    it.forEach {
-                        // Legg til en arbeidsdag i sykdomstidlinjen for hver avslått dag. Denne hacken kan fjernes om vi forbedrer DSLen ved å skille på sykdom og avslag
-                        sykdomstidlinje.add(
-                            Dag(
-                                dato = it.dato,
-                                dagtype = Dagtype.Syk,
-                                grad = 100,
-                                avslåttBegrunnelse = emptyList(),
-                                kilde = Kilde.Saksbehandler,
-                            ),
-                        )
-                    }
                 }
 
         return Yrkesaktivitet(
