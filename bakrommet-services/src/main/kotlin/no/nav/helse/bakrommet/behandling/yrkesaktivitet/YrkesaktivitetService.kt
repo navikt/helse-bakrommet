@@ -10,7 +10,6 @@ import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbe
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.behandling.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
@@ -237,47 +236,8 @@ class YrkesaktivitetService(
         val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         dagerSomSkalOppdateres.validerAvslagsgrunn()
         return db.transactional {
-            val eksisterendeSykdomstidslinje = yrkesaktivitet.dagoversikt?.sykdomstidlinje ?: emptyList()
-
-            // Opprett map for enkel oppslag basert på dato
-            val eksisterendeSykdomstidslinjeDagMap =
-                eksisterendeSykdomstidslinje
-                    .associateBy { dag ->
-                        dag.dato
-                    }.toMutableMap()
-            val eksisterendAvslagsdagerDagMap =
-                (yrkesaktivitet.dagoversikt?.avslagsdager ?: emptyList())
-                    .associateBy { dag ->
-                        dag.dato
-                    }.toMutableMap()
-
-            dagerSomSkalOppdateres
-                .filter { it.dagtype != Dagtype.Avslått }
-                .forEach { oppdatertDagJson ->
-                    val dato = oppdatertDagJson.dato
-                    val eksisterendeDag = eksisterendeSykdomstidslinjeDagMap[dato]
-                    eksisterendAvslagsdagerDagMap.remove(dato)
-
-                    if (eksisterendeDag != null) {
-                        // Oppdater dagen og sett kilde til Saksbehandler
-                        val oppdatertDag = oppdatertDagJson.copy(kilde = Kilde.Saksbehandler)
-                        eksisterendeSykdomstidslinjeDagMap[dato] = oppdatertDag
-                    }
-                }
-
-            val sykdomstidlinje = eksisterendeSykdomstidslinjeDagMap.values.toList()
-
-            dagerSomSkalOppdateres
-                .filter { it.dagtype == Dagtype.Avslått }
-                .forEach { oppdatertDagJson ->
-                    val dato = oppdatertDagJson.dato
-                    // Legg til eller oppdater avslått dag og sett kilde til Saksbehandler
-                    val oppdatertDag = oppdatertDagJson.copy(kilde = Kilde.Saksbehandler)
-                    eksisterendAvslagsdagerDagMap[dato] = oppdatertDag
-                }
-            val avslagsdager = eksisterendAvslagsdagerDagMap.values.toList()
-
-            val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(yrkesaktivitet, Dagoversikt(sykdomstidlinje, avslagsdager))
+            val oppdatertDagoversikt = dagerSomSkalOppdateres.applikerSaksbehandlerDagoppdateringer(yrkesaktivitet.dagoversikt)
+            val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(yrkesaktivitet, oppdatertDagoversikt)
 
             beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
             oppdatertYrkesaktivitet
