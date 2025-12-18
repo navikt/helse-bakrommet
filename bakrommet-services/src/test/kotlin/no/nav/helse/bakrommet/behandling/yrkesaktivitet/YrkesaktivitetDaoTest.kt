@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
@@ -57,7 +58,7 @@ class YrkesaktivitetDaoTest {
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
-                dagoversikt = emptyList(),
+                dagoversikt = Dagoversikt(),
                 dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = periode.id,
                 opprettet = OffsetDateTime.now(),
@@ -94,7 +95,7 @@ class YrkesaktivitetDaoTest {
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
-                dagoversikt = emptyList(),
+                dagoversikt = Dagoversikt(),
                 dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = ugyldigPeriodeId,
                 opprettet = OffsetDateTime.now(),
@@ -127,7 +128,7 @@ class YrkesaktivitetDaoTest {
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
-                dagoversikt = emptyList(),
+                dagoversikt = Dagoversikt(),
                 dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = periode.id,
                 opprettet = OffsetDateTime.now(),
@@ -179,7 +180,7 @@ class YrkesaktivitetDaoTest {
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
-                dagoversikt = emptyList(),
+                dagoversikt = Dagoversikt(),
                 dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = periode.id,
                 opprettet = OffsetDateTime.now(),
@@ -255,7 +256,7 @@ class YrkesaktivitetDaoTest {
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
-                dagoversikt = emptyList(),
+                dagoversikt = Dagoversikt(),
                 dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = periode.id,
                 opprettet = OffsetDateTime.now(),
@@ -329,7 +330,7 @@ class YrkesaktivitetDaoTest {
                 id = UUID.randomUUID(),
                 kategorisering = arbeidstakerKategorisering(),
                 kategoriseringGenerert = null,
-                dagoversikt = emptyList(),
+                dagoversikt = Dagoversikt(),
                 dagoversiktGenerert = null,
                 saksbehandlingsperiodeId = periode.id,
                 opprettet = OffsetDateTime.now(),

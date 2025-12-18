@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
@@ -98,8 +99,8 @@ fun arbeidstaker(): List<Yrkesaktivitet> =
                         ),
                 ),
             kategoriseringGenerert = null,
-            dagoversikt = emptyList(),
-            dagoversiktGenerert = emptyList(),
+            dagoversikt = Dagoversikt(),
+            dagoversiktGenerert = Dagoversikt(),
             saksbehandlingsperiodeId = UUID.randomUUID(),
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = emptyList(),

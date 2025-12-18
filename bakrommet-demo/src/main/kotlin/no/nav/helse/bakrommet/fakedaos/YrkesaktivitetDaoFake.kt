@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.fakedaos
 
 import no.nav.helse.bakrommet.behandling.Behandling
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
@@ -9,6 +8,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetForenkletDbRecord
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitet
@@ -22,7 +22,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
     override fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
-        dagoversikt: List<Dag>?,
+        dagoversikt: Dagoversikt?,
         saksbehandlingsperiodeId: UUID,
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
@@ -72,7 +72,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
 
     override fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        oppdatertDagoversikt: List<Dag>,
+        oppdatertDagoversikt: Dagoversikt,
     ): YrkesaktivitetDbRecord {
         val eksisterende =
             storage[yrkesaktivitetDbRecord.id]

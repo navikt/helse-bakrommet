@@ -44,7 +44,7 @@ class DagoversiktLogikkTest {
             // Verifiser at dagoversikt har 28 dager for februar 2023
             daoer.yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode.id).also { yrkesaktivitetFraDB ->
                 val yrkesaktivitet = yrkesaktivitetFraDB.find { it.id == yrkesaktivitetId }!!
-                assertEquals(28, yrkesaktivitet.dagoversikt?.size ?: 0, "Februar 2023 skal ha 28 dager")
+                assertEquals(28, yrkesaktivitet.dagoversikt?.sykdomstidlinje?.size ?: 0, "Februar 2023 skal ha 28 dager")
             }
         }
     }

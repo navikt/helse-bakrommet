@@ -12,7 +12,7 @@ object AvslåttBegrunnelseUtenVilkårsvurdering : ValideringSjekk {
     override fun harInkonsistens(data: ValideringData): Boolean {
         val avslåttBegrunnelser =
             data.yrkesaktiviteter
-                .flatMap { it.dagoversikt ?: emptyList() }
+                .flatMap { it.dagoversikt?.avslagsdager ?: emptyList() }
                 .flatMap { it.avslåttBegrunnelse ?: emptyList() }
                 .toSet()
         val vilkårskoder =

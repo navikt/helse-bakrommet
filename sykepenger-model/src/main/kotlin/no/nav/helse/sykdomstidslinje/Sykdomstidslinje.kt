@@ -186,7 +186,6 @@ class Sykdomstidslinje private constructor(
                     is FriskHelgedag -> "R"
                     is ForeldetSykedag -> "K"
                     is AndreYtelser -> "Y"
-                    is Dag.Avslått -> "*"
                 }
         }?.trim() ?: "Tom tidslinje"
     }

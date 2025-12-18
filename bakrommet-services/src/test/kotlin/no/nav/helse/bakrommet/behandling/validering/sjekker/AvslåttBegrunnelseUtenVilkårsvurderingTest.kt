@@ -9,6 +9,7 @@ import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -25,13 +26,24 @@ class AvslåttBegrunnelseUtenVilkårsvurderingTest {
                     listOf(
                         enkelYrkesaktivitet.copy(
                             dagoversikt =
-                                listOf(
-                                    Dag(
-                                        dato = LocalDate.now(),
-                                        dagtype = Dagtype.Avslått,
-                                        grad = null,
-                                        kilde = null,
-                                        avslåttBegrunnelse = listOf("AAP_FØR_FORELDREPENGER"),
+                                Dagoversikt(
+                                    listOf(
+                                        Dag(
+                                            dato = LocalDate.now(),
+                                            dagtype = Dagtype.Syk,
+                                            grad = null,
+                                            kilde = null,
+                                            avslåttBegrunnelse = null,
+                                        ),
+                                    ),
+                                    listOf(
+                                        Dag(
+                                            dato = LocalDate.now(),
+                                            dagtype = Dagtype.Avslått,
+                                            grad = null,
+                                            kilde = null,
+                                            avslåttBegrunnelse = listOf("AAP_FØR_FORELDREPENGER"),
+                                        ),
                                     ),
                                 ),
                         ),
@@ -65,13 +77,24 @@ class AvslåttBegrunnelseUtenVilkårsvurderingTest {
                     listOf(
                         enkelYrkesaktivitet.copy(
                             dagoversikt =
-                                listOf(
-                                    Dag(
-                                        dato = LocalDate.now(),
-                                        dagtype = Dagtype.Avslått,
-                                        grad = null,
-                                        kilde = null,
-                                        avslåttBegrunnelse = listOf("AAP_FØR_FORELDREPENGER"),
+                                Dagoversikt(
+                                    listOf(
+                                        Dag(
+                                            dato = LocalDate.now(),
+                                            dagtype = Dagtype.Syk,
+                                            grad = null,
+                                            kilde = null,
+                                            avslåttBegrunnelse = null,
+                                        ),
+                                    ),
+                                    listOf(
+                                        Dag(
+                                            dato = LocalDate.now(),
+                                            dagtype = Dagtype.Avslått,
+                                            grad = null,
+                                            kilde = null,
+                                            avslåttBegrunnelse = listOf("AAP_FØR_FORELDREPENGER"),
+                                        ),
                                     ),
                                 ),
                         ),

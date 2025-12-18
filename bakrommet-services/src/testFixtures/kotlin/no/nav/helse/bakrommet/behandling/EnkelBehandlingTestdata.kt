@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.behandling
 
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.person.NaturligIdent
@@ -28,7 +29,7 @@ val enkelYrkesaktivitet =
         id = UUID.randomUUID(),
         kategorisering = YrkesaktivitetKategorisering.Inaktiv(),
         kategoriseringGenerert = null,
-        dagoversikt = emptyList(),
+        dagoversikt = Dagoversikt(),
         dagoversiktGenerert = null,
         saksbehandlingsperiodeId = UUID.randomUUID(),
         opprettet = OffsetDateTime.now(),

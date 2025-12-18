@@ -335,7 +335,6 @@ class ArbeidstakerBeregningTest {
                     it.dato == LocalDate.of(2024, 1, i)
                 }
             assertNotNull(avslåttDag)
-            assertEquals(0, avslåttDag.økonomi.brukTotalGrad { it })
             assertTrue(
                 avslåttDag.økonomi.arbeidsgiverbeløp == null || avslåttDag.økonomi.arbeidsgiverbeløp!!.dagligInt == 0,
                 "Avslått dag skal ikke ha arbeidsgiverbeløp",

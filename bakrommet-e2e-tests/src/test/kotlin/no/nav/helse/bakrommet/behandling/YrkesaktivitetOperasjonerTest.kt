@@ -136,10 +136,10 @@ class YrkesaktivitetOperasjonerTest {
             // Verifiser at dagoversikten er oppdatert korrekt
             val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
             val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
-            assertTrue(dagoversikt.isNotEmpty())
+            assertTrue(dagoversikt.sykdomstidlinje.isNotEmpty())
 
             val dager =
-                dagoversikt.map { dag ->
+                dagoversikt.sykdomstidlinje.map { dag ->
                     Triple(
                         dag.dato.toString(),
                         dag.dagtype.name,
@@ -252,10 +252,10 @@ class YrkesaktivitetOperasjonerTest {
             // Verifiser at dagoversikten er oppdatert korrekt
             val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
             val dagoversikt = oppdatertYrkesaktivitet.dagoversikt!!
-            assertTrue(dagoversikt.isNotEmpty())
+            assertTrue(dagoversikt.sykdomstidlinje.isNotEmpty())
 
             val dager =
-                dagoversikt.map { dag ->
+                dagoversikt.sykdomstidlinje.map { dag ->
                     Triple(
                         dag.dato.toString(),
                         dag.dagtype.name,

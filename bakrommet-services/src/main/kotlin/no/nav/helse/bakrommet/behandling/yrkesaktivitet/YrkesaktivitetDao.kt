@@ -4,10 +4,10 @@ import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
@@ -28,8 +28,8 @@ data class YrkesaktivitetDbRecord(
     val id: UUID,
     val kategorisering: YrkesaktivitetKategorisering,
     val kategoriseringGenerert: YrkesaktivitetKategorisering?,
-    val dagoversikt: List<Dag>?,
-    val dagoversiktGenerert: List<Dag>?,
+    val dagoversikt: Dagoversikt?,
+    val dagoversiktGenerert: Dagoversikt?,
     val saksbehandlingsperiodeId: UUID,
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
@@ -102,7 +102,7 @@ interface YrkesaktivitetDao {
     fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
-        dagoversikt: List<Dag>?,
+        dagoversikt: Dagoversikt?,
         saksbehandlingsperiodeId: UUID,
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
@@ -128,7 +128,7 @@ interface YrkesaktivitetDao {
 
     fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        oppdatertDagoversikt: List<Dag>,
+        oppdatertDagoversikt: Dagoversikt,
     ): YrkesaktivitetDbRecord
 
     fun oppdaterPerioder(
@@ -177,7 +177,7 @@ class YrkesaktivitetDaoPg private constructor(
     override fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
-        dagoversikt: List<Dag>?,
+        dagoversikt: Dagoversikt?,
         saksbehandlingsperiodeId: UUID,
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
@@ -322,7 +322,7 @@ class YrkesaktivitetDaoPg private constructor(
 
     override fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        oppdatertDagoversikt: List<Dag>,
+        oppdatertDagoversikt: Dagoversikt,
     ): YrkesaktivitetDbRecord {
         db
             .update(

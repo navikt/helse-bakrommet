@@ -33,7 +33,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
     maksInntektTilFordelingPerDag: Beløpstidslinje,
     inntektjusteringer: Beløpstidslinje,
 ): Utbetalingstidslinje {
-    val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt ?: emptyList(), input.saksbehandlingsperiode)
+    val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt?.sykdomstidlinje ?: emptyList(), input.saksbehandlingsperiode)
     val arbeidsgiverperiode = yrkesaktivitet.hentPerioderForType(Periodetype.ARBEIDSGIVERPERIODE)
     val dagerNavOvertarAnsvar = dager.tilDagerNavOvertarAnsvar()
     val sykdomstidslinje = dager.tilSykdomstidslinje(arbeidsgiverperiode)
@@ -90,7 +90,16 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 inntektjusteringer = inntektjusteringer,
                 sykdomstidslinje = sykdomstidslinje,
             )
-    }
+    }.avslåDager(yrkesaktivitet.dagoversikt?.avslagsdager?.map { it.dato })
+}
+
+private fun Utbetalingstidslinje.avslåDager(avslagsdager: List<LocalDate>?): Utbetalingstidslinje {
+    if (avslagsdager == null || avslagsdager.isEmpty()) return this
+
+    this.map { avslagsdager.first() }
+    // TODO her implementerer vi
+    //                 is Dag.Avslått -> avvistDag(builder, dag.dato, Prosentdel.NullProsent, Begrunnelse.AvslåttSpillerom)
+    return this
 }
 
 /**

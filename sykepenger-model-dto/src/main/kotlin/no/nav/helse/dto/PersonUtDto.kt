@@ -34,9 +34,7 @@ sealed class SykdomstidslinjeDagDto {
     abstract val kilde: HendelseskildeDto
 
     data class UkjentDagDto(override val dato: LocalDate, override val kilde: HendelseskildeDto) : SykdomstidslinjeDagDto()
-
-    data class AvslåttDagDto(override val dato: LocalDate, override val kilde: HendelseskildeDto, val begrunnelse: List<String>) : SykdomstidslinjeDagDto()
-
+    
     data class ArbeidsdagDto(override val dato: LocalDate, override val kilde: HendelseskildeDto) : SykdomstidslinjeDagDto()
 
     data class ArbeidsgiverdagDto(override val dato: LocalDate, override val kilde: HendelseskildeDto, val grad: ProsentdelDto) : SykdomstidslinjeDagDto()
