@@ -151,14 +151,14 @@ class YrkesaktivitetService(
         saksbehandler: Bruker,
         eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
     ) {
-        val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        val gammelKategorisering = yrkesaktivtet.kategorisering
-        val hovedkategoriseringEndret = hovedkategoriseringEndret(gammelKategorisering, kategorisering)
-
         // Validerer at organisasjon finnes hvis orgnummer er satt
         kategorisering
             .maybeOrgnummer()
             ?.let { eregClient.hentOrganisasjonsnavn(it).navn }
+
+        val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
+        val gammelKategorisering = yrkesaktivtet.kategorisering
+        val hovedkategoriseringEndret = hovedkategoriseringEndret(gammelKategorisering, kategorisering)
 
         db.transactional(eksisterendeTranaksjon) {
             yrkesaktivitetDao.oppdaterKategoriseringOgSlettInntektData(yrkesaktivtet, kategorisering)
@@ -166,7 +166,7 @@ class YrkesaktivitetService(
             // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
             // Slett sykepengegrunnlag og utbetalingsberegning når yrkesaktivitet endres
             // Vi må alltid beregne på nytt når kategorisering endres
-            beregningDao.slettBeregning(ref.behandlingReferanse.behandlingId)
+            beregningDao.slettBeregning(ref.behandlingReferanse.behandlingId, failSilently = true)
 
             // hvis sykepengegrunnlaget eies av denne perioden, slett det
             val periode =

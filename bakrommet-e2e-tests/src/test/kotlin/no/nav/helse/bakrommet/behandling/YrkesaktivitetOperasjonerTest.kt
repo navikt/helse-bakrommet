@@ -23,6 +23,7 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmel
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterKategorisering
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
@@ -62,13 +63,25 @@ class YrkesaktivitetOperasjonerTest {
                     }.body<List<BehandlingDto>>()
                     .first()
 
-            opprettYrkesaktivitet(
+            val yrkesaktivitet =
+                opprettYrkesaktivitet(
+                    personId = PERSON_PSEUDO_ID,
+                    periode.id,
+                    YrkesaktivitetKategorisering.Arbeidstaker(
+                        sykmeldt = true,
+                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
+                    ),
+                )
+
+            oppdaterKategorisering(
                 personId = PERSON_PSEUDO_ID,
-                periode.id,
-                YrkesaktivitetKategorisering.Arbeidstaker(
-                    sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
-                ),
+                periodeId = periode.id,
+                yrkesaktivitetId = yrkesaktivitet,
+                kategorisering =
+                    YrkesaktivitetKategoriseringDto.Arbeidstaker(
+                        sykmeldt = true,
+                        typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "923456799"),
+                    ),
             )
 
             val yrkesaktivitetId =
@@ -529,7 +542,7 @@ class YrkesaktivitetOperasjonerTest {
     }
 
     @Test
-    fun `Får 404 hvis man oppretter yrkesaktivitet på ikke eksisterende orgnummer`() {
+    fun `Får 404 hvis man oppretter eller oppdaterer yrkesaktivitet på ikke eksisterende orgnummer`() {
         runApplicationTest { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 
@@ -551,6 +564,18 @@ class YrkesaktivitetOperasjonerTest {
                 }.also {
                     it.status `should equal` HttpStatusCode.NotFound
                 }
+
+            oppdaterKategorisering(
+                personId = PERSON_PSEUDO_ID,
+                periodeId = behandling.id,
+                yrkesaktivitetId = UUID.randomUUID(),
+                kategorisering =
+                    YrkesaktivitetKategoriseringDto.Arbeidstaker(
+                        sykmeldt = true,
+                        typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "123"),
+                    ),
+                expectedStatus = HttpStatusCode.NotFound,
+            )
         }
     }
 }
