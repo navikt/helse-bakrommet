@@ -367,7 +367,7 @@ class YrkesaktivitetBuilder {
                     dato = gjeldendeDato!!,
                     dagtype = Dagtype.Syk,
                     grad = 100,
-                    avslåttBegrunnelse = emptyList(),
+                    avslåttBegrunnelse = null,
                     kilde = Kilde.Saksbehandler,
                 ),
             )
