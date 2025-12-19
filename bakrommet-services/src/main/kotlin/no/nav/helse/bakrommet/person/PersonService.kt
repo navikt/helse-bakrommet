@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlIdent
 import no.nav.helse.bakrommet.pdl.alder
 import no.nav.helse.bakrommet.pdl.formattert
+import java.time.OffsetDateTime
 import java.util.UUID
 
 interface PersonServiceDaoer {
@@ -46,4 +47,11 @@ class PersonService(
             alder = hentPersonInfo.alder(),
         )
     }
+
+    suspend fun slettPseudoIderEldreEnn(antallDager: Int = 14): Int =
+        db.nonTransactional {
+            personPseudoIdDao.slettPseudoIderEldreEnn(
+                OffsetDateTime.now().minusDays(antallDager.toLong()),
+            )
+        }
 }

@@ -133,9 +133,9 @@ fun runApplicationTest(
                 db = skapDbDaoer(dataSource),
             )
 
-        settOppKtor(dataSource, config, clienter, services) { services ->
+        settOppKtor(config, services, setupApiRoutes = { services ->
             setupApiRoutes(services)
-        }
+        }, errorHandlingIncludeStackTrace = true)
     }
     client =
         createClient {
