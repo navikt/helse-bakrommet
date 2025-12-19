@@ -20,7 +20,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.opprettBehandling(
-    personId: String,
+    personId: UUID,
     req: OpprettBehandlingRequestDto,
     token: String = TestOppsett.userToken,
 ): BehandlingDto {
@@ -61,7 +61,7 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
     token: String = TestOppsett.userToken,
 ): BehandlingDto {
     val req = OpprettBehandlingRequestDto(fom = fom, tom = tom, søknader = null)
-    return opprettBehandling(personId, req, token)
+    return opprettBehandling(UUID.fromString(personId), req, token)
 }
 
 internal suspend fun ApplicationTestBuilder.opprettBehandling(
@@ -71,5 +71,5 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
     token: String = TestOppsett.userToken,
 ): BehandlingDto {
     val req = OpprettBehandlingRequestDto(fom = fom, tom = tom, søknader = null)
-    return opprettBehandling(personId.toString(), req, token)
+    return opprettBehandling(personId, req, token)
 }
