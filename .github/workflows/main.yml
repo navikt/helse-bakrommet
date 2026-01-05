@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   build:
-    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-') || startsWith(github.ref_name, 'demo-')
     name: Bygg og test
     runs-on: ubuntu-latest
     steps:
