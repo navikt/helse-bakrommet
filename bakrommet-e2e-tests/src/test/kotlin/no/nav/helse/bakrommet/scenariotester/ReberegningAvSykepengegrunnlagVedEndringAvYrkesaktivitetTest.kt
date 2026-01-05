@@ -42,7 +42,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
                 }
             }.let { yrkesaktivitet777 ->
                 slettYrkesaktivitet(
-                    periodeId = it.behandling.id,
+                    behandlingId = it.behandling.id,
                     yrkesaktivitetId = yrkesaktivitet777.id,
                     pseudoId = it.scenario.pseudoId,
                 )
@@ -96,7 +96,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
                 }
             }.let { yrkesaktivitet777 ->
                 slettYrkesaktivitet(
-                    periodeId = nyPeriode.id,
+                    behandlingId = nyPeriode.id,
                     yrkesaktivitetId = yrkesaktivitet777.id,
                     pseudoId = it.scenario.pseudoId,
                 )

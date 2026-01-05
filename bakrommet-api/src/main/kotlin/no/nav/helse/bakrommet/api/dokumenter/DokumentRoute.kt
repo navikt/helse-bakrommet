@@ -21,9 +21,9 @@ import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.util.somGyldigUUID
 
 fun RoutingContext.dokumentUriFor(dokument: Dokument): String {
-    val periodeId = call.parameters[PARAM_BEHANDLING_ID].somGyldigUUID()
+    val behandlingId = call.parameters[PARAM_BEHANDLING_ID].somGyldigUUID()
     val personId = call.parameters[PARAM_PSEUDO_ID]!!
-    val dokUri = "/v1/$personId/behandlinger/$periodeId/dokumenter"
+    val dokUri = "/v1/$personId/behandlinger/$behandlingId/dokumenter"
     check(call.request.uri.startsWith(dokUri)) {
         "Forventet å være i kontekst av /dokumenter for å kunne resolve dokument-uri"
     }

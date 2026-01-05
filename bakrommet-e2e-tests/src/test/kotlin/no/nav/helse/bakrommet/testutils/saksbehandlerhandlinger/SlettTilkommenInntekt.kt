@@ -8,11 +8,11 @@ import java.util.*
 
 internal suspend fun ApplicationTestBuilder.slettTilkommenInntekt(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     tilkommenInntektId: UUID,
 ) {
     val response =
-        client.delete("/v1/$personId/behandlinger/$periodeId/tilkommeninntekt/$tilkommenInntektId") {
+        client.delete("/v1/$personId/behandlinger/$behandlingId/tilkommeninntekt/$tilkommenInntektId") {
             bearerAuth(TestOppsett.userToken)
         }
     assertEquals(204, response.status.value)

@@ -15,13 +15,13 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.oppdaterInntekt(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     yrkesaktivitetId: UUID,
     inntektRequest: InntektRequestDto,
     expectedResponseStatus: HttpStatusCode = HttpStatusCode.NoContent,
 ) {
     val response =
-        client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
+        client.put("/v1/$personId/behandlinger/$behandlingId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(objectMapper.writeValueAsString(inntektRequest))

@@ -36,18 +36,18 @@ class RevurderingTest {
 
             val yrkesaktivitet =
                 hentYrkesaktiviteter(
-                    periodeId = revurderendePeriode.id,
+                    behandlingId = revurderendePeriode.id,
                     pseudoID = personId,
                 ).first()
 
             settDagoversikt(
                 personId = personId,
-                periodeId = revurderendePeriode.id,
+                behandlingId = revurderendePeriode.id,
                 yrkesaktivitetId = yrkesaktivitet.id,
                 dager = lagSykedager(fom = revurderendePeriode.fom, tom = revurderendePeriode.tom, grad = 50),
             )
             sendTilBeslutning(
-                periodeId = revurderendePeriode.id,
+                behandlingId = revurderendePeriode.id,
                 personId = personId,
                 individuellBegrunnelse = "Revurdering med lavere grad",
             )

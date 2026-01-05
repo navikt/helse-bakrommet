@@ -19,11 +19,11 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.opprettYrkesaktivitet(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     kategorisering: YrkesaktivitetKategorisering,
 ): UUID {
     val response =
-        client.post("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet") {
+        client.post("/v1/$personId/behandlinger/$behandlingId/yrkesaktivitet") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(YrkesaktivitetCreateRequestDto(kategorisering.tilYrkesaktivitetKategoriseringDto()).serialisertTilString())

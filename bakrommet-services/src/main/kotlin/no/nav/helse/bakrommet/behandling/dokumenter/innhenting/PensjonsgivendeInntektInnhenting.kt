@@ -24,7 +24,7 @@ fun DokumentInnhentingDaoer.lastSigrunDokument(
     val forespurteDataNøkkel = "${senesteÅrTom}_$antallÅrBakover"
     val alleredeLagret =
         dokumentDao.finnDokumentForForespurteData(
-            saksbehandlingsperiodeId = periode.id,
+            behandlingId = periode.id,
             dokumentType = dokType,
             forespurteData = forespurteDataNøkkel,
         )

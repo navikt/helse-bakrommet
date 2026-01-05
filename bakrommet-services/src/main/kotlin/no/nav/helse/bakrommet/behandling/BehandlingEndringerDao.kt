@@ -22,7 +22,7 @@ enum class SaksbehandlingsperiodeEndringType {
 }
 
 data class SaksbehandlingsperiodeEndring(
-    val saksbehandlingsperiodeId: UUID,
+    val behandlingId: UUID,
     // //
     val status: BehandlingStatus,
     val beslutterNavIdent: String?,
@@ -36,7 +36,7 @@ data class SaksbehandlingsperiodeEndring(
 interface BehandlingEndringerDao {
     fun leggTilEndring(hist: SaksbehandlingsperiodeEndring)
 
-    fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring>
+    fun hentEndringerFor(behandlingId: UUID): List<SaksbehandlingsperiodeEndring>
 }
 
 class BehandlingEndringerDaoPg private constructor(
@@ -53,7 +53,7 @@ class BehandlingEndringerDaoPg private constructor(
             values
                 (:behandling_id, :status, :beslutter_nav_ident, :endret_tidspunkt, :endret_av_nav_ident, :endring_type, :endring_kommentar)
             """.trimIndent(),
-            "behandling_id" to hist.saksbehandlingsperiodeId,
+            "behandling_id" to hist.behandlingId,
             "status" to hist.status.name,
             "beslutter_nav_ident" to hist.beslutterNavIdent,
             "endret_tidspunkt" to hist.endretTidspunkt,
@@ -63,7 +63,7 @@ class BehandlingEndringerDaoPg private constructor(
         )
     }
 
-    override fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring> =
+    override fun hentEndringerFor(behandlingId: UUID): List<SaksbehandlingsperiodeEndring> =
         db.list(
             """
             select *
@@ -71,12 +71,12 @@ class BehandlingEndringerDaoPg private constructor(
               where behandling_id = :behandling_id
               order by id
             """.trimIndent(),
-            "behandling_id" to saksbehandlingsperiodeId,
+            "behandling_id" to behandlingId,
         ) { rowTilHistorikk(it) }
 
     private fun rowTilHistorikk(row: Row) =
         SaksbehandlingsperiodeEndring(
-            saksbehandlingsperiodeId = row.uuid("behandling_id"),
+            behandlingId = row.uuid("behandling_id"),
             status = BehandlingStatus.valueOf(row.string("status")),
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
             endretTidspunkt = row.offsetDateTime("endret_tidspunkt"),

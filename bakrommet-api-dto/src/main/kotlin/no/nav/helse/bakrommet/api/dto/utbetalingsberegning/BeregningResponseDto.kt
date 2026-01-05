@@ -7,7 +7,7 @@ import java.util.UUID
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class BeregningResponseDto(
     val id: UUID,
-    val saksbehandlingsperiodeId: UUID,
+    val behandlingId: UUID,
     val beregningData: BeregningDataDto,
     val opprettet: String,
     val opprettetAv: String,

@@ -18,12 +18,12 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.oppdaterVilkårsvurdering(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     vilkår: VilkaarsvurderingDto,
     expectedResponseStatus: HttpStatusCode = HttpStatusCode.Created,
 ): OppdaterVilkaarsvurderingResponseDto {
     val response =
-        client.put("/v1/$personId/behandlinger/$periodeId/vilkaarsvurdering/${vilkår.hovedspørsmål}") {
+        client.put("/v1/$personId/behandlinger/$behandlingId/vilkaarsvurdering/${vilkår.hovedspørsmål}") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(vilkår.serialisertTilString())

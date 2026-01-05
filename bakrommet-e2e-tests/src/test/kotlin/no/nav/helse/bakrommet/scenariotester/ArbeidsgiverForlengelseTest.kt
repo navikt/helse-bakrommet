@@ -51,7 +51,7 @@ class ArbeidsgiverForlengelseTest {
             val ya = yaer.first()
             oppdaterInntekt(
                 personId = personId,
-                periodeId = periode.id,
+                behandlingId = periode.id,
                 yrkesaktivitetId = ya.id,
                 inntektRequest =
                     InntektRequestDto.Arbeidstaker(

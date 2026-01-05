@@ -14,12 +14,12 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.settRefusjon(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     yrkesaktivitetId: UUID,
     refusjon: List<RefusjonsperiodeDto>,
 ) {
     val response =
-        client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/refusjon") {
+        client.put("/v1/$personId/behandlinger/$behandlingId/yrkesaktivitet/$yrkesaktivitetId/refusjon") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(refusjon.serialisertTilString())

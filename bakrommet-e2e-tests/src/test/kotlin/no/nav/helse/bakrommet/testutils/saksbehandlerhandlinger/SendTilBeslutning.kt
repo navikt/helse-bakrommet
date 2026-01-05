@@ -14,12 +14,12 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.sendTilBeslutning(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     token: String = TestOppsett.userToken,
     individuellBegrunnelse: String = "En begrunnelse",
 ): BehandlingDto {
     val response =
-        client.post("/v1/$personId/behandlinger/$periodeId/sendtilbeslutning") {
+        client.post("/v1/$personId/behandlinger/$behandlingId/sendtilbeslutning") {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
             setBody("""{ "individuellBegrunnelse" : "$individuellBegrunnelse" }""")

@@ -11,26 +11,26 @@ class UtbetalingsberegningDaoFake : UtbetalingsberegningDao {
     private val storage = ConcurrentHashMap<UUID, BeregningResponse>()
 
     override fun settBeregning(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         beregning: BeregningResponse,
         saksbehandler: Bruker,
     ): BeregningResponse {
         val oppdatert =
             beregning.copy(
-                saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+                behandlingId = behandlingId,
                 opprettetAv = saksbehandler.navIdent,
                 sistOppdatert = OffsetDateTime.now().toString(),
             )
-        storage[saksbehandlingsperiodeId] = oppdatert
+        storage[behandlingId] = oppdatert
         return oppdatert
     }
 
-    override fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse? = storage[saksbehandlingsperiodeId]
+    override fun hentBeregning(behandlingId: UUID): BeregningResponse? = storage[behandlingId]
 
     override fun slettBeregning(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         failSilently: Boolean,
     ) {
-        storage.remove(saksbehandlingsperiodeId)
+        storage.remove(behandlingId)
     }
 }

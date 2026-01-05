@@ -18,11 +18,11 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.opprettSykepengegrunnlag(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     req: OpprettSykepengegrunnlagRequest,
 ): SykepengegrunnlagResponseDto {
     val response =
-        client.post("/v2/$personId/behandlinger/$periodeId/sykepengegrunnlag") {
+        client.post("/v2/$personId/behandlinger/$behandlingId/sykepengegrunnlag") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(req.serialisertTilString())

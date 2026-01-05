@@ -156,7 +156,7 @@ class BehandlingService(
                     id = yrkesaktivitet.id,
                     kategorisering = yrkesaktivitet.kategorisering,
                     dagoversikt = yrkesaktivitet.dagoversikt,
-                    saksbehandlingsperiodeId = yrkesaktivitet.saksbehandlingsperiodeId,
+                    behandlingId = yrkesaktivitet.behandlingId,
                     opprettet = yrkesaktivitet.opprettet,
                     generertFraDokumenter = yrkesaktivitet.generertFraDokumenter,
                     perioder = yrkesaktivitet.perioder,
@@ -232,7 +232,7 @@ class BehandlingService(
                 yrkesaktivitetDao.opprettYrkesaktivitet(
                     ya.copy(
                         id = UUID.randomUUID(),
-                        saksbehandlingsperiodeId = nyPeriode.id,
+                        behandlingId = nyPeriode.id,
                         opprettet = OffsetDateTime.now(),
                     ),
                 )
@@ -434,7 +434,7 @@ private fun Behandling.endring(
     endretTidspunkt: OffsetDateTime = OffsetDateTime.now(),
     endringKommentar: String? = null,
 ) = SaksbehandlingsperiodeEndring(
-    saksbehandlingsperiodeId = this.id,
+    behandlingId = this.id,
     status = status,
     beslutterNavIdent = beslutterNavIdent,
     endretTidspunkt = endretTidspunkt,
@@ -595,7 +595,7 @@ fun lagYrkesaktiviteter(
                     kategoriseringGenerert = kategoriseringMedSykmeldt,
                     dagoversikt = Dagoversikt(sykdomstidlinje, emptyList()),
                     dagoversiktGenerert = Dagoversikt(sykdomstidlinje, emptyList()),
-                    saksbehandlingsperiodeId = behandling.id,
+                    behandlingId = behandling.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
                     refusjon = tidligere?.refusjon,
@@ -611,7 +611,7 @@ fun lagYrkesaktiviteter(
                     dagoversikt = Dagoversikt(initialiserDager(behandling.fom, behandling.tom), emptyList()),
                     dagoversiktGenerert = null,
                     generertFraDokumenter = emptyList(),
-                    saksbehandlingsperiodeId = behandling.id,
+                    behandlingId = behandling.id,
                     opprettet = OffsetDateTime.now(),
                 )
             }

@@ -70,7 +70,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
             settDagoversikt(personId, nestePeriode.id, nyYrkesaktivitet, lagSykedager(fom, tom, grad = 100))
             settRefusjon(
                 personId = personId,
-                periodeId = nestePeriode.id,
+                behandlingId = nestePeriode.id,
                 yrkesaktivitetId = nyYrkesaktivitet,
                 refusjon =
                     listOf(

@@ -9,8 +9,8 @@ class BehandlingEndringerDaoFake : BehandlingEndringerDao {
     private val endringer = ConcurrentHashMap<UUID, MutableList<SaksbehandlingsperiodeEndring>>()
 
     override fun leggTilEndring(hist: SaksbehandlingsperiodeEndring) {
-        endringer.computeIfAbsent(hist.saksbehandlingsperiodeId) { mutableListOf() }.add(hist)
+        endringer.computeIfAbsent(hist.behandlingId) { mutableListOf() }.add(hist)
     }
 
-    override fun hentEndringerFor(saksbehandlingsperiodeId: UUID): List<SaksbehandlingsperiodeEndring> = endringer[saksbehandlingsperiodeId]?.toList() ?: emptyList()
+    override fun hentEndringerFor(behandlingId: UUID): List<SaksbehandlingsperiodeEndring> = endringer[behandlingId]?.toList() ?: emptyList()
 }

@@ -23,7 +23,7 @@ class SykepengegrunnlagDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
     val saksbehandler = Bruker("ABC", "A. B. C", "ola@nav.no", emptySet())
 
-    val saksbehandlingsperiodeId = UUID.randomUUID()
+    val behandlingId = UUID.randomUUID()
 
     @BeforeEach
     fun setOpp() {
@@ -33,7 +33,7 @@ class SykepengegrunnlagDaoTest {
         PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource).opprettPseudoId(pseudoId, NaturligIdent(fnr))
         BehandlingDaoPg(TestDataSource.dbModule.dataSource).opprettPeriode(
             Behandling(
-                id = saksbehandlingsperiodeId,
+                id = behandlingId,
                 naturligIdent = NaturligIdent(fnr),
                 opprettet = OffsetDateTime.now(),
                 opprettetAvNavIdent = saksbehandler.navIdent,
@@ -60,7 +60,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
+        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, behandlingId)
 
         assertEquals(540000.0, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(744168.0, lagretGrunnlag.sykepengegrunnlag!!.seksG.beløp)
@@ -93,7 +93,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
+        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, behandlingId)
 
         assertEquals(780960.0, lagretGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp)
         assertEquals(true, lagretGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
@@ -118,7 +118,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(opprinneligGrunnlag, saksbehandler, saksbehandlingsperiodeId)
+        val lagretGrunnlag = dao.lagreSykepengegrunnlag(opprinneligGrunnlag, saksbehandler, behandlingId)
 
         val oppdatertGrunnlag =
             Sykepengegrunnlag(
@@ -155,7 +155,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
+        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, behandlingId)
 
         // Verifiser at grunnlaget finnes
         val hentetFørSletting = dao.finnSykepengegrunnlag(lagretGrunnlag.id)
@@ -194,7 +194,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
+        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, behandlingId)
         val hentetGrunnlag = dao.finnSykepengegrunnlag(lagretGrunnlag.id)
 
         // Verifiser at alle felter er korrekt deserialisert
@@ -232,7 +232,7 @@ class SykepengegrunnlagDaoTest {
                 næringsdel = null,
             )
 
-        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, saksbehandlingsperiodeId)
+        val lagretGrunnlag = dao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, behandlingId)
 
         dao.settLåst(lagretGrunnlag.id)
         assertThrows<KunneIkkeOppdatereDbException> {

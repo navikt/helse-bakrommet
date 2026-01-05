@@ -12,10 +12,10 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentVilkårsvurdering(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
 ): List<VilkaarsvurderingDto> {
     val response =
-        client.get("/v1/$personId/behandlinger/$periodeId/vilkaarsvurdering") {
+        client.get("/v1/$personId/behandlinger/$behandlingId/vilkaarsvurdering") {
             bearerAuth(TestOppsett.userToken)
         }
 

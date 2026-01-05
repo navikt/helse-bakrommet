@@ -15,7 +15,7 @@ data class Yrkesaktivitet(
     val kategoriseringGenerert: YrkesaktivitetKategorisering?,
     val dagoversikt: Dagoversikt?,
     val dagoversiktGenerert: Dagoversikt?,
-    val saksbehandlingsperiodeId: UUID,
+    val behandlingId: UUID,
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,

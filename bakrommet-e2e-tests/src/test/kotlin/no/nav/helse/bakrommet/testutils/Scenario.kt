@@ -327,7 +327,7 @@ data class Scenario(
                 if (ya.dagoversikt != null) {
                     settDagoversikt(
                         personId = pseudoId,
-                        periodeId = periode.id,
+                        behandlingId = periode.id,
                         yrkesaktivitetId = yrkesaktivitetId,
                         dager = ya.dagoversikt.lagDagListe(fom = periode.fom, tom = periode.tom),
                     )
@@ -337,7 +337,7 @@ data class Scenario(
             vilkår?.forEach { vilkårDto ->
                 oppdaterVilkårsvurdering(
                     personId = pseudoId,
-                    periodeId = periode.id,
+                    behandlingId = periode.id,
                     vilkår = vilkårDto,
                 )
             }
