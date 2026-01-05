@@ -88,7 +88,9 @@ sealed class TypeArbeidstaker {
         val orgnummer: String,
     ) : TypeArbeidstaker()
 
-    class DimmitertVernepliktig : TypeArbeidstaker()
+    data class DimmitertVernepliktig(
+        val tjenesteMerEnn28Dager: Boolean,
+    ) : TypeArbeidstaker()
 
     data class PrivatArbeidsgiver(
         val arbeidsgiverFnr: String,
