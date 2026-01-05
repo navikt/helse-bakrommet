@@ -360,6 +360,17 @@ class YrkesaktivitetBuilder {
         antallDager: Int = 1,
     ) {
         repeat(antallDager) {
+            // Add a Syk day to satisfy Dagoversikt invariant (all avslått days must have corresponding day in sykdomstidlinje)
+            dagoversikt.add(
+                Dag(
+                    dato = gjeldendeDato!!,
+                    dagtype = Dagtype.Syk,
+                    grad = 100,
+                    avslåttBegrunnelse = emptyList(),
+                    kilde = Kilde.Saksbehandler,
+                ),
+            )
+            // Add the Avslått day
             dagoversikt.add(
                 Dag(
                     dato = gjeldendeDato!!,
@@ -423,28 +434,9 @@ class YrkesaktivitetBuilder {
         val yrkesaktivitetKategorisering = lagYrkesaktivitetKategorisering()
 
         val sykdomstidlinje =
-            fullstendigDagoversikt
-                .filter {
-                    it.dagtype != Dagtype.Avslått
-                }.toMutableList()
+            fullstendigDagoversikt.filter { it.dagtype != Dagtype.Avslått }
         val avslattTidlinje =
-            fullstendigDagoversikt
-                .filter {
-                    it.dagtype == Dagtype.Avslått
-                }.also {
-                    it.forEach {
-                        // Legg til en arbeidsdag i sykdomstidlinjen for hver avslått dag. Denne hacken kan fjernes om vi forbedrer DSLen ved å skille på sykdom og avslag
-                        sykdomstidlinje.add(
-                            Dag(
-                                dato = it.dato,
-                                dagtype = Dagtype.Syk,
-                                grad = 100,
-                                avslåttBegrunnelse = emptyList(),
-                                kilde = Kilde.Saksbehandler,
-                            ),
-                        )
-                    }
-                }
+            fullstendigDagoversikt.filter { it.dagtype == Dagtype.Avslått }
 
         return Yrkesaktivitet(
             id = id,
@@ -644,24 +636,32 @@ private fun fyllUtManglendeDagerSomArbeidsdager(
     eksisterendeDager: List<Dag>,
     saksbehandlingsperiode: PeriodeDto,
 ): List<Dag> {
-    val dagerMap = eksisterendeDager.associateBy { it.dato }.toMutableMap()
+    // Group by date to handle multiple days with the same date (e.g., Syk + Avslått)
+    val dagerGroupedByDate = eksisterendeDager.groupBy { it.dato }
+    val result = mutableListOf<Dag>()
 
     var aktuellDato = saksbehandlingsperiode.fom
     while (!aktuellDato.isAfter(saksbehandlingsperiode.tom)) {
-        if (!dagerMap.containsKey(aktuellDato)) {
-            dagerMap[aktuellDato] =
+        val dagerForDato = dagerGroupedByDate[aktuellDato]
+        if (dagerForDato != null) {
+            // Add all days for this date (e.g., both Syk and Avslått)
+            result.addAll(dagerForDato)
+        } else {
+            // No days for this date, add an Arbeidsdag
+            result.add(
                 Dag(
                     dato = aktuellDato,
                     dagtype = Dagtype.Arbeidsdag,
                     grad = null,
                     avslåttBegrunnelse = emptyList(),
                     kilde = Kilde.Saksbehandler,
-                )
+                ),
+            )
         }
         aktuellDato = aktuellDato.plusDays(1)
     }
 
-    return dagerMap.values.sortedBy { it.dato }
+    return result
 }
 
 /**
