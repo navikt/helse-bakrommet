@@ -50,7 +50,7 @@ dependencies {
 
         // Testing
         api("org.testcontainers:postgresql:1.21.3")
-        api("no.nav.security:mock-oauth2-server:3.0.0")
+        api("no.nav.security:mock-oauth2-server:3.0.1")
 
         // NAV dependencies
         api("no.nav.helse.flex:sykepengesoknad-kafka:2025.09.23-17.33-5e6b02b6")
