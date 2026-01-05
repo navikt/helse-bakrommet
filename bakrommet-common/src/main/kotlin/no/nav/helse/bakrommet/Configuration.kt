@@ -1,21 +1,28 @@
 package no.nav.helse.bakrommet
 
+import no.nav.helse.bakrommet.Configuration.Auth
+import no.nav.helse.bakrommet.Configuration.Roller
 import no.nav.helse.bakrommet.auth.OAuthScope
+
+interface AuthOgRollerConfig {
+    val auth: Auth
+    val roller: Roller
+}
 
 data class Configuration(
     val db: DB,
     val obo: OBO,
     val pdl: PDL,
-    val auth: Auth,
+    override val auth: Auth,
     val sykepengesoknadBackend: SykepengesoknadBackend,
     val aareg: AAReg,
     val ainntekt: AInntekt,
     val ereg: Ereg,
     val inntektsmelding: Inntektsmelding,
     val sigrun: Sigrun,
-    val roller: Roller,
+    override val roller: Roller,
     val naisClusterName: String,
-) {
+) : AuthOgRollerConfig {
     data class DB(
         val jdbcUrl: String,
     )

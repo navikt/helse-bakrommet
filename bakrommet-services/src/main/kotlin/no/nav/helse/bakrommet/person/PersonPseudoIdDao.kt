@@ -4,6 +4,7 @@ import kotliquery.Session
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.MedSession
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -16,6 +17,8 @@ interface PersonPseudoIdDao {
     fun finnNaturligIdent(pseudoId: UUID): NaturligIdent?
 
     fun finnPseudoID(naturligIdent: NaturligIdent): UUID?
+
+    fun slettPseudoIderEldreEnn(tidspunkt: OffsetDateTime): Int
 }
 
 class PersonPseudoIdDaoPg private constructor(
@@ -51,4 +54,10 @@ class PersonPseudoIdDaoPg private constructor(
             "SELECT pseudo_id FROM person_pseudo_id WHERE naturlig_ident = :naturlig_ident AND opprettet > NOW() - INTERVAL '24 HOURS' ORDER BY opprettet DESC LIMIT 1",
             "naturlig_ident" to naturligIdent.naturligIdent,
         ) { it.uuid("pseudo_id") }
+
+    override fun slettPseudoIderEldreEnn(tidspunkt: OffsetDateTime): Int =
+        db.update(
+            "DELETE FROM person_pseudo_id WHERE opprettet < :tidspunkt",
+            "tidspunkt" to tidspunkt,
+        )
 }

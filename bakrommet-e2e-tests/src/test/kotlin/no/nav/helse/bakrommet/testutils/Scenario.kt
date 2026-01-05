@@ -255,7 +255,7 @@ data class Scenario(
 
             val periode =
                 opprettBehandling(
-                    pseudoId.toString(),
+                    pseudoId,
                     OpprettBehandlingRequestDto(
                         fom = fom,
                         tom = tom,
@@ -385,6 +385,7 @@ class Arbeidstaker(
 class Selvstendig(
     inntekt: YAInntekt,
     dagoversikt: YADagoversikt? = null,
+    sykmeldt: Boolean = true,
     val forsikring: SelvstendigForsikring = SelvstendigForsikring.INGEN_FORSIKRING,
 ) : YA(inntekt, dagoversikt)
 

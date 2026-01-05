@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.fakedaos
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import java.time.Instant
+import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -40,5 +41,14 @@ class PersonPseudoIdDaoFake : PersonPseudoIdDao {
                 .maxByOrNull { it.opprettet }
                 ?: return null
         return rad.pseudoId
+    }
+
+    override fun slettPseudoIderEldreEnn(tidspunkt: OffsetDateTime): Int {
+        var cnt = 0
+        rader.filter { it.value.opprettet < tidspunkt.toInstant() }.forEach {
+            rader.remove(it.key)
+            cnt++
+        }
+        return cnt
     }
 }

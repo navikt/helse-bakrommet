@@ -1,11 +1,13 @@
 package no.nav.helse.bakrommet.behandling.tilkommen
 
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.behandling.Behandling
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import java.time.OffsetDateTime
 import java.util.*
@@ -34,6 +36,7 @@ class TilkommenInntektService(
     ): TilkommenInntektDbRecord =
         db.transactional {
             val behandling = behandlingDao.hentPeriode(ref, saksbehandler.erSaksbehandlerPåSaken())
+            validerTilkommenInntektPeriode(tilkommenInntekt, behandling)
 
             val tilkommenInntektDbRecord =
                 TilkommenInntektDbRecord(
@@ -68,6 +71,7 @@ class TilkommenInntektService(
     ): TilkommenInntektDbRecord =
         db.transactional {
             val behandling = behandlingDao.hentPeriode(ref.behandling, saksbehandler.erSaksbehandlerPåSaken())
+            validerTilkommenInntektPeriode(tilkommenInntekt, behandling)
             val tilkommenInntektId = ref.tilkommenInntektId
             tilkommenInntektDao
                 .hent(tilkommenInntektId)
@@ -83,4 +87,20 @@ class TilkommenInntektService(
                 beregnUtbetaling(ref.behandling, saksbehandler)
             }
         }
+
+    private fun validerTilkommenInntektPeriode(
+        tilkommenInntekt: TilkommenInntekt,
+        behandling: Behandling,
+    ) {
+        if (tilkommenInntekt.fom.isBefore(behandling.fom)) {
+            throw InputValideringException(
+                "Tilkommen inntekt periode fom (${tilkommenInntekt.fom}) kan ikke være før behandlingens fom (${behandling.fom})",
+            )
+        }
+        if (tilkommenInntekt.tom.isAfter(behandling.tom)) {
+            throw InputValideringException(
+                "Tilkommen inntekt periode tom (${tilkommenInntekt.tom}) kan ikke være etter behandlingens tom (${behandling.tom})",
+            )
+        }
+    }
 }

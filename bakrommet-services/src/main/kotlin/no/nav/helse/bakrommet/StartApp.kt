@@ -66,9 +66,17 @@ fun startApp(
     appLogger.info("Setter opp data source")
     val dataSource = instansierDatabase(configuration.db)
 
+    val clienter: Clienter = createClients(configuration)
+    val services: Services = createServices(clienter, skapDbDaoer(dataSource))
+
     embeddedServer(CIO, port = 8080) {
         appLogger.info("Setter opp ktor")
-        settOppKtor(dataSource = dataSource, configuration = configuration, setupApiRoutes = setupApiRoutes)
+        settOppKtor(
+            authOgRollerConfig = configuration,
+            services = services,
+            setupApiRoutes = setupApiRoutes,
+            errorHandlingIncludeStackTrace = configuration.naisClusterName == "dev-gcp",
+        )
         appLogger.info("Starter bakrommet")
         monitor.subscribe(ApplicationStarted) {
             val kafkaProducer = KafkaProducerImpl()
@@ -77,6 +85,15 @@ fun startApp(
                 while (true) {
                     outboxService.prosesserOutbox()
                     delay(30_000)
+                }
+            }
+        }
+        monitor.subscribe(ApplicationStarted) {
+            launch {
+                while (true) {
+                    val antallSlettet: Int = services.personService.slettPseudoIderEldreEnn(antallDager = 7)
+                    appLogger.info("Slettet {} utgåtte pseudoIder", antallSlettet)
+                    delay(3600_000)
                 }
             }
         }
@@ -94,20 +111,19 @@ fun skapDbDaoer(dataSource: DataSource) =
     )
 
 fun Application.settOppKtor(
-    dataSource: DataSource,
-    configuration: Configuration,
-    clienter: Clienter = createClients(configuration),
-    services: Services =
-        createServices(
-            clienter,
-            skapDbDaoer(dataSource),
-        ),
+    authOgRollerConfig: AuthOgRollerConfig,
+    services: Services,
     setupApiRoutes: Route.(Services) -> Unit,
+    errorHandlingIncludeStackTrace: Boolean = false,
 ) {
-    azureAdAppAuthentication(configuration.auth, configuration.roller)
+    azureAdAppAuthentication(authOgRollerConfig.auth, authOgRollerConfig.roller)
     helsesjekker()
 
-    appModul(configuration = configuration, services = services, setupApiRoutes = setupApiRoutes)
+    appModul(
+        services = services,
+        setupApiRoutes = setupApiRoutes,
+        errorHandlingIncludeStackTrace = errorHandlingIncludeStackTrace,
+    )
 }
 
 fun Application.helsesjekker() {
@@ -233,9 +249,9 @@ fun createServices(
 }
 
 internal fun Application.appModul(
-    configuration: Configuration,
     services: Services,
     setupApiRoutes: Route.(Services) -> Unit,
+    errorHandlingIncludeStackTrace: Boolean = false,
 ) {
     install(ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter(objectMapper))
@@ -248,7 +264,7 @@ internal fun Application.appModul(
         filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
     }
 
-    installErrorHandling(includeStackTrace = configuration.naisClusterName == "dev-gcp")
+    installErrorHandling(includeStackTrace = errorHandlingIncludeStackTrace)
 
     routing {
         authenticate("entraid") {

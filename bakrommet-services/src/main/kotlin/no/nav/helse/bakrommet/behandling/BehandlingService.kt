@@ -308,7 +308,6 @@ class BehandlingService(
     ): Behandling =
         db.transactional {
             val periode = behandlingDao.hentPeriode(periodeRef, krav = null, måVæreUnderBehandling = false)
-            // TODO: krevAtBrukerErBeslutter() ? (verifiseres dog allerede i RolleMatrise)
             val nyStatus = UNDER_BESLUTNING
             periode.verifiserNyStatusGyldighet(nyStatus)
             behandlingDao.endreStatusOgBeslutter(
@@ -525,13 +524,48 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
     }
 }
 
+/**
+ * Lager en matching-nøkkel fra kategorisering uten å inkludere sykmeldt-status.
+ * Dette gjør at yrkesaktiviteter kan matche selv om sykmeldt-statusen er forskjellig.
+ */
+private fun YrkesaktivitetKategorisering.matchingNøkkel(): String =
+    when (this) {
+        is YrkesaktivitetKategorisering.Arbeidstaker ->
+            "ARBEIDSTAKER-${typeArbeidstaker.javaClass.simpleName}-${when (typeArbeidstaker) {
+                is TypeArbeidstaker.Ordinær -> typeArbeidstaker.orgnummer
+                is TypeArbeidstaker.Maritim -> typeArbeidstaker.orgnummer
+                is TypeArbeidstaker.Fisker -> typeArbeidstaker.orgnummer
+                is TypeArbeidstaker.PrivatArbeidsgiver -> typeArbeidstaker.arbeidsgiverFnr
+                else -> ""
+            }}"
+        is YrkesaktivitetKategorisering.Frilanser ->
+            "FRILANSER-$orgnummer-${forsikring.name}"
+        is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende ->
+            "SELVSTENDIG_NÆRINGSDRIVENDE-${typeSelvstendigNæringsdrivende.javaClass.simpleName}-${typeSelvstendigNæringsdrivende.forsikring.name}"
+        is YrkesaktivitetKategorisering.Inaktiv -> "INAKTIV"
+        is YrkesaktivitetKategorisering.Arbeidsledig -> "ARBEIDSLEDIG"
+    }
+
+/**
+ * Setter sykmeldt-status på en kategorisering.
+ */
+private fun YrkesaktivitetKategorisering.medSykmeldt(sykmeldt: Boolean): YrkesaktivitetKategorisering =
+    when (this) {
+        is YrkesaktivitetKategorisering.Arbeidstaker -> copy(sykmeldt = sykmeldt)
+        is YrkesaktivitetKategorisering.Frilanser -> copy(sykmeldt = sykmeldt)
+        is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> copy(sykmeldt = sykmeldt)
+        is YrkesaktivitetKategorisering.Inaktiv -> copy(sykmeldt = sykmeldt)
+        is YrkesaktivitetKategorisering.Arbeidsledig -> copy(sykmeldt = sykmeldt)
+    }
+
 fun lagYrkesaktiviteter(
     sykepengesoknader: Iterable<Dokument>,
     behandling: Behandling,
     tidligereYrkesaktiviteter: List<YrkesaktivitetDbRecord>,
 ): Pair<List<YrkesaktivitetDbRecord>, Map<UUID, UUID>> {
-    val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering }
-    val søknaderPerKategori = sykepengesoknader.groupBy { it.somSøknad().kategorisering() }
+    // Bruk matching-nøkkel uten sykmeldt for å matche yrkesaktiviteter
+    val tidligereMap = tidligereYrkesaktiviteter.associateBy { it.kategorisering.matchingNøkkel() }
+    val søknaderPerKategori = sykepengesoknader.groupBy { it.somSøknad().kategorisering().matchingNøkkel() }
 
     val søknadKategorierMap = søknaderPerKategori
 
@@ -540,20 +574,25 @@ fun lagYrkesaktiviteter(
     val gammelTilNyIdMap = mutableMapOf<UUID, UUID>()
 
     val result =
-        kategorier.mapNotNull { kategori ->
-            søknadKategorierMap[kategori]?.let { søknader ->
+        kategorier.mapNotNull { matchingNøkkel ->
+            søknadKategorierMap[matchingNøkkel]?.let { søknader ->
+                val søknadKategorisering = søknader.first().somSøknad().kategorisering()
+                val tidligere = tidligereMap[matchingNøkkel]
+
+                // Sett sykmeldt = true når det finnes søknader
+                val kategoriseringMedSykmeldt = søknadKategorisering.medSykmeldt(true)
+
                 val sykdomstidlinje =
                     skapDagoversiktFraSoknader(
                         søknader.map { it.somSøknad() },
                         behandling.fom,
                         behandling.tom,
                     )
-                val tidligere = tidligereMap[kategori]
 
                 YrkesaktivitetDbRecord(
                     id = UUID.randomUUID(),
-                    kategorisering = kategori,
-                    kategoriseringGenerert = kategori,
+                    kategorisering = kategoriseringMedSykmeldt,
+                    kategoriseringGenerert = kategoriseringMedSykmeldt,
                     dagoversikt = Dagoversikt(sykdomstidlinje, emptyList()),
                     dagoversiktGenerert = Dagoversikt(sykdomstidlinje, emptyList()),
                     saksbehandlingsperiodeId = behandling.id,
@@ -563,9 +602,10 @@ fun lagYrkesaktiviteter(
                     inntektData = tidligere?.inntektData,
                     inntektRequest = tidligere?.inntektRequest,
                 )
-            } ?: tidligereMap[kategori]?.let { tidligere ->
+            } ?: tidligereMap[matchingNøkkel]?.let { tidligere ->
                 val nyId = UUID.randomUUID()
                 gammelTilNyIdMap[tidligere.id] = nyId
+                // Behold sykmeldt-status fra tidligere yrkesaktivitet når det ikke finnes søknader
                 tidligere.copy(
                     id = nyId,
                     dagoversikt = Dagoversikt(initialiserDager(behandling.fom, behandling.tom), emptyList()),

@@ -23,10 +23,14 @@ fun YrkesaktivitetMedOrgnavn.tilYrkesaktivitetDto(): YrkesaktivitetDto =
     )
 
 private fun Dagoversikt.tilMergetDagoversikt(): List<DagDto> {
-    val avslagsdager = this.avslagsdager.map { it.dato }.toSet()
+    val avslagsdagerMap = this.avslagsdager.associateBy { it.dato }
     return this.sykdomstidlinje.map { dag -> dag.tilDagDto() }.map { dag ->
-        if (avslagsdager.contains(dag.dato)) {
-            dag.copy(dagtype = DagtypeDto.Avslått)
+        val avslagsdag = avslagsdagerMap[dag.dato]
+        if (avslagsdag != null) {
+            dag.copy(
+                dagtype = DagtypeDto.Avslått,
+                avslåttBegrunnelse = avslagsdag.avslåttBegrunnelse,
+            )
         } else {
             dag
         }
