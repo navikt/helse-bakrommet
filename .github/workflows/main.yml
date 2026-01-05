@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   build:
-    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-') || startsWith(github.ref_name, 'demo-')
     name: Bygg og test
     runs-on: ubuntu-latest
     steps:
@@ -37,7 +36,7 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache build output
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             bakrommet-bootstrap/build/
@@ -53,7 +52,7 @@ jobs:
       - name: Sjekk ut kode
         uses: actions/checkout@v6
       - name: Restore build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             bakrommet-bootstrap/build/
@@ -95,7 +94,7 @@ jobs:
       - name: Sjekk ut kode
         uses: actions/checkout@v6
       - name: Restore build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             bakrommet-bootstrap/build/
