@@ -64,7 +64,7 @@ class YrkesaktivitetService(
                     val yrkesaktivitet =
                         yrkesaktivitetDao.hentYrkesaktivitetDbRecord(ref.yrkesaktivitetUUID)
                             ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
-                    require(yrkesaktivitet.saksbehandlingsperiodeId == periode.id) {
+                    require(yrkesaktivitet.behandlingId == periode.id) {
                         "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
                     }
                     yrkesaktivitet
@@ -134,7 +134,7 @@ class YrkesaktivitetService(
                     id = UUID.randomUUID(),
                     kategorisering = kategorisering,
                     dagoversikt = dagoversikt,
-                    saksbehandlingsperiodeId = periode.id,
+                    behandlingId = periode.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = emptyList(),
                     perioder = null,
@@ -183,7 +183,7 @@ class YrkesaktivitetService(
             if (hovedkategoriseringEndret) {
                 behandlingEndringerDao.leggTilEndring(
                     SaksbehandlingsperiodeEndring(
-                        saksbehandlingsperiodeId = periode.id,
+                        behandlingId = periode.id,
                         status = periode.status,
                         beslutterNavIdent = periode.beslutterNavIdent,
                         endretTidspunkt = OffsetDateTime.now(),

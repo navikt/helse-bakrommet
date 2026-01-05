@@ -6,7 +6,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 data class BehandlingEndringDto(
-    val saksbehandlingsperiodeId: UUID,
+    val behandlingId: UUID,
     val status: TidslinjeBehandlingStatus,
     val beslutterNavIdent: String?,
     val endretTidspunkt: OffsetDateTime,

@@ -69,7 +69,7 @@ class InntektService(
             val yrkesaktivitet =
                 yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
                     ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
-            require(yrkesaktivitet.saksbehandlingsperiodeId == periode.id) {
+            require(yrkesaktivitet.behandlingId == periode.id) {
                 "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
             }
 

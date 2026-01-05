@@ -13,11 +13,11 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.settSkjaeringstidspunkt(
     personId: String,
-    periodeId: UUID,
+    behandlingId: UUID,
     skjaeringstidspunkt: LocalDate,
 ) {
     val response =
-        client.put("/v1/$personId/behandlinger/$periodeId/skjaeringstidspunkt") {
+        client.put("/v1/$personId/behandlinger/$behandlingId/skjaeringstidspunkt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody("""{ "skjaeringstidspunkt": "$skjaeringstidspunkt" }""")

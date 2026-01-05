@@ -13,12 +13,12 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.sendTilbake(
     personId: String,
-    periodeId: UUID,
+    behandlingId: UUID,
     token: String,
     kommentar: String = "Dette blir litt feil",
 ): BehandlingDto {
     val response =
-        client.post("/v1/$personId/behandlinger/$periodeId/sendtilbake") {
+        client.post("/v1/$personId/behandlinger/$behandlingId/sendtilbake") {
             bearerAuth(token)
             contentType(ContentType.Application.Json)
             setBody("""{ "kommentar": "$kommentar" }""")

@@ -38,7 +38,7 @@ private fun BehandlingStatus.tilTidslinjeBehandlingStatus(): TidslinjeBehandling
 
 fun SaksbehandlingsperiodeEndring.tilSaksbehandlingsperiodeEndringDto(): BehandlingEndringDto =
     BehandlingEndringDto(
-        saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+        behandlingId = behandlingId,
         status = status.tilTidslinjeBehandlingStatus(),
         beslutterNavIdent = beslutterNavIdent,
         endretTidspunkt = endretTidspunkt,

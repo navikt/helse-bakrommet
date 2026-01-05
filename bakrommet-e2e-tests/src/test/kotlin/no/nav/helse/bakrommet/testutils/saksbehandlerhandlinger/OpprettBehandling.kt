@@ -35,8 +35,8 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
 
     val responseBody = response.body<JsonNode>()
     assertTrue(responseBody.has("id"), "Response skal inneholde ID")
-    val periodeId = UUID.fromString(responseBody["id"].asText())
-    assertTrue(periodeId != null, "Periode ID skal være gyldig UUID")
+    val behandlingId = UUID.fromString(responseBody["id"].asText())
+    assertTrue(behandlingId != null, "Periode ID skal være gyldig UUID")
 
     val getResponse =
         client.get("/v1/$personId/behandlinger") {
@@ -49,7 +49,7 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
     val perioder = objectMapper.readValue<List<BehandlingDto>>(json, objectMapper.typeFactory.constructCollectionType(List::class.java, BehandlingDto::class.java))
 
     assertTrue(perioder.isNotEmpty(), "Det skal finnes minst én behandling")
-    val periode = perioder.first { it.id == periodeId }
+    val periode = perioder.first { it.id == behandlingId }
 
     return periode
 }

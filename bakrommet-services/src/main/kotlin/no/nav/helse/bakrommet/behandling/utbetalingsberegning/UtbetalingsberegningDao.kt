@@ -24,15 +24,15 @@ import javax.sql.DataSource
 
 interface UtbetalingsberegningDao {
     fun settBeregning(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         beregning: BeregningResponse,
         saksbehandler: Bruker,
     ): BeregningResponse
 
-    fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse?
+    fun hentBeregning(behandlingId: UUID): BeregningResponse?
 
     fun slettBeregning(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         failSilently: Boolean = false,
     )
 }
@@ -53,7 +53,7 @@ class UtbetalingsberegningDaoPg private constructor(
     constructor(session: Session) : this(MedSession(session))
 
     override fun settBeregning(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         beregning: BeregningResponse,
         saksbehandler: Bruker,
     ): BeregningResponse {
@@ -62,7 +62,7 @@ class UtbetalingsberegningDaoPg private constructor(
         val beregningDataInnDto = beregningDataUtDto.tilBeregningDataInnDto()
 
         // Sjekk om det finnes fra før
-        val eksisterende = hentBeregning(saksbehandlingsperiodeId)
+        val eksisterende = hentBeregning(behandlingId)
 
         if (eksisterende != null) {
             // Oppdater eksisterende
@@ -77,7 +77,7 @@ class UtbetalingsberegningDaoPg private constructor(
                     WHERE behandling_id = :behandling_id
                     $AND_ER_UNDER_BEHANDLING
                     """.trimIndent(),
-                    "behandling_id" to saksbehandlingsperiodeId,
+                    "behandling_id" to behandlingId,
                     "utbetalingsberegning_data" to beregningDataInnDto.tilPgJson(),
                     "opprettet_av_nav_ident" to saksbehandler.navIdent,
                 ).also(verifiserOppdatert)
@@ -93,27 +93,27 @@ class UtbetalingsberegningDaoPg private constructor(
                     $WHERE_ER_UNDER_BEHANDLING_FOR_INSERT
                     """.trimIndent(),
                     "id" to beregning.id,
-                    "behandling_id" to saksbehandlingsperiodeId,
+                    "behandling_id" to behandlingId,
                     "utbetalingsberegning_data" to beregningDataInnDto.tilPgJson(),
                     "opprettet_av_nav_ident" to saksbehandler.navIdent,
                 ).also(verifiserOppdatert)
         }
 
-        return hentBeregning(saksbehandlingsperiodeId)!!
+        return hentBeregning(behandlingId)!!
     }
 
-    override fun hentBeregning(saksbehandlingsperiodeId: UUID): BeregningResponse? =
+    override fun hentBeregning(behandlingId: UUID): BeregningResponse? =
         db.single(
             """
             SELECT * FROM utbetalingsberegning 
             WHERE behandling_id = :behandling_id
             """.trimIndent(),
-            "behandling_id" to saksbehandlingsperiodeId,
+            "behandling_id" to behandlingId,
             mapper = ::beregningFraRow,
         )
 
     override fun slettBeregning(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         failSilently: Boolean,
     ) {
         db
@@ -123,7 +123,7 @@ class UtbetalingsberegningDaoPg private constructor(
                 WHERE behandling_id = :behandling_id
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
-                "behandling_id" to saksbehandlingsperiodeId,
+                "behandling_id" to behandlingId,
             ).also {
                 if (!failSilently) {
                     verifiserOppdatert(it)
@@ -137,7 +137,7 @@ class UtbetalingsberegningDaoPg private constructor(
 
         return BeregningResponse(
             id = row.uuid("id"),
-            saksbehandlingsperiodeId = row.uuid("behandling_id"),
+            behandlingId = row.uuid("behandling_id"),
             beregningData = beregningData.tilBeregningData(),
             opprettet = row.offsetDateTime("opprettet").toString(),
             opprettetAv = row.string("opprettet_av_nav_ident"),
@@ -175,7 +175,7 @@ private fun BeregningDataInnDto.tilBeregningData(): BeregningData =
 internal fun BeregningResponse.tilBeregningResponseUtDto(): BeregningResponseUtDto =
     BeregningResponseUtDto(
         id = id,
-        saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+        behandlingId = behandlingId,
         beregningData = beregningData.tilBeregningDataUtDto(),
         opprettet = opprettet,
         opprettetAv = opprettetAv,

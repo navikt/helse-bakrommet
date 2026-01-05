@@ -60,19 +60,19 @@ class BehandlingDaoFake : BehandlingDao {
     }
 
     override fun oppdaterSkjæringstidspunkt(
-        periodeId: UUID,
+        behandlingId: UUID,
         skjæringstidspunkt: LocalDate,
     ) {
-        val eksisterende = perioder[periodeId] ?: return
-        perioder[periodeId] = eksisterende.copy(skjæringstidspunkt = skjæringstidspunkt)
+        val eksisterende = perioder[behandlingId] ?: return
+        perioder[behandlingId] = eksisterende.copy(skjæringstidspunkt = skjæringstidspunkt)
     }
 
     override fun oppdaterSykepengegrunnlagId(
-        periodeId: UUID,
+        behandlingId: UUID,
         sykepengegrunnlagId: UUID?,
     ) {
-        val eksisterende = perioder[periodeId] ?: return
-        perioder[periodeId] = eksisterende.copy(sykepengegrunnlagId = sykepengegrunnlagId)
+        val eksisterende = perioder[behandlingId] ?: return
+        perioder[behandlingId] = eksisterende.copy(sykepengegrunnlagId = sykepengegrunnlagId)
     }
 
     override fun oppdaterRevurdertAvBehandlingId(

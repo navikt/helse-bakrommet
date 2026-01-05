@@ -75,7 +75,7 @@ class YrkesaktivitetOperasjonerTest {
 
             oppdaterKategorisering(
                 personId = PERSON_PSEUDO_ID,
-                periodeId = periode.id,
+                behandlingId = periode.id,
                 yrkesaktivitetId = yrkesaktivitet,
                 kategorisering =
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(
@@ -162,7 +162,7 @@ class YrkesaktivitetOperasjonerTest {
             // APIet gir feil hvis man sender en avslått dag uten begrunnelse
             settDagoversikt(
                 personId = PERSON_PSEUDO_ID,
-                periodeId = periode.id,
+                behandlingId = periode.id,
                 yrkesaktivitetId = yrkesaktivitetId,
                 dager =
                     listOf(
@@ -567,7 +567,7 @@ class YrkesaktivitetOperasjonerTest {
 
             oppdaterKategorisering(
                 personId = PERSON_PSEUDO_ID,
-                periodeId = behandling.id,
+                behandlingId = behandling.id,
                 yrkesaktivitetId = UUID.randomUUID(),
                 kategorisering =
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(

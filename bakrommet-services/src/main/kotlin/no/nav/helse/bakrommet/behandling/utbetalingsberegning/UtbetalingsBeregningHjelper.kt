@@ -83,7 +83,7 @@ class UtbetalingsBeregningHjelper(
         val beregningResponse =
             BeregningResponse(
                 id = UUID.randomUUID(),
-                saksbehandlingsperiodeId = referanse.behandlingId,
+                behandlingId = referanse.behandlingId,
                 beregningData = beregningData,
                 opprettet = LocalDateTime.now().toString(),
                 opprettetAv = saksbehandler.navIdent,

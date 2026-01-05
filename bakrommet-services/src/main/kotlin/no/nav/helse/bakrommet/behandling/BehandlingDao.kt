@@ -90,12 +90,12 @@ interface BehandlingDao {
     fun opprettPeriode(periode: Behandling)
 
     fun oppdaterSkjæringstidspunkt(
-        periodeId: UUID,
+        behandlingId: UUID,
         skjæringstidspunkt: LocalDate,
     )
 
     fun oppdaterSykepengegrunnlagId(
-        periodeId: UUID,
+        behandlingId: UUID,
         sykepengegrunnlagId: UUID?,
     )
 
@@ -268,7 +268,7 @@ class BehandlingDaoPg private constructor(
     }
 
     override fun oppdaterSkjæringstidspunkt(
-        periodeId: UUID,
+        behandlingId: UUID,
         skjæringstidspunkt: LocalDate,
     ) {
         db
@@ -279,13 +279,13 @@ class BehandlingDaoPg private constructor(
                 WHERE id = :id
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
-                "id" to periodeId,
+                "id" to behandlingId,
                 "skjaeringstidspunkt" to skjæringstidspunkt,
             ).also(verifiserOppdatert)
     }
 
     override fun oppdaterSykepengegrunnlagId(
-        periodeId: UUID,
+        behandlingId: UUID,
         sykepengegrunnlagId: UUID?,
     ) {
         db
@@ -296,7 +296,7 @@ class BehandlingDaoPg private constructor(
                 WHERE id = :id
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
-                "id" to periodeId,
+                "id" to behandlingId,
                 "sykepengegrunnlag_id" to sykepengegrunnlagId,
             ).also(verifiserOppdatert)
     }

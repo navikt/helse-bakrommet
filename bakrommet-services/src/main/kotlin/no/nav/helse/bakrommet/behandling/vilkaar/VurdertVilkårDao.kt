@@ -20,15 +20,15 @@ data class VurdertVilkår(
 )
 
 interface VurdertVilkårDao {
-    fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår>
+    fun hentVilkårsvurderinger(behandlingId: UUID): List<VurdertVilkår>
 
     fun hentVilkårsvurdering(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         kode: String,
     ): VurdertVilkår?
 
     fun slettVilkårsvurdering(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         kode: String,
     ): Int
 
@@ -65,14 +65,14 @@ class VurdertVilkårDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> =
+    override fun hentVilkårsvurderinger(behandlingId: UUID): List<VurdertVilkår> =
         db.list(
             sql =
                 """
                 select * from vurdert_vilkaar 
                 where behandling_id = :behandling_id
                 """.trimIndent(),
-            "behandling_id" to saksbehandlingsperiodeId,
+            "behandling_id" to behandlingId,
         ) {
             val vurderingJson = it.string("vurdering")
             val vurdering: Vilkaarsvurdering = objectMapper.readValue(vurderingJson)
@@ -83,7 +83,7 @@ class VurdertVilkårDaoPg private constructor(
         }
 
     override fun hentVilkårsvurdering(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         kode: String,
     ): VurdertVilkår? =
         db.single(
@@ -93,7 +93,7 @@ class VurdertVilkårDaoPg private constructor(
                 where behandling_id = :behandling_id
                 and kode = :kode
                 """.trimIndent(),
-            "behandling_id" to saksbehandlingsperiodeId,
+            "behandling_id" to behandlingId,
             "kode" to kode,
         ) {
             val vurderingJson = it.string("vurdering")
@@ -105,7 +105,7 @@ class VurdertVilkårDaoPg private constructor(
         }
 
     override fun slettVilkårsvurdering(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         kode: String,
     ): Int =
         db
@@ -116,7 +116,7 @@ class VurdertVilkårDaoPg private constructor(
                 and kode = :kode
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
-                "behandling_id" to saksbehandlingsperiodeId,
+                "behandling_id" to behandlingId,
                 "kode" to kode,
             ).also(verifiserOppdatert)
 

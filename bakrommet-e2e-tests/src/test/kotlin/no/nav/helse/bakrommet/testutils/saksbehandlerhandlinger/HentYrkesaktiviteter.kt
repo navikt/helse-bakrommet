@@ -12,11 +12,11 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(
     pseudoID: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
 ): List<YrkesaktivitetDto> {
     val response =
         client
-            .get("/v1/$pseudoID/behandlinger/$periodeId/yrkesaktivitet") {
+            .get("/v1/$pseudoID/behandlinger/$behandlingId/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
             }
     val json = response.body<String>()

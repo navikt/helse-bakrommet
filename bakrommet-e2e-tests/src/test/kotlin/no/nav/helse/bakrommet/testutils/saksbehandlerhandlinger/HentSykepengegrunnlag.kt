@@ -11,10 +11,10 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentSykepengegrunnlag(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
 ): SykepengegrunnlagResponseDto? {
     val response =
-        client.get("/v2/$personId/behandlinger/$periodeId/sykepengegrunnlag") {
+        client.get("/v2/$personId/behandlinger/$behandlingId/sykepengegrunnlag") {
             bearerAuth(TestOppsett.userToken)
         }
 

@@ -9,11 +9,11 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.slettYrkesaktivitet(
     pseudoId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     yrkesaktivitetId: UUID,
 ) {
     val response =
-        client.delete("/v1/$pseudoId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId") {
+        client.delete("/v1/$pseudoId/behandlinger/$behandlingId/yrkesaktivitet/$yrkesaktivitetId") {
             bearerAuth(TestOppsett.userToken)
         }
     assertEquals(204, response.status.value)

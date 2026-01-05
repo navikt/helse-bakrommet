@@ -101,7 +101,7 @@ fun arbeidstaker(): List<Yrkesaktivitet> =
             kategoriseringGenerert = null,
             dagoversikt = Dagoversikt(),
             dagoversiktGenerert = Dagoversikt(),
-            saksbehandlingsperiodeId = UUID.randomUUID(),
+            behandlingId = UUID.randomUUID(),
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = emptyList(),
         ),

@@ -30,11 +30,11 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
             val personId = førsteBehandling.scenario.pseudoId
-            val periodeId = førsteBehandling.behandling.id
+            val behandlingId = førsteBehandling.behandling.id
 
             opprettSykepengegrunnlag(
                 personId,
-                periodeId,
+                behandlingId,
                 OpprettSykepengegrunnlagRequest(
                     beregningsgrunnlag = BigDecimal(2000000),
                     begrunnelse = "Yrkesskade 2002",
@@ -44,7 +44,7 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
             ).also {
                 it.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 308160.0
             }
-            hentUtbetalingsberegning(personId, periodeId).also { beregning ->
+            hentUtbetalingsberegning(personId, behandlingId).also { beregning ->
                 beregning!!
                     .beregningData.spilleromOppdrag.oppdrag.size `should equal` 1
 

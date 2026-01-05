@@ -145,7 +145,7 @@ class PeriodeBuilder {
 
 class YrkesaktivitetBuilder {
     private var id: UUID = UUID.randomUUID()
-    private var saksbehandlingsperiodeId: UUID = UUID.randomUUID()
+    private var behandlingId: UUID = UUID.randomUUID()
     private var inntektskategori: String = "ARBEIDSTAKER"
     private val kategorisering = mutableMapOf<String, String>()
     private val dagoversikt = mutableListOf<Dag>()
@@ -158,8 +158,8 @@ class YrkesaktivitetBuilder {
         this.id = id
     }
 
-    fun saksbehandlingsperiodeId(id: UUID) {
-        this.saksbehandlingsperiodeId = id
+    fun behandlingId(id: UUID) {
+        this.behandlingId = id
     }
 
     fun arbeidstaker(orgnummer: String? = null) {
@@ -452,7 +452,7 @@ class YrkesaktivitetBuilder {
             kategoriseringGenerert = null,
             dagoversikt = Dagoversikt(sykdomstidlinje, avslattTidlinje),
             dagoversiktGenerert = null,
-            saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+            behandlingId = behandlingId,
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = emptyList(),
             perioder = perioder,

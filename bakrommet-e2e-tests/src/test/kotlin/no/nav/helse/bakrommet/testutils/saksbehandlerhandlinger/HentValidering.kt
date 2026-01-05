@@ -12,10 +12,10 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentValidering(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
 ): List<ValideringDto> {
     val response =
-        client.get("/v1/$personId/behandlinger/$periodeId/validering") {
+        client.get("/v1/$personId/behandlinger/$behandlingId/validering") {
             bearerAuth(TestOppsett.userToken)
         }
 

@@ -35,10 +35,10 @@ class EnArbeidsgiverTilkommenInntektTest {
             førsteBehandling.`skal ha direkteutbetaling`(6000)
 
             val personId = førsteBehandling.scenario.pseudoId
-            val periodeId = førsteBehandling.behandling.id
+            val behandlingId = førsteBehandling.behandling.id
             val tilkommen =
                 leggTilTilkommenInntekt(
-                    periodeId = periodeId,
+                    behandlingId = behandlingId,
                     personId = personId,
                     tilkommenInntekt =
                         OpprettTilkommenInntektRequestDto(
@@ -51,7 +51,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                             ekskluderteDager = emptyList(),
                         ),
                 )
-            hentUtbetalingsberegning(personId, periodeId).also { beregning ->
+            hentUtbetalingsberegning(personId, behandlingId).also { beregning ->
                 beregning!!
                     .beregningData.spilleromOppdrag.oppdrag.size `should equal` 1
 
@@ -72,12 +72,12 @@ class EnArbeidsgiverTilkommenInntektTest {
                     tilkommenInntektDto.yrkesaktivitetType `should equal` no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType.VIRKSOMHET
                 }
             }
-            slettTilkommenInntekt(periodeId = periodeId, personId = personId, tilkommenInntektId = tilkommen.id)
+            slettTilkommenInntekt(behandlingId = behandlingId, personId = personId, tilkommenInntektId = tilkommen.id)
 
             // Får 400 ved periode utenfor behandlingen
             leggTilTilkommenInntekt(
                 forventetResponseKode = HttpStatusCode.BadRequest,
-                periodeId = periodeId,
+                behandlingId = behandlingId,
                 personId = personId,
                 tilkommenInntekt =
                     OpprettTilkommenInntektRequestDto(

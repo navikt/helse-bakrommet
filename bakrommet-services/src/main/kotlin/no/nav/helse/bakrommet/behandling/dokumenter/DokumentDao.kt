@@ -41,13 +41,13 @@ data class Dokument(
 
 interface DokumentDao {
     fun finnDokumentMedEksternId(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         dokumentType: String,
         eksternId: String,
     ): Dokument?
 
     fun finnDokumentForForespurteData(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         dokumentType: String,
         forespurteData: String,
     ): Dokument?
@@ -75,7 +75,7 @@ class DokumentDaoPg private constructor(
     constructor(session: Session) : this(MedSession(session))
 
     override fun finnDokumentMedEksternId(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         dokumentType: String,
         eksternId: String,
     ): Dokument? =
@@ -86,14 +86,14 @@ class DokumentDaoPg private constructor(
             and dokument_type = :dokument_type
             and ekstern_id = :ekstern_id
             """.trimIndent(),
-            "opprettet_for_behandling" to saksbehandlingsperiodeId,
+            "opprettet_for_behandling" to behandlingId,
             "dokument_type" to dokumentType,
             "ekstern_id" to eksternId,
             mapper = ::dokumentFraRow,
         )
 
     override fun finnDokumentForForespurteData(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         dokumentType: String,
         forespurteData: String,
     ): Dokument? =
@@ -104,7 +104,7 @@ class DokumentDaoPg private constructor(
             and dokument_type = :dokument_type
             and forespurte_data = :forespurte_data
             """.trimIndent(),
-            "opprettet_for_behandling" to saksbehandlingsperiodeId,
+            "opprettet_for_behandling" to behandlingId,
             "dokument_type" to dokumentType,
             "forespurte_data" to forespurteData,
             mapper = ::dokumentFraRow,

@@ -27,7 +27,7 @@ import no.nav.helse.dto.serialisering.ØkonomiUtDto as SpleisØkonomiUtDto
 fun BeregningResponse.tilBeregningResponseDto(): BeregningResponseDto =
     BeregningResponseDto(
         id = id,
-        saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+        behandlingId = behandlingId,
         beregningData = beregningData.tilBeregningDataDto(),
         opprettet = opprettet,
         opprettetAv = opprettetAv,

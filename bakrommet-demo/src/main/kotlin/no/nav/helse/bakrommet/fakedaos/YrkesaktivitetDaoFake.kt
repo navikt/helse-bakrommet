@@ -23,7 +23,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
         dagoversikt: Dagoversikt?,
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
         perioder: Perioder?,
@@ -37,7 +37,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
                 kategoriseringGenerert = null,
                 dagoversikt = dagoversikt,
                 dagoversiktGenerert = null,
-                saksbehandlingsperiodeId = saksbehandlingsperiodeId,
+                behandlingId = behandlingId,
                 opprettet = opprettet,
                 generertFraDokumenter = generertFraDokumenter,
                 perioder = perioder,
@@ -53,11 +53,11 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
 
     override fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? = storage[id]?.tilYrkesaktivitet()
 
-    override fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet> = storage.values.filter { it.saksbehandlingsperiodeId == periode.id }.map { it.tilYrkesaktivitet() }
+    override fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet> = storage.values.filter { it.behandlingId == periode.id }.map { it.tilYrkesaktivitet() }
 
     override fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord> = hentYrkesaktiviteterDbRecord(periode.id)
 
-    override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> = storage.values.filter { it.saksbehandlingsperiodeId == behandlingId }
+    override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> = storage.values.filter { it.behandlingId == behandlingId }
 
     override fun oppdaterKategoriseringOgSlettInntektData(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
@@ -135,11 +135,11 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
     }
 
     override fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord> =
-        storage.values.filter { map.contains(it.saksbehandlingsperiodeId) }.map {
+        storage.values.filter { map.contains(it.behandlingId) }.map {
             YrkesaktivitetForenkletDbRecord(
                 id = it.id,
                 kategorisering = it.kategorisering,
-                behandlingId = it.saksbehandlingsperiodeId,
+                behandlingId = it.behandlingId,
             )
         }
 }

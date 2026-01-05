@@ -22,7 +22,7 @@ fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
     val dokType = DokumentType.inntektsmelding
     val alleredeLagret =
         dokumentDao.finnDokumentMedEksternId(
-            saksbehandlingsperiodeId = periode.id,
+            behandlingId = periode.id,
             dokumentType = dokType,
             eksternId = inntektsmeldingId,
         )

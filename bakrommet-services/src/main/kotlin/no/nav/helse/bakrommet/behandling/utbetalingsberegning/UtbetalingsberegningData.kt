@@ -62,7 +62,7 @@ data class BeregningDataInnDto(
 
 data class BeregningResponse(
     val id: UUID,
-    val saksbehandlingsperiodeId: UUID,
+    val behandlingId: UUID,
     val beregningData: BeregningData,
     val opprettet: String,
     val opprettetAv: String,
@@ -71,7 +71,7 @@ data class BeregningResponse(
 
 data class BeregningResponseUtDto(
     val id: UUID,
-    val saksbehandlingsperiodeId: UUID,
+    val behandlingId: UUID,
     val beregningData: BeregningDataUtDto,
     val opprettet: String,
     val opprettetAv: String,

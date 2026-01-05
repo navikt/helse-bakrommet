@@ -11,17 +11,17 @@ import java.util.concurrent.ConcurrentHashMap
 class VurdertVilkårDaoFake : VurdertVilkårDao {
     private val vurderinger = ConcurrentHashMap<Pair<UUID, String>, VurdertVilkår>()
 
-    override fun hentVilkårsvurderinger(saksbehandlingsperiodeId: UUID): List<VurdertVilkår> = vurderinger.filterKeys { it.first == saksbehandlingsperiodeId }.values.toList()
+    override fun hentVilkårsvurderinger(behandlingId: UUID): List<VurdertVilkår> = vurderinger.filterKeys { it.first == behandlingId }.values.toList()
 
     override fun hentVilkårsvurdering(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         kode: String,
-    ): VurdertVilkår? = vurderinger[saksbehandlingsperiodeId to kode]
+    ): VurdertVilkår? = vurderinger[behandlingId to kode]
 
     override fun slettVilkårsvurdering(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         kode: String,
-    ): Int = if (vurderinger.remove(saksbehandlingsperiodeId to kode) != null) 1 else 0
+    ): Int = if (vurderinger.remove(behandlingId to kode) != null) 1 else 0
 
     override fun eksisterer(
         behandling: Behandling,

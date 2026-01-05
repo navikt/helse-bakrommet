@@ -16,14 +16,14 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.settDagoversikt(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     yrkesaktivitetId: UUID,
     dager: List<DagDto>,
     expectedStatus: HttpStatusCode = HttpStatusCode.NoContent,
 ) {
     val req = DagerSomSkalOppdateresDto(dager)
     val response =
-        client.put("/v1/$personId/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
+        client.put("/v1/$personId/behandlinger/$behandlingId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(req.serialisertTilString())

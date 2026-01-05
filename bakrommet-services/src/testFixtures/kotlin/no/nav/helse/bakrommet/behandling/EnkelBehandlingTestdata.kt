@@ -31,7 +31,7 @@ val enkelYrkesaktivitet =
         kategoriseringGenerert = null,
         dagoversikt = Dagoversikt(),
         dagoversiktGenerert = null,
-        saksbehandlingsperiodeId = UUID.randomUUID(),
+        behandlingId = UUID.randomUUID(),
         opprettet = OffsetDateTime.now(),
         generertFraDokumenter = emptyList(),
     )

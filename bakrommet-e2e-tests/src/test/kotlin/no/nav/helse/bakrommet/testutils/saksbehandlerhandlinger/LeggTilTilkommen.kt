@@ -19,12 +19,12 @@ import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.leggTilTilkommenInntekt(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     tilkommenInntekt: OpprettTilkommenInntektRequestDto,
 ): TilkommenInntektResponseDto {
     leggTilTilkommenInntekt(
         personId = personId,
-        periodeId = periodeId,
+        behandlingId = behandlingId,
         tilkommenInntekt = tilkommenInntekt,
         forventetResponseKode = HttpStatusCode.Created,
     ).apply {
@@ -34,12 +34,12 @@ internal suspend fun ApplicationTestBuilder.leggTilTilkommenInntekt(
 
 internal suspend fun ApplicationTestBuilder.leggTilTilkommenInntekt(
     personId: UUID,
-    periodeId: UUID,
+    behandlingId: UUID,
     tilkommenInntekt: OpprettTilkommenInntektRequestDto,
     forventetResponseKode: HttpStatusCode,
 ): String {
     val response =
-        client.post("/v1/$personId/behandlinger/$periodeId/tilkommeninntekt") {
+        client.post("/v1/$personId/behandlinger/$behandlingId/tilkommeninntekt") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
             setBody(tilkommenInntekt.serialisertTilString())

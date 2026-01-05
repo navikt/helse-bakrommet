@@ -9,23 +9,23 @@ class DokumentDaoFake : DokumentDao {
     private val dokumenter = ConcurrentHashMap<UUID, Dokument>()
 
     override fun finnDokumentMedEksternId(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         dokumentType: String,
         eksternId: String,
     ): Dokument? =
         dokumenter.values.firstOrNull {
-            it.opprettetForBehandling == saksbehandlingsperiodeId &&
+            it.opprettetForBehandling == behandlingId &&
                 it.dokumentType == dokumentType &&
                 it.eksternId == eksternId
         }
 
     override fun finnDokumentForForespurteData(
-        saksbehandlingsperiodeId: UUID,
+        behandlingId: UUID,
         dokumentType: String,
         forespurteData: String,
     ): Dokument? =
         dokumenter.values.firstOrNull {
-            it.opprettetForBehandling == saksbehandlingsperiodeId &&
+            it.opprettetForBehandling == behandlingId &&
                 it.dokumentType == dokumentType &&
                 it.forespurteData == forespurteData
         }
