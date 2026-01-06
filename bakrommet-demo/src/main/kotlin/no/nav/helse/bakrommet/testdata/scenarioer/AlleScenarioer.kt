@@ -5,6 +5,7 @@ val alleScenarioer =
     listOf(
         plankeSak,
         vernepliktig,
+        vernepliktigUnder2G,
         tidsbegrensetArbeidsforhold,
         yrkesskade,
         avvikendeMaler,
