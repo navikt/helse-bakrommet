@@ -89,37 +89,6 @@ helse-bakrommet/
 - **Database Migrations**: `bakrommet-services/src/main/resources/db/migration/`
 - **Dockerfiles**: `Dockerfile` (main), `Dockerfile.demo` (demo app)
 
-## CI/CD Workflows
-
-### Main Workflow (.github/workflows/main.yml)
-Runs on every push to main, dev-*, and demo-* branches:
-
-1. **Build Job**: 
-   - Uses Java 21 (Temurin)
-   - **IMPORTANT**: Deletes `bakrommet-demo/src/main/resources/logback.xml` before building (step: "Slett lokal logback fil i demo")
-   - Runs `./gradlew build -x test` with GitHub token
-   - Runs `./gradlew test` separately
-   - Caches build outputs for docker-build job
-
-2. **Docker Build Jobs**: 
-   - Builds two Docker images (main app and demo)
-   - Uses cached build outputs from build job
-
-3. **Deploy Jobs**: 
-   - Deploys to dev-gcp NAIS cluster
-
-### Other Workflows
-- **CodeQL** (.github/workflows/codeql.yml): Security scanning (autobuild for java-kotlin)
-- **Topics** (.github/workflows/topic.yml): Deploys Kafka topics to dev-gcp
-
-## Database
-
-- **Database**: PostgreSQL (managed by Testcontainers in tests)
-- **Migration Tool**: Flyway (version 11.13.2)
-- **Migration Location**: `bakrommet-services/src/main/resources/db/migration/`
-- **Driver**: PostgreSQL JDBC driver 42.7.8
-- **Connection Pool**: HikariCP 6.3.0
-
 ## Common Issues & Workarounds
 
 ### Issue: Build Fails with Wrong Java Version
@@ -168,6 +137,3 @@ Runs on every push to main, dev-*, and demo-* branches:
 6. **Test fixtures pattern** - Many modules expose test utilities via testFixtures source set
 7. **Multi-module dependencies** - Check `settings.gradle.kts` for module structure before adding cross-module dependencies
 
-## Trust These Instructions
-
-These instructions have been validated by running actual builds and tests. If you encounter behavior that contradicts these instructions, investigate carefully - the project configuration may have changed.
