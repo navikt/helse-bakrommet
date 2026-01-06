@@ -137,3 +137,129 @@ helse-bakrommet/
 6. **Test fixtures pattern** - Many modules expose test utilities via testFixtures source set
 7. **Multi-module dependencies** - Check `settings.gradle.kts` for module structure before adding cross-module dependencies
 
+## Local Development Setup
+
+### First Time Setup
+1. **Install Java 21**: Required for building and running the project
+   ```bash
+   # On Ubuntu/Debian with apt
+   sudo apt-get update
+   sudo apt-get install openjdk-21-jdk
+   
+   # Or download from https://adoptium.net/
+   ```
+
+2. **Set up environment variables** (if working with GitHub Packages):
+   ```bash
+   export ORG_GRADLE_PROJECT_githubPassword=<your-github-token>
+   ```
+
+3. **Initial build** to verify setup:
+   ```bash
+   ./gradlew build
+   ```
+
+4. **Optional: Install ktlint pre-commit hook**:
+   ```bash
+   ./gradlew addKtlintFormatGitPreCommitHook
+   ```
+
+### Running the Application Locally
+- **Main application**: Run `App.kt` in `bakrommet-bootstrap` module
+- **Demo application**: Run `StartDemoApp.kt` in `bakrommet-demo` module
+- **Database**: Tests use Testcontainers with PostgreSQL (Docker required)
+
+## Pull Request Workflow
+
+### Creating Pull Requests
+1. Create a descriptive branch name (e.g., `feature/add-new-endpoint`, `fix/null-pointer-bug`)
+2. Make focused, incremental commits
+3. Run tests and linting before pushing:
+   ```bash
+   ./gradlew ktlintFormat build
+   ```
+4. Write clear commit messages (see conventions below)
+5. Keep PRs small and focused on a single concern
+
+### Commit Message Conventions
+- Use emoji prefixes (observed from dependabot): `⬆` for dependency updates
+- Use descriptive messages that explain the "why" not just the "what"
+- Examples:
+  - "Add authentication endpoint for user login"
+  - "Fix null pointer exception in payment calculation"
+  - "Refactor date handling to use sykepenger-primitiver"
+
+### Code Review Guidelines
+- PRs are reviewed by team members in #team-bømlo-værsågod Slack channel
+- Address review comments promptly
+- Update tests when changing functionality
+- Ensure CI passes before requesting review
+
+## Security and Dependency Management
+
+### Security Scanning
+- **CodeQL**: Runs automatically on main branch and PRs
+- **Dependabot**: Monitors dependencies (GitHub Actions, Docker, Gradle)
+- **Update cooldown**: All dependency updates delayed by 7 days for stability
+
+### Handling Vulnerabilities
+1. Check Dependabot alerts regularly
+2. When adding dependencies, prefer well-maintained libraries
+3. Override vulnerable transitive dependencies in root `build.gradle.kts`:
+   ```kotlin
+   constraints {
+       implementation("org.apache.commons:commons-compress:1.28.0") {
+           because("org.testcontainers:postgresql:1.21.0 -> 1.24.0 har en sårbarhet")
+       }
+   }
+   ```
+4. Document security overrides with `because()` clause explaining the reason
+
+### Adding New Dependencies
+1. Check if dependency is already managed in `bakrommet-dependencies/build.gradle.kts`
+2. Use version constraints from the dependencies module
+3. For new dependencies, add version to `bakrommet-dependencies` first
+4. Test thoroughly after adding dependencies
+5. Consider security implications and maintainability
+
+## Debugging and Troubleshooting
+
+### Common Debugging Approaches
+1. **Build issues**: Check Java version first (`java -version`)
+2. **Test failures**: Run individual test with `./gradlew :module-name:test --tests ClassName`
+3. **Dependency issues**: Try `./gradlew clean build --refresh-dependencies`
+4. **ktlint issues**: Run `./gradlew ktlintFormat` to auto-fix formatting
+
+### Useful Debugging Commands
+```bash
+# See dependency tree for a module
+./gradlew :module-name:dependencies
+
+# Run specific test class
+./gradlew :module-name:test --tests "no.nav.helse.ClassName"
+
+# Run tests with detailed output
+./gradlew test --info
+
+# Check for outdated dependencies
+./gradlew dependencyUpdates
+
+# Clean and rebuild from scratch
+./gradlew clean build --no-build-cache
+```
+
+### Module-Specific Issues
+- **bakrommet-demo**: The logback.xml is intentionally deleted in CI
+- **sykepenger-* modules**: Excluded from ktlint checks (imported code)
+- **GitHub Packages**: May need token for resolving NAV dependencies
+
+## Custom Agents
+
+The repository includes custom Copilot agents for specialized tasks:
+
+### scenario-creator Agent
+- **Purpose**: Create test scenario files for the demo application
+- **Location**: `.github/agents/scenario.agent.md`
+- **Usage**: Use when creating new test scenarios in Norwegian for demo app
+- **Conventions**: Follow existing patterns, use Norwegian text, update `AlleScenarioer.kt`
+
