@@ -1,0 +1,43 @@
+@startuml
+
+class Behandling
+
+class Sykefraværstilfelle
+
+class Sykepengegrunnlag
+
+class Beregning
+
+interface Yrkesaktivitetsperiode
+
+class Yrkesaktivitet
+
+class Inntektsgrunnlag
+
+class MedSykdom as "Periode med sykdom"
+
+class UtenSykdom as "Periode uten sykdom"
+
+class VurdertVilkår as "Vurdert vilkår"
+
+Behandling --> Yrkesaktivitetsperiode: består av en eller flere
+Behandling --> Sykefraværstilfelle: inngår i et
+Sykefraværstilfelle --> Sykepengegrunnlag: har 0 eller ett
+
+Inntektsgrunnlag <-- Sykepengegrunnlag: består av 0, en eller flere
+Inntektsgrunnlag --> Yrkesaktivitet: tilhører en
+
+Behandling <-- VurdertVilkår: tilhører en
+Yrkesaktivitetsperiode --> Yrkesaktivitet: tilhører én
+MedSykdom --|> Yrkesaktivitetsperiode: er en
+UtenSykdom --|> Yrkesaktivitetsperiode: er en
+Behandling --> Beregning: har kanskje en
+
+note top of UtenSykdom
+  Skille på ghost og tilkommen inntekt?
+end note
+
+hide empty members
+hide circle
+
+@enduml
