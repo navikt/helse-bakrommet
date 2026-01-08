@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no.nav.helse.bakrommet.api.setupApiRoutes
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.auth.RolleMatrise
 import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
@@ -82,7 +83,7 @@ fun main() {
         }
 
         install(Authentication) {
-            provider("manual") {
+            provider("entraid") {
                 authenticate { ctx ->
                     val sessionIdFraCookie = ctx.call.sessions.get("bakrommet-demo-session") as String?
                     val bruker =
@@ -166,7 +167,8 @@ fun main() {
             demoBrukerRoute()
             demoTestdataRoute()
             demoOutboxRoute()
-            authenticate("manual") {
+            authenticate("entraid") {
+                install(RolleMatrise)
                 setupApiRoutes(services)
             }
         }
