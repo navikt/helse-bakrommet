@@ -20,12 +20,12 @@ class UtenSykdom as "Periode uten sykdom"
 
 class VurdertVilkår as "Vurdert vilkår"
 
-Behandling --> Yrkesaktivitetsperiode: består av en eller flere
+Behandling --> Yrkesaktivitetsperiode: omfatter en eller flere
 Behandling --> Sykefraværstilfelle: inngår i et
+Sykefraværstilfelle --> Yrkesaktivitet: har en eller flere \n på skjæringstidspunktet
 Sykefraværstilfelle --> Sykepengegrunnlag: har 0 eller ett
-
-Inntektsgrunnlag <-- Sykepengegrunnlag: består av 0, en eller flere
-Inntektsgrunnlag --> Yrkesaktivitet: tilhører en
+Sykepengegrunnlag --> Inntektsgrunnlag: består av 0, en eller flere
+Yrkesaktivitet --> Inntektsgrunnlag: har 0 eller en
 
 Behandling <-- VurdertVilkår: tilhører en
 Yrkesaktivitetsperiode --> Yrkesaktivitet: tilhører én
