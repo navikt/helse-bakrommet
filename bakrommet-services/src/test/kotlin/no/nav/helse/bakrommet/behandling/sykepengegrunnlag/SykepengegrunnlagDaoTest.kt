@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.sykepengegrunnlag
 
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
@@ -32,7 +32,7 @@ class SykepengegrunnlagDaoTest {
         val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
         PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource).opprettPseudoId(pseudoId, NaturligIdent(fnr))
         BehandlingDaoPg(TestDataSource.dbModule.dataSource).opprettPeriode(
-            Behandling(
+            BehandlingDbRecord(
                 id = behandlingId,
                 naturligIdent = NaturligIdent(fnr),
                 opprettet = OffsetDateTime.now(),

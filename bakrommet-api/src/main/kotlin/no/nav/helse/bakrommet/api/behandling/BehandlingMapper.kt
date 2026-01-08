@@ -4,12 +4,12 @@ import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingEndringDto
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingEndringTypeDto
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndring
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
 
-fun Behandling.tilBehandlingDto(): BehandlingDto =
+fun BehandlingDbRecord.tilBehandlingDto(): BehandlingDto =
     BehandlingDto(
         id = id,
         naturligIdent = naturligIdent.naturligIdent,

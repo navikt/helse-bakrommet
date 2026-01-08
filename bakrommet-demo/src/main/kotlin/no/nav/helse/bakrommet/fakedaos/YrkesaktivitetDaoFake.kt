@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
@@ -53,9 +53,9 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
 
     override fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? = storage[id]?.tilYrkesaktivitet()
 
-    override fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet> = storage.values.filter { it.behandlingId == periode.id }.map { it.tilYrkesaktivitet() }
+    override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<Yrkesaktivitet> = storage.values.filter { it.behandlingId == periode.id }.map { it.tilYrkesaktivitet() }
 
-    override fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord> = hentYrkesaktiviteterDbRecord(periode.id)
+    override fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord> = hentYrkesaktiviteterDbRecord(periode.id)
 
     override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> = storage.values.filter { it.behandlingId == behandlingId }
 

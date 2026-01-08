@@ -2,7 +2,7 @@
 
 package no.nav.helse.bakrommet.behandling.validering.sjekker
 
-import no.nav.helse.bakrommet.behandling.enkelBehandling
+import no.nav.helse.bakrommet.behandling.enkelBehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
@@ -16,7 +16,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
     fun `8-2 ikke oppfylt, 8-47 ikke vurdert, Det er ikke OK`() {
         val data =
             ValideringData(
-                behandling = enkelBehandling,
+                behandlingDbRecord = enkelBehandlingDbRecord,
                 yrkesaktiviteter = emptyList(),
                 sykepengegrunnlag = null,
                 beregningData = null,
@@ -42,7 +42,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
     fun `8-2 ikke oppfylt, 8-47 ikke oppfylt, Det er helt OK`() {
         val data =
             ValideringData(
-                behandling = enkelBehandling,
+                behandlingDbRecord = enkelBehandlingDbRecord,
                 yrkesaktiviteter = emptyList(),
                 sykepengegrunnlag = null,
                 beregningData = null,

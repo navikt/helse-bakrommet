@@ -5,9 +5,9 @@ import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 
 private fun krevAtBrukerErBeslutterFor(
     bruker: Bruker,
-    periode: Behandling,
+    periode: BehandlingDbRecord,
 ) {
-    fun Bruker.erBeslutterFor(periode: Behandling): Boolean = periode.beslutterNavIdent == this.navIdent
+    fun Bruker.erBeslutterFor(periode: BehandlingDbRecord): Boolean = periode.beslutterNavIdent == this.navIdent
 
     if (!bruker.erBeslutterFor(periode)) {
         throw ForbiddenException("Ikke beslutter for periode")
@@ -16,9 +16,9 @@ private fun krevAtBrukerErBeslutterFor(
 
 private fun krevAtBrukerErSaksbehandlerFor(
     bruker: Bruker,
-    periode: Behandling,
+    periode: BehandlingDbRecord,
 ) {
-    fun Bruker.erSaksbehandlerFor(periode: Behandling): Boolean = periode.opprettetAvNavIdent == this.navIdent
+    fun Bruker.erSaksbehandlerFor(periode: BehandlingDbRecord): Boolean = periode.opprettetAvNavIdent == this.navIdent
 
     if (!bruker.erSaksbehandlerFor(periode)) {
         throw ForbiddenException("Ikke saksbehandler for periode")
@@ -27,9 +27,9 @@ private fun krevAtBrukerErSaksbehandlerFor(
 
 class BrukerHarRollePåSakenKrav(
     private val bruker: Bruker,
-    private val valideringsfunksjon: (Bruker, Behandling) -> Unit,
+    private val valideringsfunksjon: (Bruker, BehandlingDbRecord) -> Unit,
 ) {
-    fun valider(periode: Behandling) {
+    fun valider(periode: BehandlingDbRecord) {
         valideringsfunksjon(bruker, periode)
     }
 }

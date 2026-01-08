@@ -22,7 +22,7 @@ class DokumentDaoTest {
     val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
     val saksbehandler = Bruker("ABC", "A. B. C", "Saksbehandersen@nav.no", roller = emptySet())
     val periode =
-        Behandling(
+        BehandlingDbRecord(
             id = UUID.randomUUID(),
             naturligIdent = NaturligIdent(fnr),
             opprettet = OffsetDateTime.now(),

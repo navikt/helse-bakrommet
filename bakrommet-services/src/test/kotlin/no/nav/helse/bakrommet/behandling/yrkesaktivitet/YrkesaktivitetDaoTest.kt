@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
@@ -30,7 +30,7 @@ class YrkesaktivitetDaoTest {
     val pseudoId = UUID.nameUUIDFromBytes("0h0a1".toByteArray())
     val saksbehandler = Bruker("ABC", "A. B. C", "ola@nav.no", emptySet())
     val periode =
-        Behandling(
+        BehandlingDbRecord(
             id = UUID.randomUUID(),
             naturligIdent = NaturligIdent(fnr),
             opprettet = OffsetDateTime.now(),

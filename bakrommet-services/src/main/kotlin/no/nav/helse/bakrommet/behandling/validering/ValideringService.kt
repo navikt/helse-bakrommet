@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.behandling.validering
 
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.BehandlingServiceDaoer
 import no.nav.helse.bakrommet.behandling.hentPeriode
@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 
 data class ValideringData(
-    val behandling: Behandling,
+    val behandlingDbRecord: BehandlingDbRecord,
     val yrkesaktiviteter: List<Yrkesaktivitet>,
     val vurderteVilkår: List<VurdertVilkår>,
     val sykepengegrunnlag: SykepengegrunnlagDbRecord?,
@@ -45,7 +45,7 @@ class ValideringService(
             db.transactional {
                 val behandling = behandlingDao.hentPeriode(behandlingReferanse, krav = null, måVæreUnderBehandling = false)
                 ValideringData(
-                    behandling = behandling,
+                    behandlingDbRecord = behandling,
                     yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(behandling),
                     vurderteVilkår = vurdertVilkårDao.hentVilkårsvurderinger(behandling.id),
                     sykepengegrunnlag = behandling.sykepengegrunnlagId?.let { sykepengegrunnlagDao.hentSykepengegrunnlag(it) },

@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.vilkaar
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Session
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
@@ -33,18 +33,18 @@ interface VurdertVilkårDao {
     ): Int
 
     fun eksisterer(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
     ): Boolean
 
     fun oppdater(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
         oppdatertVurdering: Vilkaarsvurdering,
     ): Int
 
     fun leggTil(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
         vurdering: Vilkaarsvurdering,
     ): Int
@@ -121,7 +121,7 @@ class VurdertVilkårDaoPg private constructor(
             ).also(verifiserOppdatert)
 
     override fun eksisterer(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
     ): Boolean =
         db.single(
@@ -130,13 +130,13 @@ class VurdertVilkårDaoPg private constructor(
             where behandling_id = :behandling_id
             and kode = :kode
             """.trimIndent(),
-            "behandling_id" to behandling.id,
+            "behandling_id" to behandlingDbRecord.id,
             "kode" to kode.kode,
             mapper = { true },
         ) ?: false
 
     override fun oppdater(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
         oppdatertVurdering: Vilkaarsvurdering,
     ): Int =
@@ -152,12 +152,12 @@ class VurdertVilkårDaoPg private constructor(
                 """.trimIndent(),
                 "vurdering" to oppdatertVurdering.tilPgJson(),
                 "vurdering_tidspunkt" to Instant.now(),
-                "behandling_id" to behandling.id,
+                "behandling_id" to behandlingDbRecord.id,
                 "kode" to kode.kode,
             ).also(verifiserOppdatert)
 
     override fun leggTil(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
         vurdering: Vilkaarsvurdering,
     ): Int =
@@ -171,7 +171,7 @@ class VurdertVilkårDaoPg private constructor(
                 """.trimIndent(),
                 "vurdering" to vurdering.tilPgJson(),
                 "vurdering_tidspunkt" to Instant.now(),
-                "behandling_id" to behandling.id,
+                "behandling_id" to behandlingDbRecord.id,
                 "kode" to kode.kode,
             ).also(verifiserOppdatert)
 }

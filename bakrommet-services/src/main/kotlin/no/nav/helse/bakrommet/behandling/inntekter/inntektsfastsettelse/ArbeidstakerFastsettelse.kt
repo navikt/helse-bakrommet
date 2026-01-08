@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastInntektsmeldingDokument
@@ -23,7 +23,7 @@ import no.nav.helse.økonomi.Inntekt
 
 internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
     yrkesaktivitet: Yrkesaktivitet,
-    periode: Behandling,
+    periode: BehandlingDbRecord,
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
     inntektsmeldingClient: InntektsmeldingClient,

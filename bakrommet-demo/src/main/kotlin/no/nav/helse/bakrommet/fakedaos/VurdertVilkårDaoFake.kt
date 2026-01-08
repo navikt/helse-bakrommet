@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
@@ -24,27 +24,27 @@ class VurdertVilkårDaoFake : VurdertVilkårDao {
     ): Int = if (vurderinger.remove(behandlingId to kode) != null) 1 else 0
 
     override fun eksisterer(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
-    ): Boolean = vurderinger.containsKey(behandling.id to kode.kode)
+    ): Boolean = vurderinger.containsKey(behandlingDbRecord.id to kode.kode)
 
     override fun oppdater(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
         oppdatertVurdering: Vilkaarsvurdering,
     ): Int {
-        val key = behandling.id to kode.kode
+        val key = behandlingDbRecord.id to kode.kode
         val eksisterende = vurderinger[key] ?: return 0
         vurderinger[key] = eksisterende.copy(vurdering = oppdatertVurdering)
         return 1
     }
 
     override fun leggTil(
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
         vurdering: Vilkaarsvurdering,
     ): Int {
-        vurderinger[behandling.id to kode.kode] = VurdertVilkår(kode = kode.kode, vurdering = vurdering)
+        vurderinger[behandlingDbRecord.id to kode.kode] = VurdertVilkår(kode = kode.kode, vurdering = vurdering)
         return 1
     }
 }

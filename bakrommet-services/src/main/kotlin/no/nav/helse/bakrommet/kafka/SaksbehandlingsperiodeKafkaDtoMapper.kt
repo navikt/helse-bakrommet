@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.kafka
 
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.hentPeriode
@@ -27,7 +27,7 @@ interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val vurdertVilkårDao: VurdertVilkårDao
 }
 
-fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: Behandling) {
+fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: BehandlingDbRecord) {
     leggTilOutbox(periode.somReferanse())
 }
 

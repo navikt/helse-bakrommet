@@ -43,7 +43,7 @@ data class BehandlingReferanse(
     val behandlingId: UUID,
 )
 
-fun Behandling.somReferanse() =
+fun BehandlingDbRecord.somReferanse() =
     BehandlingReferanse(
         naturligIdent = this.naturligIdent,
         behandlingId = this.id,
@@ -64,10 +64,10 @@ class BehandlingService(
         søknader: Set<UUID>,
         saksbehandler: BrukerOgToken,
         id: UUID = UUID.randomUUID(),
-    ): Behandling {
+    ): BehandlingDbRecord {
         if (fom.isAfter(tom)) throw InputValideringException("Fom-dato kan ikke være etter tom-dato")
         var nyPeriode =
-            Behandling(
+            BehandlingDbRecord(
                 id = id,
                 naturligIdent = naturligIdent,
                 opprettet = OffsetDateTime.now(),
@@ -79,7 +79,7 @@ class BehandlingService(
                 revurdererSaksbehandlingsperiodeId = null,
             )
 
-        var tidligerePeriodeInntilNyPeriode: Behandling? = null
+        var tidligerePeriodeInntilNyPeriode: BehandlingDbRecord? = null
 
         db.transactional {
             val perioder = behandlingDao.finnBehandlingerForNaturligIdent(naturligIdent)
@@ -147,7 +147,7 @@ class BehandlingService(
             val (yrkesaktiviteter, gammelTilNyIdMap) =
                 lagYrkesaktiviteter(
                     sykepengesoknader = søknader,
-                    behandling = nyPeriode,
+                    behandlingDbRecord = nyPeriode,
                     tidligereYrkesaktiviteter = tidligereYrkesaktiviteter,
                 )
             yrkesaktiviteter.forEach { yrkesaktivitet ->
@@ -176,19 +176,19 @@ class BehandlingService(
         return nyPeriode
     }
 
-    suspend fun finnPerioderForPerson(naturligIdent: NaturligIdent): List<Behandling> = db.nonTransactional { behandlingDao.finnBehandlingerForNaturligIdent(naturligIdent) }
+    suspend fun finnPerioderForPerson(naturligIdent: NaturligIdent): List<BehandlingDbRecord> = db.nonTransactional { behandlingDao.finnBehandlingerForNaturligIdent(naturligIdent) }
 
     suspend fun sendTilBeslutning(
         periodeRef: BehandlingReferanse,
         individuellBegrunnelse: String?,
         saksbehandler: Bruker,
-    ): Behandling =
+    ): BehandlingDbRecord =
         db.transactional {
             behandlingDao
                 .let { dao ->
                     val periode = dao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
 
-                    fun Behandling.harAlleredeBeslutter() = this.beslutterNavIdent != null
+                    fun BehandlingDbRecord.harAlleredeBeslutter() = this.beslutterNavIdent != null
                     val nyStatus =
                         if (periode.harAlleredeBeslutter()) {
                             UNDER_BESLUTNING
@@ -211,7 +211,7 @@ class BehandlingService(
     suspend fun revurderPeriode(
         periodeRef: BehandlingReferanse,
         saksbehandler: Bruker,
-    ): Behandling =
+    ): BehandlingDbRecord =
         db.transactional {
             val forrigePeriode = behandlingDao.hentPeriode(periodeRef, null, måVæreUnderBehandling = false)
             if (forrigePeriode.status != GODKJENT) {
@@ -305,7 +305,7 @@ class BehandlingService(
     suspend fun taTilBeslutning(
         periodeRef: BehandlingReferanse,
         saksbehandler: Bruker,
-    ): Behandling =
+    ): BehandlingDbRecord =
         db.transactional {
             val periode = behandlingDao.hentPeriode(periodeRef, krav = null, måVæreUnderBehandling = false)
             val nyStatus = UNDER_BESLUTNING
@@ -329,7 +329,7 @@ class BehandlingService(
         periodeRef: BehandlingReferanse,
         saksbehandler: Bruker,
         kommentar: String,
-    ): Behandling =
+    ): BehandlingDbRecord =
         db.transactional {
             val periode =
                 behandlingDao.hentPeriode(
@@ -357,7 +357,7 @@ class BehandlingService(
     suspend fun godkjennPeriode(
         periodeRef: BehandlingReferanse,
         saksbehandler: Bruker,
-    ): Behandling {
+    ): BehandlingDbRecord {
         return db.transactional {
             val periode =
                 behandlingDao.hentPeriode(
@@ -410,7 +410,7 @@ class BehandlingService(
         periodeRef: BehandlingReferanse,
         skjæringstidspunkt: LocalDate,
         saksbehandler: Bruker,
-    ): Behandling =
+    ): BehandlingDbRecord =
         db.transactional {
             val periode =
                 behandlingDao.hentPeriode(periodeRef, krav = saksbehandler.erSaksbehandlerPåSaken())
@@ -426,7 +426,7 @@ class BehandlingService(
         }
 }
 
-private fun Behandling.endring(
+private fun BehandlingDbRecord.endring(
     endringType: SaksbehandlingsperiodeEndringType,
     saksbehandler: Bruker,
     status: BehandlingStatus = this.status,
@@ -443,7 +443,7 @@ private fun Behandling.endring(
     endringKommentar = endringKommentar,
 )
 
-private fun Behandling.verifiserNyStatusGyldighet(nyStatus: BehandlingStatus) {
+private fun BehandlingDbRecord.verifiserNyStatusGyldighet(nyStatus: BehandlingStatus) {
     if (!BehandlingStatus.erGyldigEndring(status to nyStatus)) {
         throw InputValideringException("Ugyldig statusendring: $status til $nyStatus")
     }
@@ -560,7 +560,7 @@ private fun YrkesaktivitetKategorisering.medSykmeldt(sykmeldt: Boolean): Yrkesak
 
 fun lagYrkesaktiviteter(
     sykepengesoknader: Iterable<Dokument>,
-    behandling: Behandling,
+    behandlingDbRecord: BehandlingDbRecord,
     tidligereYrkesaktiviteter: List<YrkesaktivitetDbRecord>,
 ): Pair<List<YrkesaktivitetDbRecord>, Map<UUID, UUID>> {
     // Bruk matching-nøkkel uten sykmeldt for å matche yrkesaktiviteter
@@ -585,8 +585,8 @@ fun lagYrkesaktiviteter(
                 val sykdomstidlinje =
                     skapDagoversiktFraSoknader(
                         søknader.map { it.somSøknad() },
-                        behandling.fom,
-                        behandling.tom,
+                        behandlingDbRecord.fom,
+                        behandlingDbRecord.tom,
                     )
 
                 YrkesaktivitetDbRecord(
@@ -595,7 +595,7 @@ fun lagYrkesaktiviteter(
                     kategoriseringGenerert = kategoriseringMedSykmeldt,
                     dagoversikt = Dagoversikt(sykdomstidlinje, emptyList()),
                     dagoversiktGenerert = Dagoversikt(sykdomstidlinje, emptyList()),
-                    behandlingId = behandling.id,
+                    behandlingId = behandlingDbRecord.id,
                     opprettet = OffsetDateTime.now(),
                     generertFraDokumenter = søknader.map { it.id },
                     refusjon = tidligere?.refusjon,
@@ -608,10 +608,10 @@ fun lagYrkesaktiviteter(
                 // Behold sykmeldt-status fra tidligere yrkesaktivitet når det ikke finnes søknader
                 tidligere.copy(
                     id = nyId,
-                    dagoversikt = Dagoversikt(initialiserDager(behandling.fom, behandling.tom), emptyList()),
+                    dagoversikt = Dagoversikt(initialiserDager(behandlingDbRecord.fom, behandlingDbRecord.tom), emptyList()),
                     dagoversiktGenerert = null,
                     generertFraDokumenter = emptyList(),
-                    behandlingId = behandling.id,
+                    behandlingId = behandlingDbRecord.id,
                     opprettet = OffsetDateTime.now(),
                 )
             }

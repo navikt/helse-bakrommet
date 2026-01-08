@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
 
-class BehandlingTest {
+class BehandlingDbRecordTest {
     private companion object {
         val fnr = "01019012349"
         val personId = "65hth"

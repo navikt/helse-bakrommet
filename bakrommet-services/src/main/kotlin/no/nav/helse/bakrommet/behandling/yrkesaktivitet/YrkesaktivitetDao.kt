@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import kotliquery.Row
 import kotliquery.Session
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.STATUS_UNDER_BEHANDLING_STR
 import no.nav.helse.bakrommet.behandling.dagoversikt.tilDagoversikt
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
@@ -115,9 +115,9 @@ interface YrkesaktivitetDao {
 
     fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet?
 
-    fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet>
+    fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<Yrkesaktivitet>
 
-    fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord>
+    fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord>
 
     fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord>
 
@@ -254,12 +254,12 @@ class YrkesaktivitetDaoPg private constructor(
             )
         }
 
-    override fun hentYrkesaktiviteter(periode: Behandling): List<Yrkesaktivitet> =
+    override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<Yrkesaktivitet> =
         hentYrkesaktiviteterDbRecord(periode).map {
             it.tilYrkesaktivitet()
         }
 
-    override fun hentYrkesaktiviteterDbRecord(periode: Behandling): List<YrkesaktivitetDbRecord> = hentYrkesaktiviteterDbRecord(periode.id)
+    override fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord> = hentYrkesaktiviteterDbRecord(periode.id)
 
     override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> =
         db.list(

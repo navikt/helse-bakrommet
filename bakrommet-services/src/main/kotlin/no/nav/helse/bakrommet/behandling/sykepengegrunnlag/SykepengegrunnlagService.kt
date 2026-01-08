@@ -84,10 +84,10 @@ class SykepengegrunnlagService(
 }
 
 fun skapSykepengegrunnlag(
-    behandling: Behandling,
+    behandlingDbRecord: BehandlingDbRecord,
     request: OpprettSykepengegrunnlagRequest,
 ): SykepengegrunnlagBase {
-    val gDato = request.datoForGBegrensning ?: behandling.skjæringstidspunkt
+    val gDato = request.datoForGBegrensning ?: behandlingDbRecord.skjæringstidspunkt
 
     val grunnbeløp = Grunnbeløp.`1G`.beløp(gDato)
     val grunnbeløp6G = Grunnbeløp.`6G`.beløp(gDato)

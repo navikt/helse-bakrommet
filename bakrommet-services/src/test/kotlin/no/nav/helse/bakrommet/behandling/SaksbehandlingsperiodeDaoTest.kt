@@ -51,7 +51,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val tom = LocalDate.of(2021, 1, 31)
 
         val periode =
-            Behandling(
+            BehandlingDbRecord(
                 id = id,
                 naturligIdent = NaturligIdent(fnr),
                 opprettet = now,
@@ -82,12 +82,12 @@ internal class SaksbehandlingsperiodeDaoTest {
         fun opprettPeriode(
             fom: String,
             tom: String,
-        ): Behandling {
+        ): BehandlingDbRecord {
             val id = UUID.randomUUID()
             val now = OffsetDateTime.now()
             val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
             val periode =
-                Behandling(
+                BehandlingDbRecord(
                     id = id,
                     naturligIdent = NaturligIdent(fnr),
                     opprettet = now,
@@ -105,7 +105,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         fun finnOverlappende(
             fom: String,
             tom: String,
-        ): Set<Behandling> =
+        ): Set<BehandlingDbRecord> =
             dao
                 .finnBehandlingerForNaturligIdentSomOverlapper(
                     NaturligIdent(fnr),
@@ -137,7 +137,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val tom = LocalDate.of(2021, 1, 31)
 
         val periode =
-            Behandling(
+            BehandlingDbRecord(
                 id = id,
                 naturligIdent = NaturligIdent(fnr),
                 opprettet = now,
@@ -169,7 +169,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val tom = LocalDate.of(2021, 1, 31)
 
         val periode =
-            Behandling(
+            BehandlingDbRecord(
                 id = id,
                 naturligIdent = NaturligIdent(fnr),
                 opprettet = now,

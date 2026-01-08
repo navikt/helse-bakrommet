@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.person.NaturligIdent
@@ -9,25 +9,25 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class BehandlingDaoFake : BehandlingDao {
-    private val perioder = ConcurrentHashMap<UUID, Behandling>()
+    private val perioder = ConcurrentHashMap<UUID, BehandlingDbRecord>()
 
-    override fun hentAlleBehandlinger(): List<Behandling> = perioder.values.toList()
+    override fun hentAlleBehandlinger(): List<BehandlingDbRecord> = perioder.values.toList()
 
-    override fun finnBehandling(id: UUID): Behandling? = perioder[id]
+    override fun finnBehandling(id: UUID): BehandlingDbRecord? = perioder[id]
 
-    override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<Behandling> = perioder.values.filter { it.naturligIdent == naturligIdent }
+    override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<BehandlingDbRecord> = perioder.values.filter { it.naturligIdent == naturligIdent }
 
     override fun finnBehandlingerForNaturligIdentSomOverlapper(
         naturligIdent: NaturligIdent,
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Behandling> =
+    ): List<BehandlingDbRecord> =
         perioder.values.filter {
             it.naturligIdent == naturligIdent && it.fom <= tom && it.tom >= fom
         }
 
     override fun endreStatus(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
     ) {
         check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
@@ -36,7 +36,7 @@ class BehandlingDaoFake : BehandlingDao {
     }
 
     override fun endreStatusOgIndividuellBegrunnelse(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
         individuellBegrunnelse: String?,
     ) {
@@ -46,7 +46,7 @@ class BehandlingDaoFake : BehandlingDao {
     }
 
     override fun endreStatusOgBeslutter(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
         beslutterNavIdent: String?,
     ) {
@@ -55,7 +55,7 @@ class BehandlingDaoFake : BehandlingDao {
         perioder[periode.id] = eksisterende.copy(status = nyStatus, beslutterNavIdent = beslutterNavIdent)
     }
 
-    override fun opprettPeriode(periode: Behandling) {
+    override fun opprettPeriode(periode: BehandlingDbRecord) {
         perioder[periode.id] = periode
     }
 

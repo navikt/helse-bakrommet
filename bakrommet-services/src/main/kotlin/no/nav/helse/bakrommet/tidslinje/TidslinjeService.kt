@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.tidslinje
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeoutOrNull
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
@@ -24,7 +24,7 @@ interface TidslinjeServiceDaoer {
 }
 
 data class TidslinjeData(
-    val behandlinger: List<Behandling>,
+    val behandlinger: List<BehandlingDbRecord>,
     val yrkesaktiviteter: List<YrkesaktivitetForenkletDbRecord>,
     val tilkommen: List<TilkommenInntektDbRecord>,
     val organisasjonsnavnMap: Map<String, Organisasjon?>,

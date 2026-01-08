@@ -6,7 +6,7 @@ import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.AInntektFilter
 import no.nav.helse.bakrommet.ainntekt.Inntektoppslag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
 import no.nav.helse.bakrommet.util.asJsonNode
@@ -29,7 +29,7 @@ fun Dokument.somAInntektBeregningsgrunnlag(): Pair<Inntektoppslag, AinntektPerio
 }
 
 fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
-    periode: Behandling,
+    periode: BehandlingDbRecord,
     aInntektClient: AInntektClient,
     saksbehandler: BrukerOgToken,
 ): Dokument =
@@ -50,7 +50,7 @@ data class AinntektPeriodeNøkkel(
 fun String.tilAinntektPeriodeNøkkel(): AinntektPeriodeNøkkel = objectMapper.readValue(this)
 
 fun DokumentInnhentingDaoer.lastAInntektBeregningsgrunnlag(
-    periode: Behandling,
+    periode: BehandlingDbRecord,
     aInntektClient: AInntektClient,
     saksbehandler: BrukerOgToken,
 ): Dokument =
@@ -70,7 +70,7 @@ private fun doktypeFraFilter(filter: AInntektFilter): String =
     }
 
 private fun DokumentInnhentingDaoer.lastAInntektDok(
-    periode: Behandling,
+    periode: BehandlingDbRecord,
     aInntektClient: AInntektClient,
     filter: AInntektFilter,
     fomMinus: Long,

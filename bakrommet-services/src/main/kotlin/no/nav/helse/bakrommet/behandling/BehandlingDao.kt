@@ -15,7 +15,7 @@ import java.util.UUID
 import javax.sql.DataSource
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class Behandling(
+data class BehandlingDbRecord(
     val id: UUID,
     val naturligIdent: NaturligIdent,
     val opprettet: OffsetDateTime,
@@ -58,36 +58,36 @@ enum class BehandlingStatus {
 }
 
 interface BehandlingDao {
-    fun hentAlleBehandlinger(): List<Behandling>
+    fun hentAlleBehandlinger(): List<BehandlingDbRecord>
 
-    fun finnBehandling(id: UUID): Behandling?
+    fun finnBehandling(id: UUID): BehandlingDbRecord?
 
-    fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<Behandling>
+    fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<BehandlingDbRecord>
 
     fun finnBehandlingerForNaturligIdentSomOverlapper(
         naturligIdent: NaturligIdent,
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Behandling>
+    ): List<BehandlingDbRecord>
 
     fun endreStatus(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
     )
 
     fun endreStatusOgIndividuellBegrunnelse(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
         individuellBegrunnelse: String?,
     )
 
     fun endreStatusOgBeslutter(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
         beslutterNavIdent: String?,
     )
 
-    fun opprettPeriode(periode: Behandling)
+    fun opprettPeriode(periode: BehandlingDbRecord)
 
     fun oppdaterSkjæringstidspunkt(
         behandlingId: UUID,
@@ -119,7 +119,7 @@ class BehandlingDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override fun hentAlleBehandlinger(): List<Behandling> {
+    override fun hentAlleBehandlinger(): List<BehandlingDbRecord> {
         val limitEnnSåLenge = 100
         return db
             .list(
@@ -138,7 +138,7 @@ class BehandlingDaoPg private constructor(
             }
     }
 
-    override fun finnBehandling(id: UUID): Behandling? =
+    override fun finnBehandling(id: UUID): BehandlingDbRecord? =
         db.single(
             """
             select *
@@ -148,7 +148,7 @@ class BehandlingDaoPg private constructor(
             "id" to id,
         ) { rowTilPeriode(it) }
 
-    override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<Behandling> =
+    override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<BehandlingDbRecord> =
         db.list(
             """
             select *
@@ -162,7 +162,7 @@ class BehandlingDaoPg private constructor(
         naturligIdent: NaturligIdent,
         fom: LocalDate,
         tom: LocalDate,
-    ): List<Behandling> =
+    ): List<BehandlingDbRecord> =
         db.list(
             """
             select *
@@ -177,7 +177,7 @@ class BehandlingDaoPg private constructor(
         ) { rowTilPeriode(it) }
 
     private fun rowTilPeriode(row: Row) =
-        Behandling(
+        BehandlingDbRecord(
             id = row.uuid("id"),
             naturligIdent = NaturligIdent(row.string("naturlig_ident")),
             opprettet = row.offsetDateTime("opprettet"),
@@ -195,7 +195,7 @@ class BehandlingDaoPg private constructor(
         )
 
     override fun endreStatus(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
     ) {
         check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
@@ -210,7 +210,7 @@ class BehandlingDaoPg private constructor(
     }
 
     override fun endreStatusOgIndividuellBegrunnelse(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
         individuellBegrunnelse: String?,
     ) {
@@ -227,7 +227,7 @@ class BehandlingDaoPg private constructor(
     }
 
     override fun endreStatusOgBeslutter(
-        periode: Behandling,
+        periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
         beslutterNavIdent: String?,
     ) {
@@ -243,7 +243,7 @@ class BehandlingDaoPg private constructor(
         )
     }
 
-    override fun opprettPeriode(periode: Behandling) {
+    override fun opprettPeriode(periode: BehandlingDbRecord) {
         db.update(
             """
             insert into behandling

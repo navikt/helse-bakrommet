@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.validering.sjekker
 
-import no.nav.helse.bakrommet.behandling.Behandling
-import no.nav.helse.bakrommet.behandling.enkelBehandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
+import no.nav.helse.bakrommet.behandling.enkelBehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningData
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
@@ -73,13 +73,13 @@ fun vilkårVurdertSom(
 
 fun data(
     sykepengegrunnlag: SykepengegrunnlagDbRecord? = null,
-    behandling: Behandling = enkelBehandling,
+    behandlingDbRecord: BehandlingDbRecord = enkelBehandlingDbRecord,
     yrkesaktiviteter: List<Yrkesaktivitet> = emptyList(),
     vurderteVilkår: List<VurdertVilkår> = emptyList(),
     beregningData: BeregningData? = null,
 ): ValideringData =
     ValideringData(
-        behandling = behandling,
+        behandlingDbRecord = behandlingDbRecord,
         yrkesaktiviteter = yrkesaktiviteter,
         sykepengegrunnlag = sykepengegrunnlag,
         vurderteVilkår = vurderteVilkår,

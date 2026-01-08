@@ -12,8 +12,8 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
-val enkelBehandling =
-    Behandling(
+val enkelBehandlingDbRecord =
+    BehandlingDbRecord(
         id = UUID.randomUUID(),
         naturligIdent = NaturligIdent("01010199999"),
         opprettet = OffsetDateTime.now(),

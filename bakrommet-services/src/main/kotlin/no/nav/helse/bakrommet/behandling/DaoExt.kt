@@ -7,7 +7,7 @@ fun BehandlingDao.hentPeriode(
     ref: BehandlingReferanse,
     krav: BrukerHarRollePåSakenKrav?,
     måVæreUnderBehandling: Boolean = true,
-): Behandling {
+): BehandlingDbRecord {
     val periode =
         this.finnBehandling(ref.behandlingId)
             ?: throw SaksbehandlingsperiodeIkkeFunnetException()
@@ -21,6 +21,6 @@ fun BehandlingDao.hentPeriode(
     return periode
 }
 
-fun BehandlingDao.reload(periode: Behandling) = finnBehandling(periode.id)!!
+fun BehandlingDao.reload(periode: BehandlingDbRecord) = finnBehandling(periode.id)!!
 
 internal const val STATUS_UNDER_BEHANDLING_STR: String = "UNDER_BEHANDLING"

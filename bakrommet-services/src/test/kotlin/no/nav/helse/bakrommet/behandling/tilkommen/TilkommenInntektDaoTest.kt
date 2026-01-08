@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.behandling.tilkommen
 
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.NaturligIdent
@@ -31,7 +31,7 @@ class TilkommenInntektDaoTest {
         val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
         personDao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
         behandlingDao.opprettPeriode(
-            Behandling(
+            BehandlingDbRecord(
                 id = behandlingId,
                 naturligIdent = NaturligIdent(fnr),
                 opprettet = OffsetDateTime.now(),

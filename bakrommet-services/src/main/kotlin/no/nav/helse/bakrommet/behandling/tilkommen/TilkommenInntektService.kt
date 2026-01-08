@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.tilkommen
 
 import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.behandling.Behandling
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
@@ -90,16 +90,16 @@ class TilkommenInntektService(
 
     private fun validerTilkommenInntektPeriode(
         tilkommenInntekt: TilkommenInntekt,
-        behandling: Behandling,
+        behandlingDbRecord: BehandlingDbRecord,
     ) {
-        if (tilkommenInntekt.fom.isBefore(behandling.fom)) {
+        if (tilkommenInntekt.fom.isBefore(behandlingDbRecord.fom)) {
             throw InputValideringException(
-                "Tilkommen inntekt periode fom (${tilkommenInntekt.fom}) kan ikke være før behandlingens fom (${behandling.fom})",
+                "Tilkommen inntekt periode fom (${tilkommenInntekt.fom}) kan ikke være før behandlingens fom (${behandlingDbRecord.fom})",
             )
         }
-        if (tilkommenInntekt.tom.isAfter(behandling.tom)) {
+        if (tilkommenInntekt.tom.isAfter(behandlingDbRecord.tom)) {
             throw InputValideringException(
-                "Tilkommen inntekt periode tom (${tilkommenInntekt.tom}) kan ikke være etter behandlingens tom (${behandling.tom})",
+                "Tilkommen inntekt periode tom (${tilkommenInntekt.tom}) kan ikke være etter behandlingens tom (${behandlingDbRecord.tom})",
             )
         }
     }

@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.behandling.enkelBehandling
+import no.nav.helse.bakrommet.behandling.enkelBehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.enkelYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
@@ -21,7 +21,7 @@ class AvslåttBegrunnelseUtenVilkårsvurderingTest {
         val data =
             ValideringData(
                 beregningData = null,
-                behandling = enkelBehandling,
+                behandlingDbRecord = enkelBehandlingDbRecord,
                 yrkesaktiviteter =
                     listOf(
                         enkelYrkesaktivitet.copy(
@@ -72,7 +72,7 @@ class AvslåttBegrunnelseUtenVilkårsvurderingTest {
         val data =
             ValideringData(
                 beregningData = null,
-                behandling = enkelBehandling,
+                behandlingDbRecord = enkelBehandlingDbRecord,
                 yrkesaktiviteter =
                     listOf(
                         enkelYrkesaktivitet.copy(
