@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.inntekter
 
-import io.ktor.server.plugins.BadRequestException
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somInntektsmeldingObjektListe
@@ -45,7 +44,7 @@ class InntektsmeldingMatcherService(
             }
 
         if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
-            throw BadRequestException("Kategorisering er ikke Arbeidstaker, da henter vi ikke inntektsmeldinger")
+            error("Kategorisering er ikke Arbeidstaker, da henter vi ikke inntektsmeldinger")
         }
 
         val inntektsmeldinger =
