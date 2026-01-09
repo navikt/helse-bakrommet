@@ -10,8 +10,8 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.path
 import io.ktor.server.routing.routing
 import no.nav.helse.bakrommet.Services
-import no.nav.helse.bakrommet.auth.RolleMatrise
-import no.nav.helse.bakrommet.errorhandling.installErrorHandling
+import no.nav.helse.bakrommet.api.auth.RolleMatrise
+import no.nav.helse.bakrommet.api.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.event.Level

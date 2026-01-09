@@ -1,10 +1,12 @@
-package no.nav.helse.bakrommet.auth
+package no.nav.helse.bakrommet.api.auth
 
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.jwt
 import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.auth.tilRoller
 import java.net.URI
 
 fun Application.azureAdAppAuthentication(

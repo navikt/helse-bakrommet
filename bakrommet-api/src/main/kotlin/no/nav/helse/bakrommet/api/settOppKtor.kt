@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.api
 import io.ktor.server.application.Application
 import no.nav.helse.bakrommet.AuthOgRollerConfig
 import no.nav.helse.bakrommet.Services
-import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
+import no.nav.helse.bakrommet.api.auth.azureAdAppAuthentication
 
 fun Application.settOppKtor(
     authOgRollerConfig: AuthOgRollerConfig,

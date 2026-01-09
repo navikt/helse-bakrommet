@@ -1,11 +1,14 @@
-package no.nav.helse.bakrommet.errorhandling
+package no.nav.helse.bakrommet.api.errorhandling
 
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.JsonConvertException
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.request.*
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.request.uri
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import no.nav.helse.bakrommet.errorhandling.ProblemDetailsException
 import no.nav.helse.bakrommet.util.logg
 
 fun Application.installErrorHandling(includeStackTrace: Boolean = false) {

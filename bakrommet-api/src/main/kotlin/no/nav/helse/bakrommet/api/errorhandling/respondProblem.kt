@@ -1,11 +1,13 @@
-package no.nav.helse.bakrommet.errorhandling
+package no.nav.helse.bakrommet.api.errorhandling
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.response.respondText
+import no.nav.helse.bakrommet.errorhandling.ProblemDetails
 import no.nav.helse.bakrommet.util.serialisertTilString
 
-suspend fun ApplicationCall.respondProblem(
+internal suspend fun ApplicationCall.respondProblem(
     status: HttpStatusCode,
     problem: ProblemDetails,
 ) {
@@ -14,7 +16,7 @@ suspend fun ApplicationCall.respondProblem(
     respondText(problem.serialisertTilString())
 }
 
-fun buildProblem(
+internal fun buildProblem(
     status: HttpStatusCode,
     title: String?,
     detail: String?,
