@@ -2,11 +2,11 @@ package no.nav.helse.bakrommet.api.bruker
 
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.api.serde.respondJson
-import no.nav.helse.bakrommet.bruker.BrukerService
+import no.nav.helse.bakrommet.auth.brukerPrincipal
 
-fun Route.brukerRoute(service: BrukerService) {
+fun Route.brukerRoute() {
     get("/v1/bruker") {
-        val bruker = service.hentBruker(call)
+        val bruker = call.brukerPrincipal() ?: throw IllegalStateException("Bruker ikke funnet i request")
         call.respondJson(bruker.tilBrukerDto())
     }
 }

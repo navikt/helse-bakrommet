@@ -21,7 +21,7 @@ fun Route.setupApiRoutes(
     services: Services,
 ) {
     behandlingRoute(services.behandlingService, services.personService)
-    brukerRoute(services.brukerService)
+    brukerRoute()
     tidslinjeRoute(services.tidslinjeService, services.personService)
     vilkårRoute(services.vilkårService, services.personService)
     dokumentRoute(services.dokumentHenter, services.personService)
