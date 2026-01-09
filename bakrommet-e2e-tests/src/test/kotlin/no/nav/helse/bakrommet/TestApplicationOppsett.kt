@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
-import no.nav.helse.bakrommet.api.setupApiRoutes
+import no.nav.helse.bakrommet.api.settOppKtor
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
@@ -133,9 +133,7 @@ fun runApplicationTest(
                 db = skapDbDaoer(dataSource),
             )
 
-        settOppKtor(config, services, setupApiRoutes = { services ->
-            setupApiRoutes(services)
-        }, errorHandlingIncludeStackTrace = true)
+        settOppKtor(config, services, errorHandlingIncludeStackTrace = true)
     }
     client =
         createClient {

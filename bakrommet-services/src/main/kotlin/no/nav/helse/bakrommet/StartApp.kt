@@ -1,23 +1,13 @@
 package no.nav.helse.bakrommet
 
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
-import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.OboClient
-import no.nav.helse.bakrommet.auth.RolleMatrise
-import no.nav.helse.bakrommet.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
@@ -30,7 +20,6 @@ import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.bruker.BrukerService
 import no.nav.helse.bakrommet.ereg.EregClient
-import no.nav.helse.bakrommet.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule
 import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
@@ -49,11 +38,8 @@ import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.tidslinje.TidslinjeService
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.slf4j.event.Level
 import javax.sql.DataSource
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
@@ -61,7 +47,7 @@ val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 fun startApp(
     configuration: Configuration,
-    setupApiRoutes: Route.(Services) -> Unit,
+    applicationBlock: Application.() -> Unit,
 ) {
     appLogger.info("Setter opp data source")
     val dataSource = instansierDatabase(configuration.db)
@@ -71,12 +57,7 @@ fun startApp(
 
     embeddedServer(CIO, port = 8080) {
         appLogger.info("Setter opp ktor")
-        settOppKtor(
-            authOgRollerConfig = configuration,
-            services = services,
-            setupApiRoutes = setupApiRoutes,
-            errorHandlingIncludeStackTrace = configuration.naisClusterName == "dev-gcp",
-        )
+        applicationBlock()
         appLogger.info("Starter bakrommet")
         monitor.subscribe(ApplicationStarted) {
             val kafkaProducer = KafkaProducerImpl()
@@ -100,7 +81,7 @@ fun startApp(
     }.start(true)
 }
 
-internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
+fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
 
 fun skapDbDaoer(dataSource: DataSource) =
     DbDaoerImpl(
@@ -109,33 +90,6 @@ fun skapDbDaoer(dataSource: DataSource) =
             SessionDaoerFelles(session)
         },
     )
-
-fun Application.settOppKtor(
-    authOgRollerConfig: AuthOgRollerConfig,
-    services: Services,
-    setupApiRoutes: Route.(Services) -> Unit,
-    errorHandlingIncludeStackTrace: Boolean = false,
-) {
-    azureAdAppAuthentication(authOgRollerConfig.auth, authOgRollerConfig.roller)
-    helsesjekker()
-
-    appModul(
-        services = services,
-        setupApiRoutes = setupApiRoutes,
-        errorHandlingIncludeStackTrace = errorHandlingIncludeStackTrace,
-    )
-}
-
-fun Application.helsesjekker() {
-    routing {
-        get("/isready") {
-            call.respondText("I'm ready")
-        }
-        get("/isalive") {
-            call.respondText("I'm alive")
-        }
-    }
-}
 
 class Clienter(
     val pdlClient: PdlClient,
@@ -246,30 +200,4 @@ fun createServices(
             ),
         valideringService = ValideringService(db),
     )
-}
-
-internal fun Application.appModul(
-    services: Services,
-    setupApiRoutes: Route.(Services) -> Unit,
-    errorHandlingIncludeStackTrace: Boolean = false,
-) {
-    install(ContentNegotiation) {
-        register(ContentType.Application.Json, JacksonConverter(objectMapper))
-    }
-
-    install(CallLogging) {
-        disableDefaultColors()
-        logger = sikkerLogger
-        level = Level.INFO
-        filter { call -> call.request.path().let { it != "/isalive" && it != "/isready" } }
-    }
-
-    installErrorHandling(includeStackTrace = errorHandlingIncludeStackTrace)
-
-    routing {
-        authenticate("entraid") {
-            install(RolleMatrise)
-            setupApiRoutes(services)
-        }
-    }
 }
