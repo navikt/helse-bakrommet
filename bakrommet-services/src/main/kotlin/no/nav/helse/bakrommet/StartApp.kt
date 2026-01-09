@@ -1,10 +1,5 @@
 package no.nav.helse.bakrommet
 
-import io.ktor.server.application.*
-import io.ktor.server.cio.*
-import io.ktor.server.engine.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.OboClient
@@ -28,8 +23,6 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoerImpl
 import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactoryPg
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
-import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
-import no.nav.helse.bakrommet.kafka.OutboxService
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonService
@@ -44,42 +37,6 @@ import javax.sql.DataSource
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
-
-fun startApp(
-    configuration: Configuration,
-    applicationBlock: Application.() -> Unit,
-) {
-    appLogger.info("Setter opp data source")
-    val dataSource = instansierDatabase(configuration.db)
-
-    val clienter: Clienter = createClients(configuration)
-    val services: Services = createServices(clienter, skapDbDaoer(dataSource))
-
-    embeddedServer(CIO, port = 8080) {
-        appLogger.info("Setter opp ktor")
-        applicationBlock()
-        appLogger.info("Starter bakrommet")
-        monitor.subscribe(ApplicationStarted) {
-            val kafkaProducer = KafkaProducerImpl()
-            val outboxService = OutboxService(dataSource, kafkaProducer)
-            launch {
-                while (true) {
-                    outboxService.prosesserOutbox()
-                    delay(30_000)
-                }
-            }
-        }
-        monitor.subscribe(ApplicationStarted) {
-            launch {
-                while (true) {
-                    val antallSlettet: Int = services.personService.slettPseudoIderEldreEnn(antallDager = 7)
-                    appLogger.info("Slettet {} utgåtte pseudoIder", antallSlettet)
-                    delay(3600_000)
-                }
-            }
-        }
-    }.start(true)
-}
 
 fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
 
