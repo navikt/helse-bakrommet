@@ -10,7 +10,22 @@ class Beregning
 
 interface Yrkesaktivitetsperiode
 
-class Yrkesaktivitet
+class Yrkesaktivitet {
+    Arbeidstaker
+    Frilanser
+    Arbeidsledig
+    Næringsdrivende
+}
+
+class Rettighetskategori {
+    Inaktiv
+    Vernepliktig
+    Arbeidstaker
+    Frilanser
+    Arbeidsledig
+    Næringsdrivende
+    Kombinert
+}
 
 class Inntektsgrunnlag
 
@@ -26,6 +41,7 @@ Sykefraværstilfelle --> Yrkesaktivitet: har en eller flere \n på skjæringstid
 Sykefraværstilfelle --> Sykepengegrunnlag: har 0 eller ett
 Sykepengegrunnlag --> Inntektsgrunnlag: består av 0, en eller flere
 Yrkesaktivitet --> Inntektsgrunnlag: har 0 eller en
+Sykefraværstilfelle --> Rettighetskategori: Faller innunder en
 
 Behandling <-- VurdertVilkår: tilhører en
 Yrkesaktivitetsperiode --> Yrkesaktivitet: tilhører én
