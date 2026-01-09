@@ -18,16 +18,6 @@ dependencies {
     api(project(":bakrommet-clients:bakrommet-client-sykepengesoknad"))
     api(project(":sykepenger-model"))
 
-    api("io.ktor:ktor-server-metrics-micrometer")
-    api("io.ktor:ktor-server-core")
-    api("io.ktor:ktor-server-cio")
-    api("io.ktor:ktor-server-auth")
-    api("io.ktor:ktor-server-auth-jwt")
-    api("io.ktor:ktor-server-content-negotiation")
-    api("io.ktor:ktor-server-call-logging")
-    api("io.ktor:ktor-server-status-pages")
-    api("io.ktor:ktor-serialization-jackson")
-
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
