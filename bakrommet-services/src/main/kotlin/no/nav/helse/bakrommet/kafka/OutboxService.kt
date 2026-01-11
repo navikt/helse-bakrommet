@@ -23,11 +23,12 @@ class OutboxService(
     private val logger: Logger = LoggerFactory.getLogger(OutboxService::class.java)
 
     constructor(
+        dao: OutboxDao,
         dataSource: DataSource,
         kafkaProducer: KafkaProducerInterface,
         lockAtMostFor: Duration = LOCK_AT_MOST_FOR,
         lockAtLeastFor: Duration = LOCK_AT_LEAST_FOR,
-    ) : this(OutboxDaoPg(dataSource), kafkaProducer, lockAtMostFor, lockAtLeastFor, dataSource)
+    ) : this(dao, kafkaProducer, lockAtMostFor, lockAtLeastFor, dataSource)
 
     fun prosesserOutbox(kjørMedLås: Boolean = true): Int {
         if (kjørMedLås && (lockingDataSource != null)) {

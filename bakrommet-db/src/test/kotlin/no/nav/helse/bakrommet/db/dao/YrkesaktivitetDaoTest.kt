@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.db
+package no.nav.helse.bakrommet.db.dao
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import no.nav.helse.bakrommet.auth.Bruker
@@ -9,14 +9,13 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.arbeidstakerKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.person.NaturligIdent
-import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto

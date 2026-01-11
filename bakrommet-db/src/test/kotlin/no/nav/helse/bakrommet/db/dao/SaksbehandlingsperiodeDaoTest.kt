@@ -1,11 +1,10 @@
-package no.nav.helse.bakrommet.db
+package no.nav.helse.bakrommet.db.dao
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
+import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.NaturligIdent
-import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeAll

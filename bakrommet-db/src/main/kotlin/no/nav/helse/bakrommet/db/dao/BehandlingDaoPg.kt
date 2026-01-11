@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.db
+package no.nav.helse.bakrommet.db.dao
 
 import kotliquery.Row
 import kotliquery.Session

@@ -1,9 +1,8 @@
-package no.nav.helse.bakrommet.kafka
+package no.nav.helse.bakrommet.db.dao
 
 import no.nav.helse.bakrommet.db.TestDataSource
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
+import no.nav.helse.bakrommet.kafka.KafkaMelding
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -29,14 +28,14 @@ class OutboxDaoTest {
         dao.lagreTilOutbox(KafkaMelding(STANDARD_TOPIC, kafkaKey, kafkaPayload))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
-        assertEquals(1, upubliserteEntries.size)
+        Assertions.assertEquals(1, upubliserteEntries.size)
 
         val entry = upubliserteEntries.first()
-        assertEquals(STANDARD_TOPIC, entry.topic)
-        assertEquals(kafkaKey, entry.kafkaKey)
-        assertEquals(kafkaPayload, entry.kafkaPayload)
-        assertNotNull(entry.opprettet)
-        assertNull(entry.publisert)
+        Assertions.assertEquals(STANDARD_TOPIC, entry.topic)
+        Assertions.assertEquals(kafkaKey, entry.kafkaKey)
+        Assertions.assertEquals(kafkaPayload, entry.kafkaPayload)
+        Assertions.assertNotNull(entry.opprettet)
+        Assertions.assertNull(entry.publisert)
     }
 
     @Test
@@ -55,23 +54,23 @@ class OutboxDaoTest {
         }
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
-        assertEquals(3, upubliserteEntries.size)
+        Assertions.assertEquals(3, upubliserteEntries.size)
 
-        assertEquals("key-1", upubliserteEntries[0].kafkaKey)
-        assertEquals(STANDARD_TOPIC, upubliserteEntries[0].topic)
+        Assertions.assertEquals("key-1", upubliserteEntries[0].kafkaKey)
+        Assertions.assertEquals(STANDARD_TOPIC, upubliserteEntries[0].topic)
 
-        assertEquals("key-2", upubliserteEntries[1].kafkaKey)
-        assertEquals(ANNEN_TOPIC, upubliserteEntries[1].topic)
+        Assertions.assertEquals("key-2", upubliserteEntries[1].kafkaKey)
+        Assertions.assertEquals(ANNEN_TOPIC, upubliserteEntries[1].topic)
 
-        assertEquals("key-3", upubliserteEntries[2].kafkaKey)
-        assertEquals(STANDARD_TOPIC, upubliserteEntries[2].topic)
+        Assertions.assertEquals("key-3", upubliserteEntries[2].kafkaKey)
+        Assertions.assertEquals(STANDARD_TOPIC, upubliserteEntries[2].topic)
     }
 
     @Test
     fun `henter tom liste når ingen upubliserte entries finnes`() {
         val dao = OutboxDaoPg(dataSource)
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
-        assertEquals(0, upubliserteEntries.size)
+        Assertions.assertEquals(0, upubliserteEntries.size)
     }
 
     @Test
@@ -83,14 +82,14 @@ class OutboxDaoTest {
         dao.lagreTilOutbox(KafkaMelding(STANDARD_TOPIC, kafkaKey, kafkaPayload))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
-        assertEquals(1, upubliserteEntries.size)
+        Assertions.assertEquals(1, upubliserteEntries.size)
         val entry = upubliserteEntries.first()
-        assertNull(entry.publisert)
+        Assertions.assertNull(entry.publisert)
 
         dao.markerSomPublisert(entry.id)
 
         val upubliserteEtterPublisering = dao.hentAlleUpubliserteEntries()
-        assertEquals(0, upubliserteEtterPublisering.size)
+        Assertions.assertEquals(0, upubliserteEtterPublisering.size)
     }
 
     @Test
@@ -105,18 +104,18 @@ class OutboxDaoTest {
         dao.lagreTilOutbox(KafkaMelding(ANNEN_TOPIC, kafkaKey2, kafkaPayload2))
 
         val upubliserteEntries = dao.hentAlleUpubliserteEntries()
-        assertEquals(2, upubliserteEntries.size)
+        Assertions.assertEquals(2, upubliserteEntries.size)
 
         val førsteEntry = upubliserteEntries[0]
         dao.markerSomPublisert(førsteEntry.id)
 
         val upubliserteEtterPublisering = dao.hentAlleUpubliserteEntries()
-        assertEquals(1, upubliserteEtterPublisering.size)
+        Assertions.assertEquals(1, upubliserteEtterPublisering.size)
 
         val gjenværendeEntry = upubliserteEtterPublisering.first()
-        assertEquals(kafkaKey2, gjenværendeEntry.kafkaKey)
-        assertEquals(ANNEN_TOPIC, gjenværendeEntry.topic)
-        assertEquals(kafkaPayload2, gjenværendeEntry.kafkaPayload)
-        assertNull(gjenværendeEntry.publisert)
+        Assertions.assertEquals(kafkaKey2, gjenværendeEntry.kafkaKey)
+        Assertions.assertEquals(ANNEN_TOPIC, gjenværendeEntry.topic)
+        Assertions.assertEquals(kafkaPayload2, gjenværendeEntry.kafkaPayload)
+        Assertions.assertNull(gjenværendeEntry.publisert)
     }
 }

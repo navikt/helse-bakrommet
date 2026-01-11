@@ -1,15 +1,17 @@
 package no.nav.helse.bakrommet.db
 
 import kotliquery.Session
-import no.nav.helse.bakrommet.behandling.BehandlingEndringerDaoPg
-import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
-import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDaoPg
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDaoPg
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
+import no.nav.helse.bakrommet.db.dao.BehandlingDaoPg
+import no.nav.helse.bakrommet.db.dao.BehandlingEndringerDaoPg
+import no.nav.helse.bakrommet.db.dao.DokumentDaoPg
+import no.nav.helse.bakrommet.db.dao.OutboxDaoPg
+import no.nav.helse.bakrommet.db.dao.PersonPseudoIdDaoPg
+import no.nav.helse.bakrommet.db.dao.SykepengegrunnlagDaoPg
+import no.nav.helse.bakrommet.db.dao.TilkommenInntektDaoPg
+import no.nav.helse.bakrommet.db.dao.UtbetalingsberegningDaoPg
+import no.nav.helse.bakrommet.db.dao.`VurdertVilkårDaoPg`
+import no.nav.helse.bakrommet.db.dao.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
-import no.nav.helse.bakrommet.kafka.OutboxDaoPg
-import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import javax.sql.DataSource
 
 class DaoerFelles(

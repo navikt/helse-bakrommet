@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.kafka
 
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.dao.OutboxDaoPg
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

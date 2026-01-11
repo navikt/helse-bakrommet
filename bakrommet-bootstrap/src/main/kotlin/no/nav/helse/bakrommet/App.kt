@@ -6,6 +6,7 @@ import io.ktor.server.engine.embeddedServer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import no.nav.helse.bakrommet.api.settOppKtor
+import no.nav.helse.bakrommet.db.dao.OutboxDaoPg
 import no.nav.helse.bakrommet.db.instansierDatabase
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
@@ -27,7 +28,7 @@ fun main() {
         appLogger.info("Starter bakrommet")
         monitor.subscribe(ApplicationStarted) {
             val kafkaProducer = KafkaProducerImpl()
-            val outboxService = OutboxService(dataSource, kafkaProducer)
+            val outboxService = OutboxService(OutboxDaoPg(dataSource), dataSource, kafkaProducer)
             launch {
                 while (true) {
                     outboxService.prosesserOutbox()
