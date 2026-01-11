@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.infrastruktur.db
+package no.nav.helse.bakrommet.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

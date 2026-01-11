@@ -5,11 +5,11 @@ import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntekt
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
+import no.nav.helse.bakrommet.db.MedDataSource
+import no.nav.helse.bakrommet.db.MedSession
+import no.nav.helse.bakrommet.db.QueryRunner
+import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
-import no.nav.helse.bakrommet.infrastruktur.db.MedSession
-import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
-import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
 import no.nav.helse.bakrommet.util.objectMapper
 import java.util.*
 import javax.sql.DataSource

@@ -6,9 +6,9 @@ import no.nav.helse.bakrommet.behandling.BehandlingEndringerDao
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndring
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
-import no.nav.helse.bakrommet.infrastruktur.db.MedSession
-import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
+import no.nav.helse.bakrommet.db.MedDataSource
+import no.nav.helse.bakrommet.db.MedSession
+import no.nav.helse.bakrommet.db.QueryRunner
 import java.util.UUID
 import javax.sql.DataSource
 

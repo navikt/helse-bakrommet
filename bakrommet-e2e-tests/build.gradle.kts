@@ -34,6 +34,7 @@ dependencies {
     testImplementation("no.nav.helse.flex:sykepengesoknad-kafka")
     testImplementation("com.github.navikt.spleis:sykepenger-okonomi")
 
+    testImplementation(testFixtures(project(":bakrommet-db")))
     testImplementation(testFixtures(project(":bakrommet-services")))
     testImplementation(testFixtures(project(":bakrommet-common")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-inntektsmelding")))

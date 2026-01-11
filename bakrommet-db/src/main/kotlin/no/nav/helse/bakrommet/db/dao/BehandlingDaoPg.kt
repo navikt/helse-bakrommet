@@ -6,10 +6,10 @@ import no.nav.helse.bakrommet.appLogger
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
+import no.nav.helse.bakrommet.db.MedDataSource
+import no.nav.helse.bakrommet.db.MedSession
+import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
-import no.nav.helse.bakrommet.infrastruktur.db.MedSession
-import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.person.NaturligIdent
 import java.time.LocalDate
 import java.util.*

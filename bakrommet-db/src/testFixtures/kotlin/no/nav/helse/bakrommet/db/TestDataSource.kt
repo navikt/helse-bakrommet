@@ -1,12 +1,12 @@
 package no.nav.helse.bakrommet.db
 
 import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.infrastruktur.db.DBModule
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
+import no.nav.helse.bakrommet.db.DBModule
+import no.nav.helse.bakrommet.db.MedDataSource
 import org.testcontainers.containers.PostgreSQLContainer
 
 object TestDataSource {
-    val postgres =
+    val postgres: PostgreSQLContainer<*> =
         PostgreSQLContainer("postgres:17")
             .withCommand("postgres", "-c", "max_connections=200")
             .withReuse(true)

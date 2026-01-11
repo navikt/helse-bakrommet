@@ -15,6 +15,8 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder")
     implementation("org.slf4j:slf4j-api")
 
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("no.nav.security:mock-oauth2-server")
@@ -24,4 +26,11 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
+
+    testFixturesImplementation("org.testcontainers:postgresql")
+    testFixturesImplementation("com.zaxxer:HikariCP")
+    testFixturesImplementation("org.postgresql:postgresql")
+    testFixturesImplementation("org.flywaydb:flyway-core")
+    testFixturesImplementation("org.flywaydb:flyway-database-postgresql")
+    testFixturesImplementation("com.github.seratch:kotliquery")
 }

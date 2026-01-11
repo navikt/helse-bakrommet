@@ -7,11 +7,11 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnla
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
+import no.nav.helse.bakrommet.db.MedDataSource
+import no.nav.helse.bakrommet.db.MedSession
+import no.nav.helse.bakrommet.db.QueryRunner
+import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
-import no.nav.helse.bakrommet.infrastruktur.db.MedSession
-import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
-import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
 import no.nav.helse.bakrommet.util.objectMapper
 import java.time.Instant
 import java.util.*

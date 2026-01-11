@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.db.dao
 
+import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.somNaturligIdent
 import org.junit.jupiter.api.Test

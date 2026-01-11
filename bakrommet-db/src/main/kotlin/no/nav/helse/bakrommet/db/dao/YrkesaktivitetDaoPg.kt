@@ -11,11 +11,11 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.db.MedDataSource
+import no.nav.helse.bakrommet.db.MedSession
+import no.nav.helse.bakrommet.db.QueryRunner
+import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
-import no.nav.helse.bakrommet.infrastruktur.db.MedSession
-import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
-import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.somListe
 import java.time.OffsetDateTime

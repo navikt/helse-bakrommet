@@ -1,12 +1,12 @@
 package no.nav.helse.bakrommet.person
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.bakrommet.db.MedDataSource
+import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
-import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.pdl.PdlMock
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.db.dao
 
 import kotliquery.Session
-import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
-import no.nav.helse.bakrommet.infrastruktur.db.MedSession
-import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
-import no.nav.helse.bakrommet.infrastruktur.db.tilPgJson
+import no.nav.helse.bakrommet.db.MedDataSource
+import no.nav.helse.bakrommet.db.MedSession
+import no.nav.helse.bakrommet.db.QueryRunner
+import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.kafka.KafkaMelding
 import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.kafka.OutboxDbRecord
