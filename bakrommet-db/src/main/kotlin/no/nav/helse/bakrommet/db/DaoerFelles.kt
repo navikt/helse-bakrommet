@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.db
 
 import kotliquery.Session
-import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.behandling.BehandlingEndringerDaoPg
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg

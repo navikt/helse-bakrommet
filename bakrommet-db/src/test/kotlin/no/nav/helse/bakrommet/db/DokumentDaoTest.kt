@@ -1,20 +1,20 @@
-package no.nav.helse.bakrommet.behandling
+package no.nav.helse.bakrommet.db
 
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
-import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.util.Kildespor
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 
 class DokumentDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
@@ -57,8 +57,8 @@ class DokumentDaoTest {
             )
         dao.opprettDokument(dok)
 
-        assertEquals(listOf(dok).tidsstuttet(), dao.hentDokumenterFor(periode.id).tidsstuttet())
+        Assertions.assertEquals(listOf(dok).tidsstuttet(), dao.hentDokumenterFor(periode.id).tidsstuttet())
 
-        assertEquals(dok.tidsstuttet(), dao.hentDokument(dok.id)?.tidsstuttet())
+        Assertions.assertEquals(dok.tidsstuttet(), dao.hentDokument(dok.id)?.tidsstuttet())
     }
 }

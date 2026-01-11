@@ -8,7 +8,6 @@ import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
-import java.util.*
 
 class YrkesaktivitetExtensionsTest {
     @Test

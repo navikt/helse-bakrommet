@@ -1,9 +1,9 @@
-package no.nav.helse.bakrommet.behandling.sykepengegrunnlag
+package no.nav.helse.bakrommet.db
 
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
+import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
@@ -16,6 +16,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -51,10 +52,10 @@ class SykepengegrunnlagDaoTest {
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
-                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
-                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
-                seksG = InntektbeløpDto.Årlig(744168.0),
+                grunnbeløp = `InntektbeløpDto`.Årlig(124028.0),
+                beregningsgrunnlag = `InntektbeløpDto`.Årlig(744168.0),
+                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
+                seksG = `InntektbeløpDto`.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -84,10 +85,10 @@ class SykepengegrunnlagDaoTest {
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                beregningsgrunnlag = InntektbeløpDto.Årlig(900000.0), // Høyere enn 6G
-                sykepengegrunnlag = InntektbeløpDto.Årlig(780960.0), // Begrenset til 6G
-                seksG = InntektbeløpDto.Årlig(780960.0),
+                grunnbeløp = `InntektbeløpDto`.Årlig(130160.0),
+                beregningsgrunnlag = `InntektbeløpDto`.Årlig(900000.0), // Høyere enn 6G
+                sykepengegrunnlag = `InntektbeløpDto`.Årlig(780960.0), // Begrenset til 6G
+                seksG = `InntektbeløpDto`.Årlig(780960.0),
                 begrensetTil6G = true,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -109,10 +110,10 @@ class SykepengegrunnlagDaoTest {
 
         val opprinneligGrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                beregningsgrunnlag = InntektbeløpDto.Årlig(480000.0),
-                sykepengegrunnlag = InntektbeløpDto.Årlig(480000.0),
-                seksG = InntektbeløpDto.Årlig(780960.0),
+                grunnbeløp = `InntektbeløpDto`.Årlig(130160.0),
+                beregningsgrunnlag = `InntektbeløpDto`.Årlig(480000.0),
+                sykepengegrunnlag = `InntektbeløpDto`.Årlig(480000.0),
+                seksG = `InntektbeløpDto`.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -122,10 +123,10 @@ class SykepengegrunnlagDaoTest {
 
         val oppdatertGrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                beregningsgrunnlag = InntektbeløpDto.Årlig(660000.0),
-                sykepengegrunnlag = InntektbeløpDto.Årlig(660000.0),
-                seksG = InntektbeløpDto.Årlig(780960.0),
+                grunnbeløp = `InntektbeløpDto`.Årlig(130160.0),
+                beregningsgrunnlag = `InntektbeløpDto`.Årlig(660000.0),
+                sykepengegrunnlag = `InntektbeløpDto`.Årlig(660000.0),
+                seksG = `InntektbeløpDto`.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -146,10 +147,10 @@ class SykepengegrunnlagDaoTest {
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = InntektbeløpDto.Årlig(130160.0),
-                beregningsgrunnlag = InntektbeløpDto.Årlig(540000.0),
-                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
-                seksG = InntektbeløpDto.Årlig(780960.0),
+                grunnbeløp = `InntektbeløpDto`.Årlig(130160.0),
+                beregningsgrunnlag = `InntektbeløpDto`.Årlig(540000.0),
+                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
+                seksG = `InntektbeløpDto`.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -185,10 +186,10 @@ class SykepengegrunnlagDaoTest {
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
-                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
-                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
-                seksG = InntektbeløpDto.Årlig(744168.0),
+                grunnbeløp = `InntektbeløpDto`.Årlig(124028.0),
+                beregningsgrunnlag = `InntektbeløpDto`.Årlig(744168.0),
+                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
+                seksG = `InntektbeløpDto`.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -201,11 +202,11 @@ class SykepengegrunnlagDaoTest {
         assertEquals(sykepengegrunnlag.grunnbeløp.beløp, hentetGrunnlag!!.sykepengegrunnlag!!.grunnbeløp.beløp)
         assertEquals(
             sykepengegrunnlag.beregningsgrunnlag.beløp,
-            hentetGrunnlag.sykepengegrunnlag.beregningsgrunnlag.beløp,
+            hentetGrunnlag.sykepengegrunnlag!!.beregningsgrunnlag.beløp,
         )
         assertEquals(
             sykepengegrunnlag.sykepengegrunnlag.beløp,
-            hentetGrunnlag.sykepengegrunnlag.sykepengegrunnlag.beløp,
+            hentetGrunnlag.sykepengegrunnlag!!.sykepengegrunnlag.beløp,
         )
         assertEquals(sykepengegrunnlag.seksG.beløp, hentetGrunnlag.sykepengegrunnlag!!.seksG.beløp)
         assertEquals(sykepengegrunnlag.begrensetTil6G, hentetGrunnlag.sykepengegrunnlag!!.begrensetTil6G)
@@ -213,8 +214,8 @@ class SykepengegrunnlagDaoTest {
             sykepengegrunnlag.grunnbeløpVirkningstidspunkt,
             hentetGrunnlag.sykepengegrunnlag!!.grunnbeløpVirkningstidspunkt,
         )
-        require(hentetGrunnlag.sykepengegrunnlag is Sykepengegrunnlag)
-        assertEquals(sykepengegrunnlag.næringsdel, hentetGrunnlag.sykepengegrunnlag!!.næringsdel)
+        assertIs<Sykepengegrunnlag>(hentetGrunnlag.sykepengegrunnlag)
+        assertEquals(sykepengegrunnlag.næringsdel, (hentetGrunnlag.sykepengegrunnlag as Sykepengegrunnlag).næringsdel)
     }
 
     @Test
@@ -223,10 +224,10 @@ class SykepengegrunnlagDaoTest {
 
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
-                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
-                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
-                seksG = InntektbeløpDto.Årlig(744168.0),
+                grunnbeløp = `InntektbeløpDto`.Årlig(124028.0),
+                beregningsgrunnlag = `InntektbeløpDto`.Årlig(744168.0),
+                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
+                seksG = `InntektbeløpDto`.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -238,7 +239,7 @@ class SykepengegrunnlagDaoTest {
         assertThrows<KunneIkkeOppdatereDbException> {
             dao.oppdaterSykepengegrunnlag(
                 lagretGrunnlag.id,
-                sykepengegrunnlag.copy(sykepengegrunnlag = InntektbeløpDto.Årlig(600000.0)),
+                sykepengegrunnlag.copy(sykepengegrunnlag = `InntektbeløpDto`.Årlig(600000.0)),
             )
         }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
 

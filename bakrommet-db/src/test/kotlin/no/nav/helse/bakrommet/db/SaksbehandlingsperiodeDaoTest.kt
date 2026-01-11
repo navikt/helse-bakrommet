@@ -1,9 +1,9 @@
-package no.nav.helse.bakrommet.behandling
+package no.nav.helse.bakrommet.db
 
 import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
-import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.assertNull
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -187,12 +187,12 @@ internal class SaksbehandlingsperiodeDaoTest {
         val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
-                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
-                seksG = InntektbeløpDto.Årlig(744168.0),
+                grunnbeløp = `InntektbeløpDto`.Årlig(124028.0),
+                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
+                seksG = `InntektbeløpDto`.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                beregningsgrunnlag = InntektbeløpDto.Årlig(540000.0),
+                beregningsgrunnlag = `InntektbeløpDto`.Årlig(540000.0),
                 næringsdel = null,
             )
         val lagretGrunnlag = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, id)

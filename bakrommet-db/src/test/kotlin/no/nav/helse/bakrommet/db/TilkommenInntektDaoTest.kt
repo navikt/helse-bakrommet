@@ -1,12 +1,13 @@
-package no.nav.helse.bakrommet.behandling.tilkommen
+package no.nav.helse.bakrommet.db
 
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntekt
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDaoPg
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
+import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -50,12 +51,15 @@ class TilkommenInntektDaoTest {
 
         val funnet = dao.hentForBehandling(behandlingId)
 
-        assertEquals(1, funnet.size)
+        Assertions.assertEquals(1, funnet.size)
         val hentet = funnet.first()
-        assertEquals(lagret.id, hentet.id)
-        assertEquals(TilkommenInntektYrkesaktivitetType.VIRKSOMHET, hentet.tilkommenInntekt.yrkesaktivitetType)
-        assertEquals(BigDecimal("3330.00"), hentet.tilkommenInntekt.inntektForPerioden)
-        assertEquals(LocalDate.of(2025, 6, 9), hentet.tilkommenInntekt.ekskluderteDager.first())
+        Assertions.assertEquals(lagret.id, hentet.id)
+        Assertions.assertEquals(
+            TilkommenInntektYrkesaktivitetType.VIRKSOMHET,
+            hentet.tilkommenInntekt.yrkesaktivitetType,
+        )
+        Assertions.assertEquals(BigDecimal("3330.00"), hentet.tilkommenInntekt.inntektForPerioden)
+        Assertions.assertEquals(LocalDate.of(2025, 6, 9), hentet.tilkommenInntekt.ekskluderteDager.first())
     }
 
     @Test
@@ -71,9 +75,9 @@ class TilkommenInntektDaoTest {
                     ),
             )
 
-        assertEquals(BigDecimal("4000.00"), oppdatert.tilkommenInntekt.inntektForPerioden)
-        assertEquals("Oppdatert notat", oppdatert.tilkommenInntekt.notatTilBeslutter)
-        assertEquals(eksisterende.opprettet, oppdatert.opprettet)
+        Assertions.assertEquals(BigDecimal("4000.00"), oppdatert.tilkommenInntekt.inntektForPerioden)
+        Assertions.assertEquals("Oppdatert notat", oppdatert.tilkommenInntekt.notatTilBeslutter)
+        Assertions.assertEquals(eksisterende.opprettet, oppdatert.opprettet)
     }
 
     @Test
@@ -83,7 +87,7 @@ class TilkommenInntektDaoTest {
         dao.slett(behandlingId = lagret.behandlingId, id = lagret.id)
 
         val funnet = dao.hentForBehandling(behandlingId)
-        assertTrue(funnet.isEmpty())
+        Assertions.assertTrue(funnet.isEmpty())
     }
 
     private fun nyTilkommenInntekt(

@@ -1,15 +1,19 @@
-package no.nav.helse.bakrommet.behandling.yrkesaktivitet
+package no.nav.helse.bakrommet.db
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.BehandlingDaoPg
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.arbeidstakerKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
-import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonPseudoIdDaoPg
@@ -21,7 +25,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 import kotlin.test.assertEquals
 
 class YrkesaktivitetDaoTest {
@@ -287,7 +291,7 @@ class YrkesaktivitetDaoTest {
         val inntektData =
             InntektData.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = "123456",
-                omregnetÅrsinntekt = InntektbeløpDto.Årlig(500000.0),
+                omregnetÅrsinntekt = `InntektbeløpDto`.Årlig(500000.0),
                 inntektsmelding = JsonNodeFactory.instance.objectNode(),
             )
 
@@ -363,12 +367,12 @@ class YrkesaktivitetDaoTest {
                 Refusjonsperiode(
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 15),
-                    beløp = InntektbeløpDto.MånedligDouble(50000.0),
+                    beløp = `InntektbeløpDto`.MånedligDouble(50000.0),
                 ),
                 Refusjonsperiode(
                     fom = LocalDate.of(2023, 2, 1),
                     tom = null, // Åpen periode
-                    beløp = InntektbeløpDto.MånedligDouble(60000.0),
+                    beløp = `InntektbeløpDto`.MånedligDouble(60000.0),
                 ),
             )
 
