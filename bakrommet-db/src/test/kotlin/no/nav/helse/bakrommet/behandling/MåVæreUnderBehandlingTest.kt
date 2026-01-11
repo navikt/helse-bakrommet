@@ -9,12 +9,12 @@ import no.nav.helse.bakrommet.auth.Rolle
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.sigrun.SigrunMock
-import no.nav.helse.bakrommet.skapDbDaoer
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -87,7 +87,15 @@ class MåVæreUnderBehandlingTest {
 
             db.nonTransactional {
                 assertThrows<InputValideringException> { (behandlingDao.hentPeriode(ref, krav = null)) }
-                assertThrows<InputValideringException> { (behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = true)) }
+                assertThrows<InputValideringException> {
+                    (
+                        behandlingDao.hentPeriode(
+                            ref,
+                            krav = null,
+                            måVæreUnderBehandling = true,
+                        )
+                    )
+                }
                 assertNotNull(behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false))
             }
         }

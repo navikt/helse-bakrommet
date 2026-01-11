@@ -15,12 +15,7 @@ import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.DBModule
-import no.nav.helse.bakrommet.infrastruktur.db.DaoerFelles
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.DbDaoerImpl
-import no.nav.helse.bakrommet.infrastruktur.db.SessionDaoerFelles
-import no.nav.helse.bakrommet.infrastruktur.db.TransactionalSessionFactoryPg
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.pdl.PdlClient
@@ -32,20 +27,9 @@ import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.tidslinje.TidslinjeService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import javax.sql.DataSource
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
-
-fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration).also { it.migrate() }.dataSource
-
-fun skapDbDaoer(dataSource: DataSource) =
-    DbDaoerImpl(
-        DaoerFelles(dataSource),
-        TransactionalSessionFactoryPg(dataSource) { session ->
-            SessionDaoerFelles(session)
-        },
-    )
 
 class Clienter(
     val pdlClient: PdlClient,

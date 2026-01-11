@@ -6,6 +6,8 @@ import io.ktor.server.engine.embeddedServer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import no.nav.helse.bakrommet.api.settOppKtor
+import no.nav.helse.bakrommet.db.instansierDatabase
+import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
 import no.nav.helse.bakrommet.kafka.OutboxService
 

@@ -20,6 +20,7 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoP
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.db.DBModule

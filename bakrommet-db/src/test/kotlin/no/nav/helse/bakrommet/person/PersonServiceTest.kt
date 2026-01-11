@@ -2,17 +2,17 @@ package no.nav.helse.bakrommet.person
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.MedDataSource
 import no.nav.helse.bakrommet.infrastruktur.db.QueryRunner
 import no.nav.helse.bakrommet.pdl.PdlMock
-import no.nav.helse.bakrommet.skapDbDaoer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 import kotlin.test.assertEquals
 
 class PersonServiceTest {

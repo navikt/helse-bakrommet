@@ -1,7 +1,5 @@
 dependencies {
-    api(project(":bakrommet-services"))
-    api(project(":bakrommet-common"))
-    api(project(":bakrommet-api"))
+    implementation(project(":bakrommet-bootstrap"))
 
     implementation("no.nav.helse.flex:sykepengesoknad-kafka")
     implementation("io.ktor:ktor-server-metrics-micrometer")
