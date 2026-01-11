@@ -5,7 +5,6 @@ import no.nav.helse.bakrommet.behandling.BehandlingEndringerDaoPg
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDaoPg
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDaoPg
-import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDaoPg
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDaoPg
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
