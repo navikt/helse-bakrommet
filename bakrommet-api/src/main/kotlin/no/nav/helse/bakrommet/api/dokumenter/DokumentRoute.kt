@@ -12,9 +12,9 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
+import no.nav.helse.bakrommet.api.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
-import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.person.PersonService

@@ -5,6 +5,8 @@ import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
+import no.nav.helse.bakrommet.api.auth.saksbehandler
+import no.nav.helse.bakrommet.api.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.api.dto.behandling.OppdaterSkjæringstidspunktRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.SendTilBeslutningRequestDto
@@ -12,8 +14,6 @@ import no.nav.helse.bakrommet.api.dto.behandling.SendTilbakeRequestDto
 import no.nav.helse.bakrommet.api.naturligIdent
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
-import no.nav.helse.bakrommet.auth.saksbehandler
-import no.nav.helse.bakrommet.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonService

@@ -6,7 +6,6 @@ import io.ktor.server.auth.AuthenticationChecked
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingPipelineCall
 import no.nav.helse.bakrommet.auth.Rolle
-import no.nav.helse.bakrommet.auth.brukerPrincipal
 
 private data class Rule(
     val path: String,

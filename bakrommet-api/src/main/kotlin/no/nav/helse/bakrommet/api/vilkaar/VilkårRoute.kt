@@ -6,11 +6,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
+import no.nav.helse.bakrommet.api.auth.saksbehandler
 import no.nav.helse.bakrommet.api.dto.vilkaar.OppdaterVilkaarsvurderingResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingRequestDto
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
-import no.nav.helse.bakrommet.auth.saksbehandler
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
 import no.nav.helse.bakrommet.behandling.vilkaar.OpprettetEllerEndret
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
