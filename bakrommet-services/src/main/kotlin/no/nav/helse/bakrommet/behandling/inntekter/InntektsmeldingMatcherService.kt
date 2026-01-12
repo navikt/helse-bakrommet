@@ -13,7 +13,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKat
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitet
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 
@@ -27,7 +27,7 @@ interface InntektsmeldingMatcherDaoer {
 
 class InntektsmeldingMatcherService(
     val db: DbDaoer<InntektsmeldingMatcherDaoer>,
-    private val inntektsmeldingClient: InntektsmeldingClient,
+    private val inntektsmeldingProvider: InntektsmeldingProvider,
 ) {
     suspend fun hentInntektsmeldingerForYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
@@ -48,7 +48,7 @@ class InntektsmeldingMatcherService(
         }
 
         val inntektsmeldinger =
-            inntektsmeldingClient.hentInntektsmeldinger(
+            inntektsmeldingProvider.hentInntektsmeldinger(
                 fnr = fnr,
                 fom = null,
                 tom = null,

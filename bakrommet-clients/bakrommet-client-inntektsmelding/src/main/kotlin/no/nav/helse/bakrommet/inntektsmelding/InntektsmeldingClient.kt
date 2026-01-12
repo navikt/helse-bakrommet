@@ -2,20 +2,24 @@ package no.nav.helse.bakrommet.inntektsmelding
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.apache.*
-import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.apache.Apache
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
@@ -31,10 +35,10 @@ class InntektsmeldingClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
+) : InntektsmeldingProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
-    suspend fun hentInntektsmeldinger(
+    override suspend fun hentInntektsmeldinger(
         fnr: String,
         fom: LocalDate?,
         tom: LocalDate?,
@@ -80,7 +84,7 @@ class InntektsmeldingClient(
         }
     }
 
-    suspend fun hentInntektsmeldingMedSporing(
+    override suspend fun hentInntektsmeldingMedSporing(
         inntektsmeldingId: String,
         saksbehandlerToken: SpilleromBearerToken,
     ): Pair<JsonNode, Kildespor> {

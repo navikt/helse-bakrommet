@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 
 internal fun DokumentInnhentingDaoer.fastsettInntektData(
@@ -17,7 +17,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
     periode: BehandlingDbRecord,
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
-    inntektsmeldingClient: InntektsmeldingClient,
+    inntektsmeldingProvider: InntektsmeldingProvider,
     inntekterProvider: InntekterProvider,
     sigrunClient: SigrunClient,
 ): InntektData =
@@ -28,7 +28,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
                 periode = periode,
                 saksbehandler = saksbehandler,
                 yrkesaktivitetDao = yrkesaktivitetDao,
-                inntektsmeldingClient = inntektsmeldingClient,
+                inntektsmeldingProvider = inntektsmeldingProvider,
                 inntekterProvider = inntekterProvider,
                 daoer = this,
             )

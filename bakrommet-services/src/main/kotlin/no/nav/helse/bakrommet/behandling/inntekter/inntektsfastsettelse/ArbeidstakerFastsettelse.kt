@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
@@ -22,7 +22,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
     periode: BehandlingDbRecord,
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
-    inntektsmeldingClient: InntektsmeldingClient,
+    inntektsmeldingProvider: InntektsmeldingProvider,
     inntekterProvider: InntekterProvider,
     daoer: DokumentInnhentingDaoer,
 ): InntektData {
@@ -63,7 +63,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                     .lastInntektsmeldingDokument(
                         periode = periode,
                         inntektsmeldingId = data.inntektsmeldingId,
-                        inntektsmeldingClient = inntektsmeldingClient,
+                        inntektsmeldingProvider = inntektsmeldingProvider,
                         saksbehandler = saksbehandler,
                     ).somInntektsmelding()
             InntektData.ArbeidstakerInntektsmelding(

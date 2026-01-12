@@ -7,7 +7,7 @@ import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -16,7 +16,7 @@ import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
     periode: BehandlingDbRecord,
     inntektsmeldingId: String,
-    inntektsmeldingClient: InntektsmeldingClient,
+    inntektsmeldingProvider: InntektsmeldingProvider,
     saksbehandler: BrukerOgToken,
 ): Dokument {
     val dokType = DokumentType.inntektsmelding
@@ -31,7 +31,7 @@ fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
     }
     val (inntektsmelding, kildespor) =
         runBlocking {
-            inntektsmeldingClient.hentInntektsmeldingMedSporing(
+            inntektsmeldingProvider.hentInntektsmeldingMedSporing(
                 inntektsmeldingId = inntektsmeldingId,
                 saksbehandlerToken = saksbehandler.token,
             )

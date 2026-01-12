@@ -15,8 +15,7 @@ repositories {
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
     api(project(":bakrommet-common"))
-    api(project(":bakrommet-clients:bakrommet-client-ereg"))
-    api("no.nav.sykepenger.kontrakter:inntektsmelding-kontrakt:2025.04.04-01-56-365d3")
+    api(project(":bakrommet-services"))
 
     testFixturesImplementation(testFixtures(project(":bakrommet-common")))
     testFixturesImplementation("io.ktor:ktor-client-mock-jvm")

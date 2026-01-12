@@ -26,8 +26,8 @@ import no.nav.helse.bakrommet.db.dao.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.ereg.EregMock
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.obo.OboTestSetup
 import no.nav.helse.bakrommet.pdl.PdlClient
@@ -111,7 +111,7 @@ fun runApplicationTest(
         AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
     eregClient: EregClient = EregMock.eregClientMock(),
     sigrunClient: SigrunClient = SigrunMock.sigrunMockClient(),
-    inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(),
+    inntektsmeldingClient: InntektsmeldingProvider = InntektsmeldingApiMock.inntektsmeldingClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
 ) = testApplication {
     if (resetDatabase) {
@@ -125,7 +125,7 @@ fun runApplicationTest(
                 inntekterProvider = aInntektClient,
                 arbeidsforholdProvider = aaRegClient,
                 eregClient = eregClient,
-                inntektsmeldingClient = inntektsmeldingClient,
+                inntektsmeldingProvider = inntektsmeldingClient,
                 sigrunClient = sigrunClient,
             )
         val services =

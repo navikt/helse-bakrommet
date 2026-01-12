@@ -24,7 +24,7 @@ import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.dto.PeriodeDto
@@ -43,7 +43,7 @@ interface InntektServiceDaoer :
 
 class InntektService(
     val db: DbDaoer<InntektServiceDaoer>,
-    val inntektsmeldingClient: InntektsmeldingClient,
+    val inntektsmeldingProvider: InntektsmeldingProvider,
     val sigrunClient: SigrunClient,
     val inntekterProvider: InntekterProvider,
 ) {
@@ -112,7 +112,7 @@ class InntektService(
                     periode = periode,
                     saksbehandler = saksbehandler,
                     yrkesaktivitetDao = yrkesaktivitetDao,
-                    inntektsmeldingClient = inntektsmeldingClient,
+                    inntektsmeldingProvider = inntektsmeldingProvider,
                     inntekterProvider = inntekterProvider,
                     sigrunClient = sigrunClient,
                 )
@@ -123,7 +123,7 @@ class InntektService(
                         .lastInntektsmeldingDokument(
                             periode = periode,
                             inntektsmeldingId = inntektData.inntektsmeldingId,
-                            inntektsmeldingClient = inntektsmeldingClient,
+                            inntektsmeldingProvider = inntektsmeldingProvider,
                             saksbehandler = saksbehandler,
                         ).somInntektsmelding()
 

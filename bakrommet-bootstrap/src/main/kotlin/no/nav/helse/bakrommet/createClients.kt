@@ -30,7 +30,7 @@ fun createClients(configuration: Configuration): Providers {
         inntekterProvider = aInntektClient,
         arbeidsforholdProvider = aaRegClient,
         eregClient = eregClient,
-        inntektsmeldingClient = inntektsmeldingClient,
+        inntektsmeldingProvider = inntektsmeldingClient,
         sigrunClient = sigrunClient,
     )
 }

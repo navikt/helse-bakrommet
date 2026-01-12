@@ -15,7 +15,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonService
@@ -36,7 +36,7 @@ class Providers(
     val inntekterProvider: InntekterProvider,
     val arbeidsforholdProvider: ArbeidsforholdProvider,
     val eregClient: EregClient,
-    val inntektsmeldingClient: InntektsmeldingClient,
+    val inntektsmeldingProvider: InntektsmeldingProvider,
     val sigrunClient: SigrunClient,
 )
 
@@ -90,14 +90,14 @@ fun createServices(
         inntektService =
             InntektService(
                 db,
-                providers.inntektsmeldingClient,
+                providers.inntektsmeldingProvider,
                 providers.sigrunClient,
                 providers.inntekterProvider,
             ),
         inntektsmeldingMatcherService =
             InntektsmeldingMatcherService(
                 db = db,
-                providers.inntektsmeldingClient,
+                providers.inntektsmeldingProvider,
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
         personService = personService,
