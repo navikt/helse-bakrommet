@@ -25,7 +25,7 @@ class PersonServiceTest {
     fun setup() {
         TestDataSource.resetDatasource()
         db = skapDbDaoer(dataSource)
-        personService = PersonService(db, pdlClient = PdlMock.pdlClient())
+        personService = PersonService(db, personinfoProvider = PdlMock.pdlClient())
     }
 
     @Test

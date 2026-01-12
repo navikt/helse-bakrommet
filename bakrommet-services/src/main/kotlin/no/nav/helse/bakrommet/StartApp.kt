@@ -16,8 +16,8 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
-import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PersonsøkService
 import no.nav.helse.bakrommet.sigrun.SigrunClient
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 class Providers(
-    val pdlClient: PdlClient,
+    val personinfoProvider: PersoninfoProvider,
     val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
     val inntekterProvider: InntekterProvider,
     val arbeidsforholdProvider: ArbeidsforholdProvider,
@@ -70,13 +70,13 @@ fun createServices(
             arbeidsforholdProvider = providers.arbeidsforholdProvider,
             sigrunClient = providers.sigrunClient,
         )
-    val personService = PersonService(db, providers.pdlClient)
+    val personService = PersonService(db, providers.personinfoProvider)
     val yrkesaktivitetService = YrkesaktivitetService(db, providers.eregClient)
     return Services(
         personsøkService =
             PersonsøkService(
                 db = db,
-                pdlClient = providers.pdlClient,
+                personinfoProvider = providers.personinfoProvider,
             ),
         sykepengegrunnlagService = SykepengegrunnlagService(db),
         behandlingService =

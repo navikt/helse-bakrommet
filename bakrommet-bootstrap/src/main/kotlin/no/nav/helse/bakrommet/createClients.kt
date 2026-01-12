@@ -25,7 +25,7 @@ fun createClients(configuration: Configuration): Providers {
     val sigrunClient = SigrunClient(configuration.sigrun, oboClient)
 
     return Providers(
-        pdlClient = pdlClient,
+        personinfoProvider = pdlClient,
         sykepengesoknadBackendClient = sykepengesoknadBackendClient,
         inntekterProvider = aInntektClient,
         arbeidsforholdProvider = aaRegClient,

@@ -81,17 +81,6 @@ class SigrunClient(
         return hentedeÅr
     }
 
-    suspend fun hentPensjonsgivendeInntekt(
-        fnr: String,
-        inntektsAar: Int,
-        saksbehandlerToken: SpilleromBearerToken,
-    ): PensjonsgivendeInntektÅr =
-        hentPensjonsgivendeInntektMedSporing(
-            fnr = fnr,
-            inntektsAar = inntektsAar,
-            saksbehandlerToken = saksbehandlerToken,
-        ).first
-
     suspend fun hentPensjonsgivendeInntektMedSporing(
         fnr: String,
         inntektsAar: Int,

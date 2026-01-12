@@ -27,10 +27,10 @@ import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.obo.OboTestSetup
-import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.sigrun.SigrunClient
@@ -103,7 +103,7 @@ class Daoer(
 fun runApplicationTest(
     config: Configuration = TestOppsett.configuration,
     dataSource: DataSource = instansierDatabase(config.db),
-    pdlClient: PdlClient = PdlMock.pdlClient(),
+    pdlClient: PersoninfoProvider = PdlMock.pdlClient(),
     resetDatabase: Boolean = true,
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(oboClient = TestOppsett.oboClient),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
@@ -120,7 +120,7 @@ fun runApplicationTest(
     application {
         val providers =
             Providers(
-                pdlClient = pdlClient,
+                personinfoProvider = pdlClient,
                 sykepengesoknadBackendClient = sykepengesoknadBackendClient,
                 inntekterProvider = aInntektClient,
                 arbeidsforholdProvider = aaRegClient,

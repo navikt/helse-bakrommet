@@ -2,10 +2,8 @@ package no.nav.helse.bakrommet.person
 
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.pdl.PdlClient
-import no.nav.helse.bakrommet.pdl.PdlIdent
-import no.nav.helse.bakrommet.pdl.alder
-import no.nav.helse.bakrommet.pdl.formattert
+import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
+import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -22,7 +20,7 @@ data class PersonInfo(
 
 class PersonService(
     private val db: DbDaoer<PersonServiceDaoer>,
-    private val pdlClient: PdlClient,
+    private val personinfoProvider: PersoninfoProvider,
 ) {
     suspend fun finnNaturligIdent(pseudoId: UUID): NaturligIdent? =
         db.nonTransactional {
@@ -34,11 +32,11 @@ class PersonService(
         saksbehandlerToken: SpilleromBearerToken,
     ): PersonInfo {
         val hentPersonInfo =
-            pdlClient.hentPersonInfo(
+            personinfoProvider.hentPersonInfo(
                 saksbehandlerToken = saksbehandlerToken,
                 ident = naturligIdent.naturligIdent,
             )
-        val identer = pdlClient.hentIdenterFor(saksbehandlerToken, naturligIdent.naturligIdent)
+        val identer = personinfoProvider.hentIdenterFor(saksbehandlerToken, naturligIdent.naturligIdent)
 
         return PersonInfo(
             fødselsnummer = naturligIdent.naturligIdent,

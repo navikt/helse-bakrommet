@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.pdl
 
+import no.nav.helse.bakrommet.infrastruktur.provider.Navn
 import java.time.LocalDate
 
 data class HentPersonResponseData(
@@ -14,32 +15,3 @@ data class HentPerson(
 data class Foedselsdato(
     val foedselsdato: LocalDate,
 )
-
-data class Navn(
-    val fornavn: String,
-    val mellomnavn: String?,
-    val etternavn: String,
-)
-
-fun Navn.formattert(): String =
-    when {
-        mellomnavn.isNullOrBlank() -> "$fornavn $etternavn"
-        else -> "$fornavn $mellomnavn $etternavn"
-    }
-
-data class PersonInfo(
-    val navn: Navn,
-    val fodselsdato: LocalDate?,
-)
-
-fun PersonInfo.alder(): Int? {
-    val today = LocalDate.now()
-    if (fodselsdato == null) {
-        return null
-    }
-    val age = today.year - fodselsdato.year
-    if (today.monthValue < fodselsdato.monthValue || (today.monthValue == fodselsdato.monthValue && today.dayOfMonth < fodselsdato.dayOfMonth)) {
-        return age - 1
-    }
-    return age
-}

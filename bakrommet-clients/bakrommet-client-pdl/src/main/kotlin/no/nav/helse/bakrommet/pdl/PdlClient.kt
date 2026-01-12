@@ -15,21 +15,13 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
+import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
+import no.nav.helse.bakrommet.infrastruktur.provider.PersonInfo
+import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 import no.nav.helse.bakrommet.util.somListe
-
-data class PdlIdent(
-    val ident: String,
-    val gruppe: String,
-) {
-    companion object {
-        val FOLKEREGISTERIDENT = "FOLKEREGISTERIDENT"
-        val AKTORID = "AKTORID"
-        val NPID = "NPID"
-    }
-}
 
 class PdlClient(
     private val configuration: Configuration.PDL,
@@ -40,7 +32,7 @@ class PdlClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
+) : PersoninfoProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     private val hentPersonQuery =
@@ -101,7 +93,7 @@ class PdlClient(
             }.toString()
     }
 
-    suspend fun hentIdenterFor(
+    override suspend fun hentIdenterFor(
         saksbehandlerToken: SpilleromBearerToken,
         ident: String,
     ): List<PdlIdent> {
@@ -140,7 +132,7 @@ class PdlClient(
         throw RuntimeException("hentIdenterFor har statusCode ${response.status.value}")
     }
 
-    suspend fun hentPersonInfo(
+    override suspend fun hentPersonInfo(
         saksbehandlerToken: SpilleromBearerToken,
         ident: String,
     ): PersonInfo {

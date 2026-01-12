@@ -33,7 +33,7 @@ fun skapProviders(testpersoner: List<Testperson>): Providers {
             .associate { it.fnr to AInntektResponse(data = it.ainntektData!!) }
     val providers =
         Providers(
-            pdlClient = PdlMock.pdlClient(identTilReplyMap = pdlResponses, pdlReplyGenerator = pdlReplyGenerator),
+            personinfoProvider = PdlMock.pdlClient(identTilReplyMap = pdlResponses, pdlReplyGenerator = pdlReplyGenerator),
             sykepengesoknadBackendClient = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
             inntekterProvider = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = fnrTilAinntk),
             arbeidsforholdProvider = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
