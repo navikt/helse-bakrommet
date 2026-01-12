@@ -34,14 +34,8 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
 
-    testFixturesImplementation(project(":bakrommet-common"))
     testFixturesImplementation(kotlin("test"))
-    testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-pdl")))
-    testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))
-    testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
-    testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-inntektsmelding")))
-    testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
-    testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sykepengesoknad")))
+    testFixturesImplementation(project(":bakrommet-common"))
     testFixturesImplementation(project(":sykepenger-model"))
     testFixturesImplementation("com.github.navikt.spleis:sykepenger-okonomi")
 }
