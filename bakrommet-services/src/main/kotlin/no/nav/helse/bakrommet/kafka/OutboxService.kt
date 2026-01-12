@@ -15,7 +15,7 @@ private val LOCK_AT_LEAST_FOR = Duration.ofSeconds(10)
 
 class OutboxService(
     private val outboxDao: OutboxDao,
-    private val kafkaProducer: KafkaProducerInterface,
+    private val kafkaProducer: MeldingProducer,
     private val lockAtMostFor: Duration = LOCK_AT_MOST_FOR,
     private val lockAtLeastFor: Duration = LOCK_AT_LEAST_FOR,
     private val lockingDataSource: DataSource?,
@@ -25,7 +25,7 @@ class OutboxService(
     constructor(
         dao: OutboxDao,
         dataSource: DataSource,
-        kafkaProducer: KafkaProducerInterface,
+        kafkaProducer: MeldingProducer,
         lockAtMostFor: Duration = LOCK_AT_MOST_FOR,
         lockAtLeastFor: Duration = LOCK_AT_LEAST_FOR,
     ) : this(dao, kafkaProducer, lockAtMostFor, lockAtLeastFor, dataSource)

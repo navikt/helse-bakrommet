@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.api.settOppKtor
 import no.nav.helse.bakrommet.db.dao.OutboxDaoPg
 import no.nav.helse.bakrommet.db.instansierDatabase
 import no.nav.helse.bakrommet.db.skapDbDaoer
-import no.nav.helse.bakrommet.kafka.KafkaProducerImpl
+import no.nav.helse.bakrommet.kafka.KafkaMessageProducer
 import no.nav.helse.bakrommet.kafka.OutboxService
 
 fun main() {
@@ -27,7 +27,7 @@ fun main() {
         )
         appLogger.info("Starter bakrommet")
         monitor.subscribe(ApplicationStarted) {
-            val kafkaProducer = KafkaProducerImpl()
+            val kafkaProducer = KafkaMessageProducer()
             val outboxService = OutboxService(OutboxDaoPg(dataSource), dataSource, kafkaProducer)
             launch {
                 while (true) {

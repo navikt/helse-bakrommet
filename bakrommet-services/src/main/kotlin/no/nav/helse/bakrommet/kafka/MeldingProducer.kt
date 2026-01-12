@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.kafka
 
 import java.util.concurrent.CompletableFuture
 
-interface KafkaProducerInterface {
+interface MeldingProducer {
     fun send(
         topic: String,
         key: String,

@@ -20,7 +20,6 @@ dependencies {
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
-    implementation("org.apache.kafka:kafka-clients")
     implementation("no.nav.helse.flex:sykepengesoknad-kafka")
     implementation("com.github.navikt.spleis:sykepenger-okonomi")
 

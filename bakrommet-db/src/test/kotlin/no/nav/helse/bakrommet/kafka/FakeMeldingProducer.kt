@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.kafka
 
 import java.util.concurrent.CompletableFuture
 
-class FakeKafkaProducer : KafkaProducerInterface {
+class FakeMeldingProducer : MeldingProducer {
     private val sentMessages = mutableListOf<SentMessage>()
 
     override fun send(

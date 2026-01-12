@@ -6,7 +6,7 @@ import org.apache.kafka.common.header.internals.RecordHeaders
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.concurrent.CompletableFuture
 
-class KafkaProducerImpl : KafkaProducerInterface {
+class KafkaMessageProducer : MeldingProducer {
     private val producer: KafkaProducer<String, String> =
         KafkaProducer<String, String>(
             KafkaUtils

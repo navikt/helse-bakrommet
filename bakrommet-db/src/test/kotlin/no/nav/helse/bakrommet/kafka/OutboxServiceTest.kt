@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
 class OutboxServiceTest {
     private val dataSource = TestDataSource.dbModule.dataSource
     private lateinit var outboxDao: OutboxDao
-    private lateinit var fakeKafkaProducer: FakeKafkaProducer
+    private lateinit var fakeKafkaProducer: FakeMeldingProducer
     private lateinit var outboxService: OutboxService
 
     private companion object {
@@ -24,7 +24,7 @@ class OutboxServiceTest {
     fun setup() {
         TestDataSource.resetDatasource()
         outboxDao = OutboxDaoPg(dataSource)
-        fakeKafkaProducer = FakeKafkaProducer()
+        fakeKafkaProducer = FakeMeldingProducer()
         outboxService = OutboxService(outboxDao = outboxDao, kafkaProducer = fakeKafkaProducer, lockingDataSource = null)
     }
 
@@ -112,7 +112,7 @@ class OutboxServiceTest {
         outboxDao.lagreTilOutbox(KafkaMelding(SPILLEROM_BEHANDLINGER_TOPIC, "test-key", """{"test-payload": true}"""))
 
         val feilendeProducer =
-            object : KafkaProducerInterface {
+            object : MeldingProducer {
                 override fun send(
                     topic: String,
                     key: String,
