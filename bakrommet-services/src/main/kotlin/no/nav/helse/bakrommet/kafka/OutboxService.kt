@@ -1,14 +1,9 @@
 package no.nav.helse.bakrommet.kafka
 
-import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor
-import net.javacrumbs.shedlock.core.LockConfiguration
-import net.javacrumbs.shedlock.core.LockingTaskExecutor
-import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
+import no.nav.helse.bakrommet.`LåsProvider`
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
-import java.time.Instant
-import javax.sql.DataSource
 
 private val LOCK_AT_MOST_FOR = Duration.ofHours(1)
 private val LOCK_AT_LEAST_FOR = Duration.ofSeconds(10)
@@ -16,47 +11,16 @@ private val LOCK_AT_LEAST_FOR = Duration.ofSeconds(10)
 class OutboxService(
     private val outboxDao: OutboxDao,
     private val kafkaProducer: MeldingProducer,
-    private val lockAtMostFor: Duration = LOCK_AT_MOST_FOR,
-    private val lockAtLeastFor: Duration = LOCK_AT_LEAST_FOR,
-    private val lockingDataSource: DataSource?,
+    private val låsProvider: LåsProvider,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(OutboxService::class.java)
 
-    constructor(
-        dao: OutboxDao,
-        dataSource: DataSource,
-        kafkaProducer: MeldingProducer,
-        lockAtMostFor: Duration = LOCK_AT_MOST_FOR,
-        lockAtLeastFor: Duration = LOCK_AT_LEAST_FOR,
-    ) : this(dao, kafkaProducer, lockAtMostFor, lockAtLeastFor, dataSource)
-
-    fun prosesserOutbox(kjørMedLås: Boolean = true): Int {
-        if (kjørMedLås && (lockingDataSource != null)) {
-            logger.debug("Prosesserer Outbox med mindre det finnes en lås")
-            val lockProvider = JdbcLockProvider(lockingDataSource, "shedlock")
-            val lockingExecutor = DefaultLockingTaskExecutor(lockProvider)
-            val task =
-                LockingTaskExecutor.TaskWithResult<Int> {
-                    try {
-                        doProsesserOutbox()
-                    } catch (e: Exception) {
-                        logger.error("feilUnderKjøring av doProsesserOutbox", e)
-                        -1
-                    }
-                }
-            val taskResult =
-                lockingExecutor.executeWithLock(
-                    task,
-                    LockConfiguration(Instant.now(), "outbox-lock", lockAtMostFor, lockAtLeastFor),
-                )
-            logger.debug("prosesserOutbox m/lås ble kjørt? : {}", taskResult.wasExecuted())
-            return taskResult.result ?: 0
-        } else {
-            if (kjørMedLås) {
-                logger.warn("prosesserOutbox kan ikke kjøre med lås for det er ingen dataSource angitt") // Demo/FakeDAO
+    fun prosesserOutbox(): Int {
+        val resultat =
+            låsProvider.kjørMedLås(LOCK_AT_LEAST_FOR, LOCK_AT_MOST_FOR) {
+                doProsesserOutbox()
             }
-            return doProsesserOutbox()
-        }
+        return resultat
     }
 
     private fun doProsesserOutbox(): Int {

@@ -2,6 +2,8 @@ plugins {
     `java-test-fixtures`
 }
 
+val shedlockVersion = "7.2.2"
+
 dependencies {
     api(project(":bakrommet-services"))
 
@@ -10,6 +12,9 @@ dependencies {
     api("org.flywaydb:flyway-core")
     api("org.flywaydb:flyway-database-postgresql")
     api("com.github.seratch:kotliquery")
+
+    implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
     implementation("ch.qos.logback:logback-classic")
     implementation("net.logstash.logback:logstash-logback-encoder")

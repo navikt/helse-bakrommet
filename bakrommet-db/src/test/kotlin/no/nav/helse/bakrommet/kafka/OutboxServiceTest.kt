@@ -1,10 +1,12 @@
 package no.nav.helse.bakrommet.kafka
 
+import no.nav.helse.bakrommet.`LåsProvider`
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.dao.OutboxDaoPg
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -20,12 +22,21 @@ class OutboxServiceTest {
         private const val UTBETALINGER_TOPIC = "speilvendt.sykepenger-spillerom-utbetalinger"
     }
 
+    private val låsProvider =
+        object : LåsProvider {
+            override fun <T : Any> kjørMedLås(
+                iMinst: Duration,
+                maksimalt: Duration,
+                block: () -> T,
+            ): T = block()
+        }
+
     @BeforeEach
     fun setup() {
         TestDataSource.resetDatasource()
         outboxDao = OutboxDaoPg(dataSource)
         fakeKafkaProducer = FakeMeldingProducer()
-        outboxService = OutboxService(outboxDao = outboxDao, kafkaProducer = fakeKafkaProducer, lockingDataSource = null)
+        outboxService = OutboxService(outboxDao = outboxDao, kafkaProducer = fakeKafkaProducer, låsProvider = låsProvider)
     }
 
     @AfterEach
@@ -123,7 +134,7 @@ class OutboxServiceTest {
                 override fun close() {}
             }
 
-        val outboxServiceMedFeil = OutboxService(outboxDao = outboxDao, kafkaProducer = feilendeProducer, lockingDataSource = null)
+        val outboxServiceMedFeil = OutboxService(outboxDao = outboxDao, kafkaProducer = feilendeProducer, låsProvider = låsProvider)
 
         // Når: OutboxService prosesserer meldingen
         val antallProsessert = outboxServiceMedFeil.prosesserOutbox()

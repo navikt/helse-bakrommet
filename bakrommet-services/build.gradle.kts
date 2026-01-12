@@ -17,9 +17,6 @@ dependencies {
     api(project(":bakrommet-clients:bakrommet-client-sykepengesoknad"))
     api(project(":sykepenger-model"))
 
-    implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
-
     implementation("no.nav.helse.flex:sykepengesoknad-kafka")
     implementation("com.github.navikt.spleis:sykepenger-okonomi")
 
