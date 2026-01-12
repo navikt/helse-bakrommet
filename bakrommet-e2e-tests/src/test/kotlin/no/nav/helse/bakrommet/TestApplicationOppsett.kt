@@ -108,7 +108,7 @@ fun runApplicationTest(
     sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(oboClient = TestOppsett.oboClient),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient =
-        AInntektMock.aInntektClientMock(fnrTilInntektApiUt = emptyMap()),
+        AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
     eregClient: EregClient = EregMock.eregClientMock(),
     sigrunClient: SigrunClient = SigrunMock.sigrunMockClient(),
     inntektsmeldingClient: InntektsmeldingClient = InntektsmeldingApiMock.inntektsmeldingClientMock(),
@@ -122,7 +122,7 @@ fun runApplicationTest(
             Providers(
                 pdlClient = pdlClient,
                 sykepengesoknadBackendClient = sykepengesoknadBackendClient,
-                aInntektClient = aInntektClient,
+                inntekterProvider = aInntektClient,
                 arbeidsforholdProvider = aaRegClient,
                 eregClient = eregClient,
                 inntektsmeldingClient = inntektsmeldingClient,

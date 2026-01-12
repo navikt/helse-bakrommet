@@ -2,13 +2,13 @@ package no.nav.helse.bakrommet.behandling.dokumenter.innhenting
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
-import no.nav.helse.bakrommet.ainntekt.AInntektFilter
-import no.nav.helse.bakrommet.ainntekt.Inntektoppslag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
+import no.nav.helse.bakrommet.infrastruktur.provider.AInntektFilter
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.Inntektoppslag
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -30,12 +30,12 @@ fun Dokument.somAInntektBeregningsgrunnlag(): Pair<Inntektoppslag, AinntektPerio
 
 fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
     periode: BehandlingDbRecord,
-    aInntektClient: AInntektClient,
+    inntekterProvider: InntekterProvider,
     saksbehandler: BrukerOgToken,
 ): Dokument =
     lastAInntektDok(
         periode = periode,
-        aInntektClient = aInntektClient,
+        inntekterProvider = inntekterProvider,
         filter = AInntektFilter.`8-30`,
         fomMinus = 12,
         tomMinus = 1,
@@ -51,12 +51,12 @@ fun String.tilAinntektPeriodeNøkkel(): AinntektPeriodeNøkkel = objectMapper.re
 
 fun DokumentInnhentingDaoer.lastAInntektBeregningsgrunnlag(
     periode: BehandlingDbRecord,
-    aInntektClient: AInntektClient,
+    inntekterProvider: InntekterProvider,
     saksbehandler: BrukerOgToken,
 ): Dokument =
     lastAInntektDok(
         periode = periode,
-        aInntektClient = aInntektClient,
+        inntekterProvider = inntekterProvider,
         filter = AInntektFilter.`8-28`,
         fomMinus = 3,
         tomMinus = 1,
@@ -71,14 +71,13 @@ private fun doktypeFraFilter(filter: AInntektFilter): String =
 
 private fun DokumentInnhentingDaoer.lastAInntektDok(
     periode: BehandlingDbRecord,
-    aInntektClient: AInntektClient,
+    inntekterProvider: InntekterProvider,
     filter: AInntektFilter,
     fomMinus: Long,
     tomMinus: Long,
     saksbehandler: BrukerOgToken,
 ): Dokument {
-    val skjæringstidspunkt =
-        periode.skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt for å hente inntekt")
+    val skjæringstidspunkt = periode.skjæringstidspunkt
 
     // TODO: Bør vi ha litt slack på fom/tom?
     val fom = skjæringstidspunkt.yearMonth.minusMonths(fomMinus)
@@ -98,7 +97,7 @@ private fun DokumentInnhentingDaoer.lastAInntektDok(
     }
 
     return runBlocking {
-        aInntektClient
+        inntekterProvider
             .hentInntekterForMedSporing(
                 fnr = periode.naturligIdent.naturligIdent,
                 maanedFom = fom,

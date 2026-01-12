@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting
 
-import no.nav.helse.bakrommet.ainntekt.tilInntektApiUt
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somAInntektBeregningsgrunnlag
@@ -14,6 +13,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.infrastruktur.provider.tilAInntektResponse
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
@@ -43,7 +43,7 @@ suspend fun InntektService.hentAInntektForYrkesaktivitet(
             val ainntektBeregningsgrunnlag =
                 lastAInntektBeregningsgrunnlag(
                     periode = periode,
-                    aInntektClient = aInntektClient,
+                    inntekterProvider = inntekterProvider,
                     saksbehandler = saksbehandler,
                 ).somAInntektBeregningsgrunnlag()
 
@@ -63,7 +63,7 @@ suspend fun InntektService.hentAInntektForYrkesaktivitet(
 
                 is YrkesaktivitetKategorisering.Frilanser -> {
                     // For frilanser henter vi all inntekt uten å filtrere på orgnummer
-                    val inntektResponse = ainntektBeregningsgrunnlag.first.tilInntektApiUt()
+                    val inntektResponse = ainntektBeregningsgrunnlag.first.tilAInntektResponse()
                     val fom = ainntektBeregningsgrunnlag.second.fom
                     val tom = ainntektBeregningsgrunnlag.second.tom
 

@@ -1,6 +1,7 @@
 dependencies {
     api(project(":bakrommet-services"))
     api(project(":bakrommet-clients:bakrommet-client-aareg"))
+    api(project(":bakrommet-clients:bakrommet-client-ainntekt"))
     api(project(":bakrommet-db"))
     api(project(":bakrommet-api"))
     api(project(":bakrommet-kafka"))

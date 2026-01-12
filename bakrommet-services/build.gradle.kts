@@ -10,7 +10,6 @@ dependencies {
     api(project(":bakrommet-common"))
     api(project(":bakrommet-kafka-dto"))
     api(project(":bakrommet-clients:bakrommet-client-pdl"))
-    api(project(":bakrommet-clients:bakrommet-client-ainntekt"))
     api(project(":bakrommet-clients:bakrommet-client-ereg"))
     api(project(":bakrommet-clients:bakrommet-client-sigrun"))
     api(project(":bakrommet-clients:bakrommet-client-inntektsmelding"))
@@ -28,7 +27,6 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-pdl")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sykepengesoknad")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))
-    testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
 
     testFixturesImplementation(kotlin("test"))

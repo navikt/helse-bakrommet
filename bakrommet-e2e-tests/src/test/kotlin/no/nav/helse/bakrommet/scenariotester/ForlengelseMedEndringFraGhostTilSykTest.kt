@@ -35,7 +35,7 @@ class ForlengelseMedEndringFraGhostTilSykTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    Selvstendig(inntekt = SigrunInntekt(), sykmeldt = false),
+                    Selvstendig(inntekt = SigrunInntekt()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val personId = førsteBehandling.scenario.pseudoId

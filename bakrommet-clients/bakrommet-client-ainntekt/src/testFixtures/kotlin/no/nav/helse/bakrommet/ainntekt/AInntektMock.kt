@@ -12,6 +12,9 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.ereg.Organisasjon
+import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
+import no.nav.helse.bakrommet.infrastruktur.provider.Inntekt
+import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
@@ -45,11 +48,10 @@ object AInntektMock {
 
     fun ainntektMockHttpClient(
         configuration: Configuration.AInntekt = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
-        fnrTilInntektApiUt: Map<String, InntektApiUt>,
+        fnrTilAInntektResponse: Map<String, AInntektResponse>,
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
+        if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             log.info("URL: " + request.url)
@@ -70,11 +72,11 @@ object AInntektMock {
                     content = "403",
                 )
             } else {
-                val inntektApiUt = (fnrTilInntektApiUt[fnr] ?: InntektApiUt(data = emptyList())).filtrerMaaneder(maanedFom, maanedTom)
+                val AInntektResponse = (fnrTilAInntektResponse[fnr] ?: AInntektResponse(data = emptyList())).filtrerMaaneder(maanedFom, maanedTom)
 
                 respond(
                     status = HttpStatusCode.OK,
-                    content = inntektApiUt.serialisertTilString(),
+                    content = AInntektResponse.serialisertTilString(),
                     headers = headersOf("Content-Type" to listOf("application/json")),
                 )
             }
@@ -84,12 +86,12 @@ object AInntektMock {
     fun aInntektClientMock(
         configuration: Configuration.AInntekt = defaultConfiguration,
         oboClient: OboClient = createDefaultOboClient(),
-        fnrTilInntektApiUt: Map<String, InntektApiUt>,
+        fnrTilAInntektResponse: Map<String, AInntektResponse>,
         mockClient: HttpClient? = null,
     ) = AInntektClient(
         configuration = configuration,
         oboClient = oboClient,
-        httpClient = mockClient ?: ainntektMockHttpClient(configuration, oboClient, fnrTilInntektApiUt),
+        httpClient = mockClient ?: ainntektMockHttpClient(configuration, fnrTilAInntektResponse),
     )
 }
 
@@ -98,7 +100,7 @@ fun etInntektSvar(
     opplysningspliktig: String = "988888888",
     skjæringstidspunkt: YearMonth? = null,
     beloep: Int = 12000,
-): InntektApiUt {
+): AInntektResponse {
     // Hvis skjæringstidspunkt er gitt, generer måneder basert på det (3 måneder før skjæringstidspunkt)
     // Ellers bruk hardkodede måneder for bakoverkompatibilitet
     val maaneder =
@@ -117,7 +119,7 @@ fun etInntektSvar(
             )
         }
 
-    return InntektApiUt(
+    return AInntektResponse(
         data =
             maaneder.map { maaned ->
                 Inntektsinformasjon(
@@ -128,7 +130,7 @@ fun etInntektSvar(
                         listOf(
                             Inntekt(
                                 type = "LOENNSINNTEKT",
-                                beloep = java.math.BigDecimal.valueOf(beloep.toLong()),
+                                beloep = BigDecimal.valueOf(beloep.toLong()),
                             ),
                         ),
                 )
@@ -173,16 +175,16 @@ fun genererAinntektsdata(
     }
 
 // Extension function for å filtrere måneder basert på forespurt periode
-fun InntektApiUt.filtrerMaaneder(
+fun AInntektResponse.filtrerMaaneder(
     maanedFom: YearMonth,
     maanedTom: YearMonth,
-): InntektApiUt =
-    InntektApiUt(
+): AInntektResponse =
+    AInntektResponse(
         data = data.filter { it.maaned >= maanedFom && it.maaned <= maanedTom },
     )
 
 // Extension function for å lage OBO token
-fun OAuthScope.oboTokenFor(oboClient: OboClient): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
+fun OAuthScope.oboTokenFor(): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
 // Helper functions for mock HTTP client
 fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =

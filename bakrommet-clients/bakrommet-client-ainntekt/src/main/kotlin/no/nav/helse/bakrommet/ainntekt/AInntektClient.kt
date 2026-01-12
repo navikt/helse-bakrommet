@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.ainntekt
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
@@ -16,20 +15,14 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.infrastruktur.provider.AInntektFilter
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.Inntektoppslag
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.YearMonth
 import java.util.*
-
-typealias Inntektoppslag = JsonNode
-
-enum class AInntektFilter {
-    `8-28`,
-    `8-30`,
-}
 
 class AInntektClient(
     private val configuration: Configuration.AInntekt,
@@ -44,25 +37,10 @@ class AInntektClient(
                 socketTimeout = 20_000 // default 10_000
             }
         },
-) {
+) : InntekterProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
-    suspend fun hentInntekterFor(
-        fnr: String,
-        maanedFom: YearMonth,
-        maanedTom: YearMonth,
-        filter: AInntektFilter,
-        saksbehandlerToken: SpilleromBearerToken,
-    ): Inntektoppslag =
-        hentInntekterForMedSporing(
-            fnr = fnr,
-            maanedFom = maanedFom,
-            maanedTom = maanedTom,
-            filter = filter,
-            saksbehandlerToken = saksbehandlerToken,
-        ).first
-
-    suspend fun hentInntekterForMedSporing(
+    override suspend fun hentInntekterForMedSporing(
         fnr: String,
         maanedFom: YearMonth,
         maanedTom: YearMonth,
@@ -124,5 +102,3 @@ private class Timer {
     val millisekunder: Long
         get() = System.currentTimeMillis() - startMS
 }
-
-fun Inntektoppslag.tilInntektApiUt(): InntektApiUt = objectMapper.readValue(this.serialisertTilString())

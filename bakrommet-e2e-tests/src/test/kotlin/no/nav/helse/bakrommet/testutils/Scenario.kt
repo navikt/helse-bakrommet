@@ -6,9 +6,6 @@ import no.nav.helse.bakrommet.Daoer
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
-import no.nav.helse.bakrommet.ainntekt.Inntekt
-import no.nav.helse.bakrommet.ainntekt.InntektApiUt
-import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SammenlikningsgrunnlagDto
@@ -31,6 +28,9 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsik
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
+import no.nav.helse.bakrommet.infrastruktur.provider.Inntekt
+import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
@@ -202,7 +202,7 @@ data class Scenario(
         testBlock: (suspend ApplicationTestBuilder.(resultat: ScenarioData) -> Unit)? = null,
     ) {
         val ainntekt828 =
-            InntektApiUt(
+            AInntektResponse(
                 data =
                     yrkesaktiviteter
                         .filter { it is Arbeidstaker }
@@ -248,7 +248,7 @@ data class Scenario(
             sigrunClient = SigrunMock.sigrunMockClient(fnrÅrTilSvar = sigrunsvar),
             aInntektClient =
                 AInntektMock.aInntektClientMock(
-                    fnrTilInntektApiUt = mapOf(fnr to ainntekt828),
+                    fnrTilAInntektResponse = mapOf(fnr to ainntekt828),
                 ),
         ) { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
@@ -385,7 +385,6 @@ class Arbeidstaker(
 class Selvstendig(
     inntekt: YAInntekt,
     dagoversikt: YADagoversikt? = null,
-    sykmeldt: Boolean = true,
     val forsikring: SelvstendigForsikring = SelvstendigForsikring.INGEN_FORSIKRING,
 ) : YA(inntekt, dagoversikt)
 

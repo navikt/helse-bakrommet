@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
@@ -8,6 +7,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 
@@ -18,7 +18,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
     inntektsmeldingClient: InntektsmeldingClient,
-    aInntektClient: AInntektClient,
+    inntekterProvider: InntekterProvider,
     sigrunClient: SigrunClient,
 ): InntektData =
     when (request) {
@@ -29,7 +29,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
                 saksbehandler = saksbehandler,
                 yrkesaktivitetDao = yrkesaktivitetDao,
                 inntektsmeldingClient = inntektsmeldingClient,
-                aInntektClient = aInntektClient,
+                inntekterProvider = inntekterProvider,
                 daoer = this,
             )
 
@@ -53,7 +53,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
             request.frilanserFastsettelse(
                 periode = periode,
                 saksbehandler = saksbehandler,
-                aInntektClient = aInntektClient,
+                inntekterProvider = inntekterProvider,
                 daoer = this,
             )
 

@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
-import no.nav.helse.bakrommet.ainntekt.Inntektoppslag
-import no.nav.helse.bakrommet.ainntekt.tilInntektApiUt
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.AinntektPeriodeNøkkel
+import no.nav.helse.bakrommet.infrastruktur.provider.Inntektoppslag
+import no.nav.helse.bakrommet.infrastruktur.provider.tilAInntektResponse
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
@@ -10,7 +10,7 @@ import no.nav.helse.økonomi.Inntekt.Companion.summer
 fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.omregnetÅrsinntekt(
     orgnummer: String,
 ): Pair<InntektbeløpDto.Årlig, Map<java.time.YearMonth, InntektbeløpDto.MånedligDouble>> {
-    val inntektResponse = first.tilInntektApiUt()
+    val inntektResponse = first.tilAInntektResponse()
     val fom = second.fom
     val tom = second.tom
 
@@ -37,7 +37,7 @@ fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.omregnetÅrsinntekt(
 }
 
 fun Pair<Inntektoppslag, AinntektPeriodeNøkkel>.sammenlikningsgrunnlag(): InntektbeløpDto.Årlig {
-    val inntektResponse = first.tilInntektApiUt()
+    val inntektResponse = first.tilAInntektResponse()
     val fom = second.fom
     val tom = second.tom
 

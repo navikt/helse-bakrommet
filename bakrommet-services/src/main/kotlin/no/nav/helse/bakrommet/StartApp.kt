@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet
 
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
@@ -15,6 +14,7 @@ import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.pdl.PdlClient
@@ -33,7 +33,7 @@ val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 class Providers(
     val pdlClient: PdlClient,
     val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
-    val aInntektClient: AInntektClient,
+    val inntekterProvider: InntekterProvider,
     val arbeidsforholdProvider: ArbeidsforholdProvider,
     val eregClient: EregClient,
     val inntektsmeldingClient: InntektsmeldingClient,
@@ -66,7 +66,7 @@ fun createServices(
         DokumentHenter(
             db = db,
             soknadClient = providers.sykepengesoknadBackendClient,
-            aInntektClient = providers.aInntektClient,
+            inntekterProvider = providers.inntekterProvider,
             arbeidsforholdProvider = providers.arbeidsforholdProvider,
             sigrunClient = providers.sigrunClient,
         )
@@ -92,7 +92,7 @@ fun createServices(
                 db,
                 providers.inntektsmeldingClient,
                 providers.sigrunClient,
-                providers.aInntektClient,
+                providers.inntekterProvider,
             ),
         inntektsmeldingMatcherService =
             InntektsmeldingMatcherService(

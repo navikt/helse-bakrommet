@@ -1,8 +1,6 @@
 package no.nav.helse.bakrommet.behandling.dokumenter
 
 import com.fasterxml.jackson.databind.JsonNode
-import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
@@ -14,6 +12,7 @@ import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.sigrun.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sigrun.data
@@ -29,7 +28,7 @@ import java.util.*
 class DokumentHenter(
     val db: DbDaoer<DokumentInnhentingDaoer>,
     private val soknadClient: SykepengesoknadBackendClient,
-    private val aInntektClient: AInntektClient,
+    private val inntekterProvider: InntekterProvider,
     private val arbeidsforholdProvider: ArbeidsforholdProvider,
     private val sigrunClient: SigrunClient,
 ) {
@@ -67,25 +66,23 @@ class DokumentHenter(
             // TODO: Transaksjon ? / Tilrettelegg for å kunne fullføre innhenting som feiler halvveis inni løpet ?
 
             val søknader: List<Dokument> =
-                runBlocking {
-                    søknadsIder.map { søknadId ->
-                        logg.info("Henter søknad med id={} for periode={}", søknadId, periode.id)
-                        soknadClient
-                            .hentSoknadMedSporing(
-                                saksbehandlerToken = saksbehandler.token,
-                                id = søknadId.toString(),
-                            ).let { (søknadDto, kildespor) ->
-                                dokumentDao.opprettDokument(
-                                    Dokument(
-                                        dokumentType = DokumentType.søknad,
-                                        eksternId = søknadId.toString(),
-                                        innhold = søknadDto.serialisertTilString(),
-                                        sporing = kildespor,
-                                        opprettetForBehandling = periode.id,
-                                    ),
-                                )
-                            }
-                    }
+                søknadsIder.map { søknadId ->
+                    logg.info("Henter søknad med id={} for periode={}", søknadId, periode.id)
+                    soknadClient
+                        .hentSoknadMedSporing(
+                            saksbehandlerToken = saksbehandler.token,
+                            id = søknadId.toString(),
+                        ).let { (søknadDto, kildespor) ->
+                            dokumentDao.opprettDokument(
+                                Dokument(
+                                    dokumentType = DokumentType.søknad,
+                                    eksternId = søknadId.toString(),
+                                    innhold = søknadDto.serialisertTilString(),
+                                    sporing = kildespor,
+                                    opprettetForBehandling = periode.id,
+                                ),
+                            )
+                        }
                 }
 
             return@nonTransactional søknader
@@ -101,7 +98,7 @@ class DokumentHenter(
 
             return@nonTransactional lastAInntektBeregningsgrunnlag(
                 periode = periode,
-                aInntektClient = aInntektClient,
+                inntekterProvider = inntekterProvider,
                 saksbehandler = saksbehandler,
             )
         }
@@ -116,7 +113,7 @@ class DokumentHenter(
 
             return@nonTransactional lastAInntektSammenlikningsgrunnlag(
                 periode = periode,
-                aInntektClient = aInntektClient,
+                inntekterProvider = inntekterProvider,
                 saksbehandler = saksbehandler,
             )
         }

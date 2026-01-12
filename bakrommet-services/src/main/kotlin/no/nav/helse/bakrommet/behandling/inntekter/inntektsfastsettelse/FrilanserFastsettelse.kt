@@ -2,8 +2,6 @@ package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
-import no.nav.helse.bakrommet.ainntekt.tilInntektApiUt
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
@@ -14,6 +12,8 @@ import no.nav.helse.bakrommet.behandling.inntekter.FrilanserSkjønnsfastsettelse
 import no.nav.helse.bakrommet.behandling.inntekter.FrilanserSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.tilAInntektResponse
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
@@ -21,7 +21,7 @@ import no.nav.helse.økonomi.Inntekt.Companion.summer
 internal fun InntektRequest.Frilanser.frilanserFastsettelse(
     periode: BehandlingDbRecord,
     saksbehandler: BrukerOgToken,
-    aInntektClient: AInntektClient,
+    inntekterProvider: InntekterProvider,
     daoer: DokumentInnhentingDaoer,
 ): InntektData =
     when (data) {
@@ -30,11 +30,11 @@ internal fun InntektRequest.Frilanser.frilanserFastsettelse(
                 daoer
                     .lastAInntektBeregningsgrunnlag(
                         periode = periode,
-                        aInntektClient = aInntektClient,
+                        inntekterProvider = inntekterProvider,
                         saksbehandler = saksbehandler,
                     ).somAInntektBeregningsgrunnlag()
 
-            val inntektResponse = ainntektBeregningsgrunnlag.first.tilInntektApiUt()
+            val inntektResponse = ainntektBeregningsgrunnlag.first.tilAInntektResponse()
             val fom = ainntektBeregningsgrunnlag.second.fom
             val tom = ainntektBeregningsgrunnlag.second.tom
 

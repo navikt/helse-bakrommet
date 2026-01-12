@@ -34,7 +34,7 @@ class DokumentHentingTest {
         val fakeInntektForFnrRespons = etInntektSvar()
 
         runApplicationTest(
-            aInntektClient = AInntektMock.aInntektClientMock(fnrTilInntektApiUt = mapOf(FNR to fakeInntektForFnrRespons)),
+            aInntektClient = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = mapOf(FNR to fakeInntektForFnrRespons)),
         ) { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 
@@ -77,7 +77,7 @@ class DokumentHentingTest {
     fun `403 fra Inntektskomponenten gir 403 videre med feilbeskrivelse`() =
         runApplicationTest(
             aInntektClient =
-                AInntektMock.aInntektClientMock(fnrTilInntektApiUt = emptyMap()),
+                AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
         ) {
             val personIdForbidden = "ab403"
             val personPseudoIdForbidden = UUID.nameUUIDFromBytes(personIdForbidden.toByteArray())

@@ -1,14 +1,9 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastInntektsmeldingDokument
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somAInntektBeregningsgrunnlag
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somInntektsmelding
+import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.*
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
@@ -16,6 +11,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
@@ -27,7 +23,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
     inntektsmeldingClient: InntektsmeldingClient,
-    aInntektClient: AInntektClient,
+    inntekterProvider: InntekterProvider,
     daoer: DokumentInnhentingDaoer,
 ): InntektData {
     yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, data.refusjon)
@@ -51,7 +47,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                 daoer
                     .lastAInntektBeregningsgrunnlag(
                         periode = periode,
-                        aInntektClient = aInntektClient,
+                        inntekterProvider = inntekterProvider,
                         saksbehandler = saksbehandler,
                     ).somAInntektBeregningsgrunnlag()
                     .omregnetÅrsinntekt(yrkesaktivitet.kategorisering.orgnummer())

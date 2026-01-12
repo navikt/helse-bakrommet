@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.inntekter
 
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
@@ -24,6 +23,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitetDbRecor
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.sigrun.SigrunClient
@@ -45,7 +45,7 @@ class InntektService(
     val db: DbDaoer<InntektServiceDaoer>,
     val inntektsmeldingClient: InntektsmeldingClient,
     val sigrunClient: SigrunClient,
-    val aInntektClient: AInntektClient,
+    val inntekterProvider: InntekterProvider,
 ) {
     suspend fun oppdaterInntekt(
         ref: YrkesaktivitetReferanse,
@@ -113,7 +113,7 @@ class InntektService(
                     saksbehandler = saksbehandler,
                     yrkesaktivitetDao = yrkesaktivitetDao,
                     inntektsmeldingClient = inntektsmeldingClient,
-                    aInntektClient = aInntektClient,
+                    inntekterProvider = inntekterProvider,
                     sigrunClient = sigrunClient,
                 )
 
@@ -140,7 +140,7 @@ class InntektService(
                 if (yrkesaktiviteter.skalBeregneSammenlikningsgrunnlag()) {
                     if (rec.sammenlikningsgrunnlag == null) {
                         val dokument =
-                            lastAInntektSammenlikningsgrunnlag(periode, aInntektClient, saksbehandler)
+                            lastAInntektSammenlikningsgrunnlag(periode, inntekterProvider, saksbehandler)
                         val sammenlikningsgrunnlag =
                             dokument.somAInntektSammenlikningsgrunnlag().sammenlikningsgrunnlag()
 

@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.testdata
 
 import no.nav.helse.bakrommet.aareg.arbeidsforhold
-import no.nav.helse.bakrommet.ainntekt.Inntektsinformasjon
+import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
 import java.time.LocalDate
 import java.util.UUID
 

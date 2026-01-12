@@ -35,7 +35,7 @@ class MåVæreUnderBehandlingTest {
             DokumentHenter(
                 db = db,
                 soknadClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
-                aInntektClient = AInntektMock.aInntektClientMock(fnrTilInntektApiUt = emptyMap()),
+                inntekterProvider = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
                 arbeidsforholdProvider = AARegMock.aaRegClientMock(),
                 sigrunClient = SigrunMock.sigrunMockClient(),
             )

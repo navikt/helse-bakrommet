@@ -27,7 +27,7 @@ fun createClients(configuration: Configuration): Providers {
     return Providers(
         pdlClient = pdlClient,
         sykepengesoknadBackendClient = sykepengesoknadBackendClient,
-        aInntektClient = aInntektClient,
+        inntekterProvider = aInntektClient,
         arbeidsforholdProvider = aaRegClient,
         eregClient = eregClient,
         inntektsmeldingClient = inntektsmeldingClient,

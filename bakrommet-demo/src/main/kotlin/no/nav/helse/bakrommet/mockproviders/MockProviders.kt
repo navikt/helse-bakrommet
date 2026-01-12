@@ -3,8 +3,8 @@ package no.nav.helse.bakrommet.mockproviders
 import no.nav.helse.bakrommet.Providers
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
-import no.nav.helse.bakrommet.ainntekt.InntektApiUt
 import no.nav.helse.bakrommet.ereg.EregMock
+import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.pdl.PdlMock
@@ -27,15 +27,15 @@ fun skapProviders(testpersoner: List<Testperson>): Providers {
     val fnrTilArbeidsforhold =
         testpersoner.filter { it.aaregData != null }.associate { it.fnr to it.aaregData!! }
 
-    val fnrTilAinntk: Map<String, InntektApiUt> =
+    val fnrTilAinntk: Map<String, AInntektResponse> =
         testpersoner
             .filter { it.ainntektData != null }
-            .associate { it.fnr to InntektApiUt(data = it.ainntektData!!) }
+            .associate { it.fnr to AInntektResponse(data = it.ainntektData!!) }
     val providers =
         Providers(
             pdlClient = PdlMock.pdlClient(identTilReplyMap = pdlResponses, pdlReplyGenerator = pdlReplyGenerator),
             sykepengesoknadBackendClient = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
-            aInntektClient = AInntektMock.aInntektClientMock(fnrTilInntektApiUt = fnrTilAinntk),
+            inntekterProvider = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = fnrTilAinntk),
             arbeidsforholdProvider = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
             eregClient = EregMock.eregClientMock(),
             inntektsmeldingClient =
