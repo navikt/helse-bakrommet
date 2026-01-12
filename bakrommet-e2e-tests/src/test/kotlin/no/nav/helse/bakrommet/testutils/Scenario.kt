@@ -228,7 +228,7 @@ data class Scenario(
                 .firstOrNull() ?: emptyMap()
 
         runApplicationTest(
-            sykepengesoknadBackendClient =
+            sykepengesøknadProvider =
                 SykepengesoknadBackendMock.sykepengesoknadMock(
                     configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     oboClient = TestOppsett.oboClient,

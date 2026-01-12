@@ -18,11 +18,11 @@ import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PersonsøkService
 import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
-import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.tidslinje.TidslinjeService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,7 +32,7 @@ val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 class Providers(
     val personinfoProvider: PersoninfoProvider,
-    val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
+    val sykepengesøknadProvider: SykepengesøknadProvider,
     val inntekterProvider: InntekterProvider,
     val arbeidsforholdProvider: ArbeidsforholdProvider,
     val eregClient: EregClient,
@@ -65,7 +65,7 @@ fun createServices(
     val dokumentHenter =
         DokumentHenter(
             db = db,
-            soknadClient = providers.sykepengesoknadBackendClient,
+            soknadClient = providers.sykepengesøknadProvider,
             inntekterProvider = providers.inntekterProvider,
             arbeidsforholdProvider = providers.arbeidsforholdProvider,
             pensjonsgivendeInntektProvider = providers.pensjonsgivendeInntektProvider,
@@ -106,8 +106,7 @@ fun createServices(
         tidslinjeService = TidslinjeService(db, providers.eregClient),
         soknaderService =
             SoknaderService(
-                sykepengesoknadBackendClient = providers.sykepengesoknadBackendClient,
-                personService = personService,
+                sykepengesøknadProvider = providers.sykepengesøknadProvider,
             ),
         valideringService = ValideringService(db),
     )

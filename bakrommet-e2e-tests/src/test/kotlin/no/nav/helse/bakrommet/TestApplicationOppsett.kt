@@ -29,13 +29,13 @@ import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.obo.OboTestSetup
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.sigrun.SigrunMock
-import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.util.objectMapper
 import javax.sql.DataSource
@@ -105,7 +105,7 @@ fun runApplicationTest(
     dataSource: DataSource = instansierDatabase(config.db),
     pdlClient: PersoninfoProvider = PdlMock.pdlClient(),
     resetDatabase: Boolean = true,
-    sykepengesoknadBackendClient: SykepengesoknadBackendClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(oboClient = TestOppsett.oboClient),
+    sykepengesøknadProvider: SykepengesøknadProvider = SykepengesoknadMock.sykepengersoknadBackendClientMock(oboClient = TestOppsett.oboClient),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient =
         AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
@@ -121,7 +121,7 @@ fun runApplicationTest(
         val providers =
             Providers(
                 personinfoProvider = pdlClient,
-                sykepengesoknadBackendClient = sykepengesoknadBackendClient,
+                sykepengesøknadProvider = sykepengesøknadProvider,
                 inntekterProvider = aInntektClient,
                 arbeidsforholdProvider = aaRegClient,
                 eregClient = eregClient,

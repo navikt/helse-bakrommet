@@ -63,7 +63,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
         val søknad3b = enSøknad(fnr = FNR, id = UUID.randomUUID().toString(), arbeidsgiverinfo = arbeidsgiver2).asJsonNode()
 
         runApplicationTest(
-            sykepengesoknadBackendClient =
+            sykepengesøknadProvider =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3, søknad3b).associateBy { it.søknadId },
                     oboClient = TestOppsett.oboClient,
@@ -142,7 +142,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
         val søknad3 = enSøknad(fnr = FNR, id = UUID.randomUUID().toString(), arbeidsgiverinfo = arbeidsgiver2).asJsonNode()
 
         runApplicationTest(
-            sykepengesoknadBackendClient =
+            sykepengesøknadProvider =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
                     oboClient = TestOppsett.oboClient,
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3).associateBy { it.søknadId },

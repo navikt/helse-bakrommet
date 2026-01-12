@@ -81,7 +81,7 @@ class SoknaderTest {
     @Test
     fun `henter en enkelt søknad`() =
         runApplicationTest(
-            sykepengesoknadBackendClient =
+            sykepengesøknadProvider =
                 SykepengesoknadBackendClient(
                     configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,
@@ -110,7 +110,7 @@ class SoknaderTest {
     @Test
     fun `henter søknader uten fom-dato`() =
         runApplicationTest(
-            sykepengesoknadBackendClient =
+            sykepengesøknadProvider =
                 SykepengesoknadBackendClient(
                     configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,
@@ -131,7 +131,7 @@ class SoknaderTest {
     @Test
     fun `henter søknader med fom-dato`() =
         runApplicationTest(
-            sykepengesoknadBackendClient =
+            sykepengesøknadProvider =
                 SykepengesoknadBackendClient(
                     configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,

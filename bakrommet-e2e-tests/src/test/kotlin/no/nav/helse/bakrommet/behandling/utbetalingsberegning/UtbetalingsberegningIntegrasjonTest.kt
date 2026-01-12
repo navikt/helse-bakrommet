@@ -31,9 +31,6 @@ import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
-import no.nav.helse.dto.serialisering.UtbetalingsdagUtDto
-import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
-import no.nav.helse.dto.serialisering.ØkonomiUtDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -64,7 +61,7 @@ class UtbetalingsberegningIntegrasjonTest {
             ).asJsonNode()
 
         runApplicationTest(
-            sykepengesoknadBackendClient =
+            sykepengesøknadProvider =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
                     oboClient = TestOppsett.oboClient,
                     søknadIdTilSvar = mapOf(søknad["id"].asText() to søknad),
@@ -223,117 +220,6 @@ class UtbetalingsberegningIntegrasjonTest {
             }
         assertEquals(204, response.status.value)
     }
-
-    private fun BeregningDataUtDto.tilBeregningData(): BeregningData {
-        // Konverter UtDto til InnDto for å bruke den eksisterende gjenopprett-logikken
-        val innDto = this.tilBeregningDataInnDto()
-        return BeregningData(
-            yrkesaktiviteter =
-                innDto.yrkesaktiviteter.map {
-                    YrkesaktivitetUtbetalingsberegning(
-                        yrkesaktivitetId = it.yrkesaktivitetId,
-                        utbetalingstidslinje =
-                            no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
-                                .gjenopprett(it.utbetalingstidslinje),
-                        dekningsgrad = it.dekningsgrad,
-                    )
-                },
-            spilleromOppdrag = spilleromOppdrag,
-        )
-    }
-
-    private fun BeregningDataUtDto.tilBeregningDataInnDto(): BeregningDataInnDto =
-        BeregningDataInnDto(
-            yrkesaktiviteter = yrkesaktiviteter.map { it.tilInnDto() },
-            spilleromOppdrag = spilleromOppdrag,
-        )
-
-    private fun YrkesaktivitetUtbetalingsberegningUtDto.tilInnDto(): YrkesaktivitetUtbetalingsberegningInnDto =
-        YrkesaktivitetUtbetalingsberegningInnDto(
-            yrkesaktivitetId = yrkesaktivitetId,
-            utbetalingstidslinje = utbetalingstidslinje.tilInnDto(),
-            dekningsgrad = dekningsgrad,
-        )
-
-    private fun UtbetalingstidslinjeUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto =
-        no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto(
-            dager = dager.map { it.tilInnDto() },
-        )
-
-    private fun UtbetalingsdagUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto =
-        when (this) {
-            is UtbetalingsdagUtDto.NavDagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
-                    .NavDagDto(dato, økonomi.tilInnDto())
-
-            is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(
-                    dato,
-                    økonomi.tilInnDto(),
-                )
-
-            is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsgiverperiodeDagNavDto(
-                    dato,
-                    økonomi.tilInnDto(),
-                )
-
-            is UtbetalingsdagUtDto.NavHelgDagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.NavHelgDagDto(
-                    dato,
-                    økonomi.tilInnDto(),
-                )
-
-            is UtbetalingsdagUtDto.ArbeidsdagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ArbeidsdagDto(
-                    dato,
-                    økonomi.tilInnDto(),
-                )
-
-            is UtbetalingsdagUtDto.FridagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
-                    .FridagDto(dato, økonomi.tilInnDto())
-
-            is UtbetalingsdagUtDto.AvvistDagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.AvvistDagDto(
-                    dato,
-                    økonomi.tilInnDto(),
-                    begrunnelser,
-                )
-
-            is UtbetalingsdagUtDto.ForeldetDagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.ForeldetDagDto(
-                    dato,
-                    økonomi.tilInnDto(),
-                )
-
-            is UtbetalingsdagUtDto.UkjentDagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.UkjentDagDto(
-                    dato,
-                    økonomi.tilInnDto(),
-                )
-
-            is UtbetalingsdagUtDto.VentetidsdagDto ->
-                no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto.VentetidsdagDto(
-                    dato,
-                    økonomi.tilInnDto(),
-                )
-        }
-
-    private fun ØkonomiUtDto.tilInnDto(): no.nav.helse.dto.deserialisering.ØkonomiInnDto =
-        no.nav.helse.dto.deserialisering.ØkonomiInnDto(
-            grad = grad,
-            totalGrad = totalGrad,
-            utbetalingsgrad = utbetalingsgrad,
-            arbeidsgiverRefusjonsbeløp = arbeidsgiverRefusjonsbeløp.dagligDouble,
-            aktuellDagsinntekt = aktuellDagsinntekt.dagligDouble,
-            inntektjustering = inntektjustering.dagligDouble,
-            dekningsgrad = dekningsgrad,
-            arbeidsgiverbeløp = arbeidsgiverbeløp?.dagligDouble,
-            personbeløp = personbeløp?.dagligDouble,
-            reservertArbeidsgiverbeløp = reservertArbeidsgiverbeløp?.dagligDouble,
-            reservertPersonbeløp = reservertPersonbeløp?.dagligDouble,
-        )
 
     private fun verifiserBeregning(beregning: BeregningResponseDto) {
         assertEquals(1, beregning.beregningData.yrkesaktiviteter.size)

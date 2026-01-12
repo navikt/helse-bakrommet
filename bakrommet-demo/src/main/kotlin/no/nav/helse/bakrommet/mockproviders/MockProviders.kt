@@ -34,7 +34,7 @@ fun skapProviders(testpersoner: List<Testperson>): Providers {
     val providers =
         Providers(
             personinfoProvider = PdlMock.pdlClient(identTilReplyMap = pdlResponses, pdlReplyGenerator = pdlReplyGenerator),
-            sykepengesoknadBackendClient = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
+            sykepengesøknadProvider = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
             inntekterProvider = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = fnrTilAinntk),
             arbeidsforholdProvider = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
             eregClient = EregMock.eregClientMock(),

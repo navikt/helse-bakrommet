@@ -1,14 +1,13 @@
 package no.nav.helse.bakrommet.sykepengesoknad
 
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
 import no.nav.helse.bakrommet.person.NaturligIdent
-import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
 
 class SoknaderService(
-    private val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
-    private val personService: PersonService,
+    private val sykepengesøknadProvider: SykepengesøknadProvider,
 ) {
     suspend fun hentSoknader(
         saksbehandlerToken: SpilleromBearerToken,
@@ -16,7 +15,7 @@ class SoknaderService(
         fom: LocalDate,
         medSporsmal: Boolean = false,
     ): List<SykepengesoknadDTO> =
-        sykepengesoknadBackendClient.hentSoknader(
+        sykepengesøknadProvider.hentSoknader(
             saksbehandlerToken = saksbehandlerToken,
             fnr = naturligIdent.naturligIdent,
             fom = fom,
@@ -30,7 +29,7 @@ class SoknaderService(
     ): SykepengesoknadDTO {
         // Valider at personId er gyldig (hent fnr for å sjekke at personen eksisterer)
 // TODO valider at søknad henger sammen med fnr?
-        return sykepengesoknadBackendClient.hentSoknad(
+        return sykepengesøknadProvider.hentSoknad(
             saksbehandlerToken = saksbehandlerToken,
             id = soknadId,
         )

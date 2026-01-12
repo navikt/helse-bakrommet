@@ -10,13 +10,14 @@ dependencies {
     api(project(":bakrommet-common"))
     api(project(":bakrommet-kafka-dto"))
     api(project(":bakrommet-clients:bakrommet-client-ereg"))
-    api(project(":bakrommet-clients:bakrommet-client-sykepengesoknad"))
     api(project(":sykepenger-model"))
 
     // TODO flytte ut til client igjen når vi har en egen domene-representasjon av IM
     api("no.nav.sykepenger.kontrakter:inntektsmelding-kontrakt:2025.04.04-01-56-365d3")
 
-    implementation("no.nav.helse.flex:sykepengesoknad-kafka")
+    // TODO flytte ut til client igjen når vi har en egen domene-representasjon av søknad
+    api("no.nav.helse.flex:sykepengesoknad-kafka")
+
     implementation("com.github.navikt.spleis:sykepenger-okonomi")
 
     implementation("ch.qos.logback:logback-classic")

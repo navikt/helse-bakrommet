@@ -12,12 +12,7 @@ import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 fun createClients(configuration: Configuration): Providers {
     val oboClient = OboClient(configuration.obo)
     val pdlClient = PdlClient(configuration.pdl, oboClient)
-    val sykepengesoknadBackendClient =
-        SykepengesoknadBackendClient(
-            configuration.sykepengesoknadBackend,
-            oboClient,
-        )
-
+    val sykepengesoknadBackendClient = SykepengesoknadBackendClient(configuration.sykepengesoknadBackend, oboClient)
     val aaRegClient = AARegClient(configuration.aareg, oboClient)
     val aInntektClient = AInntektClient(configuration.ainntekt, oboClient)
     val eregClient = EregClient(configuration.ereg)
@@ -26,7 +21,7 @@ fun createClients(configuration: Configuration): Providers {
 
     return Providers(
         personinfoProvider = pdlClient,
-        sykepengesoknadBackendClient = sykepengesoknadBackendClient,
+        sykepengesøknadProvider = sykepengesoknadBackendClient,
         inntekterProvider = aInntektClient,
         arbeidsforholdProvider = aaRegClient,
         eregClient = eregClient,
