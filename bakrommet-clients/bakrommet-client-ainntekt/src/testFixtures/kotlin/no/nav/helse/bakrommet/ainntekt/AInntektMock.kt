@@ -11,10 +11,10 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
-import no.nav.helse.bakrommet.ereg.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntekt
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
+import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory

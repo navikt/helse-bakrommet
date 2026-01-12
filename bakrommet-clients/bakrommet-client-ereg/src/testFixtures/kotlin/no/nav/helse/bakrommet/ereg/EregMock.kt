@@ -1,7 +1,5 @@
 package no.nav.helse.bakrommet.ereg
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.fakerConfig
 import io.ktor.client.HttpClient
@@ -11,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.util.objectMapper
 import org.slf4j.LoggerFactory
 import java.util.Random
@@ -92,5 +91,3 @@ fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestDa
             addHandler(requestHandler)
         }
     }
-
-suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)

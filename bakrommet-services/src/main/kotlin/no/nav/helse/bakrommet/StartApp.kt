@@ -10,12 +10,12 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.validering.ValideringService
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
-import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
@@ -35,7 +35,7 @@ class Providers(
     val sykepengesøknadProvider: SykepengesøknadProvider,
     val inntekterProvider: InntekterProvider,
     val arbeidsforholdProvider: ArbeidsforholdProvider,
-    val eregClient: EregClient,
+    val organisasjonsnavnProvider: OrganisasjonsnavnProvider,
     val inntektsmeldingProvider: InntektsmeldingProvider,
     val pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
 )
@@ -71,7 +71,7 @@ fun createServices(
             pensjonsgivendeInntektProvider = providers.pensjonsgivendeInntektProvider,
         )
     val personService = PersonService(db, providers.personinfoProvider)
-    val yrkesaktivitetService = YrkesaktivitetService(db, providers.eregClient)
+    val yrkesaktivitetService = YrkesaktivitetService(db, providers.organisasjonsnavnProvider)
     return Services(
         personsøkService =
             PersonsøkService(
@@ -101,9 +101,9 @@ fun createServices(
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
         personService = personService,
-        organisasjonService = OrganisasjonService(providers.eregClient),
+        organisasjonService = OrganisasjonService(providers.organisasjonsnavnProvider),
         tilkommenInntektService = TilkommenInntektService(db),
-        tidslinjeService = TidslinjeService(db, providers.eregClient),
+        tidslinjeService = TidslinjeService(db, providers.organisasjonsnavnProvider),
         soknaderService =
             SoknaderService(
                 sykepengesøknadProvider = providers.sykepengesøknadProvider,

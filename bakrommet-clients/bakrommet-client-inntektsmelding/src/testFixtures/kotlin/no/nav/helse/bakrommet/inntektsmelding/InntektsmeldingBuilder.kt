@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.inntektsmelding
 
-import no.nav.helse.bakrommet.ereg.Organisasjon
+import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.inntektsmeldingkontrakt.*
 import java.math.BigDecimal
 import java.time.LocalDate

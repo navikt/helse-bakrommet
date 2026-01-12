@@ -37,7 +37,7 @@ fun skapProviders(testpersoner: List<Testperson>): Providers {
             sykepengesøknadProvider = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
             inntekterProvider = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = fnrTilAinntk),
             arbeidsforholdProvider = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
-            eregClient = EregMock.eregClientMock(),
+            organisasjonsnavnProvider = EregMock.eregClientMock(),
             inntektsmeldingProvider =
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
                     mockClient =

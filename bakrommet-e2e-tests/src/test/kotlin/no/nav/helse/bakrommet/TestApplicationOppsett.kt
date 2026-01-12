@@ -24,9 +24,9 @@ import no.nav.helse.bakrommet.db.dao.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.db.dao.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.db.dao.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.db.skapDbDaoer
-import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
@@ -109,7 +109,7 @@ fun runApplicationTest(
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient =
         AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
-    eregClient: EregClient = EregMock.eregClientMock(),
+    organisasjonsnavnProvider: OrganisasjonsnavnProvider = EregMock.eregClientMock(),
     pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider = SigrunMock.sigrunMockClient(),
     inntektsmeldingClient: InntektsmeldingProvider = InntektsmeldingApiMock.inntektsmeldingClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
@@ -124,7 +124,7 @@ fun runApplicationTest(
                 sykepengesøknadProvider = sykepengesøknadProvider,
                 inntekterProvider = aInntektClient,
                 arbeidsforholdProvider = aaRegClient,
-                eregClient = eregClient,
+                organisasjonsnavnProvider = organisasjonsnavnProvider,
                 inntektsmeldingProvider = inntektsmeldingClient,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             )

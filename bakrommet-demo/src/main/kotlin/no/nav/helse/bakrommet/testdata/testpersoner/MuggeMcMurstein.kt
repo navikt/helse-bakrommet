@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.testdata.testpersoner
 
-import no.nav.helse.bakrommet.ereg.Organisasjon
+import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Testperson
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO

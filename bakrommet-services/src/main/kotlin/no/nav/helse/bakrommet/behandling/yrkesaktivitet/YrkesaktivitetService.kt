@@ -16,10 +16,10 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
-import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.util.logg
 import java.time.OffsetDateTime
@@ -46,7 +46,7 @@ data class YrkesaktivitetMedOrgnavn(
 
 class YrkesaktivitetService(
     private val db: DbDaoer<YrkesaktivitetServiceDaoer>,
-    private val eregClient: EregClient,
+    private val organisasjonsnavnProvider: OrganisasjonsnavnProvider,
 ) {
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean = this.sykmeldt
 
@@ -85,7 +85,7 @@ class YrkesaktivitetService(
                             async {
                                 withTimeoutOrNull(3_000) {
                                     try {
-                                        eregClient.hentOrganisasjonsnavn(orgnummer)
+                                        organisasjonsnavnProvider.hentOrganisasjonsnavn(orgnummer)
                                     } catch (e: Exception) {
                                         logg.warn("Kall mot Ereg feilet for orgnummer $orgnummer", e)
                                         null
@@ -116,7 +116,7 @@ class YrkesaktivitetService(
             val orgnavn =
                 kategorisering
                     .maybeOrgnummer()
-                    ?.let { eregClient.hentOrganisasjonsnavn(it).navn }
+                    ?.let { organisasjonsnavnProvider.hentOrganisasjonsnavn(it).navn }
 
             val periode =
                 behandlingDao.hentPeriode(
@@ -154,7 +154,7 @@ class YrkesaktivitetService(
         // Validerer at organisasjon finnes hvis orgnummer er satt
         kategorisering
             .maybeOrgnummer()
-            ?.let { eregClient.hentOrganisasjonsnavn(it).navn }
+            ?.let { organisasjonsnavnProvider.hentOrganisasjonsnavn(it).navn }
 
         val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
         val gammelKategorisering = yrkesaktivtet.kategorisering

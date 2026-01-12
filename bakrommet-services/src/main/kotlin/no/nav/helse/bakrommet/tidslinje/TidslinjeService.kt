@@ -3,17 +3,17 @@ package no.nav.helse.bakrommet.tidslinje
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeoutOrNull
-import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingDao
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetForenkletDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
-import no.nav.helse.bakrommet.ereg.EregClient
-import no.nav.helse.bakrommet.ereg.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
+import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.logg
 
@@ -32,7 +32,7 @@ data class TidslinjeData(
 
 class TidslinjeService(
     private val db: DbDaoer<TidslinjeServiceDaoer>,
-    private val eregClient: EregClient,
+    private val organisasjonsnavnProvider: OrganisasjonsnavnProvider,
 ) {
     suspend fun hentTidslinjeData(
         naturligIdent: NaturligIdent,
@@ -57,7 +57,7 @@ class TidslinjeService(
                             async {
                                 withTimeoutOrNull(3_000) {
                                     try {
-                                        eregClient.hentOrganisasjonsnavn(orgnummer)
+                                        organisasjonsnavnProvider.hentOrganisasjonsnavn(orgnummer)
                                     } catch (e: Exception) {
                                         logg.warn("Kall mot Ereg feilet for orgnummer $orgnummer", e)
                                         null

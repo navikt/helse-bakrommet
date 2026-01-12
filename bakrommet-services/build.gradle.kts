@@ -9,7 +9,6 @@ dependencies {
 
     api(project(":bakrommet-common"))
     api(project(":bakrommet-kafka-dto"))
-    api(project(":bakrommet-clients:bakrommet-client-ereg"))
     api(project(":sykepenger-model"))
 
     // TODO flytte ut til client igjen når vi har en egen domene-representasjon av IM

@@ -1,5 +1,7 @@
 package no.nav.helse.bakrommet.ereg
 
+import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
+
 val kranførerkompaniet =
     Organisasjon(
         navn = "Kranførerkompaniet",

@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.sykepengesoknad
 
-import no.nav.helse.bakrommet.ereg.Organisasjon
+import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.flex.sykepengesoknad.kafka.*
 import java.time.LocalDate
 import java.time.LocalDateTime

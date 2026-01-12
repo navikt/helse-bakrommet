@@ -11,22 +11,10 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
+import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
-
-data class EregNoekkelinfoResponse(
-    val navn: EregNavn?,
-)
-
-data class EregNavn(
-    val sammensattnavn: String?,
-    val navnelinje1: String?,
-)
-
-data class Organisasjon(
-    val navn: String,
-    val orgnummer: String,
-)
 
 class EregClient(
     private val configuration: Configuration.Ereg,
@@ -36,8 +24,8 @@ class EregClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
-    suspend fun hentOrganisasjonsnavn(
+) : OrganisasjonsnavnProvider {
+    override suspend fun hentOrganisasjonsnavn(
         orgnummer: String,
     ): Organisasjon {
         val url = "${configuration.baseUrl}/v2/organisasjon/$orgnummer/noekkelinfo"
