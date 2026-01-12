@@ -118,19 +118,19 @@ fun runApplicationTest(
         TestDataSource.resetDatasource()
     }
     application {
-        val clienter =
-            Clienter(
+        val providers =
+            Providers(
                 pdlClient = pdlClient,
                 sykepengesoknadBackendClient = sykepengesoknadBackendClient,
                 aInntektClient = aInntektClient,
-                aaRegClient = aaRegClient,
+                arbeidsforholdProvider = aaRegClient,
                 eregClient = eregClient,
                 inntektsmeldingClient = inntektsmeldingClient,
                 sigrunClient = sigrunClient,
             )
         val services =
             createServices(
-                clienter = clienter,
+                providers = providers,
                 db = skapDbDaoer(dataSource),
             )
 

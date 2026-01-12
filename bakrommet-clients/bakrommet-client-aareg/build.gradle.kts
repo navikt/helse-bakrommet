@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
-    api(project(":bakrommet-common"))
+    api(project(":bakrommet-services"))
 
     testFixturesImplementation(testFixtures(project(":bakrommet-common")))
     testFixturesImplementation("io.ktor:ktor-client-mock-jvm")

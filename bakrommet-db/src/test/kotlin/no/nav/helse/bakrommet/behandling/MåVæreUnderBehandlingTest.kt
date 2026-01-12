@@ -36,7 +36,7 @@ class MåVæreUnderBehandlingTest {
                 db = db,
                 soknadClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
                 aInntektClient = AInntektMock.aInntektClientMock(fnrTilInntektApiUt = emptyMap()),
-                aaRegClient = AARegMock.aaRegClientMock(),
+                arbeidsforholdProvider = AARegMock.aaRegClientMock(),
                 sigrunClient = SigrunMock.sigrunMockClient(),
             )
         behandlingService = BehandlingService(db, dokHenter)

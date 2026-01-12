@@ -15,8 +15,8 @@ import no.nav.helse.bakrommet.kafka.OutboxService
 fun main() {
     val configuration = Configuration.fromEnv()
     val dataSource = instansierDatabase(configuration.db)
-    val clienter: Clienter = createClients(configuration)
-    val services: Services = createServices(clienter, skapDbDaoer(dataSource))
+    val providers: Providers = createClients(configuration)
+    val services: Services = createServices(providers, skapDbDaoer(dataSource))
 
     embeddedServer(CIO, port = 8080) {
         appLogger.info("Setter opp ktor")

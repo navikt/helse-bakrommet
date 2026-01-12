@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.mockclients
 
-import no.nav.helse.bakrommet.Clienter
+import no.nav.helse.bakrommet.Providers
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.InntektApiUt
@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock.sykepengesoknadMock
 import no.nav.helse.bakrommet.testdata.Testperson
 
-fun skapClienter(testpersoner: List<Testperson>): Clienter {
+fun skapClienter(testpersoner: List<Testperson>): Providers {
     val pdlResponses = testpersoner.associate { it.fnr to it.skapPdlReply() }
     val fnrTilSoknader = testpersoner.associate { it.fnr to it.soknader }
     val fnrÅrTilSigrunSvar: Map<Pair<String, java.time.Year>, String> =
@@ -31,12 +31,12 @@ fun skapClienter(testpersoner: List<Testperson>): Clienter {
         testpersoner
             .filter { it.ainntektData != null }
             .associate { it.fnr to InntektApiUt(data = it.ainntektData!!) }
-    val clienter =
-        Clienter(
+    val providers =
+        Providers(
             pdlClient = PdlMock.pdlClient(identTilReplyMap = pdlResponses, pdlReplyGenerator = pdlReplyGenerator),
             sykepengesoknadBackendClient = sykepengesoknadMock(fnrTilSoknader = fnrTilSoknader),
             aInntektClient = AInntektMock.aInntektClientMock(fnrTilInntektApiUt = fnrTilAinntk),
-            aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
+            arbeidsforholdProvider = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = fnrTilArbeidsforhold),
             eregClient = EregMock.eregClientMock(),
             inntektsmeldingClient =
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
@@ -47,7 +47,7 @@ fun skapClienter(testpersoner: List<Testperson>): Clienter {
                 ),
             sigrunClient = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSigrunSvar),
         )
-    return clienter
+    return providers
 }
 
 private fun Testperson.skapPdlReply(): String =

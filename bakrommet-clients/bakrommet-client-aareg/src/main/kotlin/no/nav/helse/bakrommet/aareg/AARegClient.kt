@@ -13,12 +13,12 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.Arbeidsforholdoppslag
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.util.*
-
-typealias Arbeidsforholdoppslag = JsonNode
 
 class AARegClient(
     private val configuration: Configuration.AAReg,
@@ -29,10 +29,10 @@ class AARegClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
+) : ArbeidsforholdProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
-    suspend fun hentArbeidsforholdFor(
+    override suspend fun hentArbeidsforholdFor(
         fnr: String,
         saksbehandlerToken: SpilleromBearerToken,
     ): Arbeidsforholdoppslag =
@@ -41,7 +41,7 @@ class AARegClient(
             saksbehandlerToken = saksbehandlerToken,
         ).first
 
-    suspend fun hentArbeidsforholdForMedSporing(
+    override suspend fun hentArbeidsforholdForMedSporing(
         fnr: String,
         saksbehandlerToken: SpilleromBearerToken,
     ): Pair<Arbeidsforholdoppslag, Kildespor> {

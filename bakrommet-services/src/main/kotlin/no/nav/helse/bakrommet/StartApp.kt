@@ -1,8 +1,6 @@
 package no.nav.helse.bakrommet
 
-import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
-import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
@@ -16,6 +14,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.pdl.PdlClient
@@ -31,41 +30,15 @@ import org.slf4j.LoggerFactory
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
-class Clienter(
+class Providers(
     val pdlClient: PdlClient,
     val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
     val aInntektClient: AInntektClient,
-    val aaRegClient: AARegClient,
+    val arbeidsforholdProvider: ArbeidsforholdProvider,
     val eregClient: EregClient,
     val inntektsmeldingClient: InntektsmeldingClient,
     val sigrunClient: SigrunClient,
 )
-
-fun createClients(configuration: Configuration): Clienter {
-    val oboClient = OboClient(configuration.obo)
-    val pdlClient = PdlClient(configuration.pdl, oboClient)
-    val sykepengesoknadBackendClient =
-        SykepengesoknadBackendClient(
-            configuration.sykepengesoknadBackend,
-            oboClient,
-        )
-
-    val aaRegClient = AARegClient(configuration.aareg, oboClient)
-    val aInntektClient = AInntektClient(configuration.ainntekt, oboClient)
-    val eregClient = EregClient(configuration.ereg)
-    val inntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient)
-    val sigrunClient = SigrunClient(configuration.sigrun, oboClient)
-
-    return Clienter(
-        pdlClient = pdlClient,
-        sykepengesoknadBackendClient = sykepengesoknadBackendClient,
-        aInntektClient = aInntektClient,
-        aaRegClient = aaRegClient,
-        eregClient = eregClient,
-        inntektsmeldingClient = inntektsmeldingClient,
-        sigrunClient = sigrunClient,
-    )
-}
 
 data class Services(
     val personsøkService: PersonsøkService,
@@ -86,24 +59,24 @@ data class Services(
 )
 
 fun createServices(
-    clienter: Clienter,
+    providers: Providers,
     db: DbDaoer<AlleDaoer>,
 ): Services {
     val dokumentHenter =
         DokumentHenter(
             db = db,
-            soknadClient = clienter.sykepengesoknadBackendClient,
-            aInntektClient = clienter.aInntektClient,
-            aaRegClient = clienter.aaRegClient,
-            sigrunClient = clienter.sigrunClient,
+            soknadClient = providers.sykepengesoknadBackendClient,
+            aInntektClient = providers.aInntektClient,
+            arbeidsforholdProvider = providers.arbeidsforholdProvider,
+            sigrunClient = providers.sigrunClient,
         )
-    val personService = PersonService(db, clienter.pdlClient)
-    val yrkesaktivitetService = YrkesaktivitetService(db, clienter.eregClient)
+    val personService = PersonService(db, providers.pdlClient)
+    val yrkesaktivitetService = YrkesaktivitetService(db, providers.eregClient)
     return Services(
         personsøkService =
             PersonsøkService(
                 db = db,
-                pdlClient = clienter.pdlClient,
+                pdlClient = providers.pdlClient,
             ),
         sykepengegrunnlagService = SykepengegrunnlagService(db),
         behandlingService =
@@ -117,23 +90,23 @@ fun createServices(
         inntektService =
             InntektService(
                 db,
-                clienter.inntektsmeldingClient,
-                clienter.sigrunClient,
-                clienter.aInntektClient,
+                providers.inntektsmeldingClient,
+                providers.sigrunClient,
+                providers.aInntektClient,
             ),
         inntektsmeldingMatcherService =
             InntektsmeldingMatcherService(
                 db = db,
-                clienter.inntektsmeldingClient,
+                providers.inntektsmeldingClient,
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
         personService = personService,
-        organisasjonService = OrganisasjonService(clienter.eregClient),
+        organisasjonService = OrganisasjonService(providers.eregClient),
         tilkommenInntektService = TilkommenInntektService(db),
-        tidslinjeService = TidslinjeService(db, clienter.eregClient),
+        tidslinjeService = TidslinjeService(db, providers.eregClient),
         soknaderService =
             SoknaderService(
-                sykepengesoknadBackendClient = clienter.sykepengesoknadBackendClient,
+                sykepengesoknadBackendClient = providers.sykepengesoknadBackendClient,
                 personService = personService,
             ),
         valideringService = ValideringService(db),

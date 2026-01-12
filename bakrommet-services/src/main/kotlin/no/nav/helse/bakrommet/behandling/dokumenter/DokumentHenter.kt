@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.behandling.dokumenter
 
 import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
@@ -14,6 +13,7 @@ import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.sigrun.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sigrun.data
@@ -30,7 +30,7 @@ class DokumentHenter(
     val db: DbDaoer<DokumentInnhentingDaoer>,
     private val soknadClient: SykepengesoknadBackendClient,
     private val aInntektClient: AInntektClient,
-    private val aaRegClient: AARegClient,
+    private val arbeidsforholdProvider: ArbeidsforholdProvider,
     private val sigrunClient: SigrunClient,
 ) {
     suspend fun hentDokumenterFor(ref: BehandlingReferanse): List<Dokument> =
@@ -129,7 +129,7 @@ class DokumentHenter(
             val periode =
                 behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
             logg.info("Henter aareg for periode={}", periode.id)
-            return@nonTransactional aaRegClient
+            return@nonTransactional arbeidsforholdProvider
                 .hentArbeidsforholdForMedSporing(
                     fnr = periode.naturligIdent.naturligIdent,
                     saksbehandlerToken = saksbehandler.token,
