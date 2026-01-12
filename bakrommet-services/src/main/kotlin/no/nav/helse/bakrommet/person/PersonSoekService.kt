@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.person
 
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.pdl.PdlClient
-import no.nav.helse.bakrommet.pdl.PdlIdent
+import no.nav.helse.bakrommet.clients.PdlProvider
+import no.nav.helse.bakrommet.clients.PdlIdent
 import no.nav.helse.bakrommet.util.logg
 import java.util.UUID
 
@@ -13,7 +13,7 @@ interface PersonsokDaoer {
 
 class PersonsøkService(
     private val db: DbDaoer<PersonsokDaoer>,
-    private val pdlClient: PdlClient,
+    private val pdlClient: PdlProvider,
 ) {
     suspend fun hentEllerOpprettPseudoId(
         naturligIdent: NaturligIdent,

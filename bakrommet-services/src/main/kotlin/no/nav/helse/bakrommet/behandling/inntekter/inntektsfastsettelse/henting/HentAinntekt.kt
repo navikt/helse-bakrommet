@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting
 
-import no.nav.helse.bakrommet.ainntekt.tilInntektApiUt
+// tilInntektApiUt moved to AinntektDomain
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somAInntektBeregningsgrunnlag

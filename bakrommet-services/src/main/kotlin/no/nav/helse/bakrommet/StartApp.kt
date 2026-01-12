@@ -1,8 +1,5 @@
 package no.nav.helse.bakrommet
 
-import no.nav.helse.bakrommet.aareg.AARegClient
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
-import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
@@ -13,17 +10,19 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.validering.ValideringService
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
-import no.nav.helse.bakrommet.ereg.EregClient
+import no.nav.helse.bakrommet.clients.AARegProvider
+import no.nav.helse.bakrommet.clients.AInntektProvider
+import no.nav.helse.bakrommet.clients.EregProvider
+import no.nav.helse.bakrommet.clients.InntektsmeldingProvider
+import no.nav.helse.bakrommet.clients.PdlProvider
+import no.nav.helse.bakrommet.clients.SigrunProvider
+import no.nav.helse.bakrommet.clients.SykepengesoknadBackendProvider
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
-import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PersonsøkService
-import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
-import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.tidslinje.TidslinjeService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,40 +31,14 @@ import org.slf4j.LoggerFactory
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 class Clienter(
-    val pdlClient: PdlClient,
-    val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
-    val aInntektClient: AInntektClient,
-    val aaRegClient: AARegClient,
-    val eregClient: EregClient,
-    val inntektsmeldingClient: InntektsmeldingClient,
-    val sigrunClient: SigrunClient,
+    val pdlClient: PdlProvider,
+    val sykepengesoknadBackendClient: SykepengesoknadBackendProvider,
+    val aInntektClient: AInntektProvider,
+    val aaRegClient: AARegProvider,
+    val eregClient: EregProvider,
+    val inntektsmeldingClient: InntektsmeldingProvider,
+    val sigrunClient: SigrunProvider,
 )
-
-fun createClients(configuration: Configuration): Clienter {
-    val oboClient = OboClient(configuration.obo)
-    val pdlClient = PdlClient(configuration.pdl, oboClient)
-    val sykepengesoknadBackendClient =
-        SykepengesoknadBackendClient(
-            configuration.sykepengesoknadBackend,
-            oboClient,
-        )
-
-    val aaRegClient = AARegClient(configuration.aareg, oboClient)
-    val aInntektClient = AInntektClient(configuration.ainntekt, oboClient)
-    val eregClient = EregClient(configuration.ereg)
-    val inntektsmeldingClient = InntektsmeldingClient(configuration.inntektsmelding, oboClient)
-    val sigrunClient = SigrunClient(configuration.sigrun, oboClient)
-
-    return Clienter(
-        pdlClient = pdlClient,
-        sykepengesoknadBackendClient = sykepengesoknadBackendClient,
-        aInntektClient = aInntektClient,
-        aaRegClient = aaRegClient,
-        eregClient = eregClient,
-        inntektsmeldingClient = inntektsmeldingClient,
-        sigrunClient = sigrunClient,
-    )
-}
 
 data class Services(
     val personsøkService: PersonsøkService,

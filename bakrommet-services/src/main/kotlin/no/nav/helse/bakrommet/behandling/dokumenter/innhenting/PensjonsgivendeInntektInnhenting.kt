@@ -8,14 +8,14 @@ import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
 import no.nav.helse.bakrommet.behandling.dokumenter.joinSigrunResponserTilEttDokument
 import no.nav.helse.bakrommet.behandling.inntekter.HentPensjonsgivendeInntektResponse
-import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.clients.SigrunProvider
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun DokumentInnhentingDaoer.lastSigrunDokument(
     periode: BehandlingDbRecord,
     saksbehandlerToken: SpilleromBearerToken,
-    sigrunClient: SigrunClient,
+    sigrunClient: SigrunProvider,
 ): Dokument {
     val skjæringstidspunkt = periode.skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt for å hente pensjonsgivende inntekt")
     val senesteÅrTom = skjæringstidspunkt.year - 1

@@ -7,7 +7,7 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
 
 class SoknaderService(
-    private val sykepengesoknadBackendClient: SykepengesoknadBackendClient,
+    private val sykepengesoknadBackendClient: SykepengesoknadBackendProvider,
     private val personService: PersonService,
 ) {
     suspend fun hentSoknader(

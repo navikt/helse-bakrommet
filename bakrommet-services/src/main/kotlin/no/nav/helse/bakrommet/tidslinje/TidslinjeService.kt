@@ -11,8 +11,8 @@ import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivite
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetForenkletDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
-import no.nav.helse.bakrommet.ereg.EregClient
-import no.nav.helse.bakrommet.ereg.Organisasjon
+import no.nav.helse.bakrommet.clients.EregProvider
+import no.nav.helse.bakrommet.clients.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.logg
@@ -32,7 +32,7 @@ data class TidslinjeData(
 
 class TidslinjeService(
     private val db: DbDaoer<TidslinjeServiceDaoer>,
-    private val eregClient: EregClient,
+    private val eregClient: EregProvider,
 ) {
     suspend fun hentTidslinjeData(
         naturligIdent: NaturligIdent,

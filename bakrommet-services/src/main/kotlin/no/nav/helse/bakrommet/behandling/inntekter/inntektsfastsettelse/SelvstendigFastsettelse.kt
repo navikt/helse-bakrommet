@@ -13,12 +13,12 @@ import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.behandling.inntekter.kanBeregnesEtter835
 import no.nav.helse.bakrommet.behandling.inntekter.tilBeregnetPensjonsgivendeInntekt
-import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.clients.SigrunProvider
 
 internal fun InntektRequest.SelvstendigNæringsdrivende.selvstendigFastsettelse(
     periode: BehandlingDbRecord,
     saksbehandler: BrukerOgToken,
-    sigrunClient: SigrunClient,
+    sigrunClient: SigrunProvider,
     daoer: DokumentInnhentingDaoer,
 ): InntektData {
     fun hentPensjonsgivende(): List<HentPensjonsgivendeInntektResponse> =

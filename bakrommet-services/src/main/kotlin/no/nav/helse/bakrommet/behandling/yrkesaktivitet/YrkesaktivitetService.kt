@@ -16,7 +16,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
-import no.nav.helse.bakrommet.ereg.EregClient
+import no.nav.helse.bakrommet.clients.EregProvider
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -46,7 +46,7 @@ data class YrkesaktivitetMedOrgnavn(
 
 class YrkesaktivitetService(
     private val db: DbDaoer<YrkesaktivitetServiceDaoer>,
-    private val eregClient: EregClient,
+    private val eregClient: EregProvider,
 ) {
     private fun YrkesaktivitetKategorisering.skalHaDagoversikt(): Boolean = this.sykmeldt
 

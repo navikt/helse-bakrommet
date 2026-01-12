@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.dokumenter.innhenting
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
+import no.nav.helse.bakrommet.clients.AInntektProvider
 import no.nav.helse.bakrommet.ainntekt.AInntektFilter
 import no.nav.helse.bakrommet.ainntekt.Inntektoppslag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
@@ -30,7 +30,7 @@ fun Dokument.somAInntektBeregningsgrunnlag(): Pair<Inntektoppslag, AinntektPerio
 
 fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
     periode: BehandlingDbRecord,
-    aInntektClient: AInntektClient,
+    aInntektClient: AInntektProvider,
     saksbehandler: BrukerOgToken,
 ): Dokument =
     lastAInntektDok(
@@ -51,7 +51,7 @@ fun String.tilAinntektPeriodeNøkkel(): AinntektPeriodeNøkkel = objectMapper.re
 
 fun DokumentInnhentingDaoer.lastAInntektBeregningsgrunnlag(
     periode: BehandlingDbRecord,
-    aInntektClient: AInntektClient,
+    aInntektClient: AInntektProvider,
     saksbehandler: BrukerOgToken,
 ): Dokument =
     lastAInntektDok(
@@ -71,7 +71,7 @@ private fun doktypeFraFilter(filter: AInntektFilter): String =
 
 private fun DokumentInnhentingDaoer.lastAInntektDok(
     periode: BehandlingDbRecord,
-    aInntektClient: AInntektClient,
+    aInntektClient: AInntektProvider,
     filter: AInntektFilter,
     fomMinus: Long,
     tomMinus: Long,

@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.organisasjon
 
-import no.nav.helse.bakrommet.ereg.EregClient
-import no.nav.helse.bakrommet.ereg.Organisasjon
+import no.nav.helse.bakrommet.clients.EregProvider
+import no.nav.helse.bakrommet.clients.Organisasjon
 
 class OrganisasjonService(
-    private val eregClient: EregClient,
+    private val eregClient: EregProvider,
 ) {
     suspend fun hentOrganisasjonsnavn(
         orgnummer: String,

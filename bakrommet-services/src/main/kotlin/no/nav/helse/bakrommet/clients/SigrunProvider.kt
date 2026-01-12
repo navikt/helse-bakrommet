@@ -26,10 +26,11 @@ interface SigrunProvider {
         inntektsAar: Int,
         saksbehandlerToken: SpilleromBearerToken,
     ): Pair<PensjonsgivendeInntektÅr, Kildespor>
+}
 
-    companion object {
-        val INNTEKTSAAR_MIN: Int
-        val INNTEKTSAAR_MAX: Int
-        val INNTEKTSAAR_MAX_COUNT: Int
-    }
+object SigrunConstants {
+    const val INNTEKTSAAR_MIN = 2017
+    val INNTEKTSAAR_MAX: Int
+        get() = java.time.LocalDate.now().year
+    const val INNTEKTSAAR_MAX_COUNT = 10
 }

@@ -2,8 +2,6 @@ package no.nav.helse.bakrommet.behandling.dokumenter
 
 import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.aareg.AARegClient
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
@@ -12,14 +10,12 @@ import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektSamme
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastSigrunDokument
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
+import no.nav.helse.bakrommet.clients.AARegProvider
+import no.nav.helse.bakrommet.clients.AInntektProvider
+import no.nav.helse.bakrommet.clients.SigrunProvider
+import no.nav.helse.bakrommet.clients.SykepengesoknadBackendProvider
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.sigrun.PensjonsgivendeInntektÅrMedSporing
-import no.nav.helse.bakrommet.sigrun.SigrunClient
-import no.nav.helse.bakrommet.sigrun.data
-import no.nav.helse.bakrommet.sigrun.inntektsaar
-import no.nav.helse.bakrommet.sigrun.sporing
-import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -28,10 +24,10 @@ import java.util.*
 
 class DokumentHenter(
     val db: DbDaoer<DokumentInnhentingDaoer>,
-    private val soknadClient: SykepengesoknadBackendClient,
-    private val aInntektClient: AInntektClient,
-    private val aaRegClient: AARegClient,
-    private val sigrunClient: SigrunClient,
+    private val soknadClient: SykepengesoknadBackendProvider,
+    private val aInntektClient: AInntektProvider,
+    private val aaRegClient: AARegProvider,
+    private val sigrunClient: SigrunProvider,
 ) {
     suspend fun hentDokumenterFor(ref: BehandlingReferanse): List<Dokument> =
         db.nonTransactional {

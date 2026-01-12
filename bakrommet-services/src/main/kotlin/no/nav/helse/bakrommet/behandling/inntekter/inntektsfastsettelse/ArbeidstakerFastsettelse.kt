@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
-import no.nav.helse.bakrommet.ainntekt.AInntektClient
+import no.nav.helse.bakrommet.clients.AInntektProvider
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
@@ -27,7 +27,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
     inntektsmeldingClient: InntektsmeldingClient,
-    aInntektClient: AInntektClient,
+    aInntektClient: AInntektProvider,
     daoer: DokumentInnhentingDaoer,
 ): InntektData {
     yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, data.refusjon)
