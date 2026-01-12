@@ -245,7 +245,7 @@ data class Scenario(
                             fnrTilInntektsmeldinger = mapOf(fnr to inntektsmeldinger),
                         ),
                 ),
-            sigrunClient = SigrunMock.sigrunMockClient(fnrÅrTilSvar = sigrunsvar),
+            pensjonsgivendeInntektProvider = SigrunMock.sigrunMockClient(fnrÅrTilSvar = sigrunsvar),
             aInntektClient =
                 AInntektMock.aInntektClientMock(
                     fnrTilAInntektResponse = mapOf(fnr to ainntekt828),

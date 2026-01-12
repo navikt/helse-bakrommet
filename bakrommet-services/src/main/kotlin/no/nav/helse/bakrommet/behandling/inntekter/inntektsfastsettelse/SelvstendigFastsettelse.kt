@@ -13,12 +13,12 @@ import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.behandling.inntekter.kanBeregnesEtter835
 import no.nav.helse.bakrommet.behandling.inntekter.tilBeregnetPensjonsgivendeInntekt
-import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 
 internal fun InntektRequest.SelvstendigNæringsdrivende.selvstendigFastsettelse(
     periode: BehandlingDbRecord,
     saksbehandler: BrukerOgToken,
-    sigrunClient: SigrunClient,
+    pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
     daoer: DokumentInnhentingDaoer,
 ): InntektData {
     fun hentPensjonsgivende(): List<HentPensjonsgivendeInntektResponse> =
@@ -26,7 +26,7 @@ internal fun InntektRequest.SelvstendigNæringsdrivende.selvstendigFastsettelse(
             .lastSigrunDokument(
                 periode = periode,
                 saksbehandlerToken = saksbehandler.token,
-                sigrunClient = sigrunClient,
+                pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             ).somPensjonsgivendeInntekt()
 
     return when (data) {
@@ -35,7 +35,7 @@ internal fun InntektRequest.SelvstendigNæringsdrivende.selvstendigFastsettelse(
 
             if (pensjonsgivendeInntekt.kanBeregnesEtter835()) {
                 val beregnet =
-                    pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt!!)
+                    pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
                 InntektData.SelvstendigNæringsdrivendePensjonsgivende(
                     omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
                     pensjonsgivendeInntekt = beregnet,

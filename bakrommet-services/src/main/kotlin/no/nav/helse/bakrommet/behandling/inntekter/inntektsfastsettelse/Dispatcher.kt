@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
-import no.nav.helse.bakrommet.sigrun.SigrunClient
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 
 internal fun DokumentInnhentingDaoer.fastsettInntektData(
     request: InntektRequest,
@@ -19,7 +19,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
     yrkesaktivitetDao: YrkesaktivitetDao,
     inntektsmeldingProvider: InntektsmeldingProvider,
     inntekterProvider: InntekterProvider,
-    sigrunClient: SigrunClient,
+    pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
 ): InntektData =
     when (request) {
         is InntektRequest.Arbeidstaker ->
@@ -37,7 +37,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
             request.selvstendigFastsettelse(
                 periode = periode,
                 saksbehandler = saksbehandler,
-                sigrunClient = sigrunClient,
+                pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
                 daoer = this,
             )
 
@@ -45,7 +45,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
             request.inaktivFastsettelse(
                 periode = periode,
                 saksbehandler = saksbehandler,
-                sigrunClient = sigrunClient,
+                pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
                 daoer = this,
             )
 

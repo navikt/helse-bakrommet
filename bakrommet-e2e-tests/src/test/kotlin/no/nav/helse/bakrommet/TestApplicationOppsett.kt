@@ -27,13 +27,13 @@ import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.obo.OboTestSetup
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
-import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -110,7 +110,7 @@ fun runApplicationTest(
     aInntektClient: AInntektClient =
         AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
     eregClient: EregClient = EregMock.eregClientMock(),
-    sigrunClient: SigrunClient = SigrunMock.sigrunMockClient(),
+    pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider = SigrunMock.sigrunMockClient(),
     inntektsmeldingClient: InntektsmeldingProvider = InntektsmeldingApiMock.inntektsmeldingClientMock(),
     testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
 ) = testApplication {
@@ -126,7 +126,7 @@ fun runApplicationTest(
                 arbeidsforholdProvider = aaRegClient,
                 eregClient = eregClient,
                 inntektsmeldingProvider = inntektsmeldingClient,
-                sigrunClient = sigrunClient,
+                pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             )
         val services =
             createServices(

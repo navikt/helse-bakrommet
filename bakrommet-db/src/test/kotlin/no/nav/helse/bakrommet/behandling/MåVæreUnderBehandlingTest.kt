@@ -37,7 +37,7 @@ class MåVæreUnderBehandlingTest {
                 soknadClient = SykepengesoknadMock.sykepengersoknadBackendClientMock(),
                 inntekterProvider = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
                 arbeidsforholdProvider = AARegMock.aaRegClientMock(),
-                sigrunClient = SigrunMock.sigrunMockClient(),
+                pensjonsgivendeInntektProvider = SigrunMock.sigrunMockClient(),
             )
         behandlingService = BehandlingService(db, dokHenter)
     }

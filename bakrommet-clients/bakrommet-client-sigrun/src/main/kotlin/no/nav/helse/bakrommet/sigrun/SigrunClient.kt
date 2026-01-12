@@ -13,6 +13,10 @@ import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅr
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅrMedSporing
+import no.nav.helse.bakrommet.infrastruktur.provider.data
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.logg
@@ -20,13 +24,6 @@ import no.nav.helse.bakrommet.util.sikkerLogger
 import java.lang.Integer.max
 import java.time.LocalDate
 import java.util.*
-
-typealias PensjonsgivendeInntektÅr = JsonNode
-typealias PensjonsgivendeInntektÅrMedSporing = Pair<PensjonsgivendeInntektÅr, Kildespor>
-
-fun PensjonsgivendeInntektÅrMedSporing.data() = this.first
-
-fun PensjonsgivendeInntektÅrMedSporing.sporing() = this.second
 
 class SigrunClient(
     private val configuration: Configuration.Sigrun,
@@ -37,7 +34,7 @@ class SigrunClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
+) : PensjonsgivendeInntektProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     companion object {
@@ -47,18 +44,18 @@ class SigrunClient(
         val INNTEKTSAAR_MAX_COUNT = 10
     }
 
-    suspend fun hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
+    override suspend fun hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
         fnr: String,
         senesteÅrTom: Int,
         antallÅrBakover: Int,
         saksbehandlerToken: SpilleromBearerToken,
-    ): List<PensjonsgivendeInntektÅrMedSporing> {
+    ): List<`PensjonsgivendeInntektÅrMedSporing`> {
         check(antallÅrBakover <= INNTEKTSAAR_MAX_COUNT)
         check(senesteÅrTom <= INNTEKTSAAR_MAX)
 
         val absoluttEldsteMulige = max(INNTEKTSAAR_MIN, senesteÅrTom - (2 * antallÅrBakover))
 
-        val hentedeÅr = mutableListOf<PensjonsgivendeInntektÅrMedSporing>()
+        val hentedeÅr = mutableListOf<`PensjonsgivendeInntektÅrMedSporing`>()
         for (år in senesteÅrTom downTo absoluttEldsteMulige) {
             val res =
                 hentPensjonsgivendeInntektMedSporing(
@@ -81,11 +78,11 @@ class SigrunClient(
         return hentedeÅr
     }
 
-    suspend fun hentPensjonsgivendeInntektMedSporing(
+    private suspend fun hentPensjonsgivendeInntektMedSporing(
         fnr: String,
         inntektsAar: Int,
         saksbehandlerToken: SpilleromBearerToken,
-    ): Pair<PensjonsgivendeInntektÅr, Kildespor> {
+    ): Pair<`PensjonsgivendeInntektÅr`, Kildespor> {
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
         val rettighetspakke = "navSykepenger"
@@ -115,7 +112,7 @@ class SigrunClient(
             }
         if (response.status == HttpStatusCode.OK) {
             logg.info("Got response from sigrun $callIdDesc etter ${timer.millisekunder} ms")
-            return response.body<PensjonsgivendeInntektÅr>() to kildespor
+            return response.body<`PensjonsgivendeInntektÅr`>() to kildespor
         } else {
             if (response.status == HttpStatusCode.NotFound) {
                 if (response.betyrIngenPensjonsgivendeInntektFunnet()) {
@@ -139,11 +136,9 @@ class SigrunClient(
     }
 }
 
-private fun PensjonsgivendeInntektÅr.pensjonsgivendeInntekt(): JsonNode? = this["pensjonsgivendeInntekt"]
+private fun `PensjonsgivendeInntektÅr`.pensjonsgivendeInntekt(): JsonNode? = this["pensjonsgivendeInntekt"]
 
-fun PensjonsgivendeInntektÅr.inntektsaar() = this["inntektsaar"]!!.asText().toInt()
-
-private fun PensjonsgivendeInntektÅr.harFastsattPensjonsgivendeInntekt(): Boolean =
+private fun `PensjonsgivendeInntektÅr`.harFastsattPensjonsgivendeInntekt(): Boolean =
     this.pensjonsgivendeInntekt().let {
         (it != null) && (!it.isNull)
     }
@@ -151,7 +146,7 @@ private fun PensjonsgivendeInntektÅr.harFastsattPensjonsgivendeInntekt(): Boole
 private fun tomResponsFor(
     fnr: String,
     år: Int,
-): PensjonsgivendeInntektÅr =
+): `PensjonsgivendeInntektÅr` =
     """
     {"norskPersonidentifikator":"$fnr","inntektsaar":"$år",
     "pensjonsgivendeInntekt": null

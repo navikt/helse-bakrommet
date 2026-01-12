@@ -25,8 +25,8 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
-import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.dto.PeriodeDto
 import kotlin.math.abs
 
@@ -44,7 +44,7 @@ interface InntektServiceDaoer :
 class InntektService(
     val db: DbDaoer<InntektServiceDaoer>,
     val inntektsmeldingProvider: InntektsmeldingProvider,
-    val sigrunClient: SigrunClient,
+    val pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
     val inntekterProvider: InntekterProvider,
 ) {
     suspend fun oppdaterInntekt(
@@ -114,7 +114,7 @@ class InntektService(
                     yrkesaktivitetDao = yrkesaktivitetDao,
                     inntektsmeldingProvider = inntektsmeldingProvider,
                     inntekterProvider = inntekterProvider,
-                    sigrunClient = sigrunClient,
+                    pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
                 )
 
             if (inntektData is InntektData.ArbeidstakerInntektsmelding) {

@@ -13,11 +13,11 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
-import no.nav.helse.bakrommet.sigrun.PensjonsgivendeInntektÅrMedSporing
-import no.nav.helse.bakrommet.sigrun.SigrunClient
-import no.nav.helse.bakrommet.sigrun.data
-import no.nav.helse.bakrommet.sigrun.inntektsaar
-import no.nav.helse.bakrommet.sigrun.sporing
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.`PensjonsgivendeInntektÅrMedSporing`
+import no.nav.helse.bakrommet.infrastruktur.provider.data
+import no.nav.helse.bakrommet.infrastruktur.provider.inntektsaar
+import no.nav.helse.bakrommet.infrastruktur.provider.sporing
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
@@ -30,7 +30,7 @@ class DokumentHenter(
     private val soknadClient: SykepengesoknadBackendClient,
     private val inntekterProvider: InntekterProvider,
     private val arbeidsforholdProvider: ArbeidsforholdProvider,
-    private val sigrunClient: SigrunClient,
+    private val pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
 ) {
     suspend fun hentDokumenterFor(ref: BehandlingReferanse): List<Dokument> =
         db.nonTransactional {
@@ -155,7 +155,7 @@ class DokumentHenter(
             return@nonTransactional lastSigrunDokument(
                 periode = periode,
                 saksbehandlerToken = saksbehandler.token,
-                sigrunClient = sigrunClient,
+                pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             )
         }
 }

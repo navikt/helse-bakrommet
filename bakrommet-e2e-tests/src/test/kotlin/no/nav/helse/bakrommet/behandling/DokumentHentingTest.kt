@@ -203,7 +203,7 @@ class DokumentHentingTest {
     @Test
     fun `henter pensjonsgivende inntekt dokument`() {
         runApplicationTest(
-            sigrunClient = client2010to2050(FNR),
+            pensjonsgivendeInntektProvider = client2010to2050(FNR),
         ) { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
 

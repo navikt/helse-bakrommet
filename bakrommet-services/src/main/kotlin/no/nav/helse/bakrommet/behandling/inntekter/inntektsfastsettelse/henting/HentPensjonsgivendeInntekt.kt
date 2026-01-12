@@ -42,7 +42,7 @@ suspend fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
                 lastSigrunDokument(
                     periode = periode,
                     saksbehandlerToken = saksbehandler.token,
-                    sigrunClient = sigrunClient,
+                    pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
                 ).somPensjonsgivendeInntekt()
 
             if (!pensjonsgivendeInntekt.kanBeregnesEtter835()) {

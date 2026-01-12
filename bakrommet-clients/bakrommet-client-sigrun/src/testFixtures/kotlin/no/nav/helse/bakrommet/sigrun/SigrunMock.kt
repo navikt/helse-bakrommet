@@ -9,6 +9,7 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
@@ -27,7 +28,7 @@ fun fnrÅrTilSvar2010to2050(fnr: String): Map<Pair<String, Year>, String> =
 fun clientMedManglendeÅr(
     fnr: String,
     vararg manglendeÅr: Year,
-): SigrunClient {
+): PensjonsgivendeInntektProvider {
     val dataSomManglerNoenÅr =
         fnrÅrTilSvar2010to2050(fnr).mapValues { (fnrÅr, data) ->
             if (fnrÅr.second in manglendeÅr) {
@@ -87,8 +88,8 @@ object SigrunMock {
     fun sigrunDefaultReplyHandler(
         fnr: String,
         år: Year,
-    ): String {
-        return when (år.value) {
+    ): String =
+        when (år.value) {
             2024 ->
                 """
                 {"norskPersonidentifikator":"$fnr","inntektsaar":2024,
@@ -148,10 +149,9 @@ object SigrunMock {
                 """.trimIndent()
             else -> {
                 // For andre år, returner 404
-                return sigrunErrorResponse(status = 404, kode = "PGIF-008")
+                sigrunErrorResponse(status = 404, kode = "PGIF-008")
             }
         }
-    }
 
     fun sigrunMockHttpClient(
         configuration: Configuration.Sigrun = defaultConfiguration,
@@ -174,7 +174,7 @@ object SigrunMock {
             val isError =
                 try {
                     finalSvar.asJsonNode()["status"] != null
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     false
                 }
 
@@ -209,7 +209,7 @@ object SigrunMock {
     private fun statusFromResp(resp: String): Int? {
         return try {
             resp.asJsonNode()["status"]?.asInt()
-        } catch (ex: Exception) {
+        } catch (_: Exception) {
             return null
         }
     }

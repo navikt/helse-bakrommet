@@ -2,6 +2,8 @@ package no.nav.helse.bakrommet.sigrun
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅr
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -26,7 +28,7 @@ class SigrunClientTest {
             manglendeÅr = manglendeÅr,
         )
 
-    private fun List<PensjonsgivendeInntektÅrMedSporing>.tommeOgEksisterndeÅr(): Pair<Set<Int>, Set<Int>> {
+    private fun List<`PensjonsgivendeInntektÅrMedSporing`>.tommeOgEksisterndeÅr(): Pair<Set<Int>, Set<Int>> {
         val tomme = mutableSetOf<Int>()
         val eksisterende = mutableSetOf<Int>()
         this.forEach {
@@ -131,8 +133,8 @@ class SigrunClientTest {
     }
 }
 
-fun Pair<PensjonsgivendeInntektÅr, Kildespor>.data() = this.first
+fun Pair<`PensjonsgivendeInntektÅr`, Kildespor>.data() = this.first
 
-fun Pair<PensjonsgivendeInntektÅr, Kildespor>.sporing() = this.second
+fun Pair<`PensjonsgivendeInntektÅr`, Kildespor>.sporing() = this.second
 
-private fun PensjonsgivendeInntektÅr.inntektsaar() = this["inntektsaar"]!!.asText().toInt()
+private fun `PensjonsgivendeInntektÅr`.inntektsaar() = this["inntektsaar"]!!.asText().toInt()

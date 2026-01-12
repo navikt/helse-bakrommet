@@ -45,7 +45,7 @@ fun skapProviders(testpersoner: List<Testperson>): Providers {
                             fnrTilInntektsmeldinger = fnrTilInntektsmeldinger,
                         ),
                 ),
-            sigrunClient = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSigrunSvar),
+            pensjonsgivendeInntektProvider = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSigrunSvar),
         )
     return providers
 }

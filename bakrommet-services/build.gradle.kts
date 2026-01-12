@@ -10,7 +10,6 @@ dependencies {
     api(project(":bakrommet-common"))
     api(project(":bakrommet-kafka-dto"))
     api(project(":bakrommet-clients:bakrommet-client-ereg"))
-    api(project(":bakrommet-clients:bakrommet-client-sigrun"))
     api(project(":bakrommet-clients:bakrommet-client-sykepengesoknad"))
     api(project(":sykepenger-model"))
 

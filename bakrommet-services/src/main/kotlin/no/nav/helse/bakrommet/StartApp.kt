@@ -16,11 +16,11 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PersonsøkService
-import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
 import no.nav.helse.bakrommet.tidslinje.TidslinjeService
@@ -37,7 +37,7 @@ class Providers(
     val arbeidsforholdProvider: ArbeidsforholdProvider,
     val eregClient: EregClient,
     val inntektsmeldingProvider: InntektsmeldingProvider,
-    val sigrunClient: SigrunClient,
+    val pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
 )
 
 data class Services(
@@ -68,7 +68,7 @@ fun createServices(
             soknadClient = providers.sykepengesoknadBackendClient,
             inntekterProvider = providers.inntekterProvider,
             arbeidsforholdProvider = providers.arbeidsforholdProvider,
-            sigrunClient = providers.sigrunClient,
+            pensjonsgivendeInntektProvider = providers.pensjonsgivendeInntektProvider,
         )
     val personService = PersonService(db, providers.personinfoProvider)
     val yrkesaktivitetService = YrkesaktivitetService(db, providers.eregClient)
@@ -91,7 +91,7 @@ fun createServices(
             InntektService(
                 db,
                 providers.inntektsmeldingProvider,
-                providers.sigrunClient,
+                providers.pensjonsgivendeInntektProvider,
                 providers.inntekterProvider,
             ),
         inntektsmeldingMatcherService =
