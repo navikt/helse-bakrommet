@@ -1,11 +1,10 @@
 package no.nav.helse.bakrommet.person
 
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.clients.PdlIdent
+import no.nav.helse.bakrommet.clients.PdlProvider
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.pdl.PdlClient
-import no.nav.helse.bakrommet.pdl.PdlIdent
-import no.nav.helse.bakrommet.pdl.alder
-import no.nav.helse.bakrommet.pdl.formattert
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -22,7 +21,7 @@ data class PersonInfo(
 
 class PersonService(
     private val db: DbDaoer<PersonServiceDaoer>,
-    private val pdlClient: PdlClient,
+    private val pdlClient: PdlProvider,
 ) {
     suspend fun finnNaturligIdent(pseudoId: UUID): NaturligIdent? =
         db.nonTransactional {
@@ -54,4 +53,22 @@ class PersonService(
                 OffsetDateTime.now().minusDays(antallDager.toLong()),
             )
         }
+}
+
+fun no.nav.helse.bakrommet.clients.Navn.formattert(): String =
+    when {
+        mellomnavn.isNullOrBlank() -> "$fornavn $etternavn"
+        else -> "$fornavn $mellomnavn $etternavn"
+    }
+
+fun no.nav.helse.bakrommet.clients.PersonInfo.alder(): Int? {
+    val today = LocalDate.now()
+    if (fodselsdato == null) {
+        return null
+    }
+    val age = today.year - fodselsdato.year
+    if (today.monthValue < fodselsdato.monthValue || (today.monthValue == fodselsdato.monthValue && today.dayOfMonth < fodselsdato.dayOfMonth)) {
+        return age - 1
+    }
+    return age
 }

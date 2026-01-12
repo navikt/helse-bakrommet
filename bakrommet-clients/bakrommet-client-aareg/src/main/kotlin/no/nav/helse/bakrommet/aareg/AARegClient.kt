@@ -12,6 +12,7 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.clients.AARegProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
@@ -29,10 +30,10 @@ class AARegClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
+) : AARegProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
-    suspend fun hentArbeidsforholdFor(
+    override suspend fun hentArbeidsforholdFor(
         fnr: String,
         saksbehandlerToken: SpilleromBearerToken,
     ): Arbeidsforholdoppslag =
@@ -41,7 +42,7 @@ class AARegClient(
             saksbehandlerToken = saksbehandlerToken,
         ).first
 
-    suspend fun hentArbeidsforholdForMedSporing(
+    override suspend fun hentArbeidsforholdForMedSporing(
         fnr: String,
         saksbehandlerToken: SpilleromBearerToken,
     ): Pair<Arbeidsforholdoppslag, Kildespor> {

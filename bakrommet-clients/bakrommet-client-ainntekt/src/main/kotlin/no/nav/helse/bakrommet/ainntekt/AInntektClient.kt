@@ -15,6 +15,7 @@ import kotlinx.serialization.json.put
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.clients.AInntektProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
@@ -44,10 +45,10 @@ class AInntektClient(
                 socketTimeout = 20_000 // default 10_000
             }
         },
-) {
+) : AInntektProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
-    suspend fun hentInntekterFor(
+    override suspend fun hentInntekterFor(
         fnr: String,
         maanedFom: YearMonth,
         maanedTom: YearMonth,
@@ -62,7 +63,7 @@ class AInntektClient(
             saksbehandlerToken = saksbehandlerToken,
         ).first
 
-    suspend fun hentInntekterForMedSporing(
+    override suspend fun hentInntekterForMedSporing(
         fnr: String,
         maanedFom: YearMonth,
         maanedTom: YearMonth,

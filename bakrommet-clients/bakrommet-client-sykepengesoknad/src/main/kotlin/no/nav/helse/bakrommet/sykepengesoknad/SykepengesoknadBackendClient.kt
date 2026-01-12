@@ -10,6 +10,7 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.clients.SykepengesoknadBackendProvider
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
@@ -27,7 +28,7 @@ class SykepengesoknadBackendClient(
                 register(ContentType.Application.Json, JacksonConverter(objectMapper))
             }
         },
-) {
+) : SykepengesoknadBackendProvider {
     companion object {
         data class HentSoknaderRequest(
             val fnr: String,
@@ -51,11 +52,11 @@ class SykepengesoknadBackendClient(
 
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
-    suspend fun hentSoknader(
+    override suspend fun hentSoknader(
         saksbehandlerToken: SpilleromBearerToken,
         fnr: String,
         fom: LocalDate,
-        medSporsmal: Boolean = false,
+        medSporsmal: Boolean,
     ): List<SykepengesoknadDTO> {
         val response =
             httpClient.post("${configuration.hostname}/api/v3/soknader") {
@@ -73,12 +74,12 @@ class SykepengesoknadBackendClient(
         )
     }
 
-    suspend fun hentSoknad(
+    override suspend fun hentSoknad(
         saksbehandlerToken: SpilleromBearerToken,
         id: String,
     ): SykepengesoknadDTO = hentSoknadMedSporing(saksbehandlerToken, id).first
 
-    suspend fun hentSoknadMedSporing(
+    override suspend fun hentSoknadMedSporing(
         saksbehandlerToken: SpilleromBearerToken,
         id: String,
     ): Pair<SykepengesoknadDTO, Kildespor> {

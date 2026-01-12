@@ -14,22 +14,13 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.clients.PdlIdent
+import no.nav.helse.bakrommet.clients.PdlProvider
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 import no.nav.helse.bakrommet.util.somListe
-
-data class PdlIdent(
-    val ident: String,
-    val gruppe: String,
-) {
-    companion object {
-        val FOLKEREGISTERIDENT = "FOLKEREGISTERIDENT"
-        val AKTORID = "AKTORID"
-        val NPID = "NPID"
-    }
-}
 
 class PdlClient(
     private val configuration: Configuration.PDL,
@@ -40,7 +31,7 @@ class PdlClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
+) : PdlProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     private val hentPersonQuery =
@@ -101,7 +92,7 @@ class PdlClient(
             }.toString()
     }
 
-    suspend fun hentIdenterFor(
+    override suspend fun hentIdenterFor(
         saksbehandlerToken: SpilleromBearerToken,
         ident: String,
     ): List<PdlIdent> {
@@ -140,10 +131,10 @@ class PdlClient(
         throw RuntimeException("hentIdenterFor har statusCode ${response.status.value}")
     }
 
-    suspend fun hentPersonInfo(
+    override suspend fun hentPersonInfo(
         saksbehandlerToken: SpilleromBearerToken,
         ident: String,
-    ): PersonInfo {
+    ): no.nav.helse.bakrommet.clients.PersonInfo {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
@@ -173,10 +164,13 @@ class PdlClient(
                 logg.warn("hentPersonInfo har ingen navn")
                 throw RuntimeException("hentPersonInfo har ingen navn")
             }
-            return PersonInfo(
+            return no.nav.helse.bakrommet.clients.PersonInfo(
                 navn =
-                    parsedResponse.data.hentPerson.navn
-                        .first(),
+                    no.nav.helse.bakrommet.clients.Navn(
+                        fornavn = parsedResponse.data.hentPerson.navn.first().fornavn,
+                        mellomnavn = parsedResponse.data.hentPerson.navn.first().mellomnavn,
+                        etternavn = parsedResponse.data.hentPerson.navn.first().etternavn,
+                    ),
                 fodselsdato =
                     parsedResponse.data.hentPerson.foedselsdato
                         ?.firstOrNull()

@@ -9,13 +9,6 @@ dependencies {
 
     api(project(":bakrommet-common"))
     api(project(":bakrommet-kafka-dto"))
-    api(project(":bakrommet-clients:bakrommet-client-pdl"))
-    api(project(":bakrommet-clients:bakrommet-client-aareg"))
-    api(project(":bakrommet-clients:bakrommet-client-ainntekt"))
-    api(project(":bakrommet-clients:bakrommet-client-ereg"))
-    api(project(":bakrommet-clients:bakrommet-client-sigrun"))
-    api(project(":bakrommet-clients:bakrommet-client-inntektsmelding"))
-    api(project(":bakrommet-clients:bakrommet-client-sykepengesoknad"))
     api(project(":sykepenger-model"))
 
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")

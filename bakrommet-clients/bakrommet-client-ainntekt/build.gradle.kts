@@ -5,6 +5,7 @@ plugins {
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
     api(project(":bakrommet-common"))
+    api(project(":bakrommet-services"))
     api(project(":bakrommet-clients:bakrommet-client-ereg"))
 
     testFixturesImplementation(testFixtures(project(":bakrommet-common")))

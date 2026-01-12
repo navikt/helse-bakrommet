@@ -12,6 +12,7 @@ import io.ktor.serialization.jackson.*
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.clients.SigrunProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.asJsonNode
@@ -37,7 +38,7 @@ class SigrunClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
+) : SigrunProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
     companion object {
@@ -47,7 +48,7 @@ class SigrunClient(
         val INNTEKTSAAR_MAX_COUNT = 10
     }
 
-    suspend fun hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
+    override suspend fun hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
         fnr: String,
         senesteÅrTom: Int,
         antallÅrBakover: Int,
@@ -81,7 +82,7 @@ class SigrunClient(
         return hentedeÅr
     }
 
-    suspend fun hentPensjonsgivendeInntekt(
+    override suspend fun hentPensjonsgivendeInntekt(
         fnr: String,
         inntektsAar: Int,
         saksbehandlerToken: SpilleromBearerToken,
@@ -92,7 +93,7 @@ class SigrunClient(
             saksbehandlerToken = saksbehandlerToken,
         ).first
 
-    suspend fun hentPensjonsgivendeInntektMedSporing(
+    override suspend fun hentPensjonsgivendeInntektMedSporing(
         fnr: String,
         inntektsAar: Int,
         saksbehandlerToken: SpilleromBearerToken,

@@ -15,6 +15,7 @@ import kotlinx.serialization.json.put
 import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.clients.InntektsmeldingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
@@ -31,10 +32,10 @@ class InntektsmeldingClient(
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
+) : InntektsmeldingProvider {
     private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
 
-    suspend fun hentInntektsmeldinger(
+    override suspend fun hentInntektsmeldinger(
         fnr: String,
         fom: LocalDate?,
         tom: LocalDate?,
@@ -80,7 +81,7 @@ class InntektsmeldingClient(
         }
     }
 
-    suspend fun hentInntektsmeldingMedSporing(
+    override suspend fun hentInntektsmeldingMedSporing(
         inntektsmeldingId: String,
         saksbehandlerToken: SpilleromBearerToken,
     ): Pair<JsonNode, Kildespor> {
