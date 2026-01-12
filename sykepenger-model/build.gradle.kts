@@ -1,4 +1,4 @@
-val jsonassertVersion = "1.5.0"
+val jsonassertVersion = "1.5.3"
 val tbdSpillAvImMatchingVersion = "2025.09.22-10.55-f3d9310c"
 
 dependencies {
