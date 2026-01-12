@@ -37,6 +37,7 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
 
     testFixturesImplementation(project(":bakrommet-common"))
+    testFixturesImplementation(kotlin("test"))
     testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-pdl")))
     testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))
     testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))

@@ -21,14 +21,14 @@ import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Assertions.fail
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
 /**
  * Kotlin DSL for å lage testdata for utbetalingsberegning
@@ -74,13 +74,6 @@ class UtbetalingsberegningTestBuilder {
         val builder = PeriodeBuilder()
         builder.init()
         saksbehandlingsperiode = builder.build()
-    }
-
-    fun arbeidsgiverperiode(
-        fom: LocalDate,
-        tom: LocalDate,
-    ) {
-        arbeidsgiverperiode = PeriodeDto(fom = fom, tom = tom)
     }
 
     fun skjæringstidspunkt(dato: LocalDate) {
@@ -224,22 +217,10 @@ class YrkesaktivitetBuilder {
         this.inntektData = data
     }
 
-    fun `med inntektData`(data: InntektData) {
-        inntektData(data)
-    }
-
     fun `med inntektData`(init: InntektDataBuilder.() -> Unit) {
         val builder = InntektDataBuilder()
         builder.init()
         this.inntektData = builder.build()
-    }
-
-    fun refusjonsdata(data: List<Refusjonsperiode>) {
-        this.refusjonsdata = data
-    }
-
-    fun `med refusjonsdata`(data: List<Refusjonsperiode>) {
-        refusjonsdata(data)
     }
 
     fun `med refusjonsdata`(init: RefusjonsdataBuilder.() -> Unit) {
@@ -431,8 +412,8 @@ class YrkesaktivitetBuilder {
             fullstendigDagoversikt
                 .filter {
                     it.dagtype == Dagtype.Avslått
-                }.also {
-                    it.forEach {
+                }.also { dager ->
+                    dager.forEach {
                         // Legg til en arbeidsdag i sykdomstidlinjen for hver avslått dag. Denne hacken kan fjernes om vi forbedrer DSLen ved å skille på sykdom og avslag
                         sykdomstidlinje.add(
                             Dag(
@@ -575,27 +556,12 @@ class RefusjonsdataBuilder {
         )
     }
 
-    fun `med periode i øre`(
-        fom: LocalDate,
-        tom: LocalDate? = null,
-        beløpØre: Long,
-    ) {
-        periode(fom, tom, beløpØre)
-    }
-
     fun build(): List<Refusjonsperiode> = refusjonsperioder.toList()
 }
 
 // Extension function for å lage InntektData
 fun inntektData(init: InntektDataBuilder.() -> Unit): InntektData {
     val builder = InntektDataBuilder()
-    builder.init()
-    return builder.build()
-}
-
-// Extension function for å lage Refusjonsdata
-fun refusjonsdata(init: RefusjonsdataBuilder.() -> Unit): List<Refusjonsperiode> {
-    val builder = RefusjonsdataBuilder()
     builder.init()
     return builder.build()
 }
@@ -678,7 +644,7 @@ class BeregningAssertionBuilder(
             resultat.beregnet.find { it.yrkesaktivitetId == yrkesaktivitetId }
         assertNotNull(yrkesaktivitetResultat, "Fant ikke yrkesaktivitet med id $yrkesaktivitetId")
 
-        val builder = YrkesaktivitetAssertionBuilder(yrkesaktivitetResultat!!)
+        val builder = YrkesaktivitetAssertionBuilder(yrkesaktivitetResultat)
         builder.init()
     }
 
@@ -737,7 +703,7 @@ class YrkesaktivitetAssertionBuilder(
             yrkesaktivitetResultat.utbetalingstidslinje.find { it.dato == dato }
         assertNotNull(dag, "Fant ikke dag for dato $dato")
 
-        val builder = DagAssertionBuilder(dag!!)
+        val builder = DagAssertionBuilder(dag)
         builder.init()
     }
 
@@ -753,7 +719,7 @@ class DagAssertionBuilder(
     private val dag: no.nav.helse.utbetalingstidslinje.Utbetalingsdag,
 ) {
     fun harTotalGrad(grad: Int) {
-        val faktiskGrad = dag.økonomi.totalSykdomsgrad?.toDouble()
+        val faktiskGrad = dag.økonomi.totalSykdomsgrad.toDouble()
         assertEquals(grad.toDouble(), faktiskGrad, "Forventet totalgrad $grad, men fikk $faktiskGrad for dato ${dag.dato}")
     }
 
@@ -765,8 +731,8 @@ class DagAssertionBuilder(
         val faktiskGrad =
             (
                 dag.økonomi.sykdomsgrad
-                    ?.dto()
-                    ?.prosentDesimal ?: 0.0
+                    .dto()
+                    .prosentDesimal
             ) * 100
         assertEquals(grad, faktiskGrad.toInt(), "Forventet grad $grad, men fikk $faktiskGrad for dato ${dag.dato}")
     }
@@ -833,7 +799,7 @@ class OppdragAssertionBuilder(
         init: OppdragMatcherBuilder.() -> Unit,
     ) {
         if (index >= oppdrag.size) {
-            fail<Nothing>("Oppdrag $index finnes ikke. Total antall oppdrag: ${oppdrag.size}")
+            fail("Oppdrag $index finnes ikke. Total antall oppdrag: ${oppdrag.size}")
         }
 
         val builder = OppdragMatcherBuilder(oppdrag[index])
@@ -845,25 +811,6 @@ class OppdragAssertionBuilder(
         init: OppdragMatcherBuilder.() -> Unit,
     ) {
         oppdrag(index, init)
-    }
-
-    fun oppdragMedMottaker(
-        mottaker: String,
-        init: OppdragMatcherBuilder.() -> Unit,
-    ) {
-        val oppdragMedMottaker =
-            oppdrag.find { it.mottaker == mottaker }
-        assertNotNull(oppdragMedMottaker, "Fant ikke oppdrag med mottaker $mottaker")
-
-        val builder = OppdragMatcherBuilder(oppdragMedMottaker!!)
-        builder.init()
-    }
-
-    fun `oppdrag med mottaker`(
-        mottaker: String,
-        init: OppdragMatcherBuilder.() -> Unit,
-    ) {
-        oppdragMedMottaker(mottaker, init)
     }
 }
 

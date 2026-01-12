@@ -1,6 +1,9 @@
 package no.nav.helse.bakrommet.testutils
 
-import org.junit.jupiter.api.Assertions.*
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
 infix fun <T> T.`should equal`(expected: T) = assertEquals(expected, this, "Expected <$this> to be equal to <$expected>")
 
