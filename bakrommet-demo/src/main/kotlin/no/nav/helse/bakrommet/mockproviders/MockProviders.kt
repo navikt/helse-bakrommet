@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.mockclients
+package no.nav.helse.bakrommet.mockproviders
 
 import no.nav.helse.bakrommet.Providers
 import no.nav.helse.bakrommet.aareg.AARegMock
@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock.sykepengesoknadMock
 import no.nav.helse.bakrommet.testdata.Testperson
 
-fun skapClienter(testpersoner: List<Testperson>): Providers {
+fun skapProviders(testpersoner: List<Testperson>): Providers {
     val pdlResponses = testpersoner.associate { it.fnr to it.skapPdlReply() }
     val fnrTilSoknader = testpersoner.associate { it.fnr to it.soknader }
     val fnrÅrTilSigrunSvar: Map<Pair<String, java.time.Year>, String> =

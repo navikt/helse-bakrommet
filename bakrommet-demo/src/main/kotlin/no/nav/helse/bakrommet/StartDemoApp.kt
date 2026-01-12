@@ -27,7 +27,7 @@ import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.mockclients.skapClienter
+import no.nav.helse.bakrommet.mockproviders.skapProviders
 import no.nav.helse.bakrommet.testdata.alleTestdata
 import no.nav.helse.bakrommet.testdata.opprettTestdata
 import no.nav.helse.bakrommet.util.objectMapper
@@ -104,7 +104,7 @@ fun main() {
             filter { call -> !call.erHelsesjekk() }
         }
 
-        val clienter = skapClienter(alleTestdata)
+        val clienter = skapProviders(alleTestdata)
         val services = createServices(clienter, DbDaoerFake())
 
         install(Sessions) {

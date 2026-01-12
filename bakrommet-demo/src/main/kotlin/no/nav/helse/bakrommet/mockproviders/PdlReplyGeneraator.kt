@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.mockclients
+package no.nav.helse.bakrommet.mockproviders
 
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.fakerConfig
