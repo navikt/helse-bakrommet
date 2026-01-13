@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.infrastruktur.provider
 
 import no.nav.helse.bakrommet.auth.AccessToken
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import java.time.LocalDate
 
 data class PdlIdent(
@@ -46,11 +47,11 @@ data class PersonInfo(
 interface PersoninfoProvider {
     suspend fun hentPersonInfo(
         saksbehandlerToken: AccessToken,
-        ident: String,
+        ident: NaturligIdent,
     ): PersonInfo
 
     suspend fun hentIdenterFor(
         saksbehandlerToken: AccessToken,
-        ident: String,
+        ident: NaturligIdent,
     ): List<PdlIdent>
 }

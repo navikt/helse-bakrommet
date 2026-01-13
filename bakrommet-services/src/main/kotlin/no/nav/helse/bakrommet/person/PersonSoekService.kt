@@ -38,5 +38,5 @@ class PersonsøkService(
     suspend fun hentIdenter(
         naturligIdent: NaturligIdent,
         saksbehandler: BrukerOgToken,
-    ): List<PdlIdent> = personinfoProvider.hentIdenterFor(saksbehandlerToken = saksbehandler.token, ident = naturligIdent.value)
+    ): List<PdlIdent> = personinfoProvider.hentIdenterFor(saksbehandlerToken = saksbehandler.token, ident = naturligIdent)
 }

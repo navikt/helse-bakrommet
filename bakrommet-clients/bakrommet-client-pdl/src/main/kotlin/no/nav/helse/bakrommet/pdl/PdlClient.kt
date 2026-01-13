@@ -18,6 +18,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
 import no.nav.helse.bakrommet.infrastruktur.provider.PersonInfo
@@ -99,13 +100,13 @@ class PdlClient(
 
     override suspend fun hentIdenterFor(
         saksbehandlerToken: AccessToken,
-        ident: String,
+        ident: NaturligIdent,
     ): List<PdlIdent> {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.veksleOgMapTilBearer()
                 contentType(ContentType.Application.Json)
-                setBody(hentIdenterRequest(ident = ident))
+                setBody(hentIdenterRequest(ident = ident.value))
             }
         if (response.status == HttpStatusCode.OK) {
             val json = response.body<JsonNode>()
@@ -138,13 +139,13 @@ class PdlClient(
 
     override suspend fun hentPersonInfo(
         saksbehandlerToken: AccessToken,
-        ident: String,
+        ident: NaturligIdent,
     ): PersonInfo {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
                 headers[HttpHeaders.Authorization] = saksbehandlerToken.veksleOgMapTilBearer()
                 contentType(ContentType.Application.Json)
-                setBody(hentPersonRequest(ident = ident))
+                setBody(hentPersonRequest(ident = ident.value))
                 header("behandlingsnummer", "B139")
                 header("TEMA", "SYK")
                 header("Accept", "application/json")

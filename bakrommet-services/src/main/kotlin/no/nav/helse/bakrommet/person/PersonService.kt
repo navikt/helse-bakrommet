@@ -35,9 +35,9 @@ class PersonService(
         val hentPersonInfo =
             personinfoProvider.hentPersonInfo(
                 saksbehandlerToken = saksbehandlerToken,
-                ident = naturligIdent.value,
+                ident = naturligIdent,
             )
-        val identer = personinfoProvider.hentIdenterFor(saksbehandlerToken, naturligIdent.value)
+        val identer = personinfoProvider.hentIdenterFor(saksbehandlerToken, naturligIdent)
 
         return PersonInfo(
             fødselsnummer = naturligIdent.value,
