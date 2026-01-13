@@ -4,9 +4,9 @@ import io.ktor.server.routing.RoutingCall
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.UUID

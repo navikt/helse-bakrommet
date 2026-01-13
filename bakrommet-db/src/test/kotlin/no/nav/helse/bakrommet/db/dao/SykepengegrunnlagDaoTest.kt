@@ -4,8 +4,8 @@ import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.BeforeEach

@@ -19,11 +19,11 @@ import no.nav.helse.bakrommet.behandling.vilkaar.Kode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.*
 import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
 import no.nav.helse.bakrommet.kafka.leggTilOutbox
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO

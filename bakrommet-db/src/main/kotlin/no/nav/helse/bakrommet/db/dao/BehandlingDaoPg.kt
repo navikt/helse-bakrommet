@@ -9,8 +9,8 @@ import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.person.NaturligIdent
 import java.time.LocalDate
 import java.util.*
 import javax.sql.DataSource
@@ -67,7 +67,7 @@ class BehandlingDaoPg private constructor(
               from behandling
              where naturlig_ident = :naturlig_ident
             """.trimIndent(),
-            "naturlig_ident" to naturligIdent.naturligIdent,
+            "naturlig_ident" to naturligIdent.value,
         ) { rowTilPeriode(it) }
 
     override fun finnBehandlingerForNaturligIdentSomOverlapper(
@@ -83,7 +83,7 @@ class BehandlingDaoPg private constructor(
              AND fom <= :tom
              AND tom >= :fom
             """.trimIndent(),
-            "naturlig_ident" to naturligIdent.naturligIdent,
+            "naturlig_ident" to naturligIdent.value,
             "fom" to fom,
             "tom" to tom,
         ) { rowTilPeriode(it) }
@@ -164,7 +164,7 @@ class BehandlingDaoPg private constructor(
                 (:id, :naturlig_ident, :opprettet, :opprettet_av_nav_ident, :opprettet_av_navn, :fom, :tom, :status, :beslutter_nav_ident, :skjaeringstidspunkt, :individuell_begrunnelse, :sykepengegrunnlag_id, :revurderer_behandling_id)
             """.trimIndent(),
             "id" to periode.id,
-            "naturlig_ident" to periode.naturligIdent.naturligIdent,
+            "naturlig_ident" to periode.naturligIdent.value,
             "opprettet" to periode.opprettet,
             "opprettet_av_nav_ident" to periode.opprettetAvNavIdent,
             "opprettet_av_navn" to periode.opprettetAvNavn,

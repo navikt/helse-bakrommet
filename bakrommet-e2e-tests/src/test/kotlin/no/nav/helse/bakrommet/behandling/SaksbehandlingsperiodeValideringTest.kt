@@ -1,18 +1,21 @@
 package no.nav.helse.bakrommet.behandling
 
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import no.nav.helse.bakrommet.TestOppsett
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import java.util.UUID
+import java.util.*
 
 class SaksbehandlingsperiodeValideringTest {
     private companion object {
@@ -37,7 +40,7 @@ class SaksbehandlingsperiodeValideringTest {
                 }
             assertEquals(HttpStatusCode.BadRequest, response.status)
 
-            val responsJson = assertDoesNotThrow { runBlocking { objectMapper.readTree(response.bodyAsText()) } }
+            val responsJson = assertDoesNotThrow { objectMapper.readTree(response.bodyAsText()) }
             assertEquals(400, responsJson["status"].asInt())
             assertEquals("Fom-dato kan ikke være etter tom-dato", responsJson["title"].asText())
             assertTrue(responsJson["type"].asText().endsWith("validation/input"))

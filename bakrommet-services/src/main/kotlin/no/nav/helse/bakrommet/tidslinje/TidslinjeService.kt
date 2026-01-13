@@ -11,10 +11,10 @@ import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivite
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetForenkletDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.util.logg
 
 interface TidslinjeServiceDaoer {

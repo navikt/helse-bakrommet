@@ -5,6 +5,7 @@ import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.skapDbDaoer
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.pdl.PdlMock
@@ -85,7 +86,7 @@ private fun QueryRunner.opprettPseudoIdMedDato(
         VALUES (:pseudo_id, :naturlig_ident, :opprettet)
         """.trimIndent(),
         "pseudo_id" to pseudoId,
-        "naturlig_ident" to naturligIdent.naturligIdent,
+        "naturlig_ident" to naturligIdent.value,
         "opprettet" to opprettet,
     )
 }

@@ -21,7 +21,7 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo.Companion.tilJson
 import no.nav.helse.bakrommet.util.asJsonNode

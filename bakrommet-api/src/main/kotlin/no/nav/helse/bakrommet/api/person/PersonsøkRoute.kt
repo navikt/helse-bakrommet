@@ -7,10 +7,10 @@ import no.nav.helse.bakrommet.api.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.api.dto.person.PersonsøkRequestDto
 import no.nav.helse.bakrommet.api.errorhandling.respondProblem
 import no.nav.helse.bakrommet.api.serde.respondJson
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.ProblemDetails
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonsøkService
 import java.lang.IllegalArgumentException
 

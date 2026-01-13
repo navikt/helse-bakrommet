@@ -35,7 +35,7 @@ fun DokumentInnhentingDaoer.lastSigrunDokument(
         runBlocking {
             pensjonsgivendeInntektProvider
                 .hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(
-                    periode.naturligIdent.naturligIdent,
+                    periode.naturligIdent.value,
                     senesteÅrTom,
                     antallÅrBakover,
                     saksbehandlerToken,

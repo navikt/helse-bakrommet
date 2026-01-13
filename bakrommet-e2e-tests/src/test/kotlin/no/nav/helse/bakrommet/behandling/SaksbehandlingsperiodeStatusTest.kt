@@ -7,7 +7,7 @@ import io.ktor.http.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning

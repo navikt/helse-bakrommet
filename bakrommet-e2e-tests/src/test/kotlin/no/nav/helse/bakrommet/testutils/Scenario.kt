@@ -16,13 +16,13 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsik
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntekt
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.sigrun.sigrunÅr

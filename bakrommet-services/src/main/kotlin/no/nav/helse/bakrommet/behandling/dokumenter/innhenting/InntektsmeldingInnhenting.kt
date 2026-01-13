@@ -37,7 +37,7 @@ fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
             )
         }
     require(
-        periode.naturligIdent.naturligIdent == inntektsmelding["arbeidstakerFnr"].asText(),
+        periode.naturligIdent.value == inntektsmelding["arbeidstakerFnr"].asText(),
         { "arbeidstakerFnr i inntektsmelding må være lik sykmeldts naturligIdent" },
     )
     return dokumentDao.opprettDokument(

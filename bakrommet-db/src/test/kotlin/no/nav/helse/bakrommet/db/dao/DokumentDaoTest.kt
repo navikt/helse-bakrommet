@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.Bruker
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import no.nav.helse.bakrommet.util.Kildespor
 import org.junit.jupiter.api.Assertions

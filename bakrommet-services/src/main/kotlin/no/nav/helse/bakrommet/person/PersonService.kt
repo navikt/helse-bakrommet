@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.person
 
 import no.nav.helse.bakrommet.auth.AccessToken
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
@@ -34,12 +35,12 @@ class PersonService(
         val hentPersonInfo =
             personinfoProvider.hentPersonInfo(
                 saksbehandlerToken = saksbehandlerToken,
-                ident = naturligIdent.naturligIdent,
+                ident = naturligIdent.value,
             )
-        val identer = personinfoProvider.hentIdenterFor(saksbehandlerToken, naturligIdent.naturligIdent)
+        val identer = personinfoProvider.hentIdenterFor(saksbehandlerToken, naturligIdent.value)
 
         return PersonInfo(
-            fødselsnummer = naturligIdent.naturligIdent,
+            fødselsnummer = naturligIdent.value,
             aktørId = identer.first { it.gruppe == PdlIdent.AKTORID }.ident,
             navn = hentPersonInfo.navn.formattert(),
             alder = hentPersonInfo.alder(),

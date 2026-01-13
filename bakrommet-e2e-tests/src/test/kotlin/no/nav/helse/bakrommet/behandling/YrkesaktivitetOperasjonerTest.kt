@@ -1,27 +1,23 @@
 package no.nav.helse.bakrommet.behandling
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.ktor.client.call.*
+import io.ktor.client.call.body
 import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetCreateRequestDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterKategorisering
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
@@ -131,7 +127,6 @@ class YrkesaktivitetOperasjonerTest {
                     bearerAuth(TestOppsett.userToken)
                 }.also {
                     assertEquals(HttpStatusCode.OK, it.status)
-                    val body = it.bodyAsText()
                 }
             // Verifiser at dagoversikten er oppdatert korrekt
             val oppdatertYrkesaktivitet = daoer.yrkesaktivitetDao.hentYrkesaktivitetDbRecord(yrkesaktivitetId)!!
@@ -277,7 +272,7 @@ class YrkesaktivitetOperasjonerTest {
 
             // Verifiser at helgedager ikke er oppdatert (bevarer opprinnelig kilde null)
             val helgedager =
-                dager.filter { (dato, dagtype, _) ->
+                dager.filter { (_, dagtype, _) ->
                     dagtype == "Helg"
                 }
             helgedager.forEach { (_, _, kilde) ->

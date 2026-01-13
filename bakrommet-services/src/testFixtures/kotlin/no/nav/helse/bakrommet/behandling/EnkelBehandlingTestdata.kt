@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRe
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.Instant
 import java.time.LocalDate

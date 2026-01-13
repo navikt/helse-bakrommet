@@ -6,7 +6,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentAllePerioder
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.`should equal`

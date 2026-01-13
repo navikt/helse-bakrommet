@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.person
 
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import java.time.OffsetDateTime
 import java.util.UUID
 

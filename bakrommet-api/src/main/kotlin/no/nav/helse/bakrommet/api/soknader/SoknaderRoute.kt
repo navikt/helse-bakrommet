@@ -47,13 +47,11 @@ fun Route.soknaderRoute(
 
     route("/v1/{$PARAM_PSEUDO_ID}/soknader/{soknadId}") {
         get {
-            val naturligIdent = call.naturligIdent(personService)
             val soknadId = call.parameters["soknadId"] ?: throw InputValideringException("Mangler søknadId")
 
             val soknad =
                 service.hentSoknad(
                     saksbehandlerToken = call.request.bearerToken(),
-                    naturligIdent = naturligIdent,
                     soknadId = soknadId,
                 )
             call.respondText(soknad.serialisertTilString(), ContentType.Application.Json, HttpStatusCode.OK)

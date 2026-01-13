@@ -128,7 +128,7 @@ class DokumentHenter(
             logg.info("Henter aareg for periode={}", periode.id)
             return@nonTransactional arbeidsforholdProvider
                 .hentArbeidsforholdForMedSporing(
-                    fnr = periode.naturligIdent.naturligIdent,
+                    fnr = periode.naturligIdent.value,
                     saksbehandlerToken = saksbehandler.token,
                 ).let { (arbeidsforholdRes, kildespor) ->
                     // TODO: Sjekk om akkurat samme dokument med samme innhold allerede eksisterer ?

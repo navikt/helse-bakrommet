@@ -108,7 +108,7 @@ fun Route.yrkesaktivitetRoute(
                 val inntektsmeldinger =
                     inntektsmeldingMatcherService.hentInntektsmeldingerForYrkesaktivitet(
                         ref = yrkesaktivitetRef,
-                        fnr = naturligIdent.naturligIdent,
+                        fnr = naturligIdent.value,
                         bruker = call.saksbehandlerOgToken(),
                     )
                 call.respondText(

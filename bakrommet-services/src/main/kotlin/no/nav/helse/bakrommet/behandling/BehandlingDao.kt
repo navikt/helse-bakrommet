@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID

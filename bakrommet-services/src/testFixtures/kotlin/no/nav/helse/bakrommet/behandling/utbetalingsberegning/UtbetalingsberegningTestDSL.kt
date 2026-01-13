@@ -17,7 +17,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -94,9 +94,7 @@ class UtbetalingsberegningTestBuilder {
         val periode = saksbehandlingsperiode ?: throw IllegalStateException("Saksbehandlingsperiode må være satt")
         val skjæringstidspunktDato = skjæringstidspunkt ?: throw IllegalStateException("Skjæringstidspunkt må være satt")
         val yrkesaktivitetListe = yrkesaktiviteter.map { it.build(periode) }
-        val sykepengegrunnlag =
-            beregnSykepengegrunnlag(yrkesaktivitetListe, skjæringstidspunktDato)
-                ?: throw IllegalStateException("Kunne ikke beregne sykepengegrunnlag")
+        val sykepengegrunnlag = beregnSykepengegrunnlag(yrkesaktivitetListe, skjæringstidspunktDato)
 
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,

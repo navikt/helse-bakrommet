@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.kafka
 
-import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingDao
+import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.somReferanse
@@ -36,8 +36,6 @@ fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(referanse: BehandlingRefer
         SaksbehandlingsperiodeKafkaDtoMapper(
             beregningDao = beregningDao,
             behandlingDao = behandlingDao,
-            sykepengegrunnlagDao = sykepengegrunnlagDao,
-            yrkesaktivitetDao = yrkesaktivitetDao,
         )
     val saksbehandlingsperiodeKafkaDto = saksbehandlingsperiodeKafkaDtoMapper.genererKafkaMelding(referanse)
     outboxDao.lagreTilOutbox(
@@ -78,19 +76,16 @@ fun String.tilKafkaKey(): String = HashUtils.sha256("spillerom-$this")
 class SaksbehandlingsperiodeKafkaDtoMapper(
     private val beregningDao: UtbetalingsberegningDao,
     private val behandlingDao: BehandlingDao,
-    private val sykepengegrunnlagDao: SykepengegrunnlagDao,
-    private val yrkesaktivitetDao: YrkesaktivitetDao,
 ) {
     fun genererKafkaMelding(referanse: BehandlingReferanse): SaksbehandlingsperiodeKafkaDto {
         val periode = behandlingDao.hentPeriode(referanse, null, måVæreUnderBehandling = false)
-        val yrkesaktivitet = yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode)
         val naturligIdent = periode.naturligIdent
         val beregning = beregningDao.hentBeregning(referanse.behandlingId)
 
         val saksbehandlingsperiodeKafkaDto =
             SaksbehandlingsperiodeKafkaDto(
                 id = periode.id,
-                fnr = naturligIdent.naturligIdent,
+                fnr = naturligIdent.value,
                 opprettet = periode.opprettet,
                 opprettetAvNavIdent = periode.opprettetAvNavIdent,
                 opprettetAvNavn = periode.opprettetAvNavn,

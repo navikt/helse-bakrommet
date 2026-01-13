@@ -13,10 +13,10 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.UtbetalingslinjeDto
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingslinjer.UtbetalingkladdBuilder
@@ -76,7 +76,7 @@ class UtbetalingsBeregningHjelper(
         val beregningData =
             BeregningData(
                 beregnet,
-                oppdrag.tilSpilleromoppdrag(fnr = periode.naturligIdent.naturligIdent, spilleromUtbetalingId = spilleromUtbetalingId),
+                oppdrag.tilSpilleromoppdrag(fnr = periode.naturligIdent.value, spilleromUtbetalingId = spilleromUtbetalingId),
             )
 
         // Opprett response
@@ -145,7 +145,7 @@ fun byggOppdragFraBeregning(
                 "TODO_INGEN_REFUSJON" // Dette er en hack vi bør fikse en gang
             }
 
-        val mottakerBruker = ident.naturligIdent
+        val mottakerBruker = ident.value
 
         val utbetalingkladdBuilder =
             UtbetalingkladdBuilder(

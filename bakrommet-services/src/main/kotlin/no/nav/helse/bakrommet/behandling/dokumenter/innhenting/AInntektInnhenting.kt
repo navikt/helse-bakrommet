@@ -99,7 +99,7 @@ private fun DokumentInnhentingDaoer.lastAInntektDok(
     return runBlocking {
         inntekterProvider
             .hentInntekterForMedSporing(
-                fnr = periode.naturligIdent.naturligIdent,
+                fnr = periode.naturligIdent.value,
                 maanedFom = fom,
                 maanedTom = tom,
                 filter = filter,

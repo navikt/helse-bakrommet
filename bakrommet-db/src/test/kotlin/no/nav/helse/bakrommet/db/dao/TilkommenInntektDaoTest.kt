@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntekt
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

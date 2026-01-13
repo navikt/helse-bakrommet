@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.db.dao
 
 import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.person.NaturligIdent
-import no.nav.helse.bakrommet.person.somNaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.somNaturligIdent
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import java.util.UUID
@@ -27,7 +27,7 @@ internal class PersonDaoTest {
 
         val pseudoId = UUID.randomUUID()
         opprettTestdata(fnr, pseudoId)
-        assertEquals(fnr, personDao.finnNaturligIdent(pseudoId)!!.naturligIdent)
+        assertEquals(fnr, personDao.finnNaturligIdent(pseudoId)!!.value)
     }
 
     @Test

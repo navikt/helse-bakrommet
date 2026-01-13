@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import no.nav.helse.bakrommet.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import java.time.Instant
 import java.time.OffsetDateTime

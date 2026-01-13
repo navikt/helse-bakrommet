@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.person
 
 import no.nav.helse.bakrommet.auth.BrukerOgToken
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
@@ -22,7 +23,7 @@ class PersonsøkService(
             .nonTransactional {
                 personPseudoIdDao.finnPseudoID(naturligIdent)
             }?.let { eksisterendePersonId ->
-                logg.info("Fant eksisterende personPseudoId for naturligIdent ${naturligIdent.naturligIdent}")
+                logg.info("Fant eksisterende personPseudoId for naturligIdent ${naturligIdent.value}")
                 return eksisterendePersonId
             }
 
@@ -37,5 +38,5 @@ class PersonsøkService(
     suspend fun hentIdenter(
         naturligIdent: NaturligIdent,
         saksbehandler: BrukerOgToken,
-    ): List<PdlIdent> = personinfoProvider.hentIdenterFor(saksbehandlerToken = saksbehandler.token, ident = naturligIdent.naturligIdent)
+    ): List<PdlIdent> = personinfoProvider.hentIdenterFor(saksbehandlerToken = saksbehandler.token, ident = naturligIdent.value)
 }

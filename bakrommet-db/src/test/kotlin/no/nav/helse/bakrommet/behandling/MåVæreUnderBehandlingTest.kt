@@ -10,10 +10,10 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.Rolle
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import org.junit.jupiter.api.BeforeEach
