@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.db.dao
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
@@ -14,6 +13,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.arbeidstakerKategoriseri
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.tidsstuttet

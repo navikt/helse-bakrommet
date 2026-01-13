@@ -2,10 +2,10 @@ package no.nav.helse.bakrommet.behandling.sykepengegrunnlag
 
 import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.*
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto

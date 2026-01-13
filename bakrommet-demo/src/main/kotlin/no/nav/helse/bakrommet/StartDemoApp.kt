@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 import no.nav.helse.bakrommet.api.auth.RolleMatrise
 import no.nav.helse.bakrommet.api.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.api.setupApiRoutes
-import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer

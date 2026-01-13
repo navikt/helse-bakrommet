@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet
 
-import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.auth.Rolle
+import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.Rolle
 
 val saksMcBehandlersen =
     Bruker(

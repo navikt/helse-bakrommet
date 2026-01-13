@@ -3,13 +3,13 @@ package no.nav.helse.bakrommet.behandling
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.auth.Rolle
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.skapDbDaoer
+import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.Rolle
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer

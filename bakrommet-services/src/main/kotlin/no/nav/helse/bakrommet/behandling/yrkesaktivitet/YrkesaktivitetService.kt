@@ -3,7 +3,6 @@ package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeoutOrNull
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.*
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
@@ -16,6 +15,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer

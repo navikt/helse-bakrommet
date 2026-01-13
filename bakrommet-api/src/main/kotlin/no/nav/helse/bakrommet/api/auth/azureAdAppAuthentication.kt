@@ -5,7 +5,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.jwt
 import no.nav.helse.bakrommet.api.ApiModule
-import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.domain.Bruker
 import java.net.URI
 
 fun Application.azureAdAppAuthentication(

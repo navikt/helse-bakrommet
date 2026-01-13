@@ -1,12 +1,12 @@
 package no.nav.helse.bakrommet.behandling.tilkommen
 
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import java.time.OffsetDateTime

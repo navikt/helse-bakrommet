@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
-import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.domain.Bruker
 import java.util.UUID
 
 interface UtbetalingsberegningDao {

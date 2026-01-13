@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling
 
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingStatus.GODKJENT
 import no.nav.helse.bakrommet.behandling.BehandlingStatus.REVURDERT
@@ -19,6 +18,7 @@ import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.*
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
@@ -144,7 +144,7 @@ class BehandlingService(
                     ?.let { yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(it) }
                     ?: emptyList()
 
-            val (yrkesaktiviteter, gammelTilNyIdMap) =
+            val (yrkesaktiviteter, _) =
                 lagYrkesaktiviteter(
                     sykepengesoknader = søknader,
                     behandlingDbRecord = nyPeriode,

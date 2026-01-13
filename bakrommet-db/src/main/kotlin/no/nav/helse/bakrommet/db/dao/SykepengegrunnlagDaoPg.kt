@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.db.dao
 
 import kotliquery.Row
 import kotliquery.Session
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
@@ -11,6 +10,7 @@ import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.tilPgJson
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.util.objectMapper
 import java.time.Instant

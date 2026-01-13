@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.behandling.vilkaar
 
 import com.fasterxml.jackson.annotation.JsonValue
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
@@ -9,6 +8,7 @@ import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.util.logg
@@ -20,7 +20,7 @@ fun String.erGyldigSomKode(): Boolean {
         try {
             UUID.fromString(this)
             true
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             false
         }
     if (erGyldigUuid) return true

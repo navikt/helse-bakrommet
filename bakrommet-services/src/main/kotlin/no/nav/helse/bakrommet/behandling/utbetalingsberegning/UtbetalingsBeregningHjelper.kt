@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
@@ -13,6 +12,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.UtbetalingslinjeDto

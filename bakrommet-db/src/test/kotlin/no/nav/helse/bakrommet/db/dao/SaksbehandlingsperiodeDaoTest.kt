@@ -1,9 +1,9 @@
 package no.nav.helse.bakrommet.db.dao
 
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.dto.InntektbeløpDto
@@ -23,7 +23,7 @@ internal class SaksbehandlingsperiodeDaoTest {
     private val dao = BehandlingDaoPg(dataSource)
 
     companion object {
-        val fnr = "01019012345"
+        const val fnr = "01019012345"
         val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
 
         @JvmStatic
@@ -43,7 +43,6 @@ internal class SaksbehandlingsperiodeDaoTest {
     @Test
     fun `kan opprette og hente periode`() {
         val id = UUID.randomUUID()
-        val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
         val now = OffsetDateTime.now()
         val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
         val fom = LocalDate.of(2021, 1, 1)
@@ -74,8 +73,6 @@ internal class SaksbehandlingsperiodeDaoTest {
 
     @Test
     fun `kan finne perioder som overlapper angitt periode`() {
-        val personId = "6512a"
-
         fun String.toLocalDate() = LocalDate.parse(this, DateTimeFormatter.ISO_LOCAL_DATE)
 
         fun opprettPeriode(
@@ -129,7 +126,6 @@ internal class SaksbehandlingsperiodeDaoTest {
     @Test
     fun `kan oppdatere skjæringstidspunkt`() {
         val id = UUID.randomUUID()
-        val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
         val now = OffsetDateTime.now()
         val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
         val fom = LocalDate.of(2021, 1, 1)
@@ -161,7 +157,6 @@ internal class SaksbehandlingsperiodeDaoTest {
     @Test
     fun `kan oppdatere sykepengegrunnlag_id`() {
         val id = UUID.randomUUID()
-        val personId = "6512a" // Bruker eksisterende personId fra testoppsettet
         val now = OffsetDateTime.now()
         val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
         val fom = LocalDate.of(2021, 1, 1)

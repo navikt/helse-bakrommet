@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.behandling
 
-import no.nav.helse.bakrommet.auth.Bruker
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 
 private fun krevAtBrukerErBeslutterFor(

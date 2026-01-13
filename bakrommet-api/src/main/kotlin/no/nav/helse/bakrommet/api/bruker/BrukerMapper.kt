@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.api.bruker
 
 import no.nav.helse.bakrommet.api.dto.bruker.BrukerDto
 import no.nav.helse.bakrommet.api.dto.bruker.RolleDto
-import no.nav.helse.bakrommet.auth.Bruker
-import no.nav.helse.bakrommet.auth.Rolle
+import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.Rolle
 
 fun Bruker.tilBrukerDto(): BrukerDto =
     BrukerDto(

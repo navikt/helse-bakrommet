@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.auth
+package no.nav.helse.bakrommet.domain
 
 data class Bruker(
     val navn: String,

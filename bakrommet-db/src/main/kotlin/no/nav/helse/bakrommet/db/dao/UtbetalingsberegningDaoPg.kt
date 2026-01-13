@@ -2,12 +2,12 @@ package no.nav.helse.bakrommet.db.dao
 
 import kotliquery.Row
 import kotliquery.Session
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.*
 import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.tilPgJson
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.dto.InntektDto
@@ -155,16 +155,6 @@ private fun BeregningDataInnDto.tilBeregningData(): BeregningData =
                 )
             },
         spilleromOppdrag = spilleromOppdrag,
-    )
-
-private fun BeregningResponse.tilBeregningResponseUtDto(): BeregningResponseUtDto =
-    BeregningResponseUtDto(
-        id = id,
-        behandlingId = behandlingId,
-        beregningData = beregningData.tilBeregningDataUtDto(),
-        opprettet = opprettet,
-        opprettetAv = opprettetAv,
-        sistOppdatert = sistOppdatert,
     )
 
 // Converter funksjoner for å konvertere UtDto til InnDto format for lagring

@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.fakedaos
 
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
+import no.nav.helse.bakrommet.domain.Bruker
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap

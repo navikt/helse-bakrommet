@@ -2,7 +2,6 @@
 
 package no.nav.helse.bakrommet.behandling.beregning
 
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBeregningHjelper
@@ -13,6 +12,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsBeregni
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 
 interface Beregningsdaoer {

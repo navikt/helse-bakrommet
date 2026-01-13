@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.behandling.vilkaar
 
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
@@ -8,6 +7,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.dto.PeriodeDto
 
 suspend fun Vilkaarsvurdering.håndterInaktivVilkår(

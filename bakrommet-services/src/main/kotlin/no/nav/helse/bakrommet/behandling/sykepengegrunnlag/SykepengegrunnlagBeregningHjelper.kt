@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.behandling.sykepengegrunnlag
 
 import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.BeregningskoderKombinasjonerSykepengegrunnlag
-import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
@@ -10,6 +9,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Arbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Frilanser
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.util.singleOrNone
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.økonomi.Inntekt
@@ -67,7 +67,7 @@ class SykepengegrunnlagBeregningHjelper(
 fun beregnSykepengegrunnlag(
     yrkesaktiviteter: List<Yrkesaktivitet>,
     skjæringstidspunkt: LocalDate,
-): Sykepengegrunnlag? {
+): Sykepengegrunnlag {
     val grunnbeløp = Grunnbeløp.`1G`.beløp(skjæringstidspunkt)
     val grunnbeløp6G = Grunnbeløp.`6G`.beløp(skjæringstidspunkt)
     val grunnbeløpVirkningstidspunkt = Grunnbeløp.virkningstidspunktFor(grunnbeløp)
