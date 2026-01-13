@@ -1,10 +1,15 @@
 package no.nav.helse.bakrommet.behandling
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.ktor.client.call.*
-import io.ktor.client.request.*
+import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dokumenter.tilDokumentDto
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
@@ -66,7 +71,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             sykepengesøknadProvider =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3, søknad3b).associateBy { it.søknadId },
-                    oboClient = TestOppsett.oboClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
                 ),
         ) { daoer ->
             daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
@@ -144,7 +149,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
         runApplicationTest(
             sykepengesøknadProvider =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
-                    oboClient = TestOppsett.oboClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3).associateBy { it.søknadId },
                 ),
         ) { daoer ->

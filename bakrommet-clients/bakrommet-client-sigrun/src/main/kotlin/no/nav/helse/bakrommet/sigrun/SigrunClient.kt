@@ -1,17 +1,22 @@
 package no.nav.helse.bakrommet.sigrun
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.apache.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.auth.OboClient
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.apache.Apache
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅr
@@ -26,8 +31,8 @@ import java.time.LocalDate
 import java.util.*
 
 class SigrunClient(
-    private val configuration: Configuration.Sigrun,
-    private val oboClient: OboClient,
+    private val configuration: SigrunClientModule.Configuration,
+    private val tokenUtvekslingProvider: TokenUtvekslingProvider,
     private val httpClient: HttpClient =
         HttpClient(Apache) {
             install(ContentNegotiation) {
@@ -35,7 +40,7 @@ class SigrunClient(
             }
         },
 ) : PensjonsgivendeInntektProvider {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(tokenUtvekslingProvider, configuration.scope).somBearerHeader()
 
     companion object {
         val INNTEKTSAAR_MIN = 2017

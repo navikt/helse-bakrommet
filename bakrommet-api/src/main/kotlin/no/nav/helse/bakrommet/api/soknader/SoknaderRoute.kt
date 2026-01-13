@@ -7,8 +7,8 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
+import no.nav.helse.bakrommet.api.auth.bearerToken
 import no.nav.helse.bakrommet.api.naturligIdent
-import no.nav.helse.bakrommet.auth.bearerToken
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
@@ -27,7 +27,7 @@ fun Route.soknaderRoute(
                 fomParam?.let {
                     try {
                         LocalDate.parse(it)
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         throw InputValideringException("Ugyldig 'fom'-parameter. Forventet format: yyyy-MM-dd")
                     }
                 } ?: LocalDate.now().minusYears(1)

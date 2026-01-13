@@ -4,13 +4,13 @@ import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.jwt.jwt
-import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.api.ApiModule
 import no.nav.helse.bakrommet.auth.Bruker
 import java.net.URI
 
 fun Application.azureAdAppAuthentication(
-    config: Configuration.Auth,
-    rolleconfig: Configuration.Roller,
+    config: ApiModule.Configuration.Auth,
+    rolleconfig: ApiModule.Configuration.Roller,
 ) {
     val jwkProvider = JwkProviderBuilder(URI(config.jwkProviderUri).toURL()).build()
     authentication {

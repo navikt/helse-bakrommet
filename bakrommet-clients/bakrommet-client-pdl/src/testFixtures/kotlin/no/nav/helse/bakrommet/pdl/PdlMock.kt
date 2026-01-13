@@ -4,41 +4,38 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.util.objectMapper
 
 object PdlMock {
     // Default test konfigurasjon
     val defaultConfiguration =
-        Configuration.PDL(
+        PdlClientModule.Configuration(
             hostname = "pdl-host",
             scope = OAuthScope("pdl-scope"),
         )
 
     // Default OBO client for testing
-    fun createDefaultOboClient(): OboClient {
-        val oboConfig = Configuration.OBO(url = "OBO-url")
-        return OboClient(
-            oboConfig,
-            mockHttpClient { request ->
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = """{"access_token": "OBO-TOKEN_FOR_${request.bodyToJson()["target"].asText()}"}""",
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            },
-        )
-    }
+    fun createDefaultOboClient(): TokenUtvekslingProvider =
+        object : TokenUtvekslingProvider {
+            override suspend fun exchangeToken(
+                bearerToken: String,
+                scope: OAuthScope,
+            ): OboToken = OboToken("OBO-TOKEN_FOR_${scope.asDefaultScope()}")
+        }
 
     fun mockPdl(
-        configuration: Configuration.PDL = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: PdlClientModule.Configuration = defaultConfiguration,
         identTilReplyMap: Map<String, String> =
             mapOf(
                 "1234" to pdlReply(),
@@ -47,7 +44,7 @@ object PdlMock {
         pdlReplyGenerator: ((String) -> String?)? = null,
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
+        if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             val json = request.bodyToJson()
@@ -88,8 +85,8 @@ object PdlMock {
     }
 
     fun pdlClient(
-        configuration: Configuration.PDL = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: PdlClientModule.Configuration = defaultConfiguration,
+        tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
         identTilReplyMap: Map<String, String> =
             mapOf(
                 "1234" to pdlReply(),
@@ -98,8 +95,8 @@ object PdlMock {
         pdlReplyGenerator: ((String) -> String?)? = null,
     ) = PdlClient(
         configuration = configuration,
-        oboClient = oboClient,
-        httpClient = mockPdl(configuration, oboClient, identTilReplyMap, pdlReplyGenerator),
+        tokenUtvekslingProvider = tokenUtvekslingProvider,
+        httpClient = mockPdl(configuration, identTilReplyMap, pdlReplyGenerator),
     )
 
     fun pdlReply(
@@ -180,7 +177,7 @@ object PdlMock {
 }
 
 // Extension function for å lage OBO token
-fun OAuthScope.oboTokenFor(oboClient: OboClient): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
+fun OAuthScope.oboTokenFor(): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
 // Helper functions for mock HTTP client
 fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =

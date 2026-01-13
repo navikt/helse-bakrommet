@@ -7,6 +7,7 @@ dependencies {
     api(project(":bakrommet-clients:bakrommet-client-sigrun"))
     api(project(":bakrommet-clients:bakrommet-client-sykepengesoknad"))
     api(project(":bakrommet-clients:bakrommet-client-ereg"))
+    api(project(":bakrommet-clients:bakrommet-client-obo"))
 
     api(project(":bakrommet-db"))
     api(project(":bakrommet-api"))

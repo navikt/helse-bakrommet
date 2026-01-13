@@ -1,15 +1,16 @@
 package no.nav.helse.bakrommet
 
 import com.zaxxer.hikari.HikariConfig
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import io.ktor.server.testing.*
-import no.nav.helse.bakrommet.Configuration.Roller
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.ContentType
+import io.ktor.serialization.jackson.JacksonConverter
+import io.ktor.server.testing.ApplicationTestBuilder
+import io.ktor.server.testing.testApplication
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
+import no.nav.helse.bakrommet.api.ApiModule
 import no.nav.helse.bakrommet.api.settOppKtor
 import no.nav.helse.bakrommet.auth.OAuthMock
 import no.nav.helse.bakrommet.auth.OAuthScope
@@ -18,25 +19,20 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.db.DBModule
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.db.dao.DokumentDaoPg
-import no.nav.helse.bakrommet.db.dao.OutboxDaoPg
-import no.nav.helse.bakrommet.db.dao.PersonPseudoIdDaoPg
-import no.nav.helse.bakrommet.db.dao.SykepengegrunnlagDaoPg
-import no.nav.helse.bakrommet.db.dao.YrkesaktivitetDaoPg
+import no.nav.helse.bakrommet.db.dao.*
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.ereg.EregMock
-import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
-import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
-import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
-import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
-import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.*
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.kafka.OutboxDao
+import no.nav.helse.bakrommet.obo.OboModule
 import no.nav.helse.bakrommet.obo.OboTestSetup
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
+import no.nav.helse.bakrommet.sigrun.SigrunClientModule
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
+import no.nav.helse.bakrommet.sykepengesoknad.SykepengesøknadBackendClientModule
 import no.nav.helse.bakrommet.util.objectMapper
 import javax.sql.DataSource
 import kotlin.time.Duration.Companion.minutes
@@ -47,12 +43,21 @@ object TestOppsett {
 
     val configuration =
         Configuration(
-            db = Configuration.DB(jdbcUrl = TestDataSource.dbModule.jdbcUrl),
-            obo = Configuration.OBO(url = "OBO-url"),
+            db = DBModule.Configuration(jdbcUrl = TestDataSource.dbModule.jdbcUrl),
+            obo = OboModule.Configuration(url = "OBO-url"),
             pdl = PdlMock.defaultConfiguration,
-            auth = oAuthMock.authConfig,
+            api =
+                ApiModule.Configuration(
+                    auth = oAuthMock.authConfig,
+                    roller =
+                        ApiModule.Configuration.Roller(
+                            les = setOf("GRUPPE_LES"),
+                            saksbehandler = setOf("GRUPPE_SAKSBEHANDLER"),
+                            beslutter = setOf("GRUPPE_BESLUTTER"),
+                        ),
+                ),
             sykepengesoknadBackend =
-                Configuration.SykepengesoknadBackend(
+                SykepengesøknadBackendClientModule.Configuration(
                     hostname = "sykepengesoknad-backend",
                     scope = OAuthScope("sykepengesoknad-backend-scope"),
                 ),
@@ -61,15 +66,9 @@ object TestOppsett {
             ereg = EregMock.defaultConfiguration,
             inntektsmelding = InntektsmeldingApiMock.defaultConfiguration,
             sigrun =
-                Configuration.Sigrun(
+                SigrunClientModule.Configuration(
                     baseUrl = "http://localhost",
                     scope = OAuthScope("sigrun-scope"),
-                ),
-            roller =
-                Roller(
-                    les = setOf("GRUPPE_LES"),
-                    saksbehandler = setOf("GRUPPE_SAKSBEHANDLER"),
-                    beslutter = setOf("GRUPPE_BESLUTTER"),
                 ),
             naisClusterName = "test",
         )
@@ -105,7 +104,7 @@ fun runApplicationTest(
     dataSource: DataSource = instansierDatabase(config.db),
     pdlClient: PersoninfoProvider = PdlMock.pdlClient(),
     resetDatabase: Boolean = true,
-    sykepengesøknadProvider: SykepengesøknadProvider = SykepengesoknadMock.sykepengersoknadBackendClientMock(oboClient = TestOppsett.oboClient),
+    sykepengesøknadProvider: SykepengesøknadProvider = SykepengesoknadMock.sykepengersoknadBackendClientMock(tokenUtvekslingProvider = TestOppsett.oboClient),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient =
         AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
@@ -134,7 +133,7 @@ fun runApplicationTest(
                 db = skapDbDaoer(dataSource),
             )
 
-        settOppKtor(config, services, errorHandlingIncludeStackTrace = true)
+        settOppKtor(config.api, services, errorHandlingIncludeStackTrace = true)
     }
     client =
         createClient {
@@ -147,9 +146,9 @@ fun runApplicationTest(
 }
 
 // Manglende funksjoner fra App.kt
-internal fun instansierDatabase(configuration: Configuration.DB) = DBModule(configuration = configuration, ::testHikariConfigurator).also { it.migrate() }.dataSource
+internal fun instansierDatabase(configuration: DBModule.Configuration) = DBModule(configuration = configuration, ::testHikariConfigurator).also { it.migrate() }.dataSource
 
-private fun testHikariConfigurator(configuration: Configuration.DB) =
+private fun testHikariConfigurator(configuration: DBModule.Configuration) =
     HikariConfig().apply {
         jdbcUrl = configuration.jdbcUrl
         maximumPoolSize = 2

@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.auth
+package no.nav.helse.bakrommet.obo
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -7,7 +7,8 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.auth.OAuthScope
+import no.nav.helse.bakrommet.auth.OboToken
 import org.junit.jupiter.api.Test
 import kotlin.test.assertIs
 
@@ -34,7 +35,7 @@ class OboClientTest {
 
         val response =
             runBlocking {
-                OboClient(Configuration.OBO("url"), mockTexas).exchangeToken("et-token", OAuthScope("et-scope"))
+                OboClient(OboModule.Configuration("url"), mockTexas).exchangeToken("et-token", OAuthScope("et-scope"))
             }
 
         assertIs<OboToken>(response)

@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.auth
 
-import no.nav.helse.bakrommet.Configuration
+import no.nav.helse.bakrommet.api.ApiModule
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class OAuthMock {
@@ -12,7 +12,7 @@ class OAuthMock {
     private val clientId = "bakrommet-dev"
 
     val authConfig =
-        Configuration.Auth(
+        ApiModule.Configuration.Auth(
             clientId = clientId,
             issuerUrl = mockOAuth2Server.issuerUrl(issuerId).toString(),
             jwkProviderUri = mockOAuth2Server.jwksUrl(issuerId).toString(),

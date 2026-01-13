@@ -1,25 +1,51 @@
 package no.nav.helse.bakrommet.sykepengesoknad
 
-import io.ktor.client.engine.mock.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockRequestHandleScope
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.toByteArray
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oboTokenFor
-import no.nav.helse.bakrommet.bodyToJson
-import no.nav.helse.bakrommet.mockHttpClient
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo.Companion.tilJson
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
+
+private suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)
+
+private fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
+    HttpClient(MockEngine) {
+        install(ContentNegotiation) {
+            register(ContentType.Application.Json, JacksonConverter(objectMapper))
+        }
+        engine {
+            addHandler(requestHandler)
+        }
+    }
 
 class SoknaderTest {
     val mockSoknaderClient =
@@ -85,7 +111,7 @@ class SoknaderTest {
                 SykepengesoknadBackendClient(
                     configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,
-                    oboClient = TestOppsett.oboClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
                 ),
         ) {
             it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
@@ -114,7 +140,7 @@ class SoknaderTest {
                 SykepengesoknadBackendClient(
                     configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,
-                    oboClient = TestOppsett.oboClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
                 ),
         ) {
             it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
@@ -135,7 +161,7 @@ class SoknaderTest {
                 SykepengesoknadBackendClient(
                     configuration = TestOppsett.configuration.sykepengesoknadBackend,
                     httpClient = mockSoknaderClient,
-                    oboClient = TestOppsett.oboClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
                 ),
         ) {
             it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))

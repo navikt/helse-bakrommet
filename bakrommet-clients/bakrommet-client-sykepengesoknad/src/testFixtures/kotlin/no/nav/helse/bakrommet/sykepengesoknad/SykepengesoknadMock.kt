@@ -2,13 +2,17 @@ package no.nav.helse.bakrommet.sykepengesoknad
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
 import io.ktor.http.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
-import no.nav.helse.bakrommet.mockHttpClient
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock.createDefaultOboClient
+import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
 
@@ -16,19 +20,19 @@ object SykepengesoknadMock {
     private val log = LoggerFactory.getLogger(SykepengesoknadMock::class.java)
 
     private fun defaultConfiguration() =
-        Configuration.SykepengesoknadBackend(
+        SykepengesøknadBackendClientModule.Configuration(
             hostname = "sykepengesoknad-backend",
             scope = OAuthScope("sykepengesoknad-backend-scope"),
         )
 
     fun sykepengersoknadBackendClientMock(
-        oboClient: OboClient = createDefaultOboClient(),
-        configuration: Configuration.SykepengesoknadBackend = defaultConfiguration(),
+        tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
+        configuration: SykepengesøknadBackendClientModule.Configuration = defaultConfiguration(),
         fnrTilSvar: Map<String, String> = emptyMap(),
         søknadIdTilSvar: Map<String, JsonNode> = emptyMap(),
     ) = SykepengesoknadBackendClient(
         configuration = configuration,
-        oboClient = oboClient,
+        tokenUtvekslingProvider = tokenUtvekslingProvider,
         httpClient =
             sykepengersoknadHttpMock(
                 configuration = configuration,
@@ -38,7 +42,7 @@ object SykepengesoknadMock {
     )
 
     fun sykepengersoknadHttpMock(
-        configuration: Configuration.SykepengesoknadBackend = defaultConfiguration(),
+        configuration: SykepengesøknadBackendClientModule.Configuration = defaultConfiguration(),
         fnrTilSvar: Map<String, String> = emptyMap(),
         søknadIdTilSvar: Map<String, JsonNode> = emptyMap(),
     ) = mockHttpClient { request ->
@@ -86,4 +90,14 @@ object SykepengesoknadMock {
             }
         }
     }
+
+    private fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
+        HttpClient(MockEngine) {
+            install(ContentNegotiation) {
+                register(ContentType.Application.Json, JacksonConverter(objectMapper))
+            }
+            engine {
+                addHandler(requestHandler)
+            }
+        }
 }

@@ -6,8 +6,3 @@ data class Bruker(
     val preferredUsername: String,
     val roller: Set<Rolle>,
 )
-
-class BrukerOgToken(
-    val bruker: Bruker,
-    val token: SpilleromBearerToken,
-)

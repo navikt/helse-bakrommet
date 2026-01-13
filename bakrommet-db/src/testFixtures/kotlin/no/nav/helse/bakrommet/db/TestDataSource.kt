@@ -1,8 +1,5 @@
 package no.nav.helse.bakrommet.db
 
-import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.db.DBModule
-import no.nav.helse.bakrommet.db.MedDataSource
 import org.testcontainers.containers.PostgreSQLContainer
 
 object TestDataSource {
@@ -16,7 +13,7 @@ object TestDataSource {
     val dbModule =
         DBModule(
             configuration =
-                Configuration.DB(
+                DBModule.Configuration(
                     jdbcUrl = postgres.jdbcUrl + "&user=" + postgres.username + "&password=" + postgres.password,
                 ),
         ).also { it.migrate() }

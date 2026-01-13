@@ -1,26 +1,31 @@
-package no.nav.helse.bakrommet.auth
+package no.nav.helse.bakrommet.obo
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.apache.Apache
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
+import io.ktor.serialization.jackson.JacksonConverter
+import no.nav.helse.bakrommet.auth.OAuthScope
+import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.util.sikkerLogger
 
 class OboClient(
-    private val configuration: Configuration.OBO,
+    private val configuration: OboModule.Configuration,
     private val oboClient: HttpClient =
         HttpClient(Apache) {
             install(ContentNegotiation) {
                 register(ContentType.Application.Json, JacksonConverter())
             }
         },
-) {
-    suspend fun exchangeToken(
+) : TokenUtvekslingProvider {
+    override suspend fun exchangeToken(
         bearerToken: String,
         scope: OAuthScope,
     ): OboToken {
@@ -44,10 +49,4 @@ class OboClient(
         val jsonResponse = jacksonObjectMapper().readTree(oboTokenResponse.bodyAsText())
         return OboToken(jsonResponse["access_token"].asText())
     }
-}
-
-class OboToken(
-    private val value: String,
-) {
-    fun somBearerHeader() = "Bearer $value"
 }

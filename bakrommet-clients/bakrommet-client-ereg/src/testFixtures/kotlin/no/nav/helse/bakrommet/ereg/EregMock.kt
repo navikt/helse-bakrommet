@@ -3,23 +3,28 @@ package no.nav.helse.bakrommet.ereg
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.fakerConfig
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockRequestHandleScope
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.toByteArray
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.util.objectMapper
 import org.slf4j.LoggerFactory
-import java.util.Random
+import java.util.*
 
 object EregMock {
     private val log = LoggerFactory.getLogger(EregMock::class.java)
 
     // Default test konfigurasjon
     val defaultConfiguration =
-        Configuration.Ereg(
+        EregClientModule.Configuration(
             baseUrl = "https://ereg-services.test",
         )
 
@@ -74,7 +79,7 @@ object EregMock {
         }
 
     fun eregClientMock(
-        configuration: Configuration.Ereg = defaultConfiguration,
+        configuration: EregClientModule.Configuration = defaultConfiguration,
     ) = EregClient(
         configuration = configuration,
         httpClient = eregMockHttpClient(),

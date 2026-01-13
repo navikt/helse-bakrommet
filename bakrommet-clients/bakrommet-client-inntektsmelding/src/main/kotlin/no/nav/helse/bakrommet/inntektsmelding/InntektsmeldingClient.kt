@@ -15,9 +15,8 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import no.nav.helse.bakrommet.Configuration
-import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.util.Kildespor
@@ -27,8 +26,8 @@ import java.time.LocalDate
 import java.util.*
 
 class InntektsmeldingClient(
-    private val configuration: Configuration.Inntektsmelding,
-    private val oboClient: OboClient,
+    private val configuration: InntektsmeldingClientModule.Configuration,
+    private val tokenUtvekslingProvider: TokenUtvekslingProvider,
     private val httpClient: HttpClient =
         HttpClient(Apache) {
             install(ContentNegotiation) {
@@ -36,7 +35,7 @@ class InntektsmeldingClient(
             }
         },
 ) : InntektsmeldingProvider {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(oboClient, configuration.scope).somBearerHeader()
+    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(tokenUtvekslingProvider, configuration.scope).somBearerHeader()
 
     override suspend fun hentInntektsmeldinger(
         fnr: String,

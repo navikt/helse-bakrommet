@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
 import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 import org.slf4j.LoggerFactory
@@ -26,29 +27,22 @@ object InntektsmeldingApiMock {
 
     // Default test konfigurasjon
     val defaultConfiguration =
-        Configuration.Inntektsmelding(
+        InntektsmeldingClientModule.Configuration(
             baseUrl = "http://localhost",
             scope = OAuthScope("im-scope"),
         )
 
     // Default OBO client for testing
-    fun createDefaultOboClient(): OboClient {
-        val oboConfig = Configuration.OBO(url = "OBO-url")
-        return OboClient(
-            oboConfig,
-            mockHttpClient { request ->
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = """{"access_token": "OBO-TOKEN_FOR_${request.bodyToJson()["target"].asText()}"}""",
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            },
-        )
-    }
+    fun createDefaultOboClient(): TokenUtvekslingProvider =
+        object : TokenUtvekslingProvider {
+            override suspend fun exchangeToken(
+                bearerToken: String,
+                scope: OAuthScope,
+            ): OboToken = OboToken("OBO-TOKEN_FOR_${scope.asDefaultScope()}")
+        }
 
     fun inntektsmeldingMockHttpClient(
-        configuration: Configuration.Inntektsmelding = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: InntektsmeldingClientModule.Configuration = defaultConfiguration,
         fnrTilInntektsmeldinger: Map<String, List<Inntektsmelding>> = mapOf(Person1.fnr to Person1.inntektsmeldinger),
         callCounter: AtomicInteger? = null,
     ): HttpClient {
@@ -59,7 +53,7 @@ object InntektsmeldingApiMock {
         return mockHttpClient { request ->
             callCounter?.incrementAndGet()
             val auth = request.headers[HttpHeaders.Authorization]!!
-            if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
+            if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
                 respondError(HttpStatusCode.Unauthorized)
             } else {
                 log.info("URL: " + request.url)
@@ -120,19 +114,19 @@ object InntektsmeldingApiMock {
     }
 
     fun inntektsmeldingClientMock(
-        configuration: Configuration.Inntektsmelding = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: InntektsmeldingClientModule.Configuration = defaultConfiguration,
+        tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
         mockClient: HttpClient? = null,
         fnrTilInntektsmeldinger: Map<String, List<Inntektsmelding>> = mapOf(Person1.fnr to Person1.inntektsmeldinger),
     ) = InntektsmeldingClient(
         configuration = configuration,
-        oboClient = oboClient,
-        httpClient = mockClient ?: inntektsmeldingMockHttpClient(configuration, oboClient, fnrTilInntektsmeldinger),
+        tokenUtvekslingProvider = tokenUtvekslingProvider,
+        httpClient = mockClient ?: inntektsmeldingMockHttpClient(configuration, fnrTilInntektsmeldinger),
     )
 }
 
 // Extension function for å lage OBO token
-fun OAuthScope.oboTokenFor(oboClient: OboClient): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
+fun OAuthScope.oboTokenFor(): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
 // Helper functions for mock HTTP client
 fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =

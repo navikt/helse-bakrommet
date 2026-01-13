@@ -5,7 +5,6 @@ import io.ktor.server.auth.principal
 import io.ktor.server.routing.RoutingCall
 import no.nav.helse.bakrommet.auth.Bruker
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.auth.bearerToken
 
 fun ApplicationCall.brukerPrincipal(): Bruker? = principal<Bruker>()
 

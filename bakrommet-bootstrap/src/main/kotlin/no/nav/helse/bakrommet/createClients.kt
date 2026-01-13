@@ -2,9 +2,9 @@ package no.nav.helse.bakrommet
 
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
-import no.nav.helse.bakrommet.auth.OboClient
 import no.nav.helse.bakrommet.ereg.EregClient
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClient
+import no.nav.helse.bakrommet.obo.OboClient
 import no.nav.helse.bakrommet.pdl.PdlClient
 import no.nav.helse.bakrommet.sigrun.SigrunClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient

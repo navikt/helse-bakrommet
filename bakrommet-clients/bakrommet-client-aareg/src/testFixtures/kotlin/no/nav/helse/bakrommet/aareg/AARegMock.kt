@@ -1,16 +1,18 @@
 package no.nav.helse.bakrommet.aareg
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.util.objectMapper
 import org.slf4j.LoggerFactory
 
@@ -19,28 +21,22 @@ object AARegMock {
 
     // Default test konfigurasjon
     val defaultConfiguration =
-        Configuration.AAReg(
+        AAregModule.Configuration(
             hostname = "aareg-host",
             scope = OAuthScope("aareg-scope"),
         )
 
     // Default OBO client for testing
-    fun createDefaultOboClient(): OboClient {
-        val oboConfig = Configuration.OBO(url = "OBO-url")
-        return OboClient(
-            oboConfig,
-            mockHttpClient { request ->
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = """{"access_token": "OBO-TOKEN_FOR_${request.bodyToJson()["target"].asText()}"}""",
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            },
-        )
-    }
+    fun createDefaultOboClient(): TokenUtvekslingProvider =
+        object : TokenUtvekslingProvider {
+            override suspend fun exchangeToken(
+                bearerToken: String,
+                scope: OAuthScope,
+            ): OboToken = OboToken("OBO-TOKEN_FOR_${scope.asDefaultScope()}")
+        }
 
     fun aaregMockHttpClient(
-        configuration: Configuration.AAReg = defaultConfiguration,
+        configuration: AAregModule.Configuration = defaultConfiguration,
         fnrTilArbeidsforhold: Map<String, List<Arbeidsforhold>> = emptyMap(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
@@ -73,12 +69,12 @@ object AARegMock {
     }
 
     fun aaRegClientMock(
-        configuration: Configuration.AAReg = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: AAregModule.Configuration = defaultConfiguration,
+        tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
         fnrTilArbeidsforhold: Map<String, List<Arbeidsforhold>> = emptyMap(),
     ) = AARegClient(
         configuration = configuration,
-        oboClient = oboClient,
+        tokenUtvekslingProvider = tokenUtvekslingProvider,
         httpClient = aaregMockHttpClient(configuration, fnrTilArbeidsforhold),
     )
 }
@@ -96,5 +92,3 @@ fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestDa
             addHandler(requestHandler)
         }
     }
-
-suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)

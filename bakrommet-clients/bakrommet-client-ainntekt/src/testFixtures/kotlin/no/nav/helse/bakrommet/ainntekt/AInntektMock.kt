@@ -4,13 +4,17 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntekt
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
@@ -26,28 +30,22 @@ object AInntektMock {
 
     // Default test konfigurasjon
     val defaultConfiguration =
-        Configuration.AInntekt(
+        AInntektModule.Configuration(
             hostname = "inntektskomponenten-host",
             scope = OAuthScope("inntektskomponenten-scope"),
         )
 
     // Default OBO client for testing
-    fun createDefaultOboClient(): OboClient {
-        val oboConfig = Configuration.OBO(url = "OBO-url")
-        return OboClient(
-            oboConfig,
-            mockHttpClient { request ->
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = """{"access_token": "OBO-TOKEN_FOR_${request.bodyToJson()["target"].asText()}"}""",
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            },
-        )
-    }
+    fun createDefaultOboClient(): TokenUtvekslingProvider =
+        object : TokenUtvekslingProvider {
+            override suspend fun exchangeToken(
+                bearerToken: String,
+                scope: OAuthScope,
+            ): OboToken = OboToken("OBO-TOKEN_FOR_${scope.asDefaultScope()}")
+        }
 
     fun ainntektMockHttpClient(
-        configuration: Configuration.AInntekt = defaultConfiguration,
+        configuration: AInntektModule.Configuration = defaultConfiguration,
         fnrTilAInntektResponse: Map<String, AInntektResponse>,
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
@@ -84,13 +82,13 @@ object AInntektMock {
     }
 
     fun aInntektClientMock(
-        configuration: Configuration.AInntekt = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: AInntektModule.Configuration = defaultConfiguration,
+        tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
         fnrTilAInntektResponse: Map<String, AInntektResponse>,
         mockClient: HttpClient? = null,
     ) = AInntektClient(
         configuration = configuration,
-        oboClient = oboClient,
+        tokenUtvekslingProvider = tokenUtvekslingProvider,
         httpClient = mockClient ?: ainntektMockHttpClient(configuration, fnrTilAInntektResponse),
     )
 }

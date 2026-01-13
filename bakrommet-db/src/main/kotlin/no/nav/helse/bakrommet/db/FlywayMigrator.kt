@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.helse.bakrommet.Configuration
 import no.nav.helse.desember
 import org.flywaydb.core.Flyway
 import java.time.Instant
@@ -13,7 +12,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class FlywayMigrator(
-    configuration: Configuration.DB,
+    configuration: DBModule.Configuration,
 ) {
     private val hikariConfig =
         HikariConfig().apply {

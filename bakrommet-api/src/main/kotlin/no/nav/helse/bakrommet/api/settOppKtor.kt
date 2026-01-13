@@ -1,16 +1,15 @@
 package no.nav.helse.bakrommet.api
 
 import io.ktor.server.application.Application
-import no.nav.helse.bakrommet.AuthOgRollerConfig
 import no.nav.helse.bakrommet.Services
 import no.nav.helse.bakrommet.api.auth.azureAdAppAuthentication
 
 fun Application.settOppKtor(
-    authOgRollerConfig: AuthOgRollerConfig,
+    configuration: ApiModule.Configuration,
     services: Services,
     errorHandlingIncludeStackTrace: Boolean = false,
 ) {
-    azureAdAppAuthentication(authOgRollerConfig.auth, authOgRollerConfig.roller)
+    azureAdAppAuthentication(configuration.auth, configuration.roller)
     helsesjekker()
 
     appModul(

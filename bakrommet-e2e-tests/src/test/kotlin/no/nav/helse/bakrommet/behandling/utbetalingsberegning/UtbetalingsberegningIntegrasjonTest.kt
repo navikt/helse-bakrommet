@@ -1,10 +1,11 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.ktor.client.call.*
+import io.ktor.client.call.body
 import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.server.testing.*
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
@@ -63,7 +64,7 @@ class UtbetalingsberegningIntegrasjonTest {
         runApplicationTest(
             sykepengesøknadProvider =
                 SykepengesoknadMock.sykepengersoknadBackendClientMock(
-                    oboClient = TestOppsett.oboClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
                     søknadIdTilSvar = mapOf(søknad["id"].asText() to søknad),
                 ),
         ) { daoer ->

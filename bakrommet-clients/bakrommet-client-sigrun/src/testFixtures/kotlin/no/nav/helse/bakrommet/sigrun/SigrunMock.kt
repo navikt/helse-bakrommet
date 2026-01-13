@@ -1,14 +1,18 @@
 package no.nav.helse.bakrommet.sigrun
 
-import io.ktor.client.*
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.util.asJsonNode
@@ -61,25 +65,19 @@ fun sigrunÅr(
 object SigrunMock {
     // Default test konfigurasjon
     val defaultConfiguration =
-        Configuration.Sigrun(
+        SigrunClientModule.Configuration(
             baseUrl = "http://localhost",
             scope = OAuthScope("sigrun-scope"),
         )
 
     // Default OBO client for testing
-    fun createDefaultOboClient(): OboClient {
-        val oboConfig = Configuration.OBO(url = "OBO-url")
-        return OboClient(
-            oboConfig,
-            mockHttpClient { request ->
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = """{"access_token": "OBO-TOKEN_FOR_${request.bodyToJson()["target"].asText()}"}""",
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            },
-        )
-    }
+    fun createDefaultOboClient(): TokenUtvekslingProvider =
+        object : TokenUtvekslingProvider {
+            override suspend fun exchangeToken(
+                bearerToken: String,
+                scope: OAuthScope,
+            ): OboToken = OboToken("OBO-TOKEN_FOR_${scope.asDefaultScope()}")
+        }
 
     /**
      * Default handler for Sigrun-svar.
@@ -154,7 +152,7 @@ object SigrunMock {
         }
 
     fun sigrunMockHttpClient(
-        configuration: Configuration.Sigrun = defaultConfiguration,
+        configuration: SigrunClientModule.Configuration = defaultConfiguration,
         fnrÅrTilSvar: Map<Pair<String, Year>, String> = mapOf(),
         defaultSigrunReplyHandler: (String, Year) -> String = { fnr, år -> sigrunDefaultReplyHandler(fnr, år) },
     ) = mockHttpClient { request ->
@@ -196,13 +194,13 @@ object SigrunMock {
     }
 
     fun sigrunMockClient(
-        configuration: Configuration.Sigrun = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: SigrunClientModule.Configuration = defaultConfiguration,
+        tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
         fnrÅrTilSvar: Map<Pair<String, Year>, String> = mapOf(),
         defaultSigrunReplyHandler: (String, Year) -> String = { fnr, år -> sigrunDefaultReplyHandler(fnr, år) },
     ) = SigrunClient(
         configuration = configuration,
-        oboClient = oboClient,
+        tokenUtvekslingProvider = tokenUtvekslingProvider,
         httpClient = sigrunMockHttpClient(configuration, fnrÅrTilSvar, defaultSigrunReplyHandler),
     )
 
@@ -238,7 +236,3 @@ fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestDa
             addHandler(requestHandler)
         }
     }
-
-suspend fun HttpRequestData.bodyToJson(): com.fasterxml.jackson.databind.JsonNode =
-    objectMapper
-        .readValue(body.toByteArray(), com.fasterxml.jackson.databind.JsonNode::class.java)

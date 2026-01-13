@@ -4,51 +4,42 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
 import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import no.nav.helse.bakrommet.Configuration
+import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboClient
+import no.nav.helse.bakrommet.auth.OboToken
+import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 object SykepengesoknadBackendMock {
-    private val log = LoggerFactory.getLogger(SykepengesoknadBackendMock::class.java)
-
     // Default test konfigurasjon
     val defaultConfiguration =
-        Configuration.SykepengesoknadBackend(
+        SykepengesøknadBackendClientModule.Configuration(
             hostname = "sykepengesoknad-backend",
             scope = OAuthScope("sykepengesoknad-scope"),
         )
 
     // Default OBO client for testing
-    fun createDefaultOboClient(): OboClient {
-        val oboConfig = Configuration.OBO(url = "OBO-url")
-        return OboClient(
-            oboConfig,
-            mockHttpClient { request ->
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = """{"access_token": "OBO-TOKEN_FOR_${request.bodyToJson()["target"].asText()}"}""",
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
-            },
-        )
-    }
+    fun createDefaultOboClient(): TokenUtvekslingProvider =
+        object : TokenUtvekslingProvider {
+            override suspend fun exchangeToken(
+                bearerToken: String,
+                scope: OAuthScope,
+            ): OboToken = OboToken("OBO-TOKEN_FOR_${scope.asDefaultScope()}")
+        }
 
     fun sykepengesoknadMockHttpClient(
-        configuration: Configuration.SykepengesoknadBackend = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: SykepengesøknadBackendClientModule.Configuration = defaultConfiguration,
         fnrTilSoknader: Map<String, List<SykepengesoknadDTO>> = emptyMap(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
-        if (auth != "Bearer ${configuration.scope.oboTokenFor(oboClient)}") {
+        if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
             respondError(HttpStatusCode.Unauthorized)
         } else {
             if (request.method == HttpMethod.Post) {
@@ -81,7 +72,7 @@ object SykepengesoknadBackendMock {
                                 try {
                                     val soknadIdAsUuid = UUID.nameUUIDFromBytes(søknad.id.toByteArray())
                                     soknadIdAsUuid.toString() == soknadId
-                                } catch (e: Exception) {
+                                } catch (_: Exception) {
                                     false
                                 }
                             )
@@ -106,18 +97,18 @@ object SykepengesoknadBackendMock {
     }
 
     fun sykepengesoknadMock(
-        configuration: Configuration.SykepengesoknadBackend = defaultConfiguration,
-        oboClient: OboClient = createDefaultOboClient(),
+        configuration: SykepengesøknadBackendClientModule.Configuration = defaultConfiguration,
+        tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
         fnrTilSoknader: Map<String, List<SykepengesoknadDTO>> = emptyMap(),
     ) = SykepengesoknadBackendClient(
         configuration = configuration,
-        oboClient = oboClient,
-        httpClient = sykepengesoknadMockHttpClient(configuration, oboClient, fnrTilSoknader),
+        tokenUtvekslingProvider = tokenUtvekslingProvider,
+        httpClient = sykepengesoknadMockHttpClient(configuration, fnrTilSoknader),
     )
 }
 
 // Extension function for å lage OBO token
-fun OAuthScope.oboTokenFor(oboClient: OboClient): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
+fun OAuthScope.oboTokenFor(): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
 
 // Helper functions for mock HTTP client
 fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =

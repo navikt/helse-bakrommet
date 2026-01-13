@@ -22,7 +22,7 @@ fun main() {
     embeddedServer(CIO, port = 8080) {
         appLogger.info("Setter opp ktor")
         settOppKtor(
-            authOgRollerConfig = configuration,
+            configuration = configuration.api,
             services = services,
             errorHandlingIncludeStackTrace = configuration.naisClusterName == "dev-gcp",
         )

@@ -1,9 +1,7 @@
 package no.nav.helse.bakrommet.testutils
 
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
-import no.nav.helse.bakrommet.Daoer
-import no.nav.helse.bakrommet.TestOppsett
+import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
@@ -13,17 +11,7 @@ import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagBaseDto
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.KildeDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PensjonsgivendeInntektRequestDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.maybeOrgnummer
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
@@ -35,24 +23,11 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.person.NaturligIdent
-import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.sendTilBeslutning
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
 import no.nav.helse.bakrommet.sigrun.sigrunÅr
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock
-import no.nav.helse.bakrommet.taTilBesluting
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentAllePerioder
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterInntekt
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterVilkårsvurdering
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.mai
 import no.nav.helse.utbetalingslinjer.Klassekode
@@ -64,7 +39,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
-import java.util.UUID
+import java.util.*
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding as InntektsmeldingKontrakt
 
 object ScenarioDefaults {
@@ -164,9 +139,9 @@ data class ScenarioData(
                 .first {
                     val k = it.kategorisering as YrkesaktivitetKategoriseringDto.Arbeidstaker
                     when (val type = k.typeArbeidstaker) {
-                        is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Ordinær -> type.orgnummer == orgnummer
-                        is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Maritim -> type.orgnummer == orgnummer
-                        is no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto.Fisker -> type.orgnummer == orgnummer
+                        is TypeArbeidstakerDto.Ordinær -> type.orgnummer == orgnummer
+                        is TypeArbeidstakerDto.Maritim -> type.orgnummer == orgnummer
+                        is TypeArbeidstakerDto.Fisker -> type.orgnummer == orgnummer
                         else -> false
                     }
                 }
@@ -231,17 +206,16 @@ data class Scenario(
             sykepengesøknadProvider =
                 SykepengesoknadBackendMock.sykepengesoknadMock(
                     configuration = TestOppsett.configuration.sykepengesoknadBackend,
-                    oboClient = TestOppsett.oboClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
                     fnrTilSoknader = mapOf(fnr to (soknader ?: emptyList())),
                 ),
             inntektsmeldingClient =
                 InntektsmeldingApiMock.inntektsmeldingClientMock(
                     configuration = TestOppsett.configuration.inntektsmelding,
-                    oboClient = TestOppsett.oboClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
                     mockClient =
                         inntektsmeldingMockHttpClient(
                             configuration = TestOppsett.configuration.inntektsmelding,
-                            oboClient = TestOppsett.oboClient,
                             fnrTilInntektsmeldinger = mapOf(fnr to inntektsmeldinger),
                         ),
                 ),

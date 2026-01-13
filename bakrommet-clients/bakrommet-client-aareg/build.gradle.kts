@@ -6,7 +6,6 @@ dependencies {
     api(platform(project(":bakrommet-dependencies")))
     api(project(":bakrommet-services"))
 
-    testFixturesImplementation(testFixtures(project(":bakrommet-common")))
     testFixturesImplementation("io.ktor:ktor-client-mock-jvm")
     testFixturesImplementation("io.ktor:ktor-client-core")
     testFixturesImplementation("io.ktor:ktor-client-content-negotiation")
