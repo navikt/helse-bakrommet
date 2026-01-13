@@ -1,14 +1,14 @@
 package no.nav.helse.bakrommet.pdl
 
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class PdlClientTest {
-    val token = SpilleromBearerToken("test-token")
+    val token = AccessToken("test-token")
 
     @Test
     fun `returnerer identer`() {

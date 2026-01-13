@@ -12,6 +12,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.JacksonConverter
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
@@ -39,7 +40,7 @@ object AInntektMock {
     fun createDefaultOboClient(): TokenUtvekslingProvider =
         object : TokenUtvekslingProvider {
             override suspend fun exchangeToken(
-                bearerToken: String,
+                accessToken: AccessToken,
                 scope: OAuthScope,
             ): OboToken = OboToken("OBO-TOKEN_FOR_${scope.asDefaultScope()}")
         }

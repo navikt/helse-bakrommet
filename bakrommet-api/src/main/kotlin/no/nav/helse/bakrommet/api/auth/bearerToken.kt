@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.api.auth
 
 import io.ktor.server.routing.RoutingRequest
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 
-fun RoutingRequest.bearerToken(): SpilleromBearerToken {
+fun RoutingRequest.bearerToken(): AccessToken {
     val authHeader = headers["Authorization"]!!
     val token = authHeader.removePrefix("Bearer ").trim()
-    return SpilleromBearerToken(token)
+    return AccessToken(token)
 }

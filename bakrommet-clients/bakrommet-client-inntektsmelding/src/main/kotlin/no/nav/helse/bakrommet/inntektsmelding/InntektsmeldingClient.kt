@@ -15,7 +15,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
@@ -35,19 +35,19 @@ class InntektsmeldingClient(
             }
         },
 ) : InntektsmeldingProvider {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(tokenUtvekslingProvider, configuration.scope).somBearerHeader()
+    private suspend fun AccessToken.veksle() = "Bearer " + tokenUtvekslingProvider.exchangeToken(this, configuration.scope).value
 
     override suspend fun hentInntektsmeldinger(
         fnr: String,
         fom: LocalDate?,
         tom: LocalDate?,
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
     ): JsonNode {
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
         val response =
             httpClient.post("${configuration.baseUrl}/api/v1/inntektsmelding/soek") {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.veksle()
                 header("Nav-Consumer-Id", "bakrommet-speilvendt")
                 header("no.nav.consumer.id", "bakrommet-speilvendt")
                 header("Nav-Call-Id", callId)
@@ -85,7 +85,7 @@ class InntektsmeldingClient(
 
     override suspend fun hentInntektsmeldingMedSporing(
         inntektsmeldingId: String,
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
     ): Pair<JsonNode, Kildespor> {
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
@@ -99,7 +99,7 @@ class InntektsmeldingClient(
             ) // Inkluder saksbehandlerident?
         val response =
             httpClient.get(url) {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.veksle()
                 header("Nav-Consumer-Id", "bakrommet-speilvendt")
                 header("no.nav.consumer.id", "bakrommet-speilvendt")
                 header("Nav-Call-Id", callId)

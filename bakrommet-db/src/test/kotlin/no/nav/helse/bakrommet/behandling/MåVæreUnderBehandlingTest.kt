@@ -3,8 +3,8 @@ package no.nav.helse.bakrommet.behandling
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.skapDbDaoer
@@ -56,7 +56,7 @@ class MåVæreUnderBehandlingTest {
     private fun brukerOgToken(rolle: Rolle = Rolle.SAKSBEHANDLER) =
         BrukerOgToken(
             bruker = baseBruker.copy(roller = setOf(rolle)),
-            token = SpilleromBearerToken("tulletoken"),
+            token = AccessToken("tulletoken"),
         )
 
     @Test

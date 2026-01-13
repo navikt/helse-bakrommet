@@ -13,7 +13,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.JacksonConverter
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
@@ -33,11 +33,9 @@ class AARegClient(
             }
         },
 ) : ArbeidsforholdProvider {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(tokenUtvekslingProvider, configuration.scope).somBearerHeader()
-
     override suspend fun hentArbeidsforholdFor(
         fnr: String,
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
     ): Arbeidsforholdoppslag =
         hentArbeidsforholdForMedSporing(
             fnr = fnr,
@@ -46,7 +44,7 @@ class AARegClient(
 
     override suspend fun hentArbeidsforholdForMedSporing(
         fnr: String,
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
     ): Pair<Arbeidsforholdoppslag, Kildespor> {
         val callId: String = UUID.randomUUID().toString()
         val arbeidsforholdstatusFilter = "AKTIV,AVSLUTTET,FREMTIDIG"
@@ -63,7 +61,7 @@ class AARegClient(
 
         val response =
             httpClient.get(url) {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = "Bearer " + tokenUtvekslingProvider.exchangeToken(saksbehandlerToken, configuration.scope).value
                 header(HttpHeaders.Accept, ContentType.Application.Json)
                 header("Nav-Call-Id", callId)
                 header("Nav-Personident", fnr)

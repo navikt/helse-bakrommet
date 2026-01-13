@@ -7,10 +7,10 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.auth.OboToken
 import org.junit.jupiter.api.Test
-import kotlin.test.assertIs
+import kotlin.test.assertEquals
 
 class OboClientTest {
     @Test
@@ -25,7 +25,7 @@ class OboClientTest {
                         respond(
                             """
                             {
-                                "access_token": "token"
+                                "access_token": "et-annet-token"
                             }
                             """.trimIndent(),
                         )
@@ -35,9 +35,8 @@ class OboClientTest {
 
         val response =
             runBlocking {
-                OboClient(OboModule.Configuration("url"), mockTexas).exchangeToken("et-token", OAuthScope("et-scope"))
+                OboClient(OboModule.Configuration("url"), mockTexas).exchangeToken(AccessToken("et-token"), OAuthScope("et-scope"))
             }
-
-        assertIs<OboToken>(response)
+        assertEquals("et-annet-token", response.value)
     }
 }

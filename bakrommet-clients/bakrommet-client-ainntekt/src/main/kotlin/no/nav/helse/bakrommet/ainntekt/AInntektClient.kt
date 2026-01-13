@@ -17,7 +17,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektFilter
@@ -43,14 +43,12 @@ class AInntektClient(
             }
         },
 ) : InntekterProvider {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(tokenUtvekslingProvider, configuration.scope).somBearerHeader()
-
     override suspend fun hentInntekterForMedSporing(
         fnr: String,
         maanedFom: YearMonth,
         maanedTom: YearMonth,
         filter: AInntektFilter,
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
     ): Pair<Inntektoppslag, Kildespor> {
         val ainntektsfilter = filter.name
         val callId: String = UUID.randomUUID().toString()
@@ -69,7 +67,7 @@ class AInntektClient(
         val timer = Timer()
         val response =
             httpClient.post(url) {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = "Bearer " + tokenUtvekslingProvider.exchangeToken(saksbehandlerToken, configuration.scope).value
                 header("Nav-Consumer-Id", "bakrommet-speilvendt")
                 header("Nav-Call-Id", callId)
                 contentType(ContentType.Application.Json)

@@ -16,7 +16,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
@@ -37,7 +37,7 @@ class PdlClient(
             }
         },
 ) : PersoninfoProvider {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(tokenUtvekslingProvider, configuration.scope).somBearerHeader()
+    private suspend fun AccessToken.veksleOgMapTilBearer() = "Bearer " + tokenUtvekslingProvider.exchangeToken(this, configuration.scope).value
 
     private val hentPersonQuery =
         """
@@ -98,12 +98,12 @@ class PdlClient(
     }
 
     override suspend fun hentIdenterFor(
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
         ident: String,
     ): List<PdlIdent> {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.veksleOgMapTilBearer()
                 contentType(ContentType.Application.Json)
                 setBody(hentIdenterRequest(ident = ident))
             }
@@ -137,12 +137,12 @@ class PdlClient(
     }
 
     override suspend fun hentPersonInfo(
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
         ident: String,
     ): PersonInfo {
         val response =
             httpClient.post("https://${configuration.hostname}/graphql") {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = saksbehandlerToken.veksleOgMapTilBearer()
                 contentType(ContentType.Application.Json)
                 setBody(hentPersonRequest(ident = ident))
                 header("behandlingsnummer", "B139")

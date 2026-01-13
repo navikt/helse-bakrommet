@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.sigrun
 
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅr
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.util.Kildespor
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.assertThrows
 import java.time.Year
 
 class SigrunClientTest {
-    val token = SpilleromBearerToken("wsdfsdfsdf")
+    val token = AccessToken("wsdfsdfsdf")
     val fnr = "01017099999"
 
     private fun clientMedManglendeÅrInt(vararg manglendeÅr: Int) =

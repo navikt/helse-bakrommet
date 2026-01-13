@@ -1,14 +1,13 @@
 package no.nav.helse.bakrommet.auth
 
-class OboToken(
-    private val value: String,
-) {
-    fun somBearerHeader() = "Bearer $value"
-}
+@JvmInline
+value class OboToken(
+    val value: String,
+)
 
 interface TokenUtvekslingProvider {
     suspend fun exchangeToken(
-        bearerToken: String,
+        accessToken: AccessToken,
         scope: OAuthScope,
     ): OboToken
 }

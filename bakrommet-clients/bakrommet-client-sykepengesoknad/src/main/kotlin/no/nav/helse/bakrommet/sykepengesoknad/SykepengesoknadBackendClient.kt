@@ -12,7 +12,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
@@ -54,17 +54,15 @@ class SykepengesoknadBackendClient(
             medSporsmal = medSporsmal,
         ).serialisertTilString()
 
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(tokenUtvekslingProvider, configuration.scope).somBearerHeader()
-
     override suspend fun hentSoknader(
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
         fnr: String,
         fom: LocalDate,
         medSporsmal: Boolean,
     ): List<SykepengesoknadDTO> {
         val response =
             httpClient.post("${configuration.hostname}/api/v3/soknader") {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = "Bearer " + tokenUtvekslingProvider.exchangeToken(saksbehandlerToken, configuration.scope).value
                 contentType(ContentType.Application.Json)
                 setBody(hentSoknaderRequest(fnr = fnr, fom = fom, medSporsmal = medSporsmal))
             }
@@ -79,19 +77,19 @@ class SykepengesoknadBackendClient(
     }
 
     override suspend fun hentSoknad(
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
         id: String,
     ): SykepengesoknadDTO = hentSoknadMedSporing(saksbehandlerToken, id).first
 
     override suspend fun hentSoknadMedSporing(
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
         id: String,
     ): Pair<SykepengesoknadDTO, Kildespor> {
         val url = "${configuration.hostname}/api/v3/soknader/$id"
         val kildespor = Kildespor.fraHer(Throwable(), id, url) // Inkluder saksbehandlerident?
         val response =
             httpClient.get(url) {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = "Bearer " + tokenUtvekslingProvider.exchangeToken(saksbehandlerToken, configuration.scope).value
                 contentType(ContentType.Application.Json)
             }
         if (response.status == HttpStatusCode.OK) {

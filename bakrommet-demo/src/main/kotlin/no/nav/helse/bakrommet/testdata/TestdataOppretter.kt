@@ -3,8 +3,8 @@ package no.nav.helse.bakrommet.testdata
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.fakerConfig
 import no.nav.helse.bakrommet.*
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
 import no.nav.helse.bakrommet.behandling.somReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.person.NaturligIdent
@@ -17,7 +17,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
     val saksbehandlerBrukerOgToken =
         BrukerOgToken(
             bruker = saksMcBehandlersen,
-            token = SpilleromBearerToken("token"),
+            token = AccessToken("token"),
         )
     testpersoner
         .forEach { testperson ->

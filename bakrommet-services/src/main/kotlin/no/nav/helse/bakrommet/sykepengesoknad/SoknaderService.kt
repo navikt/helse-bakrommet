@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.sykepengesoknad
 
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
 import no.nav.helse.bakrommet.person.NaturligIdent
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
@@ -10,7 +10,7 @@ class SoknaderService(
     private val sykepengesøknadProvider: SykepengesøknadProvider,
 ) {
     suspend fun hentSoknader(
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
         naturligIdent: NaturligIdent,
         fom: LocalDate,
         medSporsmal: Boolean = false,
@@ -23,7 +23,7 @@ class SoknaderService(
         )
 
     suspend fun hentSoknad(
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
         naturligIdent: NaturligIdent,
         soknadId: String,
     ): SykepengesoknadDTO {

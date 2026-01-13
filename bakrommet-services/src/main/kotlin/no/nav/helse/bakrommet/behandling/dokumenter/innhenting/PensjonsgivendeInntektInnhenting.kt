@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.dokumenter.innhenting
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
@@ -14,7 +14,7 @@ import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun DokumentInnhentingDaoer.lastSigrunDokument(
     periode: BehandlingDbRecord,
-    saksbehandlerToken: SpilleromBearerToken,
+    saksbehandlerToken: AccessToken,
     pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
 ): Dokument {
     val skjæringstidspunkt = periode.skjæringstidspunkt

@@ -11,6 +11,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.jackson.JacksonConverter
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
@@ -26,7 +27,7 @@ class OboClient(
         },
 ) : TokenUtvekslingProvider {
     override suspend fun exchangeToken(
-        bearerToken: String,
+        accessToken: AccessToken,
         scope: OAuthScope,
     ): OboToken {
         val oboTokenResponse =
@@ -38,7 +39,7 @@ class OboClient(
                         .apply {
                             put("identity_provider", "azuread")
                             put("target", scope.asDefaultScope())
-                            put("user_token", bearerToken)
+                            put("user_token", accessToken.value)
                         }.toString(),
                 )
             }

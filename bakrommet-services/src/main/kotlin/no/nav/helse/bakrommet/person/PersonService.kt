@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.person
 
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
@@ -29,7 +29,7 @@ class PersonService(
 
     suspend fun hentPersonInfo(
         naturligIdent: NaturligIdent,
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
     ): PersonInfo {
         val hentPersonInfo =
             personinfoProvider.hentPersonInfo(

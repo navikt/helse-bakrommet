@@ -15,7 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
-import no.nav.helse.bakrommet.auth.SpilleromBearerToken
+import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
@@ -40,8 +40,6 @@ class SigrunClient(
             }
         },
 ) : PensjonsgivendeInntektProvider {
-    private suspend fun SpilleromBearerToken.tilOboBearerHeader(): String = this.exchangeWithObo(tokenUtvekslingProvider, configuration.scope).somBearerHeader()
-
     companion object {
         val INNTEKTSAAR_MIN = 2017
         val INNTEKTSAAR_MAX: Int
@@ -53,7 +51,7 @@ class SigrunClient(
         fnr: String,
         senesteÅrTom: Int,
         antallÅrBakover: Int,
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
     ): List<`PensjonsgivendeInntektÅrMedSporing`> {
         check(antallÅrBakover <= INNTEKTSAAR_MAX_COUNT)
         check(senesteÅrTom <= INNTEKTSAAR_MAX)
@@ -86,7 +84,7 @@ class SigrunClient(
     private suspend fun hentPensjonsgivendeInntektMedSporing(
         fnr: String,
         inntektsAar: Int,
-        saksbehandlerToken: SpilleromBearerToken,
+        saksbehandlerToken: AccessToken,
     ): Pair<`PensjonsgivendeInntektÅr`, Kildespor> {
         val callId: String = UUID.randomUUID().toString()
         val callIdDesc = " callId=$callId"
@@ -104,7 +102,7 @@ class SigrunClient(
         val timer = Timer()
         val response =
             httpClient.get(url) {
-                headers[HttpHeaders.Authorization] = saksbehandlerToken.tilOboBearerHeader()
+                headers[HttpHeaders.Authorization] = "Bearer " + tokenUtvekslingProvider.exchangeToken(saksbehandlerToken, configuration.scope).value
                 header("Nav-Consumer-Id", "bakrommet-speilvendt")
                 header("Nav-Call-Id", callId)
 

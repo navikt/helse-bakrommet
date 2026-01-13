@@ -4,5 +4,5 @@ import no.nav.helse.bakrommet.domain.Bruker
 
 class BrukerOgToken(
     val bruker: Bruker,
-    val token: SpilleromBearerToken,
+    val token: AccessToken,
 )
