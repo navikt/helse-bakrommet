@@ -1,39 +1,50 @@
 @startuml
 
-class Behandling
+package Sykepenger {
+    class Sykefraværstilfelle
 
-class Sykefraværstilfelle
+    class Sykepengegrunnlag
 
-class Sykepengegrunnlag
+    class Beregning
 
-class Beregning
+    interface Yrkesaktivitetsperiode
 
-interface Yrkesaktivitetsperiode
+    class Yrkesaktivitet {
+        Arbeidstaker
+        Frilanser
+        Arbeidsledig
+        Næringsdrivende
+    }
 
-class Yrkesaktivitet {
-    Arbeidstaker
-    Frilanser
-    Arbeidsledig
-    Næringsdrivende
+    class Rettighetskategori {
+        Inaktiv
+        Vernepliktig
+        Arbeidstaker
+        Frilanser
+        Arbeidsledig
+        Næringsdrivende
+        Kombinert
+    }
+
+    class Inntektsgrunnlag
+
+    class MedSykdom as "Periode med sykdom"
+
+    class UtenSykdom as "Periode uten sykdom"
+
+    class Sykepengevilkår
+
+    class Sykepengesøknad
 }
 
-class Rettighetskategori {
-    Inaktiv
-    Vernepliktig
-    Arbeidstaker
-    Frilanser
-    Arbeidsledig
-    Næringsdrivende
-    Kombinert
+package Saksbehandling {
+    class Saksbehandler
+
+    class Behandling
+
+    class Vilkårsvurdering
 }
 
-class Inntektsgrunnlag
-
-class MedSykdom as "Periode med sykdom"
-
-class UtenSykdom as "Periode uten sykdom"
-
-class VurdertVilkår as "Vurdert vilkår"
 
 Behandling --> Yrkesaktivitetsperiode: omfatter en eller flere
 Behandling --> Sykefraværstilfelle: inngår i et
@@ -43,11 +54,14 @@ Sykepengegrunnlag --> Inntektsgrunnlag: består av 0, en eller flere
 Yrkesaktivitet --> Inntektsgrunnlag: har 0 eller en
 Sykefraværstilfelle --> Rettighetskategori: Faller innunder en
 
-Behandling <-- VurdertVilkår: tilhører en
+Behandling <-- Vilkårsvurdering: tilhører en
 Yrkesaktivitetsperiode --> Yrkesaktivitet: tilhører én
+Sykepengesøknad --> MedSykdom: ligger til grunn for
 MedSykdom --|> Yrkesaktivitetsperiode: er en
 UtenSykdom --|> Yrkesaktivitetsperiode: er en
 Behandling --> Beregning: har kanskje en
+Rettighetskategori --> Sykepengevilkår: har et sett med
+Vilkårsvurdering --> Sykepengevilkår: vurdering av
 
 note top of UtenSykdom
   Skille på ghost og tilkommen inntekt?
