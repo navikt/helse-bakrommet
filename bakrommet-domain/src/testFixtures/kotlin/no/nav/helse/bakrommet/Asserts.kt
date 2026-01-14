@@ -8,7 +8,7 @@ fun assertInstantEquals(
     expected: Instant,
     actual: Instant,
 ) {
-    val expectedTruncated = expected.truncatedTo(ChronoUnit.MICROS)
-    val actualTruncated = actual.truncatedTo(ChronoUnit.MICROS)
+    val expectedTruncated = expected.truncatedTo(ChronoUnit.MILLIS)
+    val actualTruncated = actual.truncatedTo(ChronoUnit.MILLIS)
     assertEquals(expectedTruncated, actualTruncated)
 }

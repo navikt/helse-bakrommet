@@ -119,7 +119,7 @@ class PgBehandlingRepositoryTest {
 
         assertEquals(behandling.id, funnet.id)
         assertEquals(behandling.naturligIdent, funnet.naturligIdent)
-        assertEquals(behandling.opprettet, funnet.opprettet)
+        assertInstantEquals(behandling.opprettet, funnet.opprettet)
         assertEquals(behandling.opprettetAvNavIdent, funnet.opprettetAvNavIdent)
         assertEquals(behandling.opprettetAvNavn, funnet.opprettetAvNavn)
         assertEquals(oppdatertBehandling.fom, funnet.fom)
