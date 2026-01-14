@@ -33,6 +33,7 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
+    testImplementation(testFixtures(project(":bakrommet-domain")))
 
     testFixturesImplementation("org.testcontainers:postgresql")
     testFixturesImplementation("com.zaxxer:HikariCP")

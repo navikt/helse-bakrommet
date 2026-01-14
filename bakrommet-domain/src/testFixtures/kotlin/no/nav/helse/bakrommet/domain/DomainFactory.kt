@@ -4,6 +4,10 @@ import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -61,4 +65,23 @@ fun enBehandling(
     sykepengegrunnlagId = sykepengegrunnlagId,
     revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
     revurdertAvBehandlingId = revurdertAvBehandlingId,
+)
+
+fun etVurdertVilkår(
+    behandlingId: BehandlingId,
+    vilkårskode: Vilkårskode = Vilkårskode(UUID.randomUUID().toString()),
+    hovedspørsmål: String = "Er vilkåret oppfylt?",
+    underspørsmål: List<VilkårsvurderingUnderspørsmål> = emptyList(),
+    vurdering: VurdertVilkår.Vurdering = VurdertVilkår.Vurdering.OPPFYLT,
+    notat: String? = null,
+) = VurdertVilkår(
+    id =
+        VilkårsvurderingId(
+            behandlingId = behandlingId,
+            vilkårskode = vilkårskode,
+        ),
+    hovedspørsmål = hovedspørsmål,
+    underspørsmål = underspørsmål,
+    vurdering = vurdering,
+    notat = notat,
 )

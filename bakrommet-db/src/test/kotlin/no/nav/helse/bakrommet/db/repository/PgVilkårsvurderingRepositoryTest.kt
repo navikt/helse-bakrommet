@@ -2,17 +2,12 @@ package no.nav.helse.bakrommet.db.repository
 
 import kotliquery.sessionOf
 import no.nav.helse.bakrommet.db.TestDataSource
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
+import no.nav.helse.bakrommet.domain.enBehandling
+import no.nav.helse.bakrommet.domain.etVurdertVilkår
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
-import no.nav.helse.januar
-import java.time.Instant
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -27,10 +22,10 @@ class PgVilkårsvurderingRepositoryTest {
     @Test
     fun `lagre og finn`() {
         // given
-        val behandling = behandling()
+        val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
-        val vurdertVilkår = vurdertVilkår(behandling.id)
+        val vurdertVilkår = etVurdertVilkår(behandlingId = behandling.id)
 
         // when
         repository.lagre(vurdertVilkår)
@@ -48,7 +43,7 @@ class PgVilkårsvurderingRepositoryTest {
 
     @Test
     fun `finn returnerer null når vilkårsvurdering ikke finnes`() {
-        val behandling = behandling()
+        val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
         val vilkårsvurderingId =
@@ -64,10 +59,10 @@ class PgVilkårsvurderingRepositoryTest {
     @Test
     fun `oppdater eksisterende vilkårsvurdering`() {
         // given
-        val behandling = behandling()
+        val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
-        val vurdertVilkår = vurdertVilkår(behandling.id)
+        val vurdertVilkår = etVurdertVilkår(behandlingId = behandling.id)
         repository.lagre(vurdertVilkår)
 
         // when
@@ -91,7 +86,7 @@ class PgVilkårsvurderingRepositoryTest {
     @Test
     fun `lagre vilkårsvurdering med underspørsmål`() {
         // given
-        val behandling = behandling()
+        val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
         val underspørsmål =
@@ -102,12 +97,9 @@ class PgVilkårsvurderingRepositoryTest {
             )
 
         val vurdertVilkår =
-            VurdertVilkår(
-                id =
-                    VilkårsvurderingId(
-                        behandlingId = behandling.id,
-                        vilkårskode = Vilkårskode("OPPTJENING"),
-                    ),
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("OPPTJENING"),
                 hovedspørsmål = "Har bruker oppfylt opptjeningsvilkåret?",
                 underspørsmål = underspørsmål,
                 vurdering = VurdertVilkår.Vurdering.OPPFYLT,
@@ -133,16 +125,13 @@ class PgVilkårsvurderingRepositoryTest {
     @Test
     fun `lagre vilkårsvurdering uten notat`() {
         // given
-        val behandling = behandling()
+        val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
         val vurdertVilkår =
-            VurdertVilkår(
-                id =
-                    VilkårsvurderingId(
-                        behandlingId = behandling.id,
-                        vilkårskode = Vilkårskode("OPPTJENING"),
-                    ),
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("OPPTJENING"),
                 hovedspørsmål = "Har bruker oppfylt opptjeningsvilkåret?",
                 underspørsmål = emptyList(),
                 vurdering = VurdertVilkår.Vurdering.SKAL_IKKE_VURDERES,
@@ -162,16 +151,13 @@ class PgVilkårsvurderingRepositoryTest {
     @Test
     fun `lagre flere vilkårsvurderinger for samme behandling`() {
         // given
-        val behandling = behandling()
+        val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
         val vurdertVilkår1 =
-            VurdertVilkår(
-                id =
-                    VilkårsvurderingId(
-                        behandlingId = behandling.id,
-                        vilkårskode = Vilkårskode("OPPTJENING"),
-                    ),
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("OPPTJENING"),
                 hovedspørsmål = "Har bruker oppfylt opptjeningsvilkåret?",
                 underspørsmål = emptyList(),
                 vurdering = VurdertVilkår.Vurdering.OPPFYLT,
@@ -179,12 +165,9 @@ class PgVilkårsvurderingRepositoryTest {
             )
 
         val vurdertVilkår2 =
-            VurdertVilkår(
-                id =
-                    VilkårsvurderingId(
-                        behandlingId = behandling.id,
-                        vilkårskode = Vilkårskode("SYK_INAKTIV"),
-                    ),
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("SYK_INAKTIV"),
                 hovedspørsmål = "Er bruker syk og inaktiv?",
                 underspørsmål = emptyList(),
                 vurdering = VurdertVilkår.Vurdering.IKKE_OPPFYLT,
@@ -208,39 +191,4 @@ class PgVilkårsvurderingRepositoryTest {
         assertEquals(Vilkårskode("SYK_INAKTIV"), funnet2.id.vilkårskode)
         assertEquals(VurdertVilkår.Vurdering.IKKE_OPPFYLT, funnet2.vurdering)
     }
-
-    private fun behandling(): Behandling =
-        Behandling.fraLagring(
-            id = BehandlingId(UUID.randomUUID()),
-            naturligIdent = NaturligIdent("12345678910"),
-            opprettet = Instant.now(),
-            opprettetAvNavIdent = "Z999999",
-            opprettetAvNavn = "En Saksbehandler",
-            fom = 1.januar(2018),
-            tom = 31.januar(2018),
-            status = BehandlingStatus.UNDER_BEHANDLING,
-            beslutterNavIdent = "Z999999",
-            skjæringstidspunkt = 1.januar(2018),
-            individuellBegrunnelse = "En begrunnelse",
-            sykepengegrunnlagId = null,
-            revurdertAvBehandlingId = null,
-            revurdererSaksbehandlingsperiodeId = null,
-        )
-
-    private fun vurdertVilkår(behandlingId: BehandlingId): VurdertVilkår =
-        VurdertVilkår(
-            id =
-                VilkårsvurderingId(
-                    behandlingId = behandlingId,
-                    vilkårskode = Vilkårskode("OPPTJENING"),
-                ),
-            hovedspørsmål = "Har bruker oppfylt opptjeningsvilkåret?",
-            underspørsmål =
-                listOf(
-                    VilkårsvurderingUnderspørsmål("Har bruker jobbet 4 uker?", "Ja"),
-                    VilkårsvurderingUnderspørsmål("Er det tilstrekkelig opptjening?", "Ja"),
-                ),
-            vurdering = VurdertVilkår.Vurdering.OPPFYLT,
-            notat = "Dette er et notat",
-        )
 }
