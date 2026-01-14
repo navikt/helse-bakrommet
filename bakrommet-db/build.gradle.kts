@@ -22,6 +22,8 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus")
 
+    testImplementation(kotlin("test"))
+
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("no.nav.security:mock-oauth2-server")
