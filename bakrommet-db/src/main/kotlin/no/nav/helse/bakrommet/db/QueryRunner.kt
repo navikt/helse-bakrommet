@@ -6,24 +6,30 @@ import kotliquery.action.QueryAction
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.bakrommet.util.serialisertTilString
+import org.intellij.lang.annotations.Language
 import org.postgresql.util.PGobject
 import javax.sql.DataSource
 
 sealed class QueryRunner protected constructor() {
     fun <T> single(
+        @Language("PostgreSQL")
         sql: String,
         vararg params: Pair<String, Any>,
         mapper: (Row) -> T?,
     ): T? = run(queryOf(sql, params.toMap()).map(mapper).asSingle)
 
     fun update(
+        @Language("PostgreSQL")
         sql: String,
         vararg params: Pair<String, Any?>,
     ): Int = run(queryOf(sql, params.toMap()).asUpdate)
 
-    fun execute(sql: String): Boolean = run(queryOf(sql).asExecute)
+    fun execute(
+        @Language("PostgreSQL") sql: String,
+    ): Boolean = run(queryOf(sql).asExecute)
 
     fun <T> list(
+        @Language("PostgreSQL")
         sql: String,
         vararg params: Pair<String, Any>,
         mapper: (Row) -> T,

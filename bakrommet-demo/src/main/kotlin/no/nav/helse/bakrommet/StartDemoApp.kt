@@ -24,10 +24,16 @@ import no.nav.helse.bakrommet.api.auth.RolleMatrise
 import no.nav.helse.bakrommet.api.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.api.setupApiRoutes
 import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.mockproviders.skapProviders
+import no.nav.helse.bakrommet.repository.BehandlingRepository
+import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
 import no.nav.helse.bakrommet.testdata.alleTestdata
 import no.nav.helse.bakrommet.testdata.opprettTestdata
 import no.nav.helse.bakrommet.util.objectMapper
@@ -41,6 +47,28 @@ val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 class FakeDaoer : AlleDaoer {
     override val behandlingDao = BehandlingDaoFake()
+    override val behandlingRepository: BehandlingRepository =
+        object : BehandlingRepository {
+            private val behandlinger = mutableMapOf<BehandlingId, Behandling>()
+
+            override fun finn(behandlingId: BehandlingId): Behandling? = behandlinger[behandlingId]
+
+            override fun lagre(behandling: Behandling) {
+                behandlinger[behandling.id] = behandling
+            }
+        }
+
+    override val vilkårsvurderingRepository: VilkårsvurderingRepository =
+        object : VilkårsvurderingRepository {
+            private val vurderteVilkår = mutableMapOf<VilkårsvurderingId, VurdertVilkår>()
+
+            override fun finn(vilkårsvurderingId: VilkårsvurderingId): VurdertVilkår? = vurderteVilkår[vilkårsvurderingId]
+
+            override fun lagre(vurdertVilkår: VurdertVilkår) {
+                vurderteVilkår[vurdertVilkår.id] = vurdertVilkår
+            }
+        }
+
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()
     override val personPseudoIdDao = PersonPseudoIdDaoFake()
     override val dokumentDao = DokumentDaoFake()

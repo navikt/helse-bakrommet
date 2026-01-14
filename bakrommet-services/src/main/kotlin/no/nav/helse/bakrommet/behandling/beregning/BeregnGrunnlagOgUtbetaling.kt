@@ -14,10 +14,14 @@ import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
+import no.nav.helse.bakrommet.repository.BehandlingRepository
+import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
 
 interface Beregningsdaoer {
     val beregningDao: UtbetalingsberegningDao
     val behandlingDao: BehandlingDao
+    val behandlingRepository: BehandlingRepository
+    val vilkårsvurderingRepository: VilkårsvurderingRepository
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personPseudoIdDao: PersonPseudoIdDao

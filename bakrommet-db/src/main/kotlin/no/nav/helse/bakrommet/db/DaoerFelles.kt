@@ -11,13 +11,19 @@ import no.nav.helse.bakrommet.db.dao.TilkommenInntektDaoPg
 import no.nav.helse.bakrommet.db.dao.UtbetalingsberegningDaoPg
 import no.nav.helse.bakrommet.db.dao.`VurdertVilkårDaoPg`
 import no.nav.helse.bakrommet.db.dao.YrkesaktivitetDaoPg
+import no.nav.helse.bakrommet.db.repository.PgBehandlingRepository
+import no.nav.helse.bakrommet.db.repository.PgVilkårsvurderingRepository
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
+import no.nav.helse.bakrommet.repository.BehandlingRepository
+import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
 import javax.sql.DataSource
 
 class DaoerFelles(
     dataSource: DataSource,
 ) : AlleDaoer {
     override val behandlingDao = BehandlingDaoPg(dataSource)
+    override val behandlingRepository: BehandlingRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
+    override val vilkårsvurderingRepository: VilkårsvurderingRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
     override val behandlingEndringerDao = BehandlingEndringerDaoPg(dataSource)
     override val personPseudoIdDao = PersonPseudoIdDaoPg(dataSource)
     override val dokumentDao = DokumentDaoPg(dataSource)
@@ -33,6 +39,8 @@ class SessionDaoerFelles(
     session: Session,
 ) : AlleDaoer {
     override val behandlingDao = BehandlingDaoPg(session)
+    override val behandlingRepository: BehandlingRepository = PgBehandlingRepository(session)
+    override val vilkårsvurderingRepository: VilkårsvurderingRepository = PgVilkårsvurderingRepository(session)
     override val behandlingEndringerDao = BehandlingEndringerDaoPg(session)
     override val personPseudoIdDao = PersonPseudoIdDaoPg(session)
     override val dokumentDao = DokumentDaoPg(session)
