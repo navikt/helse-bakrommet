@@ -7,16 +7,17 @@ import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.UtbetalingslinjeDto
+import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingslinjer.UtbetalingkladdBuilder
@@ -28,7 +29,7 @@ class UtbetalingsBeregningHjelper(
     private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val yrkesaktivitetDao: YrkesaktivitetDao,
-    private val vurdertVilkårDao: VurdertVilkårDao,
+    private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val tilkommenInntektDao: TilkommenInntektDao,
 ) {
     fun settBeregning(
@@ -58,7 +59,7 @@ class UtbetalingsBeregningHjelper(
                         fom = periode.fom,
                         tom = periode.tom,
                     ),
-                vilkår = vurdertVilkårDao.hentVilkårsvurderinger(periode.id),
+                vilkår = vilkårsvurderingRepository.hentAlle(BehandlingId(periode.id)),
             )
 
         // Utfør beregning

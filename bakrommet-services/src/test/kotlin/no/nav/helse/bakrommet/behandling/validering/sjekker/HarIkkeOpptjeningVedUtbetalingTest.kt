@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.validering.sjekker
 
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.IKKE_OPPFYLT
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering.OPPFYLT
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår.Utfall.IKKE_OPPFYLT
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår.Utfall.OPPFYLT
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode.OPPTJENING
 import org.junit.jupiter.api.Test
 

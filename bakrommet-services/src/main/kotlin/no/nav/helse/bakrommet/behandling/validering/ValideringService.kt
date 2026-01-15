@@ -6,14 +6,15 @@ import no.nav.helse.bakrommet.behandling.BehandlingServiceDaoer
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningData
-import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 
 data class ValideringData(
     val behandlingDbRecord: BehandlingDbRecord,
     val yrkesaktiviteter: List<Yrkesaktivitet>,
-    val vurderteVilkår: List<LegacyVurdertVilkår>,
+    val vurderteVilkår: List<VurdertVilkår>,
     val sykepengegrunnlag: SykepengegrunnlagDbRecord?,
     val beregningData: BeregningData?,
 )
@@ -47,7 +48,7 @@ class ValideringService(
                 ValideringData(
                     behandlingDbRecord = behandling,
                     yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(behandling),
-                    vurderteVilkår = vurdertVilkårDao.hentVilkårsvurderinger(behandling.id),
+                    vurderteVilkår = vilkårsvurderingRepository.hentAlle(BehandlingId(behandling.id)),
                     sykepengegrunnlag = behandling.sykepengegrunnlagId?.let { sykepengegrunnlagDao.hentSykepengegrunnlag(it) },
                     beregningData = beregningDao.hentBeregning(behandling.id)?.beregningData,
                 )

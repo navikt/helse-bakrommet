@@ -1,13 +1,15 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
-import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
-import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 class YrkesaktivitetExtensionsTest {
     @Test
@@ -95,20 +97,22 @@ class YrkesaktivitetExtensionsTest {
 
         val vilkår =
             listOf(
-                LegacyVurdertVilkår(
-                    kode = "123",
+                VurdertVilkår(
+                    id =
+                        VilkårsvurderingId(
+                            behandlingId = BehandlingId(UUID.randomUUID()),
+                            vilkårskode = Vilkårskode("NOE"),
+                        ),
                     vurdering =
-                        Vilkaarsvurdering(
-                            hovedspørsmål = "1",
-                            vilkårskode = "NOE",
+                        VurdertVilkår.Vurdering(
+                            utfall = VurdertVilkår.Utfall.OPPFYLT,
                             underspørsmål =
                                 listOf(
-                                    VilkaarsvurderingUnderspørsmål(
+                                    VilkårsvurderingUnderspørsmål(
                                         spørsmål = "2",
                                         svar = "I_ARBEID_UTEN_OPPTJENING",
                                     ),
                                 ),
-                            vurdering = Vurdering.OPPFYLT,
                             notat = "3",
                         ),
                 ),

@@ -4,12 +4,14 @@ package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.enkelBehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
-import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
-import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 class IkkeOppfylt8_2IkkeVurdert8_47Test {
     @Test
@@ -22,13 +24,15 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                 beregningData = null,
                 vurderteVilkår =
                     listOf(
-                        LegacyVurdertVilkår(
-                            kode = "1",
+                        VurdertVilkår(
+                            id =
+                                VilkårsvurderingId(
+                                    behandlingId = BehandlingId(UUID.randomUUID()),
+                                    vilkårskode = Vilkårskode("OPPTJENING"),
+                                ),
                             vurdering =
-                                Vilkaarsvurdering(
-                                    vilkårskode = "OPPTJENING",
-                                    hovedspørsmål = "1",
-                                    vurdering = Vurdering.IKKE_OPPFYLT,
+                                VurdertVilkår.Vurdering(
+                                    utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
                                     underspørsmål = listOf(),
                                     notat = "",
                                 ),
@@ -48,24 +52,28 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                 beregningData = null,
                 vurderteVilkår =
                     listOf(
-                        LegacyVurdertVilkår(
-                            kode = "1",
+                        VurdertVilkår(
+                            id =
+                                VilkårsvurderingId(
+                                    behandlingId = BehandlingId(UUID.randomUUID()),
+                                    vilkårskode = Vilkårskode("OPPTJENING"),
+                                ),
                             vurdering =
-                                Vilkaarsvurdering(
-                                    vilkårskode = "OPPTJENING",
-                                    hovedspørsmål = "1",
-                                    vurdering = Vurdering.IKKE_OPPFYLT,
+                                VurdertVilkår.Vurdering(
+                                    utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
                                     underspørsmål = listOf(),
                                     notat = "",
                                 ),
                         ),
-                        LegacyVurdertVilkår(
-                            kode = "1",
+                        VurdertVilkår(
+                            id =
+                                VilkårsvurderingId(
+                                    behandlingId = BehandlingId(UUID.randomUUID()),
+                                    vilkårskode = Vilkårskode("SYK_INAKTIV"),
+                                ),
                             vurdering =
-                                Vilkaarsvurdering(
-                                    vilkårskode = "SYK_INAKTIV",
-                                    hovedspørsmål = "1",
-                                    vurdering = Vurdering.IKKE_OPPFYLT,
+                                VurdertVilkår.Vurdering(
+                                    utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
                                     underspørsmål = listOf(),
                                     notat = "",
                                 ),

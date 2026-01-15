@@ -6,14 +6,14 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRe
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningData
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.validering.ValideringSjekk
-import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
-import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode as DomainVilkårskode
 
 internal infix fun ValideringSjekk.`skal ha inkonsistens med`(data: ValideringData) {
     val inkonsistens = harInkonsistens(data)
@@ -34,18 +35,20 @@ internal infix fun ValideringSjekk.`skal ha konsistens med`(data: ValideringData
     assertFalse(inkonsistens, "Forventet at sjekken $id skulle være konsistent, men var inkonsistent")
 }
 
-fun vurdertVilkårMedBegrunnelse(b: VilkårskodeBegrunnelse): List<LegacyVurdertVilkår> =
+fun vurdertVilkårMedBegrunnelse(b: VilkårskodeBegrunnelse): List<VurdertVilkår> =
     listOf(
-        LegacyVurdertVilkår(
-            kode = "1",
+        VurdertVilkår(
+            id =
+                VilkårsvurderingId(
+                    behandlingId = BehandlingId(UUID.randomUUID()),
+                    vilkårskode = DomainVilkårskode("WHATEVER"),
+                ),
             vurdering =
-                Vilkaarsvurdering(
-                    vilkårskode = "WHATEVER",
-                    hovedspørsmål = "1",
-                    vurdering = Vurdering.OPPFYLT,
+                VurdertVilkår.Vurdering(
+                    utfall = VurdertVilkår.Utfall.OPPFYLT,
                     underspørsmål =
                         listOf(
-                            VilkaarsvurderingUnderspørsmål(
+                            VilkårsvurderingUnderspørsmål(
                                 spørsmål = "SPM_1",
                                 svar = b.name,
                             ),
@@ -57,15 +60,17 @@ fun vurdertVilkårMedBegrunnelse(b: VilkårskodeBegrunnelse): List<LegacyVurdert
 
 fun vilkårVurdertSom(
     vilkar: Vilkårskode,
-    vurdering: Vurdering,
-): LegacyVurdertVilkår =
-    LegacyVurdertVilkår(
-        kode = "1",
+    utfall: VurdertVilkår.Utfall,
+): VurdertVilkår =
+    VurdertVilkår(
+        id =
+            VilkårsvurderingId(
+                behandlingId = BehandlingId(UUID.randomUUID()),
+                vilkårskode = DomainVilkårskode(vilkar.name),
+            ),
         vurdering =
-            Vilkaarsvurdering(
-                vilkårskode = vilkar.name,
-                hovedspørsmål = "1",
-                vurdering = vurdering,
+            VurdertVilkår.Vurdering(
+                utfall = utfall,
                 underspørsmål = emptyList(),
                 notat = "",
             ),
@@ -75,7 +80,7 @@ fun data(
     sykepengegrunnlag: SykepengegrunnlagDbRecord? = null,
     behandlingDbRecord: BehandlingDbRecord = enkelBehandlingDbRecord,
     yrkesaktiviteter: List<Yrkesaktivitet> = emptyList(),
-    vurderteVilkår: List<LegacyVurdertVilkår> = emptyList(),
+    vurderteVilkår: List<VurdertVilkår> = emptyList(),
     beregningData: BeregningData? = null,
 ): ValideringData =
     ValideringData(

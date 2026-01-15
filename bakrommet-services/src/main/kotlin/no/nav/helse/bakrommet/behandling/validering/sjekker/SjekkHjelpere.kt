@@ -1,21 +1,22 @@
 package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
-import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Arbeidstaker
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode
 import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 
-fun List<LegacyVurdertVilkår>.resultat(vilkårskode: Vilkårskode): Vurdering? = this.find { it.vurdering.vilkårskode == vilkårskode.name }?.vurdering?.vurdering
+fun List<VurdertVilkår>.resultat(vilkårskode: Vilkårskode): VurdertVilkår.Utfall? = this.find { it.id.vilkårskode.value == vilkårskode.name }?.vurdering?.utfall
 
-fun ValideringData.harOppfyllt(vilkårskode: Vilkårskode): Boolean = vurderteVilkår.resultat(vilkårskode) == Vurdering.OPPFYLT
+fun ValideringData.harOppfyllt(vilkårskode: Vilkårskode): Boolean = vurderteVilkår.resultat(vilkårskode) == VurdertVilkår.Utfall.OPPFYLT
 
-fun ValideringData.harVurdertTilIkkeOppfyllt(vilkårskode: Vilkårskode): Boolean = vurderteVilkår.resultat(vilkårskode) == Vurdering.IKKE_OPPFYLT
+fun ValideringData.harVurdertTilIkkeOppfyllt(vilkårskode: Vilkårskode): Boolean = vurderteVilkår.resultat(vilkårskode) == VurdertVilkår.Utfall.IKKE_OPPFYLT
 
-fun ValideringData.harVurdert(vilkårskode: Vilkårskode): Boolean = vurderteVilkår.resultat(vilkårskode) == Vurdering.IKKE_OPPFYLT || vurderteVilkår.resultat(vilkårskode) == Vurdering.OPPFYLT
+fun ValideringData.harVurdert(vilkårskode: Vilkårskode): Boolean =
+    vurderteVilkår.resultat(vilkårskode) == VurdertVilkår.Utfall.IKKE_OPPFYLT ||
+        vurderteVilkår.resultat(vilkårskode) == VurdertVilkår.Utfall.OPPFYLT
 
 fun ValideringData.harIkkeVurdert(vilkårskode: Vilkårskode): Boolean = !harVurdert(vilkårskode)
 

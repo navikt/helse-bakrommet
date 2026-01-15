@@ -22,6 +22,7 @@ import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.db.Repositories
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
 import no.nav.helse.bakrommet.kafka.leggTilOutbox
 import no.nav.helse.bakrommet.util.logg
@@ -33,6 +34,7 @@ import java.util.*
 
 interface BehandlingServiceDaoer :
     SaksbehandlingsperiodeKafkaDtoDaoer,
+    Repositories,
     Beregningsdaoer {
     val behandlingEndringerDao: BehandlingEndringerDao
     val dokumentDao: DokumentDao

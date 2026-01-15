@@ -55,7 +55,7 @@ fun Beregningsdaoer.beregnUtbetaling(
         behandlingDao = behandlingDao,
         sykepengegrunnlagDao = sykepengegrunnlagDao,
         yrkesaktivitetDao = yrkesaktivitetDao,
-        vurdertVilkårDao = vurdertVilkårDao,
+        vilkårsvurderingRepository = vilkårsvurderingRepository,
         tilkommenInntektDao = tilkommenInntektDao,
     ).settBeregning(
         referanse = ref,

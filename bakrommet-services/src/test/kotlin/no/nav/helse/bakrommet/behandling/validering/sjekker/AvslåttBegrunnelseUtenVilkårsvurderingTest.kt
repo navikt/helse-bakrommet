@@ -5,11 +5,12 @@ import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.enkelBehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.enkelYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
-import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
-import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -51,14 +52,22 @@ class AvslåttBegrunnelseUtenVilkårsvurderingTest {
                 sykepengegrunnlag = null,
                 vurderteVilkår =
                     listOf(
-                        LegacyVurdertVilkår(
-                            kode = "1",
+                        VurdertVilkår(
+                            id =
+                                VilkårsvurderingId(
+                                    behandlingId = BehandlingId(UUID.randomUUID()),
+                                    vilkårskode = Vilkårskode("OPPTJENING"),
+                                ),
                             vurdering =
-                                Vilkaarsvurdering(
-                                    vilkårskode = "OPPTJENING",
-                                    hovedspørsmål = "1",
-                                    vurdering = Vurdering.IKKE_OPPFYLT,
-                                    underspørsmål = listOf(VilkaarsvurderingUnderspørsmål(UUID.randomUUID().toString(), "AAP_FØR_FORELDREPENGER")),
+                                VurdertVilkår.Vurdering(
+                                    utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
+                                    underspørsmål =
+                                        listOf(
+                                            VilkårsvurderingUnderspørsmål(
+                                                spørsmål = UUID.randomUUID().toString(),
+                                                svar = "AAP_FØR_FORELDREPENGER",
+                                            ),
+                                        ),
                                     notat = "",
                                 ),
                         ),

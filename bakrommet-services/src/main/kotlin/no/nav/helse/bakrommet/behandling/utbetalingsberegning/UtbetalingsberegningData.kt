@@ -3,8 +3,8 @@ package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
-import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.dto.ProsentdelDto
@@ -19,7 +19,7 @@ data class UtbetalingsberegningInput(
     val saksbehandlingsperiode: PeriodeDto,
     val arbeidsgiverperiode: PeriodeDto? = null,
     val tilkommenInntekt: List<TilkommenInntektDbRecord>,
-    val vilkår: List<LegacyVurdertVilkår>,
+    val vilkår: List<VurdertVilkår>,
 )
 
 data class Sporbar<T>(
