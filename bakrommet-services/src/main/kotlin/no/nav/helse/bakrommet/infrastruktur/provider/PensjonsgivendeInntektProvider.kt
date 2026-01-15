@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.infrastruktur.provider
 
 import com.fasterxml.jackson.databind.JsonNode
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.AccessToken
-import no.nav.helse.bakrommet.util.Kildespor
 
 interface PensjonsgivendeInntektProvider {
     suspend fun hentPensjonsgivendeInntektForÅrSenestOgAntallÅrBakover(

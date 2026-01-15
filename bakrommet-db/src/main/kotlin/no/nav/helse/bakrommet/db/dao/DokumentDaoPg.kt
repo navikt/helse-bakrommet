@@ -2,13 +2,13 @@ package no.nav.helse.bakrommet.db.dao
 
 import kotliquery.Row
 import kotliquery.Session
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.util.Kildespor
 import java.util.*
 import javax.sql.DataSource
 

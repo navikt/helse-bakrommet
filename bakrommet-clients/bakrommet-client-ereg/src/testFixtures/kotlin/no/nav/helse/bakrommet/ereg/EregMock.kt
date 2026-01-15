@@ -2,20 +2,13 @@ package no.nav.helse.bakrommet.ereg
 
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.fakerConfig
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.HttpRequestData
-import io.ktor.client.request.HttpResponseData
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.serialization.jackson.JacksonConverter
+import no.nav.helse.bakrommet.client.common.ApplicationConfig
+import no.nav.helse.bakrommet.client.common.mockHttpClient
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
-import no.nav.helse.bakrommet.util.objectMapper
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -26,6 +19,12 @@ object EregMock {
     val defaultConfiguration =
         EregClientModule.Configuration(
             baseUrl = "https://ereg-services.test",
+            appConfig =
+                ApplicationConfig(
+                    podName = "unknownHost",
+                    appName = "unknownApp",
+                    imageName = "unknownImage",
+                ),
         )
 
     fun eregMockHttpClient() =
@@ -85,14 +84,3 @@ object EregMock {
         httpClient = eregMockHttpClient(),
     )
 }
-
-// Helper functions for mock HTTP client
-fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
-    HttpClient(MockEngine) {
-        install(ContentNegotiation) {
-            register(ContentType.Application.Json, JacksonConverter(objectMapper))
-        }
-        engine {
-            addHandler(requestHandler)
-        }
-    }

@@ -13,12 +13,13 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.JacksonConverter
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.Arbeidsforholdoppslag
-import no.nav.helse.bakrommet.util.Kildespor
+import no.nav.helse.bakrommet.util.fraHer
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.util.*
@@ -51,7 +52,7 @@ class AARegClient(
         val url = "https://${configuration.hostname}/api/v2/arbeidstaker/arbeidsforhold"
 
         val kildespor =
-            Kildespor.fraHer(
+            configuration.appConfig.fraHer(
                 Throwable(),
                 fnr,
                 arbeidsforholdstatusFilter,

@@ -17,13 +17,14 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektFilter
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektoppslag
-import no.nav.helse.bakrommet.util.Kildespor
+import no.nav.helse.bakrommet.util.fraHer
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.YearMonth
@@ -55,7 +56,7 @@ class AInntektClient(
         val callIdDesc = " callId=$callId"
         val url = "https://${configuration.hostname}/rest/v2/inntekt"
         val kildespor =
-            Kildespor.fraHer(
+            configuration.appConfig.fraHer(
                 Throwable(),
                 fnr,
                 maanedFom,

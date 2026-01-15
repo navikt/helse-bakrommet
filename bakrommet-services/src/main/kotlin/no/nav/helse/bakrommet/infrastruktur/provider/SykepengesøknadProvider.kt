@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.infrastruktur.provider
 
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.AccessToken
-import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
 

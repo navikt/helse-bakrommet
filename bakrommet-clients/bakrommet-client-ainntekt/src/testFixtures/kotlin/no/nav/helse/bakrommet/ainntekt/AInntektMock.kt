@@ -3,24 +3,23 @@ package no.nav.helse.bakrommet.ainntekt
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.toByteArray
 import io.ktor.client.request.HttpRequestData
-import io.ktor.client.request.HttpResponseData
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
+import no.nav.helse.bakrommet.client.common.ApplicationConfig
+import no.nav.helse.bakrommet.client.common.mockHttpClient
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntekt
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
-import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
 import java.math.BigDecimal
@@ -34,6 +33,12 @@ object AInntektMock {
         AInntektModule.Configuration(
             hostname = "inntektskomponenten-host",
             scope = OAuthScope("inntektskomponenten-scope"),
+            appConfig =
+                ApplicationConfig(
+                    podName = "unknownHost",
+                    appName = "unknownApp",
+                    imageName = "unknownImage",
+                ),
         )
 
     // Default OBO client for testing
@@ -184,16 +189,5 @@ fun AInntektResponse.filtrerMaaneder(
 
 // Extension function for å lage OBO token
 fun OAuthScope.oboTokenFor(): String = "OBO-TOKEN_FOR_api://$baseValue/.default"
-
-// Helper functions for mock HTTP client
-fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
-    HttpClient(MockEngine) {
-        install(ContentNegotiation) {
-            register(ContentType.Application.Json, JacksonConverter(objectMapper))
-        }
-        engine {
-            addHandler(requestHandler)
-        }
-    }
 
 suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)

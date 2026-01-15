@@ -14,13 +14,10 @@ repositories {
 
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
-    api(project(":bakrommet-common"))
-    api(project(":bakrommet-services"))
+    api(project(":bakrommet-clients:bakrommet-client-common"))
 
-    testFixturesImplementation("io.ktor:ktor-client-mock-jvm")
-    testFixturesImplementation("io.ktor:ktor-client-core")
-    testFixturesImplementation("io.ktor:ktor-client-content-negotiation")
-    testFixturesImplementation("io.ktor:ktor-serialization-jackson")
-    testFixturesImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     testFixturesImplementation("no.nav.sykepenger.kontrakter:inntektsmelding-kontrakt:2025.04.04-01-56-365d3")
+
+    testFixturesImplementation(project(":bakrommet-clients:bakrommet-client-common"))
+    testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-common")))
 }

@@ -17,6 +17,7 @@ import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
+import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.db.DBModule
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.dao.*
@@ -60,6 +61,12 @@ object TestOppsett {
                 SykepengesøknadBackendClientModule.Configuration(
                     hostname = "sykepengesoknad-backend",
                     scope = OAuthScope("sykepengesoknad-backend-scope"),
+                    appConfig =
+                        ApplicationConfig(
+                            podName = "unknownHost",
+                            appName = "unknownApp",
+                            imageName = "unknownImage",
+                        ),
                 ),
             aareg = AARegMock.defaultConfiguration,
             ainntekt = AInntektMock.defaultConfiguration,
@@ -69,6 +76,12 @@ object TestOppsett {
                 SigrunClientModule.Configuration(
                     baseUrl = "http://localhost",
                     scope = OAuthScope("sigrun-scope"),
+                    appConfig =
+                        ApplicationConfig(
+                            podName = "unknownHost",
+                            appName = "unknownApp",
+                            imageName = "unknownImage",
+                        ),
                 ),
             naisClusterName = "test",
         )

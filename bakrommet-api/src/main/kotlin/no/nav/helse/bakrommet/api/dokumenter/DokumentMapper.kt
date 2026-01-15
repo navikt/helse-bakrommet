@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.api.dokumenter
 
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.api.dto.dokumenter.KildesporDto
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
@@ -15,4 +16,4 @@ fun Dokument.tilDokumentDto(): DokumentDto =
         request = sporing.tilKildesporDto(),
     )
 
-private fun no.nav.helse.bakrommet.util.Kildespor.tilKildesporDto(): KildesporDto = KildesporDto(kilde = kilde)
+private fun Kildespor.tilKildesporDto(): KildesporDto = KildesporDto(kilde = kilde)

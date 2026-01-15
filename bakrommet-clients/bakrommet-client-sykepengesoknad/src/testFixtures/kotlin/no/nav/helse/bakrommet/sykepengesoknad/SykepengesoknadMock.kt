@@ -2,17 +2,18 @@ package no.nav.helse.bakrommet.sykepengesoknad
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.HttpRequestData
-import io.ktor.client.request.HttpResponseData
-import io.ktor.http.*
-import io.ktor.serialization.jackson.JacksonConverter
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.toByteArray
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
+import no.nav.helse.bakrommet.client.common.ApplicationConfig
+import no.nav.helse.bakrommet.client.common.mockHttpClient
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock.createDefaultOboClient
-import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
 
@@ -23,6 +24,12 @@ object SykepengesoknadMock {
         SykepengesøknadBackendClientModule.Configuration(
             hostname = "sykepengesoknad-backend",
             scope = OAuthScope("sykepengesoknad-backend-scope"),
+            appConfig =
+                ApplicationConfig(
+                    podName = "unknownHost",
+                    appName = "unknownApp",
+                    imageName = "unknownImage",
+                ),
         )
 
     fun sykepengersoknadBackendClientMock(
@@ -90,14 +97,4 @@ object SykepengesoknadMock {
             }
         }
     }
-
-    private fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
-        HttpClient(MockEngine) {
-            install(ContentNegotiation) {
-                register(ContentType.Application.Json, JacksonConverter(objectMapper))
-            }
-            engine {
-                addHandler(requestHandler)
-            }
-        }
 }

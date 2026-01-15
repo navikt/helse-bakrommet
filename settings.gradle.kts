@@ -18,6 +18,7 @@ include(
     "bakrommet-clients:bakrommet-client-sigrun",
     "bakrommet-clients:bakrommet-client-sykepengesoknad",
     "bakrommet-clients:bakrommet-client-obo",
+    "bakrommet-clients:bakrommet-client-common",
     "bakrommet-bootstrap",
     "bakrommet-e2e-tests",
     "sykepenger-primitiver",

@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.behandling.dokumenter
 
 import com.fasterxml.jackson.databind.JsonNode
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
@@ -19,7 +20,6 @@ import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.data
 import no.nav.helse.bakrommet.infrastruktur.provider.inntektsaar
 import no.nav.helse.bakrommet.infrastruktur.provider.sporing
-import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.util.toJsonNode

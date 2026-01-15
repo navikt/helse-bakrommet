@@ -12,11 +12,12 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
-import no.nav.helse.bakrommet.util.Kildespor
+import no.nav.helse.bakrommet.util.fraHer
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -86,7 +87,7 @@ class SykepengesoknadBackendClient(
         id: String,
     ): Pair<SykepengesoknadDTO, Kildespor> {
         val url = "${configuration.hostname}/api/v3/soknader/$id"
-        val kildespor = Kildespor.fraHer(Throwable(), id, url) // Inkluder saksbehandlerident?
+        val kildespor = configuration.appConfig.fraHer(Throwable(), id, url) // Inkluder saksbehandlerident?
         val response =
             httpClient.get(url) {
                 headers[HttpHeaders.Authorization] = "Bearer " + tokenUtvekslingProvider.exchangeToken(saksbehandlerToken, configuration.scope).value

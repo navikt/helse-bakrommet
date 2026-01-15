@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.sigrun
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅr
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅrMedSporing
-import no.nav.helse.bakrommet.util.Kildespor
 import no.nav.helse.bakrommet.util.asJsonNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

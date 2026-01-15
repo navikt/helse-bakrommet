@@ -4,6 +4,7 @@ import no.nav.helse.bakrommet.aareg.AAregModule
 import no.nav.helse.bakrommet.ainntekt.AInntektModule
 import no.nav.helse.bakrommet.api.ApiModule
 import no.nav.helse.bakrommet.auth.OAuthScope
+import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.db.DBModule
 import no.nav.helse.bakrommet.ereg.EregClientModule
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingClientModule
@@ -28,8 +29,14 @@ data class Configuration(
     companion object {
         private fun String.asSet() = this.split(",").map { it.trim() }.toSet()
 
-        fun fromEnv(env: Map<String, String> = System.getenv()): Configuration =
-            Configuration(
+        fun fromEnv(env: Map<String, String> = System.getenv()): Configuration {
+            val appConfig =
+                ApplicationConfig(
+                    podName = env.getValue("HOSTNAME"),
+                    appName = env.getValue("NAIS_APP_NAME"),
+                    imageName = env.getValue("NAIS_APP_IMAGE"),
+                )
+            return Configuration(
                 api =
                     ApiModule.Configuration(
                         auth =
@@ -57,32 +64,39 @@ data class Configuration(
                     SykepengesøknadBackendClientModule.Configuration(
                         scope = OAuthScope(env.getValue("SYKEPENGESOKNAD_BACKEND_SCOPE")),
                         hostname = env.getValue("SYKEPENGESOKNAD_BACKEND_HOSTNAME"),
+                        appConfig = appConfig,
                     ),
                 aareg =
                     AAregModule.Configuration(
                         scope = OAuthScope(env.getValue("AAREG_SCOPE")),
                         hostname = env.getValue("AAREG_HOSTNAME"),
+                        appConfig = appConfig,
                     ),
                 ainntekt =
                     AInntektModule.Configuration(
                         scope = OAuthScope(env.getValue("INNTEKTSKOMPONENTEN_SCOPE")),
                         hostname = env.getValue("INNTEKTSKOMPONENTEN_HOSTNAME"),
+                        appConfig = appConfig,
                     ),
                 ereg =
                     EregClientModule.Configuration(
                         baseUrl = env.getValue("EREG_SERVICES_BASE_URL"),
+                        appConfig = appConfig,
                     ),
                 inntektsmelding =
                     InntektsmeldingClientModule.Configuration(
                         scope = OAuthScope(env.getValue("INNTEKTSMELDING_SCOPE")),
                         baseUrl = env.getValue("INNTEKTSMELDING_BASE_URL"),
+                        appConfig = appConfig,
                     ),
                 sigrun =
                     SigrunClientModule.Configuration(
                         scope = OAuthScope(env.getValue("SIGRUN_SCOPE")),
                         baseUrl = env.getValue("SIGRUN_URL"),
+                        appConfig = appConfig,
                     ),
                 naisClusterName = env.getValue("NAIS_CLUSTER_NAME"),
             )
+        }
     }
 }

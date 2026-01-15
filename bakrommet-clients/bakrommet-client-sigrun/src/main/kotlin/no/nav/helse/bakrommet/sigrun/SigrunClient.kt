@@ -15,6 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
@@ -22,10 +23,7 @@ import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvi
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅr
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.infrastruktur.provider.data
-import no.nav.helse.bakrommet.util.Kildespor
-import no.nav.helse.bakrommet.util.asJsonNode
-import no.nav.helse.bakrommet.util.logg
-import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.bakrommet.util.*
 import java.lang.Integer.max
 import java.time.LocalDate
 import java.util.*
@@ -91,7 +89,7 @@ class SigrunClient(
         val rettighetspakke = "navSykepenger"
         val url = "${configuration.baseUrl}/api/v1/pensjonsgivendeinntektforfolketrygden"
         val kildespor =
-            Kildespor.fraHer(
+            configuration.appConfig.fraHer(
                 Throwable(),
                 fnr,
                 inntektsAar,

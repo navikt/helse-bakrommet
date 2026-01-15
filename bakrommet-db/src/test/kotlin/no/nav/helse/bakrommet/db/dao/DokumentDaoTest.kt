@@ -1,12 +1,12 @@
 package no.nav.helse.bakrommet.db.dao
 
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.testutils.tidsstuttet
-import no.nav.helse.bakrommet.util.Kildespor
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

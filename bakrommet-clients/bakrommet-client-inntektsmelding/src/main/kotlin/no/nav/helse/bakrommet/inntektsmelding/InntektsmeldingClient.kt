@@ -15,11 +15,12 @@ import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
-import no.nav.helse.bakrommet.util.Kildespor
+import no.nav.helse.bakrommet.util.fraHer
 import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.LocalDate
@@ -91,7 +92,7 @@ class InntektsmeldingClient(
         val callIdDesc = " callId=$callId"
         val url = "${configuration.baseUrl}/api/v1/inntektsmelding/$inntektsmeldingId"
         val kildespor =
-            Kildespor.fraHer(
+            configuration.appConfig.fraHer(
                 Throwable(),
                 inntektsmeldingId,
                 url,
