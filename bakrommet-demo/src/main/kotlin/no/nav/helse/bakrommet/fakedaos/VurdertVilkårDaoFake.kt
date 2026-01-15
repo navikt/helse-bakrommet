@@ -2,21 +2,21 @@ package no.nav.helse.bakrommet.fakedaos
 
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class VurdertVilkårDaoFake : VurdertVilkårDao {
-    private val vurderinger = ConcurrentHashMap<Pair<UUID, String>, VurdertVilkår>()
+    private val vurderinger = ConcurrentHashMap<Pair<UUID, String>, LegacyVurdertVilkår>()
 
-    override fun hentVilkårsvurderinger(behandlingId: UUID): List<VurdertVilkår> = vurderinger.filterKeys { it.first == behandlingId }.values.toList()
+    override fun hentVilkårsvurderinger(behandlingId: UUID): List<LegacyVurdertVilkår> = vurderinger.filterKeys { it.first == behandlingId }.values.toList()
 
     override fun hentVilkårsvurdering(
         behandlingId: UUID,
         kode: String,
-    ): VurdertVilkår? = vurderinger[behandlingId to kode]
+    ): LegacyVurdertVilkår? = vurderinger[behandlingId to kode]
 
     override fun slettVilkårsvurdering(
         behandlingId: UUID,
@@ -44,7 +44,7 @@ class VurdertVilkårDaoFake : VurdertVilkårDao {
         kode: Kode,
         vurdering: Vilkaarsvurdering,
     ): Int {
-        vurderinger[behandlingDbRecord.id to kode.kode] = VurdertVilkår(kode = kode.kode, vurdering = vurdering)
+        vurderinger[behandlingDbRecord.id to kode.kode] = LegacyVurdertVilkår(kode = kode.kode, vurdering = vurdering)
         return 1
     }
 }

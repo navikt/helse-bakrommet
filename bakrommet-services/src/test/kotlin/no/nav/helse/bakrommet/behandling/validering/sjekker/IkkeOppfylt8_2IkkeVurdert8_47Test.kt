@@ -4,9 +4,9 @@ package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.enkelBehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                 beregningData = null,
                 vurderteVilkår =
                     listOf(
-                        VurdertVilkår(
+                        LegacyVurdertVilkår(
                             kode = "1",
                             vurdering =
                                 Vilkaarsvurdering(
@@ -48,7 +48,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                 beregningData = null,
                 vurderteVilkår =
                     listOf(
-                        VurdertVilkår(
+                        LegacyVurdertVilkår(
                             kode = "1",
                             vurdering =
                                 Vilkaarsvurdering(
@@ -59,7 +59,7 @@ class IkkeOppfylt8_2IkkeVurdert8_47Test {
                                     notat = "",
                                 ),
                         ),
-                        VurdertVilkår(
+                        LegacyVurdertVilkår(
                             kode = "1",
                             vurdering =
                                 Vilkaarsvurdering(

@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Sporbar
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
@@ -19,7 +19,7 @@ val SEKSTIFEM_PROSENT = ProsentdelDto(0.65)
 /**
  * Type-sikker versjon av hentDekningsgrad
  */
-fun YrkesaktivitetKategorisering.hentDekningsgrad(vilkår: List<VurdertVilkår>): Sporbar<ProsentdelDto> =
+fun YrkesaktivitetKategorisering.hentDekningsgrad(vilkår: List<LegacyVurdertVilkår>): Sporbar<ProsentdelDto> =
     when (this) {
         is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
             when (val typeSelvstendig = this.typeSelvstendigNæringsdrivende) {

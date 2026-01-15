@@ -4,8 +4,8 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.MedSession
@@ -32,7 +32,7 @@ class VurdertVilkårDaoPg private constructor(
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
 
-    override fun hentVilkårsvurderinger(behandlingId: UUID): List<`VurdertVilkår`> =
+    override fun hentVilkårsvurderinger(behandlingId: UUID): List<LegacyVurdertVilkår> =
         db.list(
             sql =
                 """
@@ -43,7 +43,7 @@ class VurdertVilkårDaoPg private constructor(
         ) {
             val vurderingJson = it.string("vurdering")
             val vurdering: Vilkaarsvurdering = objectMapper.readValue(vurderingJson)
-            `VurdertVilkår`(
+            LegacyVurdertVilkår(
                 kode = it.string("kode"),
                 vurdering = vurdering,
             )
@@ -52,7 +52,7 @@ class VurdertVilkårDaoPg private constructor(
     override fun hentVilkårsvurdering(
         behandlingId: UUID,
         kode: String,
-    ): `VurdertVilkår`? =
+    ): LegacyVurdertVilkår? =
         db.single(
             sql =
                 """
@@ -65,7 +65,7 @@ class VurdertVilkårDaoPg private constructor(
         ) {
             val vurderingJson = it.string("vurdering")
             val vurdering: Vilkaarsvurdering = objectMapper.readValue(vurderingJson)
-            `VurdertVilkår`(
+            LegacyVurdertVilkår(
                 kode = it.string("kode"),
                 vurdering = vurdering,
             )

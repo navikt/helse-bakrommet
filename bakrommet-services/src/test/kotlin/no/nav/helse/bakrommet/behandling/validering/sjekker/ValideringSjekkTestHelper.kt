@@ -6,10 +6,10 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRe
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningData
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.validering.ValideringSjekk
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
@@ -34,9 +34,9 @@ internal infix fun ValideringSjekk.`skal ha konsistens med`(data: ValideringData
     assertFalse(inkonsistens, "Forventet at sjekken $id skulle være konsistent, men var inkonsistent")
 }
 
-fun vurdertVilkårMedBegrunnelse(b: VilkårskodeBegrunnelse): List<VurdertVilkår> =
+fun vurdertVilkårMedBegrunnelse(b: VilkårskodeBegrunnelse): List<LegacyVurdertVilkår> =
     listOf(
-        VurdertVilkår(
+        LegacyVurdertVilkår(
             kode = "1",
             vurdering =
                 Vilkaarsvurdering(
@@ -58,8 +58,8 @@ fun vurdertVilkårMedBegrunnelse(b: VilkårskodeBegrunnelse): List<VurdertVilkå
 fun vilkårVurdertSom(
     vilkar: Vilkårskode,
     vurdering: Vurdering,
-): VurdertVilkår =
-    VurdertVilkår(
+): LegacyVurdertVilkår =
+    LegacyVurdertVilkår(
         kode = "1",
         vurdering =
             Vilkaarsvurdering(
@@ -75,7 +75,7 @@ fun data(
     sykepengegrunnlag: SykepengegrunnlagDbRecord? = null,
     behandlingDbRecord: BehandlingDbRecord = enkelBehandlingDbRecord,
     yrkesaktiviteter: List<Yrkesaktivitet> = emptyList(),
-    vurderteVilkår: List<VurdertVilkår> = emptyList(),
+    vurderteVilkår: List<LegacyVurdertVilkår> = emptyList(),
     beregningData: BeregningData? = null,
 ): ValideringData =
     ValideringData(

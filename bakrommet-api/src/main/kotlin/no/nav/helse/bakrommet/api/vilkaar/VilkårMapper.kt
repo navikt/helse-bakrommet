@@ -4,13 +4,13 @@ import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingRequestDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingUnderspørsmålDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingRequest
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 
-fun VurdertVilkår.tilVilkaarsvurderingDto(): VilkaarsvurderingDto = vurdering.tilVilkaarsvurderingDto()
+fun LegacyVurdertVilkår.tilVilkaarsvurderingDto(): VilkaarsvurderingDto = vurdering.tilVilkaarsvurderingDto()
 
 private fun Vilkaarsvurdering.tilVilkaarsvurderingDto(): VilkaarsvurderingDto =
     VilkaarsvurderingDto(

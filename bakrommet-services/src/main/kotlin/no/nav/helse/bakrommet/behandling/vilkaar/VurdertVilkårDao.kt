@@ -3,18 +3,18 @@ package no.nav.helse.bakrommet.behandling.vilkaar
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import java.util.UUID
 
-data class VurdertVilkår(
+data class LegacyVurdertVilkår(
     val kode: String,
     val vurdering: Vilkaarsvurdering,
 )
 
 interface VurdertVilkårDao {
-    fun hentVilkårsvurderinger(behandlingId: UUID): List<VurdertVilkår>
+    fun hentVilkårsvurderinger(behandlingId: UUID): List<LegacyVurdertVilkår>
 
     fun hentVilkårsvurdering(
         behandlingId: UUID,
         kode: String,
-    ): VurdertVilkår?
+    ): LegacyVurdertVilkår?
 
     fun slettVilkårsvurdering(
         behandlingId: UUID,

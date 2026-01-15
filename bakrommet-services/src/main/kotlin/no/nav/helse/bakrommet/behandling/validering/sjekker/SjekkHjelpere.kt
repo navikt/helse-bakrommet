@@ -1,15 +1,15 @@
 package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Arbeidstaker
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode
 import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 
-fun List<VurdertVilkår>.resultat(vilkårskode: Vilkårskode): Vurdering? = this.find { it.vurdering.vilkårskode == vilkårskode.name }?.vurdering?.vurdering
+fun List<LegacyVurdertVilkår>.resultat(vilkårskode: Vilkårskode): Vurdering? = this.find { it.vurdering.vilkårskode == vilkårskode.name }?.vurdering?.vurdering
 
 fun <T> List<T>.containsAny(vararg string: T): Boolean = this.any { string.contains(it) }
 

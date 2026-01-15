@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
@@ -95,7 +95,7 @@ class YrkesaktivitetExtensionsTest {
 
         val vilkår =
             listOf(
-                VurdertVilkår(
+                LegacyVurdertVilkår(
                     kode = "123",
                     vurdering =
                         Vilkaarsvurdering(

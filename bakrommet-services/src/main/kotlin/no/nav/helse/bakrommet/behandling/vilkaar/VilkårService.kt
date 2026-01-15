@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.util.logg
-import java.util.UUID
+import java.util.*
 
 fun String.erGyldigSomKode(): Boolean {
     // Først sjekk om det er en gyldig UUID
@@ -54,7 +54,7 @@ interface VilkårServiceDaoer :
 }
 
 class OppdatertVilkårResultat(
-    val vilkaarsvurdering: VurdertVilkår,
+    val vilkaarsvurdering: LegacyVurdertVilkår,
     val opprettetEllerEndret: OpprettetEllerEndret,
     val invalidations: List<String> = emptyList(),
 )
@@ -63,7 +63,7 @@ class VilkårService(
     private val db: DbDaoer<VilkårServiceDaoer>,
     private val yrkesaktivitetService: YrkesaktivitetService,
 ) {
-    suspend fun hentVilkårsvurderingerFor(ref: BehandlingReferanse): List<VurdertVilkår> =
+    suspend fun hentVilkårsvurderingerFor(ref: BehandlingReferanse): List<LegacyVurdertVilkår> =
         db.nonTransactional {
             val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
             vurdertVilkårDao.hentVilkårsvurderinger(periode.id)

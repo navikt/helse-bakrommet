@@ -5,10 +5,10 @@ import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.enkelBehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.enkelYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
+import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkår
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -51,7 +51,7 @@ class AvslåttBegrunnelseUtenVilkårsvurderingTest {
                 sykepengegrunnlag = null,
                 vurderteVilkår =
                     listOf(
-                        VurdertVilkår(
+                        LegacyVurdertVilkår(
                             kode = "1",
                             vurdering =
                                 Vilkaarsvurdering(
