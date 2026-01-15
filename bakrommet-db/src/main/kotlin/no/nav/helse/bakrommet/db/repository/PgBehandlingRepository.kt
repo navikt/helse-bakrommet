@@ -25,6 +25,14 @@ class PgBehandlingRepository private constructor(
             "id" to behandlingId.value,
         ) { rowTilPeriode(it) }
 
+    override fun finnAlle(): List<Behandling> {
+        TODO("Ikke implementert i PgBehandlingRepository")
+    }
+
+    override fun finnFor(naturligIdent: NaturligIdent): List<Behandling> {
+        TODO("Ikke implementert i PgBehandlingRepository")
+    }
+
     override fun lagre(behandling: Behandling) {
         queryRunner.update(
             """

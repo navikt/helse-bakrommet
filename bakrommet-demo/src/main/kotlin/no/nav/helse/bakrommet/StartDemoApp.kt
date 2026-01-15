@@ -24,6 +24,7 @@ import no.nav.helse.bakrommet.api.auth.RolleMatrise
 import no.nav.helse.bakrommet.api.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.api.setupApiRoutes
 import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
@@ -46,17 +47,21 @@ import java.util.UUID
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 
 class FakeDaoer : AlleDaoer {
-    override val behandlingDao = BehandlingDaoFake()
     override val behandlingRepository: BehandlingRepository =
         object : BehandlingRepository {
             private val behandlinger = mutableMapOf<BehandlingId, Behandling>()
 
             override fun finn(behandlingId: BehandlingId): Behandling? = behandlinger[behandlingId]
 
+            override fun finnAlle(): List<Behandling> = behandlinger.values.toList()
+
+            override fun finnFor(naturligIdent: NaturligIdent): List<Behandling> = behandlinger.values.filter { it gjelder naturligIdent }
+
             override fun lagre(behandling: Behandling) {
                 behandlinger[behandling.id] = behandling
             }
         }
+    override val behandlingDao = BehandlingDaoFake(behandlingRepository)
 
     override val vilkårsvurderingRepository: VilkårsvurderingRepository =
         object : VilkårsvurderingRepository {
@@ -74,12 +79,12 @@ class FakeDaoer : AlleDaoer {
                 vurderteVilkår.remove(vilkårsvurderingId)
             }
         }
+    override val vurdertVilkårDao = VurdertVilkårDaoFake(vilkårsvurderingRepository)
 
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()
     override val personPseudoIdDao = PersonPseudoIdDaoFake()
     override val dokumentDao = DokumentDaoFake()
     override val yrkesaktivitetDao = YrkesaktivitetDaoFake()
-    override val vurdertVilkårDao = VurdertVilkårDaoFake()
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoFake()
     override val beregningDao = UtbetalingsberegningDaoFake()
     override val outboxDao = OutboxDaoFake()

@@ -4,35 +4,41 @@ import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.repository.BehandlingRepository
 import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus as DomainBehandlingStatus
 
-class BehandlingDaoFake : BehandlingDao {
-    private val perioder = ConcurrentHashMap<UUID, BehandlingDbRecord>()
+class BehandlingDaoFake(
+    private val behandlingRepository: BehandlingRepository,
+) : BehandlingDao {
+    override fun hentAlleBehandlinger(): List<BehandlingDbRecord> = behandlingRepository.finnAlle().map { it.tilDbRecord() }
 
-    override fun hentAlleBehandlinger(): List<BehandlingDbRecord> = perioder.values.toList()
+    override fun finnBehandling(id: UUID): BehandlingDbRecord? = behandlingRepository.finn(BehandlingId(id))?.tilDbRecord()
 
-    override fun finnBehandling(id: UUID): BehandlingDbRecord? = perioder[id]
-
-    override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<BehandlingDbRecord> = perioder.values.filter { it.naturligIdent == naturligIdent }
+    override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<BehandlingDbRecord> = behandlingRepository.finnFor(naturligIdent).map { it.tilDbRecord() }
 
     override fun finnBehandlingerForNaturligIdentSomOverlapper(
         naturligIdent: NaturligIdent,
         fom: LocalDate,
         tom: LocalDate,
     ): List<BehandlingDbRecord> =
-        perioder.values.filter {
-            it.naturligIdent == naturligIdent && it.fom <= tom && it.tom >= fom
-        }
+        behandlingRepository
+            .finnFor(naturligIdent)
+            .filter { it.fom <= tom && it.tom >= fom }
+            .map { it.tilDbRecord() }
 
     override fun endreStatus(
         periode: BehandlingDbRecord,
         nyStatus: BehandlingStatus,
     ) {
         check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
-        val eksisterende = perioder[periode.id] ?: return
-        perioder[periode.id] = eksisterende.copy(status = nyStatus)
+        val eksisterende = behandlingRepository.finn(BehandlingId(periode.id)) ?: return
+        behandlingRepository.lagre(eksisterende.medStatus(nyStatus.tilDomainStatus()))
     }
 
     override fun endreStatusOgIndividuellBegrunnelse(
@@ -41,8 +47,12 @@ class BehandlingDaoFake : BehandlingDao {
         individuellBegrunnelse: String?,
     ) {
         check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
-        val eksisterende = perioder[periode.id] ?: return
-        perioder[periode.id] = eksisterende.copy(status = nyStatus, individuellBegrunnelse = individuellBegrunnelse)
+        val eksisterende = behandlingRepository.finn(BehandlingId(periode.id)) ?: return
+        behandlingRepository.lagre(
+            eksisterende
+                .medStatus(nyStatus.tilDomainStatus())
+                .medIndividuellBegrunnelse(individuellBegrunnelse),
+        )
     }
 
     override fun endreStatusOgBeslutter(
@@ -51,35 +61,187 @@ class BehandlingDaoFake : BehandlingDao {
         beslutterNavIdent: String?,
     ) {
         check(BehandlingStatus.erGyldigEndring(periode.status to nyStatus))
-        val eksisterende = perioder[periode.id] ?: return
-        perioder[periode.id] = eksisterende.copy(status = nyStatus, beslutterNavIdent = beslutterNavIdent)
+        val eksisterende = behandlingRepository.finn(BehandlingId(periode.id)) ?: return
+        behandlingRepository.lagre(
+            eksisterende
+                .medStatus(nyStatus.tilDomainStatus())
+                .medBeslutterNavIdent(beslutterNavIdent),
+        )
     }
 
     override fun opprettPeriode(periode: BehandlingDbRecord) {
-        perioder[periode.id] = periode
+        behandlingRepository.lagre(periode.tilBehandling())
     }
 
     override fun oppdaterSkjæringstidspunkt(
         behandlingId: UUID,
         skjæringstidspunkt: LocalDate,
     ) {
-        val eksisterende = perioder[behandlingId] ?: return
-        perioder[behandlingId] = eksisterende.copy(skjæringstidspunkt = skjæringstidspunkt)
+        val eksisterende = behandlingRepository.finn(BehandlingId(behandlingId)) ?: return
+        behandlingRepository.lagre(eksisterende.medSkjæringstidspunkt(skjæringstidspunkt))
     }
 
     override fun oppdaterSykepengegrunnlagId(
         behandlingId: UUID,
         sykepengegrunnlagId: UUID?,
     ) {
-        val eksisterende = perioder[behandlingId] ?: return
-        perioder[behandlingId] = eksisterende.copy(sykepengegrunnlagId = sykepengegrunnlagId)
+        val eksisterende = behandlingRepository.finn(BehandlingId(behandlingId)) ?: return
+        behandlingRepository.lagre(eksisterende.medSykepengegrunnlagId(sykepengegrunnlagId))
     }
 
     override fun oppdaterRevurdertAvBehandlingId(
         behandlingId: UUID,
         revurdertAvBehandlingId: UUID,
     ) {
-        val eksisterende = perioder[behandlingId] ?: return
-        perioder[behandlingId] = eksisterende.copy(revurdertAvBehandlingId = revurdertAvBehandlingId)
+        val eksisterende = behandlingRepository.finn(BehandlingId(behandlingId)) ?: return
+        behandlingRepository.lagre(eksisterende.medRevurdertAvBehandlingId(BehandlingId(revurdertAvBehandlingId)))
     }
+
+    private fun BehandlingDbRecord.tilBehandling(): Behandling =
+        Behandling.fraLagring(
+            id = BehandlingId(id),
+            naturligIdent = naturligIdent,
+            opprettet = opprettet.toInstant(),
+            opprettetAvNavIdent = opprettetAvNavIdent,
+            opprettetAvNavn = opprettetAvNavn,
+            fom = fom,
+            tom = tom,
+            status = status.tilDomainStatus(),
+            beslutterNavIdent = beslutterNavIdent,
+            skjæringstidspunkt = skjæringstidspunkt,
+            individuellBegrunnelse = individuellBegrunnelse,
+            sykepengegrunnlagId = sykepengegrunnlagId,
+            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId?.let { BehandlingId(it) },
+            revurdertAvBehandlingId = revurdertAvBehandlingId?.let { BehandlingId(it) },
+        )
+
+    private fun Behandling.tilDbRecord(): BehandlingDbRecord =
+        BehandlingDbRecord(
+            id = id.value,
+            naturligIdent = naturligIdent,
+            opprettet = OffsetDateTime.ofInstant(opprettet, ZoneOffset.UTC),
+            opprettetAvNavIdent = opprettetAvNavIdent,
+            opprettetAvNavn = opprettetAvNavn,
+            fom = fom,
+            tom = tom,
+            status = status.tilDaoStatus(),
+            beslutterNavIdent = beslutterNavIdent,
+            skjæringstidspunkt = skjæringstidspunkt,
+            individuellBegrunnelse = individuellBegrunnelse,
+            sykepengegrunnlagId = sykepengegrunnlagId,
+            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId?.value,
+            revurdertAvBehandlingId = revurdertAvBehandlingId?.value,
+        )
+
+    private fun BehandlingStatus.tilDomainStatus(): DomainBehandlingStatus = DomainBehandlingStatus.valueOf(name)
+
+    private fun DomainBehandlingStatus.tilDaoStatus(): BehandlingStatus = BehandlingStatus.valueOf(name)
+
+    private fun Behandling.medStatus(nyStatus: DomainBehandlingStatus): Behandling =
+        Behandling.fraLagring(
+            id = id,
+            naturligIdent = naturligIdent,
+            opprettet = opprettet,
+            opprettetAvNavIdent = opprettetAvNavIdent,
+            opprettetAvNavn = opprettetAvNavn,
+            fom = fom,
+            tom = tom,
+            status = nyStatus,
+            beslutterNavIdent = beslutterNavIdent,
+            skjæringstidspunkt = skjæringstidspunkt,
+            individuellBegrunnelse = individuellBegrunnelse,
+            sykepengegrunnlagId = sykepengegrunnlagId,
+            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdertAvBehandlingId = revurdertAvBehandlingId,
+        )
+
+    private fun Behandling.medIndividuellBegrunnelse(nyBegrunnelse: String?): Behandling =
+        Behandling.fraLagring(
+            id = id,
+            naturligIdent = naturligIdent,
+            opprettet = opprettet,
+            opprettetAvNavIdent = opprettetAvNavIdent,
+            opprettetAvNavn = opprettetAvNavn,
+            fom = fom,
+            tom = tom,
+            status = status,
+            beslutterNavIdent = beslutterNavIdent,
+            skjæringstidspunkt = skjæringstidspunkt,
+            individuellBegrunnelse = nyBegrunnelse,
+            sykepengegrunnlagId = sykepengegrunnlagId,
+            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdertAvBehandlingId = revurdertAvBehandlingId,
+        )
+
+    private fun Behandling.medBeslutterNavIdent(nyBeslutter: String?): Behandling =
+        Behandling.fraLagring(
+            id = id,
+            naturligIdent = naturligIdent,
+            opprettet = opprettet,
+            opprettetAvNavIdent = opprettetAvNavIdent,
+            opprettetAvNavn = opprettetAvNavn,
+            fom = fom,
+            tom = tom,
+            status = status,
+            beslutterNavIdent = nyBeslutter,
+            skjæringstidspunkt = skjæringstidspunkt,
+            individuellBegrunnelse = individuellBegrunnelse,
+            sykepengegrunnlagId = sykepengegrunnlagId,
+            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdertAvBehandlingId = revurdertAvBehandlingId,
+        )
+
+    private fun Behandling.medSkjæringstidspunkt(nySkjæringstidspunkt: LocalDate): Behandling =
+        Behandling.fraLagring(
+            id = id,
+            naturligIdent = naturligIdent,
+            opprettet = opprettet,
+            opprettetAvNavIdent = opprettetAvNavIdent,
+            opprettetAvNavn = opprettetAvNavn,
+            fom = fom,
+            tom = tom,
+            status = status,
+            beslutterNavIdent = beslutterNavIdent,
+            skjæringstidspunkt = nySkjæringstidspunkt,
+            individuellBegrunnelse = individuellBegrunnelse,
+            sykepengegrunnlagId = sykepengegrunnlagId,
+            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdertAvBehandlingId = revurdertAvBehandlingId,
+        )
+
+    private fun Behandling.medSykepengegrunnlagId(nySykepengegrunnlagId: UUID?): Behandling =
+        Behandling.fraLagring(
+            id = id,
+            naturligIdent = naturligIdent,
+            opprettet = opprettet,
+            opprettetAvNavIdent = opprettetAvNavIdent,
+            opprettetAvNavn = opprettetAvNavn,
+            fom = fom,
+            tom = tom,
+            status = status,
+            beslutterNavIdent = beslutterNavIdent,
+            skjæringstidspunkt = skjæringstidspunkt,
+            individuellBegrunnelse = individuellBegrunnelse,
+            sykepengegrunnlagId = nySykepengegrunnlagId,
+            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdertAvBehandlingId = revurdertAvBehandlingId,
+        )
+
+    private fun Behandling.medRevurdertAvBehandlingId(nyRevurdertAvBehandlingId: BehandlingId): Behandling =
+        Behandling.fraLagring(
+            id = id,
+            naturligIdent = naturligIdent,
+            opprettet = opprettet,
+            opprettetAvNavIdent = opprettetAvNavIdent,
+            opprettetAvNavn = opprettetAvNavn,
+            fom = fom,
+            tom = tom,
+            status = status,
+            beslutterNavIdent = beslutterNavIdent,
+            skjæringstidspunkt = skjæringstidspunkt,
+            individuellBegrunnelse = individuellBegrunnelse,
+            sykepengegrunnlagId = sykepengegrunnlagId,
+            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdertAvBehandlingId = nyRevurdertAvBehandlingId,
+        )
 }
