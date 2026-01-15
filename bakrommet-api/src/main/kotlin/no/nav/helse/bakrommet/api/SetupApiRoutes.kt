@@ -16,12 +16,12 @@ import no.nav.helse.bakrommet.api.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.api.validering.valideringRoute
 import no.nav.helse.bakrommet.api.vilkaar.vilkårRoute
 import no.nav.helse.bakrommet.api.yrkesaktivitet.yrkesaktivitetRoute
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.Repositories
 
 fun Route.setupApiRoutes(
     services: Services,
-    db: DbDaoer<Repositories>,
+    db: DbDaoer<AlleDaoer>,
 ) {
     behandlingRoute(services.behandlingService, services.personService)
     brukerRoute()

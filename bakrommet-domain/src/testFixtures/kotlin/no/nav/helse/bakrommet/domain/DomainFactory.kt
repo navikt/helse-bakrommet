@@ -70,9 +70,8 @@ fun enBehandling(
 fun etVurdertVilkår(
     behandlingId: BehandlingId,
     vilkårskode: Vilkårskode = Vilkårskode(UUID.randomUUID().toString()),
-    hovedspørsmål: String = "Er vilkåret oppfylt?",
     underspørsmål: List<VilkårsvurderingUnderspørsmål> = emptyList(),
-    vurdering: VurdertVilkår.Vurdering = VurdertVilkår.Vurdering.OPPFYLT,
+    utfall: VurdertVilkår.Utfall = VurdertVilkår.Utfall.OPPFYLT,
     notat: String? = null,
 ) = VurdertVilkår(
     id =
@@ -80,8 +79,10 @@ fun etVurdertVilkår(
             behandlingId = behandlingId,
             vilkårskode = vilkårskode,
         ),
-    hovedspørsmål = hovedspørsmål,
-    underspørsmål = underspørsmål,
-    vurdering = vurdering,
-    notat = notat,
+    vurdering =
+        VurdertVilkår.Vurdering(
+            underspørsmål = underspørsmål,
+            utfall = utfall,
+            notat = notat,
+        ),
 )

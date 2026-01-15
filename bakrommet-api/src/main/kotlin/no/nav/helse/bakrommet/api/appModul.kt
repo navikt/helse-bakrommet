@@ -12,15 +12,15 @@ import io.ktor.server.routing.routing
 import no.nav.helse.bakrommet.Services
 import no.nav.helse.bakrommet.api.auth.RolleMatrise
 import no.nav.helse.bakrommet.api.errorhandling.installErrorHandling
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.infrastruktur.db.Repositories
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.event.Level
 
 internal fun Application.appModul(
     services: Services,
-    db: DbDaoer<Repositories>,
+    db: DbDaoer<AlleDaoer>,
     errorHandlingIncludeStackTrace: Boolean = false,
 ) {
     install(ContentNegotiation) {

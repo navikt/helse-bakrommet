@@ -12,6 +12,10 @@ interface PersonPseudoIdDao {
 
     fun finnNaturligIdent(pseudoId: UUID): NaturligIdent?
 
+    fun finnNaturligIdent(pseudoId: PseudoId): NaturligIdent? = finnNaturligIdent(pseudoId.value)
+
+    fun hentNaturligIdent(pseudoId: PseudoId): NaturligIdent = finnNaturligIdent(pseudoId) ?: error("Fant ingen naturligIdent for pseudoId=${pseudoId.value}")
+
     fun finnPseudoID(naturligIdent: NaturligIdent): UUID?
 
     fun slettPseudoIderEldreEnn(tidspunkt: OffsetDateTime): Int

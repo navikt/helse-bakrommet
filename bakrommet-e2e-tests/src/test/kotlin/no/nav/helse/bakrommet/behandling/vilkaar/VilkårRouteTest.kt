@@ -262,7 +262,7 @@ class VilkårRouteTest {
             val pers = personPseudoId.toString()
             assertEquals(
                 """
-                {"type":"https://spillerom.ansatt.nav.no/validation/input","title":"Ugyldig format på Kode","status":400,"detail":null,"instance":"/v1/$pers/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ugyldig-KODE"}
+                {"type":"https://spillerom.ansatt.nav.no/validation/request","title":"Ugyldig forespørsel","status":400,"detail":"Ugyldig format på Kode","instance":"/v1/$pers/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ugyldig-KODE"}
                 """.trimIndent(),
                 vilkårPostResponse.bodyAsText(),
             )

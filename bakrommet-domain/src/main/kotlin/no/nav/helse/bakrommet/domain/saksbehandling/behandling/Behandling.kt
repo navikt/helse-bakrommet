@@ -47,6 +47,8 @@ class Behandling private constructor(
 
     fun erÅpenForEndringer() = status == BehandlingStatus.UNDER_BEHANDLING
 
+    infix fun gjelder(naturligIdent: NaturligIdent): Boolean = this.naturligIdent == naturligIdent
+
     companion object {
         fun fraLagring(
             id: BehandlingId,
@@ -73,7 +75,7 @@ class Behandling private constructor(
             tom = tom,
             status = status,
             beslutterNavIdent = beslutterNavIdent,
-            `skjæringstidspunkt` = skjæringstidspunkt,
+            skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = revurdererSaksbehandlingsperiodeId,

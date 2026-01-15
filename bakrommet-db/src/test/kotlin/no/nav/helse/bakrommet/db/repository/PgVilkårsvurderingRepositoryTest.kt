@@ -35,10 +35,9 @@ class PgVilkårsvurderingRepositoryTest {
         assertNotNull(funnet)
 
         assertEquals(vurdertVilkår.id, funnet.id)
-        assertEquals(vurdertVilkår.vurdering, funnet.vurdering)
-        assertEquals(vurdertVilkår.hovedspørsmål, funnet.hovedspørsmål)
-        assertEquals(vurdertVilkår.underspørsmål, funnet.underspørsmål)
-        assertEquals(vurdertVilkår.notat, funnet.notat)
+        assertEquals(vurdertVilkår.vurdering.utfall, funnet.vurdering.utfall)
+        assertEquals(vurdertVilkår.vurdering.underspørsmål, funnet.vurdering.underspørsmål)
+        assertEquals(vurdertVilkår.vurdering.notat, funnet.vurdering.notat)
     }
 
     @Test
@@ -67,8 +66,11 @@ class PgVilkårsvurderingRepositoryTest {
 
         // when
         vurdertVilkår.nyVurdering(
-            vurdering = VurdertVilkår.Vurdering.IKKE_OPPFYLT,
-            notat = "Oppdatert notat",
+            VurdertVilkår.Vurdering(
+                utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
+                underspørsmål = vurdertVilkår.vurdering.underspørsmål,
+                notat = "Oppdatert notat",
+            ),
         )
         repository.lagre(vurdertVilkår)
 
@@ -77,10 +79,9 @@ class PgVilkårsvurderingRepositoryTest {
         assertNotNull(funnet)
 
         assertEquals(vurdertVilkår.id, funnet.id)
-        assertEquals(VurdertVilkår.Vurdering.IKKE_OPPFYLT, funnet.vurdering)
-        assertEquals("Oppdatert notat", funnet.notat)
-        assertEquals(vurdertVilkår.hovedspørsmål, funnet.hovedspørsmål)
-        assertEquals(vurdertVilkår.underspørsmål, funnet.underspørsmål)
+        assertEquals(VurdertVilkår.Utfall.IKKE_OPPFYLT, funnet.vurdering.utfall)
+        assertEquals("Oppdatert notat", funnet.vurdering.notat)
+        assertEquals(vurdertVilkår.vurdering.underspørsmål, funnet.vurdering.underspørsmål)
     }
 
     @Test
@@ -100,9 +101,8 @@ class PgVilkårsvurderingRepositoryTest {
             etVurdertVilkår(
                 behandlingId = behandling.id,
                 vilkårskode = Vilkårskode("OPPTJENING"),
-                hovedspørsmål = "Har bruker oppfylt opptjeningsvilkåret?",
                 underspørsmål = underspørsmål,
-                vurdering = VurdertVilkår.Vurdering.OPPFYLT,
+                utfall = VurdertVilkår.Utfall.OPPFYLT,
                 notat = "Notat med underspørsmål",
             )
 
@@ -113,13 +113,13 @@ class PgVilkårsvurderingRepositoryTest {
         val funnet = repository.finn(vurdertVilkår.id)
         assertNotNull(funnet)
 
-        assertEquals(3, funnet.underspørsmål.size)
-        assertEquals(underspørsmål[0].spørsmål, funnet.underspørsmål[0].spørsmål)
-        assertEquals(underspørsmål[0].svar, funnet.underspørsmål[0].svar)
-        assertEquals(underspørsmål[1].spørsmål, funnet.underspørsmål[1].spørsmål)
-        assertEquals(underspørsmål[1].svar, funnet.underspørsmål[1].svar)
-        assertEquals(underspørsmål[2].spørsmål, funnet.underspørsmål[2].spørsmål)
-        assertEquals(underspørsmål[2].svar, funnet.underspørsmål[2].svar)
+        assertEquals(3, funnet.vurdering.underspørsmål.size)
+        assertEquals(underspørsmål[0].spørsmål, funnet.vurdering.underspørsmål[0].spørsmål)
+        assertEquals(underspørsmål[0].svar, funnet.vurdering.underspørsmål[0].svar)
+        assertEquals(underspørsmål[1].spørsmål, funnet.vurdering.underspørsmål[1].spørsmål)
+        assertEquals(underspørsmål[1].svar, funnet.vurdering.underspørsmål[1].svar)
+        assertEquals(underspørsmål[2].spørsmål, funnet.vurdering.underspørsmål[2].spørsmål)
+        assertEquals(underspørsmål[2].svar, funnet.vurdering.underspørsmål[2].svar)
     }
 
     @Test
@@ -132,9 +132,8 @@ class PgVilkårsvurderingRepositoryTest {
             etVurdertVilkår(
                 behandlingId = behandling.id,
                 vilkårskode = Vilkårskode("OPPTJENING"),
-                hovedspørsmål = "Har bruker oppfylt opptjeningsvilkåret?",
                 underspørsmål = emptyList(),
-                vurdering = VurdertVilkår.Vurdering.SKAL_IKKE_VURDERES,
+                utfall = VurdertVilkår.Utfall.SKAL_IKKE_VURDERES,
                 notat = null,
             )
 
@@ -144,8 +143,8 @@ class PgVilkårsvurderingRepositoryTest {
         // then
         val funnet = repository.finn(vurdertVilkår.id)
         assertNotNull(funnet)
-        assertNull(funnet.notat)
-        assertEquals(VurdertVilkår.Vurdering.SKAL_IKKE_VURDERES, funnet.vurdering)
+        assertNull(funnet.vurdering.notat)
+        assertEquals(VurdertVilkår.Utfall.SKAL_IKKE_VURDERES, funnet.vurdering.utfall)
     }
 
     @Test
@@ -158,9 +157,8 @@ class PgVilkårsvurderingRepositoryTest {
             etVurdertVilkår(
                 behandlingId = behandling.id,
                 vilkårskode = Vilkårskode("OPPTJENING"),
-                hovedspørsmål = "Har bruker oppfylt opptjeningsvilkåret?",
                 underspørsmål = emptyList(),
-                vurdering = VurdertVilkår.Vurdering.OPPFYLT,
+                utfall = VurdertVilkår.Utfall.OPPFYLT,
                 notat = "Opptjeningsvilkår oppfylt",
             )
 
@@ -168,9 +166,8 @@ class PgVilkårsvurderingRepositoryTest {
             etVurdertVilkår(
                 behandlingId = behandling.id,
                 vilkårskode = Vilkårskode("SYK_INAKTIV"),
-                hovedspørsmål = "Er bruker syk og inaktiv?",
                 underspørsmål = emptyList(),
-                vurdering = VurdertVilkår.Vurdering.IKKE_OPPFYLT,
+                utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
                 notat = "Syk og inaktiv ikke oppfylt",
             )
 
@@ -186,9 +183,9 @@ class PgVilkårsvurderingRepositoryTest {
         assertNotNull(funnet2)
 
         assertEquals(Vilkårskode("OPPTJENING"), funnet1.id.vilkårskode)
-        assertEquals(VurdertVilkår.Vurdering.OPPFYLT, funnet1.vurdering)
+        assertEquals(VurdertVilkår.Utfall.OPPFYLT, funnet1.vurdering.utfall)
 
         assertEquals(Vilkårskode("SYK_INAKTIV"), funnet2.id.vilkårskode)
-        assertEquals(VurdertVilkår.Vurdering.IKKE_OPPFYLT, funnet2.vurdering)
+        assertEquals(VurdertVilkår.Utfall.IKKE_OPPFYLT, funnet2.vurdering.utfall)
     }
 }

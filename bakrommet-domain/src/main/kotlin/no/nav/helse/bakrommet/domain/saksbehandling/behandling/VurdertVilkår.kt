@@ -12,7 +12,7 @@ value class Vilkårskode(
     val value: String,
 ) {
     init {
-        check(value.erGyldigSomKode()) { "Vilkårskode har feil format" }
+        require(value.erGyldigSomKode()) { "Ugyldig format på Kode" }
     }
 
     private companion object {
@@ -38,28 +38,37 @@ data class VilkårsvurderingId(
 
 class VurdertVilkår(
     val id: VilkårsvurderingId,
-    val hovedspørsmål: String,
-    val underspørsmål: List<VilkårsvurderingUnderspørsmål>,
     vurdering: Vurdering,
-    notat: String?,
 ) {
     var vurdering: Vurdering = vurdering
-        private set
-    var notat: String? = notat
         private set
 
     fun nyVurdering(
         vurdering: Vurdering,
-        notat: String?,
     ) {
         this.vurdering = vurdering
-        this.notat = notat
     }
 
-    enum class Vurdering {
+    companion object {
+        fun ny(
+            vilkårsvurderingId: VilkårsvurderingId,
+            vurdering: Vurdering,
+        ) = VurdertVilkår(
+            id = vilkårsvurderingId,
+            vurdering = vurdering,
+        )
+    }
+
+    enum class Utfall {
         OPPFYLT,
         IKKE_OPPFYLT,
         IKKE_RELEVANT,
         SKAL_IKKE_VURDERES,
     }
+
+    data class Vurdering(
+        val underspørsmål: List<VilkårsvurderingUnderspørsmål>,
+        val notat: String?,
+        val utfall: Utfall,
+    )
 }

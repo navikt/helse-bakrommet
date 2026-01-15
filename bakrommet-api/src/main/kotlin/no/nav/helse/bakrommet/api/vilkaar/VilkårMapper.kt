@@ -1,14 +1,13 @@
 package no.nav.helse.bakrommet.api.vilkaar
 
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
-import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingRequestDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingUnderspørsmålDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
 import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
 import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingRequest
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 
 fun LegacyVurdertVilkår.tilVilkaarsvurderingDto(): VilkaarsvurderingDto = vurdering.tilVilkaarsvurderingDto()
 
@@ -35,24 +34,25 @@ private fun Vurdering.tilVurderingDto(): VurderingDto =
         Vurdering.SKAL_IKKE_VURDERES -> VurderingDto.SKAL_IKKE_VURDERES
     }
 
-fun VilkaarsvurderingRequestDto.tilVilkaarsvurderingRequest(): VilkaarsvurderingRequest =
-    VilkaarsvurderingRequest(
-        vilkårskode = vilkårskode,
-        vurdering = vurdering.tilVurdering(),
-        underspørsmål = underspørsmål.map { it.tilVilkaarsvurderingUnderspørsmål() },
-        notat = notat,
+internal fun VurdertVilkår.skapVilkaarsvurderingDto(): VilkaarsvurderingDto =
+    VilkaarsvurderingDto(
+        hovedspørsmål = id.vilkårskode.value,
+        vilkårskode = id.vilkårskode.value,
+        vurdering = vurdering.utfall.tilVurderingDto(),
+        underspørsmål = vurdering.underspørsmål.map { it.tilVilkaarsvurderingUnderspørsmålDto() },
+        notat = vurdering.notat,
     )
 
-private fun VilkaarsvurderingUnderspørsmålDto.tilVilkaarsvurderingUnderspørsmål(): VilkaarsvurderingUnderspørsmål =
-    VilkaarsvurderingUnderspørsmål(
+private fun VurdertVilkår.Utfall.tilVurderingDto(): VurderingDto =
+    when (this) {
+        VurdertVilkår.Utfall.OPPFYLT -> VurderingDto.OPPFYLT
+        VurdertVilkår.Utfall.IKKE_OPPFYLT -> VurderingDto.IKKE_OPPFYLT
+        VurdertVilkår.Utfall.IKKE_RELEVANT -> VurderingDto.IKKE_RELEVANT
+        VurdertVilkår.Utfall.SKAL_IKKE_VURDERES -> VurderingDto.SKAL_IKKE_VURDERES
+    }
+
+private fun no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål.tilVilkaarsvurderingUnderspørsmålDto(): VilkaarsvurderingUnderspørsmålDto =
+    VilkaarsvurderingUnderspørsmålDto(
         spørsmål = spørsmål,
         svar = svar,
     )
-
-private fun VurderingDto.tilVurdering(): Vurdering =
-    when (this) {
-        VurderingDto.OPPFYLT -> Vurdering.OPPFYLT
-        VurderingDto.IKKE_OPPFYLT -> Vurdering.IKKE_OPPFYLT
-        VurderingDto.IKKE_RELEVANT -> Vurdering.IKKE_RELEVANT
-        VurderingDto.SKAL_IKKE_VURDERES -> Vurdering.SKAL_IKKE_VURDERES
-    }

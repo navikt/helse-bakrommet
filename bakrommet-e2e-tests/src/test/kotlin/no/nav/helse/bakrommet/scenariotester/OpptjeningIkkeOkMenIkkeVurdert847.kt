@@ -39,7 +39,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
             vilkår =
                 listOf(
                     VilkaarsvurderingDto(
-                        hovedspørsmål = "1",
+                        hovedspørsmål = "OPPTJENING",
                         vilkårskode = "OPPTJENING",
                         vurdering = VurderingDto.IKKE_OPPFYLT,
                         underspørsmål = listOf(),

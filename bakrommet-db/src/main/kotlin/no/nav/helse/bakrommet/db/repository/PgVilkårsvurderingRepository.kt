@@ -35,41 +35,43 @@ class PgVilkårsvurderingRepository private constructor(
             VurdertVilkår(
                 id = vilkårsvurderingId,
                 vurdering =
-                    when (dbRecord.vurdering) {
-                        Vurdering.OPPFYLT -> VurdertVilkår.Vurdering.OPPFYLT
-                        Vurdering.IKKE_OPPFYLT -> VurdertVilkår.Vurdering.IKKE_OPPFYLT
-                        Vurdering.IKKE_RELEVANT -> VurdertVilkår.Vurdering.IKKE_RELEVANT
-                        Vurdering.SKAL_IKKE_VURDERES -> VurdertVilkår.Vurdering.SKAL_IKKE_VURDERES
-                    },
-                hovedspørsmål = dbRecord.hovedspørsmål,
-                underspørsmål =
-                    dbRecord.underspørsmål.map { dbRecordUnderspørsmål ->
-                        VilkårsvurderingUnderspørsmål(
-                            dbRecordUnderspørsmål.spørsmål,
-                            dbRecordUnderspørsmål.svar,
-                        )
-                    },
-                notat = dbRecord.notat,
+                    VurdertVilkår.Vurdering(
+                        utfall =
+                            when (dbRecord.vurdering) {
+                                Vurdering.OPPFYLT -> VurdertVilkår.Utfall.OPPFYLT
+                                Vurdering.IKKE_OPPFYLT -> VurdertVilkår.Utfall.IKKE_OPPFYLT
+                                Vurdering.IKKE_RELEVANT -> VurdertVilkår.Utfall.IKKE_RELEVANT
+                                Vurdering.SKAL_IKKE_VURDERES -> VurdertVilkår.Utfall.SKAL_IKKE_VURDERES
+                            },
+                        underspørsmål =
+                            dbRecord.underspørsmål.map { dbRecordUnderspørsmål ->
+                                VilkårsvurderingUnderspørsmål(
+                                    dbRecordUnderspørsmål.spørsmål,
+                                    dbRecordUnderspørsmål.svar,
+                                )
+                            },
+                        notat = dbRecord.notat,
+                    ),
             )
         }
 
     override fun lagre(vurdertVilkår: VurdertVilkår) {
-        val dbRecordVurdering =
+        val dbRecordUtfall =
             Vilkaarsvurdering(
                 vilkårskode = vurdertVilkår.id.vilkårskode.value,
-                hovedspørsmål = vurdertVilkår.hovedspørsmål,
+                hovedspørsmål = vurdertVilkår.id.vilkårskode.value,
                 vurdering =
-                    when (vurdertVilkår.vurdering) {
-                        VurdertVilkår.Vurdering.OPPFYLT -> Vurdering.OPPFYLT
-                        VurdertVilkår.Vurdering.IKKE_OPPFYLT -> Vurdering.IKKE_OPPFYLT
-                        VurdertVilkår.Vurdering.IKKE_RELEVANT -> Vurdering.IKKE_RELEVANT
-                        VurdertVilkår.Vurdering.SKAL_IKKE_VURDERES -> Vurdering.SKAL_IKKE_VURDERES
+                    when (vurdertVilkår.vurdering.utfall) {
+                        VurdertVilkår.Utfall.OPPFYLT -> Vurdering.OPPFYLT
+                        VurdertVilkår.Utfall.IKKE_OPPFYLT -> Vurdering.IKKE_OPPFYLT
+                        VurdertVilkår.Utfall.IKKE_RELEVANT -> Vurdering.IKKE_RELEVANT
+                        VurdertVilkår.Utfall.SKAL_IKKE_VURDERES -> Vurdering.SKAL_IKKE_VURDERES
                     },
                 underspørsmål =
-                    vurdertVilkår.underspørsmål.map {
+                    vurdertVilkår.vurdering.underspørsmål.map {
                         VilkaarsvurderingUnderspørsmål(spørsmål = it.spørsmål, svar = it.svar)
                     },
-                notat = vurdertVilkår.notat,
+                notat = vurdertVilkår.vurdering.notat,
             )
         queryRunner
             .update(
@@ -84,7 +86,7 @@ class PgVilkårsvurderingRepository private constructor(
                     vurdering_tidspunkt = excluded.vurdering_tidspunkt
                     
                 """.trimIndent(),
-                "vurdering" to dbRecordVurdering.tilPgJson(),
+                "vurdering" to dbRecordUtfall.tilPgJson(),
                 "vurdering_tidspunkt" to Instant.now(),
                 "behandling_id" to vurdertVilkår.id.behandlingId.value,
                 "kode" to vurdertVilkår.id.vilkårskode.value,

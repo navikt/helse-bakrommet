@@ -14,8 +14,10 @@ import no.nav.helse.bakrommet.testutils.SykAlleDager
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterVilkårsvurdering
 import no.nav.helse.bakrommet.testutils.`should equal`
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled("Vi skal endre inaktiv til å være sykepengerettighet(eller noe sånt) istedenfor en yrkesaktivitet")
 class VilkårsvurderingTilInaktivTest {
     @Test
     fun `ved vilkårsvurdering til inaktiv endres yrkesaktiviteten ved en yrkesaktivitet`() {

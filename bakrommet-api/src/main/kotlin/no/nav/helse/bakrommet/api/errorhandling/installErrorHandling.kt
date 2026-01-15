@@ -20,7 +20,7 @@ import no.nav.helse.bakrommet.util.logg
 
 fun Application.installErrorHandling(includeStackTrace: Boolean = false) {
     install(StatusPages) {
-        exception<BadRequestException> { call, cause ->
+        val badRequestHandler: suspend (ApplicationCall, Throwable) -> Unit = { call, cause ->
             val status = HttpStatusCode.BadRequest
             logg.error("Bad request", cause)
 
@@ -35,6 +35,8 @@ fun Application.installErrorHandling(includeStackTrace: Boolean = false) {
 
             call.respondProblem(status, problem)
         }
+        exception<BadRequestException>(badRequestHandler)
+        exception<IllegalArgumentException>(badRequestHandler)
         exception<JsonConvertException> { call, cause ->
             val status = HttpStatusCode.BadRequest
 
