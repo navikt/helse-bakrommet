@@ -7,7 +7,6 @@ import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.somReferanse
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
@@ -24,7 +23,6 @@ interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personPseudoIdDao: PersonPseudoIdDao
     val outboxDao: OutboxDao
-    val vurdertVilkårDao: VurdertVilkårDao
 }
 
 fun SaksbehandlingsperiodeKafkaDtoDaoer.leggTilOutbox(periode: BehandlingDbRecord) {

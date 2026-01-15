@@ -79,7 +79,6 @@ class FakeDaoer : AlleDaoer {
                 vurderteVilkår.remove(vilkårsvurderingId)
             }
         }
-    override val vurdertVilkårDao = VurdertVilkårDaoFake(vilkårsvurderingRepository)
 
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()
     override val personPseudoIdDao = PersonPseudoIdDaoFake()

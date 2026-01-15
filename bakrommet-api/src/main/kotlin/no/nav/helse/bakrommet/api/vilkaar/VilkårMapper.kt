@@ -3,36 +3,7 @@ package no.nav.helse.bakrommet.api.vilkaar
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingUnderspørsmålDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
-import no.nav.helse.bakrommet.behandling.vilkaar.LegacyVurdertVilkår
-import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
-
-fun LegacyVurdertVilkår.tilVilkaarsvurderingDto(): VilkaarsvurderingDto = vurdering.tilVilkaarsvurderingDto()
-
-private fun Vilkaarsvurdering.tilVilkaarsvurderingDto(): VilkaarsvurderingDto =
-    VilkaarsvurderingDto(
-        hovedspørsmål = hovedspørsmål,
-        vilkårskode = vilkårskode,
-        vurdering = vurdering.tilVurderingDto(),
-        underspørsmål = underspørsmål.map { it.tilVilkaarsvurderingUnderspørsmålDto() },
-        notat = notat,
-    )
-
-private fun VilkaarsvurderingUnderspørsmål.tilVilkaarsvurderingUnderspørsmålDto(): VilkaarsvurderingUnderspørsmålDto =
-    VilkaarsvurderingUnderspørsmålDto(
-        spørsmål = spørsmål,
-        svar = svar,
-    )
-
-private fun Vurdering.tilVurderingDto(): VurderingDto =
-    when (this) {
-        Vurdering.OPPFYLT -> VurderingDto.OPPFYLT
-        Vurdering.IKKE_OPPFYLT -> VurderingDto.IKKE_OPPFYLT
-        Vurdering.IKKE_RELEVANT -> VurderingDto.IKKE_RELEVANT
-        Vurdering.SKAL_IKKE_VURDERES -> VurderingDto.SKAL_IKKE_VURDERES
-    }
 
 internal fun VurdertVilkår.skapVilkaarsvurderingDto(): VilkaarsvurderingDto =
     VilkaarsvurderingDto(

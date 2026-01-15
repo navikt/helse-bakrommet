@@ -9,7 +9,6 @@ import no.nav.helse.bakrommet.db.dao.PersonPseudoIdDaoPg
 import no.nav.helse.bakrommet.db.dao.SykepengegrunnlagDaoPg
 import no.nav.helse.bakrommet.db.dao.TilkommenInntektDaoPg
 import no.nav.helse.bakrommet.db.dao.UtbetalingsberegningDaoPg
-import no.nav.helse.bakrommet.db.dao.`VurdertVilkårDaoPg`
 import no.nav.helse.bakrommet.db.dao.YrkesaktivitetDaoPg
 import no.nav.helse.bakrommet.db.repository.PgBehandlingRepository
 import no.nav.helse.bakrommet.db.repository.PgVilkårsvurderingRepository
@@ -28,7 +27,6 @@ class DaoerFelles(
     override val personPseudoIdDao = PersonPseudoIdDaoPg(dataSource)
     override val dokumentDao = DokumentDaoPg(dataSource)
     override val yrkesaktivitetDao = YrkesaktivitetDaoPg(dataSource)
-    override val vurdertVilkårDao = `VurdertVilkårDaoPg`(dataSource)
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
     override val beregningDao = UtbetalingsberegningDaoPg(dataSource)
     override val outboxDao = OutboxDaoPg(dataSource)
@@ -45,7 +43,6 @@ class SessionDaoerFelles(
     override val personPseudoIdDao = PersonPseudoIdDaoPg(session)
     override val dokumentDao = DokumentDaoPg(session)
     override val yrkesaktivitetDao = YrkesaktivitetDaoPg(session)
-    override val vurdertVilkårDao = `VurdertVilkårDaoPg`(session)
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(session)
     override val beregningDao = UtbetalingsberegningDaoPg(session)
     override val outboxDao = OutboxDaoPg(session)

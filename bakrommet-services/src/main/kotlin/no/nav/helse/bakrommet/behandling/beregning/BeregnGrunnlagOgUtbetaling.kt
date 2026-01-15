@@ -10,7 +10,6 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRe
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.behandling.vilkaar.VurdertVilkårDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
@@ -26,7 +25,6 @@ interface Beregningsdaoer {
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personPseudoIdDao: PersonPseudoIdDao
     val tilkommenInntektDao: TilkommenInntektDao
-    val vurdertVilkårDao: VurdertVilkårDao
 }
 
 fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
