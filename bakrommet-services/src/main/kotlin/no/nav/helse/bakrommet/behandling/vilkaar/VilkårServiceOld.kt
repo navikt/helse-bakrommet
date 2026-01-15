@@ -1,13 +1,7 @@
 package no.nav.helse.bakrommet.behandling.vilkaar
 
 import com.fasterxml.jackson.annotation.JsonValue
-import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.BehandlingReferanse
-import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
-import no.nav.helse.bakrommet.behandling.hentPeriode
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import java.util.*
 
 fun String.erGyldigSomKode(): Boolean {
@@ -36,20 +30,4 @@ class Kode(
     }
 
     override fun toString(): String = kode
-}
-
-interface VilkårServiceDaoer :
-    YrkesaktivitetServiceDaoer,
-    Beregningsdaoer {
-    override val behandlingDao: BehandlingDao
-}
-
-class VilkårServiceOld(
-    private val db: DbDaoer<VilkårServiceDaoer>,
-) {
-    suspend fun hentVilkårsvurderingerFor(ref: BehandlingReferanse): List<LegacyVurdertVilkår> =
-        db.nonTransactional {
-            val periode = behandlingDao.hentPeriode(ref, krav = null, måVæreUnderBehandling = false)
-            vurdertVilkårDao.hentVilkårsvurderinger(periode.id)
-        }
 }

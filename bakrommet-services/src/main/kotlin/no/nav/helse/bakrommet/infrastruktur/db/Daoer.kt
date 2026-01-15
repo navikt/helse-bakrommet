@@ -6,7 +6,6 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherDaoer
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektServiceDaoer
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDaoer
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkårServiceDaoer
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetServiceDaoer
 import no.nav.helse.bakrommet.person.PersonServiceDaoer
 import no.nav.helse.bakrommet.person.PersonsokDaoer
@@ -18,7 +17,6 @@ interface AlleDaoer :
     SykepengegrunnlagServiceDaoer,
     InntektsmeldingMatcherDaoer,
     InntektServiceDaoer,
-    VilkårServiceDaoer,
     PersonsokDaoer,
     PersonServiceDaoer,
     UtbetalingsberegningDaoer,

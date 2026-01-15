@@ -15,18 +15,6 @@ data class VilkaarsvurderingUnderspørsmål(
 )
 
 /**
- * Request body for å opprette/oppdatere vilkårsvurdering
- * Mangler hovedspørsmål som kommer fra URL-parameter
- */
-data class VilkaarsvurderingRequest(
-    val vilkårskode: String,
-    val vurdering: Vurdering,
-    val underspørsmål: List<VilkaarsvurderingUnderspørsmål>,
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    val notat: String? = null,
-)
-
-/**
  * Response body for vilkårsvurdering
  * Inkluderer hovedspørsmål som kommer fra kode
  */
