@@ -10,30 +10,36 @@ import no.nav.helse.bakrommet.api.behandlingId
 import no.nav.helse.bakrommet.api.dto.vilkaar.OppdaterVilkaarsvurderingResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingRequestDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
-import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.pseudoId
 import no.nav.helse.bakrommet.api.serde.respondJson
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkårServiceOld
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.person.PersonService
 
 fun Route.vilkårRoute(
-    service: VilkårServiceOld,
-    personService: PersonService,
     db: DbDaoer<AlleDaoer>,
 ) {
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/vilkaarsvurdering") {
         get {
-            val vurderteVilkår =
-                service.hentVilkårsvurderingerFor(call.periodeReferanse(personService)).map {
-                    it.tilVilkaarsvurderingDto()
+            val behandlingId = call.behandlingId()
+            val pseudoId = call.pseudoId()
+
+            db.transactional {
+                val behandling = behandlingRepository.hent(behandlingId)
+                val naturligIdent = personPseudoIdDao.hentNaturligIdent(pseudoId)
+                if (!behandling.gjelder(naturligIdent)) {
+                    throw IllegalArgumentException("Behandling ${behandlingId.value} gjelder ikke personen med pseudoId=${pseudoId.value}")
                 }
-            call.respondJson(vurderteVilkår)
+
+                val vurderteVilkår =
+                    vilkårsvurderingRepository.hentAlle(behandlingId).map {
+                        it.skapVilkaarsvurderingDto()
+                    }
+                call.respondJson(vurderteVilkår)
+            }
         }
     }
 

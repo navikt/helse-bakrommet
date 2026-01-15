@@ -64,6 +64,8 @@ class FakeDaoer : AlleDaoer {
 
             override fun finn(vilkårsvurderingId: VilkårsvurderingId): VurdertVilkår? = vurderteVilkår[vilkårsvurderingId]
 
+            override fun hentAlle(behandlingId: BehandlingId): List<VurdertVilkår> = vurderteVilkår.values.filter { it.id.behandlingId == behandlingId }
+
             override fun lagre(vurdertVilkår: VurdertVilkår) {
                 vurderteVilkår[vurdertVilkår.id] = vurdertVilkår
             }

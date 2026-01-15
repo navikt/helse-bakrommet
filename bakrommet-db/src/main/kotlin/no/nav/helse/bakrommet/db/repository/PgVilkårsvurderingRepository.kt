@@ -8,6 +8,8 @@ import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.tilPgJson
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
@@ -34,6 +36,40 @@ class PgVilkårsvurderingRepository private constructor(
             val dbRecord = objectMapper.readValue<Vilkaarsvurdering>(it.string("vurdering"))
             VurdertVilkår(
                 id = vilkårsvurderingId,
+                vurdering =
+                    VurdertVilkår.Vurdering(
+                        utfall =
+                            when (dbRecord.vurdering) {
+                                Vurdering.OPPFYLT -> VurdertVilkår.Utfall.OPPFYLT
+                                Vurdering.IKKE_OPPFYLT -> VurdertVilkår.Utfall.IKKE_OPPFYLT
+                                Vurdering.IKKE_RELEVANT -> VurdertVilkår.Utfall.IKKE_RELEVANT
+                                Vurdering.SKAL_IKKE_VURDERES -> VurdertVilkår.Utfall.SKAL_IKKE_VURDERES
+                            },
+                        underspørsmål =
+                            dbRecord.underspørsmål.map { dbRecordUnderspørsmål ->
+                                VilkårsvurderingUnderspørsmål(
+                                    dbRecordUnderspørsmål.spørsmål,
+                                    dbRecordUnderspørsmål.svar,
+                                )
+                            },
+                        notat = dbRecord.notat,
+                    ),
+            )
+        }
+
+    override fun hentAlle(behandlingId: BehandlingId): List<VurdertVilkår> =
+        queryRunner.list(
+            sql =
+                """
+                select * from vurdert_vilkaar 
+                where behandling_id = :behandling_id
+                """.trimIndent(),
+            "behandling_id" to behandlingId.value,
+        ) {
+            val dbRecord = objectMapper.readValue<Vilkaarsvurdering>(it.string("vurdering"))
+            val vilkårskode = Vilkårskode(it.string("kode"))
+            VurdertVilkår(
+                id = VilkårsvurderingId(behandlingId, vilkårskode),
                 vurdering =
                     VurdertVilkår.Vurdering(
                         utfall =

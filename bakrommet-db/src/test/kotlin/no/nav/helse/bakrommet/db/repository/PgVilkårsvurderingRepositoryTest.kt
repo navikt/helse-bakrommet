@@ -247,4 +247,114 @@ class PgVilkårsvurderingRepositoryTest {
         assertEquals(Vilkårskode("SYK_INAKTIV"), funnet2.id.vilkårskode)
         assertEquals(VurdertVilkår.Utfall.IKKE_OPPFYLT, funnet2.vurdering.utfall)
     }
+
+    @Test
+    fun `hentAlle returnerer alle vilkårsvurderinger for en behandling`() {
+        // given
+        val behandling = enBehandling()
+        behandlingRepository.lagre(behandling)
+
+        val vurdertVilkår1 =
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("OPPTJENING"),
+                underspørsmål = emptyList(),
+                utfall = VurdertVilkår.Utfall.OPPFYLT,
+                notat = "Opptjeningsvilkår oppfylt",
+            )
+
+        val vurdertVilkår2 =
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("SYK_INAKTIV"),
+                underspørsmål = emptyList(),
+                utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
+                notat = "Syk og inaktiv ikke oppfylt",
+            )
+
+        val vurdertVilkår3 =
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("MEDLEMSKAP"),
+                underspørsmål = emptyList(),
+                utfall = VurdertVilkår.Utfall.SKAL_IKKE_VURDERES,
+                notat = null,
+            )
+
+        repository.lagre(vurdertVilkår1)
+        repository.lagre(vurdertVilkår2)
+        repository.lagre(vurdertVilkår3)
+
+        // when
+        val alleVurderinger = repository.hentAlle(behandling.id)
+
+        // then
+        assertEquals(3, alleVurderinger.size)
+
+        val opptjening = alleVurderinger.find { it.id.vilkårskode == Vilkårskode("OPPTJENING") }
+        assertNotNull(opptjening)
+        assertEquals(VurdertVilkår.Utfall.OPPFYLT, opptjening.vurdering.utfall)
+        assertEquals("Opptjeningsvilkår oppfylt", opptjening.vurdering.notat)
+
+        val sykInaktiv = alleVurderinger.find { it.id.vilkårskode == Vilkårskode("SYK_INAKTIV") }
+        assertNotNull(sykInaktiv)
+        assertEquals(VurdertVilkår.Utfall.IKKE_OPPFYLT, sykInaktiv.vurdering.utfall)
+        assertEquals("Syk og inaktiv ikke oppfylt", sykInaktiv.vurdering.notat)
+
+        val medlemskap = alleVurderinger.find { it.id.vilkårskode == Vilkårskode("MEDLEMSKAP") }
+        assertNotNull(medlemskap)
+        assertEquals(VurdertVilkår.Utfall.SKAL_IKKE_VURDERES, medlemskap.vurdering.utfall)
+        assertNull(medlemskap.vurdering.notat)
+    }
+
+    @Test
+    fun `hentAlle returnerer tom liste når ingen vilkårsvurderinger finnes`() {
+        // given
+        val behandling = enBehandling()
+        behandlingRepository.lagre(behandling)
+
+        // when
+        val alleVurderinger = repository.hentAlle(behandling.id)
+
+        // then
+        assertEquals(0, alleVurderinger.size)
+    }
+
+    @Test
+    fun `hentAlle returnerer bare vilkårsvurderinger for riktig behandling`() {
+        // given
+        val behandling1 = enBehandling()
+        val behandling2 = enBehandling()
+        behandlingRepository.lagre(behandling1)
+        behandlingRepository.lagre(behandling2)
+
+        val vurdertVilkår1 =
+            etVurdertVilkår(
+                behandlingId = behandling1.id,
+                vilkårskode = Vilkårskode("OPPTJENING"),
+                underspørsmål = emptyList(),
+                utfall = VurdertVilkår.Utfall.OPPFYLT,
+                notat = "Behandling 1",
+            )
+
+        val vurdertVilkår2 =
+            etVurdertVilkår(
+                behandlingId = behandling2.id,
+                vilkårskode = Vilkårskode("OPPTJENING"),
+                underspørsmål = emptyList(),
+                utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
+                notat = "Behandling 2",
+            )
+
+        repository.lagre(vurdertVilkår1)
+        repository.lagre(vurdertVilkår2)
+
+        // when
+        val vurderingerForBehandling1 = repository.hentAlle(behandling1.id)
+
+        // then
+        assertEquals(1, vurderingerForBehandling1.size)
+        assertEquals(behandling1.id, vurderingerForBehandling1[0].id.behandlingId)
+        assertEquals("Behandling 1", vurderingerForBehandling1[0].vurdering.notat)
+    }
 }
