@@ -92,4 +92,17 @@ class PgVilkårsvurderingRepository private constructor(
                 "kode" to vurdertVilkår.id.vilkårskode.value,
             )
     }
+
+    override fun slett(vilkårsvurderingId: VilkårsvurderingId) {
+        queryRunner.update(
+            sql =
+                """
+                delete from vurdert_vilkaar 
+                where behandling_id = :behandling_id
+                and kode = :kode
+                """.trimIndent(),
+            "behandling_id" to vilkårsvurderingId.behandlingId.value,
+            "kode" to vilkårsvurderingId.vilkårskode.value,
+        )
+    }
 }

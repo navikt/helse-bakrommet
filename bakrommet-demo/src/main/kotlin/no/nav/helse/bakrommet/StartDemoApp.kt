@@ -67,6 +67,10 @@ class FakeDaoer : AlleDaoer {
             override fun lagre(vurdertVilkår: VurdertVilkår) {
                 vurderteVilkår[vurdertVilkår.id] = vurdertVilkår
             }
+
+            override fun slett(vilkårsvurderingId: VilkårsvurderingId) {
+                vurderteVilkår.remove(vilkårsvurderingId)
+            }
         }
 
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()

@@ -7,4 +7,6 @@ interface VilkårsvurderingRepository {
     fun finn(vilkårsvurderingId: VilkårsvurderingId): VurdertVilkår?
 
     fun lagre(vurdertVilkår: VurdertVilkår)
+
+    fun slett(vilkårsvurderingId: VilkårsvurderingId)
 }

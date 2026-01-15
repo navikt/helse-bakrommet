@@ -188,4 +188,63 @@ class PgVilkårsvurderingRepositoryTest {
         assertEquals(Vilkårskode("SYK_INAKTIV"), funnet2.id.vilkårskode)
         assertEquals(VurdertVilkår.Utfall.IKKE_OPPFYLT, funnet2.vurdering.utfall)
     }
+
+    @Test
+    fun `slett eksisterende vilkårsvurdering`() {
+        // given
+        val behandling = enBehandling()
+        behandlingRepository.lagre(behandling)
+
+        val vurdertVilkår = etVurdertVilkår(behandlingId = behandling.id)
+        repository.lagre(vurdertVilkår)
+
+        // verify it exists
+        assertNotNull(repository.finn(vurdertVilkår.id))
+
+        // when
+        repository.slett(vurdertVilkår.id)
+
+        // then
+        val funnet = repository.finn(vurdertVilkår.id)
+        assertNull(funnet)
+    }
+
+    @Test
+    fun `slett en vilkårsvurdering påvirker ikke andre vilkårsvurderinger for samme behandling`() {
+        // given
+        val behandling = enBehandling()
+        behandlingRepository.lagre(behandling)
+
+        val vurdertVilkår1 =
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("OPPTJENING"),
+                underspørsmål = emptyList(),
+                utfall = VurdertVilkår.Utfall.OPPFYLT,
+                notat = "Opptjeningsvilkår oppfylt",
+            )
+
+        val vurdertVilkår2 =
+            etVurdertVilkår(
+                behandlingId = behandling.id,
+                vilkårskode = Vilkårskode("SYK_INAKTIV"),
+                underspørsmål = emptyList(),
+                utfall = VurdertVilkår.Utfall.IKKE_OPPFYLT,
+                notat = "Syk og inaktiv ikke oppfylt",
+            )
+
+        repository.lagre(vurdertVilkår1)
+        repository.lagre(vurdertVilkår2)
+
+        // when
+        repository.slett(vurdertVilkår1.id)
+
+        // then
+        assertNull(repository.finn(vurdertVilkår1.id))
+
+        val funnet2 = repository.finn(vurdertVilkår2.id)
+        assertNotNull(funnet2)
+        assertEquals(Vilkårskode("SYK_INAKTIV"), funnet2.id.vilkårskode)
+        assertEquals(VurdertVilkår.Utfall.IKKE_OPPFYLT, funnet2.vurdering.utfall)
+    }
 }

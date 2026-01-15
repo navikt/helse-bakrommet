@@ -86,7 +86,7 @@ fun createServices(
             ),
         dokumentHenter = dokumentHenter,
         yrkesaktivitetService = yrkesaktivitetService,
-        vilkårServiceOld = VilkårServiceOld(db, yrkesaktivitetService),
+        vilkårServiceOld = VilkårServiceOld(db),
         inntektService =
             InntektService(
                 db,
