@@ -59,7 +59,7 @@ class OppdatertVilkårResultat(
     val invalidations: List<String> = emptyList(),
 )
 
-class VilkårService(
+class VilkårServiceOld(
     private val db: DbDaoer<VilkårServiceDaoer>,
     private val yrkesaktivitetService: YrkesaktivitetService,
 ) {

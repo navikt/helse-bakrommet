@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagServ
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.behandling.validering.ValideringService
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
+import no.nav.helse.bakrommet.behandling.vilkaar.VilkårServiceOld
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -45,7 +45,7 @@ data class Services(
     val sykepengegrunnlagService: SykepengegrunnlagService,
     val behandlingService: BehandlingService,
     val dokumentHenter: DokumentHenter,
-    val vilkårService: VilkårService,
+    val vilkårServiceOld: VilkårServiceOld,
     val yrkesaktivitetService: YrkesaktivitetService,
     val inntektService: InntektService,
     val inntektsmeldingMatcherService: InntektsmeldingMatcherService,
@@ -86,7 +86,7 @@ fun createServices(
             ),
         dokumentHenter = dokumentHenter,
         yrkesaktivitetService = yrkesaktivitetService,
-        vilkårService = VilkårService(db, yrkesaktivitetService),
+        vilkårServiceOld = VilkårServiceOld(db, yrkesaktivitetService),
         inntektService =
             InntektService(
                 db,

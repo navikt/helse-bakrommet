@@ -13,11 +13,11 @@ import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
 import no.nav.helse.bakrommet.behandling.vilkaar.OpprettetEllerEndret
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkårService
+import no.nav.helse.bakrommet.behandling.vilkaar.VilkårServiceOld
 import no.nav.helse.bakrommet.person.PersonService
 
 fun Route.vilkårRoute(
-    service: VilkårService,
+    service: VilkårServiceOld,
     personService: PersonService,
 ) {
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/vilkaarsvurdering") {
