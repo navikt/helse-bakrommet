@@ -11,8 +11,6 @@ import no.nav.helse.bakrommet.økonomi.tilInntekt
 
 fun List<LegacyVurdertVilkår>.resultat(vilkårskode: Vilkårskode): Vurdering? = this.find { it.vurdering.vilkårskode == vilkårskode.name }?.vurdering?.vurdering
 
-fun <T> List<T>.containsAny(vararg string: T): Boolean = this.any { string.contains(it) }
-
 fun ValideringData.harOppfyllt(vilkårskode: Vilkårskode): Boolean = vurderteVilkår.resultat(vilkårskode) == Vurdering.OPPFYLT
 
 fun ValideringData.harVurdertTilIkkeOppfyllt(vilkårskode: Vilkårskode): Boolean = vurderteVilkår.resultat(vilkårskode) == Vurdering.IKKE_OPPFYLT
@@ -27,11 +25,7 @@ fun ValideringData.harSvartBegrunnelse(begrunnelse: VilkårskodeBegrunnelse): Bo
 
 fun ValideringData.sykepengegrunnlagErUnderHalvG(): Boolean = sykepengegrunnlagErUnderXG(0.5) == true
 
-fun ValideringData.sykepengegrunnlagErUnderEnG(): Boolean = sykepengegrunnlagErUnderXG(1.0) == true
-
 fun ValideringData.sykepengegrunnlagErOverHalvG(): Boolean = sykepengegrunnlagErUnderXG(0.5) == false
-
-fun ValideringData.sykepengegrunnlagErOverEnG(): Boolean = sykepengegrunnlagErUnderXG(1.0) == false
 
 private fun ValideringData.sykepengegrunnlagErUnderXG(x: Double): Boolean? {
     val grunnlag = sykepengegrunnlag?.sykepengegrunnlag?.sykepengegrunnlag?.tilInntekt()

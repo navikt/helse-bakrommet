@@ -68,12 +68,3 @@ data class BeregningResponse(
     val opprettetAv: String,
     val sistOppdatert: String,
 )
-
-data class BeregningResponseUtDto(
-    val id: UUID,
-    val behandlingId: UUID,
-    val beregningData: BeregningDataUtDto,
-    val opprettet: String,
-    val opprettetAv: String,
-    val sistOppdatert: String,
-)
