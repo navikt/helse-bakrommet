@@ -13,32 +13,6 @@ class VurdertVilkårDaoFake : VurdertVilkårDao {
 
     override fun hentVilkårsvurderinger(behandlingId: UUID): List<LegacyVurdertVilkår> = vurderinger.filterKeys { it.first == behandlingId }.values.toList()
 
-    override fun hentVilkårsvurdering(
-        behandlingId: UUID,
-        kode: String,
-    ): LegacyVurdertVilkår? = vurderinger[behandlingId to kode]
-
-    override fun slettVilkårsvurdering(
-        behandlingId: UUID,
-        kode: String,
-    ): Int = if (vurderinger.remove(behandlingId to kode) != null) 1 else 0
-
-    override fun eksisterer(
-        behandlingDbRecord: BehandlingDbRecord,
-        kode: Kode,
-    ): Boolean = vurderinger.containsKey(behandlingDbRecord.id to kode.kode)
-
-    override fun oppdater(
-        behandlingDbRecord: BehandlingDbRecord,
-        kode: Kode,
-        oppdatertVurdering: Vilkaarsvurdering,
-    ): Int {
-        val key = behandlingDbRecord.id to kode.kode
-        val eksisterende = vurderinger[key] ?: return 0
-        vurderinger[key] = eksisterende.copy(vurdering = oppdatertVurdering)
-        return 1
-    }
-
     override fun leggTil(
         behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,

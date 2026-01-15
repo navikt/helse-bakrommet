@@ -11,27 +11,6 @@ data class LegacyVurdertVilkår(
 interface VurdertVilkårDao {
     fun hentVilkårsvurderinger(behandlingId: UUID): List<LegacyVurdertVilkår>
 
-    fun hentVilkårsvurdering(
-        behandlingId: UUID,
-        kode: String,
-    ): LegacyVurdertVilkår?
-
-    fun slettVilkårsvurdering(
-        behandlingId: UUID,
-        kode: String,
-    ): Int
-
-    fun eksisterer(
-        behandlingDbRecord: BehandlingDbRecord,
-        kode: Kode,
-    ): Boolean
-
-    fun oppdater(
-        behandlingDbRecord: BehandlingDbRecord,
-        kode: Kode,
-        oppdatertVurdering: Vilkaarsvurdering,
-    ): Int
-
     fun leggTil(
         behandlingDbRecord: BehandlingDbRecord,
         kode: Kode,
