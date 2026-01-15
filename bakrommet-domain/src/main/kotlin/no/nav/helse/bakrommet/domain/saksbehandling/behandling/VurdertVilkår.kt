@@ -43,6 +43,16 @@ class VurdertVilkår(
     var vurdering: Vurdering = vurdering
         private set
 
+    fun kopierTil(nyBehandlingId: BehandlingId): VurdertVilkår =
+        VurdertVilkår(
+            id =
+                VilkårsvurderingId(
+                    behandlingId = nyBehandlingId,
+                    vilkårskode = id.vilkårskode,
+                ),
+            vurdering = vurdering.copy(),
+        )
+
     fun nyVurdering(
         vurdering: Vurdering,
     ) {

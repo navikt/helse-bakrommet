@@ -15,11 +15,11 @@ import no.nav.helse.bakrommet.behandling.dagoversikt.skapDagoversiktFraSoknader
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
-import no.nav.helse.bakrommet.behandling.vilkaar.Kode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.*
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.Repositories
@@ -111,20 +111,19 @@ class BehandlingService(
             }
 
             behandlingDao.opprettPeriode(nyPeriode)
+            val nyBehandlingId = BehandlingId(nyPeriode.id)
             behandlingEndringerDao.leggTilEndring(
                 nyPeriode.endring(
                     endringType = SaksbehandlingsperiodeEndringType.STARTET,
                     saksbehandler = saksbehandler.bruker,
                 ),
             )
-            tidligerePeriodeInntilNyPeriode?.let {
-                vurdertVilkårDao.hentVilkårsvurderinger(it.id).forEach { v ->
-                    vurdertVilkårDao.leggTil(
-                        nyPeriode,
-                        Kode(v.kode),
-                        v.vurdering,
-                    )
-                }
+            tidligerePeriodeInntilNyPeriode?.let { forrigePeriode ->
+                vilkårsvurderingRepository
+                    .hentAlle(BehandlingId(forrigePeriode.id))
+                    .forEach { vurdertVilkår ->
+                        vilkårsvurderingRepository.lagre(vurdertVilkår.kopierTil(nyBehandlingId))
+                    }
             }
             leggTilOutbox(nyPeriode)
         }
@@ -282,13 +281,11 @@ class BehandlingService(
                 ),
             )
 
-            vurdertVilkårDao.hentVilkårsvurderinger(forrigePeriode.id).forEach { v ->
-                vurdertVilkårDao.leggTil(
-                    nyPeriode,
-                    Kode(v.kode),
-                    v.vurdering,
-                )
-            }
+            vilkårsvurderingRepository
+                .hentAlle(BehandlingId(forrigePeriode.id))
+                .forEach { vurdertVilkår ->
+                    vilkårsvurderingRepository.lagre(vurdertVilkår.kopierTil(BehandlingId(nyPeriode.id)))
+                }
 
             dokumentDao.hentDokumenterFor(forrigePeriode.id).forEach { dokument ->
                 dokumentDao.opprettDokument(
