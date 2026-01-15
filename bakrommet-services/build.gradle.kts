@@ -25,12 +25,8 @@ dependencies {
     implementation("org.slf4j:slf4j-api")
 
     testImplementation(testFixtures(project(":bakrommet-services")))
-    testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sykepengesoknad")))
-    testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))
-    testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
 
     testFixturesImplementation(kotlin("test"))
-    testFixturesImplementation(project(":bakrommet-common"))
     testFixturesImplementation(project(":sykepenger-model"))
     testFixturesImplementation("com.github.navikt.spleis:sykepenger-okonomi")
 }
