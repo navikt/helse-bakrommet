@@ -24,6 +24,7 @@ fun main() {
         settOppKtor(
             configuration = configuration.api,
             services = services,
+            db = skapDbDaoer(dataSource),
             errorHandlingIncludeStackTrace = configuration.naisClusterName == "dev-gcp",
         )
         appLogger.info("Starter bakrommet")

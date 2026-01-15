@@ -127,13 +127,14 @@ fun runApplicationTest(
                 inntektsmeldingProvider = inntektsmeldingClient,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             )
+        val db = skapDbDaoer(dataSource)
         val services =
             createServices(
                 providers = providers,
-                db = skapDbDaoer(dataSource),
+                db = db,
             )
 
-        settOppKtor(config.api, services, errorHandlingIncludeStackTrace = true)
+        settOppKtor(config.api, services, db, errorHandlingIncludeStackTrace = true)
     }
     client =
         createClient {

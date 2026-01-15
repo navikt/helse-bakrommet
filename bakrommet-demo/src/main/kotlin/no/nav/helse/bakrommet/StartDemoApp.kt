@@ -133,7 +133,8 @@ fun main() {
         }
 
         val clienter = skapProviders(alleTestdata)
-        val services = createServices(clienter, DbDaoerFake())
+        val db = DbDaoerFake()
+        val services = createServices(clienter, db)
 
         install(Sessions) {
             cookie<String>("bakrommet-demo-session", SessionStorageMemory()) {
@@ -197,7 +198,7 @@ fun main() {
             demoOutboxRoute()
             authenticate("entraid") {
                 install(RolleMatrise)
-                setupApiRoutes(services)
+                setupApiRoutes(services, db)
             }
         }
 

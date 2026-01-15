@@ -23,4 +23,5 @@ interface AlleDaoer :
     PersonServiceDaoer,
     UtbetalingsberegningDaoer,
     TilkommenInntektServiceDaoer,
-    TidslinjeServiceDaoer
+    TidslinjeServiceDaoer,
+    Repositories

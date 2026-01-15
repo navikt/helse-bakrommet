@@ -14,11 +14,14 @@ import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.behandling.vilkaar.Kode
 import no.nav.helse.bakrommet.behandling.vilkaar.OpprettetEllerEndret
 import no.nav.helse.bakrommet.behandling.vilkaar.VilkårServiceOld
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.db.Repositories
 import no.nav.helse.bakrommet.person.PersonService
 
 fun Route.vilkårRoute(
     service: VilkårServiceOld,
     personService: PersonService,
+    db: DbDaoer<Repositories>,
 ) {
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/vilkaarsvurdering") {
         get {

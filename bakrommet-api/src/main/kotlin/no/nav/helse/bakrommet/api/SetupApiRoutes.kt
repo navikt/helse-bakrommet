@@ -16,14 +16,17 @@ import no.nav.helse.bakrommet.api.utbetalingsberegning.beregningRoute
 import no.nav.helse.bakrommet.api.validering.valideringRoute
 import no.nav.helse.bakrommet.api.vilkaar.vilkårRoute
 import no.nav.helse.bakrommet.api.yrkesaktivitet.yrkesaktivitetRoute
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.db.Repositories
 
 fun Route.setupApiRoutes(
     services: Services,
+    db: DbDaoer<Repositories>,
 ) {
     behandlingRoute(services.behandlingService, services.personService)
     brukerRoute()
     tidslinjeRoute(services.tidslinjeService, services.personService)
-    vilkårRoute(services.vilkårServiceOld, services.personService)
+    vilkårRoute(services.vilkårServiceOld, services.personService, db)
     dokumentRoute(services.dokumentHenter, services.personService)
     tilkommenInntektRoute(services.tilkommenInntektService, services.personService)
     organisasjonRoute(services.organisasjonService)
