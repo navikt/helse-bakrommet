@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import java.util.*
+import java.util.UUID
 
 class ObjectMapperTest {
     @Test
