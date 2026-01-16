@@ -10,6 +10,7 @@ include(
     "bakrommet-api-dto",
     "bakrommet-kafka-dto",
     "bakrommet-db",
+    "bakrommet-db-dto",
     "bakrommet-clients:bakrommet-client-aareg",
     "bakrommet-clients:bakrommet-client-ainntekt",
     "bakrommet-clients:bakrommet-client-ereg",

@@ -6,6 +6,7 @@ val shedlockVersion = "7.2.2"
 
 dependencies {
     api(project(":bakrommet-services"))
+    implementation(project(":bakrommet-db-dto"))
 
     api("org.postgresql:postgresql")
     api("com.zaxxer:HikariCP")

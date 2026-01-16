@@ -1,17 +1,23 @@
 package no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet
 
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.Periode
 import java.time.OffsetDateTime
 import java.util.UUID
 
+@JvmInline
+value class YrkesaktivitetId(
+    val value: UUID,
+)
+
 data class Yrkesaktivitet(
-    val id: UUID,
+    val id: YrkesaktivitetId,
     val kategorisering: YrkesaktivitetKategorisering,
     val kategoriseringGenerert: YrkesaktivitetKategorisering?,
     val dagoversikt: Dagoversikt?,
     val dagoversiktGenerert: Dagoversikt?,
-    val behandlingId: UUID,
+    val behandlingId: BehandlingId,
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
