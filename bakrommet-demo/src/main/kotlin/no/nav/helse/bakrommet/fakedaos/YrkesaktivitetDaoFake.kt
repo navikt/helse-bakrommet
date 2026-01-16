@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetForenkletDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitet
 import java.time.OffsetDateTime
@@ -51,9 +51,9 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
 
     override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = storage[id]
 
-    override fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? = storage[id]?.tilYrkesaktivitet()
+    override fun hentYrkesaktivitet(id: UUID): LegacyYrkesaktivitet? = storage[id]?.tilYrkesaktivitet()
 
-    override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<Yrkesaktivitet> = storage.values.filter { it.behandlingId == periode.id }.map { it.tilYrkesaktivitet() }
+    override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet> = storage.values.filter { it.behandlingId == periode.id }.map { it.tilYrkesaktivitet() }
 
     override fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord> = hentYrkesaktiviteterDbRecord(periode.id)
 
@@ -99,24 +99,24 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
     }
 
     override fun oppdaterInntektrequest(
-        yrkesaktivitet: Yrkesaktivitet,
+        legacyYrkesaktivitet: LegacyYrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord {
         val eksisterende =
-            storage[yrkesaktivitet.id]
-                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${yrkesaktivitet.id}")
+            storage[legacyYrkesaktivitet.id]
+                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${legacyYrkesaktivitet.id}")
         val oppdatert = eksisterende.copy(inntektRequest = request)
         storage[oppdatert.id] = oppdatert
         return oppdatert
     }
 
     override fun oppdaterInntektData(
-        yrkesaktivitet: Yrkesaktivitet,
+        legacyYrkesaktivitet: LegacyYrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord {
         val eksisterende =
-            storage[yrkesaktivitet.id]
-                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${yrkesaktivitet.id}")
+            storage[legacyYrkesaktivitet.id]
+                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${legacyYrkesaktivitet.id}")
         val oppdatert = eksisterende.copy(inntektData = inntektData)
         storage[oppdatert.id] = oppdatert
         return oppdatert

@@ -17,7 +17,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
@@ -108,7 +108,7 @@ class InntektService(
             val inntektData =
                 this.fastsettInntektData(
                     request = request,
-                    yrkesaktivitet = yrkesaktivitet,
+                    legacyYrkesaktivitet = yrkesaktivitet,
                     periode = periode,
                     saksbehandler = saksbehandler,
                     yrkesaktivitetDao = yrkesaktivitetDao,
@@ -171,7 +171,7 @@ class InntektService(
     }
 }
 
-private fun List<Yrkesaktivitet>.skalBeregneSammenlikningsgrunnlag(): Boolean =
+private fun List<LegacyYrkesaktivitet>.skalBeregneSammenlikningsgrunnlag(): Boolean =
     this.any {
         when (it.kategorisering) {
             is YrkesaktivitetKategorisering.Arbeidstaker -> true

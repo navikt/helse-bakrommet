@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.LocalDate
@@ -39,8 +39,8 @@ data class Refusjonsperiode(
     val beløp: InntektbeløpDto.MånedligDouble,
 )
 
-fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): Yrkesaktivitet =
-    Yrkesaktivitet(
+fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): LegacyYrkesaktivitet =
+    LegacyYrkesaktivitet(
         id = this.id,
         kategorisering = this.kategorisering,
         kategoriseringGenerert = this.kategoriseringGenerert,
@@ -55,7 +55,7 @@ fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): Yrkesaktivitet =
         refusjon = this.refusjon,
     )
 
-fun Yrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
+fun LegacyYrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
     YrkesaktivitetDbRecord(
         id = this.id,
         kategorisering = this.kategorisering,
@@ -101,9 +101,9 @@ interface YrkesaktivitetDao {
 
     fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord?
 
-    fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet?
+    fun hentYrkesaktivitet(id: UUID): LegacyYrkesaktivitet?
 
-    fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<Yrkesaktivitet>
+    fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet>
 
     fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord>
 
@@ -127,12 +127,12 @@ interface YrkesaktivitetDao {
     fun slettYrkesaktivitet(id: UUID)
 
     fun oppdaterInntektrequest(
-        yrkesaktivitet: Yrkesaktivitet,
+        legacyYrkesaktivitet: LegacyYrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord
 
     fun oppdaterInntektData(
-        yrkesaktivitet: Yrkesaktivitet,
+        legacyYrkesaktivitet: LegacyYrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord
 

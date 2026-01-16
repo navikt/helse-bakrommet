@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class YrkesaktivitetExtensionsTest {
+class LegacyYrkesaktivitetExtensionsTest {
     @Test
     fun `skal returnere 100 prosent for selvstendig næringsdrivende med 100 prosent fra første sykedag`() {
         val kategorisering =

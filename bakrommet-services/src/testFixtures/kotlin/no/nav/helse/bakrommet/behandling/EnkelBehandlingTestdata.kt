@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.dto.InntektbeløpDto
@@ -24,8 +24,8 @@ val enkelBehandlingDbRecord =
         skjæringstidspunkt = LocalDate.now().minusMonths(1),
     )
 
-val enkelYrkesaktivitet =
-    Yrkesaktivitet(
+val enkelLegacyYrkesaktivitet =
+    LegacyYrkesaktivitet(
         id = UUID.randomUUID(),
         kategorisering = YrkesaktivitetKategorisering.Inaktiv(),
         kategoriseringGenerert = null,

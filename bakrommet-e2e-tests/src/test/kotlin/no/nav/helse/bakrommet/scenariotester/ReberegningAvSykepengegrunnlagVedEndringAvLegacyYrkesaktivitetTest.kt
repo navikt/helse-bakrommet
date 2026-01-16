@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandlin
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
 import kotlin.test.Test
 
-class ReberegningAvSykepengegrunnlagVedEndringAvYrkesaktivitetTest {
+class ReberegningAvSykepengegrunnlagVedEndringAvLegacyYrkesaktivitetTest {
     @Test
     fun `sykepengegrunnlag reberegnes når vi er i første behandling`() {
         Scenario(

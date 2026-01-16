@@ -12,10 +12,10 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.dto.InntektbeløpDto
@@ -98,7 +98,7 @@ class UtbetalingsberegningTestBuilder {
 
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
-            yrkesaktivitet = yrkesaktivitetListe,
+            legacyYrkesaktivitet = yrkesaktivitetListe,
             saksbehandlingsperiode = periode,
             arbeidsgiverperiode = arbeidsgiverperiode,
             tilkommenInntekt = emptyList(),
@@ -384,7 +384,7 @@ class YrkesaktivitetBuilder {
         andreYtelser(begrunnelse, antallDager)
     }
 
-    fun build(saksbehandlingsperiode: PeriodeDto): Yrkesaktivitet {
+    fun build(saksbehandlingsperiode: PeriodeDto): LegacyYrkesaktivitet {
         val perioder =
             arbeidsgiverperiode?.let { (fom, tom) ->
                 Perioder(
@@ -425,7 +425,7 @@ class YrkesaktivitetBuilder {
                     }
                 }
 
-        return Yrkesaktivitet(
+        return LegacyYrkesaktivitet(
             id = id,
             kategorisering = yrkesaktivitetKategorisering,
             kategoriseringGenerert = null,
@@ -579,7 +579,7 @@ fun beregnOgByggOppdrag(
     ident: String = "01019012345",
 ): BeregningResultat {
     val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktivitet, NaturligIdent(ident))
+    val oppdrag = byggOppdragFraBeregning(beregnet, input.legacyYrkesaktivitet, NaturligIdent(ident))
     return BeregningResultat(beregnet, oppdrag, input.sykepengegrunnlag)
 }
 

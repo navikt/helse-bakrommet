@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerSkjønnsfastsette
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
@@ -18,7 +18,7 @@ import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
 internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
-    yrkesaktivitet: Yrkesaktivitet,
+    legacyYrkesaktivitet: LegacyYrkesaktivitet,
     periode: BehandlingDbRecord,
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
@@ -26,7 +26,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
     inntekterProvider: InntekterProvider,
     daoer: DokumentInnhentingDaoer,
 ): InntektData {
-    yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, data.refusjon)
+    yrkesaktivitetDao.oppdaterRefusjon(legacyYrkesaktivitet.id, data.refusjon)
 
     return when (data) {
         is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
@@ -50,7 +50,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                         inntekterProvider = inntekterProvider,
                         saksbehandler = saksbehandler,
                     ).somAInntektBeregningsgrunnlag()
-                    .omregnetÅrsinntekt(yrkesaktivitet.kategorisering.orgnummer())
+                    .omregnetÅrsinntekt(legacyYrkesaktivitet.kategorisering.orgnummer())
             InntektData.ArbeidstakerAinntekt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.first,
                 kildedata = omregnetÅrsinntekt.second,

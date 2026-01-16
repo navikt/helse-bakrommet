@@ -6,14 +6,14 @@ import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentin
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 
 internal fun DokumentInnhentingDaoer.fastsettInntektData(
     request: InntektRequest,
-    yrkesaktivitet: Yrkesaktivitet,
+    legacyYrkesaktivitet: LegacyYrkesaktivitet,
     periode: BehandlingDbRecord,
     saksbehandler: BrukerOgToken,
     yrkesaktivitetDao: YrkesaktivitetDao,
@@ -24,7 +24,7 @@ internal fun DokumentInnhentingDaoer.fastsettInntektData(
     when (request) {
         is InntektRequest.Arbeidstaker ->
             request.arbeidstakerFastsettelse(
-                yrkesaktivitet = yrkesaktivitet,
+                legacyYrkesaktivitet = legacyYrkesaktivitet,
                 periode = periode,
                 saksbehandler = saksbehandler,
                 yrkesaktivitetDao = yrkesaktivitetDao,

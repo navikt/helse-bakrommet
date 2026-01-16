@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.domain.Bruker
@@ -52,7 +52,7 @@ class UtbetalingsBeregningHjelper(
         val beregningInput =
             UtbetalingsberegningInput(
                 sykepengegrunnlag = sykepengegrunnlag,
-                yrkesaktivitet = yrkesaktiviteter,
+                legacyYrkesaktivitet = yrkesaktiviteter,
                 tilkommenInntekt = tilkommenInntekt,
                 saksbehandlingsperiode =
                     PeriodeDto(
@@ -132,7 +132,7 @@ private fun Oppdrag.tilOppdragDto(): OppdragDto =
  */
 fun byggOppdragFraBeregning(
     beregnet: List<YrkesaktivitetUtbetalingsberegning>,
-    yrkesaktiviteter: List<Yrkesaktivitet>,
+    yrkesaktiviteter: List<LegacyYrkesaktivitet>,
     ident: NaturligIdent,
 ): List<Oppdrag> {
     val oppdrag = mutableListOf<Oppdrag>()

@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.MedSession
@@ -102,9 +102,9 @@ class YrkesaktivitetDaoPg private constructor(
             mapper = ::yrkesaktivitetFraRow,
         )
 
-    override fun hentYrkesaktivitet(id: UUID): Yrkesaktivitet? =
+    override fun hentYrkesaktivitet(id: UUID): LegacyYrkesaktivitet? =
         hentYrkesaktivitetDbRecord(id)?.let { dbRecord ->
-            Yrkesaktivitet(
+            LegacyYrkesaktivitet(
                 id = dbRecord.id,
                 kategorisering = dbRecord.kategorisering,
                 kategoriseringGenerert = dbRecord.kategoriseringGenerert,
@@ -120,7 +120,7 @@ class YrkesaktivitetDaoPg private constructor(
             )
         }
 
-    override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<Yrkesaktivitet> =
+    override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet> =
         hentYrkesaktiviteterDbRecord(periode).map {
             it.tilYrkesaktivitet()
         }
@@ -234,7 +234,7 @@ class YrkesaktivitetDaoPg private constructor(
     }
 
     override fun oppdaterInntektrequest(
-        yrkesaktivitet: Yrkesaktivitet,
+        legacyYrkesaktivitet: LegacyYrkesaktivitet,
         request: InntektRequest,
     ): YrkesaktivitetDbRecord {
         db
@@ -243,14 +243,14 @@ class YrkesaktivitetDaoPg private constructor(
                 update yrkesaktivitet set inntekt_request = :inntekt_request where id = :id
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
-                "id" to yrkesaktivitet.id,
+                "id" to legacyYrkesaktivitet.id,
                 "inntekt_request" to request.tilPgJson(),
             ).also(verifiserOppdatert)
-        return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
+        return hentYrkesaktivitetDbRecord(legacyYrkesaktivitet.id)!!
     }
 
     override fun oppdaterInntektData(
-        yrkesaktivitet: Yrkesaktivitet,
+        legacyYrkesaktivitet: LegacyYrkesaktivitet,
         inntektData: InntektData,
     ): YrkesaktivitetDbRecord {
         db
@@ -259,10 +259,10 @@ class YrkesaktivitetDaoPg private constructor(
                 update yrkesaktivitet set inntekt_data = :inntekt_data where id = :id
                 $AND_ER_UNDER_BEHANDLING
                 """.trimIndent(),
-                "id" to yrkesaktivitet.id,
+                "id" to legacyYrkesaktivitet.id,
                 "inntekt_data" to inntektData.tilPgJson(),
             ).also(verifiserOppdatert)
-        return hentYrkesaktivitetDbRecord(yrkesaktivitet.id)!!
+        return hentYrkesaktivitetDbRecord(legacyYrkesaktivitet.id)!!
     }
 
     override fun oppdaterRefusjon(

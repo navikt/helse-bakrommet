@@ -6,14 +6,14 @@ import no.nav.helse.bakrommet.behandling.BehandlingServiceDaoer
 import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningData
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 
 data class ValideringData(
     val behandlingDbRecord: BehandlingDbRecord,
-    val yrkesaktiviteter: List<Yrkesaktivitet>,
+    val yrkesaktiviteter: List<LegacyYrkesaktivitet>,
     val vurderteVilkår: List<VurdertVilkår>,
     val sykepengegrunnlag: SykepengegrunnlagDbRecord?,
     val beregningData: BeregningData?,

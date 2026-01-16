@@ -9,7 +9,7 @@ import no.nav.helse.hendelser.Periode
 import java.time.OffsetDateTime
 import java.util.UUID
 
-data class Yrkesaktivitet(
+data class LegacyYrkesaktivitet(
     val id: UUID,
     val kategorisering: YrkesaktivitetKategorisering,
     val kategoriseringGenerert: YrkesaktivitetKategorisering?,

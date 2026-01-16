@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
@@ -30,19 +30,19 @@ import kotlin.collections.set
 fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput): List<YrkesaktivitetUtbetalingsberegning> {
     val refusjonstidslinjer =
         beregnAlleRefusjonstidslinjer(
-            input.yrkesaktivitet,
+            input.legacyYrkesaktivitet,
             input.saksbehandlingsperiode,
         )
 
     val yrkesaktivitetMedDekningsgrad =
-        input.yrkesaktivitet.map { ya ->
+        input.legacyYrkesaktivitet.map { ya ->
             ya to ya.kategorisering.hentDekningsgrad(input.vilkår)
         }
 
     val allerDagersMaksInntekter =
         input.saksbehandlingsperiode.fom
             .datesUntil(input.saksbehandlingsperiode.tom.plusDays(1))
-            .map { it to input.yrkesaktivitet }
+            .map { it to input.legacyYrkesaktivitet }
             .toList()
             .associate { it.first to it.second }
             .berikMedAlleYrkesaktivitetersMaksInntektPerDag(
@@ -59,7 +59,7 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
                 allerDagersMaksInntekter.skapBeløpstidslinjeForYrkesaktivitet(yrkesaktivitet)
 
             byggUtbetalingstidslinjeForYrkesaktivitet(
-                yrkesaktivitet = yrkesaktivitet,
+                legacyYrkesaktivitet = yrkesaktivitet,
                 dekningsgrad = dekningsgrad.verdi,
                 input = input,
                 refusjonstidslinje = refusjonstidslinje,
@@ -89,12 +89,12 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
         }
 }
 
-private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.skapBeløpstidslinjeForYrkesaktivitet(
-    yrkesaktivitet: Yrkesaktivitet,
+private fun Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>>.skapBeløpstidslinjeForYrkesaktivitet(
+    legacyYrkesaktivitet: LegacyYrkesaktivitet,
 ): Beløpstidslinje {
     val beløpsdager =
         this.mapNotNull { (dato, inntekter) ->
-            val inntektForYrkesaktivitet = inntekter.firstOrNull { it.first == yrkesaktivitet }?.second
+            val inntektForYrkesaktivitet = inntekter.firstOrNull { it.first == legacyYrkesaktivitet }?.second
             if (inntektForYrkesaktivitet != null) {
                 Beløpsdag(
                     dato = dato,
@@ -113,7 +113,7 @@ private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.skapBeløpstidsl
     return Beløpstidslinje(beløpsdager)
 }
 
-private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.justerOppForLaveDager(sykepengegrunnlag: SykepengegrunnlagBase): Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>> {
+private fun Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>>.justerOppForLaveDager(sykepengegrunnlag: SykepengegrunnlagBase): Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>> {
     return this
         .map {
             // Vi finner summen av dagens inntekter for alle yrkesaktiviteter. Hvis summen er lavere enn sykepengegrunnlaget så justerer vi det opp forholdsmessig per yrkesaktivitet gitt deres andel av inntekt
@@ -144,10 +144,10 @@ private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.justerOppForLave
         }.toMap()
 }
 
-private fun Map<LocalDate, List<Yrkesaktivitet>>.berikMedAlleYrkesaktivitetersMaksInntektPerDag(
+private fun Map<LocalDate, List<LegacyYrkesaktivitet>>.berikMedAlleYrkesaktivitetersMaksInntektPerDag(
     sykepengenngrunnlag: SykepengegrunnlagBase,
-    refusjonstidslinjer: Map<Yrkesaktivitet, Map<LocalDate, Inntekt>>,
-): Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>> =
+    refusjonstidslinjer: Map<LegacyYrkesaktivitet, Map<LocalDate, Inntekt>>,
+): Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>> =
     this
         .map {
             val inntekterForAlleYrkesaktiviteter =

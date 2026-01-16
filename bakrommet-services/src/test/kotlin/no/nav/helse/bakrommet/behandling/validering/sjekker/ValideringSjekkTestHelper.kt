@@ -7,8 +7,8 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningData
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.validering.ValideringSjekk
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
@@ -79,7 +79,7 @@ fun vilkårVurdertSom(
 fun data(
     sykepengegrunnlag: SykepengegrunnlagDbRecord? = null,
     behandlingDbRecord: BehandlingDbRecord = enkelBehandlingDbRecord,
-    yrkesaktiviteter: List<Yrkesaktivitet> = emptyList(),
+    yrkesaktiviteter: List<LegacyYrkesaktivitet> = emptyList(),
     vurderteVilkår: List<VurdertVilkår> = emptyList(),
     beregningData: BeregningData? = null,
 ): ValideringData =
@@ -91,9 +91,9 @@ fun data(
         beregningData = beregningData,
     )
 
-fun arbeidstaker(): List<Yrkesaktivitet> =
+fun arbeidstaker(): List<LegacyYrkesaktivitet> =
     listOf(
-        Yrkesaktivitet(
+        LegacyYrkesaktivitet(
             id = UUID.randomUUID(),
             kategorisering =
                 YrkesaktivitetKategorisering.Arbeidstaker(

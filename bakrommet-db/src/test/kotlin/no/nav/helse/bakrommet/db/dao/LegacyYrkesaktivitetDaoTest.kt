@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.arbeidstakerKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Yrkesaktivitet
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
@@ -27,7 +27,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
-class YrkesaktivitetDaoTest {
+class LegacyYrkesaktivitetDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
     val fnr = "01019012345"
     val pseudoId = UUID.nameUUIDFromBytes("0h0a1".toByteArray())
@@ -221,9 +221,9 @@ class YrkesaktivitetDaoTest {
             )
 
         // Oppdater inntektRequest
-        val oppdatertYrkesaktivitet =
+        val oppdatertLegacyYrkesaktivitet =
             dao.oppdaterInntektrequest(
-                Yrkesaktivitet(
+                LegacyYrkesaktivitet(
                     id = opprettetYrkesaktivitet.id,
                     kategorisering = opprettetYrkesaktivitet.kategorisering,
                     kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
@@ -240,7 +240,7 @@ class YrkesaktivitetDaoTest {
             )
 
         // Verifiser at inntektRequest er oppdatert
-        assertEquals(inntektRequest, oppdatertYrkesaktivitet.inntektRequest)
+        assertEquals(inntektRequest, oppdatertLegacyYrkesaktivitet.inntektRequest)
 
         // Hent yrkesaktivitet og verifiser at inntektRequest er lagret
         val hentetYrkesaktivitet = dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id)
@@ -295,9 +295,9 @@ class YrkesaktivitetDaoTest {
             )
 
         // Oppdater inntektData
-        val oppdatertYrkesaktivitet =
+        val oppdatertLegacyYrkesaktivitet =
             dao.oppdaterInntektData(
-                Yrkesaktivitet(
+                LegacyYrkesaktivitet(
                     id = opprettetYrkesaktivitet.id,
                     kategorisering = opprettetYrkesaktivitet.kategorisering,
                     kategoriseringGenerert = opprettetYrkesaktivitet.kategoriseringGenerert,
@@ -314,7 +314,7 @@ class YrkesaktivitetDaoTest {
             )
 
         // Verifiser at inntektData er oppdatert
-        assertEquals(inntektData, oppdatertYrkesaktivitet.inntektData)
+        assertEquals(inntektData, oppdatertLegacyYrkesaktivitet.inntektData)
 
         // Hent yrkesaktivitet og verifiser at inntektData er lagret
         val hentetYrkesaktivitet = dao.hentYrkesaktivitet(opprettetYrkesaktivitet.id)

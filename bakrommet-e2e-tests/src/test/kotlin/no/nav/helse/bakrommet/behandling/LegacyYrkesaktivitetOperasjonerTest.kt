@@ -34,7 +34,7 @@ import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class YrkesaktivitetOperasjonerTest {
+class LegacyYrkesaktivitetOperasjonerTest {
     private companion object {
         const val FNR = "01019012349"
         const val PERSON_ID = "65hth"

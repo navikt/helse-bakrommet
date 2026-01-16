@@ -34,7 +34,7 @@ class BeregnRefusjonstidslinjeTest {
                 }
             }
 
-        val yrkesaktivitet = input.yrkesaktivitet.first { it.id == yrkesaktivitetId }
+        val yrkesaktivitet = input.legacyYrkesaktivitet.first { it.id == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
                 yrkesaktivitet,
@@ -79,7 +79,7 @@ class BeregnRefusjonstidslinjeTest {
                 }
             }
 
-        val yrkesaktivitet = input.yrkesaktivitet.first { it.id == yrkesaktivitetId }
+        val yrkesaktivitet = input.legacyYrkesaktivitet.first { it.id == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
                 yrkesaktivitet,
@@ -123,7 +123,7 @@ class BeregnRefusjonstidslinjeTest {
                 }
             }
 
-        val yrkesaktivitet = input.yrkesaktivitet.first { it.id == yrkesaktivitetId }
+        val yrkesaktivitet = input.legacyYrkesaktivitet.first { it.id == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
                 yrkesaktivitet,
