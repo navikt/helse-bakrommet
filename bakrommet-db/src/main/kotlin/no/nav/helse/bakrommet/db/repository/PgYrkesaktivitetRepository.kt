@@ -1,22 +1,43 @@
 package no.nav.helse.bakrommet.db.repository
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.module.kotlin.readValue
+import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
+import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbDagoversikt
+import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbInntektData
+import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbInntektRequest
+import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbPerioder
+import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbRefusjonsperiode
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbYrkesaktivitet
+import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbYrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.somListe
+import java.util.UUID
 
 class PgYrkesaktivitetRepository private constructor(
     private val queryRunner: QueryRunner,
 ) : YrkesaktivitetRepository {
     constructor(session: Session) : this(MedSession(session))
 
-    override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> {
-        TODO("Not yet implemented")
-    }
+    override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> =
+        queryRunner
+            .list(
+                """
+                select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where behandling_id = :behandling_id
+                """.trimIndent(),
+                "behandling_id" to behandlingId.value,
+            ) {
+                it.yrkesaktivitetFraRow()
+            }.map {
+                it.toYrkesaktivitet()
+            }
 
     override fun lagre(yrkesaktivitet: Yrkesaktivitet) {
         val record: DbYrkesaktivitet = yrkesaktivitet.toDbRecord()
@@ -69,4 +90,48 @@ class PgYrkesaktivitetRepository private constructor(
             inntektData = inntektData?.toDb(),
             refusjon = refusjon?.map { it.toDb() },
         )
+
+    private fun DbYrkesaktivitet.toYrkesaktivitet(): Yrkesaktivitet = TODO()
+
+    private fun Row.yrkesaktivitetFraRow() =
+        DbYrkesaktivitet(
+            id = uuid("id"),
+            kategorisering =
+                objectMapper.readValue(
+                    string("kategorisering"),
+                    DbYrkesaktivitetKategorisering::class.java,
+                ),
+            kategoriseringGenerert =
+                stringOrNull("kategorisering_generert")?.let {
+                    objectMapper.readValue(it, DbYrkesaktivitetKategorisering::class.java)
+                },
+            dagoversikt = stringOrNull("dagoversikt")?.tilDagoversikt(),
+            dagoversiktGenerert = stringOrNull("dagoversikt_generert")?.tilDagoversikt(),
+            behandlingId = uuid("behandling_id"),
+            opprettet = offsetDateTime("opprettet"),
+            generertFraDokumenter =
+                stringOrNull("generert_fra_dokumenter")
+                    ?.somListe<UUID>() ?: emptyList(),
+            perioder = stringOrNull("perioder")?.let { objectMapper.readValue(it, DbPerioder::class.java) },
+            inntektRequest =
+                stringOrNull("inntekt_request")
+                    ?.let { objectMapper.readValue(it, DbInntektRequest::class.java) },
+            inntektData = stringOrNull("inntekt_data")?.let { objectMapper.readValue(it, DbInntektData::class.java) },
+            refusjon =
+                stringOrNull("refusjon")?.let {
+                    objectMapper.readValue(
+                        it,
+                        object : TypeReference<List<DbRefusjonsperiode>>() {},
+                    )
+                },
+        )
+
+    private fun String?.tilDagoversikt(): DbDagoversikt? {
+        if (this == null) return null
+        return try {
+            objectMapper.readValue(this)
+        } catch (e: Exception) {
+            throw RuntimeException("feil ved parsing av dagoversikt", e)
+        }
+    }
 }
