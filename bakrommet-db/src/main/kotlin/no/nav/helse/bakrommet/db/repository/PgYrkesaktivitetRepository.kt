@@ -16,6 +16,7 @@ import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbYrkesaktivitetKategoriseri
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.somListe
@@ -91,7 +92,21 @@ class PgYrkesaktivitetRepository private constructor(
             refusjon = refusjon?.map { it.toDb() },
         )
 
-    private fun DbYrkesaktivitet.toYrkesaktivitet(): Yrkesaktivitet = TODO()
+    private fun DbYrkesaktivitet.toYrkesaktivitet(): Yrkesaktivitet =
+        Yrkesaktivitet(
+            id = YrkesaktivitetId(id),
+            kategorisering = kategorisering.toDomain(),
+            kategoriseringGenerert = kategoriseringGenerert?.toDomain(),
+            dagoversikt = dagoversikt?.toDomain(),
+            dagoversiktGenerert = dagoversiktGenerert?.toDomain(),
+            behandlingId = BehandlingId(behandlingId),
+            opprettet = opprettet,
+            generertFraDokumenter = generertFraDokumenter,
+            perioder = perioder?.toDomain(),
+            inntektRequest = inntektRequest?.toDomain(),
+            inntektData = inntektData?.toDomain(),
+            refusjon = refusjon?.map { it.toDomain() },
+        )
 
     private fun Row.yrkesaktivitetFraRow() =
         DbYrkesaktivitet(

@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import org.junit.jupiter.api.AfterEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -18,6 +19,11 @@ class PgVilkårsvurderingRepositoryTest {
     private val session = sessionOf(dataSource)
     private val repository = PgVilkårsvurderingRepository(session)
     private val behandlingRepository = PgBehandlingRepository(session)
+
+    @AfterEach
+    fun tearDown() {
+        session.close()
+    }
 
     @Test
     fun `lagre og finn`() {

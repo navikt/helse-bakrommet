@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.enBehandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
 import no.nav.helse.januar
+import org.junit.jupiter.api.AfterEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -14,6 +15,11 @@ class PgBehandlingRepositoryTest {
     private val dataSource = TestDataSource.dbModule.dataSource
     private val session = sessionOf(dataSource)
     private val repository = PgBehandlingRepository(session)
+
+    @AfterEach
+    fun tearDown() {
+        session.close()
+    }
 
     @Test
     fun `lagre og finn`() {

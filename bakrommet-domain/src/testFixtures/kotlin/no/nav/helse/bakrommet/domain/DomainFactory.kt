@@ -8,8 +8,17 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Perioder
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import java.time.Instant
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.random.Random
 
@@ -85,4 +94,32 @@ fun etVurdertVilkår(
             utfall = utfall,
             notat = notat,
         ),
+)
+
+fun enYrkesaktivitet(
+    id: YrkesaktivitetId = YrkesaktivitetId(UUID.randomUUID()),
+    kategorisering: YrkesaktivitetKategorisering = YrkesaktivitetKategorisering.Inaktiv(),
+    kategoriseringGenerert: YrkesaktivitetKategorisering? = null,
+    dagoversikt: Dagoversikt? = null,
+    dagoversiktGenerert: Dagoversikt? = null,
+    behandlingId: BehandlingId,
+    opprettet: OffsetDateTime = OffsetDateTime.now(),
+    generertFraDokumenter: List<UUID> = emptyList(),
+    perioder: Perioder? = null,
+    inntektRequest: InntektRequest? = null,
+    inntektData: InntektData? = null,
+    refusjon: List<Refusjonsperiode>? = null,
+) = Yrkesaktivitet(
+    id = id,
+    kategorisering = kategorisering,
+    kategoriseringGenerert = kategoriseringGenerert,
+    dagoversikt = dagoversikt,
+    dagoversiktGenerert = dagoversiktGenerert,
+    behandlingId = behandlingId,
+    opprettet = opprettet,
+    generertFraDokumenter = generertFraDokumenter,
+    perioder = perioder,
+    inntektRequest = inntektRequest,
+    inntektData = inntektData,
+    refusjon = refusjon,
 )
