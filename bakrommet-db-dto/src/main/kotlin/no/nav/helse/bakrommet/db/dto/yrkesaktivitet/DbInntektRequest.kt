@@ -31,7 +31,7 @@ sealed class DbArbeidstakerInntektRequest {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     data class Skjønnsfastsatt(
-        val årsinntekt: Double,
+        val årsinntekt: DbInntekt.Årlig,
         val årsak: DbArbeidstakerSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
         override val refusjon: List<DbRefusjonsperiode>? = null,
@@ -61,7 +61,7 @@ sealed class DbPensjonsgivendeInntektRequest {
     ) : DbPensjonsgivendeInntektRequest()
 
     data class Skjønnsfastsatt(
-        val årsinntekt: Double,
+        val årsinntekt: DbInntekt.Årlig,
         val årsak: DbPensjonsgivendeSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
     ) : DbPensjonsgivendeInntektRequest()
@@ -86,13 +86,13 @@ sealed class DbFrilanserInntektRequest {
     ) : DbFrilanserInntektRequest()
 
     data class Skjønnsfastsatt(
-        val årsinntekt: Double,
-        val årsak: FrilanserSkjønnsfastsettelseÅrsak,
+        val årsinntekt: DbInntekt.Årlig,
+        val årsak: DbFrilanserSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
     ) : DbFrilanserInntektRequest()
 }
 
-enum class FrilanserSkjønnsfastsettelseÅrsak {
+enum class DbFrilanserSkjønnsfastsettelseÅrsak {
     AVVIK_25_PROSENT,
     MANGELFULL_RAPPORTERING,
 }
@@ -108,17 +108,17 @@ sealed class DbArbeidsledigInntektRequest {
     abstract val begrunnelse: String
 
     data class Dagpenger(
-        val dagbeløp: Int,
+        val dagbeløp: DbInntekt.Daglig,
         override val begrunnelse: String,
     ) : DbArbeidsledigInntektRequest()
 
     data class Ventelønn(
-        val årsinntekt: Double,
+        val årsinntekt: DbInntekt.Årlig,
         override val begrunnelse: String,
     ) : DbArbeidsledigInntektRequest()
 
     data class Vartpenger(
-        val årsinntekt: Double,
+        val årsinntekt: DbInntekt.Årlig,
         override val begrunnelse: String,
     ) : DbArbeidsledigInntektRequest()
 }

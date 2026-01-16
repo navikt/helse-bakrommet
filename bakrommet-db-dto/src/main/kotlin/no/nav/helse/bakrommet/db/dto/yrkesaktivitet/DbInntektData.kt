@@ -18,69 +18,69 @@ import java.time.YearMonth
     JsonSubTypes.Type(value = DbInntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_SKJØNNSFASTSATT"),
 )
 sealed class DbInntektData {
-    abstract val omregnetÅrsinntekt: Double
+    abstract val omregnetÅrsinntekt: DbInntekt.Årlig
     abstract val sporing: DbBeregningskoderSykepengegrunnlag
 
     data class ArbeidstakerInntektsmelding(
         val inntektsmeldingId: String,
         val inntektsmelding: String,
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
     ) : DbInntektData()
 
     data class ArbeidstakerAinntekt(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
-        val kildedata: Map<YearMonth, Double>,
+        val kildedata: Map<YearMonth, DbInntekt.Månedlig>,
         // TODO legg med litt kilder
     ) : DbInntektData()
 
     data class ArbeidstakerSkjønnsfastsatt(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
     ) : DbInntektData()
 
     data class FrilanserAinntekt(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
-        val kildedata: Map<YearMonth, Double>,
+        val kildedata: Map<YearMonth, DbInntekt.Månedlig>,
     ) : DbInntektData()
 
     data class FrilanserSkjønnsfastsatt(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
     ) : DbInntektData()
 
     data class Arbeidsledig(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
     ) : DbInntektData()
 
     data class InaktivSkjønnsfastsatt(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
     ) : DbInntektData()
 
     data class PensjonsgivendeInntekt(
-        val omregnetÅrsinntekt: Double,
+        val omregnetÅrsinntekt: DbInntekt.Årlig,
         val pensjonsgivendeInntekt: List<DbInntektÅr>,
-        val anvendtGrunnbeløp: Double,
+        val anvendtGrunnbeløp: DbInntekt.Årlig,
     )
 
     data class InaktivPensjonsgivende(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : DbInntektData()
 
     data class SelvstendigNæringsdrivendePensjonsgivende(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
     ) : DbInntektData()
 
     data class SelvstendigNæringsdrivendeSkjønnsfastsatt(
-        override val omregnetÅrsinntekt: Double,
+        override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
     ) : DbInntektData()
 }

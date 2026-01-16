@@ -54,5 +54,19 @@ class PgYrkesaktivitetRepository private constructor(
         )
     }
 
-    private fun Yrkesaktivitet.toDbRecord(): DbYrkesaktivitet = TODO()
+    private fun Yrkesaktivitet.toDbRecord(): DbYrkesaktivitet =
+        DbYrkesaktivitet(
+            id = id.value,
+            kategorisering = kategorisering.toDb(),
+            kategoriseringGenerert = kategoriseringGenerert?.toDb(),
+            dagoversikt = dagoversikt?.toDb(),
+            dagoversiktGenerert = dagoversiktGenerert?.toDb(),
+            behandlingId = behandlingId.value,
+            opprettet = opprettet,
+            generertFraDokumenter = generertFraDokumenter,
+            perioder = perioder?.toDb(),
+            inntektRequest = inntektRequest?.toDbInntektRequest(),
+            inntektData = inntektData?.toDb(),
+            refusjon = refusjon?.map { it.toDb() },
+        )
 }

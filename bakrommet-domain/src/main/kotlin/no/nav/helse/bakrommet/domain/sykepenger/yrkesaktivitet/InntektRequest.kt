@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet
 
-import no.nav.helse.dto.InntektbeløpDto
+import no.nav.helse.økonomi.Inntekt
 
 sealed class InntektRequest {
     data class Arbeidstaker(
@@ -40,7 +40,7 @@ sealed class ArbeidstakerInntektRequest {
     ) : ArbeidstakerInntektRequest()
 
     data class Skjønnsfastsatt(
-        val årsinntekt: InntektbeløpDto.Årlig,
+        val årsinntekt: Inntekt,
         val årsak: ArbeidstakerSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
         override val refusjon: List<Refusjonsperiode>? = null,
@@ -62,7 +62,7 @@ sealed class PensjonsgivendeInntektRequest {
     ) : PensjonsgivendeInntektRequest()
 
     data class Skjønnsfastsatt(
-        val årsinntekt: InntektbeløpDto.Årlig,
+        val årsinntekt: Inntekt,
         val årsak: PensjonsgivendeSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
     ) : PensjonsgivendeInntektRequest()
@@ -82,7 +82,7 @@ sealed class FrilanserInntektRequest {
     ) : FrilanserInntektRequest()
 
     data class Skjønnsfastsatt(
-        val årsinntekt: InntektbeløpDto.Årlig,
+        val årsinntekt: Inntekt,
         val årsak: FrilanserSkjønnsfastsettelseÅrsak,
         override val begrunnelse: String,
     ) : FrilanserInntektRequest()
@@ -98,17 +98,17 @@ sealed class ArbeidsledigInntektRequest {
     abstract val begrunnelse: String
 
     data class Dagpenger(
-        val dagbeløp: InntektbeløpDto.DagligInt,
+        val dagbeløp: Inntekt,
         override val begrunnelse: String,
     ) : ArbeidsledigInntektRequest()
 
     data class Ventelønn(
-        val årsinntekt: InntektbeløpDto.Årlig,
+        val årsinntekt: Inntekt,
         override val begrunnelse: String,
     ) : ArbeidsledigInntektRequest()
 
     data class Vartpenger(
-        val årsinntekt: InntektbeløpDto.Årlig,
+        val årsinntekt: Inntekt,
         override val begrunnelse: String,
     ) : ArbeidsledigInntektRequest()
 }

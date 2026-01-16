@@ -5,5 +5,5 @@ import java.time.LocalDate
 data class DbRefusjonsperiode(
     val fom: LocalDate,
     val tom: LocalDate?,
-    val beløp: Double,
+    val beløp: DbInntekt.Månedlig,
 )

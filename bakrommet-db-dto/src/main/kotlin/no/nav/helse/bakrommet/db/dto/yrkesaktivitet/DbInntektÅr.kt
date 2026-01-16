@@ -4,8 +4,8 @@ import java.time.Year
 
 data class DbInntektÅr(
     val år: Year,
-    val rapportertinntekt: Double,
-    val justertÅrsgrunnlag: Double,
+    val rapportertinntekt: DbInntekt.Årlig,
+    val justertÅrsgrunnlag: DbInntekt.Årlig,
     val antallGKompensert: Double,
-    val snittG: Double,
+    val snittG: DbInntekt.Årlig,
 )

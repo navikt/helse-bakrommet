@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet
 
 import no.nav.helse.bakrommet.domain.sykepenger.BeregningskoderSykepengegrunnlag
-import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import java.time.Year
 import java.time.YearMonth
@@ -20,7 +19,7 @@ sealed class InntektData {
     data class ArbeidstakerAinntekt(
         override val omregnetÅrsinntekt: Inntekt,
         override val sporing: BeregningskoderSykepengegrunnlag = BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
-        val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
+        val kildedata: Map<YearMonth, Inntekt>,
         // TODO legg med litt kilder
     ) : InntektData()
 
@@ -32,7 +31,7 @@ sealed class InntektData {
     data class FrilanserAinntekt(
         override val omregnetÅrsinntekt: Inntekt,
         override val sporing: BeregningskoderSykepengegrunnlag = BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
-        val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
+        val kildedata: Map<YearMonth, Inntekt>,
     ) : InntektData()
 
     data class FrilanserSkjønnsfastsatt(
