@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.testdata.scenarioer
 
 import no.nav.helse.bakrommet.aareg.arbeidsforhold
 import no.nav.helse.bakrommet.ainntekt.genererAinntektsdata
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
 import no.nav.helse.bakrommet.ereg.betongbyggAS
 import no.nav.helse.bakrommet.ereg.veihjelpenAS
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding

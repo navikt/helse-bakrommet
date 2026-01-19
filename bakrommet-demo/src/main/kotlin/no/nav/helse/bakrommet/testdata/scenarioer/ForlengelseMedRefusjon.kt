@@ -2,15 +2,16 @@ package no.nav.helse.bakrommet.testdata.scenarioer
 
 import no.nav.helse.bakrommet.aareg.arbeidsforhold
 import no.nav.helse.bakrommet.ainntekt.genererAinntektsdata
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.ereg.betongbyggAS
 import no.nav.helse.bakrommet.ereg.veihjelpenAS
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Behandling
 import no.nav.helse.bakrommet.testdata.Testperson
+import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadsstatusDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
@@ -138,7 +139,7 @@ val forlengelseMedNyJobbOgRefusjon =
                                                 Refusjonsperiode(
                                                     fom = LocalDate.of(2025, 5, 1),
                                                     tom = null,
-                                                    beløp = InntektbeløpDto.MånedligDouble(21666.67),
+                                                    beløp = InntektbeløpDto.MånedligDouble(21666.67).tilInntekt(),
                                                 ),
                                             ),
                                     ),

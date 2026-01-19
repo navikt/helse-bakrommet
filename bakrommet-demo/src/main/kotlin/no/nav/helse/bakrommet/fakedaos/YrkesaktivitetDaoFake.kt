@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.fakedaos
 
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
+import no.nav.helse.bakrommet.behandling.inntekter.domain.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
@@ -27,7 +27,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
         perioder: Perioder?,
-        inntektData: InntektData?,
+        inntektData: InntektDataOld?,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
         val record =
@@ -85,7 +85,7 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
 
     override fun oppdaterInntektData(
         legacyYrkesaktivitet: LegacyYrkesaktivitet,
-        inntektData: InntektData,
+        inntektData: InntektDataOld,
     ): YrkesaktivitetDbRecord {
         val eksisterende =
             storage[legacyYrkesaktivitet.id]

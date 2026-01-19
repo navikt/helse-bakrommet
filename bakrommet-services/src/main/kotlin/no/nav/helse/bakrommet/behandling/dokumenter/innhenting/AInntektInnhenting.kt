@@ -4,9 +4,10 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektFilter
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektoppslag
@@ -28,13 +29,13 @@ fun Dokument.somAInntektBeregningsgrunnlag(): Pair<Inntektoppslag, AinntektPerio
     return innhold.asJsonNode() to forespurteData.tilAinntektPeriodeNøkkel()
 }
 
-fun DokumentInnhentingDaoer.lastAInntektSammenlikningsgrunnlag(
-    periode: BehandlingDbRecord,
+fun AlleDaoer.lastAInntektSammenlikningsgrunnlag(
+    behandling: Behandling,
     inntekterProvider: InntekterProvider,
     saksbehandler: BrukerOgToken,
 ): Dokument =
     lastAInntektDok(
-        periode = periode,
+        periode = behandling,
         inntekterProvider = inntekterProvider,
         filter = AInntektFilter.`8-30`,
         fomMinus = 12,
@@ -49,13 +50,13 @@ data class AinntektPeriodeNøkkel(
 
 fun String.tilAinntektPeriodeNøkkel(): AinntektPeriodeNøkkel = objectMapper.readValue(this)
 
-fun DokumentInnhentingDaoer.lastAInntektBeregningsgrunnlag(
-    periode: BehandlingDbRecord,
+fun AlleDaoer.lastAInntektBeregningsgrunnlag(
+    behandling: Behandling,
     inntekterProvider: InntekterProvider,
     saksbehandler: BrukerOgToken,
 ): Dokument =
     lastAInntektDok(
-        periode = periode,
+        periode = behandling,
         inntekterProvider = inntekterProvider,
         filter = AInntektFilter.`8-28`,
         fomMinus = 3,
@@ -69,8 +70,8 @@ private fun doktypeFraFilter(filter: AInntektFilter): String =
         AInntektFilter.`8-30` -> DokumentType.aInntekt830
     }
 
-private fun DokumentInnhentingDaoer.lastAInntektDok(
-    periode: BehandlingDbRecord,
+private fun AlleDaoer.lastAInntektDok(
+    periode: Behandling,
     inntekterProvider: InntekterProvider,
     filter: AInntektFilter,
     fomMinus: Long,
@@ -88,7 +89,7 @@ private fun DokumentInnhentingDaoer.lastAInntektDok(
 
     val alleredeLagret =
         dokumentDao.finnDokumentForForespurteData(
-            behandlingId = periode.id,
+            behandlingId = periode.id.value,
             dokumentType = dokType,
             forespurteData = forespurteDataNøkkel,
         )
@@ -113,7 +114,7 @@ private fun DokumentInnhentingDaoer.lastAInntektDok(
                         forespurteData = forespurteDataNøkkel,
                         innhold = inntekter.serialisertTilString(),
                         sporing = kildespor,
-                        opprettetForBehandling = periode.id,
+                        opprettetForBehandling = periode.id.value,
                     ),
                 )
             }

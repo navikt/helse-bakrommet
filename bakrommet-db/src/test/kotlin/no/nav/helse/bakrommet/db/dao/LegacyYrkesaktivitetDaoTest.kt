@@ -2,9 +2,9 @@ package no.nav.helse.bakrommet.db.dao
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
+import no.nav.helse.bakrommet.behandling.inntekter.domain.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.domain.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
@@ -284,7 +284,7 @@ class LegacyYrkesaktivitetDaoTest {
 
         // Opprett en InntektData
         val inntektData =
-            InntektData.ArbeidstakerInntektsmelding(
+            InntektDataOld.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = "123456",
                 omregnetÅrsinntekt = InntektbeløpDto.Årlig(500000.0),
                 inntektsmelding = JsonNodeFactory.instance.objectNode(),

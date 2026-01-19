@@ -1,42 +1,16 @@
 package no.nav.helse.bakrommet.api.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.behandling.inntekter.*
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidsledigInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.FrilanserInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.FrilanserSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.PensjonsgivendeInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.PensjonsgivendeSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.dto.InntektbeløpDto
-
-fun InntektRequestDto.tilInntektRequest(): InntektRequest =
-    when (this) {
-        is InntektRequestDto.Arbeidstaker -> {
-            InntektRequest.Arbeidstaker(
-                data = data.tilArbeidstakerInntektRequest(),
-            )
-        }
-
-        is InntektRequestDto.SelvstendigNæringsdrivende -> {
-            InntektRequest.SelvstendigNæringsdrivende(
-                data = data.tilPensjonsgivendeInntektRequest(),
-            )
-        }
-
-        is InntektRequestDto.Inaktiv -> {
-            InntektRequest.Inaktiv(
-                data = data.tilPensjonsgivendeInntektRequest(),
-            )
-        }
-
-        is InntektRequestDto.Frilanser -> {
-            InntektRequest.Frilanser(
-                data = data.tilFrilanserInntektRequest(),
-            )
-        }
-
-        is InntektRequestDto.Arbeidsledig -> {
-            InntektRequest.Arbeidsledig(
-                data = data.tilArbeidsledigInntektRequest(),
-            )
-        }
-    }
+import no.nav.helse.økonomi.Inntekt
 
 fun ArbeidstakerInntektRequestDto.tilArbeidstakerInntektRequest(): ArbeidstakerInntektRequest =
     when (this) {
@@ -57,7 +31,7 @@ fun ArbeidstakerInntektRequestDto.tilArbeidstakerInntektRequest(): ArbeidstakerI
 
         is ArbeidstakerInntektRequestDto.Skjønnsfastsatt -> {
             ArbeidstakerInntektRequest.Skjønnsfastsatt(
-                årsinntekt = InntektbeløpDto.Årlig(årsinntekt),
+                årsinntekt = årsinntekt.somÅrligInntekt(),
                 årsak = årsak.tilArbeidstakerSkjønnsfastsettelseÅrsak(),
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.tilRefusjonsperiodeOld() },
@@ -75,7 +49,7 @@ fun PensjonsgivendeInntektRequestDto.tilPensjonsgivendeInntektRequest(): Pensjon
 
         is PensjonsgivendeInntektRequestDto.Skjønnsfastsatt -> {
             PensjonsgivendeInntektRequest.Skjønnsfastsatt(
-                årsinntekt = InntektbeløpDto.Årlig(årsinntekt),
+                årsinntekt = årsinntekt.somÅrligInntekt(),
                 årsak = årsak.tilPensjonsgivendeSkjønnsfastsettelseÅrsak(),
                 begrunnelse = begrunnelse,
             )
@@ -92,7 +66,7 @@ fun FrilanserInntektRequestDto.tilFrilanserInntektRequest(): FrilanserInntektReq
 
         is FrilanserInntektRequestDto.Skjønnsfastsatt -> {
             FrilanserInntektRequest.Skjønnsfastsatt(
-                årsinntekt = InntektbeløpDto.Årlig(årsinntekt),
+                årsinntekt = årsinntekt.somÅrligInntekt(),
                 årsak = årsak.tilFrilanserSkjønnsfastsettelseÅrsak(),
                 begrunnelse = begrunnelse,
             )
@@ -103,21 +77,21 @@ fun ArbeidsledigInntektRequestDto.tilArbeidsledigInntektRequest(): ArbeidsledigI
     when (this) {
         is ArbeidsledigInntektRequestDto.Dagpenger -> {
             ArbeidsledigInntektRequest.Dagpenger(
-                dagbeløp = InntektbeløpDto.DagligInt(dagbeløp),
+                dagbeløp = Inntekt.gjenopprett(InntektbeløpDto.DagligInt(dagbeløp)),
                 begrunnelse = begrunnelse,
             )
         }
 
         is ArbeidsledigInntektRequestDto.Ventelønn -> {
             ArbeidsledigInntektRequest.Ventelønn(
-                årsinntekt = InntektbeløpDto.Årlig(årsinntekt),
+                årsinntekt = årsinntekt.somÅrligInntekt(),
                 begrunnelse = begrunnelse,
             )
         }
 
         is ArbeidsledigInntektRequestDto.Vartpenger -> {
             ArbeidsledigInntektRequest.Vartpenger(
-                årsinntekt = InntektbeløpDto.Årlig(årsinntekt),
+                årsinntekt = årsinntekt.somÅrligInntekt(),
                 begrunnelse = begrunnelse,
             )
         }
@@ -146,5 +120,9 @@ fun RefusjonsperiodeDto.tilRefusjonsperiodeOld(): Refusjonsperiode =
     Refusjonsperiode(
         fom = fom,
         tom = tom,
-        beløp = InntektbeløpDto.MånedligDouble(beløp),
+        beløp = beløp.somMånedligInntekt(),
     )
+
+fun Double.somMånedligInntekt(): Inntekt = Inntekt.gjenopprett(InntektbeløpDto.MånedligDouble(this))
+
+fun Double.somÅrligInntekt(): Inntekt = Inntekt.gjenopprett(InntektbeløpDto.Årlig(this))

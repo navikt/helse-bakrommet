@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.behandling.inntekter
+package no.nav.helse.bakrommet.behandling.inntekter.domain
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonSubTypes

@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
 import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
+import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.beregnSykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
@@ -142,7 +142,7 @@ class YrkesaktivitetBuilder {
     private val dagoversikt = mutableListOf<Dag>()
     private var gjeldendeDato: LocalDate? = null
     private var arbeidsgiverperiode: Pair<LocalDate, LocalDate>? = null
-    private var inntektData: InntektData? = null
+    private var inntektData: InntektDataOld? = null
     private var refusjonsdata: List<Refusjonsperiode>? = null
 
     fun id(id: UUID) {
@@ -211,7 +211,7 @@ class YrkesaktivitetBuilder {
         arbeidsgiverperiode(init)
     }
 
-    fun inntektData(data: InntektData) {
+    fun inntektData(data: InntektDataOld) {
         this.inntektData = data
     }
 
@@ -452,12 +452,15 @@ class YrkesaktivitetBuilder {
                     typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = orgnummer),
                 )
             }
+
             "ARBEIDSLEDIG" -> {
                 YrkesaktivitetKategorisering.Arbeidsledig()
             }
+
             "INAKTIV" -> {
                 YrkesaktivitetKategorisering.Inaktiv()
             }
+
             "SELVSTENDIG_NÆRINGSDRIVENDE" -> {
                 val erSykmeldt = kategorisering["ER_SYKMELDT"] == "ER_SYKMELDT_JA"
                 val forsikring =
@@ -477,6 +480,7 @@ class YrkesaktivitetBuilder {
                     typeSelvstendigNæringsdrivende = type,
                 )
             }
+
             else -> {
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -503,9 +507,9 @@ class InntektDataBuilder {
         beløp(krPerMåned)
     }
 
-    fun build(): InntektData {
+    fun build(): InntektDataOld {
         val årligInntekt = InntektbeløpDto.Årlig((beløpPerMåned * 12).toDouble())
-        return InntektData.ArbeidstakerAinntekt(
+        return InntektDataOld.ArbeidstakerAinntekt(
             omregnetÅrsinntekt = årligInntekt,
             kildedata = emptyMap(),
         )
@@ -558,7 +562,7 @@ class RefusjonsdataBuilder {
 }
 
 // Extension function for å lage InntektData
-fun inntektData(init: InntektDataBuilder.() -> Unit): InntektData {
+fun inntektData(init: InntektDataBuilder.() -> Unit): InntektDataOld {
     val builder = InntektDataBuilder()
     builder.init()
     return builder.build()

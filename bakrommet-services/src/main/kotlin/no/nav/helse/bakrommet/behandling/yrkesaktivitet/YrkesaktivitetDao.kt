@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
+import no.nav.helse.bakrommet.behandling.inntekter.domain.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
@@ -23,7 +23,7 @@ data class YrkesaktivitetDbRecord(
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
-    val inntektData: InntektData? = null,
+    val inntektData: InntektDataOld? = null,
     val refusjon: List<Refusjonsperiode>? = null,
 )
 
@@ -95,7 +95,7 @@ interface YrkesaktivitetDao {
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
         perioder: Perioder?,
-        inntektData: InntektData?,
+        inntektData: InntektDataOld?,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord
 
@@ -121,7 +121,7 @@ interface YrkesaktivitetDao {
 
     fun oppdaterInntektData(
         legacyYrkesaktivitet: LegacyYrkesaktivitet,
-        inntektData: InntektData,
+        inntektData: InntektDataOld,
     ): YrkesaktivitetDbRecord
 
     fun oppdaterRefusjon(
