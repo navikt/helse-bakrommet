@@ -33,7 +33,6 @@ import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
-import kotlin.collections.forEach
 
 fun Route.yrkesaktivitetRoute(
     yrkesaktivitetService: YrkesaktivitetService,
@@ -189,14 +188,29 @@ fun Route.yrkesaktivitetRoute(
 
             put("/perioder") {
                 val perioderJson = call.receiveText()
-                val perioder: PerioderDto? =
+                val perioderDto: PerioderDto? =
                     if (perioderJson == "null") null else objectMapper.readValue(perioderJson, PerioderDto::class.java)
-                val perioderDomain = perioder?.tilPerioder()
-                yrkesaktivitetService.oppdaterPerioder(
-                    call.yrkesaktivitetReferanse(personService),
-                    perioderDomain,
-                    call.bruker(),
-                )
+                val perioder = perioderDto?.tilPerioder()
+
+                db.transactional {
+                    val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                    val saksbehandler = call.bruker()
+                    val behandling =
+                        behandlingRepository
+                            .hent(yrkesaktivitet.behandlingId)
+                            .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
+
+                    yrkesaktivitet.oppdaterPerioder(
+                        perioder,
+                    )
+                    yrkesaktivitetRepository.lagre(yrkesaktivitet)
+
+                    beregnUtbetaling(
+                        behandling = behandling,
+                        saksbehandler = saksbehandler,
+                    )
+                }
+
                 call.respond(HttpStatusCode.NoContent)
             }
 
