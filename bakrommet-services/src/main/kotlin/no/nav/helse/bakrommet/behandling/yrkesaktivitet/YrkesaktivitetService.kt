@@ -144,7 +144,6 @@ class YrkesaktivitetService(
 
             YrkesaktivitetMedOrgnavn(yrkesaktivitet, orgnavn)
         }
-    
 
     suspend fun slettYrkesaktivitet(
         ref: YrkesaktivitetReferanse,
