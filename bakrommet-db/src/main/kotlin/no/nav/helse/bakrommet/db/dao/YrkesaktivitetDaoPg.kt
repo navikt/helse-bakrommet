@@ -171,22 +171,6 @@ class YrkesaktivitetDaoPg private constructor(
                 },
         )
 
-    override fun oppdaterDagoversikt(
-        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        oppdatertDagoversikt: Dagoversikt,
-    ): YrkesaktivitetDbRecord {
-        db
-            .update(
-                """
-                update yrkesaktivitet set dagoversikt = :dagoversikt where id = :id
-                $AND_ER_UNDER_BEHANDLING
-                """.trimIndent(),
-                "id" to yrkesaktivitetDbRecord.id,
-                "dagoversikt" to oppdatertDagoversikt.tilPgJson(),
-            ).also(verifiserOppdatert)
-        return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
-    }
-
     override fun oppdaterPerioder(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         perioder: Perioder?,
@@ -201,17 +185,6 @@ class YrkesaktivitetDaoPg private constructor(
                 "perioder" to perioder?.tilPgJson(),
             ).also(verifiserOppdatert)
         return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
-    }
-
-    override fun slettYrkesaktivitet(id: UUID) {
-        db
-            .update(
-                """
-                delete from yrkesaktivitet where id = :id
-                $AND_ER_UNDER_BEHANDLING
-                """.trimIndent(),
-                "id" to id,
-            ).also(verifiserOppdatert)
     }
 
     override fun oppdaterInntektrequest(

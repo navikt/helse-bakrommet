@@ -59,18 +59,6 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
 
     override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> = storage.values.filter { it.behandlingId == behandlingId }
 
-    override fun oppdaterDagoversikt(
-        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        oppdatertDagoversikt: Dagoversikt,
-    ): YrkesaktivitetDbRecord {
-        val eksisterende =
-            storage[yrkesaktivitetDbRecord.id]
-                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${yrkesaktivitetDbRecord.id}")
-        val oppdatert = eksisterende.copy(dagoversikt = oppdatertDagoversikt)
-        storage[oppdatert.id] = oppdatert
-        return oppdatert
-    }
-
     override fun oppdaterPerioder(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         perioder: Perioder?,
@@ -81,10 +69,6 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
         val oppdatert = eksisterende.copy(perioder = perioder)
         storage[oppdatert.id] = oppdatert
         return oppdatert
-    }
-
-    override fun slettYrkesaktivitet(id: UUID) {
-        storage.remove(id)
     }
 
     override fun oppdaterInntektrequest(
