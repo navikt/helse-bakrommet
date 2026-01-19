@@ -55,22 +55,6 @@ fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): LegacyYrkesaktivitet =
         refusjon = this.refusjon,
     )
 
-fun LegacyYrkesaktivitet.tilYrkesaktivitetDbRecord(): YrkesaktivitetDbRecord =
-    YrkesaktivitetDbRecord(
-        id = this.id,
-        kategorisering = this.kategorisering,
-        kategoriseringGenerert = this.kategoriseringGenerert,
-        dagoversikt = this.dagoversikt,
-        dagoversiktGenerert = this.dagoversiktGenerert,
-        behandlingId = this.behandlingId,
-        opprettet = this.opprettet,
-        generertFraDokumenter = this.generertFraDokumenter,
-        perioder = this.perioder,
-        inntektRequest = this.inntektRequest,
-        inntektData = this.inntektData,
-        refusjon = this.refusjon,
-    )
-
 interface YrkesaktivitetDao {
     fun opprettYrkesaktivitet(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
