@@ -63,7 +63,7 @@ class MåVæreUnderBehandlingTest {
             val naturligIdent = NaturligIdent("01010199999")
             val fom = LocalDate.now().minusDays(14)
             val tom = LocalDate.now()
-            val saksbehandler = brukerOgToken(rolle = Rolle.SAKSBEHANDLER)
+            val saksbehandler = brukerOgToken()
             val behandling =
                 behandlingService.opprettNyBehandling(
                     naturligIdent = naturligIdent,

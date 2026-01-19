@@ -3,7 +3,6 @@ package no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
-import no.nav.helse.bakrommet.domain.sykepenger.Periode
 import java.time.OffsetDateTime
 import java.util.UUID
 
