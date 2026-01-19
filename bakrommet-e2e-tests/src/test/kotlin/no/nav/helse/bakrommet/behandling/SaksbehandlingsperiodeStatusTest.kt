@@ -9,11 +9,11 @@ import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.somListe
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilbake
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.bakrommet.util.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

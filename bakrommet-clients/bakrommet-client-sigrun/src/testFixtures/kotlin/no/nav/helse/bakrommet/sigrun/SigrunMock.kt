@@ -5,6 +5,7 @@ import io.ktor.client.engine.mock.respondError
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboToken
@@ -13,7 +14,6 @@ import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.client.common.mockHttpClient
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
-import no.nav.helse.bakrommet.util.asJsonNode
 import java.time.Year
 
 fun client2010to2050(fnr: String) = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSvar2010to2050(fnr))

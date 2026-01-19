@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
-import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.logg
 import java.util.UUID
 
 interface PersonsokDaoer {

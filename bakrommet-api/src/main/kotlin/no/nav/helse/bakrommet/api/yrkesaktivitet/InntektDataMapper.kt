@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.api.yrkesaktivitet
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.inntekter.InntektAar
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.objectMapper
 import java.time.format.DateTimeFormatter
 
 fun InntektData.tilInntektDataDto(): InntektDataDto =

@@ -34,7 +34,6 @@ import no.nav.helse.bakrommet.sigrun.SigrunClientModule
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesøknadBackendClientModule
-import no.nav.helse.bakrommet.util.objectMapper
 import javax.sql.DataSource
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds

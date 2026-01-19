@@ -20,8 +20,8 @@ import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
+import no.nav.helse.bakrommet.logg
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
-import no.nav.helse.bakrommet.util.logg
 import java.time.OffsetDateTime
 import java.util.*
 

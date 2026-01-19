@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
-import no.nav.helse.bakrommet.util.toJsonNode
+import no.nav.helse.bakrommet.toJsonNode
 import no.nav.helse.januar
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

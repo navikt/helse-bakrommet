@@ -8,7 +8,7 @@ import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 

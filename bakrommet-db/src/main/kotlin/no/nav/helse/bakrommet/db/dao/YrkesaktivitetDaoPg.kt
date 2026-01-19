@@ -16,8 +16,8 @@ import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.somListe
+import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.somListe
 import java.time.OffsetDateTime
 import java.util.*
 import javax.sql.DataSource

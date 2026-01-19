@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
 import no.nav.helse.bakrommet.kafka.OutboxDbRecord
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
+import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.taTilBesluting
 import no.nav.helse.bakrommet.testutils.*
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn
@@ -12,7 +13,6 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktivit
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.revurder
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.sendTilBeslutning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
-import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Test
 
 class RevurderingTest {

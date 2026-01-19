@@ -5,7 +5,6 @@ plugins {
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
 
-    implementation(project(":bakrommet-common"))
     implementation(project(":bakrommet-api-dto"))
     implementation(project(":bakrommet-services"))
 

@@ -17,10 +17,10 @@ import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
+import no.nav.helse.bakrommet.logg
+import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.serialisertTilString
 import no.nav.helse.bakrommet.util.fraHer
-import no.nav.helse.bakrommet.util.logg
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate
 

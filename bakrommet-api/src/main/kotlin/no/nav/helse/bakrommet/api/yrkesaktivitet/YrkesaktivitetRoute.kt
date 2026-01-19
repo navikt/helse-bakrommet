@@ -19,9 +19,9 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentPensjonsgivendeInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
+import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.person.PersonService
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.serialisertTilString
 
 fun Route.yrkesaktivitetRoute(
     yrkesaktivitetService: YrkesaktivitetService,

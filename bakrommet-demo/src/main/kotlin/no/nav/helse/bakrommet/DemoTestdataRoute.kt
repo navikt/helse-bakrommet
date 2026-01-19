@@ -6,7 +6,6 @@ import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.testdata.alleTestdata
 import no.nav.helse.bakrommet.testdata.scenarioer.alleScenarioer
 import no.nav.helse.bakrommet.testdata.tilTestpersonForFrontend
-import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun Route.demoTestdataRoute() {
     get("/v1/demo/scenarioer") {

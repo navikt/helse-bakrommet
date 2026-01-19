@@ -17,7 +17,7 @@ import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonService
-import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.bakrommet.sikkerLogger
 import java.time.LocalDate
 
 fun Route.behandlingRoute(

@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.util
+package no.nav.helse.bakrommet
 
 fun <T> Collection<T>.singleOrNone(predicate: (T) -> Boolean): T? {
     val matches = filter(predicate)

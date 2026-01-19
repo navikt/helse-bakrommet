@@ -3,8 +3,8 @@ package no.nav.helse.bakrommet.api.dokumenter
 import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.api.dto.dokumenter.KildesporDto
+import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
-import no.nav.helse.bakrommet.util.asJsonNode
 
 fun Dokument.tilDokumentDto(): DokumentDto =
     DokumentDto(

@@ -15,7 +15,7 @@ import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
-import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.bakrommet.sikkerLogger
 
 class OboClient(
     private val configuration: OboModule.Configuration,
