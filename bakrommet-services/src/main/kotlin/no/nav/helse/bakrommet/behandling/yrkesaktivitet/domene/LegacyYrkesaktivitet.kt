@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene
 
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
+import no.nav.helse.bakrommet.behandling.inntekter.domain.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
@@ -20,7 +20,7 @@ data class LegacyYrkesaktivitet(
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
-    val inntektData: InntektData? = null,
+    val inntektData: InntektDataOld? = null,
     val refusjon: List<Refusjonsperiode>? = null,
 ) {
     fun hentPerioderForType(periodetype: Periodetype): List<Periode> =

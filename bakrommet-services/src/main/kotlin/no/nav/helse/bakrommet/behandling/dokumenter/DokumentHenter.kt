@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektSammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastSigrunDokument
 import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
 import no.nav.helse.bakrommet.behandling.hentPeriode
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
@@ -26,7 +27,7 @@ import no.nav.helse.bakrommet.util.toJsonNode
 import java.util.*
 
 class DokumentHenter(
-    val db: DbDaoer<DokumentInnhentingDaoer>,
+    val db: DbDaoer<AlleDaoer>,
     private val soknadClient: SykepengesøknadProvider,
     private val inntekterProvider: InntekterProvider,
     private val arbeidsforholdProvider: ArbeidsforholdProvider,
@@ -93,11 +94,17 @@ class DokumentHenter(
         saksbehandler: BrukerOgToken,
     ): Dokument =
         db.nonTransactional {
-            val periode =
-                behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+            val behandling =
+                behandlingRepository.hent(BehandlingId(ref.behandlingId))
+            if (!saksbehandler.bruker.erTildelt(behandling)) {
+                error("Bruker er ikke saksbehandler på saken")
+            }
+            if (!behandling.erÅpenForEndringer()) {
+                error("Behandling er ikke åpen for endringer")
+            }
 
             return@nonTransactional lastAInntektBeregningsgrunnlag(
-                periode = periode,
+                behandling = behandling,
                 inntekterProvider = inntekterProvider,
                 saksbehandler = saksbehandler,
             )
@@ -108,11 +115,17 @@ class DokumentHenter(
         saksbehandler: BrukerOgToken,
     ): Dokument =
         db.nonTransactional {
-            val periode =
-                behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+            val behandling =
+                behandlingRepository.hent(BehandlingId(ref.behandlingId))
+            if (!saksbehandler.bruker.erTildelt(behandling)) {
+                error("Bruker er ikke saksbehandler på saken")
+            }
+            if (!behandling.erÅpenForEndringer()) {
+                error("Behandling er ikke åpen for endringer")
+            }
 
             return@nonTransactional lastAInntektSammenlikningsgrunnlag(
-                periode = periode,
+                behandling = behandling,
                 inntekterProvider = inntekterProvider,
                 saksbehandler = saksbehandler,
             )
@@ -150,10 +163,17 @@ class DokumentHenter(
         saksbehandler: BrukerOgToken,
     ): Dokument =
         db.nonTransactional {
-            val periode = behandlingDao.hentPeriode(ref, krav = saksbehandler.bruker.erSaksbehandlerPåSaken())
+            val behandling =
+                behandlingRepository.hent(BehandlingId(ref.behandlingId))
+            if (!saksbehandler.bruker.erTildelt(behandling)) {
+                error("Bruker er ikke saksbehandler på saken")
+            }
+            if (!behandling.erÅpenForEndringer()) {
+                error("Behandling er ikke åpen for endringer")
+            }
 
             return@nonTransactional lastSigrunDokument(
-                periode = periode,
+                behandling = behandling,
                 saksbehandlerToken = saksbehandler.token,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             )

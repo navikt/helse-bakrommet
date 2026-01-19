@@ -1,7 +1,6 @@
 package no.nav.helse.bakrommet.infrastruktur.db
 
 import no.nav.helse.bakrommet.behandling.BehandlingServiceDaoer
-import no.nav.helse.bakrommet.behandling.inntekter.InntektServiceDaoer
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherDaoer
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagServiceDaoer
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektServiceDaoer
@@ -14,7 +13,6 @@ interface AlleDaoer :
     BehandlingServiceDaoer,
     SykepengegrunnlagServiceDaoer,
     InntektsmeldingMatcherDaoer,
-    InntektServiceDaoer,
     PersonsokDaoer,
     PersonServiceDaoer,
     UtbetalingsberegningDaoer,

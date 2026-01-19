@@ -1,61 +1,64 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 
-internal fun DokumentInnhentingDaoer.fastsettInntektData(
+internal fun AlleDaoer.fastsettInntektData(
     request: InntektRequest,
-    legacyYrkesaktivitet: LegacyYrkesaktivitet,
-    periode: BehandlingDbRecord,
+    yrkesaktivitet: Yrkesaktivitet,
+    periode: Behandling,
     saksbehandler: BrukerOgToken,
-    yrkesaktivitetDao: YrkesaktivitetDao,
     inntektsmeldingProvider: InntektsmeldingProvider,
     inntekterProvider: InntekterProvider,
     pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
 ): InntektData =
     when (request) {
-        is InntektRequest.Arbeidstaker ->
+        is InntektRequest.Arbeidstaker -> {
             request.arbeidstakerFastsettelse(
-                legacyYrkesaktivitet = legacyYrkesaktivitet,
-                periode = periode,
+                yrkesaktivitet = yrkesaktivitet,
+                behandling = periode,
                 saksbehandler = saksbehandler,
-                yrkesaktivitetDao = yrkesaktivitetDao,
                 inntektsmeldingProvider = inntektsmeldingProvider,
                 inntekterProvider = inntekterProvider,
                 daoer = this,
             )
+        }
 
-        is InntektRequest.SelvstendigNæringsdrivende ->
+        is InntektRequest.SelvstendigNæringsdrivende -> {
             request.selvstendigFastsettelse(
-                periode = periode,
+                behandling = periode,
                 saksbehandler = saksbehandler,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
                 daoer = this,
             )
+        }
 
-        is InntektRequest.Inaktiv ->
+        is InntektRequest.Inaktiv -> {
             request.inaktivFastsettelse(
-                periode = periode,
+                behandling = periode,
                 saksbehandler = saksbehandler,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
                 daoer = this,
             )
+        }
 
-        is InntektRequest.Frilanser ->
+        is InntektRequest.Frilanser -> {
             request.frilanserFastsettelse(
-                periode = periode,
+                behandling = periode,
                 saksbehandler = saksbehandler,
                 inntekterProvider = inntekterProvider,
                 daoer = this,
             )
+        }
 
-        is InntektRequest.Arbeidsledig -> request.arbeidsledigFastsettelse()
+        is InntektRequest.Arbeidsledig -> {
+            request.arbeidsledigFastsettelse()
+        }
     }

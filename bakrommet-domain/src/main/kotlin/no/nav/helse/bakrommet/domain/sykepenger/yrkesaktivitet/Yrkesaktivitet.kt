@@ -4,6 +4,7 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.Dag
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.Periode
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -58,6 +59,57 @@ class Yrkesaktivitet(
 
     fun oppdaterRefusjon(refusjon: List<Refusjonsperiode>?) {
         this.refusjon = refusjon
+    }
+
+    fun nyInntektRequest(request: InntektRequest) {
+        val feilKategori =
+            { throw IllegalStateException("Feil inntektkategori for oppdatering av inntekt med tyoe ${request.javaClass.name}") }
+
+        when (request) {
+            is InntektRequest.Arbeidstaker -> {
+                if (kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
+                    feilKategori()
+                }
+            }
+
+            is InntektRequest.SelvstendigNæringsdrivende -> {
+                if (kategorisering !is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende) {
+                    feilKategori()
+                }
+            }
+
+            is InntektRequest.Frilanser -> {
+                if (kategorisering !is YrkesaktivitetKategorisering.Frilanser) {
+                    feilKategori()
+                }
+            }
+
+            is InntektRequest.Inaktiv -> {
+                if (kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
+                    feilKategori()
+                }
+            }
+
+            is InntektRequest.Arbeidsledig -> {
+                if (kategorisering !is YrkesaktivitetKategorisering.Arbeidsledig) {
+                    feilKategori()
+                }
+            }
+        }
+        inntektRequest = request
+        inntektData = null
+    }
+
+    fun leggTilArbeidsgiverperiode(perioder: List<Periode>) {
+        val agpPerioder = Perioder(type = Periodetype.ARBEIDSGIVERPERIODE, perioder = perioder)
+        check(kategorisering is YrkesaktivitetKategorisering.Arbeidstaker) {
+            "Kan kun legge til arbeidsgiverperiode på yrkesaktiviteter av typen Arbeidstaker"
+        }
+        oppdaterPerioder(agpPerioder)
+    }
+
+    fun leggTilInntektData(inntektData: InntektData) {
+        this.inntektData = inntektData
     }
 
     companion object {

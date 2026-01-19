@@ -5,8 +5,8 @@ import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dagoversikt.tilDagoversikt
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
+import no.nav.helse.bakrommet.behandling.inntekter.domain.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
@@ -48,7 +48,7 @@ class YrkesaktivitetDaoPg private constructor(
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
         perioder: Perioder?,
-        inntektData: InntektData?,
+        inntektData: InntektDataOld?,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
         val yrkesaktivitetDbRecord =
@@ -161,7 +161,7 @@ class YrkesaktivitetDaoPg private constructor(
                 row
                     .stringOrNull("inntekt_request")
                     ?.let { objectMapper.readValue(it, InntektRequest::class.java) },
-            inntektData = row.stringOrNull("inntekt_data")?.let { objectMapper.readValue(it, InntektData::class.java) },
+            inntektData = row.stringOrNull("inntekt_data")?.let { objectMapper.readValue(it, InntektDataOld::class.java) },
             refusjon =
                 row.stringOrNull("refusjon")?.let {
                     objectMapper.readValue(
@@ -205,7 +205,7 @@ class YrkesaktivitetDaoPg private constructor(
 
     override fun oppdaterInntektData(
         legacyYrkesaktivitet: LegacyYrkesaktivitet,
-        inntektData: InntektData,
+        inntektData: InntektDataOld,
     ): YrkesaktivitetDbRecord {
         db
             .update(

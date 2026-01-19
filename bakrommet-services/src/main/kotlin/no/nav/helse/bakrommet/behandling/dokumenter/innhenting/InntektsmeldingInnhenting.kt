@@ -4,17 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.inntektsmeldingkontrakt.Inntektsmelding
 
-fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
-    periode: BehandlingDbRecord,
+fun AlleDaoer.lastInntektsmeldingDokument(
+    periode: Behandling,
     inntektsmeldingId: String,
     inntektsmeldingProvider: InntektsmeldingProvider,
     saksbehandler: BrukerOgToken,
@@ -22,7 +23,7 @@ fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
     val dokType = DokumentType.inntektsmelding
     val alleredeLagret =
         dokumentDao.finnDokumentMedEksternId(
-            behandlingId = periode.id,
+            behandlingId = periode.id.value,
             dokumentType = dokType,
             eksternId = inntektsmeldingId,
         )
@@ -46,7 +47,7 @@ fun DokumentInnhentingDaoer.lastInntektsmeldingDokument(
             eksternId = inntektsmeldingId,
             innhold = inntektsmelding.serialisertTilString(),
             sporing = kildespor,
-            opprettetForBehandling = periode.id,
+            opprettetForBehandling = periode.id.value,
         ),
     )
 }

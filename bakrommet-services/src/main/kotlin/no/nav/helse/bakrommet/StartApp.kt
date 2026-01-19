@@ -82,7 +82,6 @@ fun createServices(
         dokumentHenter = dokumentHenter,
         inntektService =
             InntektService(
-                db,
                 providers.inntektsmeldingProvider,
                 providers.pensjonsgivendeInntektProvider,
                 providers.inntekterProvider,

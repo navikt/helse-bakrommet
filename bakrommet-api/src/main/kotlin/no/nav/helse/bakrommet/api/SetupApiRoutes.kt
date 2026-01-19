@@ -43,6 +43,8 @@ fun Route.setupApiRoutes(
         inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
         personService = services.personService,
         organisasjonsnavnProvider = providers.organisasjonsnavnProvider,
+        pensjonsgivendeInntektProvider = providers.pensjonsgivendeInntektProvider,
+        inntektProvider = providers.inntekterProvider,
     )
     valideringRoute(services.valideringService, services.personService)
 }

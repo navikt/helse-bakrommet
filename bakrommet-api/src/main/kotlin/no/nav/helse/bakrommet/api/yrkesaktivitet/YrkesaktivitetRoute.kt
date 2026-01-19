@@ -27,8 +27,10 @@ import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
@@ -38,6 +40,8 @@ fun Route.yrkesaktivitetRoute(
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     personService: PersonService,
     organisasjonsnavnProvider: OrganisasjonsnavnProvider,
+    pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
+    inntektProvider: InntekterProvider,
     db: DbDaoer<AlleDaoer>,
 ) {
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/yrkesaktivitet") {
@@ -215,12 +219,24 @@ fun Route.yrkesaktivitetRoute(
             route("/inntekt") {
                 put {
                     val inntektRequest = call.receive<InntektRequestDto>()
-                    val yrkesaktivitetRef = call.yrkesaktivitetReferanse(personService)
-                    inntektservice.oppdaterInntekt(
-                        yrkesaktivitetRef,
-                        inntektRequest.tilInntektRequest(),
-                        call.saksbehandlerOgToken(),
-                    )
+
+                    db.transactional {
+                        val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                        val saksbehandler = call.bruker()
+                        val behandling =
+                            behandlingRepository
+                                .hent(yrkesaktivitet.behandlingId)
+                                .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
+
+                        inntektservice.oppdaterInntekt(
+                            db = this,
+                            yrkesaktivitet = yrkesaktivitet,
+                            behandling = behandling,
+                            request = inntektRequest.tilInntektRequest(),
+                            saksbehandler = call.saksbehandlerOgToken(),
+                        )
+                    }
+
                     call.respond(HttpStatusCode.NoContent)
                 }
             }
@@ -283,23 +299,41 @@ fun Route.yrkesaktivitetRoute(
             }
 
             get("/pensjonsgivendeinntekt") {
-                val yrkesaktivitetRef = call.yrkesaktivitetReferanse(personService)
-                val response =
-                    inntektservice.hentPensjonsgivendeInntektForYrkesaktivitet(
-                        ref = yrkesaktivitetRef,
-                        saksbehandler = call.saksbehandlerOgToken(),
-                    )
-                call.respondJson(response.tilPensjonsgivendeInntektResponseDto())
+                db
+                    .transactional {
+                        val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                        val saksbehandler = call.bruker()
+                        val behandling =
+                            behandlingRepository
+                                .hent(yrkesaktivitet.behandlingId)
+                                .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
+
+                        hentPensjonsgivendeInntektForYrkesaktivitet(
+                            saksbehandler = call.saksbehandlerOgToken(),
+                            yrkesaktivitet = yrkesaktivitet,
+                            behandling = behandling,
+                            pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
+                        ).tilPensjonsgivendeInntektResponseDto()
+                    }.let { call.respondJson(it) }
             }
 
             get("/ainntekt") {
-                val yrkesaktivitetRef = call.yrkesaktivitetReferanse(personService)
-                val response =
-                    inntektservice.hentAInntektForYrkesaktivitet(
-                        ref = yrkesaktivitetRef,
-                        saksbehandler = call.saksbehandlerOgToken(),
-                    )
-                call.respondJson(response.tilAinntektResponseDto())
+                db
+                    .transactional {
+                        val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                        val saksbehandler = call.bruker()
+                        val behandling =
+                            behandlingRepository
+                                .hent(yrkesaktivitet.behandlingId)
+                                .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
+
+                        hentAInntektForYrkesaktivitet(
+                            saksbehandler = call.saksbehandlerOgToken(),
+                            yrkesaktivitet = yrkesaktivitet,
+                            behandling = behandling,
+                            inntekterProvider = inntektProvider,
+                        ).tilAinntektResponseDto()
+                    }.let { call.respondJson(it) }
             }
         }
     }

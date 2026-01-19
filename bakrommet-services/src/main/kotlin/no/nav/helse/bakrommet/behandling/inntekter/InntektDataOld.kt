@@ -12,18 +12,18 @@ import java.time.YearMonth
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "inntektstype")
 @JsonSubTypes(
-    JsonSubTypes.Type(value = InntektData.ArbeidstakerInntektsmelding::class, name = "ARBEIDSTAKER_INNTEKTSMELDING"),
-    JsonSubTypes.Type(value = InntektData.ArbeidstakerAinntekt::class, name = "ARBEIDSTAKER_AINNTEKT"),
-    JsonSubTypes.Type(value = InntektData.ArbeidstakerSkjønnsfastsatt::class, name = "ARBEIDSTAKER_SKJØNNSFASTSATT"),
-    JsonSubTypes.Type(value = InntektData.FrilanserAinntekt::class, name = "FRILANSER_AINNTEKT"),
-    JsonSubTypes.Type(value = InntektData.FrilanserSkjønnsfastsatt::class, name = "FRILANSER_SKJØNNSFASTSATT"),
-    JsonSubTypes.Type(value = InntektData.Arbeidsledig::class, name = "ARBEIDSLEDIG"),
-    JsonSubTypes.Type(value = InntektData.InaktivPensjonsgivende::class, name = "INAKTIV_PENSJONSGIVENDE"),
-    JsonSubTypes.Type(value = InntektData.InaktivSkjønnsfastsatt::class, name = "INAKTIV_SKJØNNSFASTSATT"),
-    JsonSubTypes.Type(value = InntektData.SelvstendigNæringsdrivendePensjonsgivende::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_PENSJONSGIVENDE"),
-    JsonSubTypes.Type(value = InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_SKJØNNSFASTSATT"),
+    JsonSubTypes.Type(value = InntektDataOld.ArbeidstakerInntektsmelding::class, name = "ARBEIDSTAKER_INNTEKTSMELDING"),
+    JsonSubTypes.Type(value = InntektDataOld.ArbeidstakerAinntekt::class, name = "ARBEIDSTAKER_AINNTEKT"),
+    JsonSubTypes.Type(value = InntektDataOld.ArbeidstakerSkjønnsfastsatt::class, name = "ARBEIDSTAKER_SKJØNNSFASTSATT"),
+    JsonSubTypes.Type(value = InntektDataOld.FrilanserAinntekt::class, name = "FRILANSER_AINNTEKT"),
+    JsonSubTypes.Type(value = InntektDataOld.FrilanserSkjønnsfastsatt::class, name = "FRILANSER_SKJØNNSFASTSATT"),
+    JsonSubTypes.Type(value = InntektDataOld.Arbeidsledig::class, name = "ARBEIDSLEDIG"),
+    JsonSubTypes.Type(value = InntektDataOld.InaktivPensjonsgivende::class, name = "INAKTIV_PENSJONSGIVENDE"),
+    JsonSubTypes.Type(value = InntektDataOld.InaktivSkjønnsfastsatt::class, name = "INAKTIV_SKJØNNSFASTSATT"),
+    JsonSubTypes.Type(value = InntektDataOld.SelvstendigNæringsdrivendePensjonsgivende::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_PENSJONSGIVENDE"),
+    JsonSubTypes.Type(value = InntektDataOld.SelvstendigNæringsdrivendeSkjønnsfastsatt::class, name = "SELVSTENDIG_NÆRINGSDRIVENDE_SKJØNNSFASTSATT"),
 )
-sealed class InntektData {
+sealed class InntektDataOld {
     abstract val omregnetÅrsinntekt: InntektbeløpDto.Årlig
     abstract val sporing: BeregningskoderSykepengegrunnlag
 
@@ -32,44 +32,44 @@ sealed class InntektData {
         val inntektsmelding: JsonNode,
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class ArbeidstakerAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag = ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
         // TODO legg med litt kilder
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class ArbeidstakerSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag,
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class FrilanserAinntekt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag = FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val kildedata: Map<YearMonth, InntektbeløpDto.MånedligDouble>,
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class FrilanserSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag,
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class Arbeidsledig(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag,
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class InaktivSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag,
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class PensjonsgivendeInntekt(
         val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
-        val pensjonsgivendeInntekt: List<InntektAar>,
+        val pensjonsgivendeInntekt: List<InntektAarOld>,
         val anvendtGrunnbeløp: InntektbeløpDto.Årlig,
     )
 
@@ -77,21 +77,21 @@ sealed class InntektData {
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag = BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class SelvstendigNæringsdrivendePensjonsgivende(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag = BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL,
         val pensjonsgivendeInntekt: PensjonsgivendeInntekt,
-    ) : InntektData()
+    ) : InntektDataOld()
 
     data class SelvstendigNæringsdrivendeSkjønnsfastsatt(
         override val omregnetÅrsinntekt: InntektbeløpDto.Årlig,
         override val sporing: BeregningskoderSykepengegrunnlag,
-    ) : InntektData()
+    ) : InntektDataOld()
 }
 
-data class InntektAar(
+data class InntektAarOld(
     val år: Year,
     val rapportertinntekt: InntektbeløpDto.Årlig,
     val justertÅrsgrunnlag: InntektbeløpDto.Årlig,

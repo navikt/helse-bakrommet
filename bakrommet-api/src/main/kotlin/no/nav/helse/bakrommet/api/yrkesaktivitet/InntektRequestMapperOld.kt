@@ -1,109 +1,131 @@
 package no.nav.helse.bakrommet.api.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.behandling.inntekter.*
+import no.nav.helse.bakrommet.behandling.inntekter.domain.ArbeidsledigInntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.domain.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.domain.ArbeidstakerSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.behandling.inntekter.domain.FrilanserInntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.domain.FrilanserSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.behandling.inntekter.domain.InntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.domain.PensjonsgivendeInntektRequest
+import no.nav.helse.bakrommet.behandling.inntekter.domain.PensjonsgivendeSkjønnsfastsettelseÅrsak
 
 fun InntektRequest.tilInntektRequestDto(): InntektRequestDto =
     when (this) {
-        is InntektRequest.Arbeidstaker ->
+        is InntektRequest.Arbeidstaker -> {
             InntektRequestDto.Arbeidstaker(
                 data = data.tilArbeidstakerInntektRequestDto(),
             )
+        }
 
-        is InntektRequest.SelvstendigNæringsdrivende ->
+        is InntektRequest.SelvstendigNæringsdrivende -> {
             InntektRequestDto.SelvstendigNæringsdrivende(
                 data = data.tilPensjonsgivendeInntektRequestDto(),
             )
+        }
 
-        is InntektRequest.Inaktiv ->
+        is InntektRequest.Inaktiv -> {
             InntektRequestDto.Inaktiv(
                 data = data.tilPensjonsgivendeInntektRequestDto(),
             )
+        }
 
-        is InntektRequest.Frilanser ->
+        is InntektRequest.Frilanser -> {
             InntektRequestDto.Frilanser(
                 data = data.tilFrilanserInntektRequestDto(),
             )
+        }
 
-        is InntektRequest.Arbeidsledig ->
+        is InntektRequest.Arbeidsledig -> {
             InntektRequestDto.Arbeidsledig(
                 data = data.tilArbeidsledigInntektRequestDto(),
             )
+        }
     }
 
 fun ArbeidstakerInntektRequest.tilArbeidstakerInntektRequestDto(): ArbeidstakerInntektRequestDto =
     when (this) {
-        is ArbeidstakerInntektRequest.Inntektsmelding ->
+        is ArbeidstakerInntektRequest.Inntektsmelding -> {
             ArbeidstakerInntektRequestDto.Inntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.tilRefusjonsperiodeDto() },
             )
+        }
 
-        is ArbeidstakerInntektRequest.Ainntekt ->
+        is ArbeidstakerInntektRequest.Ainntekt -> {
             ArbeidstakerInntektRequestDto.Ainntekt(
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.tilRefusjonsperiodeDto() },
             )
+        }
 
-        is ArbeidstakerInntektRequest.Skjønnsfastsatt ->
+        is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
             ArbeidstakerInntektRequestDto.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.beløp,
                 årsak = årsak.tilArbeidstakerSkjønnsfastsettelseÅrsakDto(),
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.tilRefusjonsperiodeDto() },
             )
+        }
     }
 
 fun PensjonsgivendeInntektRequest.tilPensjonsgivendeInntektRequestDto(): PensjonsgivendeInntektRequestDto =
     when (this) {
-        is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt ->
+        is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
             PensjonsgivendeInntektRequestDto.PensjonsgivendeInntekt(
                 begrunnelse = begrunnelse,
             )
+        }
 
-        is PensjonsgivendeInntektRequest.Skjønnsfastsatt ->
+        is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
             PensjonsgivendeInntektRequestDto.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.beløp,
                 årsak = årsak.tilPensjonsgivendeSkjønnsfastsettelseÅrsakDto(),
                 begrunnelse = begrunnelse,
             )
+        }
     }
 
 fun FrilanserInntektRequest.tilFrilanserInntektRequestDto(): FrilanserInntektRequestDto =
     when (this) {
-        is FrilanserInntektRequest.Ainntekt ->
+        is FrilanserInntektRequest.Ainntekt -> {
             FrilanserInntektRequestDto.Ainntekt(
                 begrunnelse = begrunnelse,
             )
+        }
 
-        is FrilanserInntektRequest.Skjønnsfastsatt ->
+        is FrilanserInntektRequest.Skjønnsfastsatt -> {
             FrilanserInntektRequestDto.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.beløp,
                 årsak = årsak.tilFrilanserSkjønnsfastsettelseÅrsakDto(),
                 begrunnelse = begrunnelse,
             )
+        }
     }
 
 fun ArbeidsledigInntektRequest.tilArbeidsledigInntektRequestDto(): ArbeidsledigInntektRequestDto =
     when (this) {
-        is ArbeidsledigInntektRequest.Dagpenger ->
+        is ArbeidsledigInntektRequest.Dagpenger -> {
             ArbeidsledigInntektRequestDto.Dagpenger(
                 dagbeløp = dagbeløp.beløp,
                 begrunnelse = begrunnelse,
             )
+        }
 
-        is ArbeidsledigInntektRequest.Ventelønn ->
+        is ArbeidsledigInntektRequest.Ventelønn -> {
             ArbeidsledigInntektRequestDto.Ventelønn(
                 årsinntekt = årsinntekt.beløp,
                 begrunnelse = begrunnelse,
             )
+        }
 
-        is ArbeidsledigInntektRequest.Vartpenger ->
+        is ArbeidsledigInntektRequest.Vartpenger -> {
             ArbeidsledigInntektRequestDto.Vartpenger(
                 årsinntekt = årsinntekt.beløp,
                 begrunnelse = begrunnelse,
             )
+        }
     }
 
 fun ArbeidstakerSkjønnsfastsettelseÅrsak.tilArbeidstakerSkjønnsfastsettelseÅrsakDto(): ArbeidstakerSkjønnsfastsettelseÅrsakDto =

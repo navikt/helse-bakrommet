@@ -120,3 +120,36 @@ fun RefusjonsperiodeDto.tilRefusjonsperiode(): Refusjonsperiode =
         tom = tom,
         beløp = Inntekt.gjenopprett(InntektbeløpDto.MånedligDouble(beløp)),
     )
+
+fun InntektRequestDto.tilInntektRequest(): InntektRequest =
+    when (this) {
+        is InntektRequestDto.Arbeidstaker -> {
+            InntektRequest.Arbeidstaker(
+                data = data.tilArbeidstakerInntektRequest(),
+            )
+        }
+
+        is InntektRequestDto.SelvstendigNæringsdrivende -> {
+            InntektRequest.SelvstendigNæringsdrivende(
+                data = data.tilPensjonsgivendeInntektRequest(),
+            )
+        }
+
+        is InntektRequestDto.Inaktiv -> {
+            InntektRequest.Inaktiv(
+                data = data.tilPensjonsgivendeInntektRequest(),
+            )
+        }
+
+        is InntektRequestDto.Frilanser -> {
+            InntektRequest.Frilanser(
+                data = data.tilFrilanserInntektRequest(),
+            )
+        }
+
+        is InntektRequestDto.Arbeidsledig -> {
+            InntektRequest.Arbeidsledig(
+                data = data.tilArbeidsledigInntektRequest(),
+            )
+        }
+    }

@@ -1,41 +1,41 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
-import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.DokumentInnhentingDaoer
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastSigrunDokument
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somPensjonsgivendeInntekt
 import no.nav.helse.bakrommet.behandling.inntekter.HentPensjonsgivendeInntektResponse
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.PensjonsgivendeSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.behandling.inntekter.kanBeregnesEtter835
 import no.nav.helse.bakrommet.behandling.inntekter.tilBeregnetPensjonsgivendeInntekt
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.domain.sykepenger.BeregningskoderSykepengegrunnlag
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.PensjonsgivendeInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.PensjonsgivendeSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 
 internal fun InntektRequest.SelvstendigNæringsdrivende.selvstendigFastsettelse(
-    periode: BehandlingDbRecord,
+    behandling: Behandling,
     saksbehandler: BrukerOgToken,
     pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
-    daoer: DokumentInnhentingDaoer,
+    daoer: AlleDaoer,
 ): InntektData {
     fun hentPensjonsgivende(): List<HentPensjonsgivendeInntektResponse> =
         daoer
             .lastSigrunDokument(
-                periode = periode,
+                behandling = behandling,
                 saksbehandlerToken = saksbehandler.token,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             ).somPensjonsgivendeInntekt()
 
-    return when (data) {
+    return when (val data = data) {
         is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
             val pensjonsgivendeInntekt = hentPensjonsgivende()
 
             if (pensjonsgivendeInntekt.kanBeregnesEtter835()) {
                 val beregnet =
-                    pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
+                    pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(behandling.skjæringstidspunkt)
                 InntektData.SelvstendigNæringsdrivendePensjonsgivende(
                     omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
                     pensjonsgivendeInntekt = beregnet,
