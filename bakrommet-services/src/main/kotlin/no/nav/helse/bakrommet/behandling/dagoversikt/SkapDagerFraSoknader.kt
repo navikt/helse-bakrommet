@@ -1,5 +1,8 @@
 package no.nav.helse.bakrommet.behandling.dagoversikt
 
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
+import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
+import no.nav.helse.bakrommet.domain.sykepenger.Kilde
 import no.nav.helse.flex.sykepengesoknad.kafka.FravarstypeDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykmeldingstypeDTO.BEHANDLINGSDAGER

@@ -1,9 +1,11 @@
 package no.nav.helse.bakrommet.api.yrkesaktivitet
 
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.KildeDto
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
+import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
+import no.nav.helse.bakrommet.domain.sykepenger.Kilde
 
 fun Dag.tilDagDto(): DagDto =
     DagDto(

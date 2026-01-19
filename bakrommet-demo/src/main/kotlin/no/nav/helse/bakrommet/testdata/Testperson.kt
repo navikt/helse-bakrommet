@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.testdata
 
 import no.nav.helse.bakrommet.aareg.Arbeidsforhold
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import no.nav.helse.juli

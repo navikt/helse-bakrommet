@@ -6,14 +6,14 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRe
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.BeregningData
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
 import no.nav.helse.bakrommet.behandling.validering.ValideringSjekk
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode
@@ -104,8 +104,8 @@ fun arbeidstaker(): List<LegacyYrkesaktivitet> =
                         ),
                 ),
             kategoriseringGenerert = null,
-            dagoversikt = Dagoversikt(),
-            dagoversiktGenerert = Dagoversikt(),
+            dagoversikt = Dagoversikt(emptyList(), emptyList()),
+            dagoversiktGenerert = Dagoversikt(emptyList(), emptyList()),
             behandlingId = UUID.randomUUID(),
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = emptyList(),

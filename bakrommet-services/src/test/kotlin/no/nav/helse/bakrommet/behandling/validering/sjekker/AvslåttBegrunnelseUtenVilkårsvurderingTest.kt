@@ -1,16 +1,16 @@
 package no.nav.helse.bakrommet.behandling.validering.sjekker
 
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.enkelBehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.enkelLegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
+import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.db.dto.yrkesaktivitet
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.JsonNode
 import java.time.YearMonth
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "inntektstype")
@@ -23,7 +24,7 @@ sealed class DbInntektData {
 
     data class ArbeidstakerInntektsmelding(
         val inntektsmeldingId: String,
-        val inntektsmelding: String,
+        val inntektsmelding: JsonNode, // TODO, endre til string hvis vi vil?
         override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
     ) : DbInntektData()

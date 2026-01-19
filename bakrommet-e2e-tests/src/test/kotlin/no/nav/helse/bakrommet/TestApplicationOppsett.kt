@@ -1,11 +1,10 @@
 package no.nav.helse.bakrommet
 
 import com.zaxxer.hikari.HikariConfig
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.ContentType
-import io.ktor.serialization.jackson.JacksonConverter
-import io.ktor.server.testing.ApplicationTestBuilder
-import io.ktor.server.testing.testApplication
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
@@ -21,6 +20,7 @@ import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.db.DBModule
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.dao.*
+import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetRepository
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.provider.*
@@ -105,7 +105,7 @@ class Daoer(
             Daoer(
                 PersonPseudoIdDaoPg(dataSource),
                 DokumentDaoPg(dataSource),
-                YrkesaktivitetDaoPg(dataSource),
+                YrkesaktivitetDaoOverRepository(PgYrkesaktivitetRepository(dataSource)),
                 OutboxDaoPg(dataSource),
                 SykepengegrunnlagDaoPg(dataSource),
             )
@@ -129,6 +129,8 @@ fun runApplicationTest(
     if (resetDatabase) {
         TestDataSource.resetDatasource()
     }
+    val db = skapDbDaoer(dataSource)
+
     application {
         val providers =
             Providers(
@@ -140,14 +142,13 @@ fun runApplicationTest(
                 inntektsmeldingProvider = inntektsmeldingClient,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             )
-        val db = skapDbDaoer(dataSource)
         val services =
             createServices(
                 providers = providers,
                 db = db,
             )
 
-        settOppKtor(config.api, services, db, errorHandlingIncludeStackTrace = true)
+        settOppKtor(config.api, services, db, providers, errorHandlingIncludeStackTrace = true)
     }
     client =
         createClient {

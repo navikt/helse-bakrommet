@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PseudoId
@@ -52,3 +53,5 @@ suspend fun RoutingCall.yrkesaktivitetReferanse(personService: PersonService): Y
         behandlingReferanse = periodeReferanse(personService),
         yrkesaktivitetUUID = parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID(),
     )
+
+fun RoutingCall.yrkesaktivitetId(): YrkesaktivitetId = YrkesaktivitetId(parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID())

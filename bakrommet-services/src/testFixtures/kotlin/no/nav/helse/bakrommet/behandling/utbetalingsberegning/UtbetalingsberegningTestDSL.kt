@@ -1,23 +1,24 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.beregnSykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
+import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
+import no.nav.helse.bakrommet.domain.sykepenger.Kilde
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeSelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -452,12 +453,15 @@ class YrkesaktivitetBuilder {
                     typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = orgnummer),
                 )
             }
+
             "ARBEIDSLEDIG" -> {
                 YrkesaktivitetKategorisering.Arbeidsledig()
             }
+
             "INAKTIV" -> {
                 YrkesaktivitetKategorisering.Inaktiv()
             }
+
             "SELVSTENDIG_NÆRINGSDRIVENDE" -> {
                 val erSykmeldt = kategorisering["ER_SYKMELDT"] == "ER_SYKMELDT_JA"
                 val forsikring =
@@ -477,6 +481,7 @@ class YrkesaktivitetBuilder {
                     typeSelvstendigNæringsdrivende = type,
                 )
             }
+
             else -> {
                 YrkesaktivitetKategorisering.Arbeidstaker(
                     sykmeldt = true,
@@ -506,7 +511,7 @@ class InntektDataBuilder {
     fun build(): InntektData {
         val årligInntekt = InntektbeløpDto.Årlig((beløpPerMåned * 12).toDouble())
         return InntektData.ArbeidstakerAinntekt(
-            omregnetÅrsinntekt = årligInntekt,
+            omregnetÅrsinntekt = årligInntekt.tilInntekt(),
             kildedata = emptyMap(),
         )
     }

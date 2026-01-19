@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.api
 
-import io.ktor.server.application.Application
+import io.ktor.server.application.*
+import no.nav.helse.bakrommet.Providers
 import no.nav.helse.bakrommet.Services
 import no.nav.helse.bakrommet.api.auth.azureAdAppAuthentication
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
@@ -10,6 +11,7 @@ fun Application.settOppKtor(
     configuration: ApiModule.Configuration,
     services: Services,
     db: DbDaoer<AlleDaoer>,
+    providers: Providers,
     errorHandlingIncludeStackTrace: Boolean = false,
 ) {
     azureAdAppAuthentication(configuration.auth, configuration.roller)
@@ -19,5 +21,6 @@ fun Application.settOppKtor(
         services = services,
         errorHandlingIncludeStackTrace = errorHandlingIncludeStackTrace,
         db = db,
+        providers = providers,
     )
 }

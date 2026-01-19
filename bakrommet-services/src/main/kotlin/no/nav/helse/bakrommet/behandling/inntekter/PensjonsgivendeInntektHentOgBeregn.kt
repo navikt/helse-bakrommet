@@ -1,10 +1,8 @@
 package no.nav.helse.bakrommet.behandling.inntekter
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.Grunnbeløp
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektAar
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.person.inntekt.SelvstendigFaktaavklartInntekt
 import no.nav.helse.økonomi.Inntekt
@@ -12,8 +10,6 @@ import java.time.LocalDate
 import java.time.Year
 
 fun List<HentPensjonsgivendeInntektResponse>.kanBeregnesEtter835(): Boolean = this.filter { it.pensjonsgivendeInntekt != null }.size >= 3
-
-fun JsonNode.tilHentPensjonsgivendeInntektResponse(): HentPensjonsgivendeInntektResponse = objectMapper.readValue(this.serialisertTilString())
 
 private fun List<PensjonsgivendeInntekt>.tilInntekt(): Inntekt = Inntekt.gjenopprett(InntektbeløpDto.Årlig(this.sumOf { it.sumAvAlleInntekter() }.toDouble()))
 
@@ -45,22 +41,20 @@ fun List<HentPensjonsgivendeInntektResponse>.tilBeregnetPensjonsgivendeInntekt(s
         inntekter.map {
             InntektAar(
                 år = it.årstall,
-                rapportertinntekt = it.beløp.dto().årlig,
+                rapportertinntekt = it.beløp,
                 justertÅrsgrunnlag =
                     it
                         .justertÅrsgrunnlag(anvendtGrunnbeløp)
-                        .times(3)
-                        .dto()
-                        .årlig,
+                        .times(3),
                 // ganger 3 fordi justert årsgrunnlag er allerede 3 års snitt
                 antallGKompensert = it.antallGKompensert,
-                snittG = it.snitt.dto().årlig,
+                snittG = it.snitt,
             )
         }
 
     return InntektData.PensjonsgivendeInntekt(
-        omregnetÅrsinntekt = sykepengegrunnlag.dto().årlig,
+        omregnetÅrsinntekt = sykepengegrunnlag,
         pensjonsgivendeInntekt = pensjonsgivendeInntektList,
-        anvendtGrunnbeløp = anvendtGrunnbeløp.dto().årlig,
+        anvendtGrunnbeløp = anvendtGrunnbeløp,
     )
 }

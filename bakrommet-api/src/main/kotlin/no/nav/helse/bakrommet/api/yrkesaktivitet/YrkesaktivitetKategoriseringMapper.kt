@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.api.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.*
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
 
 fun YrkesaktivitetKategorisering.tilYrkesaktivitetKategoriseringDto(): YrkesaktivitetKategoriseringDto =
     when (this) {

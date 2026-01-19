@@ -8,10 +8,10 @@ import no.nav.helse.bakrommet.domain.Bruker
 
 fun ApplicationCall.brukerPrincipal(): Bruker? = principal<Bruker>()
 
-fun RoutingCall.saksbehandler() = brukerPrincipal()!!
+fun RoutingCall.bruker() = brukerPrincipal()!!
 
 fun RoutingCall.saksbehandlerOgToken() =
     BrukerOgToken(
-        bruker = saksbehandler(),
+        bruker = bruker(),
         token = request.bearerToken(),
     )

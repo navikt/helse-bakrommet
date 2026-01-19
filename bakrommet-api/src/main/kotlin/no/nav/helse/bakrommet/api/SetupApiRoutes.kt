@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.api
 
-import io.ktor.server.routing.Route
+import io.ktor.server.routing.*
+import no.nav.helse.bakrommet.Providers
 import no.nav.helse.bakrommet.Services
 import no.nav.helse.bakrommet.api.behandling.behandlingRoute
 import no.nav.helse.bakrommet.api.bruker.brukerRoute
@@ -22,6 +23,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 fun Route.setupApiRoutes(
     services: Services,
     db: DbDaoer<AlleDaoer>,
+    providers: Providers,
 ) {
     behandlingRoute(services.behandlingService, services.personService)
     brukerRoute()
@@ -36,10 +38,13 @@ fun Route.setupApiRoutes(
     sykepengegrunnlagRoute(services.sykepengegrunnlagService, services.personService)
     beregningRoute(services.utbetalingsberegningService, services.personService)
     yrkesaktivitetRoute(
-        yrkesaktivitetService = services.yrkesaktivitetService,
+        db = db,
         inntektservice = services.inntektService,
         inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
         personService = services.personService,
+        organisasjonsnavnProvider = providers.organisasjonsnavnProvider,
+        pensjonsgivendeInntektProvider = providers.pensjonsgivendeInntektProvider,
+        inntektProvider = providers.inntekterProvider,
     )
     valideringRoute(services.valideringService, services.personService)
 }

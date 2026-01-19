@@ -1,9 +1,9 @@
 package no.nav.helse.bakrommet.behandling.validering.sjekker
 
 import no.nav.helse.bakrommet.behandling.validering.ValideringData
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Arbeidstaker
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.Arbeidstaker
 import no.nav.helse.bakrommet.kodeverk.Vilkårskode
 import no.nav.helse.bakrommet.kodeverk.VilkårskodeBegrunnelse
 import no.nav.helse.bakrommet.økonomi.tilInntekt

@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.domain
 
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 
-data class Bruker(
+class Bruker(
     val navn: String,
     val navIdent: String,
     val preferredUsername: String,

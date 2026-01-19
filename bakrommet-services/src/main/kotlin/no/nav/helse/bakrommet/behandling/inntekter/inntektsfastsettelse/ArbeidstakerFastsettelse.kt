@@ -1,34 +1,37 @@
 package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse
 
-import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.*
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
+import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
+import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastInntektsmeldingDokument
+import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somAInntektBeregningsgrunnlag
+import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somInntektsmelding
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.domain.sykepenger.BeregningskoderSykepengegrunnlag
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.orgnummer
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
+import no.nav.helse.bakrommet.util.serialisertTilString
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
 internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
-    legacyYrkesaktivitet: LegacyYrkesaktivitet,
-    periode: BehandlingDbRecord,
+    yrkesaktivitet: Yrkesaktivitet,
+    behandling: Behandling,
     saksbehandler: BrukerOgToken,
-    yrkesaktivitetDao: YrkesaktivitetDao,
     inntektsmeldingProvider: InntektsmeldingProvider,
     inntekterProvider: InntekterProvider,
-    daoer: DokumentInnhentingDaoer,
+    daoer: AlleDaoer,
 ): InntektData {
-    yrkesaktivitetDao.oppdaterRefusjon(legacyYrkesaktivitet.id, data.refusjon)
+    yrkesaktivitet.oppdaterRefusjon(data.refusjon)
 
-    return when (data) {
+    return when (val data = data) {
         is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
             val sporing =
                 when (data.årsak) {
@@ -37,7 +40,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                     ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET -> BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO
                 }
             InntektData.ArbeidstakerSkjønnsfastsatt(
-                omregnetÅrsinntekt = Inntekt.gjenopprett(data.årsinntekt).dto().årlig,
+                omregnetÅrsinntekt = data.årsinntekt,
                 sporing = sporing,
             )
         }
@@ -46,14 +49,17 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
             val omregnetÅrsinntekt =
                 daoer
                     .lastAInntektBeregningsgrunnlag(
-                        periode = periode,
+                        behandling = behandling,
                         inntekterProvider = inntekterProvider,
                         saksbehandler = saksbehandler,
                     ).somAInntektBeregningsgrunnlag()
-                    .omregnetÅrsinntekt(legacyYrkesaktivitet.kategorisering.orgnummer())
+                    .omregnetÅrsinntekt(yrkesaktivitet.kategorisering.orgnummer())
             InntektData.ArbeidstakerAinntekt(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.first,
-                kildedata = omregnetÅrsinntekt.second,
+                omregnetÅrsinntekt = Inntekt.gjenopprett(omregnetÅrsinntekt.first),
+                kildedata =
+                    omregnetÅrsinntekt.second.mapValues {
+                        Inntekt.gjenopprett(it.value)
+                    },
             )
         }
 
@@ -61,7 +67,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
             val inntektsmelding =
                 daoer
                     .lastInntektsmeldingDokument(
-                        periode = periode,
+                        periode = behandling,
                         inntektsmeldingId = data.inntektsmeldingId,
                         inntektsmeldingProvider = inntektsmeldingProvider,
                         saksbehandler = saksbehandler,
@@ -71,11 +77,9 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                     InntektbeløpDto
                         .MånedligDouble(
                             inntektsmelding.get("beregnetInntekt").asDouble(),
-                        ).tilInntekt()
-                        .dto()
-                        .årlig,
+                        ).tilInntekt(),
                 inntektsmeldingId = data.inntektsmeldingId,
-                inntektsmelding = inntektsmelding,
+                inntektsmelding = inntektsmelding.serialisertTilString(),
             )
         }
     }

@@ -14,9 +14,9 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestD
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
 import no.nav.helse.bakrommet.runApplicationTest

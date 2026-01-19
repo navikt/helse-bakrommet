@@ -16,10 +16,11 @@ import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.*
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.Repositories
@@ -529,20 +530,31 @@ fun SykepengesoknadDTO.kategorisering(): YrkesaktivitetKategorisering {
  */
 private fun YrkesaktivitetKategorisering.matchingNøkkel(): String =
     when (this) {
-        is YrkesaktivitetKategorisering.Arbeidstaker ->
+        is YrkesaktivitetKategorisering.Arbeidstaker -> {
             "ARBEIDSTAKER-${typeArbeidstaker.javaClass.simpleName}-${when (typeArbeidstaker) {
-                is TypeArbeidstaker.Ordinær -> typeArbeidstaker.orgnummer
-                is TypeArbeidstaker.Maritim -> typeArbeidstaker.orgnummer
-                is TypeArbeidstaker.Fisker -> typeArbeidstaker.orgnummer
-                is TypeArbeidstaker.PrivatArbeidsgiver -> typeArbeidstaker.arbeidsgiverFnr
+                is TypeArbeidstaker.Ordinær -> (typeArbeidstaker as TypeArbeidstaker.Ordinær).orgnummer
+                is TypeArbeidstaker.Maritim -> (typeArbeidstaker as TypeArbeidstaker.Maritim).orgnummer
+                is TypeArbeidstaker.Fisker -> (typeArbeidstaker as TypeArbeidstaker.Fisker).orgnummer
+                is TypeArbeidstaker.PrivatArbeidsgiver -> (typeArbeidstaker as TypeArbeidstaker.PrivatArbeidsgiver).arbeidsgiverFnr
                 else -> ""
             }}"
-        is YrkesaktivitetKategorisering.Frilanser ->
+        }
+
+        is YrkesaktivitetKategorisering.Frilanser -> {
             "FRILANSER-$orgnummer-${forsikring.name}"
-        is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende ->
+        }
+
+        is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
             "SELVSTENDIG_NÆRINGSDRIVENDE-${typeSelvstendigNæringsdrivende.javaClass.simpleName}-${typeSelvstendigNæringsdrivende.forsikring.name}"
-        is YrkesaktivitetKategorisering.Inaktiv -> "INAKTIV"
-        is YrkesaktivitetKategorisering.Arbeidsledig -> "ARBEIDSLEDIG"
+        }
+
+        is YrkesaktivitetKategorisering.Inaktiv -> {
+            "INAKTIV"
+        }
+
+        is YrkesaktivitetKategorisering.Arbeidsledig -> {
+            "ARBEIDSLEDIG"
+        }
     }
 
 /**

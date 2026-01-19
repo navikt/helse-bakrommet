@@ -9,12 +9,10 @@ import io.ktor.http.contentType
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
@@ -488,10 +486,10 @@ class LegacyYrkesaktivitetOperasjonerTest {
                     bearerAuth(TestOppsett.userToken)
                     contentType(ContentType.Application.Json)
                     val req =
-                        InntektRequest
+                        InntektRequestDto
                             .Arbeidstaker(
                                 data =
-                                    ArbeidstakerInntektRequest.Inntektsmelding(
+                                    ArbeidstakerInntektRequestDto.Inntektsmelding(
                                         inntektsmeldingId = inntektsmeldingId,
                                         begrunnelse = "derfor",
                                         refusjon = listOf(),
@@ -559,11 +557,19 @@ class LegacyYrkesaktivitetOperasjonerTest {
                 }.also {
                     it.status `should equal` HttpStatusCode.NotFound
                 }
-
+            val yrkesaktivitet =
+                opprettYrkesaktivitet(
+                    PERSON_PSEUDO_ID,
+                    behandling.id,
+                    YrkesaktivitetKategorisering.Arbeidstaker(
+                        sykmeldt = true,
+                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "999444555"),
+                    ),
+                )
             oppdaterKategorisering(
                 personId = PERSON_PSEUDO_ID,
                 behandlingId = behandling.id,
-                yrkesaktivitetId = UUID.randomUUID(),
+                yrkesaktivitetId = yrkesaktivitet,
                 kategorisering =
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(
                         sykmeldt = true,

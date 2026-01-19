@@ -3,82 +3,71 @@ package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastSigrunDokument
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somPensjonsgivendeInntekt
-import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
-import no.nav.helse.bakrommet.behandling.hentPeriode
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.kanBeregnesEtter835
 import no.nav.helse.bakrommet.behandling.inntekter.tilBeregnetPensjonsgivendeInntekt
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Inaktiv
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 
-suspend fun InntektService.hentPensjonsgivendeInntektForYrkesaktivitet(
-    ref: YrkesaktivitetReferanse,
+fun AlleDaoer.hentPensjonsgivendeInntektForYrkesaktivitet(
+    yrkesaktivitet: Yrkesaktivitet,
+    behandling: Behandling,
     saksbehandler: BrukerOgToken,
+    pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
 ): PensjonsgivendeInntektResponse {
-    return db.transactional {
-        val periode =
-            behandlingDao.hentPeriode(
-                ref = ref.behandlingReferanse,
-                krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
+    val kategori = yrkesaktivitet.kategorisering
+    if (!(kategori is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende || kategori is YrkesaktivitetKategorisering.Inaktiv)) {
+        error("Kan kun hente pensjonsgivende inntekt for selvstendig næringsdrivende eller inaktive yrkesaktiviteter")
+    }
+
+    return try {
+        val pensjonsgivendeInntekt =
+            lastSigrunDokument(
+                behandling = behandling,
+                saksbehandlerToken = saksbehandler.token,
+                pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
+            ).somPensjonsgivendeInntekt()
+
+        if (!pensjonsgivendeInntekt.kanBeregnesEtter835()) {
+            return PensjonsgivendeInntektResponse.Feil(
+                feilmelding = "Mangler pensjonsgivende inntekt for de siste tre årene",
             )
-
-        val yrkesaktivitet =
-            yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
-                ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
-
-        require(yrkesaktivitet.behandlingId == periode.id) {
-            "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
         }
 
-        val kategori = yrkesaktivitet.kategorisering
-        if (kategori !is SelvstendigNæringsdrivende && kategori !is Inaktiv) {
-        }
+        val beregnet = pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(behandling.skjæringstidspunkt)
 
-        try {
-            val pensjonsgivendeInntekt =
-                lastSigrunDokument(
-                    periode = periode,
-                    saksbehandlerToken = saksbehandler.token,
-                    pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
-                ).somPensjonsgivendeInntekt()
-
-            if (!pensjonsgivendeInntekt.kanBeregnesEtter835()) {
-                return@transactional PensjonsgivendeInntektResponse.Feil(
-                    feilmelding = "Mangler pensjonsgivende inntekt for de siste tre årene",
+        when (kategori) {
+            is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
+                PensjonsgivendeInntektResponse.Suksess(
+                    data =
+                        InntektData.SelvstendigNæringsdrivendePensjonsgivende(
+                            omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
+                            pensjonsgivendeInntekt = beregnet,
+                        ),
                 )
             }
 
-            val beregnet = pensjonsgivendeInntekt.tilBeregnetPensjonsgivendeInntekt(periode.skjæringstidspunkt)
-
-            when (kategori) {
-                is SelvstendigNæringsdrivende ->
-                    PensjonsgivendeInntektResponse.Suksess(
-                        data =
-                            InntektData.SelvstendigNæringsdrivendePensjonsgivende(
-                                omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
-                                pensjonsgivendeInntekt = beregnet,
-                            ),
-                    )
-
-                is Inaktiv ->
-                    PensjonsgivendeInntektResponse.Suksess(
-                        data =
-                            InntektData.InaktivPensjonsgivende(
-                                omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
-                                pensjonsgivendeInntekt = beregnet,
-                            ),
-                    )
-
-                else -> throw IllegalStateException("Ugyldig kategori")
+            is YrkesaktivitetKategorisering.Inaktiv -> {
+                PensjonsgivendeInntektResponse.Suksess(
+                    data =
+                        InntektData.InaktivPensjonsgivende(
+                            omregnetÅrsinntekt = beregnet.omregnetÅrsinntekt,
+                            pensjonsgivendeInntekt = beregnet,
+                        ),
+                )
             }
-        } catch (e: Exception) {
-            PensjonsgivendeInntektResponse.Feil(
-                feilmelding = "Kunne ikke hente pensjonsgivende inntekt fra Sigrun: ${e.message}",
-            )
+
+            else -> {
+                throw IllegalStateException("Ugyldig kategori")
+            }
         }
+    } catch (e: Exception) {
+        PensjonsgivendeInntektResponse.Feil(
+            feilmelding = "Kunne ikke hente pensjonsgivende inntekt fra Sigrun: ${e.message}",
+        )
     }
 }
 

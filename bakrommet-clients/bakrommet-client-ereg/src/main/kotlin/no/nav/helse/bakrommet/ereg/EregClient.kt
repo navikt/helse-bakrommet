@@ -1,17 +1,18 @@
 package no.nav.helse.bakrommet.ereg
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.apache.Apache
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.JacksonConverter
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.apache.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withTimeoutOrNull
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
@@ -65,7 +66,39 @@ class EregClient(
         }
 
         logg.error("EREG kall feilet med status={} for orgnummer={}", response.status.value, orgnummer)
-        sikkerLogger.error("EREG kall feilet med status={} for orgnummer={} body={}", response.status.value, orgnummer, response.bodyAsText())
+        sikkerLogger.error(
+            "EREG kall feilet med status={} for orgnummer={} body={}",
+            response.status.value,
+            orgnummer,
+            response.bodyAsText(),
+        )
         throw RuntimeException("Klarte ikke slå opp organisasjon i EREG (status ${response.status.value})")
     }
+
+    override suspend fun eksisterer(orgnummer: String): Boolean =
+        try {
+            hentOrganisasjonsnavn(orgnummer)
+            true
+        } catch (_: IkkeFunnetException) {
+            false
+        }
+
+    override suspend fun hentFlereOrganisasjonsnavn(orgnummer: Set<String>): Map<String, Organisasjon> =
+        coroutineScope {
+            orgnummer
+                .map { orgnummer ->
+                    async {
+                        withTimeoutOrNull(3_000) {
+                            try {
+                                hentOrganisasjonsnavn(orgnummer)
+                            } catch (e: Exception) {
+                                logg.warn("Kall mot Ereg feilet for orgnummer $orgnummer", e)
+                                null
+                            }
+                        }
+                    }
+                }.awaitAll()
+                .filterNotNull()
+                .associateBy { it.orgnummer }
+        }
 }

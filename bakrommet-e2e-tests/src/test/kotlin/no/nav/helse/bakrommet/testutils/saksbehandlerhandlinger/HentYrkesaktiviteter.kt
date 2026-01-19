@@ -1,14 +1,13 @@
 package no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.ktor.client.call.body
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
-import io.ktor.server.testing.ApplicationTestBuilder
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.util.objectMapper
-import java.util.UUID
+import java.util.*
 
 internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(
     pseudoID: UUID,
@@ -19,6 +18,10 @@ internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(
             .get("/v1/$pseudoID/behandlinger/$behandlingId/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
             }
+
     val json = response.body<String>()
+    if (response.status.value !in 200..299) {
+        error("Feil ved henting av yrkesaktiviteter: ${response.status.value} - $json")
+    }
     return objectMapper.readValue<List<YrkesaktivitetDto>>(json)
 }

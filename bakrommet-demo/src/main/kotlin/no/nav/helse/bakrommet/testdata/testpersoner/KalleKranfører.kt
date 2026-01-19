@@ -1,13 +1,14 @@
 package no.nav.helse.bakrommet.testdata.testpersoner
 
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
-import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerSkjønnsfastsettelseÅrsak
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerInntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsak
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
 import no.nav.helse.bakrommet.ereg.kranførerkompaniet
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.bakrommet.testdata.Behandling
 import no.nav.helse.bakrommet.testdata.Testperson
+import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.inntektsmeldingkontrakt.EndringIRefusjon
@@ -123,7 +124,7 @@ val kalleKranfører =
                     inntektRequest =
                         InntektRequest.Arbeidstaker(
                             ArbeidstakerInntektRequest.Skjønnsfastsatt(
-                                InntektbeløpDto.Årlig(500000.0),
+                                InntektbeløpDto.Årlig(500000.0).tilInntekt(),
                                 årsak = ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING,
                                 begrunnelse = "Fordi",
                             ),

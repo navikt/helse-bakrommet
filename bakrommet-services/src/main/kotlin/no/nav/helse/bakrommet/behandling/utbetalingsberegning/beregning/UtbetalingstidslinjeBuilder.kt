@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.tilSykdomstidslinje
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
 import no.nav.helse.hendelser.MeldingsreferanseId
@@ -46,7 +46,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
     }
 
     return when (legacyYrkesaktivitet.kategorisering) {
-        is YrkesaktivitetKategorisering.Inaktiv ->
+        is YrkesaktivitetKategorisering.Inaktiv -> {
             byggInaktivUtbetalingstidslinje(
                 maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
@@ -54,24 +54,27 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 legacyYrkesaktivitet = legacyYrkesaktivitet,
                 sykdomstidslinje = sykdomstidslinje,
             )
+        }
 
-        is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende ->
+        is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
             byggSelvstendigUtbetalingstidslinje(
                 maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
                 legacyYrkesaktivitet = legacyYrkesaktivitet,
                 sykdomstidslinje = sykdomstidslinje,
             )
+        }
 
-        is YrkesaktivitetKategorisering.Arbeidsledig ->
+        is YrkesaktivitetKategorisering.Arbeidsledig -> {
             byggArbeidsledigtidslinje(
                 maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
                 sykdomstidslinje = sykdomstidslinje,
             )
+        }
 
         // TODO egen frilanser builder
-        is YrkesaktivitetKategorisering.Frilanser ->
+        is YrkesaktivitetKategorisering.Frilanser -> {
             byggArbeidstakerUtbetalingstidslinje(
                 arbeidsgiverperiode = arbeidsgiverperiode,
                 dekningsgrad = dekningsgrad,
@@ -81,8 +84,9 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 inntektjusteringer = inntektjusteringer,
                 sykdomstidslinje = sykdomstidslinje,
             )
+        }
 
-        is YrkesaktivitetKategorisering.Arbeidstaker ->
+        is YrkesaktivitetKategorisering.Arbeidstaker -> {
             byggArbeidstakerUtbetalingstidslinje(
                 arbeidsgiverperiode = arbeidsgiverperiode,
                 dekningsgrad = dekningsgrad,
@@ -92,6 +96,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 inntektjusteringer = inntektjusteringer,
                 sykdomstidslinje = sykdomstidslinje,
             )
+        }
     }.avslåDager(legacyYrkesaktivitet.dagoversikt?.avslagsdager?.map { it.dato })
 }
 

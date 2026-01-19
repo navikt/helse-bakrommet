@@ -1,117 +1,53 @@
 package no.nav.helse.bakrommet.behandling.inntekter
 
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.BehandlingDao
-import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
-import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.*
-import no.nav.helse.bakrommet.behandling.erSaksbehandlerPåSaken
-import no.nav.helse.bakrommet.behandling.hentPeriode
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.fastsettInntektData
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sammenlikningsgrunnlag
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
-import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.tilYrkesaktivitetDbRecord
-import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.domain.sykepenger.Periode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
-import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
-import no.nav.helse.bakrommet.person.PersonPseudoIdDao
-import no.nav.helse.dto.PeriodeDto
 import kotlin.math.abs
 
-interface InntektServiceDaoer :
-    Beregningsdaoer,
-    DokumentInnhentingDaoer {
-    override val behandlingDao: BehandlingDao
-    override val yrkesaktivitetDao: YrkesaktivitetDao
-    override val sykepengegrunnlagDao: SykepengegrunnlagDao
-    override val beregningDao: UtbetalingsberegningDao
-    override val personPseudoIdDao: PersonPseudoIdDao
-    override val dokumentDao: DokumentDao
-}
-
 class InntektService(
-    val db: DbDaoer<InntektServiceDaoer>,
     val inntektsmeldingProvider: InntektsmeldingProvider,
     val pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
     val inntekterProvider: InntekterProvider,
 ) {
-    suspend fun oppdaterInntekt(
-        ref: YrkesaktivitetReferanse,
+    fun oppdaterInntekt(
+        db: AlleDaoer,
+        yrkesaktivitet: Yrkesaktivitet,
+        behandling: Behandling,
         request: InntektRequest,
         saksbehandler: BrukerOgToken,
     ) {
-        db.transactional {
-            val periode =
-                behandlingDao.hentPeriode(
-                    ref = ref.behandlingReferanse,
-                    krav = saksbehandler.bruker.erSaksbehandlerPåSaken(),
-                )
-
-            if (periode.sykepengegrunnlagId != null) {
-                val spg = sykepengegrunnlagDao.finnSykepengegrunnlag(periode.sykepengegrunnlagId)!!
-                if (spg.opprettetForBehandling != periode.id) {
+        db.apply {
+            val sykepengegrunnlagId = behandling.sykepengegrunnlagId
+            if (sykepengegrunnlagId != null) {
+                val spg = sykepengegrunnlagDao.finnSykepengegrunnlag(sykepengegrunnlagId)!!
+                if (spg.opprettetForBehandling != behandling.id.value) {
                     throw InputValideringException("Gjeldende sykepengegrunnlag er fastsatt på en tidligere saksbehandlingsperiode")
                 }
             }
 
-            val yrkesaktivitet =
-                yrkesaktivitetDao.hentYrkesaktivitet(ref.yrkesaktivitetUUID)
-                    ?: throw IkkeFunnetException("Yrkesaktivitet ikke funnet")
-            require(yrkesaktivitet.behandlingId == periode.id) {
-                "Yrkesaktivitet (id=${ref.yrkesaktivitetUUID}) tilhører ikke behandlingsperiode (id=${periode.id})"
-            }
-
-            val feilKategori =
-                { throw IllegalStateException("Feil inntektkategori for oppdatering av inntekt med tyoe ${request.javaClass.name}") }
-
-            when (request) {
-                is InntektRequest.Arbeidstaker ->
-                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
-                        feilKategori()
-                    }
-
-                is InntektRequest.SelvstendigNæringsdrivende ->
-                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende) {
-                        feilKategori()
-                    }
-
-                is InntektRequest.Frilanser ->
-                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Frilanser) {
-                        feilKategori()
-                    }
-
-                is InntektRequest.Inaktiv ->
-                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
-                        feilKategori()
-                    }
-
-                is InntektRequest.Arbeidsledig ->
-                    if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidsledig) {
-                        feilKategori()
-                    }
-            }
-
-            yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
+            yrkesaktivitet.nyInntektRequest(request)
 
             val inntektData =
-                this.fastsettInntektData(
+                fastsettInntektData(
                     request = request,
-                    legacyYrkesaktivitet = yrkesaktivitet,
-                    periode = periode,
+                    yrkesaktivitet = yrkesaktivitet,
+                    periode = behandling,
                     saksbehandler = saksbehandler,
-                    yrkesaktivitetDao = yrkesaktivitetDao,
                     inntektsmeldingProvider = inntektsmeldingProvider,
                     inntekterProvider = inntekterProvider,
                     pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
@@ -121,26 +57,32 @@ class InntektService(
                 val inntektsmeldingJson =
                     this
                         .lastInntektsmeldingDokument(
-                            periode = periode,
+                            periode = behandling,
                             inntektsmeldingId = inntektData.inntektsmeldingId,
                             inntektsmeldingProvider = inntektsmeldingProvider,
                             saksbehandler = saksbehandler,
                         ).somInntektsmelding()
 
-                yrkesaktivitetDao.oppdaterPerioder(
-                    yrkesaktivitet.tilYrkesaktivitetDbRecord(),
-                    Perioder(Periodetype.ARBEIDSGIVERPERIODE, inntektsmeldingJson.somInntektsmeldingObjekt().arbeidsgiverperioder.map { PeriodeDto(it.fom, it.tom) }),
-                )
+                val perioder =
+                    inntektsmeldingJson.somInntektsmeldingObjekt().arbeidsgiverperioder.map {
+                        Periode(
+                            it.fom,
+                            it.tom,
+                        )
+                    }
+                yrkesaktivitet.leggTilArbeidsgiverperiode(perioder)
             }
 
-            yrkesaktivitetDao.oppdaterInntektData(yrkesaktivitet, inntektData)
-            beregnSykepengegrunnlagOgUtbetaling(ref.behandlingReferanse, saksbehandler.bruker)?.let { rec ->
+            yrkesaktivitet.leggTilInntektData(inntektData)
+            yrkesaktivitetRepository.lagre(yrkesaktivitet)
+            beregnSykepengegrunnlagOgUtbetaling(behandling, saksbehandler.bruker)?.let { rec ->
                 requireNotNull(rec.sykepengegrunnlag)
-                val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
+
+                val yrkesaktiviteter = yrkesaktivitetRepository.finn(behandling.id)
                 if (yrkesaktiviteter.skalBeregneSammenlikningsgrunnlag()) {
                     if (rec.sammenlikningsgrunnlag == null) {
                         val dokument =
-                            lastAInntektSammenlikningsgrunnlag(periode, inntekterProvider, saksbehandler)
+                            lastAInntektSammenlikningsgrunnlag(behandling, inntekterProvider, saksbehandler)
                         val sammenlikningsgrunnlag =
                             dokument.somAInntektSammenlikningsgrunnlag().sammenlikningsgrunnlag()
 
@@ -171,7 +113,7 @@ class InntektService(
     }
 }
 
-private fun List<LegacyYrkesaktivitet>.skalBeregneSammenlikningsgrunnlag(): Boolean =
+private fun List<Yrkesaktivitet>.skalBeregneSammenlikningsgrunnlag(): Boolean =
     this.any {
         when (it.kategorisering) {
             is YrkesaktivitetKategorisering.Arbeidstaker -> true

@@ -42,20 +42,18 @@ class MåVæreUnderBehandlingTest {
         behandlingService = BehandlingService(db, dokHenter)
     }
 
-    private val baseBruker =
-        Bruker(
-            navn = "BasisBruker",
-            navIdent = "B000001",
-            preferredUsername = "basis bruker",
-            roller =
-                setOf(
-                    Rolle.SAKSBEHANDLER,
-                ),
-        )
-
-    private fun brukerOgToken(rolle: Rolle = Rolle.SAKSBEHANDLER) =
+    private fun brukerOgToken() =
         BrukerOgToken(
-            bruker = baseBruker.copy(roller = setOf(rolle)),
+            bruker =
+                Bruker(
+                    navn = "BasisBruker",
+                    navIdent = "B000001",
+                    preferredUsername = "basis bruker",
+                    roller =
+                        setOf(
+                            Rolle.SAKSBEHANDLER,
+                        ),
+                ),
             token = AccessToken("tulletoken"),
         )
 
@@ -65,7 +63,7 @@ class MåVæreUnderBehandlingTest {
             val naturligIdent = NaturligIdent("01010199999")
             val fom = LocalDate.now().minusDays(14)
             val tom = LocalDate.now()
-            val saksbehandler = brukerOgToken(rolle = Rolle.SAKSBEHANDLER)
+            val saksbehandler = brukerOgToken()
             val behandling =
                 behandlingService.opprettNyBehandling(
                     naturligIdent = naturligIdent,

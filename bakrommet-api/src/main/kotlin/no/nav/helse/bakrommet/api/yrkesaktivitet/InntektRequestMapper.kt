@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.api.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.behandling.inntekter.*
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
 
 fun InntektRequest.tilInntektRequestDto(): InntektRequestDto =
     when (this) {
@@ -48,7 +48,7 @@ fun ArbeidstakerInntektRequest.tilArbeidstakerInntektRequestDto(): ArbeidstakerI
 
         is ArbeidstakerInntektRequest.Skjønnsfastsatt ->
             ArbeidstakerInntektRequestDto.Skjønnsfastsatt(
-                årsinntekt = årsinntekt.beløp.toDouble(),
+                årsinntekt = årsinntekt.årlig,
                 årsak = årsak.tilArbeidstakerSkjønnsfastsettelseÅrsakDto(),
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.tilRefusjonsperiodeDto() },
@@ -64,7 +64,7 @@ fun PensjonsgivendeInntektRequest.tilPensjonsgivendeInntektRequestDto(): Pensjon
 
         is PensjonsgivendeInntektRequest.Skjønnsfastsatt ->
             PensjonsgivendeInntektRequestDto.Skjønnsfastsatt(
-                årsinntekt = årsinntekt.beløp.toDouble(),
+                årsinntekt = årsinntekt.årlig,
                 årsak = årsak.tilPensjonsgivendeSkjønnsfastsettelseÅrsakDto(),
                 begrunnelse = begrunnelse,
             )
@@ -79,7 +79,7 @@ fun FrilanserInntektRequest.tilFrilanserInntektRequestDto(): FrilanserInntektReq
 
         is FrilanserInntektRequest.Skjønnsfastsatt ->
             FrilanserInntektRequestDto.Skjønnsfastsatt(
-                årsinntekt = årsinntekt.beløp.toDouble(),
+                årsinntekt = årsinntekt.årlig,
                 årsak = årsak.tilFrilanserSkjønnsfastsettelseÅrsakDto(),
                 begrunnelse = begrunnelse,
             )
@@ -89,19 +89,19 @@ fun ArbeidsledigInntektRequest.tilArbeidsledigInntektRequestDto(): ArbeidsledigI
     when (this) {
         is ArbeidsledigInntektRequest.Dagpenger ->
             ArbeidsledigInntektRequestDto.Dagpenger(
-                dagbeløp = dagbeløp.beløp.toInt(),
+                dagbeløp = dagbeløp.dagligInt,
                 begrunnelse = begrunnelse,
             )
 
         is ArbeidsledigInntektRequest.Ventelønn ->
             ArbeidsledigInntektRequestDto.Ventelønn(
-                årsinntekt = årsinntekt.beløp.toDouble(),
+                årsinntekt = årsinntekt.årlig,
                 begrunnelse = begrunnelse,
             )
 
         is ArbeidsledigInntektRequest.Vartpenger ->
             ArbeidsledigInntektRequestDto.Vartpenger(
-                årsinntekt = årsinntekt.beløp.toDouble(),
+                årsinntekt = årsinntekt.årlig,
                 begrunnelse = begrunnelse,
             )
     }

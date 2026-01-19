@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Row
 import kotliquery.Session
+import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbDagoversikt
@@ -21,17 +22,19 @@ import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.somListe
 import java.util.UUID
+import javax.sql.DataSource
 
-class PgYrkesaktivitetRepository private constructor(
+class PgYrkesaktivitetRepository(
     private val queryRunner: QueryRunner,
 ) : YrkesaktivitetRepository {
     constructor(session: Session) : this(MedSession(session))
+    constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
 
     override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> =
         queryRunner
             .list(
                 """
-                select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where behandling_id = :behandling_id
+                select * from yrkesaktivitet where behandling_id = :behandling_id
                 """.trimIndent(),
                 "behandling_id" to behandlingId.value,
             ) {
@@ -39,6 +42,26 @@ class PgYrkesaktivitetRepository private constructor(
             }.map {
                 it.toYrkesaktivitet()
             }
+
+    override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitet? =
+        queryRunner
+            .single(
+                """
+                select * from yrkesaktivitet where id = :id
+                """.trimIndent(),
+                "id" to yrkesaktivitetId.value,
+            ) {
+                it.yrkesaktivitetFraRow().toYrkesaktivitet()
+            }
+
+    override fun slett(yrkesaktivitetId: YrkesaktivitetId) {
+        queryRunner.update(
+            """
+            delete from yrkesaktivitet where id = :id
+            """.trimIndent(),
+            "id" to yrkesaktivitetId.value,
+        )
+    }
 
     override fun lagre(yrkesaktivitet: Yrkesaktivitet) {
         val record: DbYrkesaktivitet = yrkesaktivitet.toDbRecord()

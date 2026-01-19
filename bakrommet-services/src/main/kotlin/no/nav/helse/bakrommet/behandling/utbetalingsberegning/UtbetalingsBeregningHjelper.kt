@@ -9,11 +9,11 @@ import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.orgnummer
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.orgnummer
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.UtbetalingslinjeDto

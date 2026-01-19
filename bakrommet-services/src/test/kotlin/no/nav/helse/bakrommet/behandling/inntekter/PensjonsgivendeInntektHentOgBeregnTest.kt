@@ -1,7 +1,9 @@
 package no.nav.helse.bakrommet.behandling.inntekter
 
 import no.nav.helse.Grunnbeløp
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektAar
 import no.nav.helse.bakrommet.testutils.`should equal`
+import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -43,29 +45,29 @@ class PensjonsgivendeInntektHentOgBeregnTest {
 
         val result = responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
 
-        result.omregnetÅrsinntekt.beløp `should equal` 446909.0
+        result.omregnetÅrsinntekt.årlig `should equal` 446909.0
         result.pensjonsgivendeInntekt `should equal`
             listOf(
                 InntektAar(
                     år = Year.of(2021),
                     antallGKompensert = 2.864891707093472,
-                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(355326.7886473891),
-                    rapportertinntekt = InntektbeløpDto.Årlig(300000.0),
-                    snittG = InntektbeløpDto.Årlig(104716.0),
+                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(355326.7886473891).tilInntekt(),
+                    rapportertinntekt = InntektbeløpDto.Årlig(300000.0).tilInntekt(),
+                    snittG = InntektbeløpDto.Årlig(104716.0).tilInntekt(),
                 ),
                 InntektAar(
                     år = Year.of(2022),
                     antallGKompensert = 3.643518181155724,
-                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(451898.27297238214),
-                    rapportertinntekt = InntektbeløpDto.Årlig(400000.0),
-                    snittG = InntektbeløpDto.Årlig(109784.0),
+                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(451898.27297238214).tilInntekt(),
+                    rapportertinntekt = InntektbeløpDto.Årlig(400000.0).tilInntekt(),
+                    snittG = InntektbeløpDto.Årlig(109784.0).tilInntekt(),
                 ),
                 InntektAar(
                     år = Year.of(2023),
                     antallGKompensert = 4.301482290797408,
-                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(533504.2455630209),
-                    rapportertinntekt = InntektbeløpDto.Årlig(500000.0),
-                    snittG = InntektbeløpDto.Årlig(116239.0),
+                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(533504.2455630209).tilInntekt(),
+                    rapportertinntekt = InntektbeløpDto.Årlig(500000.0).tilInntekt(),
+                    snittG = InntektbeløpDto.Årlig(116239.0).tilInntekt(),
                 ),
             )
     }
@@ -81,30 +83,30 @@ class PensjonsgivendeInntektHentOgBeregnTest {
             )
 
         val result = responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
-        result.omregnetÅrsinntekt.beløp `should equal` 832925.0
+        result.omregnetÅrsinntekt.årlig `should equal` 832925.0
         result.pensjonsgivendeInntekt[0] `should equal`
             InntektAar(
                 år = Year.of(2021),
                 antallGKompensert = 6.5465704063053085,
-                justertÅrsgrunnlag = InntektbeløpDto.Årlig(811958.0343532349),
-                rapportertinntekt = InntektbeløpDto.Årlig(800000.0),
-                snittG = InntektbeløpDto.Årlig(104716.0),
+                justertÅrsgrunnlag = InntektbeløpDto.Årlig(811958.0343532349).tilInntekt(),
+                rapportertinntekt = InntektbeløpDto.Årlig(800000.0).tilInntekt(),
+                snittG = InntektbeløpDto.Årlig(104716.0).tilInntekt(),
             )
         result.pensjonsgivendeInntekt[1] `should equal`
             InntektAar(
                 år = Year.of(2022),
                 antallGKompensert = 6.732638635866793,
-                justertÅrsgrunnlag = InntektbeløpDto.Årlig(835035.7047292867),
-                rapportertinntekt = InntektbeløpDto.Årlig(900000.0),
-                snittG = InntektbeløpDto.Årlig(109784.0),
+                justertÅrsgrunnlag = InntektbeløpDto.Årlig(835035.7047292867).tilInntekt(),
+                rapportertinntekt = InntektbeløpDto.Årlig(900000.0).tilInntekt(),
+                snittG = InntektbeløpDto.Årlig(109784.0).tilInntekt(),
             )
         result.pensjonsgivendeInntekt[2] `should equal`
             InntektAar(
                 år = Year.of(2023),
                 antallGKompensert = 6.867654860531606,
-                justertÅrsgrunnlag = InntektbeløpDto.Årlig(851781.497042014),
-                rapportertinntekt = InntektbeløpDto.Årlig(1000000.0),
-                snittG = InntektbeløpDto.Årlig(116239.0),
+                justertÅrsgrunnlag = InntektbeløpDto.Årlig(851781.497042014).tilInntekt(),
+                rapportertinntekt = InntektbeløpDto.Årlig(1000000.0).tilInntekt(),
+                snittG = InntektbeløpDto.Årlig(116239.0).tilInntekt(),
             )
     }
 
@@ -131,7 +133,7 @@ class PensjonsgivendeInntektHentOgBeregnTest {
         // Verifiser at maksimalt 6G + 6G*1/3 = 8G kompenseres
         result.pensjonsgivendeInntekt.forEach { inntekt ->
             val maksimalKompensertG = 6.0 + 6.0 * (1.0 / 3.0) // 8G
-            val faktiskKompensertG = inntekt.justertÅrsgrunnlag.beløp / anvendtGrunnbeløp.årlig
+            val faktiskKompensertG = inntekt.justertÅrsgrunnlag.årlig / anvendtGrunnbeløp.årlig
             assertEquals(
                 maksimalKompensertG,
                 faktiskKompensertG,
@@ -140,29 +142,29 @@ class PensjonsgivendeInntektHentOgBeregnTest {
             )
         }
 
-        result.omregnetÅrsinntekt.beløp `should equal` 992224.0
+        result.omregnetÅrsinntekt.årlig `should equal` 992224.0
         result.pensjonsgivendeInntekt `should equal`
             listOf(
                 InntektAar(
                     år = Year.of(2021),
                     antallGKompensert = 8.0,
-                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(992224.0),
-                    rapportertinntekt = InntektbeløpDto.Årlig(1500000.0),
-                    snittG = InntektbeløpDto.Årlig(104716.0),
+                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(992224.0).tilInntekt(),
+                    rapportertinntekt = InntektbeløpDto.Årlig(1500000.0).tilInntekt(),
+                    snittG = InntektbeløpDto.Årlig(104716.0).tilInntekt(),
                 ),
                 InntektAar(
                     år = Year.of(2022),
                     antallGKompensert = 8.0,
-                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(992224.0),
-                    rapportertinntekt = InntektbeløpDto.Årlig(1600000.0),
-                    snittG = InntektbeløpDto.Årlig(109784.0),
+                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(992224.0).tilInntekt(),
+                    rapportertinntekt = InntektbeløpDto.Årlig(1600000.0).tilInntekt(),
+                    snittG = InntektbeløpDto.Årlig(109784.0).tilInntekt(),
                 ),
                 InntektAar(
                     år = Year.of(2023),
                     antallGKompensert = 8.0,
-                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(992224.0),
-                    rapportertinntekt = InntektbeløpDto.Årlig(1700000.0),
-                    snittG = InntektbeløpDto.Årlig(116239.0),
+                    justertÅrsgrunnlag = InntektbeløpDto.Årlig(992224.0).tilInntekt(),
+                    rapportertinntekt = InntektbeløpDto.Årlig(1700000.0).tilInntekt(),
+                    snittG = InntektbeløpDto.Årlig(116239.0).tilInntekt(),
                 ),
             )
     }
@@ -179,30 +181,30 @@ class PensjonsgivendeInntektHentOgBeregnTest {
 
         val result = responses.tilBeregnetPensjonsgivendeInntekt(skjæringstidspunkt)
 
-        result.omregnetÅrsinntekt.beløp `should equal` 754456.0
+        result.omregnetÅrsinntekt.årlig `should equal` 754456.0
         result.pensjonsgivendeInntekt[0] `should equal`
             InntektAar(
                 år = Year.of(2021),
                 antallGKompensert = 3.8198556094579623,
-                justertÅrsgrunnlag = InntektbeløpDto.Årlig(473769.0515298521),
-                rapportertinntekt = InntektbeløpDto.Årlig(400000.0),
-                snittG = InntektbeløpDto.Årlig(104716.0),
+                justertÅrsgrunnlag = InntektbeløpDto.Årlig(473769.0515298521).tilInntekt(),
+                rapportertinntekt = InntektbeløpDto.Årlig(400000.0).tilInntekt(),
+                snittG = InntektbeløpDto.Årlig(104716.0).tilInntekt(),
             )
         result.pensjonsgivendeInntekt[1] `should equal`
             InntektAar(
                 år = Year.of(2022),
                 antallGKompensert = 6.429012120770483,
-                justertÅrsgrunnlag = InntektbeløpDto.Årlig(797377.5153149214),
-                rapportertinntekt = InntektbeløpDto.Årlig(800000.0),
-                snittG = InntektbeløpDto.Årlig(109784.0),
+                justertÅrsgrunnlag = InntektbeløpDto.Årlig(797377.5153149214).tilInntekt(),
+                rapportertinntekt = InntektbeløpDto.Årlig(800000.0).tilInntekt(),
+                snittG = InntektbeløpDto.Årlig(109784.0).tilInntekt(),
             )
         result.pensjonsgivendeInntekt[2] `should equal`
             InntektAar(
                 år = Year.of(2023),
                 antallGKompensert = 8.0,
-                justertÅrsgrunnlag = InntektbeløpDto.Årlig(992224.0),
-                rapportertinntekt = InntektbeløpDto.Årlig(1500000.0),
-                snittG = InntektbeløpDto.Årlig(116239.0),
+                justertÅrsgrunnlag = InntektbeløpDto.Årlig(992224.0).tilInntekt(),
+                rapportertinntekt = InntektbeløpDto.Årlig(1500000.0).tilInntekt(),
+                snittG = InntektbeløpDto.Årlig(116239.0).tilInntekt(),
             )
     }
 

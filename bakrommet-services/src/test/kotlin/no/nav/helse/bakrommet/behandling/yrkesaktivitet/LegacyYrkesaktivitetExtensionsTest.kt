@@ -1,12 +1,12 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.testutils.`should equal`
 import org.junit.jupiter.api.Test
 import java.util.UUID

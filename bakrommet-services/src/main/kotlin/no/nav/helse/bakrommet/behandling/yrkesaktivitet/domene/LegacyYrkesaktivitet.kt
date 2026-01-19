@@ -1,10 +1,12 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene
 
-import no.nav.helse.bakrommet.behandling.inntekter.InntektData
-import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.hendelser.Periode
 import java.time.OffsetDateTime
 import java.util.UUID

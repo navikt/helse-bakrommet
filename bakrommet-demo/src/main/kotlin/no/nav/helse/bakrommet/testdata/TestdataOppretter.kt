@@ -6,8 +6,8 @@ import no.nav.helse.bakrommet.*
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.somReferanse
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.util.somGyldigUUID
 import java.util.*
 
@@ -47,18 +47,18 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                         saksbehandler =
                         saksbehandlerBrukerOgToken,
                     )
+                val behandling = db.behandlingRepository.hent(BehandlingId(nySaksbehandlingsperiode.id))
                 if (periode.inntektRequest != null) {
-                    this.yrkesaktivitetService
-                        .hentYrkesaktivitetFor(nySaksbehandlingsperiode.somReferanse())
+                    db
+                        .yrkesaktivitetRepository
+                        .finn(BehandlingId(nySaksbehandlingsperiode.id))
                         .let { yrkesaktiviteter ->
                             this.inntektService.oppdaterInntekt(
-                                ref =
-                                    YrkesaktivitetReferanse(
-                                        nySaksbehandlingsperiode.somReferanse(),
-                                        yrkesaktiviteter.first().yrkesaktivitet.id,
-                                    ),
                                 request = periode.inntektRequest,
                                 saksbehandler = saksbehandlerBrukerOgToken,
+                                db = db,
+                                yrkesaktivitet = yrkesaktiviteter.first(),
+                                behandling = behandling,
                             )
                         }
                 }
