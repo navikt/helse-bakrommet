@@ -5,7 +5,7 @@ import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
-import no.nav.helse.bakrommet.api.auth.saksbehandler
+import no.nav.helse.bakrommet.api.auth.bruker
 import no.nav.helse.bakrommet.api.auth.saksbehandlerOgToken
 import no.nav.helse.bakrommet.api.dto.behandling.OppdaterSkjæringstidspunktRequestDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
@@ -72,7 +72,7 @@ fun Route.behandlingRoute(
         post {
             val body = call.receive<SendTilBeslutningRequestDto>()
             service
-                .sendTilBeslutning(call.periodeReferanse(personService), body.individuellBegrunnelse, call.saksbehandler())
+                .sendTilBeslutning(call.periodeReferanse(personService), body.individuellBegrunnelse, call.bruker())
                 .let { oppdatertPeriode ->
                     call.respondJson(oppdatertPeriode.tilBehandlingDto())
                 }
@@ -81,7 +81,7 @@ fun Route.behandlingRoute(
 
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/tatilbeslutning") {
         post {
-            service.taTilBeslutning(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
+            service.taTilBeslutning(call.periodeReferanse(personService), call.bruker()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto())
             }
         }
@@ -97,7 +97,7 @@ fun Route.behandlingRoute(
                     throw InputValideringException("Ugyldig innhold i POST-body")
                 }
             service
-                .sendTilbakeFraBeslutning(call.periodeReferanse(personService), call.saksbehandler(), kommentar = kommentar)
+                .sendTilbakeFraBeslutning(call.periodeReferanse(personService), call.bruker(), kommentar = kommentar)
                 .let { oppdatertPeriode ->
                     call.respondJson(oppdatertPeriode.tilBehandlingDto())
                 }
@@ -106,7 +106,7 @@ fun Route.behandlingRoute(
 
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/godkjenn") {
         post {
-            service.godkjennPeriode(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
+            service.godkjennPeriode(call.periodeReferanse(personService), call.bruker()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto())
             }
         }
@@ -114,7 +114,7 @@ fun Route.behandlingRoute(
 
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/revurder") {
         post {
-            service.revurderPeriode(call.periodeReferanse(personService), call.saksbehandler()).let { oppdatertPeriode ->
+            service.revurderPeriode(call.periodeReferanse(personService), call.bruker()).let { oppdatertPeriode ->
                 call.respondJson(oppdatertPeriode.tilBehandlingDto(), status = HttpStatusCode.Created)
             }
         }
@@ -128,7 +128,7 @@ fun Route.behandlingRoute(
                 .oppdaterSkjæringstidspunkt(
                     periodeRef = call.periodeReferanse(personService),
                     skjæringstidspunkt = skjæringstidspunkt,
-                    saksbehandler = call.saksbehandler(),
+                    saksbehandler = call.bruker(),
                 ).let { oppdatertPeriode ->
                     call.respondJson(oppdatertPeriode.tilBehandlingDto())
                 }

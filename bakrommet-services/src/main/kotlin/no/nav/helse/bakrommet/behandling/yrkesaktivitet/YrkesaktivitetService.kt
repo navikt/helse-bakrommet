@@ -144,75 +144,7 @@ class YrkesaktivitetService(
 
             YrkesaktivitetMedOrgnavn(yrkesaktivitet, orgnavn)
         }
-
-    suspend fun oppdaterKategorisering(
-        ref: YrkesaktivitetReferanse,
-        kategorisering: YrkesaktivitetKategorisering,
-        saksbehandler: Bruker,
-        eksisterendeTranaksjon: YrkesaktivitetServiceDaoer? = null,
-    ) {
-        // Validerer at organisasjon finnes hvis orgnummer er satt
-        kategorisering
-            .maybeOrgnummer()
-            ?.let { organisasjonsnavnProvider.hentOrganisasjonsnavn(it).navn }
-
-        val yrkesaktivtet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        val gammelKategorisering = yrkesaktivtet.kategorisering
-        val hovedkategoriseringEndret = hovedkategoriseringEndret(gammelKategorisering, kategorisering)
-
-        db.transactional(eksisterendeTranaksjon) {
-            yrkesaktivitetDao.oppdaterKategoriseringOgSlettInntektData(yrkesaktivtet, kategorisering)
-
-            // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
-            // Slett sykepengegrunnlag og utbetalingsberegning når yrkesaktivitet endres
-            // Vi må alltid beregne på nytt når kategorisering endres
-            beregningDao.slettBeregning(ref.behandlingReferanse.behandlingId, failSilently = true)
-
-            // hvis sykepengegrunnlaget eies av denne perioden, slett det
-            val periode =
-                behandlingDao.hentPeriode(ref.behandlingReferanse, krav = saksbehandler.erSaksbehandlerPåSaken())
-            periode.sykepengegrunnlagId?.let { sykepengegrunnlagId ->
-                val spgRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)
-                if (spgRecord.opprettetForBehandling == periode.id) {
-                    behandlingDao.oppdaterSykepengegrunnlagId(periode.id, null)
-                    sykepengegrunnlagDao.slettSykepengegrunnlag(sykepengegrunnlagId)
-                }
-            }
-
-            // Legg til endring i historikk hvis hovedkategorisering endrer seg
-            if (hovedkategoriseringEndret) {
-                behandlingEndringerDao.leggTilEndring(
-                    SaksbehandlingsperiodeEndring(
-                        behandlingId = periode.id,
-                        status = periode.status,
-                        beslutterNavIdent = periode.beslutterNavIdent,
-                        endretTidspunkt = OffsetDateTime.now(),
-                        endretAvNavIdent = saksbehandler.navIdent,
-                        endringType = SaksbehandlingsperiodeEndringType.OPPDATERT_YRKESAKTIVITET_KATEGORISERING,
-                        endringKommentar = "Endret fra ${hovedkategoriseringNavn(gammelKategorisering)} til ${
-                            hovedkategoriseringNavn(
-                                kategorisering,
-                            )
-                        }",
-                    ),
-                )
-            }
-        }
-    }
-
-    private fun hovedkategoriseringEndret(
-        gammel: YrkesaktivitetKategorisering,
-        ny: YrkesaktivitetKategorisering,
-    ): Boolean = hovedkategoriseringNavn(gammel) != hovedkategoriseringNavn(ny)
-
-    private fun hovedkategoriseringNavn(kategorisering: YrkesaktivitetKategorisering): String =
-        when (kategorisering) {
-            is YrkesaktivitetKategorisering.Arbeidstaker -> "Arbeidstaker"
-            is YrkesaktivitetKategorisering.Frilanser -> "Frilanser"
-            is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> "Selvstendig næringsdrivende"
-            is YrkesaktivitetKategorisering.Inaktiv -> "Inaktiv"
-            is YrkesaktivitetKategorisering.Arbeidsledig -> "Arbeidsledig"
-        }
+    
 
     suspend fun slettYrkesaktivitet(
         ref: YrkesaktivitetReferanse,

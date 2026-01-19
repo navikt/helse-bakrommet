@@ -70,13 +70,21 @@ class EregClient(
             "EREG kall feilet med status={} for orgnummer={} body={}",
             response.status.value,
             orgnummer,
-            response.bodyAsText()
+            response.bodyAsText(),
         )
         throw RuntimeException("Klarte ikke slå opp organisasjon i EREG (status ${response.status.value})")
     }
 
-    override suspend fun hentFlereOrganisasjonsnavn(orgnummer: Set<String>): Map<String, Organisasjon> {
-        return coroutineScope {
+    override suspend fun eksisterer(orgnummer: String): Boolean =
+        try {
+            hentOrganisasjonsnavn(orgnummer)
+            true
+        } catch (_: IkkeFunnetException) {
+            false
+        }
+
+    override suspend fun hentFlereOrganisasjonsnavn(orgnummer: Set<String>): Map<String, Organisasjon> =
+        coroutineScope {
             orgnummer
                 .map { orgnummer ->
                     async {
@@ -93,5 +101,4 @@ class EregClient(
                 .filterNotNull()
                 .associateBy { it.orgnummer }
         }
-    }
 }

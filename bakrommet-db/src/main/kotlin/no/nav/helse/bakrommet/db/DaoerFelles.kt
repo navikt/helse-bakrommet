@@ -43,5 +43,4 @@ class SessionDaoerFelles(
     override val outboxDao = OutboxDaoPg(session)
     override val tilkommenInntektDao = TilkommenInntektDaoPg(session)
     override val yrkesaktivitetRepository = PgYrkesaktivitetRepository(session)
-
 }

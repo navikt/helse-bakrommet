@@ -6,7 +6,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
+import no.nav.helse.bakrommet.api.auth.bruker
 import no.nav.helse.bakrommet.api.behandling.hentOgVerifiserBehandling
+import no.nav.helse.bakrommet.api.behandling.sjekkErÅpenOgTildeltSaksbehandler
 import no.nav.helse.bakrommet.api.dto.vilkaar.OppdaterVilkaarsvurderingResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingRequestDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
@@ -23,11 +25,8 @@ fun Route.vilkårRoute(
 ) {
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/vilkaarsvurdering") {
         get {
-
-
             db.transactional {
                 val behandling = this.hentOgVerifiserBehandling(call)
-
                 val vurderteVilkår =
                     vilkårsvurderingRepository.hentAlle(behandling.id).map {
                         it.skapVilkaarsvurderingDto()
@@ -42,7 +41,8 @@ fun Route.vilkårRoute(
             val request = call.receive<VilkaarsvurderingRequestDto>()
 
             db.transactional {
-                val behandling = this.hentOgVerifiserBehandling(call)
+                val behandling = this.hentOgVerifiserBehandling(call).sjekkErÅpenOgTildeltSaksbehandler(call.bruker())
+
                 val vilkårskode = Vilkårskode(call.parameters["hovedspørsmål"]!!)
 
                 val vilkårsvurderingId =

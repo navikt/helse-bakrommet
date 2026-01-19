@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
-import no.nav.helse.bakrommet.api.auth.saksbehandler
+import no.nav.helse.bakrommet.api.auth.bruker
 import no.nav.helse.bakrommet.api.dto.tilkommen.OpprettTilkommenInntektRequestDto
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
@@ -31,7 +31,7 @@ fun Route.tilkommenInntektRoute(
                 service.lagreTilkommenInntekt(
                     ref = ref,
                     tilkommenInntekt = request.tilTilkommenInntekt(),
-                    saksbehandler = call.saksbehandler(),
+                    saksbehandler = call.bruker(),
                 )
             call.respondJson(nyTilkommenInntekt.tilTilkommenInntektResponseDto(), status = HttpStatusCode.Created)
         }
@@ -44,7 +44,7 @@ fun Route.tilkommenInntektRoute(
                 service.endreTilkommenInntekt(
                     ref = ref,
                     tilkommenInntekt = request.tilTilkommenInntekt(),
-                    saksbehandler = call.saksbehandler(),
+                    saksbehandler = call.bruker(),
                 )
             call.respondJson(oppdatertTilkommenInntekt.tilTilkommenInntektResponseDto())
         }
@@ -54,7 +54,7 @@ fun Route.tilkommenInntektRoute(
 
             service.slettTilkommenInntekt(
                 ref = ref,
-                saksbehandler = call.saksbehandler(),
+                saksbehandler = call.bruker(),
             )
             call.respond(HttpStatusCode.NoContent)
         }
