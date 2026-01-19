@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.api.behandling.hentOgVerifiserBehandling
 import no.nav.helse.bakrommet.api.behandling.sjekkErÅpenOgTildeltSaksbehandler
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.api.serde.respondJson
+import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
@@ -95,10 +96,23 @@ fun Route.yrkesaktivitetRoute(
 
         route("/{$PARAM_YRKESAKTIVITETUUID}") {
             delete {
-                yrkesaktivitetService.slettYrkesaktivitet(
-                    call.yrkesaktivitetReferanse(personService),
-                    call.bruker(),
-                )
+                db.transactional {
+                    val bruker = call.bruker()
+                    val behandling =
+                        this.hentOgVerifiserBehandling(call).sjekkErÅpenOgTildeltSaksbehandler(
+                            bruker,
+                        )
+                    val yrkesaktivitet = yrkesaktivitetRepository.finn(call.yrkesaktivitetId()) ?: return@transactional
+                    if (!yrkesaktivitet.tilhører(behandling)) {
+                        error("Yrkesaktivitet tilhører ikke behandling ${behandling.id.value}")
+                    }
+                    yrkesaktivitetRepository.slett(yrkesaktivitet.id)
+                    beregnSykepengegrunnlagOgUtbetaling(
+                        behandling = behandling,
+                        saksbehandler = bruker,
+                    )
+                }
+
                 call.respond(HttpStatusCode.NoContent)
             }
 

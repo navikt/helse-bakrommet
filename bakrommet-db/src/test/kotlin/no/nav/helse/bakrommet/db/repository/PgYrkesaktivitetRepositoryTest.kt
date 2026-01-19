@@ -564,4 +564,41 @@ class PgYrkesaktivitetRepositoryTest {
         assertTrue(typer.contains(Periodetype.VENTETID))
         assertTrue(typer.contains(Periodetype.VENTETID_INAKTIV))
     }
+
+    @Test
+    fun `finn yrkesaktivitet by id returnerer yrkesaktivitet`() {
+        val behandling = enBehandling()
+        behandlingRepository.lagre(behandling)
+
+        val yrkesaktivitet = enYrkesaktivitet(behandlingId = behandling.id)
+        yrkesaktivitetRepository.lagre(yrkesaktivitet)
+
+        val funnet = yrkesaktivitetRepository.finn(yrkesaktivitet.id)
+        assertNotNull(funnet)
+        assertEquals(yrkesaktivitet.id, funnet.id)
+        assertEquals(yrkesaktivitet.behandlingId, funnet.behandlingId)
+    }
+
+    @Test
+    fun `finn yrkesaktivitet by id returnerer null når den ikke finnes`() {
+        val funnet = yrkesaktivitetRepository.finn(YrkesaktivitetId(UUID.randomUUID()))
+        assertNull(funnet)
+    }
+
+    @Test
+    fun `slett yrkesaktivitet by id fjerner yrkesaktiviteten`() {
+        val behandling = enBehandling()
+        behandlingRepository.lagre(behandling)
+
+        val yrkesaktivitet = enYrkesaktivitet(behandlingId = behandling.id)
+        yrkesaktivitetRepository.lagre(yrkesaktivitet)
+
+        val funnetFør = yrkesaktivitetRepository.finn(yrkesaktivitet.id)
+        assertNotNull(funnetFør)
+
+        yrkesaktivitetRepository.slett(yrkesaktivitet.id)
+
+        val funnetEtter = yrkesaktivitetRepository.finn(yrkesaktivitet.id)
+        assertNull(funnetEtter)
+    }
 }

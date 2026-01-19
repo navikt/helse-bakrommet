@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet
 
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.Periode
@@ -44,6 +45,8 @@ class Yrkesaktivitet(
         inntektData = null
         inntektRequest = null
     }
+
+    fun tilhører(behandling: Behandling): Boolean = this.behandlingId == behandling.id
 
     companion object {
         fun opprett(

@@ -31,7 +31,7 @@ class PgYrkesaktivitetRepository private constructor(
         queryRunner
             .list(
                 """
-                select *, inntekt_request, inntekt_data, refusjon from yrkesaktivitet where behandling_id = :behandling_id
+                select * from yrkesaktivitet where behandling_id = :behandling_id
                 """.trimIndent(),
                 "behandling_id" to behandlingId.value,
             ) {
@@ -39,6 +39,26 @@ class PgYrkesaktivitetRepository private constructor(
             }.map {
                 it.toYrkesaktivitet()
             }
+
+    override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitet? =
+        queryRunner
+            .single(
+                """
+                select * from yrkesaktivitet where id = :id
+                """.trimIndent(),
+                "id" to yrkesaktivitetId.value,
+            ) {
+                it.yrkesaktivitetFraRow().toYrkesaktivitet()
+            }
+
+    override fun slett(yrkesaktivitetId: YrkesaktivitetId) {
+        queryRunner.update(
+            """
+            delete from yrkesaktivitet where id = :id
+            """.trimIndent(),
+            "id" to yrkesaktivitetId.value,
+        )
+    }
 
     override fun lagre(yrkesaktivitet: Yrkesaktivitet) {
         val record: DbYrkesaktivitet = yrkesaktivitet.toDbRecord()

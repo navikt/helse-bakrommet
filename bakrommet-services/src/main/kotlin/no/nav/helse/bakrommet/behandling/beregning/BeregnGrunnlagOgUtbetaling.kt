@@ -12,6 +12,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsBeregni
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
@@ -26,6 +27,15 @@ interface Beregningsdaoer {
     val personPseudoIdDao: PersonPseudoIdDao
     val tilkommenInntektDao: TilkommenInntektDao
 }
+
+fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
+    behandling: Behandling,
+    saksbehandler: Bruker,
+): SykepengegrunnlagDbRecord? =
+    beregnSykepengegrunnlagOgUtbetaling(
+        ref = BehandlingReferanse(behandlingId = behandling.id.value, naturligIdent = behandling.naturligIdent),
+        saksbehandler = saksbehandler,
+    )
 
 fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     ref: BehandlingReferanse,
