@@ -50,7 +50,7 @@ fun TypeArbeidstakerDto.tilTypeArbeidstaker(): TypeArbeidstaker =
         is TypeArbeidstakerDto.Ordinær -> TypeArbeidstaker.Ordinær(orgnummer = orgnummer)
         is TypeArbeidstakerDto.Maritim -> TypeArbeidstaker.Maritim(orgnummer = orgnummer)
         is TypeArbeidstakerDto.Fisker -> TypeArbeidstaker.Fisker(orgnummer = orgnummer)
-        is TypeArbeidstakerDto.DimmitertVernepliktig -> TypeArbeidstaker.DimmitertVernepliktig()
+        is TypeArbeidstakerDto.DimmitertVernepliktig -> TypeArbeidstaker.DimmitertVernepliktig(tjenesteMerEnn28Dager = tjenesteMerEnn28Dager)
         is TypeArbeidstakerDto.PrivatArbeidsgiver -> TypeArbeidstaker.PrivatArbeidsgiver(arbeidsgiverFnr = arbeidsgiverFnr)
     }
 
