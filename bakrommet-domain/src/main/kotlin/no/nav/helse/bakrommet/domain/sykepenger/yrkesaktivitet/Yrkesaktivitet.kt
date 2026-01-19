@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet
 
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -15,7 +16,7 @@ class Yrkesaktivitet(
     val id: YrkesaktivitetId,
     kategorisering: YrkesaktivitetKategorisering,
     val kategoriseringGenerert: YrkesaktivitetKategorisering?,
-    val dagoversikt: Dagoversikt?,
+    dagoversikt: Dagoversikt?,
     val dagoversiktGenerert: Dagoversikt?,
     val behandlingId: BehandlingId,
     val opprettet: OffsetDateTime,
@@ -31,6 +32,8 @@ class Yrkesaktivitet(
         private set
     var inntektData: InntektData? = inntektData
         private set
+    var dagoversikt: Dagoversikt? = dagoversikt
+        private set
 
     fun nyKategorisering(nyKategorisering: YrkesaktivitetKategorisering) {
         kategorisering = nyKategorisering
@@ -39,6 +42,11 @@ class Yrkesaktivitet(
     }
 
     fun tilhører(behandling: Behandling): Boolean = this.behandlingId == behandling.id
+
+    fun oppdaterDagoversikt(dager: List<Dag>) {
+        val dagoversikt = requireNotNull(dagoversikt) { "Kan ikke oppdatere dager på en yrkesaktivitet uten dagoversikt" }
+        this.dagoversikt = dagoversikt.nyDagoversikt(dager)
+    }
 
     companion object {
         fun opprett(
