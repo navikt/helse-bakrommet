@@ -171,25 +171,6 @@ class YrkesaktivitetDaoPg private constructor(
                 },
         )
 
-    /**
-     * Oppdaterer kategorisering med type-sikker sealed class.
-     */
-    override fun oppdaterKategoriseringOgSlettInntektData(
-        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        kategorisering: YrkesaktivitetKategorisering,
-    ): YrkesaktivitetDbRecord {
-        db
-            .update(
-                """
-                update yrkesaktivitet set kategorisering = :kategorisering, inntekt_data=null, inntekt_request=null where id = :id
-                $AND_ER_UNDER_BEHANDLING
-                """.trimIndent(),
-                "id" to yrkesaktivitetDbRecord.id,
-                "kategorisering" to kategorisering.tilPgJson(),
-            ).also(verifiserOppdatert)
-        return hentYrkesaktivitetDbRecord(yrkesaktivitetDbRecord.id)!!
-    }
-
     override fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: Dagoversikt,

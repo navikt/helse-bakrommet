@@ -109,11 +109,6 @@ interface YrkesaktivitetDao {
 
     fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord>
 
-    fun oppdaterKategoriseringOgSlettInntektData(
-        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        kategorisering: YrkesaktivitetKategorisering,
-    ): YrkesaktivitetDbRecord
-
     fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: Dagoversikt,
