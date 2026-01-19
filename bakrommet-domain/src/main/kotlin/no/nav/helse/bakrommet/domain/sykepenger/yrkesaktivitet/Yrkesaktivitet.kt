@@ -33,13 +33,6 @@ class Yrkesaktivitet(
     var inntektData: InntektData? = inntektData
         private set
 
-    fun hentPerioderForType(periodetype: Periodetype): List<Periode> =
-        if (this.perioder?.type == periodetype) {
-            this.perioder.perioder.map { Periode(it.fom, it.tom) }
-        } else {
-            emptyList()
-        }
-
     fun nyKategorisering(nyKategorisering: YrkesaktivitetKategorisering) {
         kategorisering = nyKategorisering
         inntektData = null

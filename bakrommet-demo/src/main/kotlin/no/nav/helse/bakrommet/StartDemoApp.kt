@@ -25,6 +25,7 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -81,11 +82,20 @@ class FakeDaoer : AlleDaoer {
             private val yrkesaktiviteter = ConcurrentHashMap<BehandlingId, MutableList<Yrkesaktivitet>>()
 
             override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> = yrkesaktiviteter[behandlingId] ?: emptyList()
+            override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitet? {
+                return yrkesaktiviteter.values.flatten().find { it.id == yrkesaktivitetId }
+            }
 
             override fun lagre(yrkesaktivitet: Yrkesaktivitet) {
                 val aktiviteterForBehandling = yrkesaktiviteter.getOrPut(yrkesaktivitet.behandlingId) { mutableListOf() }
                 aktiviteterForBehandling.removeIf { it.id == yrkesaktivitet.id }
                 aktiviteterForBehandling.add(yrkesaktivitet)
+            }
+
+            override fun slett(yrkesaktivitetId: YrkesaktivitetId) {
+                yrkesaktiviteter.values.forEach { aktiviteter ->
+                    aktiviteter.removeIf { it.id == yrkesaktivitetId }
+                }
             }
         }
 

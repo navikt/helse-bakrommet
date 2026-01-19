@@ -42,7 +42,7 @@ class MåVæreUnderBehandlingTest {
         behandlingService = BehandlingService(db, dokHenter)
     }
 
-    private fun brukerOgToken(rolle: Rolle = Rolle.SAKSBEHANDLER) =
+    private fun brukerOgToken() =
         BrukerOgToken(
             bruker =
                 Bruker(
@@ -51,7 +51,7 @@ class MåVæreUnderBehandlingTest {
                     preferredUsername = "basis bruker",
                     roller =
                         setOf(
-                            rolle,
+                            Rolle.SAKSBEHANDLER,
                         ),
                 ),
             token = AccessToken("tulletoken"),
