@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import no.nav.helse.bakrommet.api.auth.RolleMatrise
 import no.nav.helse.bakrommet.api.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.api.setupApiRoutes
+import no.nav.helse.bakrommet.db.dao.YrkesaktivitetDaoOverRepository
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
@@ -102,7 +103,7 @@ class FakeDaoer : AlleDaoer {
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()
     override val personPseudoIdDao = PersonPseudoIdDaoFake()
     override val dokumentDao = DokumentDaoFake()
-    override val yrkesaktivitetDao = YrkesaktivitetDaoFake()
+    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetRepository)
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoFake()
     override val beregningDao = UtbetalingsberegningDaoFake()
     override val outboxDao = OutboxDaoFake()

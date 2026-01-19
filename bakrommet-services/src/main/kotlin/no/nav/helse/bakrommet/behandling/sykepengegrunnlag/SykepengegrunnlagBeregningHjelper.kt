@@ -6,10 +6,10 @@ import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Arbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Frilanser
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.Arbeidstaker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.Frilanser
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.util.singleOrNone
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.økonomi.Inntekt
@@ -79,7 +79,7 @@ fun beregnSykepengegrunnlag(
         if (!kombinert) {
             null
         } else {
-            val pensjonsgivendeÅrsinntekt = næringsdrivende.inntektData?.omregnetÅrsinntekt?.tilInntekt() ?: Inntekt.INGEN
+            val pensjonsgivendeÅrsinntekt = næringsdrivende.inntektData?.omregnetÅrsinntekt ?: Inntekt.INGEN
             val pensjonsgivendeÅrsinntekt6GBegrenset = minOf(pensjonsgivendeÅrsinntekt, grunnbeløp6G)
             val pensjonsgivendeÅrsinntektBegrensetTil6G = pensjonsgivendeÅrsinntekt > grunnbeløp6G
             val andreYrkesaktiviteter =
@@ -87,9 +87,7 @@ fun beregnSykepengegrunnlag(
                     .filter { it.id != næringsdrivende.id }
                     .map { it.inntektData?.omregnetÅrsinntekt }
                     .map {
-                        it?.let {
-                            Inntekt.gjenopprett(it)
-                        } ?: Inntekt.INGEN
+                        it ?: Inntekt.INGEN
                     }
             val sumAvArbeidsinntekt = andreYrkesaktiviteter.fold(Inntekt.INGEN) { acc, inntekt -> acc + inntekt }
 
@@ -107,17 +105,19 @@ fun beregnSykepengegrunnlag(
 
     val beregningsgrunnlag =
         when {
-            kombinert ->
+            kombinert -> {
                 yrkesaktiviteter
                     .filter { it.kategorisering !is SelvstendigNæringsdrivende }
-                    .map { it.inntektData?.omregnetÅrsinntekt?.tilInntekt() ?: Inntekt.INGEN }
+                    .map { it.inntektData?.omregnetÅrsinntekt ?: Inntekt.INGEN }
                     .summer()
                     .plus(næringsdel!!.næringsdel.tilInntekt())
+            }
 
-            else ->
+            else -> {
                 yrkesaktiviteter
-                    .map { it.inntektData?.omregnetÅrsinntekt?.tilInntekt() ?: Inntekt.INGEN }
+                    .map { it.inntektData?.omregnetÅrsinntekt ?: Inntekt.INGEN }
                     .summer()
+            }
         }
 
     val sykepengegrunnlag = minOf(beregningsgrunnlag, grunnbeløp6G)

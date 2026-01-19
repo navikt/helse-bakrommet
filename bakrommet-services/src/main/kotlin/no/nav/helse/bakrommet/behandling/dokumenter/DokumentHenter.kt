@@ -93,7 +93,7 @@ class DokumentHenter(
         ref: BehandlingReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument =
-        db.nonTransactional {
+        db.transactional {
             val behandling =
                 behandlingRepository.hent(BehandlingId(ref.behandlingId))
             if (!saksbehandler.bruker.erTildelt(behandling)) {
@@ -103,7 +103,7 @@ class DokumentHenter(
                 error("Behandling er ikke åpen for endringer")
             }
 
-            return@nonTransactional lastAInntektBeregningsgrunnlag(
+            lastAInntektBeregningsgrunnlag(
                 behandling = behandling,
                 inntekterProvider = inntekterProvider,
                 saksbehandler = saksbehandler,
@@ -162,7 +162,7 @@ class DokumentHenter(
         ref: BehandlingReferanse,
         saksbehandler: BrukerOgToken,
     ): Dokument =
-        db.nonTransactional {
+        db.transactional {
             val behandling =
                 behandlingRepository.hent(BehandlingId(ref.behandlingId))
             if (!saksbehandler.bruker.erTildelt(behandling)) {
@@ -172,7 +172,7 @@ class DokumentHenter(
                 error("Behandling er ikke åpen for endringer")
             }
 
-            return@nonTransactional lastSigrunDokument(
+            lastSigrunDokument(
                 behandling = behandling,
                 saksbehandlerToken = saksbehandler.token,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,

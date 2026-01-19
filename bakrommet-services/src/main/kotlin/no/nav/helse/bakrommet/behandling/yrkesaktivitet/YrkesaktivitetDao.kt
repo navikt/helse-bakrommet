@@ -1,11 +1,11 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
-import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
-import no.nav.helse.bakrommet.behandling.inntekter.domain.InntektRequest
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -23,7 +23,7 @@ data class YrkesaktivitetDbRecord(
     val generertFraDokumenter: List<UUID>,
     val perioder: Perioder? = null,
     val inntektRequest: InntektRequest? = null,
-    val inntektData: InntektDataOld? = null,
+    val inntektData: InntektData? = null,
     val refusjon: List<Refusjonsperiode>? = null,
 )
 
@@ -79,7 +79,7 @@ interface YrkesaktivitetDao {
         opprettet: OffsetDateTime,
         generertFraDokumenter: List<UUID>,
         perioder: Perioder?,
-        inntektData: InntektDataOld?,
+        inntektData: InntektData?,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord
 
@@ -105,7 +105,7 @@ interface YrkesaktivitetDao {
 
     fun oppdaterInntektData(
         legacyYrkesaktivitet: LegacyYrkesaktivitet,
-        inntektData: InntektDataOld,
+        inntektData: InntektData,
     ): YrkesaktivitetDbRecord
 
     fun oppdaterRefusjon(

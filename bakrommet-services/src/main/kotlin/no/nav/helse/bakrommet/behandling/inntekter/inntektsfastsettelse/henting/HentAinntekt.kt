@@ -3,16 +3,17 @@ package no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting
 import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.lastAInntektBeregningsgrunnlag
 import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somAInntektBeregningsgrunnlag
-import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.monthsBetween
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.omregnetÅrsinntekt
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.orgnummer
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.tilAInntektResponse
+import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
@@ -40,9 +41,9 @@ fun AlleDaoer.hentAInntektForYrkesaktivitet(
 
                 AInntektResponse.Suksess(
                     data =
-                        InntektDataOld.ArbeidstakerAinntekt(
-                            omregnetÅrsinntekt = omregnetÅrsinntekt.first,
-                            kildedata = omregnetÅrsinntekt.second,
+                        InntektData.ArbeidstakerAinntekt(
+                            omregnetÅrsinntekt = omregnetÅrsinntekt.first.tilInntekt(),
+                            kildedata = omregnetÅrsinntekt.second.mapValues { it.value.tilInntekt() },
                         ),
                 )
             }
@@ -68,9 +69,9 @@ fun AlleDaoer.hentAInntektForYrkesaktivitet(
 
                 AInntektResponse.Suksess(
                     data =
-                        InntektDataOld.FrilanserAinntekt(
-                            omregnetÅrsinntekt = månedligSnitt.dto().årlig,
-                            kildedata = månederOgInntektDto,
+                        InntektData.FrilanserAinntekt(
+                            omregnetÅrsinntekt = månedligSnitt,
+                            kildedata = månederOgInntektDto.mapValues { it.value.tilInntekt() },
                         ),
                 )
             }
@@ -90,7 +91,7 @@ fun AlleDaoer.hentAInntektForYrkesaktivitet(
 
 sealed interface AInntektResponse {
     data class Suksess(
-        val data: InntektDataOld,
+        val data: InntektData,
     ) : AInntektResponse
 
     data class Feil(

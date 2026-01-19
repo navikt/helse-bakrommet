@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.behandling.yrkesaktivitet
 
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.FrilanserForsikring
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.FrilanserForsikring
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeSelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 
 fun arbeidstakerKategorisering(
     orgnummer: String = "123456789",

@@ -1,9 +1,10 @@
 package no.nav.helse.bakrommet.behandling
 
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -42,9 +43,9 @@ class DagoversiktLogikkTest {
                 )
 
             // Verifiser at dagoversikt har 28 dager for februar 2023
-            daoer.yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(periode.id).also { yrkesaktivitetFraDB ->
+            hentYrkesaktiviteter(personPseudoId, periode.id).also { yrkesaktivitetFraDB ->
                 val yrkesaktivitet = yrkesaktivitetFraDB.find { it.id == yrkesaktivitetId }!!
-                assertEquals(28, yrkesaktivitet.dagoversikt?.sykdomstidlinje?.size ?: 0, "Februar 2023 skal ha 28 dager")
+                assertEquals(28, yrkesaktivitet.dagoversikt?.size ?: 0, "Februar 2023 skal ha 28 dager")
             }
         }
     }

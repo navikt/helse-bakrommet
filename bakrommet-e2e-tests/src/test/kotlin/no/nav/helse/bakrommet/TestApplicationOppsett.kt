@@ -20,6 +20,7 @@ import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.db.DBModule
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.dao.*
+import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetRepository
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.provider.*
@@ -104,7 +105,7 @@ class Daoer(
             Daoer(
                 PersonPseudoIdDaoPg(dataSource),
                 DokumentDaoPg(dataSource),
-                YrkesaktivitetDaoPg(dataSource),
+                YrkesaktivitetDaoOverRepository(PgYrkesaktivitetRepository(dataSource)),
                 OutboxDaoPg(dataSource),
                 SykepengegrunnlagDaoPg(dataSource),
             )
@@ -128,6 +129,8 @@ fun runApplicationTest(
     if (resetDatabase) {
         TestDataSource.resetDatasource()
     }
+    val db = skapDbDaoer(dataSource)
+
     application {
         val providers =
             Providers(
@@ -139,7 +142,6 @@ fun runApplicationTest(
                 inntektsmeldingProvider = inntektsmeldingClient,
                 pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
             )
-        val db = skapDbDaoer(dataSource)
         val services =
             createServices(
                 providers = providers,

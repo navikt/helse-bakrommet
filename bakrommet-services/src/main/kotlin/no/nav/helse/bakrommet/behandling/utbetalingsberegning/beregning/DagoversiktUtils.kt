@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning
 
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningFeil
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
+import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.hendelser.Periode
 import java.time.LocalDate

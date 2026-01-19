@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad.ARBEIDSLEDIG_DEKNINGSGRAD_100
-import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
-import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
+import no.nav.helse.bakrommet.domain.sykepenger.BeregningskoderSykepengegrunnlag
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.januar
 import no.nav.helse.økonomi.Inntekt.Companion.månedlig
@@ -29,8 +29,8 @@ class ArbeidsledigBeregningTest {
                     `er syk`(grad = 50, antallDager = 15)
                     `er syk`(grad = 100, antallDager = 16)
                     inntektData(
-                        InntektDataOld.Arbeidsledig(
-                            omregnetÅrsinntekt = 21666.0.månedlig.dto().årlig,
+                        InntektData.Arbeidsledig(
+                            omregnetÅrsinntekt = 21666.0.månedlig,
                             sporing = BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER,
                         ),
                     )

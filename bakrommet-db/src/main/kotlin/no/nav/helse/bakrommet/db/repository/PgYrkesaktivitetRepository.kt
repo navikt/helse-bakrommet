@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Row
 import kotliquery.Session
+import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbDagoversikt
@@ -21,11 +22,13 @@ import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.somListe
 import java.util.UUID
+import javax.sql.DataSource
 
-class PgYrkesaktivitetRepository private constructor(
+class PgYrkesaktivitetRepository(
     private val queryRunner: QueryRunner,
 ) : YrkesaktivitetRepository {
     constructor(session: Session) : this(MedSession(session))
+    constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
 
     override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> =
         queryRunner

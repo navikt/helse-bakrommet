@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
+import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.erHelg
 import no.nav.helse.hendelser.Hendelseskilde
@@ -51,7 +51,10 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                 }
 
                 when (spilleromDag.dagtype) {
-                    Dagtype.Avslått -> throw IllegalStateException("Avslåtte dager skal ikke være en del av sykdomstidslinjen")
+                    Dagtype.Avslått -> {
+                        throw IllegalStateException("Avslåtte dager skal ikke være en del av sykdomstidslinjen")
+                    }
+
                     Dagtype.Syk,
                     Dagtype.SykNav,
                     Dagtype.Behandlingsdag,
@@ -78,30 +81,34 @@ internal fun List<Dag>.tilSykdomstidslinje(arbeidsgiverperiode: List<Periode>): 
                         }
                     }
 
-                    Dagtype.Arbeidsdag ->
+                    Dagtype.Arbeidsdag -> {
                         Arbeidsdag(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,
                         )
+                    }
 
-                    Dagtype.Ferie ->
+                    Dagtype.Ferie -> {
                         Feriedag(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,
                         )
+                    }
 
-                    Dagtype.Permisjon ->
+                    Dagtype.Permisjon -> {
                         Permisjonsdag(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,
                         )
+                    }
 
-                    Dagtype.AndreYtelser ->
+                    Dagtype.AndreYtelser -> {
                         AndreYtelser(
                             dato = spilleromDag.dato,
                             kilde = kilde_HARDKODET,
                             ytelse = annenytelse_HARDKODET,
                         )
+                    }
                 }.let { spleisDag ->
                     spilleromDag.dato to spleisDag
                 }

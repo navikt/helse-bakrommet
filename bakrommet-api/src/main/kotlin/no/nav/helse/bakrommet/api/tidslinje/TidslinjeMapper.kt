@@ -5,8 +5,8 @@ import no.nav.helse.bakrommet.api.dto.tidslinje.TidlinjeYrkesaktivitetDto
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingDto
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivitetType
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.maybeOrgnummer
 import no.nav.helse.bakrommet.tidslinje.TidslinjeData
 
 fun TidslinjeData.tilTidslinjeDto(): List<TidslinjeBehandlingDto> =

@@ -1,23 +1,24 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
-import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
-import no.nav.helse.bakrommet.behandling.inntekter.InntektDataOld
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.beregnSykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.SelvstendigForsikring
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeArbeidstaker
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
+import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
+import no.nav.helse.bakrommet.domain.sykepenger.Kilde
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeSelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
@@ -142,7 +143,7 @@ class YrkesaktivitetBuilder {
     private val dagoversikt = mutableListOf<Dag>()
     private var gjeldendeDato: LocalDate? = null
     private var arbeidsgiverperiode: Pair<LocalDate, LocalDate>? = null
-    private var inntektData: InntektDataOld? = null
+    private var inntektData: InntektData? = null
     private var refusjonsdata: List<Refusjonsperiode>? = null
 
     fun id(id: UUID) {
@@ -211,7 +212,7 @@ class YrkesaktivitetBuilder {
         arbeidsgiverperiode(init)
     }
 
-    fun inntektData(data: InntektDataOld) {
+    fun inntektData(data: InntektData) {
         this.inntektData = data
     }
 
@@ -507,10 +508,10 @@ class InntektDataBuilder {
         beløp(krPerMåned)
     }
 
-    fun build(): InntektDataOld {
+    fun build(): InntektData {
         val årligInntekt = InntektbeløpDto.Årlig((beløpPerMåned * 12).toDouble())
-        return InntektDataOld.ArbeidstakerAinntekt(
-            omregnetÅrsinntekt = årligInntekt,
+        return InntektData.ArbeidstakerAinntekt(
+            omregnetÅrsinntekt = årligInntekt.tilInntekt(),
             kildedata = emptyMap(),
         )
     }
@@ -562,7 +563,7 @@ class RefusjonsdataBuilder {
 }
 
 // Extension function for å lage InntektData
-fun inntektData(init: InntektDataBuilder.() -> Unit): InntektDataOld {
+fun inntektData(init: InntektDataBuilder.() -> Unit): InntektData {
     val builder = InntektDataBuilder()
     builder.init()
     return builder.build()

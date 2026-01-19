@@ -8,7 +8,6 @@ import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetRepository
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
-import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 import javax.sql.DataSource
 
 class DaoerFelles(
@@ -17,11 +16,11 @@ class DaoerFelles(
     override val behandlingDao = BehandlingDaoPg(dataSource)
     override val behandlingRepository: BehandlingRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
     override val vilkårsvurderingRepository: VilkårsvurderingRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
-    override val yrkesaktivitetRepository: YrkesaktivitetRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
+    override val yrkesaktivitetRepository = PgYrkesaktivitetRepository(dataSource)
     override val behandlingEndringerDao = BehandlingEndringerDaoPg(dataSource)
     override val personPseudoIdDao = PersonPseudoIdDaoPg(dataSource)
     override val dokumentDao = DokumentDaoPg(dataSource)
-    override val yrkesaktivitetDao = YrkesaktivitetDaoPg(dataSource)
+    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetRepository)
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
     override val beregningDao = UtbetalingsberegningDaoPg(dataSource)
     override val outboxDao = OutboxDaoPg(dataSource)
@@ -37,10 +36,10 @@ class SessionDaoerFelles(
     override val behandlingEndringerDao = BehandlingEndringerDaoPg(session)
     override val personPseudoIdDao = PersonPseudoIdDaoPg(session)
     override val dokumentDao = DokumentDaoPg(session)
-    override val yrkesaktivitetDao = YrkesaktivitetDaoPg(session)
+    override val yrkesaktivitetRepository = PgYrkesaktivitetRepository(session)
+    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetRepository)
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(session)
     override val beregningDao = UtbetalingsberegningDaoPg(session)
     override val outboxDao = OutboxDaoPg(session)
     override val tilkommenInntektDao = TilkommenInntektDaoPg(session)
-    override val yrkesaktivitetRepository = PgYrkesaktivitetRepository(session)
 }
