@@ -59,17 +59,6 @@ class YrkesaktivitetDaoFake : YrkesaktivitetDao {
 
     override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> = storage.values.filter { it.behandlingId == behandlingId }
 
-    override fun oppdaterKategoriseringOgSlettInntektData(
-        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        kategorisering: YrkesaktivitetKategorisering,
-    ): YrkesaktivitetDbRecord {
-        val eksisterende =
-            storage[yrkesaktivitetDbRecord.id] ?: throw IllegalArgumentException("Kunne ikke finne yrkesaktivitet")
-        val oppdatert = eksisterende.copy(kategorisering = kategorisering, inntektData = null, inntektRequest = null)
-        storage[oppdatert.id] = oppdatert
-        return oppdatert
-    }
-
     override fun oppdaterDagoversikt(
         yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
         oppdatertDagoversikt: Dagoversikt,
