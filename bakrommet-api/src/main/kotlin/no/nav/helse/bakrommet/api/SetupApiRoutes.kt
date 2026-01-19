@@ -39,7 +39,6 @@ fun Route.setupApiRoutes(
     beregningRoute(services.utbetalingsberegningService, services.personService)
     yrkesaktivitetRoute(
         db = db,
-        yrkesaktivitetService = services.yrkesaktivitetService,
         inntektservice = services.inntektService,
         inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
         personService = services.personService,

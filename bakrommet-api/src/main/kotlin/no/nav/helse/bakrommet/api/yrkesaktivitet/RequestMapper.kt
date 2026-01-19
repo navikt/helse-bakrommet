@@ -16,34 +16,39 @@ fun YrkesaktivitetCreateRequestDto.tilYrkesaktivitetKategorisering(): Yrkesaktiv
 
 fun YrkesaktivitetKategoriseringDto.tilYrkesaktivitetKategorisering(): YrkesaktivitetKategorisering =
     when (this) {
-        is YrkesaktivitetKategoriseringDto.Arbeidstaker ->
+        is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
             YrkesaktivitetKategorisering.Arbeidstaker(
                 sykmeldt = sykmeldt,
                 typeArbeidstaker = typeArbeidstaker.tilTypeArbeidstaker(),
             )
+        }
 
-        is YrkesaktivitetKategoriseringDto.Frilanser ->
+        is YrkesaktivitetKategoriseringDto.Frilanser -> {
             YrkesaktivitetKategorisering.Frilanser(
                 sykmeldt = sykmeldt,
                 orgnummer = orgnummer,
                 forsikring = forsikring.tilFrilanserForsikring(),
             )
+        }
 
-        is YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende ->
+        is YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = sykmeldt,
                 typeSelvstendigNæringsdrivende = typeSelvstendigNæringsdrivende.tilTypeSelvstendigNæringsdrivende(),
             )
+        }
 
-        is YrkesaktivitetKategoriseringDto.Inaktiv ->
+        is YrkesaktivitetKategoriseringDto.Inaktiv -> {
             YrkesaktivitetKategorisering.Inaktiv(
                 sykmeldt = sykmeldt,
             )
+        }
 
-        is YrkesaktivitetKategoriseringDto.Arbeidsledig ->
+        is YrkesaktivitetKategoriseringDto.Arbeidsledig -> {
             YrkesaktivitetKategorisering.Arbeidsledig(
                 sykmeldt = sykmeldt,
             )
+        }
     }
 
 fun TypeArbeidstakerDto.tilTypeArbeidstaker(): TypeArbeidstaker =
@@ -57,30 +62,35 @@ fun TypeArbeidstakerDto.tilTypeArbeidstaker(): TypeArbeidstaker =
 
 fun TypeSelvstendigNæringsdrivendeDto.tilTypeSelvstendigNæringsdrivende(): TypeSelvstendigNæringsdrivende =
     when (this) {
-        is TypeSelvstendigNæringsdrivendeDto.Ordinær ->
+        is TypeSelvstendigNæringsdrivendeDto.Ordinær -> {
             TypeSelvstendigNæringsdrivende.Ordinær(
                 forsikring = forsikring.tilSelvstendigForsikring(),
             )
+        }
 
-        is TypeSelvstendigNæringsdrivendeDto.BarnepasserEgetHjem ->
+        is TypeSelvstendigNæringsdrivendeDto.BarnepasserEgetHjem -> {
             TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem(
                 forsikring = forsikring.tilSelvstendigForsikring(),
             )
+        }
 
-        is TypeSelvstendigNæringsdrivendeDto.Fisker ->
+        is TypeSelvstendigNæringsdrivendeDto.Fisker -> {
             TypeSelvstendigNæringsdrivende.Fisker(
                 forsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
             )
+        }
 
-        is TypeSelvstendigNæringsdrivendeDto.Jordbruker ->
+        is TypeSelvstendigNæringsdrivendeDto.Jordbruker -> {
             TypeSelvstendigNæringsdrivende.Jordbruker(
                 forsikring = forsikring.tilSelvstendigForsikring(),
             )
+        }
 
-        is TypeSelvstendigNæringsdrivendeDto.Reindrift ->
+        is TypeSelvstendigNæringsdrivendeDto.Reindrift -> {
             TypeSelvstendigNæringsdrivende.Reindrift(
                 forsikring = forsikring.tilSelvstendigForsikring(),
             )
+        }
     }
 
 fun FrilanserForsikringDto.tilFrilanserForsikring(): FrilanserForsikring =
@@ -109,3 +119,10 @@ fun PeriodetypeDto.tilPeriodetype(): Periodetype =
         PeriodetypeDto.VENTETID -> Periodetype.VENTETID
         PeriodetypeDto.VENTETID_INAKTIV -> Periodetype.VENTETID_INAKTIV
     }
+
+fun RefusjonsperiodeDto.tilRefusjonsperiode(): Refusjonsperiode =
+    Refusjonsperiode(
+        fom = fom,
+        tom = tom,
+        beløp = Inntekt.gjenopprett(InntektbeløpDto.MånedligDouble(beløp)),
+    )

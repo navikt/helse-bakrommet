@@ -17,7 +17,6 @@ import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentPensjonsgivendeInntektForYrkesaktivitet
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
 import no.nav.helse.bakrommet.domain.sykepenger.Dag
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
@@ -37,7 +36,6 @@ import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun Route.yrkesaktivitetRoute(
-    yrkesaktivitetService: YrkesaktivitetService,
     inntektservice: InntektService,
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     personService: PersonService,
@@ -232,7 +230,7 @@ fun Route.yrkesaktivitetRoute(
             route("/refusjon") {
                 put {
                     val refusjonBody = call.receiveText()
-                    val refusjon: List<RefusjonsperiodeDto>? =
+                    val refusjonDto: List<RefusjonsperiodeDto>? =
                         if (refusjonBody == "null") {
                             null
                         } else {
@@ -244,9 +242,27 @@ fun Route.yrkesaktivitetRoute(
                                 ),
                             )
                         }
-                    val refusjonDomain = refusjon?.map { it.tilRefusjonsperiode() }
-                    val yrkesaktivitetRef = call.yrkesaktivitetReferanse(personService)
-                    yrkesaktivitetService.oppdaterRefusjon(yrkesaktivitetRef, refusjonDomain, call.bruker())
+                    val refusjon = refusjonDto?.map { it.tilRefusjonsperiode() }
+
+                    db.transactional {
+                        val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                        val saksbehandler = call.bruker()
+                        val behandling =
+                            behandlingRepository
+                                .hent(yrkesaktivitet.behandlingId)
+                                .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
+
+                        yrkesaktivitet.oppdaterRefusjon(
+                            refusjon,
+                        )
+                        yrkesaktivitetRepository.lagre(yrkesaktivitet)
+
+                        beregnUtbetaling(
+                            behandling = behandling,
+                            saksbehandler = saksbehandler,
+                        )
+                    }
+
                     call.respond(HttpStatusCode.NoContent)
                 }
             }
