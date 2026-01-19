@@ -19,9 +19,9 @@ import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.Arbeidsforholdoppslag
+import no.nav.helse.bakrommet.logg
+import no.nav.helse.bakrommet.sikkerLogger
 import no.nav.helse.bakrommet.util.fraHer
-import no.nav.helse.bakrommet.util.logg
-import no.nav.helse.bakrommet.util.sikkerLogger
 import java.util.*
 
 class AARegClient(

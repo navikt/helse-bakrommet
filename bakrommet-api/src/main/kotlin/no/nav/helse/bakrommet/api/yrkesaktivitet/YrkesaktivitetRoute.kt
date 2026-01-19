@@ -31,9 +31,9 @@ import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
+import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.person.PersonService
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.serialisertTilString
 
 fun Route.yrkesaktivitetRoute(
     inntektservice: InntektService,

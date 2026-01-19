@@ -15,7 +15,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.maybeOrgnummer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
-import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.logg
 
 interface TidslinjeServiceDaoer {
     val behandlingDao: BehandlingDao

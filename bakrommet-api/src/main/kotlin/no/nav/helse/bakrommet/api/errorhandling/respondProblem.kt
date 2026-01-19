@@ -5,7 +5,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondText
 import no.nav.helse.bakrommet.errorhandling.ProblemDetails
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.serialisertTilString
 
 internal suspend fun ApplicationCall.respondProblem(
     status: HttpStatusCode,

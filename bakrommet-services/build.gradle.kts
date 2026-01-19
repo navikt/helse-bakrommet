@@ -7,7 +7,6 @@ val shedlockVersion = "7.2.2"
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
 
-    api(project(":bakrommet-common"))
     api(project(":bakrommet-domain"))
     api(project(":bakrommet-kafka-dto"))
     api(project(":sykepenger-model"))

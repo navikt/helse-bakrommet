@@ -16,7 +16,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.orgnummer
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.serialisertTilString
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt

@@ -9,6 +9,7 @@ import io.ktor.http.contentType
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
+import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
@@ -17,13 +18,12 @@ import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.inntektsmelding.skapInntektsmelding
 import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.serialisertTilString
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.oppdaterKategorisering
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.bakrommet.util.asJsonNode
-import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

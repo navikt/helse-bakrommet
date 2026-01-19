@@ -16,8 +16,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
-import no.nav.helse.bakrommet.util.logg
-import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.bakrommet.logg
+import no.nav.helse.bakrommet.sikkerLogger
 
 class EregClient(
     private val configuration: EregClientModule.Configuration,

@@ -6,7 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.objectMapper
 import java.util.*
 
 internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(

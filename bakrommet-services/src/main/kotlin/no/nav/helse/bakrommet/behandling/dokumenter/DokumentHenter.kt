@@ -21,9 +21,9 @@ import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.data
 import no.nav.helse.bakrommet.infrastruktur.provider.inntektsaar
 import no.nav.helse.bakrommet.infrastruktur.provider.sporing
-import no.nav.helse.bakrommet.util.logg
-import no.nav.helse.bakrommet.util.serialisertTilString
-import no.nav.helse.bakrommet.util.toJsonNode
+import no.nav.helse.bakrommet.logg
+import no.nav.helse.bakrommet.serialisertTilString
+import no.nav.helse.bakrommet.toJsonNode
 import java.util.*
 
 class DokumentHenter(

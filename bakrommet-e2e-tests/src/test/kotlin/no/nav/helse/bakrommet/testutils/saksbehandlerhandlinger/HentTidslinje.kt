@@ -6,7 +6,7 @@ import io.ktor.client.statement.*
 import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingDto
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 

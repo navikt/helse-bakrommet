@@ -10,8 +10,8 @@ import no.nav.helse.bakrommet.behandling.inntekter.HentPensjonsgivendeInntektRes
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.serialisertTilString
 
 fun AlleDaoer.lastSigrunDokument(
     behandling: Behandling,

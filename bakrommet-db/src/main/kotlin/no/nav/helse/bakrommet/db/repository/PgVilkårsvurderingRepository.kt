@@ -13,8 +13,8 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
-import no.nav.helse.bakrommet.util.objectMapper
 import java.time.Instant
 
 class PgVilkårsvurderingRepository private constructor(

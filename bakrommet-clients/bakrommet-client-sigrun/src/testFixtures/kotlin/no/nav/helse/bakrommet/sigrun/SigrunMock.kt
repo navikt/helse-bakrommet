@@ -5,6 +5,7 @@ import io.ktor.client.engine.mock.respondError
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.OboToken
@@ -13,7 +14,6 @@ import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.client.common.mockHttpClient
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.sigrun.SigrunMock.sigrunErrorResponse
-import no.nav.helse.bakrommet.util.asJsonNode
 import java.time.Year
 
 fun client2010to2050(fnr: String) = SigrunMock.sigrunMockClient(fnrÅrTilSvar = fnrÅrTilSvar2010to2050(fnr))
@@ -91,7 +91,7 @@ object SigrunMock {
         år: Year,
     ): String =
         when (år.value) {
-            2024 ->
+            2024 -> {
                 """
                 {"norskPersonidentifikator":"$fnr","inntektsaar":2024,
                 "pensjonsgivendeInntekt":
@@ -104,7 +104,9 @@ object SigrunMock {
                     ]
                 }
                 """.trimIndent()
-            2023 ->
+            }
+
+            2023 -> {
                 """
                 {"norskPersonidentifikator":"$fnr","inntektsaar":2023,
                 "pensjonsgivendeInntekt":
@@ -117,7 +119,9 @@ object SigrunMock {
                     ]
                 }
                 """.trimIndent()
-            2022 ->
+            }
+
+            2022 -> {
                 """
                 {"norskPersonidentifikator":"$fnr","inntektsaar":2022,
                 "pensjonsgivendeInntekt":
@@ -130,7 +134,9 @@ object SigrunMock {
                     ]
                 }
                 """.trimIndent()
-            2021 ->
+            }
+
+            2021 -> {
                 """
                 {"norskPersonidentifikator":"$fnr","inntektsaar":2021,
                 "pensjonsgivendeInntekt":
@@ -143,11 +149,15 @@ object SigrunMock {
                     ]
                 }
                 """.trimIndent()
-            2020 ->
+            }
+
+            2020 -> {
                 """
                 {"norskPersonidentifikator":"$fnr","inntektsaar":2020,
                 "pensjonsgivendeInntekt":null}
                 """.trimIndent()
+            }
+
             else -> {
                 // For andre år, returner 404
                 sigrunErrorResponse(status = 404, kode = "PGIF-008")

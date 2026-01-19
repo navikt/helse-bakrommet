@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.auth.OboToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.client.common.mockHttpClient
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.objectMapper
 import org.slf4j.LoggerFactory
 
 object AARegMock {

@@ -8,7 +8,7 @@ import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson.JacksonConverter
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.objectMapper
 
 fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
     HttpClient(MockEngine) {

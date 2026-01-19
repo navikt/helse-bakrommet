@@ -67,7 +67,6 @@ helse-bakrommet/
 │   ├── bakrommet-client-pdl/
 │   ├── bakrommet-client-sigrun/
 │   └── bakrommet-client-sykepengesoknad/
-├── bakrommet-common/           # Common utilities and shared code
 ├── bakrommet-demo/             # Demo application (separate entry point)
 ├── bakrommet-dependencies/     # Platform dependency management (BOM)
 ├── bakrommet-e2e-tests/        # End-to-end integration tests

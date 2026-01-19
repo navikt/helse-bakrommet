@@ -14,13 +14,16 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestD
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
+import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
+import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sendTilBeslutning
+import no.nav.helse.bakrommet.serialisertTilString
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
@@ -29,9 +32,6 @@ import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.godkjenn
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.bakrommet.util.asJsonNode
-import no.nav.helse.bakrommet.util.objectMapper
-import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate

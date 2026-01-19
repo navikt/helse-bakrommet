@@ -6,10 +6,10 @@ import io.ktor.client.statement.*
 import no.nav.helse.bakrommet.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.Rolle
+import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.testutils.`should contain`
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Test
 
 class BrukerRouteTest {

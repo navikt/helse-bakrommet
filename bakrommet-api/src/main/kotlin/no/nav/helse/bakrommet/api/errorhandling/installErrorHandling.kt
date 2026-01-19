@@ -16,7 +16,7 @@ import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.ProblemDetails
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
-import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.logg
 
 fun Application.installErrorHandling(includeStackTrace: Boolean = false) {
     install(StatusPages) {
@@ -84,46 +84,52 @@ fun Application.installErrorHandling(includeStackTrace: Boolean = false) {
 
 private fun ApplicationException.toProblemDetails(call: ApplicationCall): ProblemDetails =
     when (this) {
-        is ForbiddenException ->
+        is ForbiddenException -> {
             ProblemDetails(
                 status = 403,
                 title = "Ingen tilgang",
                 detail = message,
             )
+        }
 
-        is IkkeFunnetException ->
+        is IkkeFunnetException -> {
             ProblemDetails(
                 status = 404,
                 title = title,
                 detail = message,
             )
+        }
 
-        is PersonIkkeFunnetException ->
+        is PersonIkkeFunnetException -> {
             ProblemDetails(
                 status = 404,
                 title = "Person ikke funnet",
                 detail = message,
             )
+        }
 
-        is SaksbehandlingsperiodeIkkeFunnetException ->
+        is SaksbehandlingsperiodeIkkeFunnetException -> {
             ProblemDetails(
                 status = 404,
                 title = "Saksbehandlingsperiode ikke funnet",
                 detail = message,
             )
+        }
 
-        is SoknadIkkeFunnetException ->
+        is SoknadIkkeFunnetException -> {
             ProblemDetails(
                 status = 404,
                 title = "Søknad ikke funnet",
                 detail = message,
             )
+        }
 
-        is InputValideringException ->
+        is InputValideringException -> {
             ProblemDetails(
                 status = 400,
                 title = message,
                 type = "https://spillerom.ansatt.nav.no/validation/input",
                 instance = call.request.uri,
             )
+        }
     }

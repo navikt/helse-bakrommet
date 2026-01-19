@@ -9,8 +9,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.runApplicationTest
-import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

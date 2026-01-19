@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
-import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.dto.InntektDto
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.deserialisering.UtbetalingsdagInnDto
@@ -177,20 +177,48 @@ private fun `ØkonomiUtDto`.tilØkonomiInnDto(): `ØkonomiInnDto` =
 
 private fun UtbetalingsdagUtDto.tilUtbetalingsdagInnDto(): UtbetalingsdagInnDto =
     when (this) {
-        is UtbetalingsdagUtDto.NavDagDto -> UtbetalingsdagInnDto.NavDagDto(dato, økonomi.tilØkonomiInnDto())
-        is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto -> UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(dato, økonomi.tilØkonomiInnDto())
-        is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto ->
+        is UtbetalingsdagUtDto.NavDagDto -> {
+            UtbetalingsdagInnDto.NavDagDto(dato, økonomi.tilØkonomiInnDto())
+        }
+
+        is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagDto -> {
+            UtbetalingsdagInnDto.ArbeidsgiverperiodeDagDto(dato, økonomi.tilØkonomiInnDto())
+        }
+
+        is UtbetalingsdagUtDto.ArbeidsgiverperiodeDagNavDto -> {
             UtbetalingsdagInnDto.ArbeidsgiverperiodeDagNavDto(
                 dato,
                 økonomi.tilØkonomiInnDto(),
             )
-        is UtbetalingsdagUtDto.NavHelgDagDto -> UtbetalingsdagInnDto.NavHelgDagDto(dato, økonomi.tilØkonomiInnDto())
-        is UtbetalingsdagUtDto.ArbeidsdagDto -> UtbetalingsdagInnDto.ArbeidsdagDto(dato, økonomi.tilØkonomiInnDto())
-        is UtbetalingsdagUtDto.FridagDto -> UtbetalingsdagInnDto.FridagDto(dato, økonomi.tilØkonomiInnDto())
-        is UtbetalingsdagUtDto.AvvistDagDto -> UtbetalingsdagInnDto.AvvistDagDto(dato, økonomi.tilØkonomiInnDto(), begrunnelser)
-        is UtbetalingsdagUtDto.ForeldetDagDto -> UtbetalingsdagInnDto.ForeldetDagDto(dato, økonomi.tilØkonomiInnDto())
-        is UtbetalingsdagUtDto.UkjentDagDto -> UtbetalingsdagInnDto.UkjentDagDto(dato, økonomi.tilØkonomiInnDto())
-        is UtbetalingsdagUtDto.VentetidsdagDto -> UtbetalingsdagInnDto.VentetidsdagDto(dato, økonomi.tilØkonomiInnDto())
+        }
+
+        is UtbetalingsdagUtDto.NavHelgDagDto -> {
+            UtbetalingsdagInnDto.NavHelgDagDto(dato, økonomi.tilØkonomiInnDto())
+        }
+
+        is UtbetalingsdagUtDto.ArbeidsdagDto -> {
+            UtbetalingsdagInnDto.ArbeidsdagDto(dato, økonomi.tilØkonomiInnDto())
+        }
+
+        is UtbetalingsdagUtDto.FridagDto -> {
+            UtbetalingsdagInnDto.FridagDto(dato, økonomi.tilØkonomiInnDto())
+        }
+
+        is UtbetalingsdagUtDto.AvvistDagDto -> {
+            UtbetalingsdagInnDto.AvvistDagDto(dato, økonomi.tilØkonomiInnDto(), begrunnelser)
+        }
+
+        is UtbetalingsdagUtDto.ForeldetDagDto -> {
+            UtbetalingsdagInnDto.ForeldetDagDto(dato, økonomi.tilØkonomiInnDto())
+        }
+
+        is UtbetalingsdagUtDto.UkjentDagDto -> {
+            UtbetalingsdagInnDto.UkjentDagDto(dato, økonomi.tilØkonomiInnDto())
+        }
+
+        is UtbetalingsdagUtDto.VentetidsdagDto -> {
+            UtbetalingsdagInnDto.VentetidsdagDto(dato, økonomi.tilØkonomiInnDto())
+        }
     }
 
 private fun UtbetalingstidslinjeUtDto.tilUtbetalingstidslinjeInnDto(): UtbetalingstidslinjeInnDto =

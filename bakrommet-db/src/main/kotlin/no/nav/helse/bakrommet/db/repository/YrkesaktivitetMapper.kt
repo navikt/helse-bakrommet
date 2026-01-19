@@ -3,85 +3,122 @@ package no.nav.helse.bakrommet.db.repository
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.domain.sykepenger.*
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
-import no.nav.helse.bakrommet.util.serialisertTilString
-import no.nav.helse.bakrommet.util.toJsonNode
+import no.nav.helse.bakrommet.serialisertTilString
+import no.nav.helse.bakrommet.toJsonNode
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
 internal fun YrkesaktivitetKategorisering.toDb(): DbYrkesaktivitetKategorisering =
     when (this) {
-        is YrkesaktivitetKategorisering.Arbeidstaker ->
+        is YrkesaktivitetKategorisering.Arbeidstaker -> {
             DbYrkesaktivitetKategorisering.Arbeidstaker(
                 sykmeldt = sykmeldt,
                 typeArbeidstaker = typeArbeidstaker.toDb(),
             )
-        is YrkesaktivitetKategorisering.Frilanser ->
+        }
+
+        is YrkesaktivitetKategorisering.Frilanser -> {
             DbYrkesaktivitetKategorisering.Frilanser(
                 sykmeldt = sykmeldt,
                 orgnummer = orgnummer,
                 forsikring = forsikring.toDb(),
             )
-        is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende ->
+        }
+
+        is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
             DbYrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = sykmeldt,
                 typeSelvstendigNæringsdrivende = typeSelvstendigNæringsdrivende.toDb(),
             )
-        is YrkesaktivitetKategorisering.Inaktiv ->
+        }
+
+        is YrkesaktivitetKategorisering.Inaktiv -> {
             DbYrkesaktivitetKategorisering.Inaktiv(
                 sykmeldt = sykmeldt,
             )
-        is YrkesaktivitetKategorisering.Arbeidsledig ->
+        }
+
+        is YrkesaktivitetKategorisering.Arbeidsledig -> {
             DbYrkesaktivitetKategorisering.Arbeidsledig(
                 sykmeldt = sykmeldt,
             )
+        }
     }
 
 internal fun TypeArbeidstaker.toDb(): DbTypeArbeidstaker =
     when (this) {
-        is TypeArbeidstaker.Ordinær ->
+        is TypeArbeidstaker.Ordinær -> {
             DbTypeArbeidstaker.Ordinær(orgnummer = orgnummer)
-        is TypeArbeidstaker.Maritim ->
+        }
+
+        is TypeArbeidstaker.Maritim -> {
             DbTypeArbeidstaker.Maritim(orgnummer = orgnummer)
-        is TypeArbeidstaker.Fisker ->
+        }
+
+        is TypeArbeidstaker.Fisker -> {
             DbTypeArbeidstaker.Fisker(orgnummer = orgnummer)
-        is TypeArbeidstaker.DimmitertVernepliktig ->
+        }
+
+        is TypeArbeidstaker.DimmitertVernepliktig -> {
             DbTypeArbeidstaker.DimmitertVernepliktig()
-        is TypeArbeidstaker.PrivatArbeidsgiver ->
+        }
+
+        is TypeArbeidstaker.PrivatArbeidsgiver -> {
             DbTypeArbeidstaker.PrivatArbeidsgiver(arbeidsgiverFnr = arbeidsgiverFnr)
+        }
     }
 
 internal fun TypeSelvstendigNæringsdrivende.toDb(): DbTypeSelvstendigNæringsdrivende =
     when (this) {
-        is TypeSelvstendigNæringsdrivende.Ordinær ->
+        is TypeSelvstendigNæringsdrivende.Ordinær -> {
             DbTypeSelvstendigNæringsdrivende.Ordinær(forsikring = forsikring.toDb())
-        is TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem ->
+        }
+
+        is TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem -> {
             DbTypeSelvstendigNæringsdrivende.BarnepasserEgetHjem(forsikring = forsikring.toDb())
-        is TypeSelvstendigNæringsdrivende.Fisker ->
+        }
+
+        is TypeSelvstendigNæringsdrivende.Fisker -> {
             DbTypeSelvstendigNæringsdrivende.Fisker(forsikring = forsikring.toDb())
-        is TypeSelvstendigNæringsdrivende.Jordbruker ->
+        }
+
+        is TypeSelvstendigNæringsdrivende.Jordbruker -> {
             DbTypeSelvstendigNæringsdrivende.Jordbruker(forsikring = forsikring.toDb())
-        is TypeSelvstendigNæringsdrivende.Reindrift ->
+        }
+
+        is TypeSelvstendigNæringsdrivende.Reindrift -> {
             DbTypeSelvstendigNæringsdrivende.Reindrift(forsikring = forsikring.toDb())
+        }
     }
 
 internal fun FrilanserForsikring.toDb(): DbFrilanserForsikring =
     when (this) {
-        FrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG ->
+        FrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG -> {
             DbFrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG
-        FrilanserForsikring.INGEN_FORSIKRING ->
+        }
+
+        FrilanserForsikring.INGEN_FORSIKRING -> {
             DbFrilanserForsikring.INGEN_FORSIKRING
+        }
     }
 
 internal fun SelvstendigForsikring.toDb(): DbSelvstendigForsikring =
     when (this) {
-        SelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG ->
+        SelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG -> {
             DbSelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG
-        SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG ->
+        }
+
+        SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG -> {
             DbSelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG
-        SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG ->
+        }
+
+        SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG -> {
             DbSelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG
-        SelvstendigForsikring.INGEN_FORSIKRING ->
+        }
+
+        SelvstendigForsikring.INGEN_FORSIKRING -> {
             DbSelvstendigForsikring.INGEN_FORSIKRING
+        }
     }
 
 internal fun Dagoversikt.toDb(): DbDagoversikt =
@@ -146,181 +183,236 @@ internal fun Refusjonsperiode.toDb(): DbRefusjonsperiode =
 
 internal fun InntektData.toDb(): DbInntektData =
     when (this) {
-        is InntektData.ArbeidstakerInntektsmelding ->
+        is InntektData.ArbeidstakerInntektsmelding -> {
             DbInntektData.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
                 inntektsmelding = inntektsmelding.toJsonNode(),
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
             )
-        is InntektData.ArbeidstakerAinntekt ->
+        }
+
+        is InntektData.ArbeidstakerAinntekt -> {
             DbInntektData.ArbeidstakerAinntekt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
                 kildedata = kildedata.mapValues { it.value.toDbInntektMånedlig() },
             )
-        is InntektData.ArbeidstakerSkjønnsfastsatt ->
+        }
+
+        is InntektData.ArbeidstakerSkjønnsfastsatt -> {
             DbInntektData.ArbeidstakerSkjønnsfastsatt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
             )
-        is InntektData.FrilanserAinntekt ->
+        }
+
+        is InntektData.FrilanserAinntekt -> {
             DbInntektData.FrilanserAinntekt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
                 kildedata = kildedata.mapValues { it.value.toDbInntektMånedlig() },
             )
-        is InntektData.FrilanserSkjønnsfastsatt ->
+        }
+
+        is InntektData.FrilanserSkjønnsfastsatt -> {
             DbInntektData.FrilanserSkjønnsfastsatt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
             )
-        is InntektData.Arbeidsledig ->
+        }
+
+        is InntektData.Arbeidsledig -> {
             DbInntektData.Arbeidsledig(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
             )
-        is InntektData.InaktivSkjønnsfastsatt ->
+        }
+
+        is InntektData.InaktivSkjønnsfastsatt -> {
             DbInntektData.InaktivSkjønnsfastsatt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
             )
-        is InntektData.InaktivPensjonsgivende ->
+        }
+
+        is InntektData.InaktivPensjonsgivende -> {
             DbInntektData.InaktivPensjonsgivende(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
                 pensjonsgivendeInntekt = pensjonsgivendeInntekt.toDb(),
             )
-        is InntektData.SelvstendigNæringsdrivendePensjonsgivende ->
+        }
+
+        is InntektData.SelvstendigNæringsdrivendePensjonsgivende -> {
             DbInntektData.SelvstendigNæringsdrivendePensjonsgivende(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
                 pensjonsgivendeInntekt = pensjonsgivendeInntekt.toDb(),
             )
-        is InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt ->
+        }
+
+        is InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt -> {
             DbInntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
             )
+        }
     }
 
 internal fun InntektRequest.toDbInntektRequest() =
     when (this) {
-        is InntektRequest.Arbeidstaker ->
+        is InntektRequest.Arbeidstaker -> {
             DbInntektRequest.Arbeidstaker(
                 data = data.toDb(),
             )
-        is InntektRequest.SelvstendigNæringsdrivende ->
+        }
+
+        is InntektRequest.SelvstendigNæringsdrivende -> {
             DbInntektRequest.SelvstendigNæringsdrivende(
                 data = data.toDb(),
             )
-        is InntektRequest.Inaktiv ->
+        }
+
+        is InntektRequest.Inaktiv -> {
             DbInntektRequest.Inaktiv(
                 data = data.toDb(),
             )
-        is InntektRequest.Frilanser ->
+        }
+
+        is InntektRequest.Frilanser -> {
             DbInntektRequest.Frilanser(
                 data = data.toDb(),
             )
-        is InntektRequest.Arbeidsledig ->
+        }
+
+        is InntektRequest.Arbeidsledig -> {
             DbInntektRequest.Arbeidsledig(
                 data = data.toDb(),
             )
+        }
     }
 
 internal fun ArbeidstakerInntektRequest.toDb(): DbArbeidstakerInntektRequest =
     when (this) {
-        is ArbeidstakerInntektRequest.Inntektsmelding ->
+        is ArbeidstakerInntektRequest.Inntektsmelding -> {
             DbArbeidstakerInntektRequest.Inntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.toDb() },
             )
-        is ArbeidstakerInntektRequest.Ainntekt ->
+        }
+
+        is ArbeidstakerInntektRequest.Ainntekt -> {
             DbArbeidstakerInntektRequest.Ainntekt(
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.toDb() },
             )
-        is ArbeidstakerInntektRequest.Skjønnsfastsatt ->
+        }
+
+        is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
             DbArbeidstakerInntektRequest.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.toDbInntektÅrlig(),
                 årsak = årsak.toDb(),
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.toDb() },
             )
+        }
     }
 
 internal fun ArbeidstakerSkjønnsfastsettelseÅrsak.toDb(): DbArbeidstakerSkjønnsfastsettelseÅrsak =
     when (this) {
-        ArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT ->
+        ArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT -> {
             DbArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT
-        ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING ->
+        }
+
+        ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING -> {
             DbArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING
-        ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET ->
+        }
+
+        ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET -> {
             DbArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET
+        }
     }
 
 internal fun PensjonsgivendeInntektRequest.toDb(): DbPensjonsgivendeInntektRequest =
     when (this) {
-        is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt ->
+        is PensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
             DbPensjonsgivendeInntektRequest.PensjonsgivendeInntekt(
                 begrunnelse = begrunnelse,
             )
-        is PensjonsgivendeInntektRequest.Skjønnsfastsatt ->
+        }
+
+        is PensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
             DbPensjonsgivendeInntektRequest.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.toDbInntektÅrlig(),
                 årsak = årsak.toDb(),
                 begrunnelse = begrunnelse,
             )
+        }
     }
 
 internal fun PensjonsgivendeSkjønnsfastsettelseÅrsak.toDb(): DbPensjonsgivendeSkjønnsfastsettelseÅrsak =
     when (this) {
-        PensjonsgivendeSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT_VARIG_ENDRING ->
+        PensjonsgivendeSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT_VARIG_ENDRING -> {
             DbPensjonsgivendeSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT_VARIG_ENDRING
-        PensjonsgivendeSkjønnsfastsettelseÅrsak.SISTE_TRE_YRKESAKTIV ->
+        }
+
+        PensjonsgivendeSkjønnsfastsettelseÅrsak.SISTE_TRE_YRKESAKTIV -> {
             DbPensjonsgivendeSkjønnsfastsettelseÅrsak.SISTE_TRE_YRKESAKTIV
+        }
     }
 
 internal fun FrilanserInntektRequest.toDb(): DbFrilanserInntektRequest =
     when (this) {
-        is FrilanserInntektRequest.Ainntekt ->
+        is FrilanserInntektRequest.Ainntekt -> {
             DbFrilanserInntektRequest.Ainntekt(
                 begrunnelse = begrunnelse,
             )
-        is FrilanserInntektRequest.Skjønnsfastsatt ->
+        }
+
+        is FrilanserInntektRequest.Skjønnsfastsatt -> {
             DbFrilanserInntektRequest.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.toDbInntektÅrlig(),
                 årsak = årsak.toDb(),
                 begrunnelse = begrunnelse,
             )
+        }
     }
 
 internal fun FrilanserSkjønnsfastsettelseÅrsak.toDb(): DbFrilanserSkjønnsfastsettelseÅrsak =
     when (this) {
-        FrilanserSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT ->
+        FrilanserSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT -> {
             DbFrilanserSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT
-        FrilanserSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING ->
+        }
+
+        FrilanserSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING -> {
             DbFrilanserSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING
+        }
     }
 
 internal fun ArbeidsledigInntektRequest.toDb(): DbArbeidsledigInntektRequest =
     when (this) {
-        is ArbeidsledigInntektRequest.Dagpenger ->
+        is ArbeidsledigInntektRequest.Dagpenger -> {
             DbArbeidsledigInntektRequest.Dagpenger(
                 dagbeløp = dagbeløp.toDbInntektDaglig(),
                 begrunnelse = begrunnelse,
             )
-        is ArbeidsledigInntektRequest.Ventelønn ->
+        }
+
+        is ArbeidsledigInntektRequest.Ventelønn -> {
             DbArbeidsledigInntektRequest.Ventelønn(
                 årsinntekt = årsinntekt.toDbInntektÅrlig(),
                 begrunnelse = begrunnelse,
             )
-        is ArbeidsledigInntektRequest.Vartpenger ->
+        }
+
+        is ArbeidsledigInntektRequest.Vartpenger -> {
             DbArbeidsledigInntektRequest.Vartpenger(
                 årsinntekt = årsinntekt.toDbInntektÅrlig(),
                 begrunnelse = begrunnelse,
             )
+        }
     }
 
 internal fun Inntekt.toDbInntektÅrlig(): DbInntekt.Årlig = DbInntekt.Årlig(beløp = this.årlig)
@@ -347,116 +439,184 @@ internal fun InntektAar.toDb(): DbInntektÅr =
 
 internal fun BeregningskoderSykepengegrunnlag.toDb(): DbBeregningskoderSykepengegrunnlag =
     when (this) {
-        BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL ->
+        BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL -> {
             DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
-        BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK ->
+        }
+
+        BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK -> {
             DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
-        BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG ->
+        }
+
+        BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG -> {
             DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
-        BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL ->
+        }
+
+        BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL -> {
             DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL
-        BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK ->
+        }
+
+        BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK -> {
             DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
-        BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG ->
+        }
+
+        BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG -> {
             DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
-        BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL ->
+        }
+
+        BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL -> {
             DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL
-        BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING ->
+        }
+
+        BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING -> {
             DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING
-        BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB ->
+        }
+
+        BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB -> {
             DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB
-        BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL ->
+        }
+
+        BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL -> {
             DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL
-        BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING ->
+        }
+
+        BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING -> {
             DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING
-        BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB ->
+        }
+
+        BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB -> {
             DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB
-        BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_DAGPENGER ->
+        }
+
+        BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_DAGPENGER -> {
             DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_DAGPENGER
-        BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VENTELOENN ->
+        }
+
+        BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VENTELOENN -> {
             DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VENTELOENN
-        BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER ->
+        }
+
+        BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER -> {
             DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER
-        BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO ->
+        }
+
+        BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO -> {
             DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO
+        }
     }
 
 // ============= Reverse mappings: DB DTO -> Domain =============
 
 internal fun DbYrkesaktivitetKategorisering.toDomain(): YrkesaktivitetKategorisering =
     when (this) {
-        is DbYrkesaktivitetKategorisering.Arbeidstaker ->
+        is DbYrkesaktivitetKategorisering.Arbeidstaker -> {
             YrkesaktivitetKategorisering.Arbeidstaker(
                 sykmeldt = sykmeldt,
                 typeArbeidstaker = typeArbeidstaker.toDomain(),
             )
-        is DbYrkesaktivitetKategorisering.Frilanser ->
+        }
+
+        is DbYrkesaktivitetKategorisering.Frilanser -> {
             YrkesaktivitetKategorisering.Frilanser(
                 sykmeldt = sykmeldt,
                 orgnummer = orgnummer,
                 forsikring = forsikring.toDomain(),
             )
-        is DbYrkesaktivitetKategorisering.SelvstendigNæringsdrivende ->
+        }
+
+        is DbYrkesaktivitetKategorisering.SelvstendigNæringsdrivende -> {
             YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
                 sykmeldt = sykmeldt,
                 typeSelvstendigNæringsdrivende = typeSelvstendigNæringsdrivende.toDomain(),
             )
-        is DbYrkesaktivitetKategorisering.Inaktiv ->
+        }
+
+        is DbYrkesaktivitetKategorisering.Inaktiv -> {
             YrkesaktivitetKategorisering.Inaktiv(
                 sykmeldt = sykmeldt,
             )
-        is DbYrkesaktivitetKategorisering.Arbeidsledig ->
+        }
+
+        is DbYrkesaktivitetKategorisering.Arbeidsledig -> {
             YrkesaktivitetKategorisering.Arbeidsledig(
                 sykmeldt = sykmeldt,
             )
+        }
     }
 
 internal fun DbTypeArbeidstaker.toDomain(): TypeArbeidstaker =
     when (this) {
-        is DbTypeArbeidstaker.Ordinær ->
+        is DbTypeArbeidstaker.Ordinær -> {
             TypeArbeidstaker.Ordinær(orgnummer = orgnummer)
-        is DbTypeArbeidstaker.Maritim ->
+        }
+
+        is DbTypeArbeidstaker.Maritim -> {
             TypeArbeidstaker.Maritim(orgnummer = orgnummer)
-        is DbTypeArbeidstaker.Fisker ->
+        }
+
+        is DbTypeArbeidstaker.Fisker -> {
             TypeArbeidstaker.Fisker(orgnummer = orgnummer)
-        is DbTypeArbeidstaker.DimmitertVernepliktig ->
+        }
+
+        is DbTypeArbeidstaker.DimmitertVernepliktig -> {
             TypeArbeidstaker.DimmitertVernepliktig()
-        is DbTypeArbeidstaker.PrivatArbeidsgiver ->
+        }
+
+        is DbTypeArbeidstaker.PrivatArbeidsgiver -> {
             TypeArbeidstaker.PrivatArbeidsgiver(arbeidsgiverFnr = arbeidsgiverFnr)
+        }
     }
 
 internal fun DbTypeSelvstendigNæringsdrivende.toDomain(): TypeSelvstendigNæringsdrivende =
     when (this) {
-        is DbTypeSelvstendigNæringsdrivende.Ordinær ->
+        is DbTypeSelvstendigNæringsdrivende.Ordinær -> {
             TypeSelvstendigNæringsdrivende.Ordinær(forsikring = forsikring.toDomain())
-        is DbTypeSelvstendigNæringsdrivende.BarnepasserEgetHjem ->
+        }
+
+        is DbTypeSelvstendigNæringsdrivende.BarnepasserEgetHjem -> {
             TypeSelvstendigNæringsdrivende.BarnepasserEgetHjem(forsikring = forsikring.toDomain())
-        is DbTypeSelvstendigNæringsdrivende.Fisker ->
+        }
+
+        is DbTypeSelvstendigNæringsdrivende.Fisker -> {
             TypeSelvstendigNæringsdrivende.Fisker(forsikring = forsikring.toDomain())
-        is DbTypeSelvstendigNæringsdrivende.Jordbruker ->
+        }
+
+        is DbTypeSelvstendigNæringsdrivende.Jordbruker -> {
             TypeSelvstendigNæringsdrivende.Jordbruker(forsikring = forsikring.toDomain())
-        is DbTypeSelvstendigNæringsdrivende.Reindrift ->
+        }
+
+        is DbTypeSelvstendigNæringsdrivende.Reindrift -> {
             TypeSelvstendigNæringsdrivende.Reindrift(forsikring = forsikring.toDomain())
+        }
     }
 
 internal fun DbFrilanserForsikring.toDomain(): FrilanserForsikring =
     when (this) {
-        DbFrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG ->
+        DbFrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG -> {
             FrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG
-        DbFrilanserForsikring.INGEN_FORSIKRING ->
+        }
+
+        DbFrilanserForsikring.INGEN_FORSIKRING -> {
             FrilanserForsikring.INGEN_FORSIKRING
+        }
     }
 
 internal fun DbSelvstendigForsikring.toDomain(): SelvstendigForsikring =
     when (this) {
-        DbSelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG ->
+        DbSelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG -> {
             SelvstendigForsikring.FORSIKRING_80_PROSENT_FRA_FØRSTE_SYKEDAG
-        DbSelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG ->
+        }
+
+        DbSelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG -> {
             SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG
-        DbSelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG ->
+        }
+
+        DbSelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG -> {
             SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG
-        DbSelvstendigForsikring.INGEN_FORSIKRING ->
+        }
+
+        DbSelvstendigForsikring.INGEN_FORSIKRING -> {
             SelvstendigForsikring.INGEN_FORSIKRING
+        }
     }
 
 internal fun DbDagoversikt.toDomain(): Dagoversikt =
@@ -529,62 +689,81 @@ internal fun DbRefusjonsperiode.toDomain(): Refusjonsperiode =
 
 internal fun DbInntektData.toDomain(): InntektData =
     when (this) {
-        is DbInntektData.ArbeidstakerInntektsmelding ->
+        is DbInntektData.ArbeidstakerInntektsmelding -> {
             InntektData.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
                 inntektsmelding = inntektsmelding.serialisertTilString(),
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
             )
-        is DbInntektData.ArbeidstakerAinntekt ->
+        }
+
+        is DbInntektData.ArbeidstakerAinntekt -> {
             InntektData.ArbeidstakerAinntekt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
                 kildedata = kildedata.mapValues { it.value.tilInntekt() },
             )
-        is DbInntektData.ArbeidstakerSkjønnsfastsatt ->
+        }
+
+        is DbInntektData.ArbeidstakerSkjønnsfastsatt -> {
             InntektData.ArbeidstakerSkjønnsfastsatt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
             )
-        is DbInntektData.FrilanserAinntekt ->
+        }
+
+        is DbInntektData.FrilanserAinntekt -> {
             InntektData.FrilanserAinntekt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
                 kildedata = kildedata.mapValues { it.value.tilInntekt() },
             )
-        is DbInntektData.FrilanserSkjønnsfastsatt ->
+        }
+
+        is DbInntektData.FrilanserSkjønnsfastsatt -> {
             InntektData.FrilanserSkjønnsfastsatt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
             )
-        is DbInntektData.Arbeidsledig ->
+        }
+
+        is DbInntektData.Arbeidsledig -> {
             InntektData.Arbeidsledig(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
             )
-        is DbInntektData.InaktivSkjønnsfastsatt ->
+        }
+
+        is DbInntektData.InaktivSkjønnsfastsatt -> {
             InntektData.InaktivSkjønnsfastsatt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
             )
-        is DbInntektData.InaktivPensjonsgivende ->
+        }
+
+        is DbInntektData.InaktivPensjonsgivende -> {
             InntektData.InaktivPensjonsgivende(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
                 pensjonsgivendeInntekt = pensjonsgivendeInntekt.toDomain(),
             )
-        is DbInntektData.SelvstendigNæringsdrivendePensjonsgivende ->
+        }
+
+        is DbInntektData.SelvstendigNæringsdrivendePensjonsgivende -> {
             InntektData.SelvstendigNæringsdrivendePensjonsgivende(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
                 pensjonsgivendeInntekt = pensjonsgivendeInntekt.toDomain(),
             )
-        is DbInntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt ->
+        }
+
+        is DbInntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt -> {
             InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt(
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
             )
+        }
     }
 
 internal fun DbInntektData.PensjonsgivendeInntekt.toDomain(): InntektData.PensjonsgivendeInntekt =
@@ -605,155 +784,222 @@ internal fun DbInntektÅr.toDomain(): InntektAar =
 
 internal fun DbBeregningskoderSykepengegrunnlag.toDomain(): BeregningskoderSykepengegrunnlag =
     when (this) {
-        DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL ->
+        DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL -> {
             BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_HOVEDREGEL
-        DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK -> {
             BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
-        DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG -> {
             BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
-        DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL -> {
             BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_HOVEDREGEL
-        DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK -> {
             BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_AVVIK
-        DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG -> {
             BeregningskoderSykepengegrunnlag.FRILANSER_SYKEPENGEGRUNNLAG_SKJOENN_URIKTIG
-        DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL -> {
             BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL
-        DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING -> {
             BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING
-        DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB -> {
             BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB
-        DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL -> {
             BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_HOVEDREGEL
-        DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING -> {
             BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_VARIG_ENDRING
-        DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB -> {
             BeregningskoderSykepengegrunnlag.INAKTIV_SYKEPENGEGRUNNLAG_SKJOENN_NYIARB
-        DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_DAGPENGER ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_DAGPENGER -> {
             BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_DAGPENGER
-        DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VENTELOENN ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VENTELOENN -> {
             BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VENTELOENN
-        DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER -> {
             BeregningskoderSykepengegrunnlag.ARBEIDSLEDIG_SYKEPENGEGRUNNLAG_VARTPENGER
-        DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO ->
+        }
+
+        DbBeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO -> {
             BeregningskoderSykepengegrunnlag.ARBEIDSTAKER_SYKEPENGEGRUNNLAG_TIDSBEGRENSET_FOER_SLUTTDATO
+        }
     }
 
 internal fun DbInntektRequest.toDomain(): InntektRequest =
     when (this) {
-        is DbInntektRequest.Arbeidstaker ->
+        is DbInntektRequest.Arbeidstaker -> {
             InntektRequest.Arbeidstaker(
                 data = data.toDomain(),
             )
-        is DbInntektRequest.SelvstendigNæringsdrivende ->
+        }
+
+        is DbInntektRequest.SelvstendigNæringsdrivende -> {
             InntektRequest.SelvstendigNæringsdrivende(
                 data = data.toDomain(),
             )
-        is DbInntektRequest.Inaktiv ->
+        }
+
+        is DbInntektRequest.Inaktiv -> {
             InntektRequest.Inaktiv(
                 data = data.toDomain(),
             )
-        is DbInntektRequest.Frilanser ->
+        }
+
+        is DbInntektRequest.Frilanser -> {
             InntektRequest.Frilanser(
                 data = data.toDomain(),
             )
-        is DbInntektRequest.Arbeidsledig ->
+        }
+
+        is DbInntektRequest.Arbeidsledig -> {
             InntektRequest.Arbeidsledig(
                 data = data.toDomain(),
             )
+        }
     }
 
 internal fun DbArbeidstakerInntektRequest.toDomain(): ArbeidstakerInntektRequest =
     when (this) {
-        is DbArbeidstakerInntektRequest.Inntektsmelding ->
+        is DbArbeidstakerInntektRequest.Inntektsmelding -> {
             ArbeidstakerInntektRequest.Inntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.toDomain() },
             )
-        is DbArbeidstakerInntektRequest.Ainntekt ->
+        }
+
+        is DbArbeidstakerInntektRequest.Ainntekt -> {
             ArbeidstakerInntektRequest.Ainntekt(
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.toDomain() },
             )
-        is DbArbeidstakerInntektRequest.Skjønnsfastsatt ->
+        }
+
+        is DbArbeidstakerInntektRequest.Skjønnsfastsatt -> {
             ArbeidstakerInntektRequest.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.tilInntekt(),
                 årsak = årsak.toDomain(),
                 begrunnelse = begrunnelse,
                 refusjon = refusjon?.map { it.toDomain() },
             )
+        }
     }
 
 internal fun DbArbeidstakerSkjønnsfastsettelseÅrsak.toDomain(): ArbeidstakerSkjønnsfastsettelseÅrsak =
     when (this) {
-        DbArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT ->
+        DbArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT -> {
             ArbeidstakerSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT
-        DbArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING ->
+        }
+
+        DbArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING -> {
             ArbeidstakerSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING
-        DbArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET ->
+        }
+
+        DbArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET -> {
             ArbeidstakerSkjønnsfastsettelseÅrsak.TIDSAVGRENSET
+        }
     }
 
 internal fun DbPensjonsgivendeInntektRequest.toDomain(): PensjonsgivendeInntektRequest =
     when (this) {
-        is DbPensjonsgivendeInntektRequest.PensjonsgivendeInntekt ->
+        is DbPensjonsgivendeInntektRequest.PensjonsgivendeInntekt -> {
             PensjonsgivendeInntektRequest.PensjonsgivendeInntekt(
                 begrunnelse = begrunnelse,
             )
-        is DbPensjonsgivendeInntektRequest.Skjønnsfastsatt ->
+        }
+
+        is DbPensjonsgivendeInntektRequest.Skjønnsfastsatt -> {
             PensjonsgivendeInntektRequest.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.tilInntekt(),
                 årsak = årsak.toDomain(),
                 begrunnelse = begrunnelse,
             )
+        }
     }
 
 internal fun DbPensjonsgivendeSkjønnsfastsettelseÅrsak.toDomain(): PensjonsgivendeSkjønnsfastsettelseÅrsak =
     when (this) {
-        DbPensjonsgivendeSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT_VARIG_ENDRING ->
+        DbPensjonsgivendeSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT_VARIG_ENDRING -> {
             PensjonsgivendeSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT_VARIG_ENDRING
-        DbPensjonsgivendeSkjønnsfastsettelseÅrsak.SISTE_TRE_YRKESAKTIV ->
+        }
+
+        DbPensjonsgivendeSkjønnsfastsettelseÅrsak.SISTE_TRE_YRKESAKTIV -> {
             PensjonsgivendeSkjønnsfastsettelseÅrsak.SISTE_TRE_YRKESAKTIV
+        }
     }
 
 internal fun DbFrilanserInntektRequest.toDomain(): FrilanserInntektRequest =
     when (this) {
-        is DbFrilanserInntektRequest.Ainntekt ->
+        is DbFrilanserInntektRequest.Ainntekt -> {
             FrilanserInntektRequest.Ainntekt(
                 begrunnelse = begrunnelse,
             )
-        is DbFrilanserInntektRequest.Skjønnsfastsatt ->
+        }
+
+        is DbFrilanserInntektRequest.Skjønnsfastsatt -> {
             FrilanserInntektRequest.Skjønnsfastsatt(
                 årsinntekt = årsinntekt.tilInntekt(),
                 årsak = årsak.toDomain(),
                 begrunnelse = begrunnelse,
             )
+        }
     }
 
 internal fun DbFrilanserSkjønnsfastsettelseÅrsak.toDomain(): FrilanserSkjønnsfastsettelseÅrsak =
     when (this) {
-        DbFrilanserSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT ->
+        DbFrilanserSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT -> {
             FrilanserSkjønnsfastsettelseÅrsak.AVVIK_25_PROSENT
-        DbFrilanserSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING ->
+        }
+
+        DbFrilanserSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING -> {
             FrilanserSkjønnsfastsettelseÅrsak.MANGELFULL_RAPPORTERING
+        }
     }
 
 internal fun DbArbeidsledigInntektRequest.toDomain(): ArbeidsledigInntektRequest =
     when (this) {
-        is DbArbeidsledigInntektRequest.Dagpenger ->
+        is DbArbeidsledigInntektRequest.Dagpenger -> {
             ArbeidsledigInntektRequest.Dagpenger(
                 dagbeløp = dagbeløp.tilInntekt(),
                 begrunnelse = begrunnelse,
             )
-        is DbArbeidsledigInntektRequest.Ventelønn ->
+        }
+
+        is DbArbeidsledigInntektRequest.Ventelønn -> {
             ArbeidsledigInntektRequest.Ventelønn(
                 årsinntekt = årsinntekt.tilInntekt(),
                 begrunnelse = begrunnelse,
             )
-        is DbArbeidsledigInntektRequest.Vartpenger ->
+        }
+
+        is DbArbeidsledigInntektRequest.Vartpenger -> {
             ArbeidsledigInntektRequest.Vartpenger(
                 årsinntekt = årsinntekt.tilInntekt(),
                 begrunnelse = begrunnelse,
             )
+        }
     }

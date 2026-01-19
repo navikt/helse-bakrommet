@@ -17,13 +17,13 @@ import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.runApplicationTest
 import no.nav.helse.bakrommet.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.testutils.`should equal`
-import no.nav.helse.bakrommet.util.asJsonNode
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -190,8 +190,14 @@ class SaksbehandlingsperiodeOpprettelseTest {
                                     else -> null
                                 }
                             }
-                            is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer
-                            else -> null
+
+                            is YrkesaktivitetKategoriseringDto.Frilanser -> {
+                                k.orgnummer
+                            }
+
+                            else -> {
+                                null
+                            }
                         }
                     }.toSet(),
             )
@@ -207,8 +213,14 @@ class SaksbehandlingsperiodeOpprettelseTest {
                                 else -> false
                             }
                         }
-                        is YrkesaktivitetKategoriseringDto.Frilanser -> k.orgnummer == arbeidsgiver1.identifikator
-                        else -> false
+
+                        is YrkesaktivitetKategoriseringDto.Frilanser -> {
+                            k.orgnummer == arbeidsgiver1.identifikator
+                        }
+
+                        else -> {
+                            false
+                        }
                     }
                 }!!
 
