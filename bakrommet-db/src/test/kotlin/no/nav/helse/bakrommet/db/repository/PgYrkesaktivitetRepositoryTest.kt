@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.db.repository
 
 import kotliquery.sessionOf
+import no.nav.helse.bakrommet.assertOffsetDateTimeEquals
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.enBehandling
 import no.nav.helse.bakrommet.domain.enYrkesaktivitet
@@ -40,7 +41,7 @@ class PgYrkesaktivitetRepositoryTest {
         val første = funnet.first()
         assertEquals(yrkesaktivitet.id, første.id)
         assertEquals(yrkesaktivitet.behandlingId, første.behandlingId)
-        assertEquals(yrkesaktivitet.opprettet, første.opprettet)
+        assertOffsetDateTimeEquals(yrkesaktivitet.opprettet, første.opprettet)
         assertEquals(yrkesaktivitet.generertFraDokumenter, første.generertFraDokumenter)
         assertNull(første.dagoversikt)
         assertNull(første.dagoversiktGenerert)
