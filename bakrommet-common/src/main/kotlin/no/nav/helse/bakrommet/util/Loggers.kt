@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet
+package no.nav.helse.bakrommet.util
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

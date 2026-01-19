@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet
+package no.nav.helse.bakrommet.util
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode

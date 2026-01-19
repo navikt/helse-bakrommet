@@ -7,6 +7,7 @@ val shedlockVersion = "7.2.2"
 dependencies {
     api(platform(project(":bakrommet-dependencies")))
 
+    api(project(":bakrommet-common"))
     api(project(":bakrommet-domain"))
     api(project(":bakrommet-kafka-dto"))
     api(project(":sykepenger-model"))
@@ -19,16 +20,9 @@ dependencies {
 
     implementation("com.github.navikt.spleis:sykepenger-okonomi")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-
+    implementation("ch.qos.logback:logback-classic")
     implementation("net.logstash.logback:logstash-logback-encoder")
-    api("ch.qos.logback:logback-classic")
-    api("org.slf4j:slf4j-api")
-
-    api("com.fasterxml.jackson.core:jackson-core")
-    api("com.fasterxml.jackson.core:jackson-databind")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin")
-    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("org.slf4j:slf4j-api")
 
     testImplementation(testFixtures(project(":bakrommet-services")))
 

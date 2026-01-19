@@ -17,9 +17,9 @@ import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
-import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
-import no.nav.helse.bakrommet.somListe
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.somListe
 import java.util.UUID
 
 class PgYrkesaktivitetRepository private constructor(

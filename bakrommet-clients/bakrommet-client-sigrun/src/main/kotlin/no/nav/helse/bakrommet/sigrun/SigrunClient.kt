@@ -16,7 +16,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.Kildespor
-import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.auth.AccessToken
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.errorhandling.ForbiddenException
@@ -24,8 +23,6 @@ import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvi
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅr
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.infrastruktur.provider.data
-import no.nav.helse.bakrommet.logg
-import no.nav.helse.bakrommet.sikkerLogger
 import no.nav.helse.bakrommet.util.*
 import java.lang.Integer.max
 import java.time.LocalDate

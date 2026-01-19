@@ -20,7 +20,7 @@ import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntekt
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
-import no.nav.helse.bakrommet.serialisertTilString
+import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.time.YearMonth

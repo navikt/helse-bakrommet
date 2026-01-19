@@ -5,6 +5,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.sessions
+import no.nav.helse.bakrommet.util.serialisertTilString
 
 data class VelgBrukerRequest(
     val navIdent: String,

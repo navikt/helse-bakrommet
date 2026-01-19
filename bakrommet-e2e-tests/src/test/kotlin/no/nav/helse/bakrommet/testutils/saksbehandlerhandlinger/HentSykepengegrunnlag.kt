@@ -6,7 +6,7 @@ import io.ktor.client.request.get
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagResponseDto
-import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.util.objectMapper
 import java.util.UUID
 
 internal suspend fun ApplicationTestBuilder.hentSykepengegrunnlag(

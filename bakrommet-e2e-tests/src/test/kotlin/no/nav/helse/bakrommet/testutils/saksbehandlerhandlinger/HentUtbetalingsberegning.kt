@@ -6,7 +6,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
-import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.util.objectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 

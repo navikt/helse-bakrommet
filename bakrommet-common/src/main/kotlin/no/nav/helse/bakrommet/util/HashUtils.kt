@@ -1,4 +1,4 @@
-package no.nav.helse.bakrommet.kafka
+package no.nav.helse.bakrommet.util
 
 import java.security.MessageDigest
 

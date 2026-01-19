@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetCreateRequestDto
 import no.nav.helse.bakrommet.api.yrkesaktivitet.tilYrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.serialisertTilString
+import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.util.UUID

@@ -12,6 +12,7 @@ dependencies {
     api(project(":bakrommet-db"))
     api(project(":bakrommet-api"))
     api(project(":bakrommet-kafka"))
+    api(project(":bakrommet-common"))
 }
 
 tasks {

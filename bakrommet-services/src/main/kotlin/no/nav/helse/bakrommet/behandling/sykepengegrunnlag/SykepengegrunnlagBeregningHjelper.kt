@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKat
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.Frilanser
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.domain.Bruker
-import no.nav.helse.bakrommet.singleOrNone
+import no.nav.helse.bakrommet.util.singleOrNone
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer

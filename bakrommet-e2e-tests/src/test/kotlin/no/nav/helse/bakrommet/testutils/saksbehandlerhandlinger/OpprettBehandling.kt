@@ -12,8 +12,8 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.TestOppsett
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
-import no.nav.helse.bakrommet.objectMapper
-import no.nav.helse.bakrommet.serialisertTilString
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.LocalDate

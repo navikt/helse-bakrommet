@@ -23,10 +23,10 @@ import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.provider.PdlIdent
 import no.nav.helse.bakrommet.infrastruktur.provider.PersonInfo
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
-import no.nav.helse.bakrommet.logg
-import no.nav.helse.bakrommet.objectMapper
-import no.nav.helse.bakrommet.sikkerLogger
-import no.nav.helse.bakrommet.somListe
+import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.sikkerLogger
+import no.nav.helse.bakrommet.util.somListe
 
 class PdlClient(
     private val configuration: PdlClientModule.Configuration,

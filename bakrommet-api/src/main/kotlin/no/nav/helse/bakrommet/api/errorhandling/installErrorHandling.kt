@@ -16,7 +16,7 @@ import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.ProblemDetails
 import no.nav.helse.bakrommet.errorhandling.SaksbehandlingsperiodeIkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.SoknadIkkeFunnetException
-import no.nav.helse.bakrommet.logg
+import no.nav.helse.bakrommet.util.logg
 
 fun Application.installErrorHandling(includeStackTrace: Boolean = false) {
     install(StatusPages) {

@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.behandling.dokumenter
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.bakrommet.Kildespor
-import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.util.*
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.Instant
 import java.util.*

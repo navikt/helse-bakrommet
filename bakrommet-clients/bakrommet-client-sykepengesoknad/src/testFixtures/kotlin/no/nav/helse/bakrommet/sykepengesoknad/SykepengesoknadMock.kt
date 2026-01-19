@@ -13,8 +13,8 @@ import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.auth.TokenUtvekslingProvider
 import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.client.common.mockHttpClient
-import no.nav.helse.bakrommet.serialisertTilString
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock.createDefaultOboClient
+import no.nav.helse.bakrommet.util.serialisertTilString
 import org.slf4j.LoggerFactory
 
 object SykepengesoknadMock {

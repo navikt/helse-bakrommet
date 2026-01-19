@@ -14,8 +14,8 @@ import no.nav.helse.bakrommet.api.auth.RolleMatrise
 import no.nav.helse.bakrommet.api.errorhandling.installErrorHandling
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
-import no.nav.helse.bakrommet.objectMapper
-import no.nav.helse.bakrommet.sikkerLogger
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.sikkerLogger
 import org.slf4j.event.Level
 
 internal fun Application.appModul(

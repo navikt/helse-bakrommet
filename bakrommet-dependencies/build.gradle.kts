@@ -24,12 +24,11 @@ dependencies {
     // BOMs for å sikre samsvar
     api(platform("com.fasterxml.jackson:jackson-bom:2.18.2"))
     api(platform("io.ktor:ktor-bom:3.3.2"))
-
+    
     constraints {
         // Kotlin
         api("org.jetbrains.kotlin:kotlin-stdlib:2.2.21")
         api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-        api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
         // Logging
         api("ch.qos.logback:logback-classic:1.5.21")

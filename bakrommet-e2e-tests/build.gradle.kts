@@ -5,6 +5,7 @@ dependencies {
 
     testImplementation(project(":bakrommet-bootstrap"))
     testImplementation(project(":bakrommet-services"))
+    testImplementation(project(":bakrommet-common"))
     testImplementation(project(":bakrommet-api-dto"))
     testImplementation(project(":bakrommet-api"))
     testImplementation(project(":bakrommet-clients:bakrommet-client-aareg"))
@@ -35,6 +36,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":bakrommet-db")))
     testImplementation(testFixtures(project(":bakrommet-services")))
+    testImplementation(testFixtures(project(":bakrommet-common")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-inntektsmelding")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))

@@ -13,7 +13,8 @@ import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.Saksbehandlingspe
 import no.nav.helse.bakrommet.meldingomvedtak.skalHaMeldingOmVedtak
 import no.nav.helse.bakrommet.meldingomvedtak.tilMeldingOmVedtak
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
-import no.nav.helse.bakrommet.serialisertTilString
+import no.nav.helse.bakrommet.util.HashUtils
+import no.nav.helse.bakrommet.util.serialisertTilString
 
 interface SaksbehandlingsperiodeKafkaDtoDaoer {
     val beregningDao: UtbetalingsberegningDao

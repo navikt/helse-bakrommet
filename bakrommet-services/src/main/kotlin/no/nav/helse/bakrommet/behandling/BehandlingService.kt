@@ -25,7 +25,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.Repositories
 import no.nav.helse.bakrommet.kafka.SaksbehandlingsperiodeKafkaDtoDaoer
 import no.nav.helse.bakrommet.kafka.leggTilOutbox
-import no.nav.helse.bakrommet.logg
+import no.nav.helse.bakrommet.util.logg
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
 import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import java.time.LocalDate

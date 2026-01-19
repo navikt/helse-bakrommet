@@ -11,8 +11,8 @@ import no.nav.helse.bakrommet.api.auth.bearerToken
 import no.nav.helse.bakrommet.api.naturligIdent
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.person.PersonService
-import no.nav.helse.bakrommet.serialisertTilString
 import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
+import no.nav.helse.bakrommet.util.serialisertTilString
 import java.time.LocalDate
 
 fun Route.soknaderRoute(

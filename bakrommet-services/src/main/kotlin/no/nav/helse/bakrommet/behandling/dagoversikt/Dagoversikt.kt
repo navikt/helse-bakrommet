@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.behandling.dagoversikt
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
-import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.util.objectMapper
 import java.time.LocalDate
 
 data class Dag(

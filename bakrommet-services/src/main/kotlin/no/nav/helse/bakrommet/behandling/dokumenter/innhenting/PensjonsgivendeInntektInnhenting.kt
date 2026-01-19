@@ -9,8 +9,8 @@ import no.nav.helse.bakrommet.behandling.dokumenter.DokumentType
 import no.nav.helse.bakrommet.behandling.dokumenter.joinSigrunResponserTilEttDokument
 import no.nav.helse.bakrommet.behandling.inntekter.HentPensjonsgivendeInntektResponse
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
-import no.nav.helse.bakrommet.objectMapper
-import no.nav.helse.bakrommet.serialisertTilString
+import no.nav.helse.bakrommet.util.objectMapper
+import no.nav.helse.bakrommet.util.serialisertTilString
 
 fun DokumentInnhentingDaoer.lastSigrunDokument(
     periode: BehandlingDbRecord,

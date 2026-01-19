@@ -24,9 +24,9 @@ import no.nav.helse.bakrommet.errorhandling.ForbiddenException
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektFilter
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektoppslag
-import no.nav.helse.bakrommet.logg
-import no.nav.helse.bakrommet.sikkerLogger
 import no.nav.helse.bakrommet.util.fraHer
+import no.nav.helse.bakrommet.util.logg
+import no.nav.helse.bakrommet.util.sikkerLogger
 import java.time.YearMonth
 import java.util.*
 
