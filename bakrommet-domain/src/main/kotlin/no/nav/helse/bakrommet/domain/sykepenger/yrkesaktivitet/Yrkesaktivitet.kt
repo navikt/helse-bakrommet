@@ -24,7 +24,7 @@ class Yrkesaktivitet(
     perioder: Perioder? = null,
     inntektRequest: InntektRequest? = null,
     inntektData: InntektData? = null,
-    val refusjon: List<Refusjonsperiode>? = null,
+    refusjon: List<Refusjonsperiode>? = null,
 ) {
     var kategorisering: YrkesaktivitetKategorisering = kategorisering
         private set
@@ -35,6 +35,8 @@ class Yrkesaktivitet(
     var dagoversikt: Dagoversikt? = dagoversikt
         private set
     var perioder: Perioder? = perioder
+        private set
+    var refusjon: List<Refusjonsperiode>? = refusjon
         private set
 
     fun nyKategorisering(nyKategorisering: YrkesaktivitetKategorisering) {
@@ -52,6 +54,10 @@ class Yrkesaktivitet(
 
     fun oppdaterPerioder(perioder: Perioder?) {
         this.perioder = perioder
+    }
+
+    fun oppdaterRefusjon(refusjon: List<Refusjonsperiode>?) {
+        this.refusjon = refusjon
     }
 
     companion object {

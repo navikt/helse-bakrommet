@@ -77,30 +77,35 @@ class InntektService(
                 { throw IllegalStateException("Feil inntektkategori for oppdatering av inntekt med tyoe ${request.javaClass.name}") }
 
             when (request) {
-                is InntektRequest.Arbeidstaker ->
+                is InntektRequest.Arbeidstaker -> {
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
                         feilKategori()
                     }
+                }
 
-                is InntektRequest.SelvstendigNæringsdrivende ->
+                is InntektRequest.SelvstendigNæringsdrivende -> {
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende) {
                         feilKategori()
                     }
+                }
 
-                is InntektRequest.Frilanser ->
+                is InntektRequest.Frilanser -> {
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Frilanser) {
                         feilKategori()
                     }
+                }
 
-                is InntektRequest.Inaktiv ->
+                is InntektRequest.Inaktiv -> {
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Inaktiv) {
                         feilKategori()
                     }
+                }
 
-                is InntektRequest.Arbeidsledig ->
+                is InntektRequest.Arbeidsledig -> {
                     if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidsledig) {
                         feilKategori()
                     }
+                }
             }
 
             yrkesaktivitetDao.oppdaterInntektrequest(yrkesaktivitet, request)
