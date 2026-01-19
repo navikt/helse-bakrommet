@@ -42,7 +42,6 @@ class MåVæreUnderBehandlingTest {
         behandlingService = BehandlingService(db, dokHenter)
     }
 
-
     private fun brukerOgToken(rolle: Rolle = Rolle.SAKSBEHANDLER) =
         BrukerOgToken(
             bruker =

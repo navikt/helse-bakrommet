@@ -59,7 +59,8 @@ fun Route.yrkesaktivitetRoute(
             val request = call.receive<YrkesaktivitetCreateRequestDto>()
             db
                 .transactional {
-                    val behandling = this.hentOgVerifiserBehandling(call).sjekkErÅpenOgTildeltSaksbehandler(call.bruker())
+                    val behandling =
+                        this.hentOgVerifiserBehandling(call).sjekkErÅpenOgTildeltSaksbehandler(call.bruker())
 
                     val kategorisering: YrkesaktivitetKategorisering = request.tilYrkesaktivitetKategorisering()
 
@@ -115,7 +116,10 @@ fun Route.yrkesaktivitetRoute(
                 val kategoriseringRequest = call.receive<YrkesaktivitetKategoriseringDto>()
                 db.transactional {
                     val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
-                    val behandling = behandlingRepository.hent(yrkesaktivitet.behandlingId).sjekkErÅpenOgTildeltSaksbehandler(call.bruker())
+                    val behandling =
+                        behandlingRepository
+                            .hent(yrkesaktivitet.behandlingId)
+                            .sjekkErÅpenOgTildeltSaksbehandler(call.bruker())
                     // Validerer at organisasjon finnes hvis orgnummer er satt
                     val orgnummer = kategoriseringRequest.maybeOrgnummer()
                     if (orgnummer != null && !organisasjonsnavnProvider.eksisterer(orgnummer)) {
