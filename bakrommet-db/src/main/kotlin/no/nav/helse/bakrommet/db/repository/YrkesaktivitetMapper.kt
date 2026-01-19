@@ -3,6 +3,8 @@ package no.nav.helse.bakrommet.db.repository
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.domain.sykepenger.*
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
+import no.nav.helse.bakrommet.util.serialisertTilString
+import no.nav.helse.bakrommet.util.toJsonNode
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
@@ -147,7 +149,7 @@ internal fun InntektData.toDb(): DbInntektData =
         is InntektData.ArbeidstakerInntektsmelding ->
             DbInntektData.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
-                inntektsmelding = inntektsmelding,
+                inntektsmelding = inntektsmelding.toJsonNode(),
                 omregnetÅrsinntekt = omregnetÅrsinntekt.toDbInntektÅrlig(),
                 sporing = sporing.toDb(),
             )
@@ -530,7 +532,7 @@ internal fun DbInntektData.toDomain(): InntektData =
         is DbInntektData.ArbeidstakerInntektsmelding ->
             InntektData.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
-                inntektsmelding = inntektsmelding,
+                inntektsmelding = inntektsmelding.serialisertTilString(),
                 omregnetÅrsinntekt = omregnetÅrsinntekt.tilInntekt(),
                 sporing = sporing.toDomain(),
             )

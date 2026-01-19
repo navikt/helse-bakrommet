@@ -1,13 +1,26 @@
 package no.nav.helse.bakrommet.api.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
-import no.nav.helse.bakrommet.domain.sykepenger.Kilde
-import no.nav.helse.bakrommet.domain.sykepenger.Periode
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Perioder
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.behandling.dagoversikt.Kilde
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetMedOrgnavn
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
+import no.nav.helse.dto.PeriodeDto as SpleisPeriodeDto
 
+fun YrkesaktivitetMedOrgnavn.tilYrkesaktivitetDto(): YrkesaktivitetDto =
+    YrkesaktivitetDto(
+        id = yrkesaktivitet.id,
+        kategorisering = yrkesaktivitet.kategorisering.tilYrkesaktivitetKategoriseringDto(),
+        dagoversikt = yrkesaktivitet.dagoversikt?.tilMergetDagoversikt(),
+        generertFraDokumenter = yrkesaktivitet.generertFraDokumenter.map { it },
+        perioder = yrkesaktivitet.perioder?.tilPerioderDto(),
+        inntektRequest = yrkesaktivitet.inntektRequest?.tilInntektRequestDto(),
+        inntektData = yrkesaktivitet.inntektData?.tilInntektDataDto(),
+        refusjon = yrkesaktivitet.refusjon?.map { it.tilRefusjonsperiodeDto() },
+        orgnavn = orgnavn,
+    )
 
 fun Dagoversikt.tilMergetDagoversikt(): List<DagDto> {
     val avslagsdagerMap = this.avslagsdager.associateBy { it.dato }
@@ -43,7 +56,7 @@ fun Periodetype.tilPeriodetypeDto(): PeriodetypeDto =
         Periodetype.VENTETID_INAKTIV -> PeriodetypeDto.VENTETID_INAKTIV
     }
 
-fun Periode.tilPeriodeDto(): PeriodeDto =
+fun SpleisPeriodeDto.tilPeriodeDto(): PeriodeDto =
     PeriodeDto(
         fom = fom,
         tom = tom,
@@ -53,5 +66,5 @@ fun Refusjonsperiode.tilRefusjonsperiodeDto(): RefusjonsperiodeDto =
     RefusjonsperiodeDto(
         fom = fom,
         tom = tom,
-        beløp = beløp.månedlig,
+        beløp = beløp.beløp,
     )

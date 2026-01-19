@@ -9,4 +9,8 @@ interface OrganisasjonsnavnProvider {
     suspend fun hentOrganisasjonsnavn(
         orgnummer: String,
     ): Organisasjon
+
+    suspend fun hentFlereOrganisasjonsnavn(
+        orgnummer: Set<String>,
+    ): Map<String, Organisasjon>
 }

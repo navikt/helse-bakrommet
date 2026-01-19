@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.api.dto.yrkesaktivitet
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.JsonNode
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "inntektstype")
 @JsonSubTypes(
@@ -23,7 +24,7 @@ sealed class InntektDataDto {
     data class ArbeidstakerInntektsmelding(
         val inntektsmeldingId: String,
         override val omregnetÅrsinntekt: Double,
-        val inntektsmelding: Map<String, Any>, // JsonNode som Map
+        val inntektsmelding: JsonNode,
         override val sporing: String,
     ) : InntektDataDto()
 

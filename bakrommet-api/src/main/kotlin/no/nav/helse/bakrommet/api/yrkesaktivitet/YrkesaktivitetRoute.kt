@@ -4,21 +4,21 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
-import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
-import no.nav.helse.bakrommet.api.PARAM_YRKESAKTIVITETUUID
+import no.nav.helse.bakrommet.api.*
 import no.nav.helse.bakrommet.api.auth.saksbehandler
 import no.nav.helse.bakrommet.api.auth.saksbehandlerOgToken
+import no.nav.helse.bakrommet.api.behandling.hentOgVerifiserBehandling
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
-import no.nav.helse.bakrommet.api.naturligIdent
-import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
-import no.nav.helse.bakrommet.api.yrkesaktivitetReferanse
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentPensjonsgivendeInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.maybeOrgnummer
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
+import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.serialisertTilString
@@ -28,12 +28,40 @@ fun Route.yrkesaktivitetRoute(
     inntektservice: InntektService,
     inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     personService: PersonService,
+    organisasjonsnavnProvider: OrganisasjonsnavnProvider,
+    db: DbDaoer<AlleDaoer>,
 ) {
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/yrkesaktivitet") {
         get {
-            val yrkesaktiviteter = yrkesaktivitetService.hentYrkesaktivitetFor(call.periodeReferanse(personService))
-            val yrkesaktivitetDto = yrkesaktiviteter.map { it.tilYrkesaktivitetDto() }
-            call.respondJson(yrkesaktivitetDto)
+            db.transactional {
+                val behandling = this.hentOgVerifiserBehandling(call)
+                val yrkesaktiviteter = yrkesaktivitetRepository.finn(behandling.id)
+                val alleOrgnummer = yrkesaktiviteter.mapNotNull { it.kategorisering.maybeOrgnummer() }.toSet()
+
+                val organisasjonsnavn = organisasjonsnavnProvider.hentFlereOrganisasjonsnavn(alleOrgnummer)
+
+
+                yrkesaktiviteter.map { yrkesaktivitet ->
+                    YrkesaktivitetDto(
+                        id = yrkesaktivitet.id.value,
+                        kategorisering = yrkesaktivitet.kategorisering.tilYrkesaktivitetKategoriseringDto(),
+                        dagoversikt = yrkesaktivitet.dagoversikt?.tilMergetDagoversikt(),
+                        generertFraDokumenter = yrkesaktivitet.generertFraDokumenter.map { it },
+                        perioder = yrkesaktivitet.perioder?.tilPerioderDto(),
+                        inntektRequest = yrkesaktivitet.inntektRequest?.tilInntektRequestDto(),
+                        inntektData = yrkesaktivitet.inntektData?.tilInntektDataDto(),
+                        refusjon = yrkesaktivitet.refusjon?.map { it.tilRefusjonsperiodeDto() },
+
+                        orgnavn =
+                            yrkesaktivitet.kategorisering
+                                .maybeOrgnummer()
+                                ?.let { organisasjonsnavn[it]?.navn },
+                    )
+                }
+            }.let {
+                call.respondJson(it)
+            }
+
         }
 
         post {
