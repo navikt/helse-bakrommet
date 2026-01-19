@@ -83,9 +83,8 @@ class FakeDaoer : AlleDaoer {
             private val yrkesaktiviteter = ConcurrentHashMap<BehandlingId, MutableList<Yrkesaktivitet>>()
 
             override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> = yrkesaktiviteter[behandlingId] ?: emptyList()
-            override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitet? {
-                return yrkesaktiviteter.values.flatten().find { it.id == yrkesaktivitetId }
-            }
+
+            override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitet? = yrkesaktiviteter.values.flatten().find { it.id == yrkesaktivitetId }
 
             override fun lagre(yrkesaktivitet: Yrkesaktivitet) {
                 val aktiviteterForBehandling = yrkesaktiviteter.getOrPut(yrkesaktivitet.behandlingId) { mutableListOf() }

@@ -6,8 +6,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import no.nav.helse.bakrommet.behandling.*
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dag
-import no.nav.helse.bakrommet.behandling.dagoversikt.Dagtype
 import no.nav.helse.bakrommet.behandling.dagoversikt.initialiserDager
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
@@ -16,7 +14,6 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.YrkesaktivitetKat
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.maybeOrgnummer
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
-import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
@@ -144,23 +141,6 @@ class YrkesaktivitetService(
             YrkesaktivitetMedOrgnavn(yrkesaktivitet, orgnavn)
         }
 
-
-    suspend fun oppdaterDagoversiktDager(
-        ref: YrkesaktivitetReferanse,
-        dagerSomSkalOppdateres: List<Dag>,
-        saksbehandler: Bruker,
-    ): YrkesaktivitetDbRecord {
-        val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        dagerSomSkalOppdateres.validerAvslagsgrunn()
-        return db.transactional {
-            val oppdatertDagoversikt = dagerSomSkalOppdateres.applikerSaksbehandlerDagoppdateringer(yrkesaktivitet.dagoversikt)
-            val oppdatertYrkesaktivitet = yrkesaktivitetDao.oppdaterDagoversikt(yrkesaktivitet, oppdatertDagoversikt)
-
-            beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
-            oppdatertYrkesaktivitet
-        }
-    }
-
     suspend fun oppdaterPerioder(
         ref: YrkesaktivitetReferanse,
         perioder: Perioder?,
@@ -183,14 +163,6 @@ class YrkesaktivitetService(
         db.transactional {
             yrkesaktivitetDao.oppdaterRefusjon(yrkesaktivitet.id, refusjon)
             beregnUtbetaling(ref.behandlingReferanse, saksbehandler)
-        }
-    }
-}
-
-private fun List<Dag>.validerAvslagsgrunn() {
-    this.forEach { dag ->
-        if (dag.dagtype == Dagtype.Avslått && (dag.avslåttBegrunnelse ?: emptyList()).isEmpty()) {
-            throw InputValideringException("Avslåtte dager må ha avslagsgrunn")
         }
     }
 }

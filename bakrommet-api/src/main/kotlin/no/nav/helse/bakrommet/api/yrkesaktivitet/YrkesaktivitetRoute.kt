@@ -12,16 +12,20 @@ import no.nav.helse.bakrommet.api.behandling.sjekkErÅpenOgTildeltSaksbehandler
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
+import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
 import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentPensjonsgivendeInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetService
+import no.nav.helse.bakrommet.domain.sykepenger.Dag
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.maybeOrgnummer
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
+import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
@@ -29,6 +33,7 @@ import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.util.objectMapper
 import no.nav.helse.bakrommet.util.serialisertTilString
+import kotlin.collections.forEach
 
 fun Route.yrkesaktivitetRoute(
     yrkesaktivitetService: YrkesaktivitetService,
@@ -118,11 +123,27 @@ fun Route.yrkesaktivitetRoute(
 
             put("/dagoversikt") {
                 val request = call.receive<DagerSomSkalOppdateresDto>()
-                yrkesaktivitetService.oppdaterDagoversiktDager(
-                    call.yrkesaktivitetReferanse(personService),
-                    request.dager.map { it.tilDag() },
-                    call.bruker(),
-                )
+
+                db.transactional {
+                    val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                    val saksbehandler = call.bruker()
+                    val behandling =
+                        behandlingRepository
+                            .hent(yrkesaktivitet.behandlingId)
+                            .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
+
+                    val dager = request.dager.map { it.tilDag() }.also { it.validerAvslagsgrunn() }
+                    yrkesaktivitet.oppdaterDagoversikt(
+                        dager,
+                    )
+                    yrkesaktivitetRepository.lagre(yrkesaktivitet)
+
+                    beregnUtbetaling(
+                        behandling = behandling,
+                        saksbehandler = saksbehandler,
+                    )
+                }
+
                 call.respond(HttpStatusCode.NoContent)
             }
 
@@ -250,6 +271,14 @@ fun Route.yrkesaktivitetRoute(
                     )
                 call.respondJson(response.tilAinntektResponseDto())
             }
+        }
+    }
+}
+
+private fun List<Dag>.validerAvslagsgrunn() {
+    this.forEach { dag ->
+        if (dag.dagtype == Dagtype.Avslått && (dag.avslåttBegrunnelse ?: emptyList()).isEmpty()) {
+            throw InputValideringException("Avslåtte dager må ha avslagsgrunn")
         }
     }
 }

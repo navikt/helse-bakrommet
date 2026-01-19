@@ -53,6 +53,11 @@ fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     }
 
 fun Beregningsdaoer.beregnUtbetaling(
+    behandling: Behandling,
+    saksbehandler: Bruker,
+) = beregnUtbetaling(BehandlingReferanse(behandlingId = behandling.id.value, naturligIdent = behandling.naturligIdent), saksbehandler)
+
+fun Beregningsdaoer.beregnUtbetaling(
     ref: BehandlingReferanse,
     saksbehandler: Bruker,
 ) {
