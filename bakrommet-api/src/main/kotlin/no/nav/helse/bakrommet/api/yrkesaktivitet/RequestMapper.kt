@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.api.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
+import no.nav.helse.bakrommet.domain.sykepenger.Periode
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.inntekter.*
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
@@ -94,4 +95,17 @@ fun SelvstendigForsikringDto.tilSelvstendigForsikring(): SelvstendigForsikring =
         SelvstendigForsikringDto.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG -> SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_17_SYKEDAG
         SelvstendigForsikringDto.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG -> SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG
         SelvstendigForsikringDto.INGEN_FORSIKRING -> SelvstendigForsikring.INGEN_FORSIKRING
+    }
+
+fun PerioderDto.tilPerioder(): Perioder =
+    Perioder(
+        type = type.tilPeriodetype(),
+        perioder = perioder.map { Periode(fom = it.fom, tom = it.tom) },
+    )
+
+fun PeriodetypeDto.tilPeriodetype(): Periodetype =
+    when (this) {
+        PeriodetypeDto.ARBEIDSGIVERPERIODE -> Periodetype.ARBEIDSGIVERPERIODE
+        PeriodetypeDto.VENTETID -> Periodetype.VENTETID
+        PeriodetypeDto.VENTETID_INAKTIV -> Periodetype.VENTETID_INAKTIV
     }

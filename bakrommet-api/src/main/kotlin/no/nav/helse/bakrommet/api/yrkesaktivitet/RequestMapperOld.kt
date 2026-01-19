@@ -2,11 +2,8 @@ package no.nav.helse.bakrommet.api.yrkesaktivitet
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.inntekter.*
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.dto.InntektbeløpDto
-import no.nav.helse.dto.PeriodeDto as SpleisPeriodeDto
 
 fun InntektRequestDto.tilInntektRequest(): InntektRequest =
     when (this) {
@@ -135,23 +132,4 @@ fun RefusjonsperiodeDto.tilRefusjonsperiode(): Refusjonsperiode =
         fom = fom,
         tom = tom,
         beløp = InntektbeløpDto.MånedligDouble(beløp),
-    )
-
-fun PerioderDto.tilPerioder(): Perioder =
-    Perioder(
-        type = type.tilPeriodetype(),
-        perioder = perioder.map { it.tilSpleisPeriodeDto() },
-    )
-
-fun PeriodetypeDto.tilPeriodetype(): Periodetype =
-    when (this) {
-        PeriodetypeDto.ARBEIDSGIVERPERIODE -> Periodetype.ARBEIDSGIVERPERIODE
-        PeriodetypeDto.VENTETID -> Periodetype.VENTETID
-        PeriodetypeDto.VENTETID_INAKTIV -> Periodetype.VENTETID_INAKTIV
-    }
-
-fun PeriodeDto.tilSpleisPeriodeDto(): SpleisPeriodeDto =
-    SpleisPeriodeDto(
-        fom = fom,
-        tom = tom,
     )

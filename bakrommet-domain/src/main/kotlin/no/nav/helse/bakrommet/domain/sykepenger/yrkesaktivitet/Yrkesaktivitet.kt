@@ -21,7 +21,7 @@ class Yrkesaktivitet(
     val behandlingId: BehandlingId,
     val opprettet: OffsetDateTime,
     val generertFraDokumenter: List<UUID>,
-    val perioder: Perioder? = null,
+    perioder: Perioder? = null,
     inntektRequest: InntektRequest? = null,
     inntektData: InntektData? = null,
     val refusjon: List<Refusjonsperiode>? = null,
@@ -33,6 +33,8 @@ class Yrkesaktivitet(
     var inntektData: InntektData? = inntektData
         private set
     var dagoversikt: Dagoversikt? = dagoversikt
+        private set
+    var perioder: Perioder? = perioder
         private set
 
     fun nyKategorisering(nyKategorisering: YrkesaktivitetKategorisering) {
@@ -46,6 +48,10 @@ class Yrkesaktivitet(
     fun oppdaterDagoversikt(dager: List<Dag>) {
         val dagoversikt = requireNotNull(dagoversikt) { "Kan ikke oppdatere dager på en yrkesaktivitet uten dagoversikt" }
         this.dagoversikt = dagoversikt.nyDagoversikt(dager)
+    }
+
+    fun oppdaterPerioder(perioder: Perioder?) {
+        this.perioder = perioder
     }
 
     companion object {
