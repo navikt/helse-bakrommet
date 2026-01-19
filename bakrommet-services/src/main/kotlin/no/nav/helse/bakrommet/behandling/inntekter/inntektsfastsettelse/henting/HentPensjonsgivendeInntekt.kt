@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKat
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 
-suspend fun AlleDaoer.hentPensjonsgivendeInntektForYrkesaktivitet(
+fun AlleDaoer.hentPensjonsgivendeInntektForYrkesaktivitet(
     yrkesaktivitet: Yrkesaktivitet,
     behandling: Behandling,
     saksbehandler: BrukerOgToken,

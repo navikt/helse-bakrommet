@@ -1,10 +1,10 @@
 package no.nav.helse.bakrommet.behandling.inntekter
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.serialisertTilString
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektAar
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.person.inntekt.SelvstendigFaktaavklartInntekt
 import no.nav.helse.økonomi.Inntekt
@@ -12,8 +12,6 @@ import java.time.LocalDate
 import java.time.Year
 
 fun List<HentPensjonsgivendeInntektResponse>.kanBeregnesEtter835(): Boolean = this.filter { it.pensjonsgivendeInntekt != null }.size >= 3
-
-fun JsonNode.tilHentPensjonsgivendeInntektResponse(): HentPensjonsgivendeInntektResponse = objectMapper.readValue(this.serialisertTilString())
 
 private fun List<PensjonsgivendeInntekt>.tilInntekt(): Inntekt = Inntekt.gjenopprett(InntektbeløpDto.Årlig(this.sumOf { it.sumAvAlleInntekter() }.toDouble()))
 

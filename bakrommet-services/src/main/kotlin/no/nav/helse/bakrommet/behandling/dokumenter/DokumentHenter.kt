@@ -16,7 +16,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.ArbeidsforholdProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
-import no.nav.helse.bakrommet.infrastruktur.provider.`PensjonsgivendeInntektÅrMedSporing`
+import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektÅrMedSporing
 import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.data
 import no.nav.helse.bakrommet.infrastruktur.provider.inntektsaar
