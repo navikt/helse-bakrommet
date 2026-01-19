@@ -145,19 +145,6 @@ class YrkesaktivitetService(
             YrkesaktivitetMedOrgnavn(yrkesaktivitet, orgnavn)
         }
 
-    suspend fun slettYrkesaktivitet(
-        ref: YrkesaktivitetReferanse,
-        saksbehandler: Bruker,
-    ) {
-        val yrkesaktivitet = hentYrkesaktivitet(ref, saksbehandler.erSaksbehandlerPåSaken())
-        db.transactional {
-            yrkesaktivitetDao.slettYrkesaktivitet(yrkesaktivitet.id)
-            beregnSykepengegrunnlagOgUtbetaling(
-                ref.behandlingReferanse,
-                saksbehandler = saksbehandler,
-            )
-        }
-    }
 
     suspend fun oppdaterDagoversiktDager(
         ref: YrkesaktivitetReferanse,
