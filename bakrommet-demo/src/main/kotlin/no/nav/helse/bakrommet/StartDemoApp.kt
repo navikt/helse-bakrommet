@@ -1,23 +1,18 @@
 package no.nav.helse.bakrommet
 
-import io.ktor.http.ContentType
-import io.ktor.serialization.jackson.JacksonConverter
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.Authentication
-import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
-import io.ktor.server.sessions.SessionStorageMemory
-import io.ktor.server.sessions.Sessions
-import io.ktor.server.sessions.cookie
-import io.ktor.server.sessions.sessions
-import io.ktor.utils.io.InternalAPI
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no.nav.helse.bakrommet.api.auth.RolleMatrise
@@ -29,19 +24,22 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.mockproviders.skapProviders
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 import no.nav.helse.bakrommet.testdata.alleTestdata
 import no.nav.helse.bakrommet.testdata.opprettTestdata
 import no.nav.helse.bakrommet.util.objectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
-import java.util.UUID
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 // App-oppstarten må definere egen logger her, siden den (per nå) ikke skjer inne i en klasse
 val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
@@ -49,7 +47,7 @@ val appLogger: Logger = LoggerFactory.getLogger("bakrommet")
 class FakeDaoer : AlleDaoer {
     override val behandlingRepository: BehandlingRepository =
         object : BehandlingRepository {
-            private val behandlinger = mutableMapOf<BehandlingId, Behandling>()
+            private val behandlinger = ConcurrentHashMap<BehandlingId, Behandling>()
 
             override fun finn(behandlingId: BehandlingId): Behandling? = behandlinger[behandlingId]
 
@@ -65,7 +63,7 @@ class FakeDaoer : AlleDaoer {
 
     override val vilkårsvurderingRepository: VilkårsvurderingRepository =
         object : VilkårsvurderingRepository {
-            private val vurderteVilkår = mutableMapOf<VilkårsvurderingId, VurdertVilkår>()
+            private val vurderteVilkår = ConcurrentHashMap<VilkårsvurderingId, VurdertVilkår>()
 
             override fun finn(vilkårsvurderingId: VilkårsvurderingId): VurdertVilkår? = vurderteVilkår[vilkårsvurderingId]
 
@@ -79,6 +77,21 @@ class FakeDaoer : AlleDaoer {
                 vurderteVilkår.remove(vilkårsvurderingId)
             }
         }
+    override val yrkesaktivitetRepository: YrkesaktivitetRepository =
+        object : YrkesaktivitetRepository {
+            private val yrkesaktiviteter = ConcurrentHashMap<BehandlingId, MutableList<Yrkesaktivitet>>()
+            override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> {
+                return yrkesaktiviteter[behandlingId] ?: emptyList()
+            }
+
+            override fun lagre(yrkesaktivitet: Yrkesaktivitet) {
+                val aktiviteterForBehandling = yrkesaktiviteter.getOrPut(yrkesaktivitet.behandlingId) { mutableListOf() }
+                aktiviteterForBehandling.removeIf { it.id == yrkesaktivitet.id }
+                aktiviteterForBehandling.add(yrkesaktivitet)
+            }
+
+        }
+
 
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()
     override val personPseudoIdDao = PersonPseudoIdDaoFake()
@@ -90,8 +103,8 @@ class FakeDaoer : AlleDaoer {
     override val tilkommenInntektDao = TilkommenInntektDaoFake()
 }
 
-val sessionsDaoer = java.util.concurrent.ConcurrentHashMap<String, FakeDaoer>()
-val sessionsBrukere = java.util.concurrent.ConcurrentHashMap<String, Bruker>()
+val sessionsDaoer = ConcurrentHashMap<String, FakeDaoer>()
+val sessionsBrukere = ConcurrentHashMap<String, Bruker>()
 private val helsesjekkPaths = setOf("/isalive", "/isready")
 
 private fun ApplicationCall.erHelsesjekk() = request.path() in helsesjekkPaths
@@ -142,9 +155,9 @@ fun main() {
             filter { call -> !call.erHelsesjekk() }
         }
 
-        val clienter = skapProviders(alleTestdata)
+        val providers = skapProviders(alleTestdata)
         val db = DbDaoerFake()
-        val services = createServices(clienter, db)
+        val services = createServices(providers, db)
 
         install(Sessions) {
             cookie<String>("bakrommet-demo-session", SessionStorageMemory()) {
@@ -208,7 +221,7 @@ fun main() {
             demoOutboxRoute()
             authenticate("entraid") {
                 install(RolleMatrise)
-                setupApiRoutes(services, db)
+                setupApiRoutes(services,  db, providers)
             }
         }
 

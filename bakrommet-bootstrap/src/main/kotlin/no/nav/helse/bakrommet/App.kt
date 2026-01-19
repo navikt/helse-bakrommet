@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet
 
-import io.ktor.server.application.ApplicationStarted
-import io.ktor.server.cio.CIO
-import io.ktor.server.engine.embeddedServer
+import io.ktor.server.application.*
+import io.ktor.server.cio.*
+import io.ktor.server.engine.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import no.nav.helse.bakrommet.api.settOppKtor
@@ -25,6 +25,7 @@ fun main() {
             configuration = configuration.api,
             services = services,
             db = skapDbDaoer(dataSource),
+            providers = providers,
             errorHandlingIncludeStackTrace = configuration.naisClusterName == "dev-gcp",
         )
         appLogger.info("Starter bakrommet")

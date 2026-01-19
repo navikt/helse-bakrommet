@@ -3,9 +3,9 @@ package no.nav.helse.bakrommet.api.yrkesaktivitet
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektAarDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektDataDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PensjonsgivendeInntektDto
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektAar
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
-import no.nav.helse.bakrommet.util.asJsonNode
+import no.nav.helse.bakrommet.behandling.inntekter.InntektAar
+import no.nav.helse.bakrommet.behandling.inntekter.InntektData
+import no.nav.helse.bakrommet.util.toJsonNode
 import java.time.format.DateTimeFormatter
 
 fun InntektData.tilInntektDataDto(): InntektDataDto =
@@ -13,89 +13,88 @@ fun InntektData.tilInntektDataDto(): InntektDataDto =
         is InntektData.ArbeidstakerInntektsmelding ->
             InntektDataDto.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
-                inntektsmelding = inntektsmelding.asJsonNode(),
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
+                inntektsmelding = inntektsmelding.toJsonNode(),
                 sporing = sporing.name,
             )
 
         is InntektData.ArbeidstakerAinntekt ->
             InntektDataDto.ArbeidstakerAinntekt(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
                 kildedata =
                     kildedata
                         .mapKeys { it.key.format(DateTimeFormatter.ofPattern("yyyy-MM")) }
-                        .mapValues { it.value.månedlig },
+                        .mapValues { it.value.beløp },
             )
 
         is InntektData.ArbeidstakerSkjønnsfastsatt ->
             InntektDataDto.ArbeidstakerSkjønnsfastsatt(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
             )
 
         is InntektData.FrilanserAinntekt ->
             InntektDataDto.FrilanserAinntekt(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
                 kildedata =
                     kildedata
                         .mapKeys { it.key.format(DateTimeFormatter.ofPattern("yyyy-MM")) }
-                        .mapValues { it.value.månedlig },
+                        .mapValues { it.value.beløp },
             )
 
         is InntektData.FrilanserSkjønnsfastsatt ->
             InntektDataDto.FrilanserSkjønnsfastsatt(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
             )
 
         is InntektData.Arbeidsledig ->
             InntektDataDto.Arbeidsledig(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
             )
 
         is InntektData.InaktivSkjønnsfastsatt ->
             InntektDataDto.InaktivSkjønnsfastsatt(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
             )
 
         is InntektData.InaktivPensjonsgivende ->
             InntektDataDto.InaktivPensjonsgivende(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
                 pensjonsgivendeInntekt = pensjonsgivendeInntekt.tilPensjonsgivendeInntektDto(),
             )
 
         is InntektData.SelvstendigNæringsdrivendePensjonsgivende ->
             InntektDataDto.SelvstendigNæringsdrivendePensjonsgivende(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
                 pensjonsgivendeInntekt = pensjonsgivendeInntekt.tilPensjonsgivendeInntektDto(),
             )
 
         is InntektData.SelvstendigNæringsdrivendeSkjønnsfastsatt ->
             InntektDataDto.SelvstendigNæringsdrivendeSkjønnsfastsatt(
-                omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+                omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
                 sporing = sporing.name,
             )
     }
 
 fun InntektData.PensjonsgivendeInntekt.tilPensjonsgivendeInntektDto(): PensjonsgivendeInntektDto =
     PensjonsgivendeInntektDto(
-        omregnetÅrsinntekt = omregnetÅrsinntekt.årlig,
+        omregnetÅrsinntekt = omregnetÅrsinntekt.beløp,
         pensjonsgivendeInntekt = pensjonsgivendeInntekt.map { it.tilInntektAarDto() },
-        anvendtGrunnbeløp = anvendtGrunnbeløp.årlig,
+        anvendtGrunnbeløp = anvendtGrunnbeløp.beløp,
     )
 
 fun InntektAar.tilInntektAarDto(): InntektAarDto =
     InntektAarDto(
         år = år.toString(),
-        rapportertinntekt = rapportertinntekt.årlig,
-        justertÅrsgrunnlag = justertÅrsgrunnlag.årlig,
+        rapportertinntekt = rapportertinntekt.beløp,
+        justertÅrsgrunnlag = justertÅrsgrunnlag.beløp,
         antallGKompensert = antallGKompensert,
-        snittG = snittG.årlig,
+        snittG = snittG.beløp,
     )
-

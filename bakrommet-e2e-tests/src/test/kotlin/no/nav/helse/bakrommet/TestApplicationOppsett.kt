@@ -1,11 +1,10 @@
 package no.nav.helse.bakrommet
 
 import com.zaxxer.hikari.HikariConfig
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.ContentType
-import io.ktor.serialization.jackson.JacksonConverter
-import io.ktor.server.testing.ApplicationTestBuilder
-import io.ktor.server.testing.testApplication
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.testing.*
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
@@ -147,7 +146,7 @@ fun runApplicationTest(
                 db = db,
             )
 
-        settOppKtor(config.api, services, db, errorHandlingIncludeStackTrace = true)
+        settOppKtor(config.api, services, db, providers, errorHandlingIncludeStackTrace = true)
     }
     client =
         createClient {

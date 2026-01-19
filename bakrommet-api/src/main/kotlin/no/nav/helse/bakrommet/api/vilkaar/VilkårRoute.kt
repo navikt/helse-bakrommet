@@ -6,11 +6,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
-import no.nav.helse.bakrommet.api.behandlingId
+import no.nav.helse.bakrommet.api.behandling.hentOgVerifiserBehandling
 import no.nav.helse.bakrommet.api.dto.vilkaar.OppdaterVilkaarsvurderingResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingRequestDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
-import no.nav.helse.bakrommet.api.pseudoId
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
@@ -24,18 +23,13 @@ fun Route.vilkårRoute(
 ) {
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}/vilkaarsvurdering") {
         get {
-            val behandlingId = call.behandlingId()
-            val pseudoId = call.pseudoId()
+
 
             db.transactional {
-                val behandling = behandlingRepository.hent(behandlingId)
-                val naturligIdent = personPseudoIdDao.hentNaturligIdent(pseudoId)
-                if (!behandling.gjelder(naturligIdent)) {
-                    throw IllegalArgumentException("Behandling ${behandlingId.value} gjelder ikke personen med pseudoId=${pseudoId.value}")
-                }
+                val behandling = this.hentOgVerifiserBehandling(call)
 
                 val vurderteVilkår =
-                    vilkårsvurderingRepository.hentAlle(behandlingId).map {
+                    vilkårsvurderingRepository.hentAlle(behandling.id).map {
                         it.skapVilkaarsvurderingDto()
                     }
                 call.respondJson(vurderteVilkår)
@@ -47,20 +41,13 @@ fun Route.vilkårRoute(
         put {
             val request = call.receive<VilkaarsvurderingRequestDto>()
 
-            val behandlingId = call.behandlingId()
-            val pseudoId = call.pseudoId()
-
             db.transactional {
-                val behandling = behandlingRepository.hent(behandlingId)
-                val naturligIdent = personPseudoIdDao.hentNaturligIdent(pseudoId)
-                if (!behandling.gjelder(naturligIdent)) {
-                    throw IllegalArgumentException("Behandling ${behandlingId.value} gjelder ikke personen med pseudoId=${pseudoId.value}")
-                }
+                val behandling = this.hentOgVerifiserBehandling(call)
                 val vilkårskode = Vilkårskode(call.parameters["hovedspørsmål"]!!)
 
                 val vilkårsvurderingId =
                     VilkårsvurderingId(
-                        behandlingId,
+                        behandling.id,
                         vilkårskode,
                     )
 
@@ -106,20 +93,13 @@ fun Route.vilkårRoute(
         }
 
         delete {
-            val behandlingId = call.behandlingId()
-            val pseudoId = call.pseudoId()
             val vilkårskode = Vilkårskode(call.parameters["hovedspørsmål"]!!)
-
             db.transactional {
-                val behandling = behandlingRepository.hent(behandlingId)
-                val naturligIdent = personPseudoIdDao.hentNaturligIdent(pseudoId)
-                if (!behandling.gjelder(naturligIdent)) {
-                    throw IllegalArgumentException("Behandling ${behandlingId.value} gjelder ikke personen med pseudoId=${pseudoId.value}")
-                }
+                val behandling = this.hentOgVerifiserBehandling(call)
 
                 val vilkårsvurderingId =
                     VilkårsvurderingId(
-                        behandlingId,
+                        behandling.id,
                         vilkårskode,
                     )
 

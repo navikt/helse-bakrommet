@@ -5,11 +5,7 @@ import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.inntekter.ArbeidstakerInntektRequest
 import no.nav.helse.bakrommet.behandling.inntekter.InntektData
 import no.nav.helse.bakrommet.behandling.inntekter.InntektRequest
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.arbeidstakerKategorisering
+import no.nav.helse.bakrommet.behandling.yrkesaktivitet.*
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.Dagoversikt
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.db.TestDataSource
@@ -24,7 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.assertEquals
 
 class LegacyYrkesaktivitetDaoTest {
@@ -290,7 +286,7 @@ class LegacyYrkesaktivitetDaoTest {
         val inntektData =
             InntektData.ArbeidstakerInntektsmelding(
                 inntektsmeldingId = "123456",
-                omregnetÅrsinntekt = `InntektbeløpDto`.Årlig(500000.0),
+                omregnetÅrsinntekt = InntektbeløpDto.Årlig(500000.0),
                 inntektsmelding = JsonNodeFactory.instance.objectNode(),
             )
 
@@ -366,12 +362,12 @@ class LegacyYrkesaktivitetDaoTest {
                 Refusjonsperiode(
                     fom = LocalDate.of(2023, 1, 1),
                     tom = LocalDate.of(2023, 1, 15),
-                    beløp = `InntektbeløpDto`.MånedligDouble(50000.0),
+                    beløp = InntektbeløpDto.MånedligDouble(50000.0),
                 ),
                 Refusjonsperiode(
                     fom = LocalDate.of(2023, 2, 1),
                     tom = null, // Åpen periode
-                    beløp = `InntektbeløpDto`.MånedligDouble(60000.0),
+                    beløp = InntektbeløpDto.MånedligDouble(60000.0),
                 ),
             )
 

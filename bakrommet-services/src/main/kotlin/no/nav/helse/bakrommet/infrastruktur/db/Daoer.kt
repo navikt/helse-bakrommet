@@ -23,3 +23,4 @@ interface AlleDaoer :
     TilkommenInntektServiceDaoer,
     TidslinjeServiceDaoer,
     Repositories
+
