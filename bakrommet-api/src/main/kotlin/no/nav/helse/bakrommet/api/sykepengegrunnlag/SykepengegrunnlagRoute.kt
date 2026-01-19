@@ -12,7 +12,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helse.bakrommet.api.PARAM_BEHANDLING_ID
 import no.nav.helse.bakrommet.api.PARAM_PSEUDO_ID
-import no.nav.helse.bakrommet.api.auth.saksbehandler
+import no.nav.helse.bakrommet.api.auth.bruker
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.OpprettSykepengegrunnlagRequestDto
 import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
@@ -41,7 +41,7 @@ fun Route.sykepengegrunnlagRoute(
                 service.opprettSykepengegrunnlag(
                     request = request,
                     referanse = call.periodeReferanse(personService),
-                    saksbehandler = call.saksbehandler(),
+                    saksbehandler = call.bruker(),
                 )
             val response = grunnlag.tilSykepengegrunnlagResponseDto()
             call.respondJson(response, status = HttpStatusCode.Created)
@@ -51,7 +51,7 @@ fun Route.sykepengegrunnlagRoute(
             val ref = call.periodeReferanse(personService)
             service.slettSykepengegrunnlag(
                 ref = ref,
-                saksbehandler = call.saksbehandler(),
+                saksbehandler = call.bruker(),
             )
             call.respond(HttpStatusCode.NoContent)
         }

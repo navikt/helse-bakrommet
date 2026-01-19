@@ -5,7 +5,6 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
 import no.nav.helse.bakrommet.domain.sykepenger.Dag
 import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
 
-
 fun Dag.tilDagDto(): DagDto =
     DagDto(
         dato = dato,
@@ -27,4 +26,3 @@ fun Dagtype.tilDagtypeDto(): DagtypeDto =
         Dagtype.AndreYtelser -> DagtypeDto.AndreYtelser
         Dagtype.Behandlingsdag -> DagtypeDto.Behandlingsdag
     }
-

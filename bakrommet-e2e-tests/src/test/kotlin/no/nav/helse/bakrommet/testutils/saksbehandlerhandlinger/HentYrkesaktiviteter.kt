@@ -19,9 +19,8 @@ internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(
                 bearerAuth(TestOppsett.userToken)
             }
 
-
     val json = response.body<String>()
-    if(response.status.value !in 200..299) {
+    if (response.status.value !in 200..299) {
         error("Feil ved henting av yrkesaktiviteter: ${response.status.value} - $json")
     }
     return objectMapper.readValue<List<YrkesaktivitetDto>>(json)

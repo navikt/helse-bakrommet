@@ -98,4 +98,3 @@ fun InntektAar.tilInntektAarDto(): InntektAarDto =
         antallGKompensert = antallGKompensert,
         snittG = snittG.årlig,
     )
-

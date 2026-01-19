@@ -559,11 +559,19 @@ class LegacyYrkesaktivitetOperasjonerTest {
                 }.also {
                     it.status `should equal` HttpStatusCode.NotFound
                 }
-
+            val yrkesaktivitet =
+                opprettYrkesaktivitet(
+                    PERSON_PSEUDO_ID,
+                    behandling.id,
+                    YrkesaktivitetKategorisering.Arbeidstaker(
+                        sykmeldt = true,
+                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "999444555"),
+                    ),
+                )
             oppdaterKategorisering(
                 personId = PERSON_PSEUDO_ID,
                 behandlingId = behandling.id,
-                yrkesaktivitetId = UUID.randomUUID(),
+                yrkesaktivitetId = yrkesaktivitet,
                 kategorisering =
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(
                         sykmeldt = true,

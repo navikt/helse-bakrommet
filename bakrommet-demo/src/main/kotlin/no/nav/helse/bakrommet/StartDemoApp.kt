@@ -80,18 +80,15 @@ class FakeDaoer : AlleDaoer {
     override val yrkesaktivitetRepository: YrkesaktivitetRepository =
         object : YrkesaktivitetRepository {
             private val yrkesaktiviteter = ConcurrentHashMap<BehandlingId, MutableList<Yrkesaktivitet>>()
-            override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> {
-                return yrkesaktiviteter[behandlingId] ?: emptyList()
-            }
+
+            override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> = yrkesaktiviteter[behandlingId] ?: emptyList()
 
             override fun lagre(yrkesaktivitet: Yrkesaktivitet) {
                 val aktiviteterForBehandling = yrkesaktiviteter.getOrPut(yrkesaktivitet.behandlingId) { mutableListOf() }
                 aktiviteterForBehandling.removeIf { it.id == yrkesaktivitet.id }
                 aktiviteterForBehandling.add(yrkesaktivitet)
             }
-
         }
-
 
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()
     override val personPseudoIdDao = PersonPseudoIdDaoFake()
@@ -221,7 +218,7 @@ fun main() {
             demoOutboxRoute()
             authenticate("entraid") {
                 install(RolleMatrise)
-                setupApiRoutes(services,  db, providers)
+                setupApiRoutes(services, db, providers)
             }
         }
 

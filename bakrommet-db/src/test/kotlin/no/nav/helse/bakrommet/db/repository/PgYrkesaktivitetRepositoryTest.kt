@@ -181,21 +181,13 @@ class PgYrkesaktivitetRepositoryTest {
         val yrkesaktivitet = enYrkesaktivitet(behandlingId = behandling.id)
         yrkesaktivitetRepository.lagre(yrkesaktivitet)
 
-        val oppdatert =
-            yrkesaktivitet.copy(
-                kategorisering =
-                    YrkesaktivitetKategorisering.Arbeidstaker(
-                        sykmeldt = false,
-                        typeArbeidstaker = TypeArbeidstaker.Maritim(orgnummer = "999888777"),
-                    ),
-                kategoriseringGenerert =
-                    YrkesaktivitetKategorisering.Frilanser(
-                        sykmeldt = true,
-                        orgnummer = "111222333",
-                        forsikring = FrilanserForsikring.INGEN_FORSIKRING,
-                    ),
-            )
-        yrkesaktivitetRepository.lagre(oppdatert)
+        yrkesaktivitet.nyKategorisering(
+            YrkesaktivitetKategorisering.Arbeidstaker(
+                sykmeldt = false,
+                typeArbeidstaker = TypeArbeidstaker.Maritim(orgnummer = "999888777"),
+            ),
+        )
+        yrkesaktivitetRepository.lagre(yrkesaktivitet)
 
         val funnet = yrkesaktivitetRepository.finn(behandling.id)
         assertEquals(1, funnet.size)
@@ -205,10 +197,6 @@ class PgYrkesaktivitetRepositoryTest {
         val kategorisering = første.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker
         assertEquals(false, kategorisering.sykmeldt)
         assertEquals("999888777", (kategorisering.typeArbeidstaker as TypeArbeidstaker.Maritim).orgnummer)
-
-        assertNotNull(første.kategoriseringGenerert)
-        val kategoriseringGenerert = første.kategoriseringGenerert as YrkesaktivitetKategorisering.Frilanser
-        assertEquals("111222333", kategoriseringGenerert.orgnummer)
     }
 
     @Test
@@ -504,35 +492,6 @@ class PgYrkesaktivitetRepositoryTest {
         assertEquals(java.time.LocalDate.of(2024, 1, 1), første.refusjon!![0].fom)
         assertEquals(java.time.LocalDate.of(2024, 1, 31), første.refusjon!![0].tom)
         assertNull(første.refusjon!![1].tom)
-    }
-
-    @Test
-    fun `oppdater yrkesaktivitet og fjern nullable felter`() {
-        val behandling = enBehandling()
-        behandlingRepository.lagre(behandling)
-
-        val yrkesaktivitet =
-            enYrkesaktivitet(
-                behandlingId = behandling.id,
-                dagoversikt = Dagoversikt(sykdomstidlinje = emptyList(), avslagsdager = emptyList()),
-                kategoriseringGenerert = YrkesaktivitetKategorisering.Inaktiv(),
-            )
-        yrkesaktivitetRepository.lagre(yrkesaktivitet)
-
-        // Oppdater og fjern nullable felter
-        val oppdatert =
-            yrkesaktivitet.copy(
-                dagoversikt = null,
-                kategoriseringGenerert = null,
-            )
-        yrkesaktivitetRepository.lagre(oppdatert)
-
-        val funnet = yrkesaktivitetRepository.finn(behandling.id)
-        assertEquals(1, funnet.size)
-
-        val første = funnet.first()
-        assertNull(første.dagoversikt)
-        assertNull(første.kategoriseringGenerert)
     }
 
     @Test

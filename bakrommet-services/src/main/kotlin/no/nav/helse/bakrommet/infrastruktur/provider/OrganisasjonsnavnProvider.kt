@@ -10,6 +10,10 @@ interface OrganisasjonsnavnProvider {
         orgnummer: String,
     ): Organisasjon
 
+    suspend fun eksisterer(
+        orgnummer: String,
+    ): Boolean
+
     suspend fun hentFlereOrganisasjonsnavn(
         orgnummer: Set<String>,
     ): Map<String, Organisasjon>

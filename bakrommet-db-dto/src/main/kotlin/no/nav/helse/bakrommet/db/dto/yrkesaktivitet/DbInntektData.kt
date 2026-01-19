@@ -24,7 +24,7 @@ sealed class DbInntektData {
 
     data class ArbeidstakerInntektsmelding(
         val inntektsmeldingId: String,
-        val inntektsmelding: JsonNode, //TODO, endre til string hvis vi vil?
+        val inntektsmelding: JsonNode, // TODO, endre til string hvis vi vil?
         override val omregnetÅrsinntekt: DbInntekt.Årlig,
         override val sporing: DbBeregningskoderSykepengegrunnlag,
     ) : DbInntektData()

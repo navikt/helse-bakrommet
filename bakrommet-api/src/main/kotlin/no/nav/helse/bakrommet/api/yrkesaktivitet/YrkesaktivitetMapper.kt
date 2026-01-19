@@ -8,7 +8,6 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Periodetype
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode
 
-
 fun Dagoversikt.tilMergetDagoversikt(): List<DagDto> {
     val avslagsdagerMap = this.avslagsdager.associateBy { it.dato }
     return this.sykdomstidlinje.map { dag -> dag.tilDagDto() }.map { dag ->
