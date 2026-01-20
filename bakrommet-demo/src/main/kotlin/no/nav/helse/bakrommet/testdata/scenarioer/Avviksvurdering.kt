@@ -24,7 +24,12 @@ private val inntektData =
 private val fnr = "10029714444"
 private val inntektsmeldinger =
     listOf(
-        skapInntektsmelding(månedsinntekt = 89000.0, organisasjon = malermesternAS, arbeidstakerFnr = fnr),
+        skapInntektsmelding(
+            månedsinntekt = 89000.0,
+            organisasjon = malermesternAS,
+            arbeidstakerFnr = fnr,
+            foersteFravaersdag = LocalDate.of(2025, 9, 29),
+        ),
     )
 val avvikendeMaler =
     Testscenario(
