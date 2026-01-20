@@ -20,7 +20,6 @@ private val verifiserOppdatert: (Int) -> Unit = {
     }
 }
 
-private const val AND_ER_UNDER_BEHANDLING = "AND (select status from behandling where behandling.id = tilkommen_inntekt.behandling_id) = '${STATUS_UNDER_BEHANDLING_STR}'"
 private const val WHERE_ER_UNDER_BEHANDLING_FOR_INSERT = "WHERE EXISTS (select 1 from behandling where behandling.id = :behandling_id and status = '${STATUS_UNDER_BEHANDLING_STR}')"
 
 class TilkommenInntektDaoPg private constructor(
@@ -59,41 +58,6 @@ class TilkommenInntektDaoPg private constructor(
             "behandling_id" to behandlingId,
             mapper = ::tilkommenInntektDbRecordFraRad,
         )
-
-    override fun oppdater(
-        id: UUID,
-        tilkommenInntekt: TilkommenInntekt,
-    ): TilkommenInntektDbRecord {
-        db
-            .update(
-                """
-                update tilkommen_inntekt
-                   set tilkommen_inntekt = :tilkommen_inntekt
-                 where id = :id
-                 $AND_ER_UNDER_BEHANDLING
-                """.trimIndent(),
-                "id" to id,
-                "tilkommen_inntekt" to tilkommenInntekt.tilPgJson(),
-            ).also(verifiserOppdatert)
-        return hent(id)!!
-    }
-
-    override fun slett(
-        behandlingId: UUID,
-        id: UUID,
-    ) {
-        db
-            .update(
-                """
-                delete from tilkommen_inntekt
-                where id = :id
-                and behandling_id = :behandling_id
-                $AND_ER_UNDER_BEHANDLING
-                """.trimIndent(),
-                "id" to id,
-                "behandling_id" to behandlingId,
-            ).also(verifiserOppdatert)
-    }
 
     override fun hent(id: UUID): TilkommenInntektDbRecord? =
         db.single(

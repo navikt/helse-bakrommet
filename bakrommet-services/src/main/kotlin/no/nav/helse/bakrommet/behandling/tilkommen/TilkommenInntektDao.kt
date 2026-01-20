@@ -34,16 +34,6 @@ interface TilkommenInntektDao {
 
     fun hentForBehandling(behandlingId: UUID): List<TilkommenInntektDbRecord>
 
-    fun oppdater(
-        id: UUID,
-        tilkommenInntekt: TilkommenInntekt,
-    ): TilkommenInntektDbRecord
-
-    fun slett(
-        behandlingId: UUID,
-        id: UUID,
-    )
-
     fun hent(id: UUID): TilkommenInntektDbRecord?
 
     fun finnTilkommenInntektForBehandlinger(map: List<UUID>): List<TilkommenInntektDbRecord>

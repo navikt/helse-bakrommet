@@ -61,34 +61,6 @@ class TilkommenInntektDaoTest {
         Assertions.assertEquals(LocalDate.of(2025, 6, 9), hentet.tilkommenInntekt.ekskluderteDager.first())
     }
 
-    @Test
-    fun `oppdaterer eksisterende tilkommen inntekt`() {
-        val eksisterende = dao.opprett(nyTilkommenInntekt())
-        val oppdatert =
-            dao.oppdater(
-                id = eksisterende.id,
-                tilkommenInntekt =
-                    eksisterende.tilkommenInntekt.copy(
-                        inntektForPerioden = BigDecimal("4000.00"),
-                        notatTilBeslutter = "Oppdatert notat",
-                    ),
-            )
-
-        Assertions.assertEquals(BigDecimal("4000.00"), oppdatert.tilkommenInntekt.inntektForPerioden)
-        Assertions.assertEquals("Oppdatert notat", oppdatert.tilkommenInntekt.notatTilBeslutter)
-        Assertions.assertEquals(eksisterende.opprettet, oppdatert.opprettet)
-    }
-
-    @Test
-    fun `sletter tilkommen inntekt`() {
-        val lagret = dao.opprett(nyTilkommenInntekt())
-
-        dao.slett(behandlingId = lagret.behandlingId, id = lagret.id)
-
-        val funnet = dao.hentForBehandling(behandlingId)
-        Assertions.assertTrue(funnet.isEmpty())
-    }
-
     private fun nyTilkommenInntekt(
         id: UUID = UUID.randomUUID(),
         behandling: UUID = behandlingId,

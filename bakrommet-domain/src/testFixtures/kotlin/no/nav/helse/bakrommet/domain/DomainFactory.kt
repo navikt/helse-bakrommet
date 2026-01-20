@@ -26,7 +26,9 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.random.Random
 
-fun enNaturligIdent() = NaturligIdent(Random.nextLong(10000000000L, 100000000000L).toString())
+fun enNaturligIdent() = NaturligIdent(Random.nextLong(100000_00000L, 1000000_00000L).toString())
+
+fun etOrganisasjonsnummer() = Random.nextLong(800_000_000, 1000_000_000).toString()
 
 fun enNavIdent(): String {
     val letter = ('A'..'Z').random()
@@ -131,7 +133,7 @@ fun enYrkesaktivitet(
 fun enTilkommenInntekt(
     id: TilkommenInntektId = TilkommenInntektId(UUID.randomUUID()),
     behandlingId: BehandlingId = enBehandlingId(),
-    ident: NaturligIdent = enNaturligIdent(),
+    ident: String = etOrganisasjonsnummer(),
     yrkesaktivitetType: TilkommenInntektYrkesaktivitetType = TilkommenInntektYrkesaktivitetType.VIRKSOMHET,
     fom: LocalDate = LocalDate.now().minusMonths(1),
     tom: LocalDate = LocalDate.now(),
@@ -140,7 +142,7 @@ fun enTilkommenInntekt(
     ekskluderteDager: List<LocalDate> = emptyList(),
     opprettet: OffsetDateTime = OffsetDateTime.now(),
     opprettetAvNavIdent: String = "Z999999",
-) = TilkommenInntekt(
+) = TilkommenInntekt.fraLagring(
     id = id,
     behandlingId = behandlingId,
     ident = ident,

@@ -7,13 +7,10 @@ import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivite
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
 import no.nav.helse.bakrommet.db.tilPgJson
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType.NÆRINGSDRIVENDE
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType.PRIVATPERSON
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType.VIRKSOMHET
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType.*
 import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 
@@ -38,7 +35,7 @@ class PgTilkommenInntektRepository private constructor(
             "tilkommen_inntekt" to
                 no.nav.helse.bakrommet.behandling.tilkommen
                     .TilkommenInntekt(
-                        ident = tilkommenInntekt.ident.value,
+                        ident = tilkommenInntekt.ident,
                         yrkesaktivitetType =
                             when (tilkommenInntekt.yrkesaktivitetType) {
                                 VIRKSOMHET -> TilkommenInntektYrkesaktivitetType.VIRKSOMHET
@@ -93,10 +90,10 @@ class PgTilkommenInntektRepository private constructor(
         val dbTilkommenInntektJsonParsed =
             objectMapper.readValue<no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntekt>(row.string("tilkommen_inntekt"))
 
-        return TilkommenInntekt(
+        return TilkommenInntekt.fraLagring(
             id = TilkommenInntektId(row.uuid("id")),
             behandlingId = BehandlingId(row.uuid("behandling_id")),
-            ident = NaturligIdent(dbTilkommenInntektJsonParsed.ident),
+            ident = dbTilkommenInntektJsonParsed.ident,
             yrkesaktivitetType =
                 when (dbTilkommenInntektJsonParsed.yrkesaktivitetType) {
                     TilkommenInntektYrkesaktivitetType.VIRKSOMHET -> VIRKSOMHET

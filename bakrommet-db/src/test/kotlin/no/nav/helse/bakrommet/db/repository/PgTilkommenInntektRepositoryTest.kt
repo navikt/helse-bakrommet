@@ -5,17 +5,13 @@ import no.nav.helse.bakrommet.assertOffsetDateTimeEquals
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.enBehandling
 import no.nav.helse.bakrommet.domain.enTilkommenInntekt
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.januar
 import org.junit.jupiter.api.AfterEach
 import java.math.BigDecimal
 import java.time.LocalDate
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class PgTilkommenInntektRepositoryTest {
     private val dataSource = TestDataSource.dbModule.dataSource
@@ -64,7 +60,7 @@ class PgTilkommenInntektRepositoryTest {
             enTilkommenInntekt(
                 id = tilkommenInntekt.id,
                 behandlingId = tilkommenInntekt.behandlingId,
-                ident = NaturligIdent("12345678901"),
+                ident = etOrganisasjonsnummer(),
                 yrkesaktivitetType = TilkommenInntektYrkesaktivitetType.PRIVATPERSON,
                 fom = 15.januar(2019),
                 tom = 20.januar(2019),

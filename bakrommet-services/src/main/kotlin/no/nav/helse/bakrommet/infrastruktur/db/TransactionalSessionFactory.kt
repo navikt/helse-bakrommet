@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.infrastruktur.db
 
 import no.nav.helse.bakrommet.repository.BehandlingRepository
+import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
 import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 
@@ -12,6 +13,7 @@ interface Repositories {
     val behandlingRepository: BehandlingRepository
     val vilkårsvurderingRepository: VilkårsvurderingRepository
     val yrkesaktivitetRepository: YrkesaktivitetRepository
+    val tilkommenInntektRepository: TilkommenInntektRepository
 }
 
 interface DbDaoer<out DaosType> {

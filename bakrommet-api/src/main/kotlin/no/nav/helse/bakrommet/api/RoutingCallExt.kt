@@ -2,10 +2,10 @@ package no.nav.helse.bakrommet.api
 
 import io.ktor.server.routing.RoutingCall
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
-import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektReferanse
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetReferanse
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.person.PersonService
@@ -42,11 +42,7 @@ fun RoutingCall.behandlingId() =
                 ?: error("Mangler behandlingId i path"),
     )
 
-suspend fun RoutingCall.tilkommenInntektReferanse(personService: PersonService) =
-    TilkommenInntektReferanse(
-        behandling = periodeReferanse(personService),
-        tilkommenInntektId = parameters[PARAM_TILKOMMENINNTEKT_ID].somGyldigUUID(),
-    )
+fun RoutingCall.tilkommenInntektId() = TilkommenInntektId(parameters[PARAM_TILKOMMENINNTEKT_ID]?.somGyldigUUID() ?: error("Mangler tilkommenInntektId i path"))
 
 suspend fun RoutingCall.yrkesaktivitetReferanse(personService: PersonService): YrkesaktivitetReferanse =
     YrkesaktivitetReferanse(
