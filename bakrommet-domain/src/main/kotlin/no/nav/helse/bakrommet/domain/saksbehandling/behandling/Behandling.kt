@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.domain.saksbehandling.behandling
 
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.sykepenger.Periode
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -44,6 +45,8 @@ class Behandling private constructor(
         private set
     var revurdertAvBehandlingId: BehandlingId? = revurdertAvBehandlingId
         private set
+
+    val periode get() = Periode(fom, tom)
 
     fun erÅpenForEndringer() = status == BehandlingStatus.UNDER_BEHANDLING
 
