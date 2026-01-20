@@ -13,9 +13,13 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Perioder
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -122,4 +126,30 @@ fun enYrkesaktivitet(
     inntektRequest = inntektRequest,
     inntektData = inntektData,
     refusjon = refusjon,
+)
+
+fun enTilkommenInntekt(
+    id: TilkommenInntektId = TilkommenInntektId(UUID.randomUUID()),
+    behandlingId: BehandlingId = enBehandlingId(),
+    ident: NaturligIdent = enNaturligIdent(),
+    yrkesaktivitetType: TilkommenInntektYrkesaktivitetType = TilkommenInntektYrkesaktivitetType.VIRKSOMHET,
+    fom: LocalDate = LocalDate.now().minusMonths(1),
+    tom: LocalDate = LocalDate.now(),
+    inntektForPerioden: BigDecimal = BigDecimal.valueOf(50000),
+    notatTilBeslutter: String = "Test notat",
+    ekskluderteDager: List<LocalDate> = emptyList(),
+    opprettet: OffsetDateTime = OffsetDateTime.now(),
+    opprettetAvNavIdent: String = "Z999999",
+) = TilkommenInntekt(
+    id = id,
+    behandlingId = behandlingId,
+    ident = ident,
+    yrkesaktivitetType = yrkesaktivitetType,
+    fom = fom,
+    tom = tom,
+    inntektForPerioden = inntektForPerioden,
+    notatTilBeslutter = notatTilBeslutter,
+    ekskluderteDager = ekskluderteDager,
+    opprettet = opprettet,
+    opprettetAvNavIdent = opprettetAvNavIdent,
 )

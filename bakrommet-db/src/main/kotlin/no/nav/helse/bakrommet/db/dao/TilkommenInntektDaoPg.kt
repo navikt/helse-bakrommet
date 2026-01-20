@@ -57,7 +57,7 @@ class TilkommenInntektDaoPg private constructor(
             order by opprettet
             """.trimIndent(),
             "behandling_id" to behandlingId,
-            mapper = ::tilkommenInntektFraRad,
+            mapper = ::tilkommenInntektDbRecordFraRad,
         )
 
     override fun oppdater(
@@ -103,7 +103,7 @@ class TilkommenInntektDaoPg private constructor(
             where id = :id
             """.trimIndent(),
             "id" to id,
-            mapper = ::tilkommenInntektFraRad,
+            mapper = ::tilkommenInntektDbRecordFraRad,
         )
 
     override fun finnTilkommenInntektForBehandlinger(map: List<UUID>): List<TilkommenInntektDbRecord> {
@@ -117,11 +117,11 @@ class TilkommenInntektDaoPg private constructor(
             where behandling_id IN ($placeholderList)
             """.trimIndent(),
             *params.toTypedArray(),
-            mapper = ::tilkommenInntektFraRad,
+            mapper = ::tilkommenInntektDbRecordFraRad,
         )
     }
 
-    private fun tilkommenInntektFraRad(row: Row) =
+    private fun tilkommenInntektDbRecordFraRad(row: Row) =
         TilkommenInntektDbRecord(
             id = row.uuid("id"),
             behandlingId = row.uuid("behandling_id"),
