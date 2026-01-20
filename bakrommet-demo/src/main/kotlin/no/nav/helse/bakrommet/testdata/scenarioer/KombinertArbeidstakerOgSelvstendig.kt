@@ -39,7 +39,12 @@ private val sigrunData =
 
 private val inntektsmeldinger =
     listOf(
-        skapInntektsmelding(månedsinntekt = 70000.0, organisasjon = veihjelpenAS, arbeidstakerFnr = fnr),
+        skapInntektsmelding(
+            foersteFravaersdag = LocalDate.of(2025, 11, 1),
+            månedsinntekt = 70000.0,
+            organisasjon = veihjelpenAS,
+            arbeidstakerFnr = fnr,
+        ),
     )
 
 val kombinertArbeidstakerOgSelvstendig =
