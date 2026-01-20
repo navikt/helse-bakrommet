@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKat
 import no.nav.helse.dto.InntektbeløpDto
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 // Intensjon om at denne kun lever i daoen
 data class YrkesaktivitetDbRecord(

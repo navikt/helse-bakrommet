@@ -17,7 +17,6 @@ import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PersoninfoProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
-import no.nav.helse.bakrommet.organisasjon.OrganisasjonService
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PersonsøkService
 import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
@@ -47,7 +46,6 @@ data class Services(
     val inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     val utbetalingsberegningService: UtbetalingsberegningService,
     val personService: PersonService,
-    val organisasjonService: OrganisasjonService,
     val tilkommenInntektService: TilkommenInntektService,
     val tidslinjeService: TidslinjeService,
     val soknaderService: SoknaderService,
@@ -93,7 +91,6 @@ fun createServices(
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
         personService = personService,
-        organisasjonService = OrganisasjonService(providers.organisasjonsnavnProvider),
         tilkommenInntektService = TilkommenInntektService(db),
         tidslinjeService = TidslinjeService(db, providers.organisasjonsnavnProvider),
         soknaderService =

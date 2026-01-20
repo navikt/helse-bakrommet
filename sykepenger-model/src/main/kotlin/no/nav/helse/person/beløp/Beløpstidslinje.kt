@@ -12,7 +12,9 @@ import no.nav.helse.økonomi.Inntekt.Companion.daglig
 import java.time.LocalDate
 import java.util.SortedMap
 
-data class Beløpstidslinje(private val dager: SortedMap<LocalDate, Beløpsdag>) : Collection<Dag> by dager.values {
+data class Beløpstidslinje(
+    private val dager: SortedMap<LocalDate, Beløpsdag>,
+) : Collection<Dag> by dager.values {
     private constructor(dager: Map<LocalDate, Beløpsdag>) : this(dager.toSortedMap())
     constructor(dager: List<Beløpsdag> = emptyList()) : this(
         dager.associateBy { it.dato }.toSortedMap().also {
@@ -144,8 +146,7 @@ data class Beløpstidslinje(private val dager: SortedMap<LocalDate, Beløpsdag>)
                                     tidsstempel = dag.kilde.tidsstempel,
                                 ),
                         )
-                    }
-                    .fold(emptyList()) { result, dag ->
+                    }.fold(emptyList()) { result, dag ->
                         when {
                             result.isEmpty() -> listOf(dag)
                             result.last().kanUtvidesAv(dag) -> result.dropLast(1) + result.last().copy(tom = dag.tom)

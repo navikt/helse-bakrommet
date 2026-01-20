@@ -31,7 +31,7 @@ fun Route.setupApiRoutes(
     vilkårRoute(db)
     dokumentRoute(services.dokumentHenter, services.personService)
     tilkommenInntektRoute(services.tilkommenInntektService, services.personService)
-    organisasjonRoute(services.organisasjonService)
+    organisasjonRoute(providers.organisasjonsnavnProvider)
     personsøkRoute(services.personsøkService)
     personinfoRoute(services.personService)
     soknaderRoute(services.soknaderService, services.personService)

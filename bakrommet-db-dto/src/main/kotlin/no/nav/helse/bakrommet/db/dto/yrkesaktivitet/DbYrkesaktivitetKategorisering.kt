@@ -48,16 +48,22 @@ sealed class DbYrkesaktivitetKategorisering {
 
 fun DbYrkesaktivitetKategorisering.maybeOrgnummer(): String? =
     when (this) {
-        is DbYrkesaktivitetKategorisering.Arbeidstaker ->
+        is DbYrkesaktivitetKategorisering.Arbeidstaker -> {
             when (val type = this.typeArbeidstaker) {
                 is DbTypeArbeidstaker.Ordinær -> type.orgnummer
                 is DbTypeArbeidstaker.Maritim -> type.orgnummer
                 is DbTypeArbeidstaker.Fisker -> type.orgnummer
                 else -> null
             }
+        }
 
-        is DbYrkesaktivitetKategorisering.Frilanser -> this.orgnummer
-        else -> null
+        is DbYrkesaktivitetKategorisering.Frilanser -> {
+            this.orgnummer
+        }
+
+        else -> {
+            null
+        }
     }
 
 fun DbYrkesaktivitetKategorisering.orgnummer(): String = maybeOrgnummer() ?: throw IllegalStateException("YrkesaktivitetKategorisering har ikke orgnummer. " + this.javaClass.simpleName)
