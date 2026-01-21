@@ -3,15 +3,15 @@ package no.nav.helse.bakrommet.db.dto.tilkommeninntekt
 import java.math.BigDecimal
 import java.time.LocalDate
 
-enum class TilkommenInntektYrkesaktivitetType {
+enum class DbTilkommenInntektYrkesaktivitetType {
     VIRKSOMHET,
     PRIVATPERSON,
     NÆRINGSDRIVENDE,
 }
 
-data class TilkommenInntekt(
+data class DbTilkommenInntekt(
     val ident: String,
-    val yrkesaktivitetType: TilkommenInntektYrkesaktivitetType,
+    val yrkesaktivitetType: DbTilkommenInntektYrkesaktivitetType,
     val fom: LocalDate,
     val tom: LocalDate,
     val inntektForPerioden: BigDecimal,

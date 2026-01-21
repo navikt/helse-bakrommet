@@ -5,7 +5,8 @@ import kotliquery.Row
 import kotliquery.Session
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
-import no.nav.helse.bakrommet.db.dto.tilkommeninntekt.TilkommenInntektYrkesaktivitetType
+import no.nav.helse.bakrommet.db.dto.tilkommeninntekt.DbTilkommenInntekt
+import no.nav.helse.bakrommet.db.dto.tilkommeninntekt.DbTilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
@@ -33,21 +34,20 @@ class PgTilkommenInntektRepository private constructor(
             "id" to tilkommenInntekt.id.value,
             "behandling_id" to tilkommenInntekt.behandlingId.value,
             "tilkommen_inntekt" to
-                no.nav.helse.bakrommet.db.dto.tilkommeninntekt
-                    .TilkommenInntekt(
-                        ident = tilkommenInntekt.ident,
-                        yrkesaktivitetType =
-                            when (tilkommenInntekt.yrkesaktivitetType) {
-                                VIRKSOMHET -> TilkommenInntektYrkesaktivitetType.VIRKSOMHET
-                                PRIVATPERSON -> TilkommenInntektYrkesaktivitetType.PRIVATPERSON
-                                NÆRINGSDRIVENDE -> TilkommenInntektYrkesaktivitetType.NÆRINGSDRIVENDE
-                            },
-                        fom = tilkommenInntekt.fom,
-                        tom = tilkommenInntekt.tom,
-                        inntektForPerioden = tilkommenInntekt.inntektForPerioden,
-                        notatTilBeslutter = tilkommenInntekt.notatTilBeslutter,
-                        ekskluderteDager = tilkommenInntekt.ekskluderteDager,
-                    ).tilPgJson(),
+                DbTilkommenInntekt(
+                    ident = tilkommenInntekt.ident,
+                    yrkesaktivitetType =
+                        when (tilkommenInntekt.yrkesaktivitetType) {
+                            VIRKSOMHET -> DbTilkommenInntektYrkesaktivitetType.VIRKSOMHET
+                            PRIVATPERSON -> DbTilkommenInntektYrkesaktivitetType.PRIVATPERSON
+                            NÆRINGSDRIVENDE -> DbTilkommenInntektYrkesaktivitetType.NÆRINGSDRIVENDE
+                        },
+                    fom = tilkommenInntekt.fom,
+                    tom = tilkommenInntekt.tom,
+                    inntektForPerioden = tilkommenInntekt.inntektForPerioden,
+                    notatTilBeslutter = tilkommenInntekt.notatTilBeslutter,
+                    ekskluderteDager = tilkommenInntekt.ekskluderteDager,
+                ).tilPgJson(),
             "opprettet" to tilkommenInntekt.opprettet,
             "opprettet_av_nav_ident" to tilkommenInntekt.opprettetAvNavIdent,
         )
@@ -88,7 +88,7 @@ class PgTilkommenInntektRepository private constructor(
 
     private fun rowTilTilkommenInntekt(row: Row): TilkommenInntekt {
         val dbTilkommenInntektJsonParsed =
-            objectMapper.readValue<no.nav.helse.bakrommet.db.dto.tilkommeninntekt.TilkommenInntekt>(row.string("tilkommen_inntekt"))
+            objectMapper.readValue<DbTilkommenInntekt>(row.string("tilkommen_inntekt"))
 
         return TilkommenInntekt.fraLagring(
             id = TilkommenInntektId(row.uuid("id")),
@@ -96,9 +96,9 @@ class PgTilkommenInntektRepository private constructor(
             ident = dbTilkommenInntektJsonParsed.ident,
             yrkesaktivitetType =
                 when (dbTilkommenInntektJsonParsed.yrkesaktivitetType) {
-                    TilkommenInntektYrkesaktivitetType.VIRKSOMHET -> VIRKSOMHET
-                    TilkommenInntektYrkesaktivitetType.PRIVATPERSON -> PRIVATPERSON
-                    TilkommenInntektYrkesaktivitetType.NÆRINGSDRIVENDE -> NÆRINGSDRIVENDE
+                    DbTilkommenInntektYrkesaktivitetType.VIRKSOMHET -> VIRKSOMHET
+                    DbTilkommenInntektYrkesaktivitetType.PRIVATPERSON -> PRIVATPERSON
+                    DbTilkommenInntektYrkesaktivitetType.NÆRINGSDRIVENDE -> NÆRINGSDRIVENDE
                 },
             fom = dbTilkommenInntektJsonParsed.fom,
             tom = dbTilkommenInntektJsonParsed.tom,
