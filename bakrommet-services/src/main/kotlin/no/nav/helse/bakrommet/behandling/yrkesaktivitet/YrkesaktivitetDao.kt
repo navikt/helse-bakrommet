@@ -27,12 +27,6 @@ data class YrkesaktivitetDbRecord(
     val refusjon: List<Refusjonsperiode>? = null,
 )
 
-data class YrkesaktivitetForenkletDbRecord(
-    val id: UUID,
-    val kategorisering: YrkesaktivitetKategorisering,
-    val behandlingId: UUID,
-)
-
 data class Refusjonsperiode(
     val fom: LocalDate,
     val tom: LocalDate?,
@@ -57,6 +51,4 @@ interface YrkesaktivitetDao {
     fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet>
 
     fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord>
-
-    fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord>
 }

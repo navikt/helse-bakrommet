@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.api.dto.tilkommen
 
 import no.nav.helse.bakrommet.api.dto.interfaces.ApiResponse
-import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType
+import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetTypeDto
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -10,7 +10,7 @@ import java.util.UUID
 data class TilkommenInntektResponseDto(
     val id: UUID,
     val ident: String,
-    val yrkesaktivitetType: TilkommenInntektYrkesaktivitetType,
+    val yrkesaktivitetType: TilkommenInntektYrkesaktivitetTypeDto,
     val fom: LocalDate,
     val tom: LocalDate,
     val inntektForPerioden: BigDecimal,

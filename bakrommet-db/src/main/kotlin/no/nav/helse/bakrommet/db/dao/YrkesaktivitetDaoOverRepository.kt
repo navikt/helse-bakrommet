@@ -64,13 +64,6 @@ class YrkesaktivitetDaoOverRepository(
             .finn(BehandlingId(periode.id))
             .map { it.tilDbRecord() }
 
-    override fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord> =
-        map.flatMap { behandlingId ->
-            yrkesaktivitetRepository
-                .finn(BehandlingId(behandlingId))
-                .map { it.tilForenkletDbRecord() }
-        }
-
     private fun Yrkesaktivitet.tilDbRecord(): YrkesaktivitetDbRecord =
         YrkesaktivitetDbRecord(
             id = this.id.value,
@@ -101,13 +94,6 @@ class YrkesaktivitetDaoOverRepository(
             inntektRequest = this.inntektRequest,
             inntektData = this.inntektData,
             refusjon = this.refusjon?.map { it.toLegacy() },
-        )
-
-    private fun Yrkesaktivitet.tilForenkletDbRecord(): YrkesaktivitetForenkletDbRecord =
-        YrkesaktivitetForenkletDbRecord(
-            id = this.id.value,
-            kategorisering = this.kategorisering,
-            behandlingId = this.behandlingId.value,
         )
 
     // Mapper fra legacy (behandling.yrkesaktivitet) til domain (domain.sykepenger.yrkesaktivitet)

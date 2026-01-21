@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.api.tilkommen
 
-import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType
+import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetTypeDto
 import no.nav.helse.bakrommet.api.dto.tilkommen.TilkommenInntektResponseDto
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType as DomainTilkommenInntektYrkesaktivitetType
 
@@ -18,9 +18,9 @@ fun no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt.til
         opprettetAvNavIdent = this.opprettetAvNavIdent,
     )
 
-private fun DomainTilkommenInntektYrkesaktivitetType.tilTilkommenInntektYrkesaktivitetTypeDto(): TilkommenInntektYrkesaktivitetType =
+private fun DomainTilkommenInntektYrkesaktivitetType.tilTilkommenInntektYrkesaktivitetTypeDto(): TilkommenInntektYrkesaktivitetTypeDto =
     when (this) {
-        DomainTilkommenInntektYrkesaktivitetType.VIRKSOMHET -> TilkommenInntektYrkesaktivitetType.VIRKSOMHET
-        DomainTilkommenInntektYrkesaktivitetType.PRIVATPERSON -> TilkommenInntektYrkesaktivitetType.PRIVATPERSON
-        DomainTilkommenInntektYrkesaktivitetType.NÆRINGSDRIVENDE -> TilkommenInntektYrkesaktivitetType.NÆRINGSDRIVENDE
+        DomainTilkommenInntektYrkesaktivitetType.VIRKSOMHET -> TilkommenInntektYrkesaktivitetTypeDto.VIRKSOMHET
+        DomainTilkommenInntektYrkesaktivitetType.PRIVATPERSON -> TilkommenInntektYrkesaktivitetTypeDto.PRIVATPERSON
+        DomainTilkommenInntektYrkesaktivitetType.NÆRINGSDRIVENDE -> TilkommenInntektYrkesaktivitetTypeDto.NÆRINGSDRIVENDE
     }

@@ -18,7 +18,6 @@ import no.nav.helse.bakrommet.infrastruktur.provider.SykepengesøknadProvider
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PersonsøkService
 import no.nav.helse.bakrommet.sykepengesoknad.SoknaderService
-import no.nav.helse.bakrommet.tidslinje.TidslinjeService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -43,7 +42,6 @@ data class Services(
     val inntektService: InntektService,
     val utbetalingsberegningService: UtbetalingsberegningService,
     val personService: PersonService,
-    val tidslinjeService: TidslinjeService,
     val soknaderService: SoknaderService,
     val valideringService: ValideringService,
 )
@@ -82,7 +80,6 @@ fun createServices(
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
         personService = personService,
-        tidslinjeService = TidslinjeService(db, providers.organisasjonsnavnProvider),
         soknaderService =
             SoknaderService(
                 sykepengesøknadProvider = providers.sykepengesøknadProvider,

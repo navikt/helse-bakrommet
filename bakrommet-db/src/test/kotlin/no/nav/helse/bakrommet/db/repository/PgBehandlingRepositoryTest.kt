@@ -4,12 +4,15 @@ import kotliquery.sessionOf
 import no.nav.helse.bakrommet.assertInstantEquals
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.enBehandling
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
 import no.nav.helse.januar
 import org.junit.jupiter.api.AfterEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class PgBehandlingRepositoryTest {
     private val dataSource = TestDataSource.dbModule.dataSource
@@ -137,5 +140,25 @@ class PgBehandlingRepositoryTest {
         assertEquals(oppdatertBehandling.sykepengegrunnlagId, funnet.sykepengegrunnlagId)
         assertEquals(oppdatertBehandling.revurdertAvBehandlingId, funnet.revurdertAvBehandlingId)
         assertEquals(oppdatertBehandling.revurdererBehandlingId, funnet.revurdererBehandlingId)
+    }
+
+    @Test
+    fun `henter alle behandlinger for en naturlig ident`() {
+        // given
+        val naturligIdent = enNaturligIdent()
+        val behandling1 = enBehandling(naturligIdent = naturligIdent)
+        val behandling2 = enBehandling(naturligIdent = naturligIdent)
+        repository.lagre(behandling1)
+        repository.lagre(behandling2)
+        val enBehandlingForEnAnnenPerson = enBehandling()
+        repository.lagre(enBehandlingForEnAnnenPerson)
+
+        // when
+        val funnet = repository.finnFor(naturligIdent)
+
+        // then
+        assertEquals(2, funnet.size)
+        assertTrue(funnet.map { it.id }.containsAll(listOf(behandling1.id, behandling2.id)))
+        assertFalse(funnet.map { it.id }.contains(enBehandlingForEnAnnenPerson.id))
     }
 }

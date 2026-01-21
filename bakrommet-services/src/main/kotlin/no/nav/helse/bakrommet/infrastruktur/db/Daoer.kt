@@ -5,7 +5,6 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagServ
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDaoer
 import no.nav.helse.bakrommet.person.PersonServiceDaoer
 import no.nav.helse.bakrommet.person.PersonsokDaoer
-import no.nav.helse.bakrommet.tidslinje.TidslinjeServiceDaoer
 
 interface AlleDaoer :
     BehandlingServiceDaoer,
@@ -13,5 +12,4 @@ interface AlleDaoer :
     PersonsokDaoer,
     PersonServiceDaoer,
     UtbetalingsberegningDaoer,
-    TidslinjeServiceDaoer,
     Repositories

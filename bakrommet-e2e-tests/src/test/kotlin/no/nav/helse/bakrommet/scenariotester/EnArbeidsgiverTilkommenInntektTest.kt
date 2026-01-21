@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.scenariotester
 
 import io.ktor.http.HttpStatusCode
-import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType
+import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetTypeDto
 import no.nav.helse.bakrommet.api.dto.tilkommen.OpprettTilkommenInntektRequestDto
 import no.nav.helse.bakrommet.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.testutils.Scenario
@@ -45,7 +45,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                             ident = "999444555",
                             fom = 4.januar(2021),
                             tom = 10.januar(2021),
-                            yrkesaktivitetType = TilkommenInntektYrkesaktivitetType.VIRKSOMHET,
+                            yrkesaktivitetType = TilkommenInntektYrkesaktivitetTypeDto.VIRKSOMHET,
                             inntektForPerioden = BigDecimal(14000),
                             notatTilBeslutter = "har jobbet og svarte dette i søknaden",
                             ekskluderteDager = emptyList(),
@@ -55,7 +55,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                 beregning!!
                     .beregningData.spilleromOppdrag.oppdrag.size `should equal` 1
 
-                beregning!!
+                beregning
                     .beregningData.spilleromOppdrag.oppdrag
                     .first()
                     .totalbeløp `should equal` 1000
@@ -69,7 +69,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                     tilkommenInntektDto.ident `should equal` "999444555"
                     tilkommenInntektDto.fom `should equal` 4.januar(2021)
                     tilkommenInntektDto.tom `should equal` 10.januar(2021)
-                    tilkommenInntektDto.yrkesaktivitetType `should equal` no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType.VIRKSOMHET
+                    tilkommenInntektDto.yrkesaktivitetType `should equal` TilkommenInntektYrkesaktivitetTypeDto.VIRKSOMHET
                 }
             }
             slettTilkommenInntekt(behandlingId = behandlingId, personId = personId, tilkommenInntektId = tilkommen.id)
@@ -84,7 +84,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                         ident = "999444555",
                         fom = 4.januar(1028),
                         tom = 10.januar(4000),
-                        yrkesaktivitetType = TilkommenInntektYrkesaktivitetType.VIRKSOMHET,
+                        yrkesaktivitetType = TilkommenInntektYrkesaktivitetTypeDto.VIRKSOMHET,
                         inntektForPerioden = BigDecimal(14000),
                         notatTilBeslutter = "har jobbet og svarte dette i søknaden",
                         ekskluderteDager = emptyList(),

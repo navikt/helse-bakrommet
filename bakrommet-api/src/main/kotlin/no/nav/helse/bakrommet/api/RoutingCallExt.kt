@@ -7,6 +7,7 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.person.PseudoId
 import no.nav.helse.bakrommet.util.somGyldigUUID
@@ -25,6 +26,12 @@ fun RoutingCall.behandlingIdLegacy(): UUID = behandlingId().value
 suspend fun RoutingCall.naturligIdent(personService: PersonService): NaturligIdent {
     val personPseudoId = personPseudoId()
     return personService.finnNaturligIdent(personPseudoId)
+        ?: throw PersonIkkeFunnetException()
+}
+
+fun AlleDaoer.naturligIdent(call: RoutingCall): NaturligIdent {
+    val personPseudoId = call.personPseudoId()
+    return personPseudoIdDao.finnNaturligIdent(personPseudoId)
         ?: throw PersonIkkeFunnetException()
 }
 

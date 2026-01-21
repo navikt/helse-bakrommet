@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.api.auth.bruker
 import no.nav.helse.bakrommet.api.behandling.hentOgVerifiserBehandling
 import no.nav.helse.bakrommet.api.behandling.hentTilkommenInntekt
 import no.nav.helse.bakrommet.api.behandling.sjekkErÅpenOgTildeltSaksbehandler
-import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetType.*
+import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetTypeDto.*
 import no.nav.helse.bakrommet.api.dto.tilkommen.OpprettTilkommenInntektRequestDto
 import no.nav.helse.bakrommet.api.errorhandling.ugyldigInput
 import no.nav.helse.bakrommet.api.serde.respondJson

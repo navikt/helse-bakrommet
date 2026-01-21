@@ -23,15 +23,21 @@ class PgBehandlingRepository private constructor(
              where id = :id
             """.trimIndent(),
             "id" to behandlingId.value,
-        ) { rowTilPeriode(it) }
+        ) { rowTilBehandling(it) }
 
     override fun finnAlle(): List<Behandling> {
         TODO("Ikke implementert i PgBehandlingRepository")
     }
 
-    override fun finnFor(naturligIdent: NaturligIdent): List<Behandling> {
-        TODO("Ikke implementert i PgBehandlingRepository")
-    }
+    override fun finnFor(naturligIdent: NaturligIdent): List<Behandling> =
+        queryRunner.list(
+            """
+            select *
+              from behandling
+             where naturlig_ident = :naturligIdent
+            """.trimIndent(),
+            "naturligIdent" to naturligIdent.value,
+        ) { rowTilBehandling(it) }
 
     override fun lagre(behandling: Behandling) {
         queryRunner.update(
@@ -68,7 +74,7 @@ class PgBehandlingRepository private constructor(
         )
     }
 
-    private fun rowTilPeriode(row: Row) =
+    private fun rowTilBehandling(row: Row) =
         Behandling.fraLagring(
             id = BehandlingId(row.uuid("id")),
             naturligIdent = NaturligIdent(row.string("naturlig_ident")),

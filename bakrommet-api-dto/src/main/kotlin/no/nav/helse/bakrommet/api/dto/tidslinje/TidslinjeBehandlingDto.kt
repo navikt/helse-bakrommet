@@ -21,7 +21,7 @@ data class TidlinjeYrkesaktivitetDto(
     val sykmeldt: Boolean,
     val orgnavn: String?,
     val orgnummer: String?,
-    val yrkesaktivitetType: YrkesaktivitetType,
+    val yrkesaktivitetType: YrkesaktivitetTypeDto,
 )
 
 enum class TidslinjeBehandlingStatus {
@@ -32,7 +32,7 @@ enum class TidslinjeBehandlingStatus {
     REVURDERT,
 }
 
-enum class YrkesaktivitetType {
+enum class YrkesaktivitetTypeDto {
     ARBEIDSTAKER,
     FRILANSER,
     SELVSTENDIG_NÆRINGSDRIVENDE,
@@ -44,12 +44,12 @@ data class TidlinjeTilkommenInntektDto(
     val id: UUID,
     val ident: String,
     val orgnavn: String?,
-    val yrkesaktivitetType: TilkommenInntektYrkesaktivitetType,
+    val yrkesaktivitetType: TilkommenInntektYrkesaktivitetTypeDto,
     val fom: LocalDate,
     val tom: LocalDate,
 )
 
-enum class TilkommenInntektYrkesaktivitetType {
+enum class TilkommenInntektYrkesaktivitetTypeDto {
     VIRKSOMHET,
     PRIVATPERSON,
     NÆRINGSDRIVENDE,
