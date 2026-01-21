@@ -3,9 +3,9 @@ package no.nav.helse.bakrommet.db.repository
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Row
 import kotliquery.Session
-import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
+import no.nav.helse.bakrommet.db.dto.tilkommeninntekt.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
@@ -33,7 +33,7 @@ class PgTilkommenInntektRepository private constructor(
             "id" to tilkommenInntekt.id.value,
             "behandling_id" to tilkommenInntekt.behandlingId.value,
             "tilkommen_inntekt" to
-                no.nav.helse.bakrommet.behandling.tilkommen
+                no.nav.helse.bakrommet.db.dto.tilkommeninntekt
                     .TilkommenInntekt(
                         ident = tilkommenInntekt.ident,
                         yrkesaktivitetType =
@@ -88,7 +88,7 @@ class PgTilkommenInntektRepository private constructor(
 
     private fun rowTilTilkommenInntekt(row: Row): TilkommenInntekt {
         val dbTilkommenInntektJsonParsed =
-            objectMapper.readValue<no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntekt>(row.string("tilkommen_inntekt"))
+            objectMapper.readValue<no.nav.helse.bakrommet.db.dto.tilkommeninntekt.TilkommenInntekt>(row.string("tilkommen_inntekt"))
 
         return TilkommenInntekt.fraLagring(
             id = TilkommenInntektId(row.uuid("id")),

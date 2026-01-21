@@ -2,8 +2,8 @@ package no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning
 
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.tilSykdomstidslinje
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Periodetype.*
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
@@ -12,31 +12,26 @@ import no.nav.helse.hendelser.Periode
 import no.nav.helse.person.beløp.Beløpsdag
 import no.nav.helse.person.beløp.Beløpstidslinje
 import no.nav.helse.person.beløp.Kilde
-import no.nav.helse.utbetalingstidslinje.ArbeidsledigUtbetalingstidslinjeBuilderVedtaksperiode
-import no.nav.helse.utbetalingstidslinje.ArbeidstakerUtbetalingstidslinjeBuilderVedtaksperiode
-import no.nav.helse.utbetalingstidslinje.Begrunnelse
-import no.nav.helse.utbetalingstidslinje.InaktivUtbetalingstidslinjeBuilder
-import no.nav.helse.utbetalingstidslinje.SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode
+import no.nav.helse.utbetalingstidslinje.*
 import no.nav.helse.utbetalingstidslinje.Utbetalingsdag.AvvistDag
-import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 /**
  * Bygger utbetalingstidslinje for en yrkesaktivitet basert på kategorisering
  */
 fun byggUtbetalingstidslinjeForYrkesaktivitet(
-    legacyYrkesaktivitet: LegacyYrkesaktivitet,
+    yrkesaktivitet: Yrkesaktivitet,
     dekningsgrad: ProsentdelDto,
     input: UtbetalingsberegningInput,
     refusjonstidslinje: Beløpstidslinje,
     maksInntektTilFordelingPerDag: Beløpstidslinje,
     inntektjusteringer: Beløpstidslinje,
 ): Utbetalingstidslinje {
-    val dager = fyllUtManglendeDager(legacyYrkesaktivitet.dagoversikt?.sykdomstidlinje ?: emptyList(), input.saksbehandlingsperiode)
-    val arbeidsgiverperiode = legacyYrkesaktivitet.hentPerioderForType(Periodetype.ARBEIDSGIVERPERIODE)
+    val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt?.sykdomstidlinje ?: emptyList(), input.saksbehandlingsperiode)
+    val arbeidsgiverperiode = yrkesaktivitet.hentPerioderForType(ARBEIDSGIVERPERIODE).map { Periode(it.fom, it.tom) }
     val dagerNavOvertarAnsvar = dager.tilDagerNavOvertarAnsvar()
     val sykdomstidslinje = dager.tilSykdomstidslinje(arbeidsgiverperiode)
 
@@ -45,13 +40,13 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
         throw IllegalArgumentException("Ugyldig input: dagerNavOvertarAnsvar må være innenfor arbeidsgiverperioden")
     }
 
-    return when (legacyYrkesaktivitet.kategorisering) {
+    return when (yrkesaktivitet.kategorisering) {
         is YrkesaktivitetKategorisering.Inaktiv -> {
             byggInaktivUtbetalingstidslinje(
                 maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
                 inntektjusteringer = inntektjusteringer,
-                legacyYrkesaktivitet = legacyYrkesaktivitet,
+                yrkesaktivitet = yrkesaktivitet,
                 sykdomstidslinje = sykdomstidslinje,
             )
         }
@@ -60,7 +55,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
             byggSelvstendigUtbetalingstidslinje(
                 maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
-                legacyYrkesaktivitet = legacyYrkesaktivitet,
+                yrkesaktivitet = yrkesaktivitet,
                 sykdomstidslinje = sykdomstidslinje,
             )
         }
@@ -97,7 +92,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 sykdomstidslinje = sykdomstidslinje,
             )
         }
-    }.avslåDager(legacyYrkesaktivitet.dagoversikt?.avslagsdager?.map { it.dato })
+    }.avslåDager(yrkesaktivitet.dagoversikt?.avslagsdager?.map { it.dato })
 }
 
 private fun Utbetalingstidslinje.avslåDager(avslagsdager: List<LocalDate>?): Utbetalingstidslinje {
@@ -122,14 +117,14 @@ private fun byggInaktivUtbetalingstidslinje(
     maksInntektTilFordelingPerDag: Beløpstidslinje,
     dekningsgrad: ProsentdelDto,
     inntektjusteringer: Beløpstidslinje,
-    legacyYrkesaktivitet: LegacyYrkesaktivitet,
+    yrkesaktivitet: Yrkesaktivitet,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     InaktivUtbetalingstidslinjeBuilder(
         maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         inntektjusteringer = inntektjusteringer,
-        venteperiode = legacyYrkesaktivitet.hentPerioderForType(Periodetype.VENTETID_INAKTIV),
+        venteperiode = yrkesaktivitet.hentPerioderForType(VENTETID_INAKTIV).map { Periode(it.fom, it.tom) },
     ).result(sykdomstidslinje)
 
 /**
@@ -138,13 +133,13 @@ private fun byggInaktivUtbetalingstidslinje(
 private fun byggSelvstendigUtbetalingstidslinje(
     maksInntektTilFordelingPerDag: Beløpstidslinje,
     dekningsgrad: ProsentdelDto,
-    legacyYrkesaktivitet: LegacyYrkesaktivitet,
+    yrkesaktivitet: Yrkesaktivitet,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
         dekningsgrad = dekningsgrad.tilProsentdel(),
-        ventetid = legacyYrkesaktivitet.hentPerioderForType(Periodetype.VENTETID),
+        ventetid = yrkesaktivitet.hentPerioderForType(VENTETID).map { Periode(it.fom, it.tom) },
     ).result(sykdomstidslinje)
 
 /**

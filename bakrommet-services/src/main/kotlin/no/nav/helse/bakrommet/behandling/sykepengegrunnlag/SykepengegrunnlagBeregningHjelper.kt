@@ -4,12 +4,13 @@ import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.BeregningskoderKombinasjonerSykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.domain.Bruker
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.Arbeidstaker
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.Frilanser
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 import no.nav.helse.bakrommet.singleOrNone
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.økonomi.Inntekt
@@ -19,7 +20,7 @@ import java.time.LocalDate
 class SykepengegrunnlagBeregningHjelper(
     private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
-    private val yrkesaktivitetDao: YrkesaktivitetDao,
+    private val yrkesaktivitetRepository: YrkesaktivitetRepository,
 ) {
     fun beregnOgLagreSykepengegrunnlag(
         referanse: BehandlingReferanse,
@@ -40,7 +41,7 @@ class SykepengegrunnlagBeregningHjelper(
                 }
             }
 
-        val yrkesaktiviteter = yrkesaktivitetDao.hentYrkesaktiviteter(periode)
+        val yrkesaktiviteter = yrkesaktivitetRepository.finn(BehandlingId(periode.id))
 
         val sykepengegrunnlag =
             beregnSykepengegrunnlag(
@@ -65,7 +66,7 @@ class SykepengegrunnlagBeregningHjelper(
 }
 
 fun beregnSykepengegrunnlag(
-    yrkesaktiviteter: List<LegacyYrkesaktivitet>,
+    yrkesaktiviteter: List<Yrkesaktivitet>,
     skjæringstidspunkt: LocalDate,
 ): Sykepengegrunnlag {
     val grunnbeløp = Grunnbeløp.`1G`.beløp(skjæringstidspunkt)
@@ -135,7 +136,7 @@ fun beregnSykepengegrunnlag(
     )
 }
 
-private fun List<LegacyYrkesaktivitet>.hentKombinertBeregningskode(): BeregningskoderKombinasjonerSykepengegrunnlag? {
+private fun List<Yrkesaktivitet>.hentKombinertBeregningskode(): BeregningskoderKombinasjonerSykepengegrunnlag? {
     val erNæringsdrivende = this.any { it.kategorisering is SelvstendigNæringsdrivende }
     val erFrilanser = this.any { it.kategorisering is Frilanser }
     val erArbeidstaker = this.any { it.kategorisering is Arbeidstaker }

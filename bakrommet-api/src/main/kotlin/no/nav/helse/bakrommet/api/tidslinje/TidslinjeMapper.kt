@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.api.dto.tidslinje.TidlinjeTilkommenInntektDto
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidlinjeYrkesaktivitetDto
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingDto
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
-import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektYrkesaktivitetType
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.maybeOrgnummer
 import no.nav.helse.bakrommet.tidslinje.TidslinjeData
@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.tidslinje.TidslinjeData
 fun TidslinjeData.tilTidslinjeDto(): List<TidslinjeBehandlingDto> =
     behandlinger.map { behandling ->
         val behandlingYrkesaktiviteter = yrkesaktiviteter.filter { it.behandlingId == behandling.id }
-        val behandlingTilkommen = tilkommen.filter { it.behandlingId == behandling.id }
+        val behandlingTilkommen = tilkommen.filter { it.behandlingId.value == behandling.id }
 
         TidslinjeBehandlingDto(
             id = behandling.id,
@@ -35,12 +35,12 @@ fun TidslinjeData.tilTidslinjeDto(): List<TidslinjeBehandlingDto> =
             tilkommenInntekt =
                 behandlingTilkommen.map { tilkommenInntekt ->
                     TidlinjeTilkommenInntektDto(
-                        id = tilkommenInntekt.id,
-                        orgnavn = orgnavn(tilkommenInntekt.tilkommenInntekt.ident),
-                        ident = tilkommenInntekt.tilkommenInntekt.ident,
-                        yrkesaktivitetType = tilkommenInntekt.tilkommenInntekt.yrkesaktivitetType.tilTilkommenInntektYrkesaktivitetType(),
-                        fom = tilkommenInntekt.tilkommenInntekt.fom,
-                        tom = tilkommenInntekt.tilkommenInntekt.tom,
+                        id = tilkommenInntekt.id.value,
+                        orgnavn = orgnavn(tilkommenInntekt.ident),
+                        ident = tilkommenInntekt.ident,
+                        yrkesaktivitetType = tilkommenInntekt.yrkesaktivitetType.tilTilkommenInntektYrkesaktivitetType(),
+                        fom = tilkommenInntekt.fom,
+                        tom = tilkommenInntekt.tom,
                     )
                 },
         )

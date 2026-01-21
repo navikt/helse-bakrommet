@@ -63,7 +63,7 @@ class PgBehandlingRepository private constructor(
             "skjaeringstidspunkt" to behandling.skjæringstidspunkt,
             "individuell_begrunnelse" to behandling.individuellBegrunnelse,
             "sykepengegrunnlag_id" to behandling.sykepengegrunnlagId,
-            "revurderer_behandling_id" to behandling.revurdererSaksbehandlingsperiodeId?.value,
+            "revurderer_behandling_id" to behandling.revurdererBehandlingId?.value,
             "revurdert_av_behandling_id" to behandling.revurdertAvBehandlingId?.value,
         )
     }
@@ -82,7 +82,7 @@ class PgBehandlingRepository private constructor(
             skjæringstidspunkt = row.localDate("skjaeringstidspunkt"),
             individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
             sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id"),
-            revurdererSaksbehandlingsperiodeId = row.uuidOrNull("revurderer_behandling_id")?.let { BehandlingId(it) },
+            revurdererBehandlingId = row.uuidOrNull("revurderer_behandling_id")?.let { BehandlingId(it) },
             revurdertAvBehandlingId = row.uuidOrNull("revurdert_av_behandling_id")?.let { BehandlingId(it) },
         )
 }

@@ -5,7 +5,7 @@ import no.nav.helse.februar
 import no.nav.helse.januar
 import no.nav.helse.mars
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -34,7 +34,7 @@ class BeregnRefusjonstidslinjeTest {
                 }
             }
 
-        val yrkesaktivitet = input.legacyYrkesaktivitet.first { it.id == yrkesaktivitetId }
+        val yrkesaktivitet = input.yrkesaktiviteter.first { it.id.value == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
                 yrkesaktivitet,
@@ -79,7 +79,7 @@ class BeregnRefusjonstidslinjeTest {
                 }
             }
 
-        val yrkesaktivitet = input.legacyYrkesaktivitet.first { it.id == yrkesaktivitetId }
+        val yrkesaktivitet = input.yrkesaktiviteter.first { it.id.value == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
                 yrkesaktivitet,
@@ -123,7 +123,7 @@ class BeregnRefusjonstidslinjeTest {
                 }
             }
 
-        val yrkesaktivitet = input.legacyYrkesaktivitet.first { it.id == yrkesaktivitetId }
+        val yrkesaktivitet = input.yrkesaktiviteter.first { it.id.value == yrkesaktivitetId }
         val refusjonstidslinje =
             beregnRefusjonstidslinje(
                 yrkesaktivitet,

@@ -7,7 +7,6 @@ import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBeregningHjelper
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDbRecord
-import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDao
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsBeregningHjelper
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
@@ -15,17 +14,20 @@ import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.repository.BehandlingRepository
+import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 
 interface Beregningsdaoer {
     val beregningDao: UtbetalingsberegningDao
     val behandlingDao: BehandlingDao
     val behandlingRepository: BehandlingRepository
     val vilkårsvurderingRepository: VilkårsvurderingRepository
+    val tilkommenInntektRepository: TilkommenInntektRepository
+    val yrkesaktivitetRepository: YrkesaktivitetRepository
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personPseudoIdDao: PersonPseudoIdDao
-    val tilkommenInntektDao: TilkommenInntektDao
 }
 
 fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
@@ -44,7 +46,7 @@ fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     SykepengegrunnlagBeregningHjelper(
         behandlingDao = behandlingDao,
         sykepengegrunnlagDao = sykepengegrunnlagDao,
-        yrkesaktivitetDao = yrkesaktivitetDao,
+        yrkesaktivitetRepository = yrkesaktivitetRepository,
     ).beregnOgLagreSykepengegrunnlag(
         referanse = ref,
         saksbehandler = saksbehandler,
@@ -65,11 +67,11 @@ fun Beregningsdaoer.beregnUtbetaling(
 
     UtbetalingsBeregningHjelper(
         beregningDao = beregningDao,
-        behandlingDao = behandlingDao,
         sykepengegrunnlagDao = sykepengegrunnlagDao,
-        yrkesaktivitetDao = yrkesaktivitetDao,
         vilkårsvurderingRepository = vilkårsvurderingRepository,
-        tilkommenInntektDao = tilkommenInntektDao,
+        tilkommenInntektRepository = tilkommenInntektRepository,
+        behandlingRepository = behandlingRepository,
+        yrkesaktivitetRepository = yrkesaktivitetRepository,
     ).settBeregning(
         referanse = ref,
         saksbehandler = saksbehandler,

@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.repository.BehandlingRepository
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.util.UUID
+import java.util.*
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus as DomainBehandlingStatus
 
 class BehandlingDaoFake(
@@ -111,7 +111,7 @@ class BehandlingDaoFake(
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
-            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId?.let { BehandlingId(it) },
+            revurdererBehandlingId = revurdererSaksbehandlingsperiodeId?.let { BehandlingId(it) },
             revurdertAvBehandlingId = revurdertAvBehandlingId?.let { BehandlingId(it) },
         )
 
@@ -129,7 +129,7 @@ class BehandlingDaoFake(
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
-            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId?.value,
+            revurdererSaksbehandlingsperiodeId = revurdererBehandlingId?.value,
             revurdertAvBehandlingId = revurdertAvBehandlingId?.value,
         )
 
@@ -151,7 +151,7 @@ class BehandlingDaoFake(
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
-            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
         )
 
@@ -169,7 +169,7 @@ class BehandlingDaoFake(
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = nyBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
-            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
         )
 
@@ -187,7 +187,7 @@ class BehandlingDaoFake(
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
-            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
         )
 
@@ -205,7 +205,7 @@ class BehandlingDaoFake(
             skjæringstidspunkt = nySkjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
-            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
         )
 
@@ -223,7 +223,7 @@ class BehandlingDaoFake(
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = nySykepengegrunnlagId,
-            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
         )
 
@@ -241,7 +241,7 @@ class BehandlingDaoFake(
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
-            revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+            revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = nyRevurdertAvBehandlingId,
         )
 }

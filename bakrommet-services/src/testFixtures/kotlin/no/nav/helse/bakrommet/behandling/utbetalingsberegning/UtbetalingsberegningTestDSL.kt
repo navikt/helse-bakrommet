@@ -4,32 +4,20 @@ import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.beregnSykepengegrunnlag
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning.beregnUtbetalingerForAlleYrkesaktiviteter
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Perioder
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Periodetype
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.domain.sykepenger.Dag
-import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
-import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
-import no.nav.helse.bakrommet.domain.sykepenger.Kilde
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SelvstendigForsikring
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.sykepenger.*
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Periodetype.ARBEIDSGIVERPERIODE
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
+import no.nav.helse.økonomi.Inntekt
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.UUID
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import java.util.*
+import kotlin.test.*
 
 /**
  * Kotlin DSL for å lage testdata for utbetalingsberegning
@@ -99,7 +87,7 @@ class UtbetalingsberegningTestBuilder {
 
         return UtbetalingsberegningInput(
             sykepengegrunnlag = sykepengegrunnlag,
-            legacyYrkesaktivitet = yrkesaktivitetListe,
+            yrkesaktiviteter = yrkesaktivitetListe,
             saksbehandlingsperiode = periode,
             arbeidsgiverperiode = arbeidsgiverperiode,
             tilkommenInntekt = emptyList(),
@@ -385,12 +373,12 @@ class YrkesaktivitetBuilder {
         andreYtelser(begrunnelse, antallDager)
     }
 
-    fun build(saksbehandlingsperiode: PeriodeDto): LegacyYrkesaktivitet {
+    fun build(saksbehandlingsperiode: PeriodeDto): Yrkesaktivitet {
         val perioder =
             arbeidsgiverperiode?.let { (fom, tom) ->
                 Perioder(
-                    type = Periodetype.ARBEIDSGIVERPERIODE,
-                    perioder = listOf(PeriodeDto(fom = fom, tom = tom)),
+                    type = ARBEIDSGIVERPERIODE,
+                    perioder = listOf(Periode(fom = fom, tom = tom)),
                 )
             }
 
@@ -426,13 +414,13 @@ class YrkesaktivitetBuilder {
                     }
                 }
 
-        return LegacyYrkesaktivitet(
-            id = id,
+        return Yrkesaktivitet(
+            id = YrkesaktivitetId(id),
             kategorisering = yrkesaktivitetKategorisering,
             kategoriseringGenerert = null,
             dagoversikt = Dagoversikt(sykdomstidlinje, avslattTidlinje),
             dagoversiktGenerert = null,
-            behandlingId = behandlingId,
+            behandlingId = BehandlingId(behandlingId),
             opprettet = OffsetDateTime.now(),
             generertFraDokumenter = emptyList(),
             perioder = perioder,
@@ -526,7 +514,7 @@ class RefusjonsdataBuilder {
         tom: LocalDate? = null,
         beløp: Int, // kr per måned
     ) {
-        val månedligBeløp = InntektbeløpDto.MånedligDouble(beløp.toDouble())
+        val månedligBeløp = Inntekt.gjenopprett(InntektbeløpDto.MånedligDouble(beløp.toDouble()))
         refusjonsperioder.add(
             Refusjonsperiode(
                 fom = fom,
@@ -549,7 +537,7 @@ class RefusjonsdataBuilder {
         tom: LocalDate? = null,
         beløpØre: Long, // øre per måned
     ) {
-        val månedligBeløp = InntektbeløpDto.MånedligDouble(beløpØre.toDouble() / 100.0)
+        val månedligBeløp = Inntekt.gjenopprett(InntektbeløpDto.MånedligDouble(beløpØre.toDouble() / 100.0))
         refusjonsperioder.add(
             Refusjonsperiode(
                 fom = fom,
@@ -584,7 +572,7 @@ fun beregnOgByggOppdrag(
     ident: String = "01019012345",
 ): BeregningResultat {
     val beregnet = beregnUtbetalingerForAlleYrkesaktiviteter(input)
-    val oppdrag = byggOppdragFraBeregning(beregnet, input.legacyYrkesaktivitet, NaturligIdent(ident))
+    val oppdrag = byggOppdragFraBeregning(beregnet, input.yrkesaktiviteter, NaturligIdent(ident))
     return BeregningResultat(beregnet, oppdrag, input.sykepengegrunnlag)
 }
 

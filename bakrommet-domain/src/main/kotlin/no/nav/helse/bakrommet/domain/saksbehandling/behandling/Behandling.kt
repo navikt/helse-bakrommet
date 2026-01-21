@@ -41,7 +41,7 @@ class Behandling private constructor(
         private set
     var sykepengegrunnlagId: UUID? = sykepengegrunnlagId
         private set
-    var revurdererSaksbehandlingsperiodeId: BehandlingId? = revurdererBehandlingId
+    var revurdererBehandlingId: BehandlingId? = revurdererBehandlingId
         private set
     var revurdertAvBehandlingId: BehandlingId? = revurdertAvBehandlingId
         private set
@@ -49,6 +49,29 @@ class Behandling private constructor(
     val periode get() = Periode(fom, tom)
 
     fun erÅpenForEndringer() = status == BehandlingStatus.UNDER_BEHANDLING
+
+    fun erGodkjent() = status == BehandlingStatus.GODKJENT
+
+    fun revurderAv(
+        navIdent: String,
+        navn: String,
+    ): Behandling =
+        Behandling(
+            id = BehandlingId(UUID.randomUUID()),
+            naturligIdent = naturligIdent,
+            opprettet = Instant.now(),
+            opprettetAvNavIdent = navIdent,
+            opprettetAvNavn = navn,
+            fom = fom,
+            tom = tom,
+            status = BehandlingStatus.UNDER_BEHANDLING,
+            beslutterNavIdent = null,
+            skjæringstidspunkt = skjæringstidspunkt,
+            individuellBegrunnelse = null,
+            sykepengegrunnlagId = sykepengegrunnlagId,
+            revurdererBehandlingId = this.id,
+            revurdertAvBehandlingId = null,
+        )
 
     infix fun gjelder(naturligIdent: NaturligIdent): Boolean = this.naturligIdent == naturligIdent
 
@@ -66,7 +89,7 @@ class Behandling private constructor(
             skjæringstidspunkt: LocalDate,
             individuellBegrunnelse: String? = null,
             sykepengegrunnlagId: UUID? = null,
-            revurdererSaksbehandlingsperiodeId: BehandlingId? = null,
+            revurdererBehandlingId: BehandlingId? = null,
             revurdertAvBehandlingId: BehandlingId? = null,
         ) = Behandling(
             id = id,
@@ -81,7 +104,7 @@ class Behandling private constructor(
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
             sykepengegrunnlagId = sykepengegrunnlagId,
-            revurdererBehandlingId = revurdererSaksbehandlingsperiodeId,
+            revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
         )
     }

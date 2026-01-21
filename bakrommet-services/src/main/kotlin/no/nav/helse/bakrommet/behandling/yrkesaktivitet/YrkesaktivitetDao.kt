@@ -57,21 +57,6 @@ fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): LegacyYrkesaktivitet =
 
 interface YrkesaktivitetDao {
     fun opprettYrkesaktivitet(
-        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-    ): YrkesaktivitetDbRecord =
-        opprettYrkesaktivitet(
-            id = yrkesaktivitetDbRecord.id,
-            kategorisering = yrkesaktivitetDbRecord.kategorisering,
-            dagoversikt = yrkesaktivitetDbRecord.dagoversikt,
-            behandlingId = yrkesaktivitetDbRecord.behandlingId,
-            opprettet = yrkesaktivitetDbRecord.opprettet,
-            generertFraDokumenter = yrkesaktivitetDbRecord.generertFraDokumenter,
-            perioder = yrkesaktivitetDbRecord.perioder,
-            inntektData = yrkesaktivitetDbRecord.inntektData,
-            refusjonsdata = yrkesaktivitetDbRecord.refusjon,
-        )
-
-    fun opprettYrkesaktivitet(
         id: UUID,
         kategorisering: YrkesaktivitetKategorisering,
         dagoversikt: Dagoversikt?,
@@ -85,33 +70,9 @@ interface YrkesaktivitetDao {
 
     fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord?
 
-    fun hentYrkesaktivitet(id: UUID): LegacyYrkesaktivitet?
-
     fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet>
 
     fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord>
-
-    fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord>
-
-    fun oppdaterPerioder(
-        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        perioder: Perioder?,
-    ): YrkesaktivitetDbRecord
-
-    fun oppdaterInntektrequest(
-        legacyYrkesaktivitet: LegacyYrkesaktivitet,
-        request: InntektRequest,
-    ): YrkesaktivitetDbRecord
-
-    fun oppdaterInntektData(
-        legacyYrkesaktivitet: LegacyYrkesaktivitet,
-        inntektData: InntektData,
-    ): YrkesaktivitetDbRecord
-
-    fun oppdaterRefusjon(
-        yrkesaktivitetID: UUID,
-        refusjonsdata: List<Refusjonsperiode>?,
-    ): YrkesaktivitetDbRecord
 
     fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord>
 }

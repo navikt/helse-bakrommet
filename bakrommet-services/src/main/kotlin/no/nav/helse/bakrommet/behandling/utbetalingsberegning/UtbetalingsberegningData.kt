@@ -2,23 +2,23 @@ package no.nav.helse.bakrommet.behandling.utbetalingsberegning
 
 import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
-import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.dto.deserialisering.UtbetalingstidslinjeInnDto
 import no.nav.helse.dto.serialisering.UtbetalingstidslinjeUtDto
 import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
-import java.util.UUID
+import java.util.*
 
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagBase,
-    val legacyYrkesaktivitet: List<LegacyYrkesaktivitet>,
+    val yrkesaktiviteter: List<Yrkesaktivitet>,
     val saksbehandlingsperiode: PeriodeDto,
     val arbeidsgiverperiode: PeriodeDto? = null,
-    val tilkommenInntekt: List<TilkommenInntektDbRecord>,
+    val tilkommenInntekt: List<TilkommenInntekt>,
     val vilkår: List<VurdertVilkår>,
 )
 

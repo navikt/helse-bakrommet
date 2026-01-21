@@ -27,7 +27,6 @@ class DaoerFelles(
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
     override val beregningDao = UtbetalingsberegningDaoPg(dataSource)
     override val outboxDao = OutboxDaoPg(dataSource)
-    override val tilkommenInntektDao = TilkommenInntektDaoPg(dataSource)
 }
 
 class SessionDaoerFelles(
@@ -40,7 +39,6 @@ class SessionDaoerFelles(
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(session)
     override val beregningDao = UtbetalingsberegningDaoPg(session)
     override val outboxDao = OutboxDaoPg(session)
-    override val tilkommenInntektDao = TilkommenInntektDaoPg(session)
 
     override val yrkesaktivitetRepository = PgYrkesaktivitetRepository(session)
     override val behandlingRepository = PgBehandlingRepository(session)

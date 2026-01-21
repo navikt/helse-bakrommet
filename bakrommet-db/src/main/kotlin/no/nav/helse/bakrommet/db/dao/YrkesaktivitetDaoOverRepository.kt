@@ -6,7 +6,6 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivi
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
@@ -55,8 +54,6 @@ class YrkesaktivitetDaoOverRepository(
 
     override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = yrkesaktivitetRepository.finn(YrkesaktivitetId(id))?.tilDbRecord()
 
-    override fun hentYrkesaktivitet(id: UUID): LegacyYrkesaktivitet? = yrkesaktivitetRepository.finn(YrkesaktivitetId(id))?.tilLegacy()
-
     override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet> =
         yrkesaktivitetRepository
             .finn(BehandlingId(periode.id))
@@ -66,63 +63,6 @@ class YrkesaktivitetDaoOverRepository(
         yrkesaktivitetRepository
             .finn(BehandlingId(periode.id))
             .map { it.tilDbRecord() }
-
-    override fun hentYrkesaktiviteterDbRecord(behandlingId: UUID): List<YrkesaktivitetDbRecord> =
-        yrkesaktivitetRepository
-            .finn(BehandlingId(behandlingId))
-            .map { it.tilDbRecord() }
-
-    override fun oppdaterPerioder(
-        yrkesaktivitetDbRecord: YrkesaktivitetDbRecord,
-        perioder: Perioder?,
-    ): YrkesaktivitetDbRecord {
-        val yrkesaktivitet =
-            yrkesaktivitetRepository.finn(YrkesaktivitetId(yrkesaktivitetDbRecord.id))
-                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${yrkesaktivitetDbRecord.id}")
-
-        yrkesaktivitet.oppdaterPerioder(perioder?.toDomain())
-        yrkesaktivitetRepository.lagre(yrkesaktivitet)
-        return yrkesaktivitet.tilDbRecord()
-    }
-
-    override fun oppdaterInntektrequest(
-        legacyYrkesaktivitet: LegacyYrkesaktivitet,
-        request: InntektRequest,
-    ): YrkesaktivitetDbRecord {
-        val yrkesaktivitet =
-            yrkesaktivitetRepository.finn(YrkesaktivitetId(legacyYrkesaktivitet.id))
-                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${legacyYrkesaktivitet.id}")
-
-        yrkesaktivitet.nyInntektRequest(request)
-        yrkesaktivitetRepository.lagre(yrkesaktivitet)
-        return yrkesaktivitet.tilDbRecord()
-    }
-
-    override fun oppdaterInntektData(
-        legacyYrkesaktivitet: LegacyYrkesaktivitet,
-        inntektData: InntektData,
-    ): YrkesaktivitetDbRecord {
-        val yrkesaktivitet =
-            yrkesaktivitetRepository.finn(YrkesaktivitetId(legacyYrkesaktivitet.id))
-                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id ${legacyYrkesaktivitet.id}")
-
-        yrkesaktivitet.leggTilInntektData(inntektData)
-        yrkesaktivitetRepository.lagre(yrkesaktivitet)
-        return yrkesaktivitet.tilDbRecord()
-    }
-
-    override fun oppdaterRefusjon(
-        yrkesaktivitetID: UUID,
-        refusjonsdata: List<Refusjonsperiode>?,
-    ): YrkesaktivitetDbRecord {
-        val yrkesaktivitet =
-            yrkesaktivitetRepository.finn(YrkesaktivitetId(yrkesaktivitetID))
-                ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id $yrkesaktivitetID")
-
-        yrkesaktivitet.oppdaterRefusjon(refusjonsdata?.map { it.toDomain() })
-        yrkesaktivitetRepository.lagre(yrkesaktivitet)
-        return yrkesaktivitet.tilDbRecord()
-    }
 
     override fun finnYrkesaktiviteterForBehandlinger(map: List<UUID>): List<YrkesaktivitetForenkletDbRecord> =
         map.flatMap { behandlingId ->

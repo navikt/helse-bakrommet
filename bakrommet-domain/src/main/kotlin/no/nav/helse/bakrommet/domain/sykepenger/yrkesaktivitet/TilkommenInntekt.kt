@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.Periode
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @JvmInline
 value class TilkommenInntektId(
@@ -64,6 +64,21 @@ class TilkommenInntekt private constructor(
         this.notatTilBeslutter = notatTilBeslutter
         this.ekskluderteDager = ekskluderteDager
     }
+
+    fun revurderUnder(behandlingId: BehandlingId): TilkommenInntekt =
+        TilkommenInntekt(
+            id = TilkommenInntektId(UUID.randomUUID()),
+            behandlingId = behandlingId,
+            yrkesaktivitetType = yrkesaktivitetType,
+            fom = fom,
+            tom = tom,
+            ident = ident,
+            inntektForPerioden = inntektForPerioden,
+            notatTilBeslutter = notatTilBeslutter,
+            ekskluderteDager = ekskluderteDager,
+            opprettet = OffsetDateTime.now(),
+            opprettetAvNavIdent = opprettetAvNavIdent,
+        )
 
     companion object {
         fun fraLagring(

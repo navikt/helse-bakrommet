@@ -42,7 +42,7 @@ class PgBehandlingRepositoryTest {
         assertEquals(behandling.individuellBegrunnelse, funnet.individuellBegrunnelse)
         assertEquals(behandling.sykepengegrunnlagId, funnet.sykepengegrunnlagId)
         assertEquals(behandling.revurdertAvBehandlingId, funnet.revurdertAvBehandlingId)
-        assertEquals(behandling.revurdererSaksbehandlingsperiodeId, funnet.revurdererSaksbehandlingsperiodeId)
+        assertEquals(behandling.revurdererBehandlingId, funnet.revurdererBehandlingId)
     }
 
     @Test
@@ -89,7 +89,7 @@ class PgBehandlingRepositoryTest {
         assertEquals(oppdatertBehandling.individuellBegrunnelse, funnet.individuellBegrunnelse)
         assertEquals(oppdatertBehandling.sykepengegrunnlagId, funnet.sykepengegrunnlagId)
         assertEquals(oppdatertBehandling.revurdertAvBehandlingId, funnet.revurdertAvBehandlingId)
-        assertEquals(oppdatertBehandling.revurdererSaksbehandlingsperiodeId, funnet.revurdererSaksbehandlingsperiodeId)
+        assertEquals(oppdatertBehandling.revurdererBehandlingId, funnet.revurdererBehandlingId)
     }
 
     @Test
@@ -136,6 +136,6 @@ class PgBehandlingRepositoryTest {
         assertEquals(oppdatertBehandling.individuellBegrunnelse, funnet.individuellBegrunnelse)
         assertEquals(oppdatertBehandling.sykepengegrunnlagId, funnet.sykepengegrunnlagId)
         assertEquals(oppdatertBehandling.revurdertAvBehandlingId, funnet.revurdertAvBehandlingId)
-        assertEquals(oppdatertBehandling.revurdererSaksbehandlingsperiodeId, funnet.revurdererSaksbehandlingsperiodeId)
+        assertEquals(oppdatertBehandling.revurdererBehandlingId, funnet.revurdererBehandlingId)
     }
 }

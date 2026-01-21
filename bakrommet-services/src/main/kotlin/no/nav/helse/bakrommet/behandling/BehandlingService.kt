@@ -1,11 +1,7 @@
 package no.nav.helse.bakrommet.behandling
 
 import no.nav.helse.bakrommet.auth.BrukerOgToken
-import no.nav.helse.bakrommet.behandling.BehandlingStatus.GODKJENT
-import no.nav.helse.bakrommet.behandling.BehandlingStatus.REVURDERT
-import no.nav.helse.bakrommet.behandling.BehandlingStatus.TIL_BESLUTNING
-import no.nav.helse.bakrommet.behandling.BehandlingStatus.UNDER_BEHANDLING
-import no.nav.helse.bakrommet.behandling.BehandlingStatus.UNDER_BESLUTNING
+import no.nav.helse.bakrommet.behandling.BehandlingStatus.*
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType.REVURDERING_STARTET
 import no.nav.helse.bakrommet.behandling.beregning.Beregningsdaoer
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
@@ -18,6 +14,7 @@ import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
@@ -215,91 +212,87 @@ class BehandlingService(
         saksbehandler: Bruker,
     ): BehandlingDbRecord =
         db.transactional {
-            val forrigePeriode = behandlingDao.hentPeriode(periodeRef, null, måVæreUnderBehandling = false)
-            if (forrigePeriode.status != GODKJENT) {
+            val behandlingId = BehandlingId(periodeRef.behandlingId)
+            val forrigeBehandling = behandlingRepository.finn(behandlingId) ?: error("Forventer å finne en behandling")
+            if (!forrigeBehandling.erGodkjent()) {
                 throw InputValideringException("Kun godkjente perioder kan revurderes")
             }
             // TODO sjekke at ingen andre revurderer den? Eller bare stole på unique constraint i db?
-            val nyPeriode =
-                forrigePeriode.copy(
-                    status = UNDER_BEHANDLING,
-                    opprettet = OffsetDateTime.now(),
-                    opprettetAvNavn = saksbehandler.navn,
-                    opprettetAvNavIdent = saksbehandler.navIdent,
-                    id = UUID.randomUUID(),
-                    revurdererSaksbehandlingsperiodeId = forrigePeriode.id,
-                )
-            behandlingDao.opprettPeriode(nyPeriode)
-            yrkesaktivitetDao.hentYrkesaktiviteterDbRecord(forrigePeriode).forEach { ya ->
-                yrkesaktivitetDao.opprettYrkesaktivitet(
-                    ya.copy(
-                        id = UUID.randomUUID(),
-                        behandlingId = nyPeriode.id,
-                        opprettet = OffsetDateTime.now(),
-                    ),
-                )
-            }
+            val nyBehandling = forrigeBehandling.revurderAv(navn = saksbehandler.navn, navIdent = saksbehandler.navIdent)
+            behandlingRepository.lagre(forrigeBehandling)
+            behandlingRepository.lagre(nyBehandling)
 
-            tilkommenInntektDao.hentForBehandling(forrigePeriode.id).forEach { tilkommenInntektDbRecord ->
-                tilkommenInntektDao.opprett(
-                    tilkommenInntektDbRecord.copy(id = UUID.randomUUID(), behandlingId = nyPeriode.id),
-                )
-            }
+            val yrkesaktiviteter = yrkesaktivitetRepository.finn(forrigeBehandling.id)
+            yrkesaktiviteter
+                .map { ya ->
+                    ya.revurderUnder(behandlingId = nyBehandling.id)
+                }.forEach { ny ->
+                    yrkesaktivitetRepository.lagre(ny)
+                }
 
-            if (forrigePeriode.sykepengegrunnlagId != null) {
-                sykepengegrunnlagDao.hentSykepengegrunnlag(forrigePeriode.sykepengegrunnlagId).let { spg ->
-                    if (spg.opprettetForBehandling == forrigePeriode.id) {
+            tilkommenInntektRepository
+                .finnFor(forrigeBehandling.id)
+                .map {
+                    it.revurderUnder(behandlingId = nyBehandling.id)
+                }.forEach { ny ->
+                    tilkommenInntektRepository.lagre(ny)
+                }
+
+            val sykepengegrunnlagId = forrigeBehandling.sykepengegrunnlagId
+            if (sykepengegrunnlagId != null) {
+                sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId).let { spg ->
+                    if (spg.opprettetForBehandling == forrigeBehandling.id.value) {
                         val nyttSpg =
                             sykepengegrunnlagDao.lagreSykepengegrunnlag(
                                 spg.sykepengegrunnlag,
                                 saksbehandler,
-                                nyPeriode.id,
+                                nyBehandling.id.value,
                             )
                         behandlingDao.oppdaterSykepengegrunnlagId(
-                            nyPeriode.id,
+                            nyBehandling.id.value,
                             nyttSpg.id,
                         )
                     }
                 }
             }
 
-            behandlingEndringerDao.hentEndringerFor(forrigePeriode.id).forEach { e ->
+            behandlingEndringerDao.hentEndringerFor(forrigeBehandling.id.value).forEach { e ->
                 behandlingEndringerDao.leggTilEndring(
-                    nyPeriode.endring(
+                    nyBehandling.endring(
                         endringType = e.endringType,
                         saksbehandler = saksbehandler,
-                        status = nyPeriode.status,
-                        beslutterNavIdent = nyPeriode.beslutterNavIdent,
+                        status = nyBehandling.status,
+                        beslutterNavIdent = nyBehandling.beslutterNavIdent,
                         endretTidspunkt = e.endretTidspunkt,
                         endringKommentar = e.endringKommentar,
                     ),
                 )
             }
             behandlingEndringerDao.leggTilEndring(
-                nyPeriode.endring(
+                nyBehandling.endring(
                     endringType = REVURDERING_STARTET,
                     saksbehandler = saksbehandler,
                 ),
             )
 
             vilkårsvurderingRepository
-                .hentAlle(BehandlingId(forrigePeriode.id))
+                .hentAlle(forrigeBehandling.id)
                 .forEach { vurdertVilkår ->
-                    vilkårsvurderingRepository.lagre(vurdertVilkår.kopierTil(BehandlingId(nyPeriode.id)))
+                    vilkårsvurderingRepository.lagre(vurdertVilkår.kopierTil(nyBehandling.id))
                 }
 
-            dokumentDao.hentDokumenterFor(forrigePeriode.id).forEach { dokument ->
+            dokumentDao.hentDokumenterFor(forrigeBehandling.id.value).forEach { dokument ->
                 dokumentDao.opprettDokument(
-                    dokument.copy(id = UUID.randomUUID(), opprettetForBehandling = nyPeriode.id),
+                    dokument.copy(id = UUID.randomUUID(), opprettetForBehandling = nyBehandling.id.value),
                 )
             }
 
             beregnSykepengegrunnlagOgUtbetaling(
-                nyPeriode.somReferanse(),
+                BehandlingReferanse(nyBehandling.naturligIdent, nyBehandling.id.value),
                 saksbehandler = saksbehandler,
             )
 
-            behandlingDao.reload(nyPeriode)
+            behandlingDao.finnBehandling(nyBehandling.id.value)!!
         }
 
     suspend fun taTilBeslutning(
@@ -436,6 +429,30 @@ private fun BehandlingDbRecord.endring(
 ) = SaksbehandlingsperiodeEndring(
     behandlingId = this.id,
     status = status,
+    beslutterNavIdent = beslutterNavIdent,
+    endretTidspunkt = endretTidspunkt,
+    endretAvNavIdent = saksbehandler.navIdent,
+    endringType = endringType,
+    endringKommentar = endringKommentar,
+)
+
+private fun Behandling.endring(
+    endringType: SaksbehandlingsperiodeEndringType,
+    saksbehandler: Bruker,
+    status: no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus = this.status,
+    beslutterNavIdent: String? = this.beslutterNavIdent,
+    endretTidspunkt: OffsetDateTime = OffsetDateTime.now(),
+    endringKommentar: String? = null,
+) = SaksbehandlingsperiodeEndring(
+    behandlingId = this.id.value,
+    status =
+        when (status) {
+            no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.UNDER_BEHANDLING -> UNDER_BEHANDLING
+            no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.TIL_BESLUTNING -> TIL_BESLUTNING
+            no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.UNDER_BESLUTNING -> UNDER_BESLUTNING
+            no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.GODKJENT -> GODKJENT
+            no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.REVURDERT -> REVURDERT
+        },
     beslutterNavIdent = beslutterNavIdent,
     endretTidspunkt = endretTidspunkt,
     endretAvNavIdent = saksbehandler.navIdent,

@@ -78,7 +78,7 @@ fun enBehandling(
     skjæringstidspunkt = skjæringstidspunkt,
     individuellBegrunnelse = individuellBegrunnelse,
     sykepengegrunnlagId = sykepengegrunnlagId,
-    revurdererSaksbehandlingsperiodeId = revurdererSaksbehandlingsperiodeId,
+    revurdererBehandlingId = revurdererSaksbehandlingsperiodeId,
     revurdertAvBehandlingId = revurdertAvBehandlingId,
 )
 

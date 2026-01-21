@@ -1,11 +1,11 @@
 package no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning
 
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
-import no.nav.helse.bakrommet.behandling.tilkommen.TilkommenInntektDbRecord
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
@@ -19,8 +19,7 @@ import no.nav.helse.utbetalingstidslinje.Utbetalingstidslinje
 import no.nav.helse.økonomi.Inntekt
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
-import kotlin.collections.set
+import java.util.*
 
 /**
  * Kjernefunksjoner for utbetalingsberegning - ren funksjonell tilnærming
@@ -30,19 +29,19 @@ import kotlin.collections.set
 fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput): List<YrkesaktivitetUtbetalingsberegning> {
     val refusjonstidslinjer =
         beregnAlleRefusjonstidslinjer(
-            input.legacyYrkesaktivitet,
+            input.yrkesaktiviteter,
             input.saksbehandlingsperiode,
         )
 
     val yrkesaktivitetMedDekningsgrad =
-        input.legacyYrkesaktivitet.map { ya ->
+        input.yrkesaktiviteter.map { ya ->
             ya to ya.kategorisering.hentDekningsgrad(input.vilkår)
         }
 
     val allerDagersMaksInntekter =
         input.saksbehandlingsperiode.fom
             .datesUntil(input.saksbehandlingsperiode.tom.plusDays(1))
-            .map { it to input.legacyYrkesaktivitet }
+            .map { it to input.yrkesaktiviteter }
             .toList()
             .associate { it.first to it.second }
             .berikMedAlleYrkesaktivitetersMaksInntektPerDag(
@@ -59,7 +58,7 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
                 allerDagersMaksInntekter.skapBeløpstidslinjeForYrkesaktivitet(yrkesaktivitet)
 
             byggUtbetalingstidslinjeForYrkesaktivitet(
-                legacyYrkesaktivitet = yrkesaktivitet,
+                yrkesaktivitet = yrkesaktivitet,
                 dekningsgrad = dekningsgrad.verdi,
                 input = input,
                 refusjonstidslinje = refusjonstidslinje,
@@ -82,19 +81,19 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
         ).map { (yrkesaktivitetMedDekningsgrad, utbetalingstidslinje) ->
             val (yrkesaktivitet, dekningsgrad) = yrkesaktivitetMedDekningsgrad
             YrkesaktivitetUtbetalingsberegning(
-                yrkesaktivitetId = yrkesaktivitet.id,
+                yrkesaktivitetId = yrkesaktivitet.id.value,
                 utbetalingstidslinje = utbetalingstidslinje,
                 dekningsgrad = dekningsgrad,
             )
         }
 }
 
-private fun Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>>.skapBeløpstidslinjeForYrkesaktivitet(
-    legacyYrkesaktivitet: LegacyYrkesaktivitet,
+private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.skapBeløpstidslinjeForYrkesaktivitet(
+    yrkesaktivitet: Yrkesaktivitet,
 ): Beløpstidslinje {
     val beløpsdager =
         this.mapNotNull { (dato, inntekter) ->
-            val inntektForYrkesaktivitet = inntekter.firstOrNull { it.first == legacyYrkesaktivitet }?.second
+            val inntektForYrkesaktivitet = inntekter.firstOrNull { it.first == yrkesaktivitet }?.second
             if (inntektForYrkesaktivitet != null) {
                 Beløpsdag(
                     dato = dato,
@@ -113,7 +112,7 @@ private fun Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>>.skapBeløp
     return Beløpstidslinje(beløpsdager)
 }
 
-private fun Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>>.justerOppForLaveDager(sykepengegrunnlag: SykepengegrunnlagBase): Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>> {
+private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.justerOppForLaveDager(sykepengegrunnlag: SykepengegrunnlagBase): Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>> {
     return this
         .map {
             // Vi finner summen av dagens inntekter for alle yrkesaktiviteter. Hvis summen er lavere enn sykepengegrunnlaget så justerer vi det opp forholdsmessig per yrkesaktivitet gitt deres andel av inntekt
@@ -144,10 +143,10 @@ private fun Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>>.justerOppF
         }.toMap()
 }
 
-private fun Map<LocalDate, List<LegacyYrkesaktivitet>>.berikMedAlleYrkesaktivitetersMaksInntektPerDag(
+private fun Map<LocalDate, List<Yrkesaktivitet>>.berikMedAlleYrkesaktivitetersMaksInntektPerDag(
     sykepengenngrunnlag: SykepengegrunnlagBase,
-    refusjonstidslinjer: Map<LegacyYrkesaktivitet, Map<LocalDate, Inntekt>>,
-): Map<LocalDate, List<Pair<LegacyYrkesaktivitet, Inntekt>>> =
+    refusjonstidslinjer: Map<Yrkesaktivitet, Map<LocalDate, Inntekt>>,
+): Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>> =
     this
         .map {
             val inntekterForAlleYrkesaktiviteter =
@@ -162,13 +161,13 @@ private fun Map<LocalDate, List<LegacyYrkesaktivitet>>.berikMedAlleYrkesaktivite
 
 fun InntektbeløpDto.DagligDouble.tilInntekt(): Inntekt = Inntekt.gjenopprett(this)
 
-private fun List<TilkommenInntektDbRecord>.tilBeløpstidslinje(periode: PeriodeDto): Beløpstidslinje {
+private fun List<TilkommenInntekt>.tilBeløpstidslinje(periode: PeriodeDto): Beløpstidslinje {
     // lag map av alle datoer i behandlingen til beløp
     val alleDager = periode.fom.datesUntil(periode.tom.plusDays(1)).toList()
 
     val mapMedTommeInntekter = alleDager.associateWith { Inntekt.INGEN }.toMutableMap()
 
-    this.map { it.tilkommenInntekt }.forEach { t ->
+    this.forEach { t ->
         val dagerIPerioden =
             t.fom
                 .datesUntil(

@@ -6,7 +6,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.Dag
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.Periode
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @JvmInline
 value class YrkesaktivitetId(
@@ -39,6 +39,31 @@ class Yrkesaktivitet(
         private set
     var refusjon: List<Refusjonsperiode>? = refusjon
         private set
+
+    fun hentPerioderForType(periodetype: Periodetype): List<Periode> {
+        val perioder = this.perioder
+        return if (perioder?.type == periodetype) {
+            perioder.perioder.map { Periode(it.fom, it.tom) }
+        } else {
+            emptyList()
+        }
+    }
+
+    fun revurderUnder(behandlingId: BehandlingId): Yrkesaktivitet =
+        Yrkesaktivitet(
+            id = YrkesaktivitetId(UUID.randomUUID()),
+            kategorisering = this.kategorisering,
+            kategoriseringGenerert = kategoriseringGenerert,
+            dagoversikt = this.dagoversikt,
+            dagoversiktGenerert = this.dagoversiktGenerert,
+            behandlingId = behandlingId,
+            opprettet = OffsetDateTime.now(),
+            generertFraDokumenter = generertFraDokumenter,
+            perioder = perioder,
+            inntektRequest = this.inntektRequest,
+            inntektData = this.inntektData,
+            refusjon = this.refusjon,
+        )
 
     fun nyKategorisering(nyKategorisering: YrkesaktivitetKategorisering) {
         kategorisering = nyKategorisering
