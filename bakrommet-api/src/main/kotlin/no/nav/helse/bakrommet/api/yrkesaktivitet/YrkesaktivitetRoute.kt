@@ -13,8 +13,8 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.behandling.beregning.beregnSykepengegrunnlagOgUtbetaling
 import no.nav.helse.bakrommet.behandling.beregning.beregnUtbetaling
+import no.nav.helse.bakrommet.behandling.dokumenter.innhenting.somInntektsmeldingObjektListe
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
-import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentAInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.hentPensjonsgivendeInntektForYrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.Dag
@@ -28,17 +28,16 @@ import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
+import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 import no.nav.helse.bakrommet.infrastruktur.provider.OrganisasjonsnavnProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 import no.nav.helse.bakrommet.objectMapper
-import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.serialisertTilString
 
 fun Route.yrkesaktivitetRoute(
     inntektservice: InntektService,
-    inntektsmeldingMatcherService: InntektsmeldingMatcherService,
-    personService: PersonService,
+    inntektsmeldingProvider: InntektsmeldingProvider,
     organisasjonsnavnProvider: OrganisasjonsnavnProvider,
     pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
     inntektProvider: InntekterProvider,
@@ -282,15 +281,33 @@ fun Route.yrkesaktivitetRoute(
             }
 
             get("/inntektsmeldinger") {
-                val naturligIdent = call.naturligIdent(personService)
+                val brukerOgToken = call.saksbehandlerOgToken()
+                val (behandling, yrkesaktivitet) =
+                    db.transactional {
+                        val yrkesaktivitet = hentOgVerifiserYrkesaktivitet(call)
+                        val behandling =
+                            hentOgVerifiserBehandling(call)
+                                .sjekkErÅpenOgTildeltSaksbehandler(brukerOgToken.bruker)
 
-                val yrkesaktivitetRef = call.yrkesaktivitetReferanse(personService)
+                        behandling to yrkesaktivitet
+                    }
+
+                if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
+                    error("Kategorisering er ikke Arbeidstaker, da henter vi ikke inntektsmeldinger")
+                }
+
                 val inntektsmeldinger =
-                    inntektsmeldingMatcherService.hentInntektsmeldingerForYrkesaktivitet(
-                        ref = yrkesaktivitetRef,
-                        fnr = naturligIdent.value,
-                        bruker = call.saksbehandlerOgToken(),
-                    )
+                    inntektsmeldingProvider
+                        .hentInntektsmeldinger(
+                            fnr = behandling.naturligIdent.value,
+                            fom = null,
+                            tom = null,
+                            saksbehandlerToken = brukerOgToken.token,
+                        ).somInntektsmeldingObjektListe()
+                        .filter { it.virksomhetsnummer == yrkesaktivitet.kategorisering.maybeOrgnummer() }
+                        .filter { it.foersteFravaersdag != null } // må ha fraværsdag for å matche
+                        .filter { it.foersteFravaersdag!!.isAfter(behandling.skjæringstidspunkt.minusWeeks(4)) } // må ha fraværsdag for å matche
+                        .filter { it.foersteFravaersdag!!.isBefore(behandling.skjæringstidspunkt.plusWeeks(4)) }
                 call.respondText(
                     inntektsmeldinger.serialisertTilString(),
                     ContentType.Application.Json,

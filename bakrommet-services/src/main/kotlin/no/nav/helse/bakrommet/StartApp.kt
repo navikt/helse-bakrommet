@@ -3,7 +3,6 @@ package no.nav.helse.bakrommet
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.behandling.dokumenter.DokumentHenter
 import no.nav.helse.bakrommet.behandling.inntekter.InntektService
-import no.nav.helse.bakrommet.behandling.inntekter.InntektsmeldingMatcherService
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagService
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningService
 import no.nav.helse.bakrommet.behandling.validering.ValideringService
@@ -42,7 +41,6 @@ data class Services(
     val behandlingService: BehandlingService,
     val dokumentHenter: DokumentHenter,
     val inntektService: InntektService,
-    val inntektsmeldingMatcherService: InntektsmeldingMatcherService,
     val utbetalingsberegningService: UtbetalingsberegningService,
     val personService: PersonService,
     val tidslinjeService: TidslinjeService,
@@ -81,11 +79,6 @@ fun createServices(
                 providers.inntektsmeldingProvider,
                 providers.pensjonsgivendeInntektProvider,
                 providers.inntekterProvider,
-            ),
-        inntektsmeldingMatcherService =
-            InntektsmeldingMatcherService(
-                db = db,
-                providers.inntektsmeldingProvider,
             ),
         utbetalingsberegningService = UtbetalingsberegningService(db),
         personService = personService,

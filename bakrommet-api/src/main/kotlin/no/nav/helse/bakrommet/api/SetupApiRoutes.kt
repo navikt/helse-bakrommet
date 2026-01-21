@@ -40,11 +40,10 @@ fun Route.setupApiRoutes(
     yrkesaktivitetRoute(
         db = db,
         inntektservice = services.inntektService,
-        inntektsmeldingMatcherService = services.inntektsmeldingMatcherService,
-        personService = services.personService,
         organisasjonsnavnProvider = providers.organisasjonsnavnProvider,
         pensjonsgivendeInntektProvider = providers.pensjonsgivendeInntektProvider,
         inntektProvider = providers.inntekterProvider,
+        inntektsmeldingProvider = providers.inntektsmeldingProvider,
     )
     valideringRoute(services.valideringService, services.personService)
 }

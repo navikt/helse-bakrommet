@@ -39,22 +39,6 @@ data class Refusjonsperiode(
     val beløp: InntektbeløpDto.MånedligDouble,
 )
 
-fun YrkesaktivitetDbRecord.tilYrkesaktivitet(): LegacyYrkesaktivitet =
-    LegacyYrkesaktivitet(
-        id = this.id,
-        kategorisering = this.kategorisering,
-        kategoriseringGenerert = this.kategoriseringGenerert,
-        dagoversikt = this.dagoversikt,
-        dagoversiktGenerert = this.dagoversiktGenerert,
-        behandlingId = this.behandlingId,
-        opprettet = this.opprettet,
-        generertFraDokumenter = this.generertFraDokumenter,
-        perioder = this.perioder,
-        inntektRequest = this.inntektRequest,
-        inntektData = this.inntektData,
-        refusjon = this.refusjon,
-    )
-
 interface YrkesaktivitetDao {
     fun opprettYrkesaktivitet(
         id: UUID,
