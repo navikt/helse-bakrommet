@@ -415,7 +415,7 @@ class YrkesaktivitetBuilder {
                 }
 
         return Yrkesaktivitetsperiode(
-            id = YrkesaktivitetId(id),
+            id = YrkesaktivitetsperiodeId(id),
             kategorisering = yrkesaktivitetKategorisering,
             kategoriseringGenerert = null,
             dagoversikt = Dagoversikt(sykdomstidlinje, avslattTidlinje),

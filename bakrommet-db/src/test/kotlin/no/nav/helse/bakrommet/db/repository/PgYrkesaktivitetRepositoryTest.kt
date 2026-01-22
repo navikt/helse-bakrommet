@@ -581,7 +581,7 @@ class PgYrkesaktivitetRepositoryTest {
 
     @Test
     fun `finn yrkesaktivitet by id returnerer null når den ikke finnes`() {
-        val funnet = yrkesaktivitetRepository.finn(YrkesaktivitetId(UUID.randomUUID()))
+        val funnet = yrkesaktivitetRepository.finn(YrkesaktivitetsperiodeId(UUID.randomUUID()))
         assertNull(funnet)
     }
 

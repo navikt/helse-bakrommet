@@ -28,8 +28,8 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårsvurdering
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetsperiodeId
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -88,7 +88,7 @@ class FakeDaoer : AlleDaoer {
 
             override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitetsperiode> = yrkesaktiviteter[behandlingId] ?: emptyList()
 
-            override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitetsperiode? = yrkesaktiviteter.values.flatten().find { it.id == yrkesaktivitetId }
+            override fun finn(yrkesaktivitetsperiodeId: YrkesaktivitetsperiodeId): Yrkesaktivitetsperiode? = yrkesaktiviteter.values.flatten().find { it.id == yrkesaktivitetsperiodeId }
 
             override fun lagre(yrkesaktivitetsperiode: Yrkesaktivitetsperiode) {
                 val aktiviteterForBehandling = yrkesaktiviteter.getOrPut(yrkesaktivitetsperiode.behandlingId) { mutableListOf() }
@@ -96,9 +96,9 @@ class FakeDaoer : AlleDaoer {
                 aktiviteterForBehandling.add(yrkesaktivitetsperiode)
             }
 
-            override fun slett(yrkesaktivitetId: YrkesaktivitetId) {
+            override fun slett(yrkesaktivitetsperiodeId: YrkesaktivitetsperiodeId) {
                 yrkesaktiviteter.values.forEach { aktiviteter ->
-                    aktiviteter.removeIf { it.id == yrkesaktivitetId }
+                    aktiviteter.removeIf { it.id == yrkesaktivitetsperiodeId }
                 }
             }
         }

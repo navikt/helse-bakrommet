@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetsperiodeId
 import no.nav.helse.bakrommet.errorhandling.PersonIkkeFunnetException
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.person.PersonService
@@ -50,4 +50,4 @@ fun RoutingCall.behandlingId() =
 
 fun RoutingCall.tilkommenInntektId() = TilkommenInntektId(parameters[PARAM_TILKOMMENINNTEKT_ID]?.somGyldigUUID() ?: error("Mangler tilkommenInntektId i path"))
 
-fun RoutingCall.yrkesaktivitetId(): YrkesaktivitetId = YrkesaktivitetId(parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID())
+fun RoutingCall.yrkesaktivitetId(): YrkesaktivitetsperiodeId = YrkesaktivitetsperiodeId(parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID())

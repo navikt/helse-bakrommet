@@ -16,8 +16,8 @@ import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbYrkesaktivitetKategoriseri
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbYrkesaktivitetsperiode
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetsperiodeId
 import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.somListe
@@ -43,23 +43,23 @@ class PgYrkesaktivitetsperiodeRepository(
                 it.toYrkesaktivitet()
             }
 
-    override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitetsperiode? =
+    override fun finn(yrkesaktivitetsperiodeId: YrkesaktivitetsperiodeId): Yrkesaktivitetsperiode? =
         queryRunner
             .single(
                 """
                 select * from yrkesaktivitet where id = :id
                 """.trimIndent(),
-                "id" to yrkesaktivitetId.value,
+                "id" to yrkesaktivitetsperiodeId.value,
             ) {
                 it.yrkesaktivitetFraRow().toYrkesaktivitet()
             }
 
-    override fun slett(yrkesaktivitetId: YrkesaktivitetId) {
+    override fun slett(yrkesaktivitetsperiodeId: YrkesaktivitetsperiodeId) {
         queryRunner.update(
             """
             delete from yrkesaktivitet where id = :id
             """.trimIndent(),
-            "id" to yrkesaktivitetId.value,
+            "id" to yrkesaktivitetsperiodeId.value,
         )
     }
 
@@ -117,7 +117,7 @@ class PgYrkesaktivitetsperiodeRepository(
 
     private fun DbYrkesaktivitetsperiode.toYrkesaktivitet(): Yrkesaktivitetsperiode =
         Yrkesaktivitetsperiode(
-            id = YrkesaktivitetId(id),
+            id = YrkesaktivitetsperiodeId(id),
             kategorisering = kategorisering.toDomain(),
             kategoriseringGenerert = kategoriseringGenerert?.toDomain(),
             dagoversikt = dagoversikt?.toDomain(),

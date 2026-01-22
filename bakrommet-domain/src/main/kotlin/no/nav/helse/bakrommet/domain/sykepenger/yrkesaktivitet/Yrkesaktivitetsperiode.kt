@@ -9,12 +9,12 @@ import java.time.OffsetDateTime
 import java.util.*
 
 @JvmInline
-value class YrkesaktivitetId(
+value class YrkesaktivitetsperiodeId(
     val value: UUID,
 )
 
 class Yrkesaktivitetsperiode(
-    val id: YrkesaktivitetId,
+    val id: YrkesaktivitetsperiodeId,
     kategorisering: YrkesaktivitetKategorisering,
     val kategoriseringGenerert: YrkesaktivitetKategorisering?,
     dagoversikt: Dagoversikt?,
@@ -51,7 +51,7 @@ class Yrkesaktivitetsperiode(
 
     fun revurderUnder(behandlingId: BehandlingId): Yrkesaktivitetsperiode =
         Yrkesaktivitetsperiode(
-            id = YrkesaktivitetId(UUID.randomUUID()),
+            id = YrkesaktivitetsperiodeId(UUID.randomUUID()),
             kategorisering = this.kategorisering,
             kategoriseringGenerert = kategoriseringGenerert,
             dagoversikt = this.dagoversikt,
@@ -146,7 +146,7 @@ class Yrkesaktivitetsperiode(
             behandlingId: BehandlingId,
             generertFraDokumenter: List<UUID> = emptyList(),
         ) = Yrkesaktivitetsperiode(
-            id = YrkesaktivitetId(UUID.randomUUID()),
+            id = YrkesaktivitetsperiodeId(UUID.randomUUID()),
             kategorisering = kategorisering,
             kategoriseringGenerert = kategoriseringGenerert,
             dagoversikt = dagoversikt,

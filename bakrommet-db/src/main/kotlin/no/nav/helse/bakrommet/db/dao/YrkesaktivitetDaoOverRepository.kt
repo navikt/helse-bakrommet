@@ -6,9 +6,9 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivi
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetsperiodeId
 import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
@@ -35,7 +35,7 @@ class YrkesaktivitetDaoOverRepository(
     ): YrkesaktivitetDbRecord {
         val yrkesaktivitetsperiode =
             Yrkesaktivitetsperiode(
-                id = YrkesaktivitetId(id),
+                id = YrkesaktivitetsperiodeId(id),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
                 dagoversikt = dagoversikt,
@@ -52,7 +52,7 @@ class YrkesaktivitetDaoOverRepository(
         return yrkesaktivitetsperiode.tilDbRecord()
     }
 
-    override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = yrkesaktivitetsperiodeRepository.finn(YrkesaktivitetId(id))?.tilDbRecord()
+    override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = yrkesaktivitetsperiodeRepository.finn(YrkesaktivitetsperiodeId(id))?.tilDbRecord()
 
     override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet> =
         yrkesaktivitetsperiodeRepository
