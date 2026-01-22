@@ -9,7 +9,7 @@ package Sykepenger {
 
     interface Yrkesaktivitetsperiode
 
-    class AktivYrkesaktivitet
+    class AktivYrkesaktivitet as "Aktiv yrkesaktivitet"
 
     class NaturligIdent as "Naturlig ident"
 
