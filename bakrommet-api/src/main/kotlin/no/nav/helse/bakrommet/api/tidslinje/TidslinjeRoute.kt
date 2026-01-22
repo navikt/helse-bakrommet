@@ -22,7 +22,7 @@ fun Route.tidslinjeRoute(
                 db.transactional {
                     val naturligIdent = naturligIdent(call)
                     val behandlinger = this.behandlingRepository.finnFor(naturligIdent)
-                    val yrkesaktivteter = behandlinger.flatMap { yrkesaktivitetRepository.finn(it.id) }
+                    val yrkesaktivteter = behandlinger.flatMap { yrkesaktivitetsperiodeRepository.finn(it.id) }
                     val tilkommen = behandlinger.flatMap { tilkommenInntektRepository.finnFor(it.id) }
 
                     val alleOrgnummer =

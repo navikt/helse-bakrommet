@@ -9,7 +9,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
-import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 import java.time.OffsetDateTime
@@ -20,7 +20,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Periodetype as Do
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode as DomainRefusjonsperiode
 
 class YrkesaktivitetDaoOverRepository(
-    private val yrkesaktivitetRepository: YrkesaktivitetRepository,
+    private val yrkesaktivitetsperiodeRepository: YrkesaktivitetsperiodeRepository,
 ) : YrkesaktivitetDao {
     override fun opprettYrkesaktivitet(
         id: UUID,
@@ -48,19 +48,19 @@ class YrkesaktivitetDaoOverRepository(
                 inntektData = inntektData,
                 refusjon = refusjonsdata?.map { it.toDomain() },
             )
-        yrkesaktivitetRepository.lagre(yrkesaktivitetsperiode)
+        yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitetsperiode)
         return yrkesaktivitetsperiode.tilDbRecord()
     }
 
-    override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = yrkesaktivitetRepository.finn(YrkesaktivitetId(id))?.tilDbRecord()
+    override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = yrkesaktivitetsperiodeRepository.finn(YrkesaktivitetId(id))?.tilDbRecord()
 
     override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet> =
-        yrkesaktivitetRepository
+        yrkesaktivitetsperiodeRepository
             .finn(BehandlingId(periode.id))
             .map { it.tilLegacy() }
 
     override fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord> =
-        yrkesaktivitetRepository
+        yrkesaktivitetsperiodeRepository
             .finn(BehandlingId(periode.id))
             .map { it.tilDbRecord() }
 

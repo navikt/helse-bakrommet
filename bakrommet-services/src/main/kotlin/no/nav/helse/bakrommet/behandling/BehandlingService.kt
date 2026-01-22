@@ -222,12 +222,12 @@ class BehandlingService(
             behandlingRepository.lagre(forrigeBehandling)
             behandlingRepository.lagre(nyBehandling)
 
-            val yrkesaktiviteter = yrkesaktivitetRepository.finn(forrigeBehandling.id)
+            val yrkesaktiviteter = yrkesaktivitetsperiodeRepository.finn(forrigeBehandling.id)
             yrkesaktiviteter
                 .map { ya ->
                     ya.revurderUnder(behandlingId = nyBehandling.id)
                 }.forEach { ny ->
-                    yrkesaktivitetRepository.lagre(ny)
+                    yrkesaktivitetsperiodeRepository.lagre(ny)
                 }
 
             tilkommenInntektRepository

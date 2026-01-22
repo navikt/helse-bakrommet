@@ -50,7 +50,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                 val behandling = db.behandlingRepository.hent(BehandlingId(nySaksbehandlingsperiode.id))
                 if (periode.inntektRequest != null) {
                     db
-                        .yrkesaktivitetRepository
+                        .yrkesaktivitetsperiodeRepository
                         .finn(BehandlingId(nySaksbehandlingsperiode.id))
                         .let { yrkesaktiviteter ->
                             this.inntektService.oppdaterInntekt(

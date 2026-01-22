@@ -18,7 +18,7 @@ import no.nav.helse.bakrommet.kafka.dto.oppdrag.UtbetalingslinjeDto
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
-import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.utbetalingslinjer.Oppdrag
 import no.nav.helse.utbetalingslinjer.UtbetalingkladdBuilder
@@ -30,7 +30,7 @@ class UtbetalingsBeregningHjelper(
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
     private val vilkårsvurderingRepository: VilkårsvurderingRepository,
     private val tilkommenInntektRepository: TilkommenInntektRepository,
-    private val yrkesaktivitetRepository: YrkesaktivitetRepository,
+    private val yrkesaktivitetsperiodeRepository: YrkesaktivitetsperiodeRepository,
     private val behandlingRepository: BehandlingRepository,
 ) {
     fun settBeregning(
@@ -46,7 +46,7 @@ class UtbetalingsBeregningHjelper(
                 ?: return
 
         // Hent yrkesaktivitet
-        val yrkesaktiviteter = yrkesaktivitetRepository.finn(behandling.id)
+        val yrkesaktiviteter = yrkesaktivitetsperiodeRepository.finn(behandling.id)
 
         val tilkommenInntekt = tilkommenInntektRepository.finnFor(behandling.id)
         // Opprett input for beregning

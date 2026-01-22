@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKat
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.Frilanser
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
-import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.singleOrNone
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.økonomi.Inntekt
@@ -20,7 +20,7 @@ import java.time.LocalDate
 class SykepengegrunnlagBeregningHjelper(
     private val behandlingDao: BehandlingDao,
     private val sykepengegrunnlagDao: SykepengegrunnlagDao,
-    private val yrkesaktivitetRepository: YrkesaktivitetRepository,
+    private val yrkesaktivitetsperiodeRepository: YrkesaktivitetsperiodeRepository,
 ) {
     fun beregnOgLagreSykepengegrunnlag(
         referanse: BehandlingReferanse,
@@ -41,7 +41,7 @@ class SykepengegrunnlagBeregningHjelper(
                 }
             }
 
-        val yrkesaktiviteter = yrkesaktivitetRepository.finn(BehandlingId(periode.id))
+        val yrkesaktiviteter = yrkesaktivitetsperiodeRepository.finn(BehandlingId(periode.id))
 
         val sykepengegrunnlag =
             beregnSykepengegrunnlag(

@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 class PgYrkesaktivitetRepositoryTest {
     private val dataSource = TestDataSource.dbModule.dataSource
     private val session = sessionOf(dataSource)
-    private val yrkesaktivitetRepository = PgYrkesaktivitetRepository(session)
+    private val yrkesaktivitetRepository = PgYrkesaktivitetsperiodeRepository(session)
     private val behandlingRepository = PgBehandlingRepository(session)
 
     @AfterEach

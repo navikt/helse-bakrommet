@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.db.dao.*
 import no.nav.helse.bakrommet.db.repository.PgBehandlingRepository
 import no.nav.helse.bakrommet.db.repository.PgTilkommenInntektRepository
 import no.nav.helse.bakrommet.db.repository.PgVilkårsvurderingRepository
-import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetRepository
+import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
@@ -19,11 +19,11 @@ class DaoerFelles(
     override val behandlingRepository: BehandlingRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
     override val vilkårsvurderingRepository: VilkårsvurderingRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
     override val tilkommenInntektRepository: TilkommenInntektRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
-    override val yrkesaktivitetRepository = PgYrkesaktivitetRepository(dataSource)
+    override val yrkesaktivitetsperiodeRepository = PgYrkesaktivitetsperiodeRepository(dataSource)
     override val behandlingEndringerDao = BehandlingEndringerDaoPg(dataSource)
     override val personPseudoIdDao = PersonPseudoIdDaoPg(dataSource)
     override val dokumentDao = DokumentDaoPg(dataSource)
-    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetRepository)
+    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetsperiodeRepository)
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
     override val beregningDao = UtbetalingsberegningDaoPg(dataSource)
     override val outboxDao = OutboxDaoPg(dataSource)
@@ -40,9 +40,9 @@ class SessionDaoerFelles(
     override val beregningDao = UtbetalingsberegningDaoPg(session)
     override val outboxDao = OutboxDaoPg(session)
 
-    override val yrkesaktivitetRepository = PgYrkesaktivitetRepository(session)
+    override val yrkesaktivitetsperiodeRepository = PgYrkesaktivitetsperiodeRepository(session)
     override val behandlingRepository = PgBehandlingRepository(session)
     override val tilkommenInntektRepository = PgTilkommenInntektRepository(session)
     override val vilkårsvurderingRepository = PgVilkårsvurderingRepository(session)
-    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetRepository)
+    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetsperiodeRepository)
 }

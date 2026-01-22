@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.infrastruktur.db
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
-import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 
 interface TransactionalSessionFactory<out SessionDaosType> {
     suspend fun <RET> transactionalSessionScope(transactionalBlock: suspend (SessionDaosType) -> RET): RET
@@ -12,7 +12,7 @@ interface TransactionalSessionFactory<out SessionDaosType> {
 interface Repositories {
     val behandlingRepository: BehandlingRepository
     val vilkårsvurderingRepository: VilkårsvurderingRepository
-    val yrkesaktivitetRepository: YrkesaktivitetRepository
+    val yrkesaktivitetsperiodeRepository: YrkesaktivitetsperiodeRepository
     val tilkommenInntektRepository: TilkommenInntektRepository
 }
 

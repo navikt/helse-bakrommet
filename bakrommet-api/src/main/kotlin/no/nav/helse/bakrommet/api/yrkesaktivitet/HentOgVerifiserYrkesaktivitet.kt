@@ -11,7 +11,7 @@ internal fun AlleDaoer.hentOgVerifiserYrkesaktivitet(call: RoutingCall): Yrkesak
     val behandling = hentOgVerifiserBehandling(call)
     val yrkesaktivitetId = call.yrkesaktivitetId()
     val yrkesaktivitet =
-        yrkesaktivitetRepository
+        yrkesaktivitetsperiodeRepository
             .finn(behandling.id)
             .firstOrNull { it.id == yrkesaktivitetId }
             ?: throw IllegalArgumentException("Fant ikke yrkesaktivitet med id=${yrkesaktivitetId.value} for behandlingId=${behandling.id.value}")

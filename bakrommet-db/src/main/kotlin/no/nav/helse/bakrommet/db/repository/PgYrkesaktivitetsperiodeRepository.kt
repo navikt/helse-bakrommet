@@ -12,21 +12,21 @@ import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbInntektData
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbInntektRequest
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbPerioder
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbRefusjonsperiode
-import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbYrkesaktivitet
 import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbYrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.db.dto.yrkesaktivitet.DbYrkesaktivitetsperiode
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.objectMapper
-import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.somListe
 import java.util.UUID
 import javax.sql.DataSource
 
-class PgYrkesaktivitetRepository(
+class PgYrkesaktivitetsperiodeRepository(
     private val queryRunner: QueryRunner,
-) : YrkesaktivitetRepository {
+) : YrkesaktivitetsperiodeRepository {
     constructor(session: Session) : this(MedSession(session))
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
 
@@ -64,7 +64,7 @@ class PgYrkesaktivitetRepository(
     }
 
     override fun lagre(yrkesaktivitetsperiode: Yrkesaktivitetsperiode) {
-        val record: DbYrkesaktivitet = yrkesaktivitetsperiode.toDbRecord()
+        val record: DbYrkesaktivitetsperiode = yrkesaktivitetsperiode.toDbRecord()
         queryRunner.update(
             """
             insert into yrkesaktivitet
@@ -99,8 +99,8 @@ class PgYrkesaktivitetRepository(
         )
     }
 
-    private fun Yrkesaktivitetsperiode.toDbRecord(): DbYrkesaktivitet =
-        DbYrkesaktivitet(
+    private fun Yrkesaktivitetsperiode.toDbRecord(): DbYrkesaktivitetsperiode =
+        DbYrkesaktivitetsperiode(
             id = id.value,
             kategorisering = kategorisering.toDb(),
             kategoriseringGenerert = kategoriseringGenerert?.toDb(),
@@ -115,7 +115,7 @@ class PgYrkesaktivitetRepository(
             refusjon = refusjon?.map { it.toDb() },
         )
 
-    private fun DbYrkesaktivitet.toYrkesaktivitet(): Yrkesaktivitetsperiode =
+    private fun DbYrkesaktivitetsperiode.toYrkesaktivitet(): Yrkesaktivitetsperiode =
         Yrkesaktivitetsperiode(
             id = YrkesaktivitetId(id),
             kategorisering = kategorisering.toDomain(),
@@ -132,7 +132,7 @@ class PgYrkesaktivitetRepository(
         )
 
     private fun Row.yrkesaktivitetFraRow() =
-        DbYrkesaktivitet(
+        DbYrkesaktivitetsperiode(
             id = uuid("id"),
             kategorisering =
                 objectMapper.readValue(

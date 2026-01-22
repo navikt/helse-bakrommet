@@ -37,7 +37,7 @@ import no.nav.helse.bakrommet.mockproviders.skapProviders
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
-import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.testdata.alleTestdata
 import no.nav.helse.bakrommet.testdata.opprettTestdata
 import org.slf4j.Logger
@@ -82,8 +82,8 @@ class FakeDaoer : AlleDaoer {
                 vurderteVilkår.remove(vilkårsvurderingId)
             }
         }
-    override val yrkesaktivitetRepository: YrkesaktivitetRepository =
-        object : YrkesaktivitetRepository {
+    override val yrkesaktivitetsperiodeRepository: YrkesaktivitetsperiodeRepository =
+        object : YrkesaktivitetsperiodeRepository {
             private val yrkesaktiviteter = ConcurrentHashMap<BehandlingId, MutableList<Yrkesaktivitetsperiode>>()
 
             override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitetsperiode> = yrkesaktiviteter[behandlingId] ?: emptyList()
@@ -123,7 +123,7 @@ class FakeDaoer : AlleDaoer {
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()
     override val personPseudoIdDao = PersonPseudoIdDaoFake()
     override val dokumentDao = DokumentDaoFake()
-    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetRepository)
+    override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetsperiodeRepository)
     override val sykepengegrunnlagDao = SykepengegrunnlagDaoFake()
     override val beregningDao = UtbetalingsberegningDaoFake()
     override val outboxDao = OutboxDaoFake()

@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.db.dto.yrkesaktivitet
 import java.time.OffsetDateTime
 import java.util.UUID
 
-data class DbYrkesaktivitet(
+data class DbYrkesaktivitetsperiode(
     val id: UUID,
     val kategorisering: DbYrkesaktivitetKategorisering,
     val kategoriseringGenerert: DbYrkesaktivitetKategorisering?,

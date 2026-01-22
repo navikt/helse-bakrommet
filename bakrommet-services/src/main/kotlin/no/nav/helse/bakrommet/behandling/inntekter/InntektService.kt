@@ -74,11 +74,11 @@ class InntektService(
             }
 
             yrkesaktivitetsperiode.leggTilInntektData(inntektData)
-            yrkesaktivitetRepository.lagre(yrkesaktivitetsperiode)
+            yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitetsperiode)
             beregnSykepengegrunnlagOgUtbetaling(behandling, saksbehandler.bruker)?.let { rec ->
                 requireNotNull(rec.sykepengegrunnlag)
 
-                val yrkesaktiviteter = yrkesaktivitetRepository.finn(behandling.id)
+                val yrkesaktiviteter = yrkesaktivitetsperiodeRepository.finn(behandling.id)
                 if (yrkesaktiviteter.skalBeregneSammenlikningsgrunnlag()) {
                     if (rec.sammenlikningsgrunnlag == null) {
                         val dokument =

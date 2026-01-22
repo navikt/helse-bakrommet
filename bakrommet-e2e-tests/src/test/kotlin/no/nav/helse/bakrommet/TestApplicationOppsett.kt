@@ -20,7 +20,7 @@ import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.db.DBModule
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.dao.*
-import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetRepository
+import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.provider.*
@@ -104,7 +104,7 @@ class Daoer(
             Daoer(
                 PersonPseudoIdDaoPg(dataSource),
                 DokumentDaoPg(dataSource),
-                YrkesaktivitetDaoOverRepository(PgYrkesaktivitetRepository(dataSource)),
+                YrkesaktivitetDaoOverRepository(PgYrkesaktivitetsperiodeRepository(dataSource)),
                 OutboxDaoPg(dataSource),
                 SykepengegrunnlagDaoPg(dataSource),
             )

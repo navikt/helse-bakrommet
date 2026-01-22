@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 
-interface YrkesaktivitetRepository {
+interface YrkesaktivitetsperiodeRepository {
     fun finn(behandlingId: BehandlingId): List<Yrkesaktivitetsperiode>
 
     fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitetsperiode?

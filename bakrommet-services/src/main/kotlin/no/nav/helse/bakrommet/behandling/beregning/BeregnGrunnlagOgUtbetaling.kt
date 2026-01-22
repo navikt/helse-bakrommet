@@ -16,7 +16,7 @@ import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
-import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
+import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
 
 interface Beregningsdaoer {
     val beregningDao: UtbetalingsberegningDao
@@ -24,7 +24,7 @@ interface Beregningsdaoer {
     val behandlingRepository: BehandlingRepository
     val vilkårsvurderingRepository: VilkårsvurderingRepository
     val tilkommenInntektRepository: TilkommenInntektRepository
-    val yrkesaktivitetRepository: YrkesaktivitetRepository
+    val yrkesaktivitetsperiodeRepository: YrkesaktivitetsperiodeRepository
     val sykepengegrunnlagDao: SykepengegrunnlagDao
     val yrkesaktivitetDao: YrkesaktivitetDao
     val personPseudoIdDao: PersonPseudoIdDao
@@ -46,7 +46,7 @@ fun Beregningsdaoer.beregnSykepengegrunnlagOgUtbetaling(
     SykepengegrunnlagBeregningHjelper(
         behandlingDao = behandlingDao,
         sykepengegrunnlagDao = sykepengegrunnlagDao,
-        yrkesaktivitetRepository = yrkesaktivitetRepository,
+        yrkesaktivitetsperiodeRepository = yrkesaktivitetsperiodeRepository,
     ).beregnOgLagreSykepengegrunnlag(
         referanse = ref,
         saksbehandler = saksbehandler,
@@ -71,7 +71,7 @@ fun Beregningsdaoer.beregnUtbetaling(
         vilkårsvurderingRepository = vilkårsvurderingRepository,
         tilkommenInntektRepository = tilkommenInntektRepository,
         behandlingRepository = behandlingRepository,
-        yrkesaktivitetRepository = yrkesaktivitetRepository,
+        yrkesaktivitetsperiodeRepository = yrkesaktivitetsperiodeRepository,
     ).settBeregning(
         referanse = ref,
         saksbehandler = saksbehandler,

@@ -48,7 +48,7 @@ fun Route.yrkesaktivitetRoute(
             db
                 .transactional {
                     val behandling = this.hentOgVerifiserBehandling(call)
-                    val yrkesaktiviteter = yrkesaktivitetRepository.finn(behandling.id)
+                    val yrkesaktiviteter = yrkesaktivitetsperiodeRepository.finn(behandling.id)
                     val alleOrgnummer = yrkesaktiviteter.mapNotNull { it.kategorisering.maybeOrgnummer() }.toSet()
 
                     val organisasjonsnavn = organisasjonsnavnProvider.hentFlereOrganisasjonsnavn(alleOrgnummer)
@@ -86,7 +86,7 @@ fun Route.yrkesaktivitetRoute(
                                 behandlingId = behandling.id,
                                 generertFraDokumenter = emptyList(),
                             ).also {
-                                yrkesaktivitetRepository.lagre(it)
+                                yrkesaktivitetsperiodeRepository.lagre(it)
                             }
 
                     val organisasjon =
@@ -107,11 +107,11 @@ fun Route.yrkesaktivitetRoute(
                         this.hentOgVerifiserBehandling(call).sjekkErÅpenOgTildeltSaksbehandler(
                             bruker,
                         )
-                    val yrkesaktivitet = yrkesaktivitetRepository.finn(call.yrkesaktivitetId()) ?: return@transactional
+                    val yrkesaktivitet = yrkesaktivitetsperiodeRepository.finn(call.yrkesaktivitetId()) ?: return@transactional
                     if (!yrkesaktivitet.tilhører(behandling)) {
                         error("Yrkesaktivitet tilhører ikke behandling ${behandling.id.value}")
                     }
-                    yrkesaktivitetRepository.slett(yrkesaktivitet.id)
+                    yrkesaktivitetsperiodeRepository.slett(yrkesaktivitet.id)
                     beregnSykepengegrunnlagOgUtbetaling(
                         behandling = behandling,
                         saksbehandler = bruker,
@@ -136,7 +136,7 @@ fun Route.yrkesaktivitetRoute(
                     yrkesaktivitet.oppdaterDagoversikt(
                         dager,
                     )
-                    yrkesaktivitetRepository.lagre(yrkesaktivitet)
+                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitet)
 
                     beregnUtbetaling(
                         behandling = behandling,
@@ -166,7 +166,7 @@ fun Route.yrkesaktivitetRoute(
 
                     val nyKategorisering = kategoriseringRequest.tilYrkesaktivitetKategorisering()
                     yrkesaktivitet.nyKategorisering(nyKategorisering)
-                    yrkesaktivitetRepository.lagre(yrkesaktivitet)
+                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitet)
 
                     // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
                     // Slett sykepengegrunnlag og utbetalingsberegning når yrkesaktivitet endres
@@ -204,7 +204,7 @@ fun Route.yrkesaktivitetRoute(
                     yrkesaktivitet.oppdaterPerioder(
                         perioder,
                     )
-                    yrkesaktivitetRepository.lagre(yrkesaktivitet)
+                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitet)
 
                     beregnUtbetaling(
                         behandling = behandling,
@@ -268,7 +268,7 @@ fun Route.yrkesaktivitetRoute(
                         yrkesaktivitet.oppdaterRefusjon(
                             refusjon,
                         )
-                        yrkesaktivitetRepository.lagre(yrkesaktivitet)
+                        yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitet)
 
                         beregnUtbetaling(
                             behandling = behandling,
