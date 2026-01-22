@@ -9,6 +9,10 @@ package Sykepenger {
 
     interface Yrkesaktivitetsperiode
 
+    class AktivYrkesaktivitet
+
+    class NaturligIdent as "Naturlig ident"
+
     class Yrkesaktivitet {
         Arbeidstaker
         Frilanser
@@ -28,11 +32,9 @@ package Sykepenger {
 
     class Inntektsgrunnlag
 
-    class MedSykdom as "Periode med sykdom"
-
-    class UtenSykdom as "Periode uten sykdom"
-
     class Sykepengevilkår
+    class Inngangsvilkår
+    class LøpendeVilkår as "Løpende vilkår"
 
     class Sykepengesøknad
 }
@@ -48,24 +50,24 @@ package Saksbehandling {
 
 Behandling --> Yrkesaktivitetsperiode: omfatter en eller flere
 Behandling --> Sykefraværstilfelle: inngår i et
-Sykefraværstilfelle --> Yrkesaktivitet: har en eller flere \n på skjæringstidspunktet
 Sykefraværstilfelle --> Sykepengegrunnlag: har 0 eller ett
 Sykepengegrunnlag --> Inntektsgrunnlag: består av 0, en eller flere
-Yrkesaktivitet --> Inntektsgrunnlag: har 0 eller en
+AktivYrkesaktivitet --> Inntektsgrunnlag: har 0 eller en
+Yrkesaktivitet --> NaturligIdent: knyttet til en
+AktivYrkesaktivitet --> Yrkesaktivitet: representerer
+Sykefraværstilfelle --> AktivYrkesaktivitet: har en eller flere
 Sykefraværstilfelle --> Rettighetskategori: Faller innunder en
+Sykefraværstilfelle --> Inngangsvilkår: har et sett med
+Yrkesaktivitetsperiode --> LøpendeVilkår: har et sett med
 
 Behandling <-- Vilkårsvurdering: tilhører en
-Yrkesaktivitetsperiode --> Yrkesaktivitet: tilhører én
-Sykepengesøknad --> MedSykdom: ligger til grunn for
-MedSykdom --|> Yrkesaktivitetsperiode: er en
-UtenSykdom --|> Yrkesaktivitetsperiode: er en
-Behandling --> Beregning: har kanskje en
-Rettighetskategori --> Sykepengevilkår: har et sett med
+Yrkesaktivitetsperiode --> AktivYrkesaktivitet: tilhører én
+Sykepengesøknad --> Yrkesaktivitetsperiode: ligger til grunn for
+Behandling --> Beregning: har 0 eller en
+'Rettighetskategori --> Sykepengevilkår: har et sett med
 Vilkårsvurdering --> Sykepengevilkår: vurdering av
-
-note top of UtenSykdom
-  Skille på ghost og tilkommen inntekt?
-end note
+Inngangsvilkår --> Sykepengevilkår: er et
+LøpendeVilkår --> Sykepengevilkår: er et
 
 hide empty members
 hide circle
