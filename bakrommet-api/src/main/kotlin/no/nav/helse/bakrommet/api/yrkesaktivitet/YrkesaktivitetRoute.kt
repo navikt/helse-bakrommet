@@ -48,13 +48,13 @@ fun Route.yrkesaktivitetRoute(
             db
                 .transactional {
                     val behandling = this.hentOgVerifiserBehandling(call)
-                    val yrkesaktiviteter = yrkesaktivitetsperiodeRepository.finn(behandling.id)
-                    val alleOrgnummer = yrkesaktiviteter.mapNotNull { it.kategorisering.maybeOrgnummer() }.toSet()
+                    val yrkesaktivitetsperioder = yrkesaktivitetsperiodeRepository.finn(behandling.id)
+                    val alleOrgnummer = yrkesaktivitetsperioder.mapNotNull { it.kategorisering.maybeOrgnummer() }.toSet()
 
                     val organisasjonsnavn = organisasjonsnavnProvider.hentFlereOrganisasjonsnavn(alleOrgnummer)
 
-                    yrkesaktiviteter.map { yrkesaktivitet ->
-                        yrkesaktivitet.tilDto(organisasjonsnavn)
+                    yrkesaktivitetsperioder.map { yrkesaktivitetsperiode ->
+                        yrkesaktivitetsperiode.tilDto(organisasjonsnavn)
                     }
                 }.let {
                     call.respondJson(it)
@@ -104,14 +104,17 @@ fun Route.yrkesaktivitetRoute(
                 db.transactional {
                     val bruker = call.bruker()
                     val behandling =
-                        this.hentOgVerifiserBehandling(call).sjekkErÅpenOgTildeltSaksbehandler(
-                            bruker,
-                        )
-                    val yrkesaktivitet = yrkesaktivitetsperiodeRepository.finn(call.yrkesaktivitetId()) ?: return@transactional
-                    if (!yrkesaktivitet.tilhører(behandling)) {
+                        this
+                            .hentOgVerifiserBehandling(call)
+                            .sjekkErÅpenOgTildeltSaksbehandler(bruker)
+                    val yrkesaktivitetsperiode =
+                        yrkesaktivitetsperiodeRepository
+                            .finn(call.yrkesaktivitetsperiodeId())
+                            ?: return@transactional
+                    if (!yrkesaktivitetsperiode.tilhører(behandling)) {
                         error("Yrkesaktivitet tilhører ikke behandling ${behandling.id.value}")
                     }
-                    yrkesaktivitetsperiodeRepository.slett(yrkesaktivitet.id)
+                    yrkesaktivitetsperiodeRepository.slett(yrkesaktivitetsperiode.id)
                     beregnSykepengegrunnlagOgUtbetaling(
                         behandling = behandling,
                         saksbehandler = bruker,
@@ -125,18 +128,16 @@ fun Route.yrkesaktivitetRoute(
                 val request = call.receive<DagerSomSkalOppdateresDto>()
 
                 db.transactional {
-                    val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                    val yrkesaktivitetsperiode = this.hentOgVerifiserYrkesaktivitetsperiode(call)
                     val saksbehandler = call.bruker()
                     val behandling =
                         behandlingRepository
-                            .hent(yrkesaktivitet.behandlingId)
+                            .hent(yrkesaktivitetsperiode.behandlingId)
                             .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
 
                     val dager = request.dager.map { it.tilDag() }.also { it.validerAvslagsgrunn() }
-                    yrkesaktivitet.oppdaterDagoversikt(
-                        dager,
-                    )
-                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitet)
+                    yrkesaktivitetsperiode.oppdaterDagoversikt(dager)
+                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitetsperiode)
 
                     beregnUtbetaling(
                         behandling = behandling,
@@ -150,10 +151,10 @@ fun Route.yrkesaktivitetRoute(
             put("/kategorisering") {
                 val kategoriseringRequest = call.receive<YrkesaktivitetKategoriseringDto>()
                 db.transactional {
-                    val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                    val yrkesaktivitetsperiode = this.hentOgVerifiserYrkesaktivitetsperiode(call)
                     val behandling =
                         behandlingRepository
-                            .hent(yrkesaktivitet.behandlingId)
+                            .hent(yrkesaktivitetsperiode.behandlingId)
                             .sjekkErÅpenOgTildeltSaksbehandler(call.bruker())
                     // Validerer at organisasjon finnes hvis orgnummer er satt
                     val orgnummer = kategoriseringRequest.maybeOrgnummer()
@@ -165,13 +166,13 @@ fun Route.yrkesaktivitetRoute(
                     }
 
                     val nyKategorisering = kategoriseringRequest.tilYrkesaktivitetKategorisering()
-                    yrkesaktivitet.nyKategorisering(nyKategorisering)
-                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitet)
+                    yrkesaktivitetsperiode.nyKategorisering(nyKategorisering)
+                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitetsperiode)
 
                     // Hvis kategoriseringen endrer seg så må vi slette inntektdata og inntektrequest og beregning
                     // Slett sykepengegrunnlag og utbetalingsberegning når yrkesaktivitet endres
                     // Vi må alltid beregne på nytt når kategorisering endres
-                    beregningDao.slettBeregning(yrkesaktivitet.behandlingId.value, failSilently = true)
+                    beregningDao.slettBeregning(yrkesaktivitetsperiode.behandlingId.value, failSilently = true)
 
                     // hvis sykepengegrunnlaget eies av denne perioden, slett det
                     behandling.let { behandling ->
@@ -194,17 +195,15 @@ fun Route.yrkesaktivitetRoute(
                 val perioder = perioderDto?.tilPerioder()
 
                 db.transactional {
-                    val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                    val yrkesaktivitetsperiode = this.hentOgVerifiserYrkesaktivitetsperiode(call)
                     val saksbehandler = call.bruker()
                     val behandling =
                         behandlingRepository
-                            .hent(yrkesaktivitet.behandlingId)
+                            .hent(yrkesaktivitetsperiode.behandlingId)
                             .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
 
-                    yrkesaktivitet.oppdaterPerioder(
-                        perioder,
-                    )
-                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitet)
+                    yrkesaktivitetsperiode.oppdaterPerioder(perioder)
+                    yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitetsperiode)
 
                     beregnUtbetaling(
                         behandling = behandling,
@@ -220,16 +219,16 @@ fun Route.yrkesaktivitetRoute(
                     val inntektRequest = call.receive<InntektRequestDto>()
 
                     db.transactional {
-                        val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                        val yrkesaktivitetsperiode = this.hentOgVerifiserYrkesaktivitetsperiode(call)
                         val saksbehandler = call.bruker()
                         val behandling =
                             behandlingRepository
-                                .hent(yrkesaktivitet.behandlingId)
+                                .hent(yrkesaktivitetsperiode.behandlingId)
                                 .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
 
                         inntektservice.oppdaterInntekt(
                             db = this,
-                            yrkesaktivitetsperiode = yrkesaktivitet,
+                            yrkesaktivitetsperiode = yrkesaktivitetsperiode,
                             behandling = behandling,
                             request = inntektRequest.tilInntektRequest(),
                             saksbehandler = call.saksbehandlerOgToken(),
@@ -258,17 +257,15 @@ fun Route.yrkesaktivitetRoute(
                     val refusjon = refusjonDto?.map { it.tilRefusjonsperiode() }
 
                     db.transactional {
-                        val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                        val yrkesaktivitetsperiode = this.hentOgVerifiserYrkesaktivitetsperiode(call)
                         val saksbehandler = call.bruker()
                         val behandling =
                             behandlingRepository
-                                .hent(yrkesaktivitet.behandlingId)
+                                .hent(yrkesaktivitetsperiode.behandlingId)
                                 .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
 
-                        yrkesaktivitet.oppdaterRefusjon(
-                            refusjon,
-                        )
-                        yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitet)
+                        yrkesaktivitetsperiode.oppdaterRefusjon(refusjon)
+                        yrkesaktivitetsperiodeRepository.lagre(yrkesaktivitetsperiode)
 
                         beregnUtbetaling(
                             behandling = behandling,
@@ -282,17 +279,17 @@ fun Route.yrkesaktivitetRoute(
 
             get("/inntektsmeldinger") {
                 val brukerOgToken = call.saksbehandlerOgToken()
-                val (behandling, yrkesaktivitet) =
+                val (behandling, yrkesaktivitetsperiode) =
                     db.transactional {
-                        val yrkesaktivitet = hentOgVerifiserYrkesaktivitet(call)
+                        val yrkesaktivitetsperiode = hentOgVerifiserYrkesaktivitetsperiode(call)
                         val behandling =
                             hentOgVerifiserBehandling(call)
                                 .sjekkErÅpenOgTildeltSaksbehandler(brukerOgToken.bruker)
 
-                        behandling to yrkesaktivitet
+                        behandling to yrkesaktivitetsperiode
                     }
 
-                if (yrkesaktivitet.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
+                if (yrkesaktivitetsperiode.kategorisering !is YrkesaktivitetKategorisering.Arbeidstaker) {
                     error("Kategorisering er ikke Arbeidstaker, da henter vi ikke inntektsmeldinger")
                 }
 
@@ -304,7 +301,7 @@ fun Route.yrkesaktivitetRoute(
                             tom = null,
                             saksbehandlerToken = brukerOgToken.token,
                         ).somInntektsmeldingObjektListe()
-                        .filter { it.virksomhetsnummer == yrkesaktivitet.kategorisering.maybeOrgnummer() }
+                        .filter { it.virksomhetsnummer == yrkesaktivitetsperiode.kategorisering.maybeOrgnummer() }
                         .filter { it.foersteFravaersdag != null } // må ha fraværsdag for å matche
                         .filter { it.foersteFravaersdag!!.isAfter(behandling.skjæringstidspunkt.minusWeeks(4)) } // må ha fraværsdag for å matche
                         .filter { it.foersteFravaersdag!!.isBefore(behandling.skjæringstidspunkt.plusWeeks(4)) }
@@ -318,16 +315,16 @@ fun Route.yrkesaktivitetRoute(
             get("/pensjonsgivendeinntekt") {
                 db
                     .transactional {
-                        val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                        val yrkesaktivitetsperiode = this.hentOgVerifiserYrkesaktivitetsperiode(call)
                         val saksbehandler = call.bruker()
                         val behandling =
                             behandlingRepository
-                                .hent(yrkesaktivitet.behandlingId)
+                                .hent(yrkesaktivitetsperiode.behandlingId)
                                 .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
 
                         hentPensjonsgivendeInntektForYrkesaktivitet(
                             saksbehandler = call.saksbehandlerOgToken(),
-                            yrkesaktivitetsperiode = yrkesaktivitet,
+                            yrkesaktivitetsperiode = yrkesaktivitetsperiode,
                             behandling = behandling,
                             pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
                         ).tilPensjonsgivendeInntektResponseDto()
@@ -337,16 +334,16 @@ fun Route.yrkesaktivitetRoute(
             get("/ainntekt") {
                 db
                     .transactional {
-                        val yrkesaktivitet = this.hentOgVerifiserYrkesaktivitet(call)
+                        val yrkesaktivitetsperiode = this.hentOgVerifiserYrkesaktivitetsperiode(call)
                         val saksbehandler = call.bruker()
                         val behandling =
                             behandlingRepository
-                                .hent(yrkesaktivitet.behandlingId)
+                                .hent(yrkesaktivitetsperiode.behandlingId)
                                 .sjekkErÅpenOgTildeltSaksbehandler(saksbehandler)
 
                         hentAInntektForYrkesaktivitet(
                             saksbehandler = call.saksbehandlerOgToken(),
-                            yrkesaktivitetsperiode = yrkesaktivitet,
+                            yrkesaktivitetsperiode = yrkesaktivitetsperiode,
                             behandling = behandling,
                             inntekterProvider = inntektProvider,
                         ).tilAinntektResponseDto()

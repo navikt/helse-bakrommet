@@ -50,4 +50,4 @@ fun RoutingCall.behandlingId() =
 
 fun RoutingCall.tilkommenInntektId() = TilkommenInntektId(parameters[PARAM_TILKOMMENINNTEKT_ID]?.somGyldigUUID() ?: error("Mangler tilkommenInntektId i path"))
 
-fun RoutingCall.yrkesaktivitetId(): YrkesaktivitetsperiodeId = YrkesaktivitetsperiodeId(parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID())
+fun RoutingCall.yrkesaktivitetsperiodeId(): YrkesaktivitetsperiodeId = YrkesaktivitetsperiodeId(parameters[PARAM_YRKESAKTIVITETUUID].somGyldigUUID())
