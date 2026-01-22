@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.domain.saksbehandling.behandling
 
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.sykepenger.Periode
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleId
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -51,6 +52,8 @@ class Behandling private constructor(
     fun erÅpenForEndringer() = status == BehandlingStatus.UNDER_BEHANDLING
 
     fun erGodkjent() = status == BehandlingStatus.GODKJENT
+
+    val sykefraværstilfelleId get() = SykefraværstilfelleId(naturligIdent, skjæringstidspunkt)
 
     fun revurderAv(
         navIdent: String,
