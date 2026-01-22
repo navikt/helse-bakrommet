@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.BeregningskoderDekningsgrad
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagBase
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
 import no.nav.helse.dto.PeriodeDto
 import no.nav.helse.dto.ProsentdelDto
@@ -15,7 +15,7 @@ import java.util.*
 
 data class UtbetalingsberegningInput(
     val sykepengegrunnlag: SykepengegrunnlagBase,
-    val yrkesaktiviteter: List<Yrkesaktivitet>,
+    val yrkesaktiviteter: List<Yrkesaktivitetsperiode>,
     val saksbehandlingsperiode: PeriodeDto,
     val arbeidsgiverperiode: PeriodeDto? = null,
     val tilkommenInntekt: List<TilkommenInntekt>,

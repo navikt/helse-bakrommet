@@ -9,8 +9,8 @@ import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.orgnummer
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.OppdragDto
 import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
@@ -102,7 +102,7 @@ class UtbetalingsBeregningHjelper(
     fun beregn(
         behandling: Behandling,
         sykepengegrunnlag: SykepengegrunnlagBase,
-        yrkesaktiviteter: List<Yrkesaktivitet>,
+        yrkesaktiviteter: List<Yrkesaktivitetsperiode>,
         tilkomneInntekter: List<TilkommenInntekt>,
         bruker: Bruker,
     ) {
@@ -190,7 +190,7 @@ private fun Oppdrag.tilOppdragDto(): OppdragDto =
  */
 fun byggOppdragFraBeregning(
     beregnet: List<YrkesaktivitetUtbetalingsberegning>,
-    yrkesaktiviteter: List<Yrkesaktivitet>,
+    yrkesaktiviteter: List<Yrkesaktivitetsperiode>,
     ident: NaturligIdent,
 ): List<Oppdrag> {
     val oppdrag = mutableListOf<Oppdrag>()

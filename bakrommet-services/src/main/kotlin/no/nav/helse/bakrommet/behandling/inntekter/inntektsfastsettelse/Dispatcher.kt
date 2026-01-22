@@ -4,7 +4,7 @@ import no.nav.helse.bakrommet.auth.BrukerOgToken
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
 import no.nav.helse.bakrommet.infrastruktur.provider.InntektsmeldingProvider
@@ -12,7 +12,7 @@ import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvi
 
 internal fun AlleDaoer.fastsettInntektData(
     request: InntektRequest,
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
     periode: Behandling,
     saksbehandler: BrukerOgToken,
     inntektsmeldingProvider: InntektsmeldingProvider,
@@ -22,7 +22,7 @@ internal fun AlleDaoer.fastsettInntektData(
     when (request) {
         is InntektRequest.Arbeidstaker -> {
             request.arbeidstakerFastsettelse(
-                yrkesaktivitet = yrkesaktivitet,
+                yrkesaktivitetsperiode = yrkesaktivitetsperiode,
                 behandling = periode,
                 saksbehandler = saksbehandler,
                 inntektsmeldingProvider = inntektsmeldingProvider,

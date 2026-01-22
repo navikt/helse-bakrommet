@@ -6,9 +6,9 @@ import no.nav.helse.bakrommet.behandling.yrkesaktivitet.domene.LegacyYrkesaktivi
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
@@ -33,8 +33,8 @@ class YrkesaktivitetDaoOverRepository(
         inntektData: InntektData?,
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord {
-        val yrkesaktivitet =
-            Yrkesaktivitet(
+        val yrkesaktivitetsperiode =
+            Yrkesaktivitetsperiode(
                 id = YrkesaktivitetId(id),
                 kategorisering = kategorisering,
                 kategoriseringGenerert = null,
@@ -48,8 +48,8 @@ class YrkesaktivitetDaoOverRepository(
                 inntektData = inntektData,
                 refusjon = refusjonsdata?.map { it.toDomain() },
             )
-        yrkesaktivitetRepository.lagre(yrkesaktivitet)
-        return yrkesaktivitet.tilDbRecord()
+        yrkesaktivitetRepository.lagre(yrkesaktivitetsperiode)
+        return yrkesaktivitetsperiode.tilDbRecord()
     }
 
     override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = yrkesaktivitetRepository.finn(YrkesaktivitetId(id))?.tilDbRecord()
@@ -64,7 +64,7 @@ class YrkesaktivitetDaoOverRepository(
             .finn(BehandlingId(periode.id))
             .map { it.tilDbRecord() }
 
-    private fun Yrkesaktivitet.tilDbRecord(): YrkesaktivitetDbRecord =
+    private fun Yrkesaktivitetsperiode.tilDbRecord(): YrkesaktivitetDbRecord =
         YrkesaktivitetDbRecord(
             id = this.id.value,
             kategorisering = this.kategorisering,
@@ -80,7 +80,7 @@ class YrkesaktivitetDaoOverRepository(
             refusjon = this.refusjon?.map { it.toLegacy() },
         )
 
-    private fun Yrkesaktivitet.tilLegacy(): LegacyYrkesaktivitet =
+    private fun Yrkesaktivitetsperiode.tilLegacy(): LegacyYrkesaktivitet =
         LegacyYrkesaktivitet(
             id = this.id.value,
             kategorisering = this.kategorisering,

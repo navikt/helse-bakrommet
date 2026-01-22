@@ -3,8 +3,8 @@ package no.nav.helse.bakrommet.behandling.utbetalingsberegning.beregning
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.UtbetalingsberegningInput
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.tilSykdomstidslinje
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Periodetype.*
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.dto.ProsentdelDto
 import no.nav.helse.hendelser.Avsender
 import no.nav.helse.hendelser.MeldingsreferanseId
@@ -23,15 +23,15 @@ import java.util.*
  * Bygger utbetalingstidslinje for en yrkesaktivitet basert på kategorisering
  */
 fun byggUtbetalingstidslinjeForYrkesaktivitet(
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
     dekningsgrad: ProsentdelDto,
     input: UtbetalingsberegningInput,
     refusjonstidslinje: Beløpstidslinje,
     maksInntektTilFordelingPerDag: Beløpstidslinje,
     inntektjusteringer: Beløpstidslinje,
 ): Utbetalingstidslinje {
-    val dager = fyllUtManglendeDager(yrkesaktivitet.dagoversikt?.sykdomstidlinje ?: emptyList(), input.saksbehandlingsperiode)
-    val arbeidsgiverperiode = yrkesaktivitet.hentPerioderForType(ARBEIDSGIVERPERIODE).map { Periode(it.fom, it.tom) }
+    val dager = fyllUtManglendeDager(yrkesaktivitetsperiode.dagoversikt?.sykdomstidlinje ?: emptyList(), input.saksbehandlingsperiode)
+    val arbeidsgiverperiode = yrkesaktivitetsperiode.hentPerioderForType(ARBEIDSGIVERPERIODE).map { Periode(it.fom, it.tom) }
     val dagerNavOvertarAnsvar = dager.tilDagerNavOvertarAnsvar()
     val sykdomstidslinje = dager.tilSykdomstidslinje(arbeidsgiverperiode)
 
@@ -40,13 +40,13 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
         throw IllegalArgumentException("Ugyldig input: dagerNavOvertarAnsvar må være innenfor arbeidsgiverperioden")
     }
 
-    return when (yrkesaktivitet.kategorisering) {
+    return when (yrkesaktivitetsperiode.kategorisering) {
         is YrkesaktivitetKategorisering.Inaktiv -> {
             byggInaktivUtbetalingstidslinje(
                 maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
                 inntektjusteringer = inntektjusteringer,
-                yrkesaktivitet = yrkesaktivitet,
+                yrkesaktivitetsperiode = yrkesaktivitetsperiode,
                 sykdomstidslinje = sykdomstidslinje,
             )
         }
@@ -55,7 +55,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
             byggSelvstendigUtbetalingstidslinje(
                 maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
                 dekningsgrad = dekningsgrad,
-                yrkesaktivitet = yrkesaktivitet,
+                yrkesaktivitetsperiode = yrkesaktivitetsperiode,
                 sykdomstidslinje = sykdomstidslinje,
             )
         }
@@ -92,7 +92,7 @@ fun byggUtbetalingstidslinjeForYrkesaktivitet(
                 sykdomstidslinje = sykdomstidslinje,
             )
         }
-    }.avslåDager(yrkesaktivitet.dagoversikt?.avslagsdager?.map { it.dato })
+    }.avslåDager(yrkesaktivitetsperiode.dagoversikt?.avslagsdager?.map { it.dato })
 }
 
 private fun Utbetalingstidslinje.avslåDager(avslagsdager: List<LocalDate>?): Utbetalingstidslinje {
@@ -117,14 +117,14 @@ private fun byggInaktivUtbetalingstidslinje(
     maksInntektTilFordelingPerDag: Beløpstidslinje,
     dekningsgrad: ProsentdelDto,
     inntektjusteringer: Beløpstidslinje,
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     InaktivUtbetalingstidslinjeBuilder(
         maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
         dekningsgrad = dekningsgrad.tilProsentdel(),
         inntektjusteringer = inntektjusteringer,
-        venteperiode = yrkesaktivitet.hentPerioderForType(VENTETID_INAKTIV).map { Periode(it.fom, it.tom) },
+        venteperiode = yrkesaktivitetsperiode.hentPerioderForType(VENTETID_INAKTIV).map { Periode(it.fom, it.tom) },
     ).result(sykdomstidslinje)
 
 /**
@@ -133,13 +133,13 @@ private fun byggInaktivUtbetalingstidslinje(
 private fun byggSelvstendigUtbetalingstidslinje(
     maksInntektTilFordelingPerDag: Beløpstidslinje,
     dekningsgrad: ProsentdelDto,
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
     sykdomstidslinje: no.nav.helse.sykdomstidslinje.Sykdomstidslinje,
 ): Utbetalingstidslinje =
     SelvstendigUtbetalingstidslinjeBuilderVedtaksperiode(
         maksInntektTilFordelingPerDag = maksInntektTilFordelingPerDag,
         dekningsgrad = dekningsgrad.tilProsentdel(),
-        ventetid = yrkesaktivitet.hentPerioderForType(VENTETID).map { Periode(it.fom, it.tom) },
+        ventetid = yrkesaktivitetsperiode.hentPerioderForType(VENTETID).map { Periode(it.fom, it.tom) },
     ).result(sykdomstidslinje)
 
 /**

@@ -11,8 +11,8 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.*
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.maybeOrgnummer
 import no.nav.helse.bakrommet.infrastruktur.provider.Organisasjon
 
@@ -82,7 +82,7 @@ private fun TidslinjeData.orgnavn(orgnummer: String?): String? = organisasjonsna
 
 data class TidslinjeData(
     val behandlinger: List<Behandling>,
-    val yrkesaktiviteter: List<Yrkesaktivitet>,
+    val yrkesaktiviteter: List<Yrkesaktivitetsperiode>,
     val tilkommen: List<TilkommenInntekt>,
     val organisasjonsnavnMap: Map<String, Organisasjon?>,
 )

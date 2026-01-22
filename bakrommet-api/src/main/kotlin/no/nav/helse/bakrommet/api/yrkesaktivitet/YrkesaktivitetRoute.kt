@@ -20,8 +20,8 @@ import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.henting.
 import no.nav.helse.bakrommet.domain.sykepenger.Dag
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.Dagtype
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.maybeOrgnummer
 import no.nav.helse.bakrommet.errorhandling.IkkeFunnetException
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
@@ -76,8 +76,8 @@ fun Route.yrkesaktivitetRoute(
                         } else {
                             null
                         }
-                    val yrkesaktivitet =
-                        Yrkesaktivitet
+                    val yrkesaktivitetsperiode =
+                        Yrkesaktivitetsperiode
                             .opprett(
                                 kategorisering = kategorisering,
                                 kategoriseringGenerert = null,
@@ -93,7 +93,7 @@ fun Route.yrkesaktivitetRoute(
                         kategorisering
                             .maybeOrgnummer()
                             ?.let { organisasjonsnavnProvider.hentOrganisasjonsnavn(it) }
-                    yrkesaktivitet.tilDto(organisasjon)
+                    yrkesaktivitetsperiode.tilDto(organisasjon)
                 }.let {
                     call.respondJson(it, status = HttpStatusCode.Created)
                 }
@@ -229,7 +229,7 @@ fun Route.yrkesaktivitetRoute(
 
                         inntektservice.oppdaterInntekt(
                             db = this,
-                            yrkesaktivitet = yrkesaktivitet,
+                            yrkesaktivitetsperiode = yrkesaktivitet,
                             behandling = behandling,
                             request = inntektRequest.tilInntektRequest(),
                             saksbehandler = call.saksbehandlerOgToken(),
@@ -327,7 +327,7 @@ fun Route.yrkesaktivitetRoute(
 
                         hentPensjonsgivendeInntektForYrkesaktivitet(
                             saksbehandler = call.saksbehandlerOgToken(),
-                            yrkesaktivitet = yrkesaktivitet,
+                            yrkesaktivitetsperiode = yrkesaktivitet,
                             behandling = behandling,
                             pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
                         ).tilPensjonsgivendeInntektResponseDto()
@@ -346,7 +346,7 @@ fun Route.yrkesaktivitetRoute(
 
                         hentAInntektForYrkesaktivitet(
                             saksbehandler = call.saksbehandlerOgToken(),
-                            yrkesaktivitet = yrkesaktivitet,
+                            yrkesaktivitetsperiode = yrkesaktivitet,
                             behandling = behandling,
                             inntekterProvider = inntektProvider,
                         ).tilAinntektResponseDto()
@@ -364,7 +364,7 @@ private fun List<Dag>.validerAvslagsgrunn() {
     }
 }
 
-private fun Yrkesaktivitet.tilDto(
+private fun Yrkesaktivitetsperiode.tilDto(
     organisasjonsnavn: Map<String, Organisasjon>,
 ): YrkesaktivitetDto =
     tilDto(
@@ -373,7 +373,7 @@ private fun Yrkesaktivitet.tilDto(
             ?.let { organisasjonsnavn[it] },
     )
 
-private fun Yrkesaktivitet.tilDto(
+private fun Yrkesaktivitetsperiode.tilDto(
     organisasjon: Organisasjon?,
 ): YrkesaktivitetDto =
     YrkesaktivitetDto(

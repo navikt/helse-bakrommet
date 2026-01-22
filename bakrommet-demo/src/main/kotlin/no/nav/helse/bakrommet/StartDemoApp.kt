@@ -28,8 +28,8 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårsvurdering
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.fakedaos.*
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
@@ -84,16 +84,16 @@ class FakeDaoer : AlleDaoer {
         }
     override val yrkesaktivitetRepository: YrkesaktivitetRepository =
         object : YrkesaktivitetRepository {
-            private val yrkesaktiviteter = ConcurrentHashMap<BehandlingId, MutableList<Yrkesaktivitet>>()
+            private val yrkesaktiviteter = ConcurrentHashMap<BehandlingId, MutableList<Yrkesaktivitetsperiode>>()
 
-            override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitet> = yrkesaktiviteter[behandlingId] ?: emptyList()
+            override fun finn(behandlingId: BehandlingId): List<Yrkesaktivitetsperiode> = yrkesaktiviteter[behandlingId] ?: emptyList()
 
-            override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitet? = yrkesaktiviteter.values.flatten().find { it.id == yrkesaktivitetId }
+            override fun finn(yrkesaktivitetId: YrkesaktivitetId): Yrkesaktivitetsperiode? = yrkesaktiviteter.values.flatten().find { it.id == yrkesaktivitetId }
 
-            override fun lagre(yrkesaktivitet: Yrkesaktivitet) {
-                val aktiviteterForBehandling = yrkesaktiviteter.getOrPut(yrkesaktivitet.behandlingId) { mutableListOf() }
-                aktiviteterForBehandling.removeIf { it.id == yrkesaktivitet.id }
-                aktiviteterForBehandling.add(yrkesaktivitet)
+            override fun lagre(yrkesaktivitetsperiode: Yrkesaktivitetsperiode) {
+                val aktiviteterForBehandling = yrkesaktiviteter.getOrPut(yrkesaktivitetsperiode.behandlingId) { mutableListOf() }
+                aktiviteterForBehandling.removeIf { it.id == yrkesaktivitetsperiode.id }
+                aktiviteterForBehandling.add(yrkesaktivitetsperiode)
             }
 
             override fun slett(yrkesaktivitetId: YrkesaktivitetId) {

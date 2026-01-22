@@ -11,7 +11,7 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerInnte
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsak
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.orgnummer
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
@@ -22,14 +22,14 @@ import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.økonomi.Inntekt
 
 internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
     behandling: Behandling,
     saksbehandler: BrukerOgToken,
     inntektsmeldingProvider: InntektsmeldingProvider,
     inntekterProvider: InntekterProvider,
     daoer: AlleDaoer,
 ): InntektData {
-    yrkesaktivitet.oppdaterRefusjon(data.refusjon)
+    yrkesaktivitetsperiode.oppdaterRefusjon(data.refusjon)
 
     return when (val data = data) {
         is ArbeidstakerInntektRequest.Skjønnsfastsatt -> {
@@ -53,7 +53,7 @@ internal fun InntektRequest.Arbeidstaker.arbeidstakerFastsettelse(
                         inntekterProvider = inntekterProvider,
                         saksbehandler = saksbehandler,
                     ).somAInntektBeregningsgrunnlag()
-                    .omregnetÅrsinntekt(yrkesaktivitet.kategorisering.orgnummer())
+                    .omregnetÅrsinntekt(yrkesaktivitetsperiode.kategorisering.orgnummer())
             InntektData.ArbeidstakerAinntekt(
                 omregnetÅrsinntekt = Inntekt.gjenopprett(omregnetÅrsinntekt.first),
                 kildedata =

@@ -10,8 +10,8 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.sykepenger.Periode
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
@@ -26,7 +26,7 @@ class InntektService(
 ) {
     fun oppdaterInntekt(
         db: AlleDaoer,
-        yrkesaktivitet: Yrkesaktivitet,
+        yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
         behandling: Behandling,
         request: InntektRequest,
         saksbehandler: BrukerOgToken,
@@ -40,12 +40,12 @@ class InntektService(
                 }
             }
 
-            yrkesaktivitet.nyInntektRequest(request)
+            yrkesaktivitetsperiode.nyInntektRequest(request)
 
             val inntektData =
                 fastsettInntektData(
                     request = request,
-                    yrkesaktivitet = yrkesaktivitet,
+                    yrkesaktivitetsperiode = yrkesaktivitetsperiode,
                     periode = behandling,
                     saksbehandler = saksbehandler,
                     inntektsmeldingProvider = inntektsmeldingProvider,
@@ -70,11 +70,11 @@ class InntektService(
                             it.tom,
                         )
                     }
-                yrkesaktivitet.leggTilArbeidsgiverperiode(perioder)
+                yrkesaktivitetsperiode.leggTilArbeidsgiverperiode(perioder)
             }
 
-            yrkesaktivitet.leggTilInntektData(inntektData)
-            yrkesaktivitetRepository.lagre(yrkesaktivitet)
+            yrkesaktivitetsperiode.leggTilInntektData(inntektData)
+            yrkesaktivitetRepository.lagre(yrkesaktivitetsperiode)
             beregnSykepengegrunnlagOgUtbetaling(behandling, saksbehandler.bruker)?.let { rec ->
                 requireNotNull(rec.sykepengegrunnlag)
 
@@ -113,7 +113,7 @@ class InntektService(
     }
 }
 
-private fun List<Yrkesaktivitet>.skalBeregneSammenlikningsgrunnlag(): Boolean =
+private fun List<Yrkesaktivitetsperiode>.skalBeregneSammenlikningsgrunnlag(): Boolean =
     this.any {
         when (it.kategorisering) {
             is YrkesaktivitetKategorisering.Arbeidstaker -> true

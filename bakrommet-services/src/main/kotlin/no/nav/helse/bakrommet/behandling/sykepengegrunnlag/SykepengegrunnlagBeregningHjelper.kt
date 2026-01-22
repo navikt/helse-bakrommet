@@ -6,10 +6,10 @@ import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingReferanse
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.Arbeidstaker
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.Frilanser
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering.SelvstendigNæringsdrivende
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.repository.YrkesaktivitetRepository
 import no.nav.helse.bakrommet.singleOrNone
 import no.nav.helse.bakrommet.økonomi.tilInntekt
@@ -66,7 +66,7 @@ class SykepengegrunnlagBeregningHjelper(
 }
 
 fun beregnSykepengegrunnlag(
-    yrkesaktiviteter: List<Yrkesaktivitet>,
+    yrkesaktiviteter: List<Yrkesaktivitetsperiode>,
     skjæringstidspunkt: LocalDate,
 ): Sykepengegrunnlag {
     val grunnbeløp = Grunnbeløp.`1G`.beløp(skjæringstidspunkt)
@@ -136,7 +136,7 @@ fun beregnSykepengegrunnlag(
     )
 }
 
-private fun List<Yrkesaktivitet>.hentKombinertBeregningskode(): BeregningskoderKombinasjonerSykepengegrunnlag? {
+private fun List<Yrkesaktivitetsperiode>.hentKombinertBeregningskode(): BeregningskoderKombinasjonerSykepengegrunnlag? {
     val erNæringsdrivende = this.any { it.kategorisering is SelvstendigNæringsdrivende }
     val erFrilanser = this.any { it.kategorisering is Frilanser }
     val erArbeidstaker = this.any { it.kategorisering is Arbeidstaker }

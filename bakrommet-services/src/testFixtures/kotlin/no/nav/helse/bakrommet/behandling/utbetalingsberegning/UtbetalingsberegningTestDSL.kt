@@ -373,7 +373,7 @@ class YrkesaktivitetBuilder {
         andreYtelser(begrunnelse, antallDager)
     }
 
-    fun build(saksbehandlingsperiode: PeriodeDto): Yrkesaktivitet {
+    fun build(saksbehandlingsperiode: PeriodeDto): Yrkesaktivitetsperiode {
         val perioder =
             arbeidsgiverperiode?.let { (fom, tom) ->
                 Perioder(
@@ -414,7 +414,7 @@ class YrkesaktivitetBuilder {
                     }
                 }
 
-        return Yrkesaktivitet(
+        return Yrkesaktivitetsperiode(
             id = YrkesaktivitetId(id),
             kategorisering = yrkesaktivitetKategorisering,
             kategoriseringGenerert = null,

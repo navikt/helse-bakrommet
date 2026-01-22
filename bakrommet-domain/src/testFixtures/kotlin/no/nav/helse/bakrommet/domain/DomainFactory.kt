@@ -16,9 +16,9 @@ import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -115,7 +115,7 @@ fun enYrkesaktivitet(
     inntektRequest: InntektRequest? = null,
     inntektData: InntektData? = null,
     refusjon: List<Refusjonsperiode>? = null,
-) = Yrkesaktivitet(
+) = Yrkesaktivitetsperiode(
     id = id,
     kategorisering = kategorisering,
     kategoriseringGenerert = kategoriseringGenerert,

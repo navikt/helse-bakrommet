@@ -13,7 +13,7 @@ value class YrkesaktivitetId(
     val value: UUID,
 )
 
-class Yrkesaktivitet(
+class Yrkesaktivitetsperiode(
     val id: YrkesaktivitetId,
     kategorisering: YrkesaktivitetKategorisering,
     val kategoriseringGenerert: YrkesaktivitetKategorisering?,
@@ -49,8 +49,8 @@ class Yrkesaktivitet(
         }
     }
 
-    fun revurderUnder(behandlingId: BehandlingId): Yrkesaktivitet =
-        Yrkesaktivitet(
+    fun revurderUnder(behandlingId: BehandlingId): Yrkesaktivitetsperiode =
+        Yrkesaktivitetsperiode(
             id = YrkesaktivitetId(UUID.randomUUID()),
             kategorisering = this.kategorisering,
             kategoriseringGenerert = kategoriseringGenerert,
@@ -145,7 +145,7 @@ class Yrkesaktivitet(
             dagoversiktGenerert: Dagoversikt?,
             behandlingId: BehandlingId,
             generertFraDokumenter: List<UUID> = emptyList(),
-        ) = Yrkesaktivitet(
+        ) = Yrkesaktivitetsperiode(
             id = YrkesaktivitetId(UUID.randomUUID()),
             kategorisering = kategorisering,
             kategoriseringGenerert = kategoriseringGenerert,

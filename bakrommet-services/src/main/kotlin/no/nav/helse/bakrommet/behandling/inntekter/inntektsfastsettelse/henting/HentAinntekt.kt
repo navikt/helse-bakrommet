@@ -7,8 +7,8 @@ import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.monthsBe
 import no.nav.helse.bakrommet.behandling.inntekter.inntektsfastsettelse.omregnetÅrsinntekt
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.orgnummer
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.InntekterProvider
@@ -19,12 +19,12 @@ import no.nav.helse.økonomi.Inntekt
 import no.nav.helse.økonomi.Inntekt.Companion.summer
 
 fun AlleDaoer.hentAInntektForYrkesaktivitet(
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
     behandling: Behandling,
     saksbehandler: BrukerOgToken,
     inntekterProvider: InntekterProvider,
 ): AInntektResponse {
-    val kategori = yrkesaktivitet.kategorisering
+    val kategori = yrkesaktivitetsperiode.kategorisering
 
     return try {
         val ainntektBeregningsgrunnlag =
@@ -36,7 +36,7 @@ fun AlleDaoer.hentAInntektForYrkesaktivitet(
 
         when (kategori) {
             is YrkesaktivitetKategorisering.Arbeidstaker -> {
-                val orgnummer = yrkesaktivitet.kategorisering.orgnummer()
+                val orgnummer = yrkesaktivitetsperiode.kategorisering.orgnummer()
                 val omregnetÅrsinntekt = ainntektBeregningsgrunnlag.omregnetÅrsinntekt(orgnummer)
 
                 AInntektResponse.Suksess(

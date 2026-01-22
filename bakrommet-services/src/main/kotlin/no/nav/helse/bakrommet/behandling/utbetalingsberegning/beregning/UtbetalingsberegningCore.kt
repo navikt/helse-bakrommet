@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.behandling.utbetalingsberegning.Utbetalingsberegni
 import no.nav.helse.bakrommet.behandling.utbetalingsberegning.YrkesaktivitetUtbetalingsberegning
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.økonomi.tilInntekt
 import no.nav.helse.dto.InntektbeløpDto
 import no.nav.helse.dto.PeriodeDto
@@ -58,7 +58,7 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
                 allerDagersMaksInntekter.skapBeløpstidslinjeForYrkesaktivitet(yrkesaktivitet)
 
             byggUtbetalingstidslinjeForYrkesaktivitet(
-                yrkesaktivitet = yrkesaktivitet,
+                yrkesaktivitetsperiode = yrkesaktivitet,
                 dekningsgrad = dekningsgrad.verdi,
                 input = input,
                 refusjonstidslinje = refusjonstidslinje,
@@ -88,12 +88,12 @@ fun beregnUtbetalingerForAlleYrkesaktiviteter(input: UtbetalingsberegningInput):
         }
 }
 
-private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.skapBeløpstidslinjeForYrkesaktivitet(
-    yrkesaktivitet: Yrkesaktivitet,
+private fun Map<LocalDate, List<Pair<Yrkesaktivitetsperiode, Inntekt>>>.skapBeløpstidslinjeForYrkesaktivitet(
+    yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
 ): Beløpstidslinje {
     val beløpsdager =
         this.mapNotNull { (dato, inntekter) ->
-            val inntektForYrkesaktivitet = inntekter.firstOrNull { it.first == yrkesaktivitet }?.second
+            val inntektForYrkesaktivitet = inntekter.firstOrNull { it.first == yrkesaktivitetsperiode }?.second
             if (inntektForYrkesaktivitet != null) {
                 Beløpsdag(
                     dato = dato,
@@ -112,7 +112,7 @@ private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.skapBeløpstidsl
     return Beløpstidslinje(beløpsdager)
 }
 
-private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.justerOppForLaveDager(sykepengegrunnlag: SykepengegrunnlagBase): Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>> {
+private fun Map<LocalDate, List<Pair<Yrkesaktivitetsperiode, Inntekt>>>.justerOppForLaveDager(sykepengegrunnlag: SykepengegrunnlagBase): Map<LocalDate, List<Pair<Yrkesaktivitetsperiode, Inntekt>>> {
     return this
         .map {
             // Vi finner summen av dagens inntekter for alle yrkesaktiviteter. Hvis summen er lavere enn sykepengegrunnlaget så justerer vi det opp forholdsmessig per yrkesaktivitet gitt deres andel av inntekt
@@ -143,10 +143,10 @@ private fun Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>>.justerOppForLave
         }.toMap()
 }
 
-private fun Map<LocalDate, List<Yrkesaktivitet>>.berikMedAlleYrkesaktivitetersMaksInntektPerDag(
+private fun Map<LocalDate, List<Yrkesaktivitetsperiode>>.berikMedAlleYrkesaktivitetersMaksInntektPerDag(
     sykepengenngrunnlag: SykepengegrunnlagBase,
-    refusjonstidslinjer: Map<Yrkesaktivitet, Map<LocalDate, Inntekt>>,
-): Map<LocalDate, List<Pair<Yrkesaktivitet, Inntekt>>> =
+    refusjonstidslinjer: Map<Yrkesaktivitetsperiode, Map<LocalDate, Inntekt>>,
+): Map<LocalDate, List<Pair<Yrkesaktivitetsperiode, Inntekt>>> =
     this
         .map {
             val inntekterForAlleYrkesaktiviteter =

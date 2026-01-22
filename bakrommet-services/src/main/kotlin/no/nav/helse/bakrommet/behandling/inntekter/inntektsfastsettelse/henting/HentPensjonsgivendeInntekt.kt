@@ -7,18 +7,18 @@ import no.nav.helse.bakrommet.behandling.inntekter.kanBeregnesEtter835
 import no.nav.helse.bakrommet.behandling.inntekter.tilBeregnetPensjonsgivendeInntekt
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitet
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.provider.PensjonsgivendeInntektProvider
 
 fun AlleDaoer.hentPensjonsgivendeInntektForYrkesaktivitet(
-    yrkesaktivitet: Yrkesaktivitet,
+    yrkesaktivitetsperiode: Yrkesaktivitetsperiode,
     behandling: Behandling,
     saksbehandler: BrukerOgToken,
     pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider,
 ): PensjonsgivendeInntektResponse {
-    val kategori = yrkesaktivitet.kategorisering
+    val kategori = yrkesaktivitetsperiode.kategorisering
     if (!(kategori is YrkesaktivitetKategorisering.SelvstendigNæringsdrivende || kategori is YrkesaktivitetKategorisering.Inaktiv)) {
         error("Kan kun hente pensjonsgivende inntekt for selvstendig næringsdrivende eller inaktive yrkesaktiviteter")
     }

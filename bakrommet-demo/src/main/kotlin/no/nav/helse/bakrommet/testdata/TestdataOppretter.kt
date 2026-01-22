@@ -57,7 +57,7 @@ suspend fun Services.opprettTestdata(testpersoner: List<Testperson>) {
                                 request = periode.inntektRequest,
                                 saksbehandler = saksbehandlerBrukerOgToken,
                                 db = db,
-                                yrkesaktivitet = yrkesaktiviteter.first(),
+                                yrkesaktivitetsperiode = yrkesaktiviteter.first(),
                                 behandling = behandling,
                             )
                         }
