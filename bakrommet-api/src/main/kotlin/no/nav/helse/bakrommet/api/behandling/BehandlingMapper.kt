@@ -8,6 +8,9 @@ import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndring
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 fun BehandlingDbRecord.tilBehandlingDto(): BehandlingDto =
     BehandlingDto(
@@ -27,6 +30,24 @@ fun BehandlingDbRecord.tilBehandlingDto(): BehandlingDto =
         revurdertAvBehandlingId = revurdertAvBehandlingId,
     )
 
+fun Behandling.tilBehandlingDto(): BehandlingDto =
+    BehandlingDto(
+        id = id.value,
+        naturligIdent = naturligIdent.value,
+        opprettet = OffsetDateTime.ofInstant(opprettet, ZoneId.of("Europe/Oslo")),
+        opprettetAvNavIdent = opprettetAvNavIdent,
+        opprettetAvNavn = opprettetAvNavn,
+        fom = fom,
+        tom = tom,
+        status = status.tilTidslinjeBehandlingStatus(),
+        beslutterNavIdent = beslutterNavIdent,
+        skjæringstidspunkt = skjæringstidspunkt,
+        individuellBegrunnelse = individuellBegrunnelse,
+        sykepengegrunnlagId = sykepengegrunnlagId,
+        revurdererSaksbehandlingsperiodeId = revurdererBehandlingId?.value,
+        revurdertAvBehandlingId = revurdertAvBehandlingId?.value,
+    )
+
 private fun BehandlingStatus.tilTidslinjeBehandlingStatus(): TidslinjeBehandlingStatus =
     when (this) {
         BehandlingStatus.UNDER_BEHANDLING -> TidslinjeBehandlingStatus.UNDER_BEHANDLING
@@ -34,6 +55,15 @@ private fun BehandlingStatus.tilTidslinjeBehandlingStatus(): TidslinjeBehandling
         BehandlingStatus.UNDER_BESLUTNING -> TidslinjeBehandlingStatus.UNDER_BESLUTNING
         BehandlingStatus.GODKJENT -> TidslinjeBehandlingStatus.GODKJENT
         BehandlingStatus.REVURDERT -> TidslinjeBehandlingStatus.REVURDERT
+    }
+
+private fun no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.tilTidslinjeBehandlingStatus(): TidslinjeBehandlingStatus =
+    when (this) {
+        no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.UNDER_BEHANDLING -> TidslinjeBehandlingStatus.UNDER_BEHANDLING
+        no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.TIL_BESLUTNING -> TidslinjeBehandlingStatus.TIL_BESLUTNING
+        no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.UNDER_BESLUTNING -> TidslinjeBehandlingStatus.UNDER_BESLUTNING
+        no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.GODKJENT -> TidslinjeBehandlingStatus.GODKJENT
+        no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus.REVURDERT -> TidslinjeBehandlingStatus.REVURDERT
     }
 
 fun SaksbehandlingsperiodeEndring.tilSaksbehandlingsperiodeEndringDto(): BehandlingEndringDto =

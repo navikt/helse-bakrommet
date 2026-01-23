@@ -16,6 +16,8 @@ import no.nav.helse.bakrommet.api.periodeReferanse
 import no.nav.helse.bakrommet.api.serde.respondJson
 import no.nav.helse.bakrommet.behandling.BehandlingService
 import no.nav.helse.bakrommet.errorhandling.InputValideringException
+import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
+import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.person.PersonService
 import no.nav.helse.bakrommet.sikkerLogger
 import java.time.LocalDate
@@ -23,6 +25,7 @@ import java.time.LocalDate
 fun Route.behandlingRoute(
     service: BehandlingService,
     personService: PersonService,
+    db: DbDaoer<AlleDaoer>,
 ) {
     route("/v1/behandlinger") {
         get {
@@ -55,9 +58,12 @@ fun Route.behandlingRoute(
 
     route("/v1/{$PARAM_PSEUDO_ID}/behandlinger/{$PARAM_BEHANDLING_ID}") {
         get {
-            service.hentPeriode(call.periodeReferanse(personService)).let {
-                call.respondJson(it.tilBehandlingDto())
-            }
+            db
+                .transactional {
+                    hentOgVerifiserBehandling(call)
+                }.let {
+                    call.respondJson(it.tilBehandlingDto())
+                }
         }
     }
 

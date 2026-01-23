@@ -25,7 +25,7 @@ fun Route.setupApiRoutes(
     db: DbDaoer<AlleDaoer>,
     providers: Providers,
 ) {
-    behandlingRoute(services.behandlingService, services.personService)
+    behandlingRoute(services.behandlingService, services.personService, db)
     brukerRoute()
     tidslinjeRoute(providers.organisasjonsnavnProvider, db)
     vilkårRoute(db)

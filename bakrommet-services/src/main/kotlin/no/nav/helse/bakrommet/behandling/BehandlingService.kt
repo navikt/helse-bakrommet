@@ -55,8 +55,6 @@ class BehandlingService(
 ) {
     suspend fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { behandlingDao.hentAlleBehandlinger() }
 
-    suspend fun hentPeriode(ref: BehandlingReferanse) = db.nonTransactional { behandlingDao.hentPeriode(ref, krav = null) }
-
     suspend fun opprettNyBehandling(
         naturligIdent: NaturligIdent,
         fom: LocalDate,
