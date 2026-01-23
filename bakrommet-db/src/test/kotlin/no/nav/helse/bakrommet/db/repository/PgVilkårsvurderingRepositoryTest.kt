@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.db.repository
 
 import kotliquery.sessionOf
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.domain.enBehandling
 import no.nav.helse.bakrommet.domain.etVurdertVilkår
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
@@ -15,7 +15,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class PgVilkårsvurderingRepositoryTest {
-    private val dataSource = TestDataSource.dbModule.dataSource
+    private val dataSource = DBTestFixture.module.dataSource
     private val session = sessionOf(dataSource)
     private val repository = PgVilkårsvurderingRepository(session)
     private val behandlingRepository = PgBehandlingRepository(session)

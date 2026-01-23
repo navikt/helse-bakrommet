@@ -5,7 +5,8 @@ import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.Bruker
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.domain.enNavIdent
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -13,17 +14,17 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 class DokumentDaoTest {
     val dataSource = TestDataSource.dbModule.dataSource
-    val fnr = "01019012345"
-    val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
-    val saksbehandler = Bruker("ABC", "A. B. C", "Saksbehandersen@nav.no", roller = emptySet())
+    val naturligIdent = enNaturligIdent()
+    val pseudoId = UUID.nameUUIDFromBytes(naturligIdent.value.toByteArray())
+    val saksbehandler = Bruker("ABC", enNavIdent(), "Saksbehandersen@nav.no", roller = emptySet())
     val periode =
         BehandlingDbRecord(
             id = UUID.randomUUID(),
-            naturligIdent = NaturligIdent(fnr),
+            naturligIdent = naturligIdent,
             opprettet = OffsetDateTime.now(),
             opprettetAvNavIdent = saksbehandler.navIdent,
             opprettetAvNavn = saksbehandler.navn,
@@ -36,7 +37,7 @@ class DokumentDaoTest {
     fun setOpp() {
         TestDataSource.resetDatasource()
         val dao = PersonPseudoIdDaoPg(dataSource)
-        dao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
+        dao.opprettPseudoId(pseudoId, naturligIdent)
         val behandlingDao = BehandlingDaoPg(dataSource)
         behandlingDao.opprettPeriode(periode)
     }

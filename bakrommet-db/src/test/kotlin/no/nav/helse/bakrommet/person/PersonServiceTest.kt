@@ -1,42 +1,35 @@
 package no.nav.helse.bakrommet.person
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.QueryRunner
-import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.skapDbDaoer
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.pdl.PdlMock
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.assertEquals
 
 class PersonServiceTest {
-    private val dataSource = TestDataSource.dbModule.dataSource
+    private val dataSource = DBTestFixture.module.dataSource
     private val qr: QueryRunner = MedDataSource(dataSource)
-    private lateinit var personService: PersonService
-    private lateinit var db: DbDaoer<AlleDaoer>
-
-    @BeforeEach
-    fun setup() {
-        TestDataSource.resetDatasource()
-        db = skapDbDaoer(dataSource)
-        personService = PersonService(db, personinfoProvider = PdlMock.pdlClient())
-    }
+    private val db: DbDaoer<AlleDaoer> = skapDbDaoer(dataSource)
+    private val personService: PersonService = PersonService(db, personinfoProvider = PdlMock.pdlClient())
 
     @Test
     fun `slettPseudoIderEldreEnn N antall dager, gjør nettopp det`() {
         val p1 = UUID.randomUUID()
-        val fnr1 = NaturligIdent("01010111111")
+        val fnr1 = enNaturligIdent()
         val p2 = UUID.randomUUID()
-        val fnr2 = NaturligIdent("02020222222")
+        val fnr2 = enNaturligIdent()
         val p3 = UUID.randomUUID()
-        val fnr3 = NaturligIdent("03030333333")
+        val fnr3 = enNaturligIdent()
 
         db.opprettPseudoIdMedDAO(p1, fnr1)
         qr.opprettPseudoIdMedDato(p2, fnr2, OffsetDateTime.now().minusDays(6))

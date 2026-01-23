@@ -2,13 +2,13 @@ package no.nav.helse.bakrommet.db.dao
 
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.domain.Bruker
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.domain.enNavIdent
 import no.nav.helse.bakrommet.errorhandling.KunneIkkeOppdatereDbException
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.dto.InntektbeløpDto
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
@@ -20,21 +20,20 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SykepengegrunnlagDaoTest {
-    val dataSource = TestDataSource.dbModule.dataSource
-    val saksbehandler = Bruker("ABC", "A. B. C", "ola@nav.no", emptySet())
+    private val dataSource = DBTestFixture.module.dataSource
+    private val saksbehandler = Bruker("ABC", enNavIdent(), "ola@nav.no", emptySet())
 
-    val behandlingId = UUID.randomUUID()
+    private val behandlingId = UUID.randomUUID()
+    private val naturligIdent = enNaturligIdent()
+    private val pseudoId = UUID.nameUUIDFromBytes(naturligIdent.value.toByteArray())
+    private val dao = SykepengegrunnlagDaoPg(dataSource)
 
-    @BeforeEach
-    fun setOpp() {
-        TestDataSource.resetDatasource()
-        val fnr = "01019012345"
-        val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
-        PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource).opprettPseudoId(pseudoId, NaturligIdent(fnr))
-        BehandlingDaoPg(TestDataSource.dbModule.dataSource).opprettPeriode(
+    init {
+        PersonPseudoIdDaoPg(dataSource).opprettPseudoId(pseudoId, naturligIdent)
+        BehandlingDaoPg(dataSource).opprettPeriode(
             BehandlingDbRecord(
                 id = behandlingId,
-                naturligIdent = NaturligIdent(fnr),
+                naturligIdent = naturligIdent,
                 opprettet = OffsetDateTime.now(),
                 opprettetAvNavIdent = saksbehandler.navIdent,
                 opprettetAvNavn = saksbehandler.navn,
@@ -47,14 +46,12 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppretter og henter sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDaoPg(dataSource)
-
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = `InntektbeløpDto`.Årlig(124028.0),
-                beregningsgrunnlag = `InntektbeløpDto`.Årlig(744168.0),
-                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
-                seksG = `InntektbeløpDto`.Årlig(744168.0),
+                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
+                seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -80,14 +77,12 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppretter sykepengegrunnlag med 6G-begrensning`() {
-        val dao = SykepengegrunnlagDaoPg(dataSource)
-
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = `InntektbeløpDto`.Årlig(130160.0),
-                beregningsgrunnlag = `InntektbeløpDto`.Årlig(900000.0), // Høyere enn 6G
-                sykepengegrunnlag = `InntektbeløpDto`.Årlig(780960.0), // Begrenset til 6G
-                seksG = `InntektbeløpDto`.Årlig(780960.0),
+                grunnbeløp = InntektbeløpDto.Årlig(130160.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(900000.0), // Høyere enn 6G
+                sykepengegrunnlag = InntektbeløpDto.Årlig(780960.0), // Begrenset til 6G
+                seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = true,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -105,14 +100,12 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `oppdaterer eksisterende sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDaoPg(dataSource)
-
         val opprinneligGrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = `InntektbeløpDto`.Årlig(130160.0),
-                beregningsgrunnlag = `InntektbeløpDto`.Årlig(480000.0),
-                sykepengegrunnlag = `InntektbeløpDto`.Årlig(480000.0),
-                seksG = `InntektbeløpDto`.Årlig(780960.0),
+                grunnbeløp = InntektbeløpDto.Årlig(130160.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(480000.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(480000.0),
+                seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -122,10 +115,10 @@ class SykepengegrunnlagDaoTest {
 
         val oppdatertGrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = `InntektbeløpDto`.Årlig(130160.0),
-                beregningsgrunnlag = `InntektbeløpDto`.Årlig(660000.0),
-                sykepengegrunnlag = `InntektbeløpDto`.Årlig(660000.0),
-                seksG = `InntektbeløpDto`.Årlig(780960.0),
+                grunnbeløp = InntektbeløpDto.Årlig(130160.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(660000.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(660000.0),
+                seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -142,14 +135,12 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `sletter sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDaoPg(dataSource)
-
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = `InntektbeløpDto`.Årlig(130160.0),
-                beregningsgrunnlag = `InntektbeløpDto`.Årlig(540000.0),
-                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
-                seksG = `InntektbeløpDto`.Årlig(780960.0),
+                grunnbeløp = InntektbeløpDto.Årlig(130160.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(540000.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
+                seksG = InntektbeløpDto.Årlig(780960.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -171,7 +162,6 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `returnerer null for ikke-eksisterende sykepengegrunnlag`() {
-        val dao = SykepengegrunnlagDaoPg(dataSource)
         val ikkeEksisterendeId = UUID.randomUUID()
 
         val grunnlag = dao.finnSykepengegrunnlag(ikkeEksisterendeId)
@@ -181,14 +171,12 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `serialiserer og deserialiserer sykepengegrunnlag korrekt`() {
-        val dao = SykepengegrunnlagDaoPg(dataSource)
-
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = `InntektbeløpDto`.Årlig(124028.0),
-                beregningsgrunnlag = `InntektbeløpDto`.Årlig(744168.0),
-                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
-                seksG = `InntektbeløpDto`.Årlig(744168.0),
+                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
+                seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -219,14 +207,12 @@ class SykepengegrunnlagDaoTest {
 
     @Test
     fun `låste grunnlag kan ikke endres`() {
-        val dao = SykepengegrunnlagDaoPg(dataSource)
-
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = `InntektbeløpDto`.Årlig(124028.0),
-                beregningsgrunnlag = `InntektbeløpDto`.Årlig(744168.0),
-                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
-                seksG = `InntektbeløpDto`.Årlig(744168.0),
+                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(744168.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
+                seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
                 næringsdel = null,
@@ -238,7 +224,7 @@ class SykepengegrunnlagDaoTest {
         assertThrows<KunneIkkeOppdatereDbException> {
             dao.oppdaterSykepengegrunnlag(
                 lagretGrunnlag.id,
-                sykepengegrunnlag.copy(sykepengegrunnlag = `InntektbeløpDto`.Årlig(600000.0)),
+                sykepengegrunnlag.copy(sykepengegrunnlag = InntektbeløpDto.Årlig(600000.0)),
             )
         }.also { it.message `should equal` "Sykepengegrunnlag kunne ikke oppdateres" }
 

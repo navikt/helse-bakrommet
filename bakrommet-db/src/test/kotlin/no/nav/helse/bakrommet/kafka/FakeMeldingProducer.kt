@@ -3,7 +3,7 @@ package no.nav.helse.bakrommet.kafka
 import java.util.concurrent.CompletableFuture
 
 class FakeMeldingProducer : MeldingProducer {
-    private val sentMessages = mutableListOf<SentMessage>()
+    private val sentMessages = mutableMapOf<String, MutableList<SentMessage>>()
 
     override fun send(
         topic: String,
@@ -11,7 +11,7 @@ class FakeMeldingProducer : MeldingProducer {
         value: String,
         headers: Map<String, String>,
     ): CompletableFuture<Unit> {
-        sentMessages.add(SentMessage(topic, key, value, headers))
+        sentMessages.getOrPut(topic) { mutableListOf() }.add(SentMessage(topic, key, value, headers))
         return CompletableFuture.completedFuture(Unit)
     }
 
@@ -19,9 +19,7 @@ class FakeMeldingProducer : MeldingProducer {
         // Ingen implementasjon nødvendig for fake
     }
 
-    fun getSentMessages(): List<SentMessage> = sentMessages.toList()
-
-    fun clearSentMessages() = sentMessages.clear()
+    fun getSentMessages(): Map<String, List<SentMessage>> = sentMessages.toMap()
 }
 
 data class SentMessage(

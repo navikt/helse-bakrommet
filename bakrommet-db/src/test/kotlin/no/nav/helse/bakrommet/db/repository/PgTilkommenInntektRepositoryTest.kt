@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.db.repository
 
 import kotliquery.sessionOf
 import no.nav.helse.bakrommet.assertOffsetDateTimeEquals
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.domain.enBehandling
 import no.nav.helse.bakrommet.domain.enTilkommenInntekt
 import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
@@ -14,7 +14,7 @@ import java.time.LocalDate
 import kotlin.test.*
 
 class PgTilkommenInntektRepositoryTest {
-    private val dataSource = TestDataSource.dbModule.dataSource
+    private val dataSource = DBTestFixture.module.dataSource
     private val session = sessionOf(dataSource)
     private val repository = PgTilkommenInntektRepository(session)
     private val behandlingRepository = PgBehandlingRepository(session)

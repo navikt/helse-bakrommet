@@ -2,22 +2,20 @@ package no.nav.helse.bakrommet.db.repository
 
 import kotliquery.sessionOf
 import no.nav.helse.bakrommet.assertOffsetDateTimeEquals
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.domain.enBehandling
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.enYrkesaktivitet
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
 import no.nav.helse.økonomi.Inntekt.Companion.årlig
 import org.junit.jupiter.api.AfterEach
-import java.util.UUID
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import java.util.*
+import kotlin.test.*
 
 class PgYrkesaktivitetRepositoryTest {
-    private val dataSource = TestDataSource.dbModule.dataSource
+    private val dataSource = DBTestFixture.module.dataSource
     private val session = sessionOf(dataSource)
     private val yrkesaktivitetRepository = PgYrkesaktivitetsperiodeRepository(session)
     private val behandlingRepository = PgBehandlingRepository(session)
@@ -57,13 +55,14 @@ class PgYrkesaktivitetRepositoryTest {
         val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
+        val organisasjonsnummer = etOrganisasjonsnummer()
         val yrkesaktivitet =
             enYrkesaktivitet(
                 behandlingId = behandling.id,
                 kategorisering =
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
+                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = organisasjonsnummer),
                     ),
             )
         yrkesaktivitetRepository.lagre(yrkesaktivitet)
@@ -74,7 +73,7 @@ class PgYrkesaktivitetRepositoryTest {
         val første = funnet.first()
         val kategorisering = første.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker
         assertEquals(true, kategorisering.sykmeldt)
-        assertEquals("123456789", (kategorisering.typeArbeidstaker as TypeArbeidstaker.Ordinær).orgnummer)
+        assertEquals(organisasjonsnummer, (kategorisering.typeArbeidstaker as TypeArbeidstaker.Ordinær).orgnummer)
     }
 
     @Test
@@ -82,13 +81,14 @@ class PgYrkesaktivitetRepositoryTest {
         val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
+        val orgnummer = etOrganisasjonsnummer()
         val yrkesaktivitet =
             enYrkesaktivitet(
                 behandlingId = behandling.id,
                 kategorisering =
                     YrkesaktivitetKategorisering.Frilanser(
                         sykmeldt = true,
-                        orgnummer = "987654321",
+                        orgnummer = orgnummer,
                         forsikring = FrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
                     ),
             )
@@ -100,7 +100,7 @@ class PgYrkesaktivitetRepositoryTest {
         val første = funnet.first()
         val kategorisering = første.kategorisering as YrkesaktivitetKategorisering.Frilanser
         assertEquals(true, kategorisering.sykmeldt)
-        assertEquals("987654321", kategorisering.orgnummer)
+        assertEquals(orgnummer, kategorisering.orgnummer)
         assertEquals(FrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG, kategorisering.forsikring)
     }
 
@@ -181,10 +181,11 @@ class PgYrkesaktivitetRepositoryTest {
         val yrkesaktivitet = enYrkesaktivitet(behandlingId = behandling.id)
         yrkesaktivitetRepository.lagre(yrkesaktivitet)
 
+        val organisasjonsnummer = etOrganisasjonsnummer()
         yrkesaktivitet.nyKategorisering(
             YrkesaktivitetKategorisering.Arbeidstaker(
                 sykmeldt = false,
-                typeArbeidstaker = TypeArbeidstaker.Maritim(orgnummer = "999888777"),
+                typeArbeidstaker = TypeArbeidstaker.Maritim(orgnummer = organisasjonsnummer),
             ),
         )
         yrkesaktivitetRepository.lagre(yrkesaktivitet)
@@ -196,7 +197,7 @@ class PgYrkesaktivitetRepositoryTest {
         assertEquals(yrkesaktivitet.id, første.id)
         val kategorisering = første.kategorisering as YrkesaktivitetKategorisering.Arbeidstaker
         assertEquals(false, kategorisering.sykmeldt)
-        assertEquals("999888777", (kategorisering.typeArbeidstaker as TypeArbeidstaker.Maritim).orgnummer)
+        assertEquals(organisasjonsnummer, (kategorisering.typeArbeidstaker as TypeArbeidstaker.Maritim).orgnummer)
     }
 
     @Test
@@ -204,13 +205,15 @@ class PgYrkesaktivitetRepositoryTest {
         val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
+        val orgnummer1 = etOrganisasjonsnummer()
+        val orgnummer2 = etOrganisasjonsnummer()
         val yrkesaktivitet1 =
             enYrkesaktivitet(
                 behandlingId = behandling.id,
                 kategorisering =
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "111111111"),
+                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = orgnummer1),
                     ),
             )
         val yrkesaktivitet2 =
@@ -219,7 +222,7 @@ class PgYrkesaktivitetRepositoryTest {
                 kategorisering =
                     YrkesaktivitetKategorisering.Frilanser(
                         sykmeldt = true,
-                        orgnummer = "222222222",
+                        orgnummer = orgnummer2,
                         forsikring = FrilanserForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
                     ),
             )
@@ -293,13 +296,17 @@ class PgYrkesaktivitetRepositoryTest {
         val behandling = enBehandling()
         behandlingRepository.lagre(behandling)
 
+        val orgnummer1 = etOrganisasjonsnummer()
+        val orgnummer2 = etOrganisasjonsnummer()
+        val orgnummer3 = etOrganisasjonsnummer()
+        val arbeidsgiverFnr = enNaturligIdent().value
         val ordinær =
             enYrkesaktivitet(
                 behandlingId = behandling.id,
                 kategorisering =
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "111111111"),
+                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = orgnummer1),
                     ),
             )
         val maritim =
@@ -308,7 +315,7 @@ class PgYrkesaktivitetRepositoryTest {
                 kategorisering =
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Maritim(orgnummer = "222222222"),
+                        typeArbeidstaker = TypeArbeidstaker.Maritim(orgnummer = orgnummer2),
                     ),
             )
         val fisker =
@@ -317,7 +324,7 @@ class PgYrkesaktivitetRepositoryTest {
                 kategorisering =
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Fisker(orgnummer = "333333333"),
+                        typeArbeidstaker = TypeArbeidstaker.Fisker(orgnummer = orgnummer3),
                     ),
             )
         val vernepliktig =
@@ -335,7 +342,7 @@ class PgYrkesaktivitetRepositoryTest {
                 kategorisering =
                     YrkesaktivitetKategorisering.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.PrivatArbeidsgiver(arbeidsgiverFnr = "12345678901"),
+                        typeArbeidstaker = TypeArbeidstaker.PrivatArbeidsgiver(arbeidsgiverFnr = arbeidsgiverFnr),
                     ),
             )
 

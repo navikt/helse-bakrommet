@@ -2,37 +2,32 @@ package no.nav.helse.bakrommet.db.dao
 
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.domain.Bruker
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.domain.enNavIdent
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.dto.InntektbeløpDto
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 internal class SaksbehandlingsperiodeDaoTest {
-    val dataSource = TestDataSource.dbModule.dataSource
+    val dataSource = DBTestFixture.module.dataSource
 
     private val dao = BehandlingDaoPg(dataSource)
+    private val personPseudoIdDao = PersonPseudoIdDaoPg(dataSource)
 
-    companion object {
-        const val fnr = "01019012345"
-        val pseudoId = UUID.nameUUIDFromBytes(fnr.toByteArray())
+    private val naturligIdent = enNaturligIdent()
+    private val pseudoId = UUID.nameUUIDFromBytes(naturligIdent.value.toByteArray())
 
-        @JvmStatic
-        @BeforeAll
-        fun setOpp() {
-            TestDataSource.resetDatasource()
-            val dao = PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource)
-            dao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
-        }
+    init {
+        personPseudoIdDao.opprettPseudoId(pseudoId, naturligIdent)
     }
 
     @Test
@@ -44,14 +39,14 @@ internal class SaksbehandlingsperiodeDaoTest {
     fun `kan opprette og hente periode`() {
         val id = UUID.randomUUID()
         val now = OffsetDateTime.now()
-        val saksbehandler = Bruker("Z12345", "Ola Nordmann", "ola@nav.no", emptySet())
+        val saksbehandler = Bruker("Ola Nordmann", enNavIdent(), "ola@nav.no", emptySet())
         val fom = LocalDate.of(2021, 1, 1)
         val tom = LocalDate.of(2021, 1, 31)
 
         val periode =
             BehandlingDbRecord(
                 id = id,
-                naturligIdent = NaturligIdent(fnr),
+                naturligIdent = naturligIdent,
                 opprettet = now,
                 opprettetAvNavIdent = saksbehandler.navIdent,
                 opprettetAvNavn = saksbehandler.navn,
@@ -67,7 +62,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         assertEquals(periode, hentet)
 
         // Sjekk at perioden finnes i listen over alle perioder for personen
-        val perioder = dao.finnBehandlingerForNaturligIdent(NaturligIdent(fnr))
+        val perioder = dao.finnBehandlingerForNaturligIdent(naturligIdent)
         assertTrue(perioder.any { it.id == id })
     }
 
@@ -85,7 +80,7 @@ internal class SaksbehandlingsperiodeDaoTest {
             val periode =
                 BehandlingDbRecord(
                     id = id,
-                    naturligIdent = NaturligIdent(fnr),
+                    naturligIdent = naturligIdent,
                     opprettet = now,
                     opprettetAvNavIdent = saksbehandler.navIdent,
                     opprettetAvNavn = saksbehandler.navn,
@@ -104,7 +99,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         ): Set<BehandlingDbRecord> =
             dao
                 .finnBehandlingerForNaturligIdentSomOverlapper(
-                    NaturligIdent(fnr),
+                    naturligIdent,
                     fom.toLocalDate(),
                     tom.toLocalDate(),
                 ).toSet()
@@ -134,7 +129,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val periode =
             BehandlingDbRecord(
                 id = id,
-                naturligIdent = NaturligIdent(fnr),
+                naturligIdent = naturligIdent,
                 opprettet = now,
                 opprettetAvNavIdent = saksbehandler.navIdent,
                 opprettetAvNavn = saksbehandler.navn,
@@ -165,7 +160,7 @@ internal class SaksbehandlingsperiodeDaoTest {
         val periode =
             BehandlingDbRecord(
                 id = id,
-                naturligIdent = NaturligIdent(fnr),
+                naturligIdent = naturligIdent,
                 opprettet = now,
                 opprettetAvNavIdent = saksbehandler.navIdent,
                 opprettetAvNavn = saksbehandler.navn,
@@ -181,12 +176,12 @@ internal class SaksbehandlingsperiodeDaoTest {
         val sykepengegrunnlagDao = SykepengegrunnlagDaoPg(dataSource)
         val sykepengegrunnlag =
             Sykepengegrunnlag(
-                grunnbeløp = `InntektbeløpDto`.Årlig(124028.0),
-                sykepengegrunnlag = `InntektbeløpDto`.Årlig(540000.0),
-                seksG = `InntektbeløpDto`.Årlig(744168.0),
+                grunnbeløp = InntektbeløpDto.Årlig(124028.0),
+                sykepengegrunnlag = InntektbeløpDto.Årlig(540000.0),
+                seksG = InntektbeløpDto.Årlig(744168.0),
                 begrensetTil6G = false,
                 grunnbeløpVirkningstidspunkt = LocalDate.of(2024, 5, 1),
-                beregningsgrunnlag = `InntektbeløpDto`.Årlig(540000.0),
+                beregningsgrunnlag = InntektbeløpDto.Årlig(540000.0),
                 næringsdel = null,
             )
         val lagretGrunnlag = sykepengegrunnlagDao.lagreSykepengegrunnlag(sykepengegrunnlag, saksbehandler, id)

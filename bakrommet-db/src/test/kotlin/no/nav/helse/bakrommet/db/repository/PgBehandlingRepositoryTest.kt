@@ -2,9 +2,10 @@ package no.nav.helse.bakrommet.db.repository
 
 import kotliquery.sessionOf
 import no.nav.helse.bakrommet.assertInstantEquals
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.domain.enBehandling
 import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.domain.enNavIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
 import no.nav.helse.januar
@@ -12,14 +13,10 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.time.Instant
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class PgBehandlingRepositoryTest {
-    private val dataSource = TestDataSource.dbModule.dataSource
+    private val dataSource = DBTestFixture.module.dataSource
     private val session = sessionOf(dataSource)
     private val repository = PgBehandlingRepository(session)
 
@@ -69,7 +66,7 @@ class PgBehandlingRepositoryTest {
                 tom = 31.januar(2019),
                 skjæringstidspunkt = 1.januar(2019),
                 status = BehandlingStatus.TIL_BESLUTNING,
-                beslutterNavIdent = "Z222222",
+                beslutterNavIdent = enNavIdent(),
                 individuellBegrunnelse = "En annen begrunnelse",
                 sykepengegrunnlagId = null,
                 revurdertAvBehandlingId = null,
@@ -116,7 +113,7 @@ class PgBehandlingRepositoryTest {
                 tom = 31.januar(2019),
                 skjæringstidspunkt = 1.januar(2019),
                 status = BehandlingStatus.TIL_BESLUTNING,
-                beslutterNavIdent = "Z222222",
+                beslutterNavIdent = enNavIdent(),
                 individuellBegrunnelse = "En annen begrunnelse",
                 sykepengegrunnlagId = null,
                 revurdertAvBehandlingId = behandling.id,
@@ -170,6 +167,7 @@ class PgBehandlingRepositoryTest {
     @EnumSource(Behandling.Endring.TypeEndring::class)
     fun `lagrer og henter endring med type Startet`(typeEndring: Behandling.Endring.TypeEndring) {
         // given
+        val navIdent = enNavIdent()
         val behandling =
             enBehandling(
                 endringer =
@@ -177,7 +175,7 @@ class PgBehandlingRepositoryTest {
                         Behandling.Endring(
                             type = typeEndring,
                             tidspunkt = Instant.now(),
-                            navIdent = "Z111111",
+                            navIdent = navIdent,
                             status = BehandlingStatus.UNDER_BEHANDLING,
                             beslutterNavIdent = null,
                             kommentar = null,
@@ -194,7 +192,7 @@ class PgBehandlingRepositoryTest {
         assertEquals(1, funnet.endringer.size)
         val endring = funnet.endringer.first()
         assertEquals(typeEndring, endring.type)
-        assertEquals("Z111111", endring.navIdent)
+        assertEquals(navIdent, endring.navIdent)
         assertEquals(BehandlingStatus.UNDER_BEHANDLING, endring.status)
         assertEquals(null, endring.beslutterNavIdent)
         assertEquals(null, endring.kommentar)
@@ -207,6 +205,7 @@ class PgBehandlingRepositoryTest {
         val tidspunkt1 = Instant.now().minusSeconds(120)
         val tidspunkt2 = Instant.now().minusSeconds(60)
         val tidspunkt3 = Instant.now()
+        val navIdent = enNavIdent()
         val behandling =
             enBehandling(
                 status = BehandlingStatus.TIL_BESLUTNING,
@@ -215,7 +214,7 @@ class PgBehandlingRepositoryTest {
                         Behandling.Endring(
                             type = Behandling.Endring.TypeEndring.Startet,
                             tidspunkt = tidspunkt1,
-                            navIdent = "Z111111",
+                            navIdent = navIdent,
                             status = BehandlingStatus.UNDER_BEHANDLING,
                             beslutterNavIdent = null,
                             kommentar = null,
@@ -223,7 +222,7 @@ class PgBehandlingRepositoryTest {
                         Behandling.Endring(
                             type = Behandling.Endring.TypeEndring.OppdatertIndividuellBegrunnelse,
                             tidspunkt = tidspunkt2,
-                            navIdent = "Z111111",
+                            navIdent = navIdent,
                             status = BehandlingStatus.UNDER_BEHANDLING,
                             beslutterNavIdent = null,
                             kommentar = null,
@@ -231,7 +230,7 @@ class PgBehandlingRepositoryTest {
                         Behandling.Endring(
                             type = Behandling.Endring.TypeEndring.SendtTilBeslutning,
                             tidspunkt = tidspunkt3,
-                            navIdent = "Z111111",
+                            navIdent = navIdent,
                             status = BehandlingStatus.TIL_BESLUTNING,
                             beslutterNavIdent = null,
                             kommentar = "Sendt videre",
@@ -257,11 +256,12 @@ class PgBehandlingRepositoryTest {
     @Test
     fun `lagrer kun nye endringer ved oppdatering av behandling`() {
         // given
+        val navIdent = enNavIdent()
         val førsteEndring =
             Behandling.Endring(
                 type = Behandling.Endring.TypeEndring.Startet,
                 tidspunkt = Instant.now().minusSeconds(60),
-                navIdent = "Z111111",
+                navIdent = navIdent,
                 status = BehandlingStatus.UNDER_BEHANDLING,
                 beslutterNavIdent = null,
                 kommentar = null,
@@ -273,7 +273,7 @@ class PgBehandlingRepositoryTest {
             Behandling.Endring(
                 type = Behandling.Endring.TypeEndring.SendtTilBeslutning,
                 tidspunkt = Instant.now(),
-                navIdent = "Z111111",
+                navIdent = navIdent,
                 status = BehandlingStatus.TIL_BESLUTNING,
                 beslutterNavIdent = null,
                 kommentar = null,
