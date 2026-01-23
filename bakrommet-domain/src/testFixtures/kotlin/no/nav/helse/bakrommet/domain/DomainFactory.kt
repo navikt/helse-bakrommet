@@ -65,6 +65,17 @@ fun enBehandling(
     sykepengegrunnlagId: UUID? = null,
     revurdererSaksbehandlingsperiodeId: BehandlingId? = null,
     revurdertAvBehandlingId: BehandlingId? = null,
+    endringer: List<Behandling.Endring> =
+        listOf(
+            Behandling.Endring(
+                type = Behandling.Endring.TypeEndring.Startet,
+                tidspunkt = Instant.now(),
+                navIdent = opprettetAvNavIdent,
+                status = status,
+                beslutterNavIdent = beslutterNavIdent,
+                kommentar = null,
+            ),
+        ),
 ) = Behandling.fraLagring(
     id = id,
     naturligIdent = naturligIdent,
@@ -80,6 +91,7 @@ fun enBehandling(
     sykepengegrunnlagId = sykepengegrunnlagId,
     revurdererBehandlingId = revurdererSaksbehandlingsperiodeId,
     revurdertAvBehandlingId = revurdertAvBehandlingId,
+    endringer = endringer,
 )
 
 fun etVurdertVilkår(

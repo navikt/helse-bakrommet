@@ -5,9 +5,13 @@ import no.nav.helse.bakrommet.assertInstantEquals
 import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.enBehandling
 import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
 import no.nav.helse.januar
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -160,5 +164,139 @@ class PgBehandlingRepositoryTest {
         assertEquals(2, funnet.size)
         assertTrue(funnet.map { it.id }.containsAll(listOf(behandling1.id, behandling2.id)))
         assertFalse(funnet.map { it.id }.contains(enBehandlingForEnAnnenPerson.id))
+    }
+
+    @ParameterizedTest
+    @EnumSource(Behandling.Endring.TypeEndring::class)
+    fun `lagrer og henter endring med type Startet`(typeEndring: Behandling.Endring.TypeEndring) {
+        // given
+        val behandling =
+            enBehandling(
+                endringer =
+                    listOf(
+                        Behandling.Endring(
+                            type = typeEndring,
+                            tidspunkt = Instant.now(),
+                            navIdent = "Z111111",
+                            status = BehandlingStatus.UNDER_BEHANDLING,
+                            beslutterNavIdent = null,
+                            kommentar = null,
+                        ),
+                    ),
+            )
+
+        // when
+        repository.lagre(behandling)
+
+        // then
+        val funnet = repository.finn(behandling.id)
+        assertNotNull(funnet)
+        assertEquals(1, funnet.endringer.size)
+        val endring = funnet.endringer.first()
+        assertEquals(typeEndring, endring.type)
+        assertEquals("Z111111", endring.navIdent)
+        assertEquals(BehandlingStatus.UNDER_BEHANDLING, endring.status)
+        assertEquals(null, endring.beslutterNavIdent)
+        assertEquals(null, endring.kommentar)
+        assertInstantEquals(behandling.endringer.first().tidspunkt, endring.tidspunkt)
+    }
+
+    @Test
+    fun `lagrer og henter flere endringer i riktig rekkefølge`() {
+        // given
+        val tidspunkt1 = Instant.now().minusSeconds(120)
+        val tidspunkt2 = Instant.now().minusSeconds(60)
+        val tidspunkt3 = Instant.now()
+        val behandling =
+            enBehandling(
+                status = BehandlingStatus.TIL_BESLUTNING,
+                endringer =
+                    listOf(
+                        Behandling.Endring(
+                            type = Behandling.Endring.TypeEndring.Startet,
+                            tidspunkt = tidspunkt1,
+                            navIdent = "Z111111",
+                            status = BehandlingStatus.UNDER_BEHANDLING,
+                            beslutterNavIdent = null,
+                            kommentar = null,
+                        ),
+                        Behandling.Endring(
+                            type = Behandling.Endring.TypeEndring.OppdatertIndividuellBegrunnelse,
+                            tidspunkt = tidspunkt2,
+                            navIdent = "Z111111",
+                            status = BehandlingStatus.UNDER_BEHANDLING,
+                            beslutterNavIdent = null,
+                            kommentar = null,
+                        ),
+                        Behandling.Endring(
+                            type = Behandling.Endring.TypeEndring.SendtTilBeslutning,
+                            tidspunkt = tidspunkt3,
+                            navIdent = "Z111111",
+                            status = BehandlingStatus.TIL_BESLUTNING,
+                            beslutterNavIdent = null,
+                            kommentar = "Sendt videre",
+                        ),
+                    ),
+            )
+
+        // when
+        repository.lagre(behandling)
+
+        // then
+        val funnet = repository.finn(behandling.id)
+        assertNotNull(funnet)
+        assertEquals(3, funnet.endringer.size)
+        assertEquals(Behandling.Endring.TypeEndring.Startet, funnet.endringer[0].type)
+        assertEquals(Behandling.Endring.TypeEndring.OppdatertIndividuellBegrunnelse, funnet.endringer[1].type)
+        assertEquals(Behandling.Endring.TypeEndring.SendtTilBeslutning, funnet.endringer[2].type)
+        assertInstantEquals(tidspunkt1, funnet.endringer[0].tidspunkt)
+        assertInstantEquals(tidspunkt2, funnet.endringer[1].tidspunkt)
+        assertInstantEquals(tidspunkt3, funnet.endringer[2].tidspunkt)
+    }
+
+    @Test
+    fun `lagrer kun nye endringer ved oppdatering av behandling`() {
+        // given
+        val førsteEndring =
+            Behandling.Endring(
+                type = Behandling.Endring.TypeEndring.Startet,
+                tidspunkt = Instant.now().minusSeconds(60),
+                navIdent = "Z111111",
+                status = BehandlingStatus.UNDER_BEHANDLING,
+                beslutterNavIdent = null,
+                kommentar = null,
+            )
+        val behandling = enBehandling(endringer = listOf(førsteEndring))
+        repository.lagre(behandling)
+
+        val andreEndring =
+            Behandling.Endring(
+                type = Behandling.Endring.TypeEndring.SendtTilBeslutning,
+                tidspunkt = Instant.now(),
+                navIdent = "Z111111",
+                status = BehandlingStatus.TIL_BESLUTNING,
+                beslutterNavIdent = null,
+                kommentar = null,
+            )
+        val oppdatertBehandling =
+            enBehandling(
+                id = behandling.id,
+                naturligIdent = behandling.naturligIdent,
+                opprettet = behandling.opprettet,
+                opprettetAvNavIdent = behandling.opprettetAvNavIdent,
+                opprettetAvNavn = behandling.opprettetAvNavn,
+                status = BehandlingStatus.TIL_BESLUTNING,
+                endringer = listOf(førsteEndring, andreEndring),
+            )
+
+        // when
+        repository.lagre(oppdatertBehandling)
+
+        // then
+        val funnet = repository.finn(behandling.id)
+        assertNotNull(funnet)
+        assertEquals(2, funnet.endringer.size)
+        assertEquals(Behandling.Endring.TypeEndring.Startet, funnet.endringer[0].type)
+        assertEquals(Behandling.Endring.TypeEndring.SendtTilBeslutning, funnet.endringer[1].type)
     }
 }

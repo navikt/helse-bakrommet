@@ -113,6 +113,7 @@ class BehandlingDaoFake(
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = revurdererSaksbehandlingsperiodeId?.let { BehandlingId(it) },
             revurdertAvBehandlingId = revurdertAvBehandlingId?.let { BehandlingId(it) },
+            endringer = emptyList(),
         )
 
     private fun Behandling.tilDbRecord(): BehandlingDbRecord =
@@ -153,6 +154,7 @@ class BehandlingDaoFake(
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
+            endringer = emptyList(),
         )
 
     private fun Behandling.medIndividuellBegrunnelse(nyBegrunnelse: String?): Behandling =
@@ -171,6 +173,7 @@ class BehandlingDaoFake(
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
+            endringer = emptyList(),
         )
 
     private fun Behandling.medBeslutterNavIdent(nyBeslutter: String?): Behandling =
@@ -189,6 +192,7 @@ class BehandlingDaoFake(
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
+            endringer = emptyList(),
         )
 
     private fun Behandling.medSkjæringstidspunkt(nySkjæringstidspunkt: LocalDate): Behandling =
@@ -207,6 +211,7 @@ class BehandlingDaoFake(
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
+            endringer = emptyList(),
         )
 
     private fun Behandling.medSykepengegrunnlagId(nySykepengegrunnlagId: UUID?): Behandling =
@@ -225,6 +230,7 @@ class BehandlingDaoFake(
             sykepengegrunnlagId = nySykepengegrunnlagId,
             revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
+            endringer = emptyList(),
         )
 
     private fun Behandling.medRevurdertAvBehandlingId(nyRevurdertAvBehandlingId: BehandlingId): Behandling =
@@ -243,5 +249,6 @@ class BehandlingDaoFake(
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = nyRevurdertAvBehandlingId,
+            endringer = emptyList(),
         )
 }

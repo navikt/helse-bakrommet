@@ -27,6 +27,7 @@ class Behandling private constructor(
     sykepengegrunnlagId: UUID? = null,
     revurdererBehandlingId: BehandlingId? = null,
     revurdertAvBehandlingId: BehandlingId? = null,
+    endringer: List<Endring>,
 ) {
     var fom: LocalDate = fom
         private set
@@ -46,6 +47,9 @@ class Behandling private constructor(
         private set
     var revurdertAvBehandlingId: BehandlingId? = revurdertAvBehandlingId
         private set
+
+    private val _endringer = endringer.toMutableList()
+    val endringer: List<Endring> get() = _endringer
 
     val periode get() = Periode(fom, tom)
 
@@ -74,9 +78,31 @@ class Behandling private constructor(
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = this.id,
             revurdertAvBehandlingId = null,
+            endringer = emptyList(),
         )
 
     infix fun gjelder(naturligIdent: NaturligIdent): Boolean = this.naturligIdent == naturligIdent
+
+    class Endring(
+        val status: BehandlingStatus,
+        val beslutterNavIdent: String?,
+        val tidspunkt: Instant,
+        val navIdent: String,
+        val type: TypeEndring,
+        val kommentar: String? = null,
+    ) {
+        enum class TypeEndring {
+            Startet,
+            SendtTilBeslutning,
+            TattTilBeslutning,
+            SendtIRetur,
+            Godkjent,
+            OppdatertIndividuellBegrunnelse,
+            OppdatertSkjæringstidspunkt,
+            OppdatertYrkesaktivitetKategorisering,
+            RevurderingStartet,
+        }
+    }
 
     companion object {
         fun fraLagring(
@@ -88,12 +114,13 @@ class Behandling private constructor(
             fom: LocalDate,
             tom: LocalDate,
             status: BehandlingStatus = BehandlingStatus.UNDER_BEHANDLING,
-            beslutterNavIdent: String? = null,
+            beslutterNavIdent: String?,
             skjæringstidspunkt: LocalDate,
-            individuellBegrunnelse: String? = null,
-            sykepengegrunnlagId: UUID? = null,
-            revurdererBehandlingId: BehandlingId? = null,
-            revurdertAvBehandlingId: BehandlingId? = null,
+            individuellBegrunnelse: String?,
+            sykepengegrunnlagId: UUID?,
+            revurdererBehandlingId: BehandlingId?,
+            revurdertAvBehandlingId: BehandlingId?,
+            endringer: List<Endring>,
         ) = Behandling(
             id = id,
             naturligIdent = naturligIdent,
@@ -109,6 +136,7 @@ class Behandling private constructor(
             sykepengegrunnlagId = sykepengegrunnlagId,
             revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
+            endringer = endringer,
         )
     }
 }
