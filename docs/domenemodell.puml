@@ -9,11 +9,10 @@ package Sykepenger {
 
     interface Yrkesaktivitetsperiode
 
-    class AktivYrkesaktivitet as "Aktiv yrkesaktivitet"
-
     class NaturligIdent as "Naturlig ident"
 
     class Yrkesaktivitet {
+        Vernepliktig
         Arbeidstaker
         Frilanser
         Arbeidsledig
@@ -52,16 +51,15 @@ Behandling --> Yrkesaktivitetsperiode: omfatter en eller flere
 Behandling --> Sykefraværstilfelle: inngår i et
 Sykefraværstilfelle --> Sykepengegrunnlag: har 0 eller ett
 Sykepengegrunnlag --> Inntektsgrunnlag: består av 0, en eller flere
-AktivYrkesaktivitet --> Inntektsgrunnlag: har 0 eller en
+Yrkesaktivitet --> Inntektsgrunnlag: har 0 eller en
 Yrkesaktivitet --> NaturligIdent: knyttet til en
-AktivYrkesaktivitet --> Yrkesaktivitet: representerer
-Sykefraværstilfelle --> AktivYrkesaktivitet: har en eller flere
+Sykefraværstilfelle <-- Yrkesaktivitet: tilhører et
 Sykefraværstilfelle --> Rettighetskategori: Faller innunder en
 Sykefraværstilfelle --> Inngangsvilkår: har et sett med
 Yrkesaktivitetsperiode --> LøpendeVilkår: har et sett med
 
 Behandling <-- Vilkårsvurdering: tilhører en
-Yrkesaktivitetsperiode --> AktivYrkesaktivitet: tilhører én
+Yrkesaktivitetsperiode --> Yrkesaktivitet: tilhører én
 Sykepengesøknad --> Yrkesaktivitetsperiode: ligger til grunn for
 Behandling --> Beregning: har 0 eller en
 'Rettighetskategori --> Sykepengevilkår: har et sett med
