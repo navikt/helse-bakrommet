@@ -8,11 +8,11 @@ import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
 import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
 import no.nav.helse.bakrommet.e2e.testutils.lagSykedager
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjenn
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjennOld
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentAllePerioder
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.revurder
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.sendTilBeslutning
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.sendTilBeslutningOld
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.settDagoversikt
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
 import no.nav.helse.bakrommet.kafka.OutboxDbRecord
@@ -51,13 +51,13 @@ class RevurderingTest {
                 yrkesaktivitetId = yrkesaktivitet.id,
                 dager = lagSykedager(fom = revurderendePeriode.fom, tom = revurderendePeriode.tom, grad = 50),
             )
-            sendTilBeslutning(
+            sendTilBeslutningOld(
                 behandlingId = revurderendePeriode.id,
                 personId = personId,
                 individuellBegrunnelse = "Revurdering med lavere grad",
             )
             taTilBesluting(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
-            godkjenn(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
+            godkjennOld(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
 
             val utbetalingKafkaMeldinger =
                 scenarioData.daoer.outboxDao

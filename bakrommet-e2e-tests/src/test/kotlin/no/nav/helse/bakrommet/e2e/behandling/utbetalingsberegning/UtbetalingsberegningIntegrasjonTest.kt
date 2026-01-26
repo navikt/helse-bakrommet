@@ -18,7 +18,7 @@ import no.nav.helse.bakrommet.e2e.sendTilBeslutning
 import no.nav.helse.bakrommet.e2e.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.e2e.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.e2e.taTilBesluting
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjenn
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjennOld
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitetOld
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
@@ -96,7 +96,7 @@ class UtbetalingsberegningIntegrasjonTest {
             sendTilBeslutning(PERSON_PSEUDO_ID, periode.id)
             taTilBesluting(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
 
-            godkjenn(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
+            godkjennOld(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
             val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()
             upubliserteEntries.size `should equal` 4
 

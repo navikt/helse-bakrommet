@@ -321,7 +321,7 @@ data class Scenario(
             if (besluttOgGodkjenn) {
                 sendTilBeslutning(pseudoId, reloadedPeriode.id)
                 taTilBesluting(pseudoId, reloadedPeriode.id, beslutterToken)
-                godkjenn(pseudoId, reloadedPeriode.id, beslutterToken)
+                godkjennOld(pseudoId, reloadedPeriode.id, beslutterToken)
             }
             if (testBlock != null) {
                 testBlock.invoke(
