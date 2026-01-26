@@ -8,14 +8,9 @@ import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.e2e.TestOppsett
 import no.nav.helse.bakrommet.e2e.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.e2e.runApplicationTest
@@ -81,9 +76,9 @@ class UtbetalingsberegningIntegrasjonTest {
                 opprettYrkesaktivitet(
                     personId = PERSON_PSEUDO_ID,
                     periode.id,
-                    YrkesaktivitetKategorisering.Arbeidstaker(
+                    YrkesaktivitetKategoriseringDto.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
+                        typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "123456789"),
                     ),
                 )
             // Sett inntekt på yrkesaktivitet (dette trigger automatisk utbetalingsberegning)

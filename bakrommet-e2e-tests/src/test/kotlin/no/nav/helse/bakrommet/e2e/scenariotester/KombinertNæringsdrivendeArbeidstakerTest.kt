@@ -1,14 +1,8 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SelvstendigForsikring
-import no.nav.helse.bakrommet.e2e.testutils.AInntekt
-import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
-import no.nav.helse.bakrommet.e2e.testutils.Scenario
-import no.nav.helse.bakrommet.e2e.testutils.Selvstendig
-import no.nav.helse.bakrommet.e2e.testutils.SigrunInntekt
-import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
-import no.nav.helse.bakrommet.e2e.testutils.harBeregningskode
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.SelvstendigForsikringDto
+import no.nav.helse.bakrommet.e2e.testutils.*
 import kotlin.test.Test
 
 class KombinertNæringsdrivendeArbeidstakerTest {
@@ -17,7 +11,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
         Scenario(
             listOf(
                 Selvstendig(
-                    forsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
+                    forsikring = SelvstendigForsikringDto.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
                     inntekt = SigrunInntekt(700000, 900000, 1000000),
                     dagoversikt = SykAlleDager(),
                 ),
@@ -36,7 +30,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
         Scenario(
             listOf(
                 Selvstendig(
-                    forsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
+                    forsikring = SelvstendigForsikringDto.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
                     inntekt = SigrunInntekt(700000, 900000, 1000000),
                     dagoversikt = SykAlleDager(),
                 ),

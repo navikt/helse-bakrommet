@@ -1,7 +1,7 @@
 package no.nav.helse.bakrommet.e2e.testutils
 
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.helse.bakrommet.*
+import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
@@ -12,27 +12,9 @@ import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SelvstendigForsikring
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeSelvstendigNæringsdrivende
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.e2e.Daoer
-import no.nav.helse.bakrommet.e2e.TestOppsett
+import no.nav.helse.bakrommet.e2e.*
 import no.nav.helse.bakrommet.e2e.TestOppsett.oAuthMock
-import no.nav.helse.bakrommet.e2e.runApplicationTest
-import no.nav.helse.bakrommet.e2e.sendTilBeslutning
-import no.nav.helse.bakrommet.e2e.taTilBesluting
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjenn
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentAllePerioder
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.oppdaterInntekt
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.oppdaterVilkårsvurdering
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.settDagoversikt
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.settSkjaeringstidspunkt
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.*
 import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntekt
 import no.nav.helse.bakrommet.infrastruktur.provider.Inntektsinformasjon
@@ -274,9 +256,9 @@ data class Scenario(
                                     ?: opprettYrkesaktivitet(
                                         personId = pseudoId,
                                         periode.id,
-                                        YrkesaktivitetKategorisering.Arbeidstaker(
+                                        YrkesaktivitetKategoriseringDto.Arbeidstaker(
                                             sykmeldt = true,
-                                            typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = ya.orgnr),
+                                            typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = ya.orgnr),
                                         ),
                                     )
                             }
@@ -293,10 +275,10 @@ data class Scenario(
                                     ?: opprettYrkesaktivitet(
                                         personId = pseudoId,
                                         periode.id,
-                                        YrkesaktivitetKategorisering.SelvstendigNæringsdrivende(
+                                        YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende(
                                             sykmeldt = true,
                                             typeSelvstendigNæringsdrivende =
-                                                TypeSelvstendigNæringsdrivende.Ordinær(
+                                                TypeSelvstendigNæringsdrivendeDto.Ordinær(
                                                     forsikring = ya.forsikring,
                                                 ),
                                         ),
@@ -374,7 +356,7 @@ class Arbeidstaker(
 class Selvstendig(
     inntekt: YAInntekt,
     dagoversikt: YADagoversikt? = null,
-    val forsikring: SelvstendigForsikring = SelvstendigForsikring.INGEN_FORSIKRING,
+    val forsikring: SelvstendigForsikringDto = SelvstendigForsikringDto.INGEN_FORSIKRING,
 ) : YA(inntekt, dagoversikt)
 
 sealed class YADagoversikt {

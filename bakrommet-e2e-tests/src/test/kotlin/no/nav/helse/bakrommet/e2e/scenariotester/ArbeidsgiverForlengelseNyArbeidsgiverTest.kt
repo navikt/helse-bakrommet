@@ -1,22 +1,10 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
-import no.nav.helse.bakrommet.e2e.testutils.Inntektsmelding
-import no.nav.helse.bakrommet.e2e.testutils.Scenario
-import no.nav.helse.bakrommet.e2e.testutils.ScenarioDefaults
-import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
-import no.nav.helse.bakrommet.e2e.testutils.lagSykedager
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.settDagoversikt
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.settRefusjon
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
-import no.nav.helse.bakrommet.e2e.testutils.`should equal`
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.e2e.testutils.*
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.*
 import org.junit.jupiter.api.Test
 
 class ArbeidsgiverForlengelseNyArbeidsgiverTest {
@@ -61,9 +49,9 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                 opprettYrkesaktivitet(
                     personId,
                     nestePeriode.id,
-                    YrkesaktivitetKategorisering.Arbeidstaker(
+                    YrkesaktivitetKategoriseringDto.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "966666666"),
+                        typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "966666666"),
                     ),
                 )
 

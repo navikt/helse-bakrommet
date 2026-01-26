@@ -11,8 +11,6 @@ import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.hentDekningsgrad
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TypeArbeidstaker
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
 import no.nav.helse.bakrommet.e2e.TestOppsett
 import no.nav.helse.bakrommet.e2e.runApplicationTest
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.oppdaterKategorisering
@@ -61,9 +59,9 @@ class LegacyYrkesaktivitetOperasjonerTest {
                 opprettYrkesaktivitet(
                     personId = PERSON_PSEUDO_ID,
                     periode.id,
-                    YrkesaktivitetKategorisering.Arbeidstaker(
+                    YrkesaktivitetKategoriseringDto.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
+                        typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "123456789"),
                     ),
                 )
 
@@ -201,9 +199,9 @@ class LegacyYrkesaktivitetOperasjonerTest {
             opprettYrkesaktivitet(
                 personId = PERSON_PSEUDO_ID,
                 periode.id,
-                YrkesaktivitetKategorisering.Arbeidstaker(
+                YrkesaktivitetKategoriseringDto.Arbeidstaker(
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
+                    typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "123456789"),
                 ),
             )
 
@@ -309,9 +307,9 @@ class LegacyYrkesaktivitetOperasjonerTest {
             opprettYrkesaktivitet(
                 personId = PERSON_PSEUDO_ID,
                 periode.id,
-                YrkesaktivitetKategorisering.Arbeidstaker(
+                YrkesaktivitetKategoriseringDto.Arbeidstaker(
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
+                    typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "123456789"),
                 ),
             )
 
@@ -455,9 +453,9 @@ class LegacyYrkesaktivitetOperasjonerTest {
             opprettYrkesaktivitet(
                 personId = PERSON_PSEUDO_ID,
                 periode.id,
-                YrkesaktivitetKategorisering.Arbeidstaker(
+                YrkesaktivitetKategoriseringDto.Arbeidstaker(
                     sykmeldt = true,
-                    typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "123456789"),
+                    typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "123456789"),
                 ),
             )
 
@@ -561,9 +559,9 @@ class LegacyYrkesaktivitetOperasjonerTest {
                 opprettYrkesaktivitet(
                     PERSON_PSEUDO_ID,
                     behandling.id,
-                    YrkesaktivitetKategorisering.Arbeidstaker(
+                    YrkesaktivitetKategoriseringDto.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstaker.Ordinær(orgnummer = "999444555"),
+                        typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "999444555"),
                     ),
                 )
             oppdaterKategorisering(

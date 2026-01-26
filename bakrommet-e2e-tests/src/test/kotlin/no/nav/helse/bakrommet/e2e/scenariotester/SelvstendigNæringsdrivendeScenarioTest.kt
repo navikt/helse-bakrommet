@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SelvstendigForsikring
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.SelvstendigForsikringDto
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
 import no.nav.helse.bakrommet.e2e.testutils.Selvstendig
 import no.nav.helse.bakrommet.e2e.testutils.SigrunInntekt
@@ -28,7 +28,7 @@ class SelvstendigNæringsdrivendeScenarioTest {
         Scenario(
             listOf(
                 Selvstendig(
-                    forsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
+                    forsikring = SelvstendigForsikringDto.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG,
                     inntekt = SigrunInntekt(700000, 900000, 1000000),
                     dagoversikt = SykAlleDager(),
                 ),
