@@ -40,7 +40,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
             val fom = forrigePeriode.tom.plusDays(1)
             val tom = forrigePeriode.tom.plusDays(14)
             val nestePeriode =
-                opprettBehandling(personId, fom, tom)
+                opprettBehandlingOgForventOk(personId, fom, tom)
 
             hentYrkesaktiviteter(personId, nestePeriode.id).first().also {
                 slettYrkesaktivitet(personId, nestePeriode.id, it.id)

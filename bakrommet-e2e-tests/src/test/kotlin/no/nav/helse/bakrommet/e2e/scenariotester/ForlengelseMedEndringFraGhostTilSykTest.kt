@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
-import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
@@ -10,7 +9,7 @@ import no.nav.helse.bakrommet.e2e.testutils.Selvstendig
 import no.nav.helse.bakrommet.e2e.testutils.SigrunInntekt
 import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandlingOgForventOk
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
 import no.nav.helse.bakrommet.sykepengesoknad.soknad
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
@@ -39,16 +38,14 @@ class ForlengelseMedEndringFraGhostTilSykTest {
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val personId = førsteBehandling.scenario.pseudoId
-            val nyPeriode =
-                opprettBehandling(
+            val nyBehandling =
+                opprettBehandlingOgForventOk(
                     personId,
-                    OpprettBehandlingRequestDto(
-                        fom = ScenarioDefaults.tom.plusDays(1),
-                        tom = ScenarioDefaults.tom.plusDays(20),
-                        søknader = listOf(UUID.fromString(næringsdrivendesøknad.id)),
-                    ),
+                    fom = ScenarioDefaults.tom.plusDays(1),
+                    tom = ScenarioDefaults.tom.plusDays(20),
+                    søknader = listOf(UUID.fromString(næringsdrivendesøknad.id)),
                 )
-            hentYrkesaktiviteter(personId, nyPeriode.id).let {
+            hentYrkesaktiviteter(personId, nyBehandling.id).let {
                 it.size `should equal` 2
                 val arbeidstaker = it.first { it.kategorisering is YrkesaktivitetKategoriseringDto.Arbeidstaker }.kategorisering as YrkesaktivitetKategoriseringDto.Arbeidstaker
                 val næring = it.first { it.kategorisering is YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende }.kategorisering as YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende

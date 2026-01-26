@@ -29,7 +29,7 @@ class YrkesaktivitetOperasjonerTest {
         runApplicationTest {
             val personPseudoId = personsøk(naturligIdent)
 
-            opprettBehandling(personPseudoId, 1.januar(2023), 10.januar(2023))
+            opprettBehandlingOgForventOk(personPseudoId, 1.januar(2023), 10.januar(2023))
 
             val behandling =
                 hentBehandlingerForPerson(personPseudoId)
@@ -72,7 +72,7 @@ class YrkesaktivitetOperasjonerTest {
         runApplicationTest {
             val personPseudoId = personsøk(naturligIdent)
 
-            opprettBehandling(personPseudoId, 1.januar(2023), 10.januar(2023))
+            opprettBehandlingOgForventOk(personPseudoId, 1.januar(2023), 10.januar(2023))
 
             val behandling =
                 hentBehandlingerForPerson(personPseudoId)
@@ -112,7 +112,7 @@ class YrkesaktivitetOperasjonerTest {
         runApplicationTest {
             val personPseudoId = personsøk(naturligIdent)
 
-            opprettBehandling(personPseudoId, 1.januar(2023), 10.januar(2023))
+            opprettBehandlingOgForventOk(personPseudoId, 1.januar(2023), 10.januar(2023))
 
             val behandling =
                 hentBehandlingerForPerson(personPseudoId)
@@ -158,7 +158,7 @@ class YrkesaktivitetOperasjonerTest {
             val personPseudoId = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode
-            opprettBehandling(personPseudoId, 1.januar(2023), 10.januar(2023))
+            opprettBehandlingOgForventOk(personPseudoId, 1.januar(2023), 10.januar(2023))
 
             val behandling =
                 hentBehandlingerForPerson(personPseudoId)
@@ -217,7 +217,7 @@ class YrkesaktivitetOperasjonerTest {
             val personPseudoId = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode
-            opprettBehandling(personPseudoId, 1.januar(2023), 10.januar(2023))
+            opprettBehandlingOgForventOk(personPseudoId, 1.januar(2023), 10.januar(2023))
 
             val behandling =
                 hentBehandlingerForPerson(personPseudoId)
@@ -276,7 +276,7 @@ class YrkesaktivitetOperasjonerTest {
             val personPseudoId = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode
-            opprettBehandling(personPseudoId, 1.januar(2023), 10.januar(2023))
+            opprettBehandlingOgForventOk(personPseudoId, 1.januar(2023), 10.januar(2023))
 
             val behandling =
                 hentBehandlingerForPerson(personPseudoId)
@@ -346,7 +346,7 @@ class YrkesaktivitetOperasjonerTest {
             val personPseudoId = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode
-            opprettBehandling(personPseudoId, fomBehandling, 31.januar(2023))
+            opprettBehandlingOgForventOk(personPseudoId, fomBehandling, 31.januar(2023))
 
             val behandling = hentBehandlingerForPerson(personPseudoId).single()
 
@@ -390,7 +390,7 @@ class YrkesaktivitetOperasjonerTest {
             val personPseudoId = personsøk(naturligIdent)
 
             val behandling =
-                opprettBehandling(personPseudoId, 1.januar(2023), 31.januar(2023))
+                opprettBehandlingOgForventOk(personPseudoId, 1.januar(2023), 31.januar(2023))
 
             val opprettYrkesaktivitetResult =
                 opprettYrkesaktivitet(
@@ -415,7 +415,7 @@ class YrkesaktivitetOperasjonerTest {
             val personPseudoId = personsøk(naturligIdent)
 
             val behandling =
-                opprettBehandling(personPseudoId, 1.januar(2023), 31.januar(2023))
+                opprettBehandlingOgForventOk(personPseudoId, 1.januar(2023), 31.januar(2023))
 
             val opprettYrkesaktivitetResult =
                 opprettYrkesaktivitet(

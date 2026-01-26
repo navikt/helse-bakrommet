@@ -8,7 +8,7 @@ import no.nav.helse.bakrommet.e2e.testutils.Scenario
 import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandlingOgForventOk
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.slettYrkesaktivitet
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
 import kotlin.test.Test
@@ -77,7 +77,7 @@ class ReberegningAvSykepengegrunnlagVedEndringAvLegacyYrkesaktivitetTest {
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder {
             val nyPeriode =
-                opprettBehandling(
+                opprettBehandlingOgForventOk(
                     personId = it.scenario.pseudoId,
                     fom = it.behandling.tom.plusDays(1),
                     tom = it.behandling.tom.plusDays(14),

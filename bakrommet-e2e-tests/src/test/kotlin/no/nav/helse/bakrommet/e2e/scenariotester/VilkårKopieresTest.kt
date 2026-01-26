@@ -7,7 +7,7 @@ import no.nav.helse.bakrommet.e2e.testutils.Inntektsmelding
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
 import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentVilkårsvurdering
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandlingOgForventOk
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
 import org.junit.jupiter.api.Test
 
@@ -44,7 +44,7 @@ class VilkårKopieresTest {
             val fom = forrigePeriode.tom.plusDays(1)
             val tom = forrigePeriode.tom.plusDays(14)
             val nestePeriode =
-                opprettBehandling(personId, fom, tom)
+                opprettBehandlingOgForventOk(personId, fom, tom)
 
             hentVilkårsvurdering(personId, nestePeriode.id).let { vilkårsvurdering ->
                 vilkårsvurdering.size `should equal` 1

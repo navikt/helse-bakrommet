@@ -17,7 +17,7 @@ class BehandlingTest {
             val personPseudoId = personsøk(naturligIdent)
 
             val behandling =
-                opprettBehandling(
+                opprettBehandlingOgForventOk(
                     personPseudoId,
                     1.januar(2023),
                     31.januar(2023),
@@ -45,13 +45,13 @@ class BehandlingTest {
             val personPseudoId2 = personsøk(naturligIdent2)
 
             val behandling1 =
-                opprettBehandling(
+                opprettBehandlingOgForventOk(
                     personPseudoId,
                     1.januar(2023),
                     31.januar(2023),
                 )
             val behandling2 =
-                opprettBehandling(
+                opprettBehandlingOgForventOk(
                     personPseudoId2,
                     1.januar(2023),
                     31.januar(2023),
@@ -70,16 +70,16 @@ class BehandlingTest {
         runApplicationTest {
             val naturligIdent = enNaturligIdent()
             val personPseudoId = personsøk(naturligIdent)
-            val opprettetPeriode =
-                opprettBehandling(
+            val opprettetBehandling =
+                opprettBehandlingOgForventOk(
                     personPseudoId,
                     1.januar(2023),
                     31.januar(2023),
                 )
 
             val nyttSkjæringstidspunkt = 15.januar(2023)
-            val oppdatertPeriode = settSkjaeringstidspunkt(personPseudoId.toString(), opprettetPeriode.id, nyttSkjæringstidspunkt)
+            val oppdatertBehandling = settSkjaeringstidspunkt(personPseudoId.toString(), opprettetBehandling.id, nyttSkjæringstidspunkt)
 
-            assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt)
+            assertEquals(nyttSkjæringstidspunkt, oppdatertBehandling.skjæringstidspunkt)
         }
 }

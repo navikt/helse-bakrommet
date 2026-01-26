@@ -4,7 +4,6 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
-import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SammenlikningsgrunnlagDto
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagBaseDto
 import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagDto
@@ -225,13 +224,11 @@ data class Scenario(
             daoer.personPseudoIdDao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
 
             val periode =
-                opprettBehandling(
+                opprettBehandlingOgForventOk(
                     pseudoId,
-                    OpprettBehandlingRequestDto(
-                        fom = fom,
-                        tom = tom,
-                        søknader = soknader?.map { UUID.fromString(it.id) },
-                    ),
+                    fom = fom,
+                    tom = tom,
+                    søknader = soknader?.map { UUID.fromString(it.id) },
                 )
             val beslutterToken = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
 

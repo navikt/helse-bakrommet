@@ -27,8 +27,8 @@ class SaksbehandlingsperiodeStatusTest {
 
             // Opprett saksbehandlingsperiode via action
             val periodeOpprinnelig =
-                opprettBehandling(
-                    personPseudoId.toString(),
+                opprettBehandlingOgForventOk(
+                    personPseudoId,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                     token = tokenSaksbehandler,

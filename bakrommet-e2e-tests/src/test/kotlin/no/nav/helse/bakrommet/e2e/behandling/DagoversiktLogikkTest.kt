@@ -6,7 +6,7 @@ import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.runApplicationTest
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandlingOgForventOk
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitetOld
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.personsøk
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,7 +21,7 @@ class DagoversiktLogikkTest {
 
             // Test med februar (kortere måned) via action
             val behandling =
-                opprettBehandling(
+                opprettBehandlingOgForventOk(
                     personPseudoId,
                     LocalDate.parse("2023-02-01"),
                     LocalDate.parse("2023-02-28"),

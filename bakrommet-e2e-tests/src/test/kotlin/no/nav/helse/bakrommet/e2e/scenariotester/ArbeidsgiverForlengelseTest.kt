@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentSykepengegrunnlag
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.oppdaterInntekt
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandlingOgForventOk
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
@@ -27,7 +27,7 @@ class ArbeidsgiverForlengelseTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.behandling
             val personId = førsteBehandling.scenario.pseudoId
-            val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
+            val periode = opprettBehandlingOgForventOk(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
             val sykepengegrunnlag = hentSykepengegrunnlag(personId, periode.id)
 
             assertEquals(førsteBehandling.sykepengegrunnlag, sykepengegrunnlag!!.sykepengegrunnlag)
@@ -45,7 +45,7 @@ class ArbeidsgiverForlengelseTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.behandling
             val personId = førsteBehandling.scenario.pseudoId
-            val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
+            val periode = opprettBehandlingOgForventOk(personId, forrigePeriode.tom.plusDays(1), forrigePeriode.tom.plusDays(14))
 
             val yaer = hentYrkesaktiviteter(personId, periode.id)
             val ya = yaer.first()
@@ -72,7 +72,7 @@ class ArbeidsgiverForlengelseTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.behandling
             val personId = førsteBehandling.scenario.pseudoId
-            val periode = opprettBehandling(personId, forrigePeriode.tom.plusDays(2), forrigePeriode.tom.plusDays(14))
+            val periode = opprettBehandlingOgForventOk(personId, forrigePeriode.tom.plusDays(2), forrigePeriode.tom.plusDays(14))
             val sykepengegrunnlag = hentSykepengegrunnlag(personId, periode.id)
 
             assertNotEquals(førsteBehandling.sykepengegrunnlag, sykepengegrunnlag?.sykepengegrunnlag)
