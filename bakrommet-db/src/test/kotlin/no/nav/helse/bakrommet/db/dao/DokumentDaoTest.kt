@@ -3,13 +3,12 @@ package no.nav.helse.bakrommet.db.dao
 import no.nav.helse.bakrommet.Kildespor
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
-import no.nav.helse.bakrommet.db.TestDataSource
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.enNavIdent
 import no.nav.helse.bakrommet.testutils.tidsstuttet
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDate
@@ -17,11 +16,11 @@ import java.time.OffsetDateTime
 import java.util.*
 
 class DokumentDaoTest {
-    val dataSource = TestDataSource.dbModule.dataSource
-    val naturligIdent = enNaturligIdent()
-    val pseudoId = UUID.nameUUIDFromBytes(naturligIdent.value.toByteArray())
-    val saksbehandler = Bruker("ABC", enNavIdent(), "Saksbehandersen@nav.no", roller = emptySet())
-    val periode =
+    private val dataSource = DBTestFixture.module.dataSource
+    private val naturligIdent = enNaturligIdent()
+    private val pseudoId = UUID.nameUUIDFromBytes(naturligIdent.value.toByteArray())
+    private val saksbehandler = Bruker("ABC", enNavIdent(), "Saksbehandersen@nav.no", roller = emptySet())
+    private val periode =
         BehandlingDbRecord(
             id = UUID.randomUUID(),
             naturligIdent = naturligIdent,
@@ -33,9 +32,7 @@ class DokumentDaoTest {
             skjæringstidspunkt = LocalDate.now().minusMonths(1),
         )
 
-    @BeforeEach
-    fun setOpp() {
-        TestDataSource.resetDatasource()
+    init {
         val dao = PersonPseudoIdDaoPg(dataSource)
         dao.opprettPseudoId(pseudoId, naturligIdent)
         val behandlingDao = BehandlingDaoPg(dataSource)

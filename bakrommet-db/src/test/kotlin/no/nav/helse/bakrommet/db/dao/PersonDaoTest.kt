@@ -1,8 +1,8 @@
 package no.nav.helse.bakrommet.db.dao
 
+import no.nav.helse.bakrommet.db.DBTestFixture
 import no.nav.helse.bakrommet.db.MedDataSource
 import no.nav.helse.bakrommet.db.QueryRunner
-import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import org.junit.jupiter.api.Test
@@ -12,8 +12,8 @@ import java.util.*
 import kotlin.test.assertEquals
 
 internal class PersonDaoTest {
-    val db = MedDataSource(TestDataSource.dbModule.dataSource)
-    private val personDao = PersonPseudoIdDaoPg(TestDataSource.dbModule.dataSource)
+    val db = MedDataSource(DBTestFixture.module.dataSource)
+    private val personDao = PersonPseudoIdDaoPg(DBTestFixture.module.dataSource)
 
     @Test
     fun `returnerer spillerom-ID for kjent person-ID`() {

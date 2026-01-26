@@ -8,7 +8,10 @@ object TestDataSource {
             .withCommand("postgres", "-c", "max_connections=200")
             .withReuse(true)
             .withLabel("app", "bakrommet")
-            .apply { start() }
+            .apply {
+                start()
+                println("Database startet opp.\nUrl: $jdbcUrl\nBrukernavn: $username\nPassord: $password")
+            }
 
     val dbModule =
         DBModule(
