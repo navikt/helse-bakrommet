@@ -10,7 +10,7 @@ import no.nav.helse.bakrommet.somListe
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
 
-internal suspend fun ApplicationTestBuilder.hentAllePerioder(
+internal suspend fun ApplicationTestBuilder.hentAlleBehandlinger(
     personId: UUID,
 ): List<BehandlingDto> {
     val response =

@@ -29,10 +29,10 @@ class BehandlingTest {
             behandling.opprettetAvNavn `should equal` "Tulla Bruker"
 
             // Hent alle perioder via action
-            val perioder = hentAllePerioder(personPseudoId)
-            perioder.size `should equal` 1
-            perioder `should equal` listOf(behandling)
-            println(perioder)
+            val behandlinger = hentAlleBehandlinger(personPseudoId)
+            behandlinger.size `should equal` 1
+            behandlinger.tidsstuttet() `should equal` listOf(behandling).tidsstuttet()
+            println(behandlinger)
         }
 
     @Test

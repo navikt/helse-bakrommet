@@ -17,7 +17,7 @@ import java.util.UUID
  * Send til beslutning som returnerer BehandlingDto direkte og asserter på 200 status.
  * Bruk sendTilBeslutningResult hvis du trenger å håndtere feilsituasjoner.
  */
-internal suspend fun ApplicationTestBuilder.sendTilBeslutningOld(
+internal suspend fun ApplicationTestBuilder.sendTilBeslutningOgForventOk(
     personId: UUID,
     behandlingId: UUID,
     token: String = TestOppsett.userToken,

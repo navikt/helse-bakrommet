@@ -13,7 +13,7 @@ import java.util.UUID
  * Ta til beslutning som returnerer BehandlingDto direkte og asserter på 200 status.
  * Bruk taTilBeslutningResult hvis du trenger å håndtere feilsituasjoner.
  */
-internal suspend fun ApplicationTestBuilder.taTilBeslutningOld(
+internal suspend fun ApplicationTestBuilder.taTilBeslutningOgForventOk(
     personId: UUID,
     behandlingId: UUID,
     token: String,

@@ -17,7 +17,7 @@ import java.util.UUID
  * Send tilbake som returnerer BehandlingDto direkte og asserter på 200 status.
  * Bruk sendTilbakeResult hvis du trenger å håndtere feilsituasjoner.
  */
-internal suspend fun ApplicationTestBuilder.sendTilbakeOld(
+internal suspend fun ApplicationTestBuilder.sendTilbakeOgForventOk(
     personId: String,
     behandlingId: UUID,
     token: String,

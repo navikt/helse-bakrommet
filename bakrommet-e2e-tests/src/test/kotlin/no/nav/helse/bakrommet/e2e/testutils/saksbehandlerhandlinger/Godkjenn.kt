@@ -15,7 +15,7 @@ import java.util.UUID
  * Godkjenn som returnerer BehandlingDto direkte og asserter på 200 status.
  * Bruk godkjennResult hvis du trenger å håndtere feilsituasjoner.
  */
-suspend fun ApplicationTestBuilder.godkjennOld(
+suspend fun ApplicationTestBuilder.godkjennOgForventOk(
     pseudoId: UUID,
     behandlingId: UUID,
     token: String,

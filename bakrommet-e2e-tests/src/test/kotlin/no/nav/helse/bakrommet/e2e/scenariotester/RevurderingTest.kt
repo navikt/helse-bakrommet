@@ -1,20 +1,8 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
-import no.nav.helse.bakrommet.e2e.testutils.AInntekt
-import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
-import no.nav.helse.bakrommet.e2e.testutils.Scenario
-import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
-import no.nav.helse.bakrommet.e2e.testutils.lagSykedager
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjennOld
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentAllePerioder
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.revurder
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.sendTilBeslutningOld
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.settDagoversikt
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.taTilBeslutningOld
-import no.nav.helse.bakrommet.e2e.testutils.`should equal`
+import no.nav.helse.bakrommet.e2e.testutils.*
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.*
 import org.junit.jupiter.api.Test
 
 class RevurderingTest {
@@ -48,16 +36,16 @@ class RevurderingTest {
                 yrkesaktivitetId = yrkesaktivitet.id,
                 dager = lagSykedager(fom = revurderendePeriode.fom, tom = revurderendePeriode.tom, grad = 50),
             )
-            sendTilBeslutningOld(
+            sendTilBeslutningOgForventOk(
                 behandlingId = revurderendePeriode.id,
                 personId = personId,
                 individuellBegrunnelse = "Revurdering med lavere grad",
             )
-            taTilBeslutningOld(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
-            godkjennOld(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
+            taTilBeslutningOgForventOk(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
+            godkjennOgForventOk(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
 
             // Hent utbetalingsberegninger via API
-            val opprinneligUtbetaling = scenarioData.utbetalingsberegning!!.beregningData.spilleromOppdrag
+            val opprinneligUtbetaling = scenarioData.utbetalingsberegning.beregningData.spilleromOppdrag
             val revurderendeUtbetaling = hentUtbetalingsberegning(personId, revurderendePeriode.id)!!.beregningData.spilleromOppdrag
 
             opprinneligUtbetaling.oppdrag.first().totalbeløp `should equal` 4620
@@ -65,7 +53,7 @@ class RevurderingTest {
 
             opprinneligUtbetaling.spilleromUtbetalingId `should equal` revurderendeUtbetaling.spilleromUtbetalingId
 
-            hentAllePerioder(personId).also {
+            hentAlleBehandlinger(personId).also {
                 it.size `should equal` 2
                 it.last().status `should equal` TidslinjeBehandlingStatus.REVURDERT
                 it.last().revurdertAvBehandlingId `should equal` it.first().id

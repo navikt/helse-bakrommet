@@ -1,32 +1,37 @@
 package no.nav.helse.bakrommet.e2e.behandling
 
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.domain.enNavIdent
 import no.nav.helse.bakrommet.e2e.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.e2e.runApplicationTest
 import no.nav.helse.bakrommet.e2e.testutils.ApiResult
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.*
+import no.nav.helse.bakrommet.e2e.testutils.truncateTidspunkt
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import kotlin.test.assertIs
 
 class SaksbehandlingsperiodeStatusTest {
-    private companion object {
-        const val FNR = "01019012349"
-    }
+    private val naturligIdent = enNaturligIdent()
 
     @Test
     fun `diverse statusendringer på saksbehandlingsperiode`() =
         runApplicationTest {
-            val personPseudoId = personsøk(NaturligIdent(FNR))
+            val personPseudoId = personsøk(naturligIdent)
 
-            val tokenSaksbehandler = oAuthMock.token(navIdent = "S111111", grupper = listOf("GRUPPE_SAKSBEHANDLER"))
-            val tokenSaksbehandler2 = oAuthMock.token(navIdent = "S222222", grupper = listOf("GRUPPE_SAKSBEHANDLER"))
-            val tokenBeslutter = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
-            val tokenBeslutter2 = oAuthMock.token(navIdent = "B222222", grupper = listOf("GRUPPE_BESLUTTER"))
+            val saksbehandler1Ident = enNavIdent()
+            val saksbehandler2Ident = enNavIdent()
+            val beslutter1Ident = enNavIdent()
+            val beslutter2Ident = enNavIdent()
+            val tokenSaksbehandler = oAuthMock.token(navIdent = saksbehandler1Ident, grupper = listOf("GRUPPE_SAKSBEHANDLER"))
+            val tokenSaksbehandler2 = oAuthMock.token(navIdent = saksbehandler2Ident, grupper = listOf("GRUPPE_SAKSBEHANDLER"))
+            val tokenBeslutter = oAuthMock.token(navIdent = beslutter1Ident, grupper = listOf("GRUPPE_BESLUTTER"))
+            val tokenBeslutter2 = oAuthMock.token(navIdent = beslutter2Ident, grupper = listOf("GRUPPE_BESLUTTER"))
 
             // Opprett saksbehandlingsperiode via action
-            val periodeOpprinnelig =
+            val opprinneligBehandling =
                 opprettBehandlingOgForventOk(
                     personPseudoId,
                     LocalDate.parse("2023-01-01"),
@@ -36,7 +41,7 @@ class SaksbehandlingsperiodeStatusTest {
 
             assertEquals(
                 TidslinjeBehandlingStatus.UNDER_BEHANDLING,
-                periodeOpprinnelig.status,
+                opprinneligBehandling.status,
                 "Status skal være UNDER_BEHANDLING for nyopprettet saksbehandlingsperiode",
             )
 
@@ -44,13 +49,11 @@ class SaksbehandlingsperiodeStatusTest {
             val sendTilBeslutningResultForbidden =
                 sendTilBeslutning(
                     personPseudoId,
-                    periodeOpprinnelig.id,
+                    opprinneligBehandling.id,
                     tokenSaksbehandler2,
                     "En begrunnelse",
                 )
-            check(sendTilBeslutningResultForbidden is ApiResult.Error) {
-                "Saksbehandler #2 skal ikke ha tilgang"
-            }
+            assertIs<ApiResult.Error>(sendTilBeslutningResultForbidden, "Saksbehandler #2 skal ikke ha tilgang")
             assertEquals(
                 403,
                 sendTilBeslutningResultForbidden.problemDetails.status,
@@ -58,29 +61,29 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             // Send til beslutning via action
-            sendTilBeslutningOld(
+            sendTilBeslutningOgForventOk(
                 personPseudoId,
-                periodeOpprinnelig.id,
+                opprinneligBehandling.id,
                 tokenSaksbehandler,
                 "En begrunnelse",
             )
 
             // Ta til beslutning via action
-            val periodeUnderBeslutning = taTilBeslutningOld(personPseudoId, periodeOpprinnelig.id, tokenBeslutter)
+            val behandlingUnderBeslutning = taTilBeslutningOgForventOk(personPseudoId, opprinneligBehandling.id, tokenBeslutter)
             assertEquals(
-                periodeOpprinnelig
+                opprinneligBehandling
                     .copy(
                         status = TidslinjeBehandlingStatus.UNDER_BESLUTNING,
                         individuellBegrunnelse = "En begrunnelse",
-                        beslutterNavIdent = "B111111",
-                    ),
-                periodeUnderBeslutning,
+                        beslutterNavIdent = beslutter1Ident,
+                    ).truncateTidspunkt(),
+                behandlingUnderBeslutning.truncateTidspunkt(),
             )
 
             // Test error scenarios for sendTilbake - malformed request (missing kommentar field)
             sendTilbakeRaw(
                 personPseudoId,
-                periodeOpprinnelig.id,
+                opprinneligBehandling.id,
                 tokenBeslutter,
                 body = """{ "mangler" : "kommentar-felt" }""",
             ).let { response ->
@@ -90,7 +93,7 @@ class SaksbehandlingsperiodeStatusTest {
             // Test error scenarios for sendTilbake - missing body/content-type
             sendTilbakeRaw(
                 personPseudoId,
-                periodeOpprinnelig.id,
+                opprinneligBehandling.id,
                 tokenBeslutter,
                 body = null,
                 setContentType = false,
@@ -99,48 +102,46 @@ class SaksbehandlingsperiodeStatusTest {
             }
 
             // Send tilbake via action
-            val periode =
-                sendTilbakeOld(
+            val behandling =
+                sendTilbakeOgForventOk(
                     personPseudoId.toString(),
-                    periodeOpprinnelig.id,
+                    opprinneligBehandling.id,
                     tokenBeslutter,
                     "Dette blir litt feil",
                 )
             assertEquals(
-                periodeOpprinnelig
+                opprinneligBehandling
                     .copy(
                         status = TidslinjeBehandlingStatus.UNDER_BEHANDLING,
                         individuellBegrunnelse = "En begrunnelse",
-                        beslutterNavIdent = "B111111",
-                    ),
-                periode,
+                        beslutterNavIdent = beslutter1Ident,
+                    ).truncateTidspunkt(),
+                behandling.truncateTidspunkt(),
                 "Tilbake til 'under_behandling', men beslutter beholdes",
             )
 
             // Send til beslutning again with new begrunnelse
-            val periodeGjenTilBeslutning =
-                sendTilBeslutningOld(
+            val behandlingIgjenTilBeslutning =
+                sendTilBeslutningOgForventOk(
                     personPseudoId,
-                    periodeOpprinnelig.id,
+                    opprinneligBehandling.id,
                     tokenSaksbehandler,
                     "En ny begrunnelse",
                 )
             assertEquals(
-                periodeOpprinnelig
+                opprinneligBehandling
                     .copy(
                         status = TidslinjeBehandlingStatus.UNDER_BESLUTNING,
                         individuellBegrunnelse = "En ny begrunnelse",
-                        beslutterNavIdent = "B111111",
-                    ),
-                periodeGjenTilBeslutning,
+                        beslutterNavIdent = beslutter1Ident,
+                    ).truncateTidspunkt(),
+                behandlingIgjenTilBeslutning.truncateTidspunkt(),
                 "Skal nå gå tilbake til opprinnelig beslutter, og ikke legges i beslutterkø",
             )
 
             // Test that beslutter #2 cannot godkjenn (forbidden)
-            val godkjennResultForbidden = godkjenn(personPseudoId, periodeOpprinnelig.id, tokenBeslutter2)
-            check(godkjennResultForbidden is ApiResult.Error) {
-                "Beslutter #2 skal ikke ha tilgang"
-            }
+            val godkjennResultForbidden = godkjenn(personPseudoId, opprinneligBehandling.id, tokenBeslutter2)
+            assertIs<ApiResult.Error>(godkjennResultForbidden, "Beslutter #2 skal ikke ha tilgang")
             assertEquals(
                 403,
                 godkjennResultForbidden.problemDetails.status,
@@ -148,27 +149,27 @@ class SaksbehandlingsperiodeStatusTest {
             )
 
             // Godkjenn via action
-            val periodeGodkjent = godkjennOld(personPseudoId, periodeOpprinnelig.id, tokenBeslutter)
+            val periodeGodkjent = godkjennOgForventOk(personPseudoId, opprinneligBehandling.id, tokenBeslutter)
             assertEquals(
-                periodeOpprinnelig
+                opprinneligBehandling
                     .copy(
                         status = TidslinjeBehandlingStatus.GODKJENT,
                         individuellBegrunnelse = "En ny begrunnelse",
-                        beslutterNavIdent = "B111111",
-                    ),
-                periodeGodkjent,
+                        beslutterNavIdent = beslutter1Ident,
+                    ).truncateTidspunkt(),
+                periodeGodkjent.truncateTidspunkt(),
             )
 
             // Verify historikk
-            val historikk = hentHistorikk(personPseudoId, periodeOpprinnelig.id, tokenSaksbehandler)
+            val historikk = hentHistorikk(personPseudoId, opprinneligBehandling.id, tokenSaksbehandler)
             assertEquals(
                 listOf(
-                    listOf("UNDER_BEHANDLING", "STARTET", "S111111", null),
-                    listOf("TIL_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111", null),
-                    listOf("UNDER_BESLUTNING", "TATT_TIL_BESLUTNING", "B111111", null),
-                    listOf("UNDER_BEHANDLING", "SENDT_I_RETUR", "B111111", "Dette blir litt feil"),
-                    listOf("UNDER_BESLUTNING", "SENDT_TIL_BESLUTNING", "S111111", null),
-                    listOf("GODKJENT", "GODKJENT", "B111111", null),
+                    listOf("UNDER_BEHANDLING", "STARTET", saksbehandler1Ident, null),
+                    listOf("TIL_BESLUTNING", "SENDT_TIL_BESLUTNING", saksbehandler1Ident, null),
+                    listOf("UNDER_BESLUTNING", "TATT_TIL_BESLUTNING", beslutter1Ident, null),
+                    listOf("UNDER_BEHANDLING", "SENDT_I_RETUR", beslutter1Ident, "Dette blir litt feil"),
+                    listOf("UNDER_BESLUTNING", "SENDT_TIL_BESLUTNING", saksbehandler1Ident, null),
+                    listOf("GODKJENT", "GODKJENT", beslutter1Ident, null),
                 ),
                 historikk.map { listOf(it.status.name, it.endringType.name, it.endretAvNavIdent, it.endringKommentar) },
             )

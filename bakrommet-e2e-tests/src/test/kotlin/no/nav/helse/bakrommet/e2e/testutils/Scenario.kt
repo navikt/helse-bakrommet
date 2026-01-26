@@ -314,11 +314,11 @@ data class Scenario(
 
             val beregning = hentUtbetalingsberegning(pseudoId, periode.id)
             val yrkesaktiviteter = hentYrkesaktiviteter(pseudoId, periode.id)
-            val reloadedPeriode = hentAllePerioder(pseudoId).first { it.id == periode.id }
+            val reloadedPeriode = hentAlleBehandlinger(pseudoId).first { it.id == periode.id }
             if (besluttOgGodkjenn) {
                 sendTilBeslutning(pseudoId, reloadedPeriode.id)
                 taTilBesluting(pseudoId, reloadedPeriode.id, beslutterToken)
-                godkjennOld(pseudoId, reloadedPeriode.id, beslutterToken)
+                godkjennOgForventOk(pseudoId, reloadedPeriode.id, beslutterToken)
             }
             if (testBlock != null) {
                 testBlock.invoke(
