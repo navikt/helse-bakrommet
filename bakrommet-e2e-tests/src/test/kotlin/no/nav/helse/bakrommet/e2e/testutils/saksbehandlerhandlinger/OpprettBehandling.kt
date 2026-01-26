@@ -12,6 +12,8 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.e2e.TestOppsett
+import no.nav.helse.bakrommet.e2e.testutils.ApiResult
+import no.nav.helse.bakrommet.e2e.testutils.result
 import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,6 +21,10 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.LocalDate
 import java.util.UUID
 
+/**
+ * Opprett behandling som returnerer BehandlingDto direkte og asserter på 201 status.
+ * Bruk opprettBehandlingResult hvis du trenger å håndtere feilsituasjoner.
+ */
 internal suspend fun ApplicationTestBuilder.opprettBehandling(
     personId: UUID,
     req: OpprettBehandlingRequestDto,
@@ -53,6 +59,25 @@ internal suspend fun ApplicationTestBuilder.opprettBehandling(
 
     return periode
 }
+
+/**
+ * Opprett behandling som returnerer ApiResult for å kunne teste feilsituasjoner.
+ */
+internal suspend fun ApplicationTestBuilder.opprettBehandlingResult(
+    personId: UUID,
+    req: OpprettBehandlingRequestDto,
+    token: String = TestOppsett.userToken,
+): ApiResult<BehandlingDto> =
+    client
+        .post("/v1/$personId/behandlinger") {
+            bearerAuth(token)
+            contentType(ContentType.Application.Json)
+            setBody(req.serialisertTilString())
+        }.let {
+            it.result<BehandlingDto> {
+                assertEquals(201, it.status.value, "BehandlingDto skal opprettes med status 201")
+            }
+        }
 
 internal suspend fun ApplicationTestBuilder.opprettBehandling(
     personId: String,
