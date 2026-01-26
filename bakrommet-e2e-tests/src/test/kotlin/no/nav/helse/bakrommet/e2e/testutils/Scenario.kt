@@ -253,7 +253,7 @@ data class Scenario(
                                         }.firstOrNull { it.kategorisering.maybeOrgnummer() == ya.orgnr }
 
                                 eksisterendeYa?.id
-                                    ?: opprettYrkesaktivitet(
+                                    ?: opprettYrkesaktivitetOld(
                                         personId = pseudoId,
                                         periode.id,
                                         YrkesaktivitetKategoriseringDto.Arbeidstaker(
@@ -272,7 +272,7 @@ data class Scenario(
                                         }
 
                                 eksisterendeYa?.id
-                                    ?: opprettYrkesaktivitet(
+                                    ?: opprettYrkesaktivitetOld(
                                         personId = pseudoId,
                                         periode.id,
                                         YrkesaktivitetKategoriseringDto.SelvstendigNæringsdrivende(

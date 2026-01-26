@@ -46,7 +46,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                 slettYrkesaktivitet(personId, nestePeriode.id, it.id)
             }
             val nyYrkesaktivitet =
-                opprettYrkesaktivitet(
+                opprettYrkesaktivitetOld(
                     personId,
                     nestePeriode.id,
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(

@@ -10,6 +10,8 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagerSomSkalOppdateresDto
 import no.nav.helse.bakrommet.e2e.TestOppsett
+import no.nav.helse.bakrommet.e2e.testutils.ApiResult
+import no.nav.helse.bakrommet.e2e.testutils.result
 import no.nav.helse.bakrommet.serialisertTilString
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
@@ -19,8 +21,7 @@ internal suspend fun ApplicationTestBuilder.settDagoversikt(
     behandlingId: UUID,
     yrkesaktivitetId: UUID,
     dager: List<DagDto>,
-    expectedStatus: HttpStatusCode = HttpStatusCode.NoContent,
-) {
+): ApiResult<Unit> {
     val req = DagerSomSkalOppdateresDto(dager)
     val response =
         client.put("/v1/$personId/behandlinger/$behandlingId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
@@ -28,5 +29,7 @@ internal suspend fun ApplicationTestBuilder.settDagoversikt(
             contentType(ContentType.Application.Json)
             setBody(req.serialisertTilString())
         }
-    assertEquals(expectedStatus, response.status)
+    return response.result {
+        assertEquals(HttpStatusCode.NoContent, response.status)
+    }
 }

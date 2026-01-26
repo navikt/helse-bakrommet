@@ -20,7 +20,7 @@ import no.nav.helse.bakrommet.e2e.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.e2e.taTilBesluting
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjenn
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitetOld
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
@@ -73,7 +73,7 @@ class UtbetalingsberegningIntegrasjonTest {
             daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 1
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId =
-                opprettYrkesaktivitet(
+                opprettYrkesaktivitetOld(
                     personId = PERSON_PSEUDO_ID,
                     periode.id,
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(

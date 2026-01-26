@@ -10,12 +10,12 @@ import no.nav.helse.bakrommet.objectMapper
 import java.util.*
 
 internal suspend fun ApplicationTestBuilder.hentYrkesaktiviteter(
-    pseudoID: UUID,
+    personPseudoId: UUID,
     behandlingId: UUID,
 ): List<YrkesaktivitetDto> {
     val response =
         client
-            .get("/v1/$pseudoID/behandlinger/$behandlingId/yrkesaktivitet") {
+            .get("/v1/$personPseudoId/behandlinger/$behandlingId/yrkesaktivitet") {
                 bearerAuth(TestOppsett.userToken)
             }
 

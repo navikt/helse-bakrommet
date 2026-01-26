@@ -7,7 +7,7 @@ import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.runApplicationTest
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitet
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitetOld
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.personsøk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -28,7 +28,7 @@ class DagoversiktLogikkTest {
                 )
             // Opprett yrkesaktivitet som ordinær arbeidstaker
             val yrkesaktivitetId =
-                opprettYrkesaktivitet(
+                opprettYrkesaktivitetOld(
                     personId = personPseudoId,
                     behandling.id,
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(

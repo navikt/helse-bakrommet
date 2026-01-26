@@ -42,7 +42,7 @@ class RevurderingTest {
             val yrkesaktivitet =
                 hentYrkesaktiviteter(
                     behandlingId = revurderendePeriode.id,
-                    pseudoID = personId,
+                    personPseudoId = personId,
                 ).first()
 
             settDagoversikt(

@@ -7,27 +7,27 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PerioderDto
 import no.nav.helse.bakrommet.e2e.TestOppsett
 import no.nav.helse.bakrommet.e2e.testutils.ApiResult
 import no.nav.helse.bakrommet.e2e.testutils.result
 import no.nav.helse.bakrommet.serialisertTilString
-import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.UUID
+import kotlin.test.assertEquals
 
-internal suspend fun ApplicationTestBuilder.oppdaterKategorisering(
-    personId: UUID,
+internal suspend fun ApplicationTestBuilder.oppdaterYrkesaktivitetsperioder(
+    personPseudoId: UUID,
     behandlingId: UUID,
     yrkesaktivitetId: UUID,
-    kategorisering: YrkesaktivitetKategoriseringDto,
+    perioder: PerioderDto,
 ): ApiResult<Unit> =
     client
-        .put("/v1/$personId/behandlinger/$behandlingId/yrkesaktivitet/$yrkesaktivitetId/kategorisering") {
+        .put("/v1/$personPseudoId/behandlinger/$behandlingId/yrkesaktivitet/$yrkesaktivitetId/perioder") {
             bearerAuth(TestOppsett.userToken)
             contentType(ContentType.Application.Json)
-            setBody(kategorisering.serialisertTilString())
+            setBody(perioder.serialisertTilString())
         }.let {
-            it.result<Unit> {
+            it.result {
                 assertEquals(HttpStatusCode.NoContent, it.status)
             }
         }
