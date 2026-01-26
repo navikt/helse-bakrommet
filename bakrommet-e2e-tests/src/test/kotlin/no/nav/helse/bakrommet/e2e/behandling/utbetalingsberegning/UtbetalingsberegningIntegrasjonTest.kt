@@ -14,13 +14,13 @@ import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.e2e.TestOppsett
 import no.nav.helse.bakrommet.e2e.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.e2e.runApplicationTest
-import no.nav.helse.bakrommet.e2e.sendTilBeslutning
 import no.nav.helse.bakrommet.e2e.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.e2e.sykepengesoknad.enSøknad
-import no.nav.helse.bakrommet.e2e.taTilBesluting
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjennOld
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettYrkesaktivitetOld
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.sendTilBeslutningOld
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.taTilBeslutningOld
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
 import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
@@ -93,8 +93,8 @@ class UtbetalingsberegningIntegrasjonTest {
             // Verifiser resultatet
             verifiserBeregning(beregning!!)
 
-            sendTilBeslutning(PERSON_PSEUDO_ID, periode.id)
-            taTilBesluting(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
+            sendTilBeslutningOld(PERSON_PSEUDO_ID, periode.id)
+            taTilBeslutningOld(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
 
             godkjennOld(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
             val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()

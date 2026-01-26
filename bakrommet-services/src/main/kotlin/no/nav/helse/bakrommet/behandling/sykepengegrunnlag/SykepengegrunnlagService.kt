@@ -31,6 +31,7 @@ class SykepengegrunnlagService(
                             sykepengegrunnlag = record.sykepengegrunnlag,
                             sammenlikningsgrunnlag = record.sammenlikningsgrunnlag,
                             opprettetForBehandling = record.opprettetForBehandling,
+                            låst = record.låst,
                         )
                     }
                 }

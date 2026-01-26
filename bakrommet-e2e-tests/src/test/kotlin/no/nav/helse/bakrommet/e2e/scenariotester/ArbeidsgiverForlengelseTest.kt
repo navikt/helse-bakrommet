@@ -1,9 +1,9 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
-import io.ktor.http.*
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
+import no.nav.helse.bakrommet.e2e.testutils.ApiResult
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
 import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class ArbeidsgiverForlengelseTest {
     @Test
@@ -49,16 +50,18 @@ class ArbeidsgiverForlengelseTest {
 
             val yaer = hentYrkesaktiviteter(personId, periode.id)
             val ya = yaer.first()
-            oppdaterInntekt(
-                personId = personId,
-                behandlingId = periode.id,
-                yrkesaktivitetId = ya.id,
-                inntektRequest =
-                    InntektRequestDto.Arbeidstaker(
-                        data = ArbeidstakerInntektRequestDto.Ainntekt(begrunnelse = "test"),
-                    ),
-                expectedResponseStatus = HttpStatusCode.BadRequest,
-            )
+            val result =
+                oppdaterInntekt(
+                    personId = personId,
+                    behandlingId = periode.id,
+                    yrkesaktivitetId = ya.id,
+                    inntektRequest =
+                        InntektRequestDto.Arbeidstaker(
+                            data = ArbeidstakerInntektRequestDto.Ainntekt(begrunnelse = "test"),
+                        ),
+                )
+            assertIs<ApiResult.Error>(result)
+            assertEquals(400, result.problemDetails.status)
         }
     }
 

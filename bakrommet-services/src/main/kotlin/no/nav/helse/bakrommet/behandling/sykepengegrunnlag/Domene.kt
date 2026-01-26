@@ -89,4 +89,5 @@ data class SykepengegrunnlagResponse(
     val sykepengegrunnlag: SykepengegrunnlagBase?,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag?,
     val opprettetForBehandling: UUID,
+    val låst: Boolean,
 )

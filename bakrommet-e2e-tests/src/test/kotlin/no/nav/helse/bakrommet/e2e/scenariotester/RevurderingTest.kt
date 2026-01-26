@@ -1,8 +1,6 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
-import no.nav.helse.bakrommet.e2e.taTilBesluting
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
@@ -10,14 +8,13 @@ import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
 import no.nav.helse.bakrommet.e2e.testutils.lagSykedager
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.godkjennOld
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentAllePerioder
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentUtbetalingsberegning
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.revurder
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.sendTilBeslutningOld
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.settDagoversikt
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.taTilBeslutningOld
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
-import no.nav.helse.bakrommet.kafka.OutboxDbRecord
-import no.nav.helse.bakrommet.kafka.dto.oppdrag.SpilleromOppdragDto
-import no.nav.helse.bakrommet.objectMapper
 import org.junit.jupiter.api.Test
 
 class RevurderingTest {
@@ -56,16 +53,12 @@ class RevurderingTest {
                 personId = personId,
                 individuellBegrunnelse = "Revurdering med lavere grad",
             )
-            taTilBesluting(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
+            taTilBeslutningOld(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
             godkjennOld(personId, revurderendePeriode.id, token = scenarioData.beslutterToken)
 
-            val utbetalingKafkaMeldinger =
-                scenarioData.daoer.outboxDao
-                    .hentAlleUpubliserteEntries()
-                    .filter { it.topic == "speilvendt.sykepenger-spillerom-utbetalinger" }
-            utbetalingKafkaMeldinger.size `should equal` 2
-            val opprinneligUtbetaling = utbetalingKafkaMeldinger[0].tilSpilleromOppdragDto()
-            val revurderendeUtbetaling = utbetalingKafkaMeldinger[1].tilSpilleromOppdragDto()
+            // Hent utbetalingsberegninger via API
+            val opprinneligUtbetaling = scenarioData.utbetalingsberegning!!.beregningData.spilleromOppdrag
+            val revurderendeUtbetaling = hentUtbetalingsberegning(personId, revurderendePeriode.id)!!.beregningData.spilleromOppdrag
 
             opprinneligUtbetaling.oppdrag.first().totalbeløp `should equal` 4620
             revurderendeUtbetaling.oppdrag.first().totalbeløp `should equal` 2310
@@ -82,5 +75,3 @@ class RevurderingTest {
         }
     }
 }
-
-fun OutboxDbRecord.tilSpilleromOppdragDto(): SpilleromOppdragDto = objectMapper.readValue(this.kafkaPayload)

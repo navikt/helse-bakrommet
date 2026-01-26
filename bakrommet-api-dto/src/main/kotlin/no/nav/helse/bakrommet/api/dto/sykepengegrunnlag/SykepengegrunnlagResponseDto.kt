@@ -10,6 +10,7 @@ data class SykepengegrunnlagResponseDto(
     val sykepengegrunnlag: SykepengegrunnlagBaseDto?,
     val sammenlikningsgrunnlag: SammenlikningsgrunnlagDto?,
     val opprettetForBehandling: UUID,
+    val låst: Boolean,
 ) : ApiResponse
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")

@@ -32,11 +32,12 @@ fun SykepengegrunnlagResponse.tilSykepengegrunnlagResponseDto(): Sykepengegrunnl
         sykepengegrunnlag = sykepengegrunnlag?.tilSykepengegrunnlagBaseDto(),
         sammenlikningsgrunnlag = sammenlikningsgrunnlag?.tilSammenlikningsgrunnlagDto(),
         opprettetForBehandling = opprettetForBehandling,
+        låst = låst,
     )
 
 private fun SykepengegrunnlagBase.tilSykepengegrunnlagBaseDto() =
     when (this) {
-        is Sykepengegrunnlag ->
+        is Sykepengegrunnlag -> {
             SykepengegrunnlagDto(
                 grunnbeløp = grunnbeløp.beløp.toDouble(),
                 sykepengegrunnlag = sykepengegrunnlag.beløp.toDouble(),
@@ -47,8 +48,9 @@ private fun SykepengegrunnlagBase.tilSykepengegrunnlagBaseDto() =
                 næringsdel = næringsdel?.tilNæringsdelDto(),
                 kombinertBeregningskode = kombinertBeregningskode?.tilBeregningskoderKombinasjonerSykepengegrunnlagDto(),
             )
+        }
 
-        is FrihåndSykepengegrunnlag ->
+        is FrihåndSykepengegrunnlag -> {
             FrihåndSykepengegrunnlagDto(
                 grunnbeløp = grunnbeløp.beløp.toDouble(),
                 sykepengegrunnlag = sykepengegrunnlag.beløp.toDouble(),
@@ -59,6 +61,7 @@ private fun SykepengegrunnlagBase.tilSykepengegrunnlagBaseDto() =
                 begrunnelse = begrunnelse,
                 beregningskoder = beregningskoder.map { it.tilBeregningskoderSykepengegrunnlagDto() },
             )
+        }
     }
 
 private fun Næringsdel.tilNæringsdelDto(): NæringsdelDto =

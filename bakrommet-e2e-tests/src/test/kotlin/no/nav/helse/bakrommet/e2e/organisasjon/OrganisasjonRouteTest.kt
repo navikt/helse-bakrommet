@@ -1,12 +1,11 @@
 package no.nav.helse.bakrommet.e2e.organisasjon
 
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import no.nav.helse.bakrommet.e2e.TestOppsett
 import no.nav.helse.bakrommet.e2e.runApplicationTest
+import no.nav.helse.bakrommet.e2e.testutils.ApiResult
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentOrganisasjonsnavn
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class OrganisasjonRouteTest {
     @Test
@@ -15,13 +14,9 @@ class OrganisasjonRouteTest {
             val orgnummer = "987654321"
             val forventetNavn = "Kranførerkompaniet"
 
-            client
-                .get("/v1/organisasjon/$orgnummer") {
-                    header(HttpHeaders.Authorization, "Bearer ${TestOppsett.userToken}")
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    assertEquals(forventetNavn, bodyAsText())
-                }
+            val result = hentOrganisasjonsnavn(orgnummer)
+            check(result is ApiResult.Success) { "Henting av organisasjonsnavn feilet" }
+            assertEquals(forventetNavn, result.response)
         }
 
     @Test
@@ -30,13 +25,9 @@ class OrganisasjonRouteTest {
             val orgnummer = "123456789"
             val forventetNavn = "Krankompisen"
 
-            client
-                .get("/v1/organisasjon/$orgnummer") {
-                    header(HttpHeaders.Authorization, "Bearer ${TestOppsett.userToken}")
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    assertEquals(forventetNavn, bodyAsText())
-                }
+            val result = hentOrganisasjonsnavn(orgnummer)
+            check(result is ApiResult.Success) { "Henting av organisasjonsnavn feilet" }
+            assertEquals(forventetNavn, result.response)
         }
 
     @Test
@@ -45,13 +36,9 @@ class OrganisasjonRouteTest {
             val orgnummer = "876547463"
             val forventetNavn = "Eide BA"
 
-            client
-                .get("/v1/organisasjon/$orgnummer") {
-                    header(HttpHeaders.Authorization, "Bearer ${TestOppsett.userToken}")
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    assertEquals(forventetNavn, bodyAsText())
-                }
+            val result = hentOrganisasjonsnavn(orgnummer)
+            check(result is ApiResult.Success) { "Henting av organisasjonsnavn feilet" }
+            assertEquals(forventetNavn, result.response)
         }
 
     @Test
@@ -59,11 +46,8 @@ class OrganisasjonRouteTest {
         runApplicationTest {
             val orgnummer = "199999999" // Ikke i mock data
 
-            client
-                .get("/v1/organisasjon/$orgnummer") {
-                    header(HttpHeaders.Authorization, "Bearer ${TestOppsett.userToken}")
-                }.apply {
-                    assertEquals(HttpStatusCode.NotFound, status)
-                }
+            val result = hentOrganisasjonsnavn(orgnummer)
+            assertIs<ApiResult.Error>(result)
+            assertEquals(404, result.problemDetails.status)
         }
 }
