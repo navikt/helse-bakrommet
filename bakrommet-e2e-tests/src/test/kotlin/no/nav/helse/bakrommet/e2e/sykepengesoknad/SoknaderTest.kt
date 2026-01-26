@@ -1,0 +1,286 @@
+package no.nav.helse.bakrommet.e2e.sykepengesoknad
+
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockRequestHandleScope
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.toByteArray
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestData
+import io.ktor.client.request.HttpResponseData
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.jackson.JacksonConverter
+import no.nav.helse.bakrommet.asJsonNode
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.e2e.TestOppsett
+import no.nav.helse.bakrommet.e2e.TestOppsett.oboTokenFor
+import no.nav.helse.bakrommet.e2e.runApplicationTest
+import no.nav.helse.bakrommet.e2e.sykepengesoknad.Arbeidsgiverinfo.Companion.tilJson
+import no.nav.helse.bakrommet.logg
+import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
+import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
+import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
+import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.util.*
+
+private suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)
+
+private fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData) =
+    HttpClient(MockEngine) {
+        install(ContentNegotiation) {
+            register(ContentType.Application.Json, JacksonConverter(objectMapper))
+        }
+        engine {
+            addHandler(requestHandler)
+        }
+    }
+
+class SoknaderTest {
+    val mockSoknaderClient =
+        mockHttpClient { request ->
+            val auth = request.headers[HttpHeaders.Authorization]!!
+            if (auth != "Bearer " +
+                TestOppsett.configuration.sykepengesoknadBackend.scope
+                    .oboTokenFor()
+            ) {
+                logg.error("feil header: $auth")
+                respondError(HttpStatusCode.Unauthorized)
+            } else {
+                if (request.url.toString().contains("/api/v3/soknader/") &&
+                    !request.url
+                        .toString()
+                        .endsWith("/api/v3/soknader")
+                ) {
+                    // Single søknad request
+                    val soknadId =
+                        request.url
+                            .toString()
+                            .split("/")
+                            .last()
+                    if (soknadId == "b8079801-ff72-3e31-ad48-118df088343b") {
+                        respond(
+                            status = HttpStatusCode.OK,
+                            content = enSøknad(),
+                            headers = headersOf("Content-Type" to listOf("application/json")),
+                        )
+                    } else {
+                        respondError(HttpStatusCode.NotFound)
+                    }
+                } else {
+                    // Multiple søknader request
+                    val fnr = request.bodyToJson()["fnr"].asText()
+                    val fom = request.bodyToJson()["fom"]?.asText()
+
+                    val reply =
+                        if ((fom != null && LocalDate.parse(fom) > LocalDate.parse("2025-03-30")) || fnr != SoknaderTest.fnr) {
+                            "[]"
+                        } else {
+                            "[${enSøknad()}]"
+                        }
+                    respond(
+                        status = HttpStatusCode.OK,
+                        content = reply,
+                        headers = headersOf("Content-Type" to listOf("application/json")),
+                    )
+                }
+            }
+        }
+
+    companion object {
+        val fnr = "01019012322"
+        val personId = "abcde"
+        val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
+    }
+
+    @Test
+    fun `henter en enkelt søknad`() =
+        runApplicationTest(
+            sykepengesøknadProvider =
+                SykepengesoknadBackendClient(
+                    configuration = TestOppsett.configuration.sykepengesoknadBackend,
+                    httpClient = mockSoknaderClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
+                ),
+        ) {
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+
+            client
+                .get("/v1/$personPseudoId/soknader/b8079801-ff72-3e31-ad48-118df088343b") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals(enSøknad().asJsonNode(), bodyAsText().asJsonNode())
+                }
+
+            // Test not found case
+            client
+                .get("/v1/$personPseudoId/soknader/non-existent-id") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(404, status.value)
+                }
+        }
+
+    @Test
+    fun `henter søknader uten fom-dato`() =
+        runApplicationTest(
+            sykepengesøknadProvider =
+                SykepengesoknadBackendClient(
+                    configuration = TestOppsett.configuration.sykepengesoknadBackend,
+                    httpClient = mockSoknaderClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
+                ),
+        ) {
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+
+            client
+                .get("/v1/$personPseudoId/soknader") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
+                }
+        }
+
+    @Test
+    fun `henter søknader med fom-dato`() =
+        runApplicationTest(
+            sykepengesøknadProvider =
+                SykepengesoknadBackendClient(
+                    configuration = TestOppsett.configuration.sykepengesoknadBackend,
+                    httpClient = mockSoknaderClient,
+                    tokenUtvekslingProvider = TestOppsett.oboClient,
+                ),
+        ) {
+            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+
+            client
+                .get("/v1/$personPseudoId/soknader?fom=2025-04-01") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals("[]", bodyAsText())
+                }
+
+            client
+                .get("/v1/$personPseudoId/soknader?fom=2025-01-01") {
+                    bearerAuth(TestOppsett.userToken)
+                }.apply {
+                    assertEquals(200, status.value)
+                    assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
+                }
+        }
+}
+
+data class Arbeidsgiverinfo(
+    val identifikator: String,
+    val navn: String,
+) {
+    companion object {
+        fun Arbeidsgiverinfo?.tilJson(): String =
+            if (this == null) {
+                "null"
+            } else {
+                """
+                {
+                    "navn": "$navn",
+                    "orgnummer": "$identifikator"
+                }
+                """.trimIndent()
+            }
+    }
+}
+
+@Language("JSON")
+fun enSøknad(
+    fnr: String = SoknaderTest.fnr,
+    id: String = "b8079801-ff72-3e31-ad48-118df088343b",
+    type: SoknadstypeDTO = SoknadstypeDTO.ARBEIDSTAKERE,
+    arbeidssituasjon: ArbeidssituasjonDTO = ArbeidssituasjonDTO.ARBEIDSTAKER,
+    arbeidsgiverinfo: Arbeidsgiverinfo? =
+        Arbeidsgiverinfo(
+            identifikator = "315149363",
+            navn = "Stolt Handlende Fjellrev",
+        ),
+) = """
+    {
+        "id": "$id",
+        "type": "$type",
+        "status": "SENDT",
+        "fnr": "$fnr",
+        "sykmeldingId": "03482797-aed5-40db-afe3-48508bc088b0",
+        "arbeidsgiver": ${arbeidsgiverinfo.tilJson()},
+        "arbeidssituasjon": "$arbeidssituasjon",
+        "korrigerer": null,
+        "korrigertAv": null,
+        "soktUtenlandsopphold": false,
+        "arbeidsgiverForskutterer": null,
+        "fom": "2025-05-28",
+        "tom": "2025-06-19",
+        "dodsdato": null,
+        "startSyketilfelle": "2025-05-28",
+        "arbeidGjenopptatt": null,
+        "friskmeldt": null,
+        "sykmeldingSkrevet": "2025-05-28T02:00:00",
+        "opprettet": "2025-06-04T14:35:57.036992",
+        "opprinneligSendt": null,
+        "sendtNav": null,
+        "sendtArbeidsgiver": "2025-06-20T10:05:01.775524021",
+        "egenmeldinger": null,
+        "fravarForSykmeldingen": [],
+        "papirsykmeldinger": [],
+        "fravar": [],
+        "andreInntektskilder": [],
+        "soknadsperioder": [
+            {
+                "fom": "2025-05-28",
+                "tom": "2025-06-19",
+                "sykmeldingsgrad": 100,
+                "faktiskGrad": null,
+                "avtaltTimer": null,
+                "faktiskTimer": null,
+                "sykmeldingstype": "AKTIVITET_IKKE_MULIG",
+                "grad": 100
+            }
+        ],
+        "sporsmal": [],
+        "avsendertype": "BRUKER",
+        "ettersending": false,
+        "mottaker": "ARBEIDSGIVER_OG_NAV",
+        "egenmeldtSykmelding": false,
+        "yrkesskade": null,
+        "arbeidUtenforNorge": false,
+        "harRedusertVenteperiode": null,
+        "behandlingsdager": [],
+        "permitteringer": [],
+        "merknaderFraSykmelding": null,
+        "egenmeldingsdagerFraSykmelding": null,
+        "merknader": null,
+        "sendTilGosys": null,
+        "utenlandskSykmelding": false,
+        "medlemskapVurdering": null,
+        "forstegangssoknad": true,
+        "tidligereArbeidsgiverOrgnummer": null,
+        "fiskerBlad": null,
+        "inntektFraNyttArbeidsforhold": [],
+        "selvstendigNaringsdrivende": null,
+        "friskTilArbeidVedtakId": null,
+        "friskTilArbeidVedtakPeriode": null,
+        "fortsattArbeidssoker": null,
+        "inntektUnderveis": null,
+        "ignorerArbeidssokerregister": null
+    }
+    """.trimIndent()
