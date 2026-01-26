@@ -3,11 +3,7 @@ package no.nav.helse.bakrommet.e2e.sykepengesoknad
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.MockRequestHandleScope
-import io.ktor.client.engine.mock.respond
-import io.ktor.client.engine.mock.respondError
-import io.ktor.client.engine.mock.toByteArray
+import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
@@ -20,11 +16,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.jackson.JacksonConverter
 import no.nav.helse.bakrommet.asJsonNode
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.e2e.TestOppsett
 import no.nav.helse.bakrommet.e2e.TestOppsett.oboTokenFor
 import no.nav.helse.bakrommet.e2e.runApplicationTest
 import no.nav.helse.bakrommet.e2e.sykepengesoknad.Arbeidsgiverinfo.Companion.tilJson
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.personsøk
 import no.nav.helse.bakrommet.logg
 import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendClient
@@ -34,7 +31,6 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.util.*
 
 private suspend fun HttpRequestData.bodyToJson(): JsonNode = jacksonObjectMapper().readValue(body.toByteArray(), JsonNode::class.java)
 
@@ -49,6 +45,7 @@ private fun mockHttpClient(requestHandler: suspend MockRequestHandleScope.(HttpR
     }
 
 class SoknaderTest {
+    private val naturligIdent = enNaturligIdent()
     val mockSoknaderClient =
         mockHttpClient { request ->
             val auth = request.headers[HttpHeaders.Authorization]!!
@@ -73,7 +70,7 @@ class SoknaderTest {
                     if (soknadId == "b8079801-ff72-3e31-ad48-118df088343b") {
                         respond(
                             status = HttpStatusCode.OK,
-                            content = enSøknad(),
+                            content = enSøknad(naturligIdent.value),
                             headers = headersOf("Content-Type" to listOf("application/json")),
                         )
                     } else {
@@ -85,10 +82,10 @@ class SoknaderTest {
                     val fom = request.bodyToJson()["fom"]?.asText()
 
                     val reply =
-                        if ((fom != null && LocalDate.parse(fom) > LocalDate.parse("2025-03-30")) || fnr != SoknaderTest.fnr) {
+                        if ((fom != null && LocalDate.parse(fom) > LocalDate.parse("2025-03-30")) || fnr != naturligIdent.value) {
                             "[]"
                         } else {
-                            "[${enSøknad()}]"
+                            "[${enSøknad(naturligIdent.value)}]"
                         }
                     respond(
                         status = HttpStatusCode.OK,
@@ -98,12 +95,6 @@ class SoknaderTest {
                 }
             }
         }
-
-    companion object {
-        val fnr = "01019012322"
-        val personId = "abcde"
-        val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
-    }
 
     @Test
     fun `henter en enkelt søknad`() =
@@ -115,14 +106,14 @@ class SoknaderTest {
                     tokenUtvekslingProvider = TestOppsett.oboClient,
                 ),
         ) {
-            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+            val personPseudoId = personsøk(naturligIdent)
 
             client
                 .get("/v1/$personPseudoId/soknader/b8079801-ff72-3e31-ad48-118df088343b") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)
-                    assertEquals(enSøknad().asJsonNode(), bodyAsText().asJsonNode())
+                    assertEquals(enSøknad(naturligIdent.value).asJsonNode(), bodyAsText().asJsonNode())
                 }
 
             // Test not found case
@@ -144,14 +135,14 @@ class SoknaderTest {
                     tokenUtvekslingProvider = TestOppsett.oboClient,
                 ),
         ) {
-            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+            val personPseudoId = personsøk(naturligIdent)
 
             client
                 .get("/v1/$personPseudoId/soknader") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)
-                    assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
+                    assertEquals("[${enSøknad(naturligIdent.value)}]".asJsonNode(), bodyAsText().asJsonNode())
                 }
         }
 
@@ -165,7 +156,7 @@ class SoknaderTest {
                     tokenUtvekslingProvider = TestOppsett.oboClient,
                 ),
         ) {
-            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+            val personPseudoId = personsøk(naturligIdent)
 
             client
                 .get("/v1/$personPseudoId/soknader?fom=2025-04-01") {
@@ -180,7 +171,7 @@ class SoknaderTest {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)
-                    assertEquals("[${enSøknad()}]".asJsonNode(), bodyAsText().asJsonNode())
+                    assertEquals("[${enSøknad(naturligIdent.value)}]".asJsonNode(), bodyAsText().asJsonNode())
                 }
         }
 }
@@ -206,7 +197,7 @@ data class Arbeidsgiverinfo(
 
 @Language("JSON")
 fun enSøknad(
-    fnr: String = SoknaderTest.fnr,
+    fnr: String,
     id: String = "b8079801-ff72-3e31-ad48-118df088343b",
     type: SoknadstypeDTO = SoknadstypeDTO.ARBEIDSTAKERE,
     arbeidssituasjon: ArbeidssituasjonDTO = ArbeidssituasjonDTO.ARBEIDSTAKER,

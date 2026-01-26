@@ -18,7 +18,6 @@ import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.createServices
 import no.nav.helse.bakrommet.db.DBModule
-import no.nav.helse.bakrommet.db.dao.*
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.e2e.auth.OAuthMock
 import no.nav.helse.bakrommet.ereg.EregMock
@@ -29,7 +28,6 @@ import no.nav.helse.bakrommet.obo.OboModule
 import no.nav.helse.bakrommet.obo.OboTestSetup
 import no.nav.helse.bakrommet.pdl.PdlMock
 import no.nav.helse.bakrommet.pdl.pdlReplyGenerator
-import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.sigrun.SigrunClientModule
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
@@ -92,17 +90,6 @@ object TestOppsett {
     val oboClient = oboSetup.oboClient
 }
 
-class Daoer(
-    val personPseudoIdDao: PersonPseudoIdDao,
-) {
-    companion object {
-        fun instansier(dataSource: DataSource): Daoer =
-            Daoer(
-                PersonPseudoIdDaoPg(dataSource),
-            )
-    }
-}
-
 fun runApplicationTest(
     config: Configuration = TestOppsett.configuration,
     dataSource: DataSource = instansierDatabase(config.db),
@@ -115,41 +102,42 @@ fun runApplicationTest(
     organisasjonsnavnProvider: OrganisasjonsnavnProvider = EregMock.eregClientMock(),
     pensjonsgivendeInntektProvider: PensjonsgivendeInntektProvider = SigrunMock.sigrunMockClient(),
     inntektsmeldingClient: InntektsmeldingProvider = InntektsmeldingApiMock.inntektsmeldingClientMock(),
-    testBlock: suspend ApplicationTestBuilder.(daoer: Daoer) -> Unit,
-) = testApplication {
-    if (resetDatabase) {
-        TestDataSource.resetDatasource()
-    }
-    val db = skapDbDaoer(dataSource)
-
-    application {
-        val providers =
-            Providers(
-                personinfoProvider = pdlClient,
-                sykepengesøknadProvider = sykepengesøknadProvider,
-                inntekterProvider = aInntektClient,
-                arbeidsforholdProvider = aaRegClient,
-                organisasjonsnavnProvider = organisasjonsnavnProvider,
-                inntektsmeldingProvider = inntektsmeldingClient,
-                pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
-            )
-        val services =
-            createServices(
-                providers = providers,
-                db = db,
-            )
-
-        settOppKtor(config.api, services, db, providers, errorHandlingIncludeStackTrace = true)
-    }
-    client =
-        createClient {
-            install(ContentNegotiation) {
-                register(ContentType.Application.Json, JacksonConverter(objectMapper))
-            }
+    testBlock: suspend ApplicationTestBuilder.() -> Unit,
+): Unit =
+    testApplication {
+        if (resetDatabase) {
+            TestDataSource.resetDatasource()
         }
+        val db = skapDbDaoer(dataSource)
 
-    testBlock(Daoer.instansier(dataSource))
-}
+        application {
+            val providers =
+                Providers(
+                    personinfoProvider = pdlClient,
+                    sykepengesøknadProvider = sykepengesøknadProvider,
+                    inntekterProvider = aInntektClient,
+                    arbeidsforholdProvider = aaRegClient,
+                    organisasjonsnavnProvider = organisasjonsnavnProvider,
+                    inntektsmeldingProvider = inntektsmeldingClient,
+                    pensjonsgivendeInntektProvider = pensjonsgivendeInntektProvider,
+                )
+            val services =
+                createServices(
+                    providers = providers,
+                    db = db,
+                )
+
+            settOppKtor(config.api, services, db, providers, errorHandlingIncludeStackTrace = true)
+        }
+        client =
+            createClient {
+                install(ContentNegotiation) {
+                    register(ContentType.Application.Json, JacksonConverter(objectMapper))
+                }
+            }
+
+        testBlock()
+    }
 
 // Manglende funksjoner fra App.kt
 internal fun instansierDatabase(configuration: DBModule.Configuration) = DBModule(configuration = configuration, ::testHikariConfigurator).also { it.migrate() }.dataSource

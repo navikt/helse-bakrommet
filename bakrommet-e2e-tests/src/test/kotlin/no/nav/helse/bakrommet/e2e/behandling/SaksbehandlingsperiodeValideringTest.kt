@@ -16,7 +16,7 @@ class SaksbehandlingsperiodeValideringTest {
 
     @Test
     fun `returnerer 400 hvis fom er etter tom`() {
-        runApplicationTest { _ ->
+        runApplicationTest {
             val personPseudoId = personsøk(naturligIdent)
 
             val result =
