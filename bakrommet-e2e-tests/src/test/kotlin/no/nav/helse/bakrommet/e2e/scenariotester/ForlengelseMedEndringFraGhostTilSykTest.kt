@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
@@ -20,16 +21,18 @@ import java.util.UUID
 class ForlengelseMedEndringFraGhostTilSykTest {
     @Test
     fun `Forlengelse med endring fra ghost til syk`() {
+        val naturligIdent = enNaturligIdent()
         val næringsdrivendesøknad =
             soknad(
                 fom = ScenarioDefaults.tom.plusDays(1),
                 tom = ScenarioDefaults.tom.plusDays(20),
-                fnr = ScenarioDefaults.fnr,
+                fnr = naturligIdent.value,
             ) {
                 type = SoknadstypeDTO.SELVSTENDIGE_OG_FRILANSERE
                 arbeidssituasjon = ArbeidssituasjonDTO.SELVSTENDIG_NARINGSDRIVENDE
             }
         Scenario(
+            fnr = naturligIdent.value,
             soknader = listOf(næringsdrivendesøknad),
             yrkesaktiviteter =
                 listOf(

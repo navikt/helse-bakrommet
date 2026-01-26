@@ -36,7 +36,7 @@ class AvslåDagOgBeregningTest {
             hentUtbetalingsberegning(
                 førsteBehandling.scenario.pseudoId,
                 førsteBehandling.behandling.id,
-            ).direkteTotalbeløp() `should equal` 3000
+            ).direkteTotalbeløp(førsteBehandling.scenario.fnr) `should equal` 3000
             hentYrkesaktiviteter(
                 førsteBehandling.scenario.pseudoId,
                 førsteBehandling.behandling.id,
@@ -79,7 +79,7 @@ class AvslåDagOgBeregningTest {
             hentUtbetalingsberegning(
                 førsteBehandling.scenario.pseudoId,
                 førsteBehandling.behandling.id,
-            ).direkteTotalbeløp() `should equal` 1400
+            ).direkteTotalbeløp(førsteBehandling.scenario.fnr) `should equal` 1400
 
             hentYrkesaktiviteter(
                 førsteBehandling.scenario.pseudoId,
@@ -108,7 +108,7 @@ class AvslåDagOgBeregningTest {
             hentUtbetalingsberegning(
                 førsteBehandling.scenario.pseudoId,
                 førsteBehandling.behandling.id,
-            ).direkteTotalbeløp() `should equal` 2000
+            ).direkteTotalbeløp(førsteBehandling.scenario.fnr) `should equal` 2000
 
             hentYrkesaktiviteter(
                 førsteBehandling.scenario.pseudoId,

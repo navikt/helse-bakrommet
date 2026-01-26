@@ -10,6 +10,7 @@ import no.nav.helse.bakrommet.api.dto.sykepengegrunnlag.SykepengegrunnlagDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.e2e.*
 import no.nav.helse.bakrommet.e2e.TestOppsett.oAuthMock
@@ -42,10 +43,9 @@ object ScenarioDefaults {
     val skjæringstidspunkt = 17.mai(2024)
     val fom = 17.mai(2024)
     val tom = fom.plusDays(13)
-    val fnr = "01019011111"
 }
 
-fun BeregningResponseDto?.direkteTotalbeløp(fnr: String = ScenarioDefaults.fnr): Int =
+fun BeregningResponseDto?.direkteTotalbeløp(fnr: String): Int =
     this
         ?.beregningData
         ?.spilleromOppdrag
@@ -60,7 +60,6 @@ data class ScenarioData(
     val sammenlikningsgrunnlag: SammenlikningsgrunnlagDto?,
     val yrkesaktiviteter: List<YrkesaktivitetDto>,
     val utbetalingsberegning: BeregningResponseDto?,
-    val daoer: Daoer,
     val beslutterToken: String,
 ) {
     fun `skal ha sykepengegrunnlag`(beløp: Double) {
@@ -152,8 +151,7 @@ infix fun YrkesaktivitetDto.harBeregningskode(expectedKode: BeregningskoderSykep
 
 data class Scenario(
     val yrkesaktiviteter: List<YA>,
-    val fnr: String = "01019011111",
-    val pseudoId: UUID = UUID.nameUUIDFromBytes("wseadrfgh".toByteArray()),
+    val fnr: String = enNaturligIdent().value,
     val skjæringstidspunkt: LocalDate = ScenarioDefaults.skjæringstidspunkt,
     val fom: LocalDate = ScenarioDefaults.fom,
     val tom: LocalDate = ScenarioDefaults.tom,
@@ -161,6 +159,9 @@ data class Scenario(
     val soknader: List<SykepengesoknadDTO>? = null,
     val vilkår: List<VilkaarsvurderingDto>? = null,
 ) {
+    lateinit var pseudoId: UUID
+        private set
+
     fun run(
         testBlock: ScenarioData.() -> Unit,
     ) {
@@ -220,8 +221,8 @@ data class Scenario(
                 AInntektMock.aInntektClientMock(
                     fnrTilAInntektResponse = mapOf(fnr to ainntekt828),
                 ),
-        ) { daoer ->
-            daoer.personPseudoIdDao.opprettPseudoId(pseudoId, NaturligIdent(fnr))
+        ) {
+            pseudoId = personsøk(NaturligIdent(fnr))
 
             val periode =
                 opprettBehandlingOgForventOk(
@@ -320,21 +321,18 @@ data class Scenario(
                 taTilBesluting(pseudoId, reloadedPeriode.id, beslutterToken)
                 godkjennOgForventOk(pseudoId, reloadedPeriode.id, beslutterToken)
             }
-            if (testBlock != null) {
-                testBlock.invoke(
-                    this,
-                    ScenarioData(
-                        behandling = reloadedPeriode,
-                        sykepengegrunnlag = sykepengegrunnlag?.sykepengegrunnlag,
-                        sammenlikningsgrunnlag = sykepengegrunnlag?.sammenlikningsgrunnlag,
-                        utbetalingsberegning = beregning,
-                        yrkesaktiviteter = yrkesaktiviteter,
-                        daoer = daoer,
-                        beslutterToken = beslutterToken,
-                        scenario = this@Scenario,
-                    ),
-                )
-            }
+            testBlock?.invoke(
+                this,
+                ScenarioData(
+                    behandling = reloadedPeriode,
+                    sykepengegrunnlag = sykepengegrunnlag?.sykepengegrunnlag,
+                    sammenlikningsgrunnlag = sykepengegrunnlag?.sammenlikningsgrunnlag,
+                    utbetalingsberegning = beregning,
+                    yrkesaktiviteter = yrkesaktiviteter,
+                    beslutterToken = beslutterToken,
+                    scenario = this@Scenario,
+                ),
+            )
         }
     }
 }
