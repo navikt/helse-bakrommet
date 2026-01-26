@@ -26,6 +26,16 @@ internal suspend fun ApplicationTestBuilder.opprettYrkesaktivitetOld(
     return result.response.id
 }
 
+internal suspend fun ApplicationTestBuilder.opprettYrkesaktivitetOgForventOk(
+    personId: UUID,
+    behandlingId: UUID,
+    kategorisering: YrkesaktivitetKategoriseringDto,
+): YrkesaktivitetDto {
+    val result = opprettYrkesaktivitet(personId, behandlingId, kategorisering)
+    check(result is ApiResult.Success<YrkesaktivitetDto>)
+    return result.response
+}
+
 internal suspend fun ApplicationTestBuilder.opprettYrkesaktivitet(
     personId: UUID,
     behandlingId: UUID,

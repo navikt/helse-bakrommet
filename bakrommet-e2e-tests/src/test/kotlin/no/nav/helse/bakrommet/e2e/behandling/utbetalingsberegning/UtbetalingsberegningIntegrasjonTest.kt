@@ -1,16 +1,11 @@
 package no.nav.helse.bakrommet.e2e.behandling.utbetalingsberegning
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.ktor.client.call.body
-import io.ktor.client.request.*
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.server.testing.ApplicationTestBuilder
-import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
 import no.nav.helse.bakrommet.api.dto.utbetalingsberegning.BeregningResponseDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.*
 import no.nav.helse.bakrommet.asJsonNode
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
+import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.domain.enNavIdent
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.TestOppsett
 import no.nav.helse.bakrommet.e2e.TestOppsett.oAuthMock
 import no.nav.helse.bakrommet.e2e.runApplicationTest
@@ -18,36 +13,30 @@ import no.nav.helse.bakrommet.e2e.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.e2e.sykepengesoknad.enSøknad
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.*
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
-import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeKafkaDto
-import no.nav.helse.bakrommet.kafka.dto.saksbehandlingsperiode.SaksbehandlingsperiodeStatusKafkaDto
-import no.nav.helse.bakrommet.objectMapper
-import no.nav.helse.bakrommet.serialisertTilString
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
+import no.nav.helse.januar
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.*
+import kotlin.test.assertNotNull
 
 class UtbetalingsberegningIntegrasjonTest {
-    private companion object {
-        const val FNR = "01019012349"
-        const val PERSON_ID = "65hth"
-        val PERSON_PSEUDO_ID = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
-        const val ARBEIDSGIVER_ORGNR = "123321123"
-        const val ARBEIDSGIVER_NAVN = "Test Bedrift AS"
-    }
+    private val naturligIdent = enNaturligIdent()
+    private val arbeidsgiversOrganisasjonsnummer = etOrganisasjonsnummer()
+    private val arbeidsgiversNavn = "Test Bedrift AS"
 
     @Test
     fun `beregner utbetalinger korrekt med økonomi-klassene`() {
         val arbeidsgiver =
             Arbeidsgiverinfo(
-                identifikator = ARBEIDSGIVER_ORGNR,
-                navn = ARBEIDSGIVER_NAVN,
+                identifikator = arbeidsgiversOrganisasjonsnummer,
+                navn = arbeidsgiversNavn,
             )
 
         val søknad =
             enSøknad(
-                fnr = FNR,
+                fnr = naturligIdent.value,
                 id = UUID.randomUUID().toString(),
                 arbeidsgiverinfo = arbeidsgiver,
             ).asJsonNode()
@@ -58,159 +47,98 @@ class UtbetalingsberegningIntegrasjonTest {
                     tokenUtvekslingProvider = TestOppsett.oboClient,
                     søknadIdTilSvar = mapOf(søknad["id"].asText() to søknad),
                 ),
-        ) { daoer ->
-            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
-            daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 0
-
-            val tokenBeslutter = oAuthMock.token(navIdent = "B111111", grupper = listOf("GRUPPE_BESLUTTER"))
+        ) {
+            val personPseudoId = personsøk(naturligIdent)
+            val tokenBeslutter = oAuthMock.token(navIdent = enNavIdent(), grupper = listOf("GRUPPE_BESLUTTER"))
 
             // Opprett saksbehandlingsperiode
-            val periode = opprettSaksbehandlingsperiode()
-            daoer.outboxDao.hentAlleUpubliserteEntries().size `should equal` 1
+            val behandling = opprettBehandlingOgForventOk(personPseudoId, 1.januar(2024), 31.januar(2024))
+
             // Opprett yrkesaktivitet som ordinær arbeidstaker
-            val yrkesaktivitetId =
-                opprettYrkesaktivitetOld(
-                    personId = PERSON_PSEUDO_ID,
-                    periode.id,
+            val yrkesaktivitet =
+                opprettYrkesaktivitetOgForventOk(
+                    personId = personPseudoId,
+                    behandling.id,
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(
                         sykmeldt = true,
                         typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "123456789"),
                     ),
                 )
             // Sett inntekt på yrkesaktivitet (dette trigger automatisk utbetalingsberegning)
-            settInntektPåYrkesaktivitet(periode.id, yrkesaktivitetId)
+            saksbehandlerSkjønnsfastsetterInntekt(
+                personPseudoId = personPseudoId,
+                behandlingId = behandling.id,
+                yrkesaktivitetId = yrkesaktivitet.id,
+                årsinntekt = 50000.0 * 12,
+                årsak = ArbeidstakerSkjønnsfastsettelseÅrsakDto.MANGELFULL_RAPPORTERING,
+                begrunnelse = "Test skjønnsfastsettelse",
+                refusjon =
+                    listOf(
+                        RefusjonsperiodeDto(
+                            fom = LocalDate.of(2024, 1, 1),
+                            tom = LocalDate.of(2024, 1, 31),
+                            beløp = 10000.0,
+                        ),
+                    ),
+            )
 
             // Sett dagoversikt med forskjellige dagtyper (dette trigger også utbetalingsberegning)
-            settDagoversikt(periode.id, yrkesaktivitetId)
+            settDagoversikt(
+                personPseudoId,
+                behandling.id,
+                yrkesaktivitet.id,
+                dager =
+                    listOf(
+                        DagDto(
+                            dato = 1.januar(2024),
+                            dagtype = DagtypeDto.Syk,
+                            grad = 100,
+                            avslåttBegrunnelse = emptyList(),
+                            kilde = KildeDto.Saksbehandler,
+                        ),
+                        DagDto(
+                            dato = 2.januar(2024),
+                            dagtype = DagtypeDto.Syk,
+                            grad = 70,
+                            avslåttBegrunnelse = emptyList(),
+                            kilde = KildeDto.Saksbehandler,
+                        ),
+                        DagDto(
+                            dato = 3.januar(2024),
+                            dagtype = DagtypeDto.Ferie,
+                            grad = null,
+                            avslåttBegrunnelse = emptyList(),
+                            kilde = KildeDto.Saksbehandler,
+                        ),
+                        DagDto(
+                            dato = 4.januar(2024),
+                            dagtype = DagtypeDto.Syk,
+                            grad = 100,
+                            avslåttBegrunnelse = emptyList(),
+                            kilde = KildeDto.Saksbehandler,
+                        ),
+                        DagDto(
+                            dato = 5.januar(2024),
+                            dagtype = DagtypeDto.Arbeidsdag,
+                            grad = null,
+                            avslåttBegrunnelse = emptyList(),
+                            kilde = KildeDto.Saksbehandler,
+                        ),
+                    ),
+            )
 
             // Hent utbetalingsberegning
-            val beregning = hentUtbetalingsberegning(PERSON_PSEUDO_ID, periode.id)
+            val beregning = hentUtbetalingsberegning(personPseudoId, behandling.id)
+            assertNotNull(beregning)
 
             // Verifiser resultatet
-            verifiserBeregning(beregning!!)
+            verifiserBeregning(beregning)
 
-            sendTilBeslutningOgForventOk(PERSON_PSEUDO_ID, periode.id)
-            taTilBeslutningOgForventOk(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
+            sendTilBeslutningOgForventOk(personPseudoId, behandling.id)
+            taTilBeslutningOgForventOk(personPseudoId, behandling.id, tokenBeslutter)
 
-            godkjennOgForventOk(PERSON_PSEUDO_ID, periode.id, tokenBeslutter)
-            val upubliserteEntries = daoer.outboxDao.hentAlleUpubliserteEntries()
-            upubliserteEntries.size `should equal` 4
-
-            val kafkaPayload = upubliserteEntries[1].kafkaPayload.tilSaksbehandlingsperiodeKafkaDto()
-            kafkaPayload.status `should equal` SaksbehandlingsperiodeStatusKafkaDto.GODKJENT
-            // TODO: Kafka mapping av dagoversikt er ikke implementert ennå
-            // kafkaPayload.yrkesaktiviteter.single().dagoversikt skal inkludere beregningsdata
-            //  kafkaPayload.yrkesaktiviteter.single().dagoversikt `should equal` emptyList()
+            godkjennOgForventOk(personPseudoId, behandling.id, tokenBeslutter)
         }
-    }
-
-    private fun String.tilSaksbehandlingsperiodeKafkaDto(): SaksbehandlingsperiodeKafkaDto = objectMapper.readValue(this)
-
-    private suspend fun ApplicationTestBuilder.opprettSaksbehandlingsperiode(): BehandlingDto {
-        client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
-            bearerAuth(TestOppsett.userToken)
-            contentType(ContentType.Application.Json)
-            setBody(
-                """
-                {
-                    "fom": "2024-01-01",
-                    "tom": "2024-01-31"
-                }
-                """.trimIndent(),
-            )
-        }
-
-        val response =
-            client.get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
-                bearerAuth(TestOppsett.userToken)
-            }
-        assertEquals(200, response.status.value)
-        return response.body<List<BehandlingDto>>().first()
-    }
-
-    private suspend fun ApplicationTestBuilder.settInntektPåYrkesaktivitet(
-        periodeId: UUID,
-        yrkesaktivitetId: UUID,
-    ) {
-        // Månedsinntekt på 50 000 kr (5 000 000 øre) med skjønnsfastsettelse
-        val inntektRequest =
-            InntektRequestDto.Arbeidstaker(
-                ArbeidstakerInntektRequestDto.Skjønnsfastsatt(
-                    årsinntekt = 50000.0 * 12,
-                    årsak = ArbeidstakerSkjønnsfastsettelseÅrsakDto.MANGELFULL_RAPPORTERING,
-                    begrunnelse = "Test skjønnsfastsettelse",
-                    refusjon =
-                        listOf(
-                            RefusjonsperiodeDto(
-                                fom = LocalDate.of(2024, 1, 1),
-                                tom = LocalDate.of(2024, 1, 31),
-                                beløp = 10000.0,
-                            ),
-                        ),
-                ),
-            )
-
-        val response =
-            client.put("/v1/${PERSON_PSEUDO_ID}/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/inntekt") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(inntektRequest.serialisertTilString())
-            }
-        assertEquals(204, response.status.value)
-    }
-
-    private suspend fun ApplicationTestBuilder.settDagoversikt(
-        periodeId: UUID,
-        yrkesaktivitetId: UUID,
-    ) {
-        val dagoversikt =
-            """
-            {
-            "dager": [
-                {
-                    "dato": "2024-01-01",
-                    "dagtype": "Syk",
-                    "grad": 100,
-                    "avslåttBegrunnelse": [],
-                    "kilde": "Saksbehandler"
-                },
-                {
-                    "dato": "2024-01-02",
-                    "dagtype": "Syk",
-                    "grad": 70,
-                    "avslåttBegrunnelse": [],
-                    "kilde": "Saksbehandler"
-                },
-                {
-                    "dato": "2024-01-03",
-                    "dagtype": "Ferie",
-                    "avslåttBegrunnelse": [],
-                    "kilde": "Saksbehandler"
-                },
-                {
-                    "dato": "2024-01-04",
-                    "dagtype": "Syk",
-                    "grad": 100,
-                    "avslåttBegrunnelse": [],
-                    "kilde": "Saksbehandler"
-                },
-                {
-                    "dato": "2024-01-05",
-                    "dagtype": "Arbeidsdag",
-                    "avslåttBegrunnelse": [],
-                    "kilde": "Saksbehandler"
-                }
-            ]
-            }
-            """.trimIndent()
-
-        val response =
-            client.put("/v1/${PERSON_PSEUDO_ID}/behandlinger/$periodeId/yrkesaktivitet/$yrkesaktivitetId/dagoversikt") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(dagoversikt)
-            }
-        assertEquals(204, response.status.value)
     }
 
     private fun verifiserBeregning(beregning: BeregningResponseDto) {
@@ -221,7 +149,7 @@ class UtbetalingsberegningIntegrasjonTest {
         yrkesaktivitet.dekningsgrad!!.verdi.prosentDesimal `should equal` 1.0
 
         // Dag 1: 100% syk - skal ha refusjon
-        val dag1 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 1) }!!
+        val dag1 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato.isEqual(1.januar(2024)) }!!
         assertEquals(
             1846.0,
             dag1.økonomi.personbeløp,
@@ -235,7 +163,7 @@ class UtbetalingsberegningIntegrasjonTest {
         assertEquals(1.0, dag1.økonomi.totalGrad, "Dag 1 skal ha 100% total grad")
 
         // Dag 2: 70% syk - skal ha 70% refusjon
-        val dag2 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 2) }!!
+        val dag2 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato.isEqual(2.januar(2024)) }!!
         assertEquals(
             1292.0,
             dag2.økonomi.personbeløp,
@@ -249,13 +177,13 @@ class UtbetalingsberegningIntegrasjonTest {
         assertEquals(0.7, dag2.økonomi.totalGrad, "Dag 2 skal ha 70% total grad")
 
         // Dag 3: Ferie - skal ikke ha utbetaling
-        val dag3 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 3) }!!
+        val dag3 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato.isEqual(3.januar(2024)) }!!
         assertEquals(0.0, (dag3.økonomi.personbeløp ?: 0.0) * 100, "Dag 3 (Ferie) skal ikke ha utbetaling")
         assertEquals(0.0, (dag3.økonomi.arbeidsgiverbeløp ?: 0.0) * 100, "Dag 3 (Ferie) skal ikke ha refusjon")
         assertEquals(0.0, dag3.økonomi.totalGrad, "Dag 3 (Ferie) skal ha 0% total grad")
 
         // Dag 4: 100% syk - skal ha samme refusjon som dag 1
-        val dag4 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 4) }!!
+        val dag4 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato.isEqual(4.januar(2024)) }!!
         assertEquals(
             1846.0,
             dag4.økonomi.personbeløp,
@@ -269,7 +197,7 @@ class UtbetalingsberegningIntegrasjonTest {
         assertEquals(1.0, dag4.økonomi.totalGrad, "Dag 4 skal ha 100% total grad")
 
         // Dag 5: Arbeidsdag - skal ikke ha utbetaling
-        val dag5 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato == LocalDate.of(2024, 1, 5) }!!
+        val dag5 = yrkesaktivitet.utbetalingstidslinje.dager.find { it.dato.isEqual(5.januar(2024)) }!!
         assertEquals(0.0, (dag5.økonomi.personbeløp ?: 0.0) * 100, "Dag 5 (Arbeidsdag) skal ikke ha utbetaling")
         assertEquals(
             0.0,

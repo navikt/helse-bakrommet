@@ -8,6 +8,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
+import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerSkjønnsfastsettelseÅrsakDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.e2e.TestOppsett
@@ -53,6 +54,31 @@ suspend fun ApplicationTestBuilder.saksbehandlerVelgerInntektsmelding(
                         inntektsmeldingId = inntektsmeldingId,
                         begrunnelse = begrunnelse,
                         refusjon = refusjonsperiodeDto,
+                    ),
+            ),
+    )
+
+suspend fun ApplicationTestBuilder.saksbehandlerSkjønnsfastsetterInntekt(
+    personPseudoId: UUID,
+    behandlingId: UUID,
+    yrkesaktivitetId: UUID,
+    årsinntekt: Double,
+    årsak: ArbeidstakerSkjønnsfastsettelseÅrsakDto,
+    begrunnelse: String,
+    refusjon: List<RefusjonsperiodeDto>? = null,
+): ApiResult<Unit> =
+    saksbehandlerVelgerInntekt(
+        personPseudoId = personPseudoId,
+        behandlingId = behandlingId,
+        yrkesaktivitetId = yrkesaktivitetId,
+        inntektskilde =
+            InntektRequestDto.Arbeidstaker(
+                data =
+                    ArbeidstakerInntektRequestDto.Skjønnsfastsatt(
+                        årsinntekt = årsinntekt,
+                        årsak = årsak,
+                        begrunnelse = begrunnelse,
+                        refusjon = refusjon,
                     ),
             ),
     )
