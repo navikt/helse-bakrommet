@@ -2,11 +2,11 @@ package no.nav.helse.bakrommet.db.repository
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotliquery.Session
-import no.nav.helse.bakrommet.behandling.vilkaar.Vilkaarsvurdering
-import no.nav.helse.bakrommet.behandling.vilkaar.VilkaarsvurderingUnderspørsmål
-import no.nav.helse.bakrommet.behandling.vilkaar.Vurdering
 import no.nav.helse.bakrommet.db.MedSession
 import no.nav.helse.bakrommet.db.QueryRunner
+import no.nav.helse.bakrommet.db.dto.vilkaarsvurdering.DbVilkårsvurdering
+import no.nav.helse.bakrommet.db.dto.vilkaarsvurdering.DbVilkårsvurderingUnderspørsmål
+import no.nav.helse.bakrommet.db.dto.vilkaarsvurdering.Vurdering
 import no.nav.helse.bakrommet.db.tilPgJson
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
@@ -33,7 +33,7 @@ class PgVilkårsvurderingRepository private constructor(
             "behandling_id" to vilkårsvurderingId.behandlingId.value,
             "kode" to vilkårsvurderingId.vilkårskode.value,
         ) {
-            val dbRecord = objectMapper.readValue<Vilkaarsvurdering>(it.string("vurdering"))
+            val dbRecord = objectMapper.readValue<DbVilkårsvurdering>(it.string("vurdering"))
             VurdertVilkår(
                 id = vilkårsvurderingId,
                 vurdering =
@@ -66,7 +66,7 @@ class PgVilkårsvurderingRepository private constructor(
                 """.trimIndent(),
             "behandling_id" to behandlingId.value,
         ) {
-            val dbRecord = objectMapper.readValue<Vilkaarsvurdering>(it.string("vurdering"))
+            val dbRecord = objectMapper.readValue<DbVilkårsvurdering>(it.string("vurdering"))
             val vilkårskode = Vilkårskode(it.string("kode"))
             VurdertVilkår(
                 id = VilkårsvurderingId(behandlingId, vilkårskode),
@@ -93,7 +93,7 @@ class PgVilkårsvurderingRepository private constructor(
 
     override fun lagre(vurdertVilkår: VurdertVilkår) {
         val dbRecordUtfall =
-            Vilkaarsvurdering(
+            DbVilkårsvurdering(
                 vilkårskode = vurdertVilkår.id.vilkårskode.value,
                 hovedspørsmål = vurdertVilkår.id.vilkårskode.value,
                 vurdering =
@@ -105,7 +105,7 @@ class PgVilkårsvurderingRepository private constructor(
                     },
                 underspørsmål =
                     vurdertVilkår.vurdering.underspørsmål.map {
-                        VilkaarsvurderingUnderspørsmål(spørsmål = it.spørsmål, svar = it.svar)
+                        DbVilkårsvurderingUnderspørsmål(spørsmål = it.spørsmål, svar = it.svar)
                     },
                 notat = vurdertVilkår.vurdering.notat,
             )
