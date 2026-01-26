@@ -15,20 +15,15 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.api.ApiModule
 import no.nav.helse.bakrommet.api.settOppKtor
 import no.nav.helse.bakrommet.auth.OAuthScope
-import no.nav.helse.bakrommet.behandling.dokumenter.DokumentDao
-import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
-import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.createServices
 import no.nav.helse.bakrommet.db.DBModule
 import no.nav.helse.bakrommet.db.dao.*
-import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.e2e.auth.OAuthMock
 import no.nav.helse.bakrommet.ereg.EregMock
 import no.nav.helse.bakrommet.infrastruktur.provider.*
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
-import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.obo.OboModule
 import no.nav.helse.bakrommet.obo.OboTestSetup
@@ -99,19 +94,11 @@ object TestOppsett {
 
 class Daoer(
     val personPseudoIdDao: PersonPseudoIdDao,
-    val dokumentDao: DokumentDao,
-    val yrkesaktivitetDao: YrkesaktivitetDao,
-    val outboxDao: OutboxDao,
-    val sykepengegrunnlagDao: SykepengegrunnlagDao,
 ) {
     companion object {
         fun instansier(dataSource: DataSource): Daoer =
             Daoer(
                 PersonPseudoIdDaoPg(dataSource),
-                DokumentDaoPg(dataSource),
-                YrkesaktivitetDaoOverRepository(PgYrkesaktivitetsperiodeRepository(dataSource)),
-                OutboxDaoPg(dataSource),
-                SykepengegrunnlagDaoPg(dataSource),
             )
     }
 }

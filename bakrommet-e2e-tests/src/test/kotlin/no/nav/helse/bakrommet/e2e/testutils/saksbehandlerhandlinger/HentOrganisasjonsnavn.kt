@@ -21,7 +21,7 @@ suspend fun ApplicationTestBuilder.hentOrganisasjonsnavn(
             bearerAuth(token)
         }.let { response ->
             if (response.status.value in 200..299) {
-                ApiResult.Success(response.bodyAsText())
+                ApiResult.Success(response.status, response.bodyAsText())
             } else {
                 ApiResult.Error(response.body<ProblemDetails>())
             }

@@ -1,362 +1,195 @@
 package no.nav.helse.bakrommet.e2e.behandling.vilkaar
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.server.testing.*
+import forventCreated
+import forventNoContent
+import forventOk
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.testing.ApplicationTestBuilder
 import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
-import no.nav.helse.bakrommet.api.dto.vilkaar.OppdaterVilkaarsvurderingResponseDto
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.e2e.Daoer
-import no.nav.helse.bakrommet.e2e.TestOppsett
+import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.e2e.runApplicationTest
-import no.nav.helse.bakrommet.e2e.testutils.truncateTidspunkt
-import no.nav.helse.bakrommet.objectMapper
+import no.nav.helse.bakrommet.e2e.testutils.ApiResult
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.deleteVilkårsvurdering
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.getVilkårsvurderinger
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandlingOgForventOk
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.personsøk
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.putVilkårsvurdering
+import no.nav.helse.januar
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import kotlin.test.assertIs
 
 class VilkårRouteTest {
-    private companion object {
-        val fnr = "01019012349"
-        val personId = "65hth"
-        val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
-    }
+    private val naturligIdent = enNaturligIdent()
 
-    fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(Pair<Daoer, BehandlingDto>) -> Unit) =
+    fun vilkårAppTest(testBlock: suspend ApplicationTestBuilder.(BehandlingDto) -> Unit) =
         runApplicationTest {
-            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
-            val response =
-                client.post("/v1/$personPseudoId/behandlinger") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "fom": "2023-01-01", "tom": "2023-01-31" }
-                        """.trimIndent(),
-                    )
-                }
-            assertEquals(201, response.status.value)
-
-            val behandling: BehandlingDto =
-                objectMapper
-                    .readValue(
-                        response.bodyAsText(),
-                        BehandlingDto::class.java,
-                    ).truncateTidspunkt()
-
-            this.testBlock(it to behandling)
+            val personPseudoId = personsøk(naturligIdent)
+            val behandlingDto = opprettBehandlingOgForventOk(personPseudoId, fom = 1.januar(2023), tom = 31.januar(2023))
+            this.testBlock(behandlingDto)
         }
 
     @Test
     fun `oppretter et vurdert vilkår på saksbehandlingsperiode`() =
-        vilkårAppTest { (_, saksbehandlingsperiode) ->
-            saksbehandlingsperiode.id
-            val vilkårPutResponse =
-                client.put(
-                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        {
-                            "vurdering": "OPPFYLT",
-                            "vilkårskode": "EIT_VILKÅR",
-                            "underspørsmål": [],
-                            "notat": "derfor"
-                        }
-                        """.trimIndent(),
-                    )
-                }
+        vilkårAppTest { behandling ->
+            val hovedspørsmål = "BOR_I_NORGE"
+            val personPseudoId = personsøk(naturligIdent)
+            putVilkårsvurdering(personPseudoId, behandling.id, hovedspørsmål, VurderingDto.OPPFYLT, "derfor")
+                .forventCreated()
 
-            assertEquals(HttpStatusCode.Created, vilkårPutResponse.status)
-            val responseBody: OppdaterVilkaarsvurderingResponseDto = objectMapper.readValue(vilkårPutResponse.bodyAsText())
-            assertEquals("OPPFYLT", responseBody.vilkaarsvurderingDto.vurdering.toString())
-            assertEquals("BOR_I_NORGE", responseBody.vilkaarsvurderingDto.hovedspørsmål)
-            assertEquals("derfor", responseBody.vilkaarsvurderingDto.notat)
+            val vurderinger =
+                getVilkårsvurderinger(personPseudoId, behandling.id)
+                    .forventOk()
+
+            assertEquals(1, vurderinger.size)
+            assertEquals(VurderingDto.OPPFYLT, vurderinger[0].vurdering)
+            assertEquals(hovedspørsmål, vurderinger[0].hovedspørsmål)
+            assertEquals("derfor", vurderinger[0].notat)
         }
 
     @Test
     fun `oppretter, endrer, legger til, henter og sletter vurdert vilkår på saksbehandlingsperiode`() =
-        vilkårAppTest { (_, saksbehandlingsperiode) ->
-            saksbehandlingsperiode.id
-            client
-                .put(
-                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        {
-                            "vurdering": "OPPFYLT",
-                            "vilkårskode": "EIT_VILKÅR",
-                            "underspørsmål": [],
-                            "notat": "derfor"
-                        }
-                        """.trimIndent(),
-                    )
-                }.apply {
-                    assertEquals(HttpStatusCode.Created, status)
-                    val responseBody: OppdaterVilkaarsvurderingResponseDto = objectMapper.readValue(bodyAsText())
-                    assertEquals("OPPFYLT", responseBody.vilkaarsvurderingDto.vurdering.toString())
-                    assertEquals("BOR_I_NORGE", responseBody.vilkaarsvurderingDto.hovedspørsmål)
-                    assertEquals("derfor", responseBody.vilkaarsvurderingDto.notat)
+        vilkårAppTest { behandling ->
+            val hovedspørsmål1 = "BOR_I_NORGE"
+            val personPseudoId = personsøk(naturligIdent)
+            putVilkårsvurdering(personPseudoId, behandling.id, hovedspørsmål1, VurderingDto.OPPFYLT, "derfor")
+                .forventCreated()
+
+            getVilkårsvurderinger(personPseudoId, behandling.id)
+                .forventOk()
+                .apply {
+                    assertEquals(1, this.size)
+                    assertEquals(VurderingDto.OPPFYLT, this[0].vurdering)
+                    assertEquals(hovedspørsmål1, this[0].hovedspørsmål)
+                    assertEquals("derfor", this[0].notat)
                 }
 
-            client
-                .get("/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val responseBody = bodyAsText()
-                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
-                    assertEquals(1, list.size)
-                    assertEquals("OPPFYLT", list[0]["vurdering"])
-                    assertEquals("BOR_I_NORGE", list[0]["hovedspørsmål"])
-                    assertEquals("derfor", list[0]["notat"])
+            putVilkårsvurdering(
+                personPseudoId,
+                behandling.id,
+                hovedspørsmål1,
+                VurderingDto.IKKE_OPPFYLT,
+                "Bor ikke i Norge",
+            ).forventOk()
+
+            getVilkårsvurderinger(personPseudoId, behandling.id)
+                .forventOk()
+                .apply {
+                    assertEquals(1, this.size)
+                    assertEquals(VurderingDto.IKKE_OPPFYLT, this[0].vurdering)
+                    assertEquals(hovedspørsmål1, this[0].hovedspørsmål)
+                    assertEquals("Bor ikke i Norge", this[0].notat)
                 }
 
-            client
-                .put(
-                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        {
-                            "vurdering": "IKKE_OPPFYLT",
-                            "vilkårskode": "EIT_VILKÅR",
-                            "underspørsmål": [],
-                            "notat": "BOR_IKKE_I_NORGE"
-                        }
-                        """.trimIndent(),
-                    )
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val responseBody: OppdaterVilkaarsvurderingResponseDto = objectMapper.readValue(bodyAsText())
-                    assertEquals("IKKE_OPPFYLT", responseBody.vilkaarsvurderingDto.vurdering.toString())
-                    assertEquals("BOR_I_NORGE", responseBody.vilkaarsvurderingDto.hovedspørsmål)
-                    assertEquals("BOR_IKKE_I_NORGE", responseBody.vilkaarsvurderingDto.notat)
+            val hovedspørsmål2 = "ET_VILKÅR_TIL"
+            putVilkårsvurdering(personPseudoId, behandling.id, hovedspørsmål2, VurderingDto.IKKE_RELEVANT, null)
+                .forventCreated()
+
+            getVilkårsvurderinger(personPseudoId, behandling.id)
+                .forventOk()
+                .apply {
+                    assertEquals(2, this.size)
+                    assertEquals(VurderingDto.IKKE_RELEVANT, this[1].vurdering)
+                    assertEquals(hovedspørsmål2, this[1].hovedspørsmål)
+                    assertEquals(null, this[1].notat)
                 }
 
-            client
-                .get("/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val responseBody = bodyAsText()
-                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
-                    assertEquals(1, list.size)
-                    assertEquals("IKKE_OPPFYLT", list[0]["vurdering"])
-                    assertEquals("BOR_I_NORGE", list[0]["hovedspørsmål"])
-                    assertEquals("BOR_IKKE_I_NORGE", list[0]["notat"])
-                }
+            deleteVilkårsvurdering(personPseudoId, behandling.id, hovedspørsmål1)
+                .forventNoContent()
 
-            client
-                .put(
-                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ET_VILKÅR_TIL",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        {
-                            "vurdering": "IKKE_RELEVANT",
-                            "vilkårskode": "EIT_VILKÅR",
-                            "underspørsmål": []
-                        }
-                        """.trimIndent(),
-                    )
-                }.apply {
-                    assertEquals(HttpStatusCode.Created, status)
-                    val responseBody: OppdaterVilkaarsvurderingResponseDto = objectMapper.readValue(bodyAsText())
-                    assertEquals("IKKE_RELEVANT", responseBody.vilkaarsvurderingDto.vurdering.toString())
-                    assertEquals("ET_VILKÅR_TIL", responseBody.vilkaarsvurderingDto.hovedspørsmål)
-                }
+            deleteVilkårsvurdering(personPseudoId, behandling.id, hovedspørsmål1)
+                .forventNoContent() // gir fortsatt no content, selv når koden ikke finnes lenger
 
-            client
-                .get("/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val responseBody = bodyAsText()
-                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
-                    assertEquals(2, list.size)
-                    val set = list.map { mapOf("vurdering" to (it["vurdering"] as String), "hovedspørsmål" to (it["hovedspørsmål"] as String), "notat" to (it["notat"] as? String)) }.toSet()
-                    assertEquals(
-                        setOf(
-                            mapOf(
-                                "vurdering" to "IKKE_OPPFYLT",
-                                // "vilkårskode" to "EIT_VILKÅR",
-                                "notat" to "BOR_IKKE_I_NORGE",
-                                "hovedspørsmål" to "BOR_I_NORGE",
-                            ),
-                            mapOf(
-                                "vurdering" to "IKKE_RELEVANT",
-                                // "vilkårskode" to "EIT_VILKÅR_TE",
-                                "hovedspørsmål" to "ET_VILKÅR_TIL",
-                                "notat" to null,
-                            ),
-                        ),
-                        set,
-                    )
-                }
-
-            client
-                .delete(
-                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.NoContent, status, "skal gi 204 når koden fantes og er blitt slettet")
-                }
-
-            client
-                .delete(
-                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.NoContent, status, "skal gi 204 når koden ikke fantes")
-                }
-
-            client
-                .get("/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering") {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val responseBody = bodyAsText()
-                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
-                    assertEquals(1, list.size)
-                    assertEquals("IKKE_RELEVANT", list[0]["vurdering"])
-                    assertEquals("ET_VILKÅR_TIL", list[0]["hovedspørsmål"])
+            getVilkårsvurderinger(personPseudoId, behandling.id)
+                .forventOk()
+                .apply {
+                    assertEquals(1, this.size)
+                    assertEquals(VurderingDto.IKKE_RELEVANT, this[0].vurdering)
+                    assertEquals(hovedspørsmål2, this[0].hovedspørsmål)
+                    assertEquals(null, this[0].notat)
                 }
         }
 
     @Test
     fun `ugyldig kode-format gir 400 med beskrivelse`() =
-        vilkårAppTest { (_, saksbehandlingsperiode) ->
-            saksbehandlingsperiode.id
-            val vilkårPostResponse =
-                client.put(
-                    "/v1/$personPseudoId/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ugyldig-KODE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        {
-                            "vurdering": "OPPFYLT",
-                            "vilkårskode": "EIT_VILKÅR",
-                            "underspørsmål": []
-                        }
-                        """.trimIndent(),
-                    )
-                }
-
-            assertEquals(HttpStatusCode.BadRequest, vilkårPostResponse.status)
-            val pers = personPseudoId.toString()
-            assertEquals(
-                """
-                {"type":"https://spillerom.ansatt.nav.no/validation/request","title":"Ugyldig forespørsel","status":400,"detail":"Ugyldig format på Kode","instance":"/v1/$pers/behandlinger/${saksbehandlingsperiode.id}/vilkaarsvurdering/ugyldig-KODE"}
-                """.trimIndent(),
-                vilkårPostResponse.bodyAsText(),
-            )
+        vilkårAppTest { behandling ->
+            behandling.id
+            val personPseudoId = personsøk(naturligIdent)
+            val result =
+                putVilkårsvurdering(
+                    personPseudoId = personPseudoId,
+                    behandlingId = behandling.id,
+                    hovedspørsmål = "ugyldig-KODE",
+                    vurdering = VurderingDto.OPPFYLT,
+                    notat = null,
+                )
+            assertIs<ApiResult.Error>(result)
+            assertEquals(HttpStatusCode.BadRequest.value, result.problemDetails.status)
+            assertEquals("Ugyldig forespørsel", result.problemDetails.title)
+            assertEquals("Ugyldig format på Kode", result.problemDetails.detail)
+            assertEquals("https://spillerom.ansatt.nav.no/validation/request", result.problemDetails.type)
+            assertEquals("/v1/$personPseudoId/behandlinger/${behandling.id}/vilkaarsvurdering/ugyldig-KODE", result.problemDetails.instance)
         }
 
     @Test
     fun `Feil person+periode-kombo gir 400 for både GET,PUT og DELETE`() =
-        vilkårAppTest { (daoer, saksbehandlingsperiode) ->
-            val dennePersonPseudoId = personPseudoId
-            val dennePeriodeId = saksbehandlingsperiode.id
-            val annenPersonId = "pers2"
-            val annenPersonPseudoId = UUID.nameUUIDFromBytes(annenPersonId.toByteArray())
+        vilkårAppTest { behandling ->
+            val dennePersonPseudoId = personsøk(naturligIdent)
+            val denneBehandlingId = behandling.id
 
-            val someBody =
-                """
-                {
-                    "vurdering": "IKKE_OPPFYLT",
-                    "vilkårskode": "EIT_VILKÅR",
-                    "underspørsmål": [],
-                    "notat": "BOR_IKKE_I_NORGE"
-                }
-                """.trimIndent()
+            val annenPersonPseudoId = personsøk(enNaturligIdent())
 
-            daoer.personPseudoIdDao.opprettPseudoId(annenPersonPseudoId, NaturligIdent("01010188888"))
+            val leggTilResult =
+                putVilkårsvurdering(
+                    personPseudoId = annenPersonPseudoId,
+                    behandlingId = denneBehandlingId,
+                    hovedspørsmål = "BOR_I_NORGE",
+                    vurdering = VurderingDto.IKKE_OPPFYLT,
+                    notat = "BOR_IKKE_I_NORGE",
+                )
 
-            client
-                .put(
-                    "/v1/$annenPersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(someBody)
-                }.apply {
-                    assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
-                }
+            assertIs<ApiResult.Error>(leggTilResult)
+            assertEquals(HttpStatusCode.BadRequest.value, leggTilResult.problemDetails.status)
 
-            client
-                .put(
-                    "/v1/$dennePersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(someBody)
-                }.apply {
-                    assertEquals(HttpStatusCode.Created, status)
-                }
+            putVilkårsvurdering(
+                dennePersonPseudoId,
+                denneBehandlingId,
+                "BOR_I_NORGE",
+                VurderingDto.IKKE_OPPFYLT,
+                "BOR_IKKE_I_NORGE",
+            ).forventCreated()
 
-            client
-                .put(
-                    "/v1/$annenPersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(someBody)
-                }.apply {
-                    assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
-                }
+            val oppdaterResult =
+                putVilkårsvurdering(
+                    personPseudoId = annenPersonPseudoId,
+                    behandlingId = denneBehandlingId,
+                    hovedspørsmål = "BOR_I_NORGE",
+                    vurdering = VurderingDto.IKKE_OPPFYLT,
+                    notat = "BOR_IKKE_I_NORGE",
+                )
 
-            client
-                .get("/v1/$annenPersonId/behandlinger/$dennePeriodeId/vilkaarsvurdering") {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.BadRequest, status)
-                }
+            assertIs<ApiResult.Error>(oppdaterResult)
+            assertEquals(HttpStatusCode.BadRequest.value, oppdaterResult.problemDetails.status)
 
-            client
-                .delete(
-                    "/v1/$annenPersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.BadRequest, status, "feil person/periode-mix")
-                }
+            val getFeilPersonBehandlingKomboResult = getVilkårsvurderinger(annenPersonPseudoId, behandling.id)
+            assertIs<ApiResult.Error>(getFeilPersonBehandlingKomboResult)
+            assertEquals(HttpStatusCode.BadRequest.value, getFeilPersonBehandlingKomboResult.problemDetails.status)
 
-            client
-                .get("/v1/$dennePersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering") {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.OK, status)
-                    val responseBody = bodyAsText()
-                    val list = objectMapper.readValue<List<Map<String, Any>>>(responseBody)
-                    assertEquals(1, list.size)
-                    assertEquals("IKKE_OPPFYLT", list[0]["vurdering"])
-                    assertEquals("BOR_I_NORGE", list[0]["hovedspørsmål"])
-                    assertEquals("BOR_IKKE_I_NORGE", list[0]["notat"])
-                }
+            val deleteResult = deleteVilkårsvurdering(annenPersonPseudoId, denneBehandlingId, "BOR_I_NORGE")
+            assertIs<ApiResult.Error>(deleteResult)
+            assertEquals(HttpStatusCode.BadRequest.value, deleteResult.problemDetails.status)
 
-            client
-                .delete(
-                    "/v1/$dennePersonPseudoId/behandlinger/$dennePeriodeId/vilkaarsvurdering/BOR_I_NORGE",
-                ) {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(HttpStatusCode.NoContent, status)
-                }
+            val vilkårsvurderinger =
+                getVilkårsvurderinger(dennePersonPseudoId, behandling.id)
+                    .forventOk()
+
+            assertEquals(1, vilkårsvurderinger.size)
+            assertEquals(VurderingDto.IKKE_OPPFYLT, vilkårsvurderinger[0].vurdering)
+            assertEquals("BOR_I_NORGE", vilkårsvurderinger[0].hovedspørsmål)
+            assertEquals("BOR_IKKE_I_NORGE", vilkårsvurderinger[0].notat)
+
+            deleteVilkårsvurdering(dennePersonPseudoId, denneBehandlingId, "BOR_I_NORGE")
+                .forventNoContent()
         }
 }

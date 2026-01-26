@@ -1,12 +1,14 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
+import forventOk
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Inntektsmelding
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
 import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentVilkårsvurdering
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.getVilkårsvurderinger
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandlingOgForventOk
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
 import org.junit.jupiter.api.Test
@@ -28,7 +30,7 @@ class VilkårKopieresTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        etOrganisasjonsnummer(),
                         inntekt =
                             Inntektsmelding(
                                 20000.0,
@@ -38,21 +40,23 @@ class VilkårKopieresTest {
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
-            val forrigePeriode = førsteBehandling.behandling
+            val forrigeBehandling = førsteBehandling.behandling
 
             val personId = førsteBehandling.scenario.pseudoId
-            val fom = forrigePeriode.tom.plusDays(1)
-            val tom = forrigePeriode.tom.plusDays(14)
-            val nestePeriode =
+            val fom = forrigeBehandling.tom.plusDays(1)
+            val tom = forrigeBehandling.tom.plusDays(14)
+            val nesteBehandling =
                 opprettBehandlingOgForventOk(personId, fom, tom)
 
-            hentVilkårsvurdering(personId, nestePeriode.id).let { vilkårsvurdering ->
-                vilkårsvurdering.size `should equal` 1
-                val vilkår = vilkårsvurdering[0]
-                vilkår.hovedspørsmål `should equal` "VILKÅR1"
-                vilkår.vurdering `should equal` VurderingDto.OPPFYLT
-                vilkår.notat `should equal` "Hei hei"
-            }
+            getVilkårsvurderinger(personId, nesteBehandling.id)
+                .forventOk()
+                .let { vilkårsvurdering ->
+                    vilkårsvurdering.size `should equal` 1
+                    val vilkår = vilkårsvurdering[0]
+                    vilkår.hovedspørsmål `should equal` "VILKÅR1"
+                    vilkår.vurdering `should equal` VurderingDto.OPPFYLT
+                    vilkår.notat `should equal` "Hei hei"
+                }
         }
     }
 }
