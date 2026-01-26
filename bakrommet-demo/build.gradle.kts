@@ -12,6 +12,7 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages")
     implementation("io.ktor:ktor-serialization-jackson")
 
+    implementation(testFixtures(project(":bakrommet-services")))
     implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-inntektsmelding")))
     implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
     implementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))
