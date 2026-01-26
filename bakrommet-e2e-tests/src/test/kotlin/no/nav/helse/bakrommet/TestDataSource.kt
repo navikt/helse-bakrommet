@@ -1,5 +1,7 @@
-package no.nav.helse.bakrommet.db
+package no.nav.helse.bakrommet
 
+import no.nav.helse.bakrommet.db.DBModule
+import no.nav.helse.bakrommet.db.MedDataSource
 import org.testcontainers.containers.PostgreSQLContainer
 
 object TestDataSource {
@@ -30,22 +32,4 @@ object TestDataSource {
         db.execute("truncate table dokument cascade")
         db.execute("truncate table tilkommen_inntekt cascade")
     }
-}
-
-class TestcontainersDatabase(
-    moduleLabel: String,
-) {
-    private val postgres =
-        PostgreSQLContainer("postgres:17")
-            .withCommand("postgres", "-c", "max_connections=200")
-            .withReuse(true)
-            .withLabel("app", "bakrommet")
-            .withLabel("module", moduleLabel)
-            .withLabel("code-location", javaClass.canonicalName)
-            .apply {
-                start()
-                println("Database startet opp.\nUrl: $jdbcUrl\nBrukernavn: $username\nPassord: $password")
-            }
-
-    val dbModuleConfiguration = DBModule.Configuration(jdbcUrl = postgres.jdbcUrl + "&user=" + postgres.username + "&password=" + postgres.password)
 }

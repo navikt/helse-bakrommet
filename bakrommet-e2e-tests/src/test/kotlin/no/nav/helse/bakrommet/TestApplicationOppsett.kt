@@ -1,10 +1,11 @@
 package no.nav.helse.bakrommet
 
 import com.zaxxer.hikari.HikariConfig
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import io.ktor.server.testing.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.ContentType
+import io.ktor.serialization.jackson.JacksonConverter
+import io.ktor.server.testing.ApplicationTestBuilder
+import io.ktor.server.testing.testApplication
 import no.nav.helse.bakrommet.aareg.AARegClient
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.ainntekt.AInntektClient
@@ -18,7 +19,6 @@ import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.SykepengegrunnlagDao
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDao
 import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.db.DBModule
-import no.nav.helse.bakrommet.db.TestDataSource
 import no.nav.helse.bakrommet.db.dao.*
 import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.db.skapDbDaoer
