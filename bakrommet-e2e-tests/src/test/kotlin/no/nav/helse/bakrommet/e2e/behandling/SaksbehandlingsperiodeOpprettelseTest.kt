@@ -1,9 +1,7 @@
 package no.nav.helse.bakrommet.e2e.behandling
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -11,10 +9,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.helse.bakrommet.api.dokumenter.tilDokumentDto
-import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
-import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
+import no.nav.helse.bakrommet.api.dto.behandling.OpprettBehandlingRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
-import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
 import no.nav.helse.bakrommet.asJsonNode
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
@@ -22,6 +18,11 @@ import no.nav.helse.bakrommet.e2e.TestOppsett
 import no.nav.helse.bakrommet.e2e.runApplicationTest
 import no.nav.helse.bakrommet.e2e.sykepengesoknad.Arbeidsgiverinfo
 import no.nav.helse.bakrommet.e2e.sykepengesoknad.enSøknad
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentBehandlingerForPerson
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentDokumenter
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.hentYrkesaktiviteter
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.personsøk
 import no.nav.helse.bakrommet.e2e.testutils.`should equal`
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.flex.sykepengesoknad.kafka.ArbeidssituasjonDTO
@@ -29,17 +30,13 @@ import no.nav.helse.flex.sykepengesoknad.kafka.SoknadstypeDTO
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.*
 
 class SaksbehandlingsperiodeOpprettelseTest {
     private companion object {
         const val FNR = "01019012349"
-        const val PERSON_ID = "65hth"
-        val PERSON_PSEUDO_ID = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
-
         const val FNR2 = "01019022222"
-        const val PERSON_ID2 = "66hth"
-        val PERSON_PSEUDO_ID2 = UUID.nameUUIDFromBytes(PERSON_ID2.toByteArray())
     }
 
     @Test
@@ -74,32 +71,24 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     tokenUtvekslingProvider = TestOppsett.oboClient,
                 ),
         ) { daoer ->
-            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
+            val personPseudoId = personsøk(NaturligIdent(FNR))
 
             // Opprett saksbehandlingsperiode
-            client
-                .post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        """
-                        { "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.søknadId}", "${søknad2.søknadId}", "${søknad3.søknadId}", "${søknad3b.søknadId}"] }
-                        """.trimIndent(),
-                    )
-                }.let { response ->
-                    assertEquals(201, response.status.value)
-                }
+            val periode =
+                opprettBehandling(
+                    personPseudoId,
+                    OpprettBehandlingRequestDto(
+                        fom = LocalDate.of(2023, 1, 1),
+                        tom = LocalDate.of(2023, 1, 31),
+                        søknader = listOf(søknad1.søknadId, søknad2.søknadId, søknad3.søknadId, søknad3b.søknadId).map { UUID.fromString(it) },
+                    ),
+                )
 
             // Hent alle perioder
-            val allePerioder =
-                client.get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
-                    bearerAuth(TestOppsett.userToken)
-                }
-            assertEquals(200, allePerioder.status.value)
-            val perioder: List<BehandlingDto> = allePerioder.body()
+            val perioder = hentBehandlingerForPerson(personPseudoId)
 
             perioder.size `should equal` 1
-            val periode = perioder.first()
+            assertEquals(periode.id, perioder.first().id)
 
             // Verifiser at dokumenter ble lagret
             val dokumenterFraDB = daoer.dokumentDao.hentDokumenterFor(periode.id)
@@ -121,11 +110,7 @@ class SaksbehandlingsperiodeOpprettelseTest {
             }
 
             // Verifiser API for dokumenter
-            val dokumenter: List<DokumentDto> =
-                client
-                    .get("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/dokumenter") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body()
+            val dokumenter = hentDokumenter(personPseudoId, periode.id)
             assertEquals(dokumenterFraDB.map { it.tilDokumentDto() }.toSet(), dokumenter.toSet())
         }
     }
@@ -152,29 +137,22 @@ class SaksbehandlingsperiodeOpprettelseTest {
                     tokenUtvekslingProvider = TestOppsett.oboClient,
                     søknadIdTilSvar = setOf(søknad1, søknad2, søknad3).associateBy { it.søknadId },
                 ),
-        ) { daoer ->
-            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
-            client.post("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
-                bearerAuth(TestOppsett.userToken)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """{ "fom": "2023-01-01", "tom": "2023-01-31", "søknader": ["${søknad1.søknadId}", "${søknad2.søknadId}", "${søknad3.søknadId}"] }""",
-                )
-            }
+        ) { _ ->
+            val personPseudoId = personsøk(NaturligIdent(FNR))
 
+            // Opprett saksbehandlingsperiode
             val periode =
-                client
-                    .get("/v1/${PERSON_PSEUDO_ID}/behandlinger") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<BehandlingDto>>()
-                    .first()
+                opprettBehandling(
+                    personPseudoId,
+                    OpprettBehandlingRequestDto(
+                        fom = LocalDate.of(2023, 1, 1),
+                        tom = LocalDate.of(2023, 1, 31),
+                        søknader = listOf(søknad1.søknadId, søknad2.søknadId, søknad3.søknadId).map { UUID.fromString(it) },
+                    ),
+                )
 
             // Verifiser yrkesaktivitet
-            val yrkesaktivitet =
-                client
-                    .get("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/yrkesaktivitet") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.body<List<YrkesaktivitetDto>>()
+            val yrkesaktivitet = hentYrkesaktiviteter(personPseudoId, periode.id)
 
             assertEquals(3, yrkesaktivitet.size)
             assertEquals(
@@ -238,9 +216,9 @@ class SaksbehandlingsperiodeOpprettelseTest {
 
     @Test
     fun `saksbehandlingsperioder for samme person skal ikke kunne overlappe`() {
-        runApplicationTest { daoer ->
-            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
-            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID2, NaturligIdent(FNR2))
+        runApplicationTest { _ ->
+            val personPseudoId = personsøk(NaturligIdent(FNR))
+            val personPseudoId2 = personsøk(NaturligIdent(FNR2))
 
             suspend fun opprettPeriode(
                 personPseudoId: UUID,
@@ -254,24 +232,24 @@ class SaksbehandlingsperiodeOpprettelseTest {
                 )
             }
 
-            opprettPeriode(PERSON_PSEUDO_ID, "2023-01-01", "2023-01-31").apply {
+            opprettPeriode(personPseudoId, "2023-01-01", "2023-01-31").apply {
                 assertEquals(HttpStatusCode.Created, status)
             }
-            opprettPeriode(PERSON_PSEUDO_ID, "2023-02-01", "2023-02-15").apply {
+            opprettPeriode(personPseudoId, "2023-02-01", "2023-02-15").apply {
                 assertEquals(HttpStatusCode.Created, status)
             }
-            opprettPeriode(PERSON_PSEUDO_ID, "2023-02-15", "2023-02-25").apply {
+            opprettPeriode(personPseudoId, "2023-02-15", "2023-02-25").apply {
                 assertEquals(HttpStatusCode.BadRequest, status)
                 assertEquals("Angitte datoer overlapper med en eksisterende periode", bodyAsText().asJsonNode()["title"].asText())
             }
-            opprettPeriode(PERSON_PSEUDO_ID, "2023-02-16", "2023-02-25").apply {
+            opprettPeriode(personPseudoId, "2023-02-16", "2023-02-25").apply {
                 assertEquals(
                     HttpStatusCode.Created,
                     status,
                     "Nytt forsøk med justert FOM skal fungere",
                 )
             }
-            opprettPeriode(PERSON_PSEUDO_ID2, "2023-02-15", "2023-02-25").apply {
+            opprettPeriode(personPseudoId2, "2023-02-15", "2023-02-25").apply {
                 assertEquals(
                     HttpStatusCode.Created,
                     status,
