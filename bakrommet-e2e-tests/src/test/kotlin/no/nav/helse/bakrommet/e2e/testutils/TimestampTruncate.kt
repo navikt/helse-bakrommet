@@ -5,7 +5,7 @@ import no.nav.helse.bakrommet.behandling.dokumenter.Dokument
 import no.nav.helse.bakrommet.behandling.yrkesaktivitet.YrkesaktivitetDbRecord
 import java.time.temporal.ChronoUnit
 
-fun BehandlingDto.truncateTidspunkt() = copy(opprettet = opprettet.truncatedTo(ChronoUnit.MICROS))
+fun BehandlingDto.truncateTidspunkt() = copy(opprettet = opprettet.truncatedTo(ChronoUnit.MILLIS))
 
 @JvmName("tidsstuttetSaksbehandlingsperiode")
 fun Iterable<BehandlingDto>.tidsstuttet() = map(BehandlingDto::truncateTidspunkt)
@@ -13,9 +13,9 @@ fun Iterable<BehandlingDto>.tidsstuttet() = map(BehandlingDto::truncateTidspunkt
 @JvmName("tidsstuttetDokument")
 fun Iterable<Dokument>.tidsstuttet() = map(Dokument::tidsstuttet)
 
-fun Dokument.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(ChronoUnit.MICROS))
+fun Dokument.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(ChronoUnit.MILLIS))
 
 @JvmName("tidsstuttetYrkesaktivitet")
 fun Iterable<YrkesaktivitetDbRecord>.tidsstuttet() = map(YrkesaktivitetDbRecord::tidsstuttet)
 
-fun YrkesaktivitetDbRecord.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(ChronoUnit.MICROS))
+fun YrkesaktivitetDbRecord.tidsstuttet() = copy(opprettet = opprettet.truncatedTo(ChronoUnit.MILLIS))
