@@ -1,32 +1,19 @@
 package no.nav.helse.bakrommet.domain
 
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Vilkårskode
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingUnderspørsmål
-import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.saksbehandling.behandling.*
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektData
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.InntektRequest
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Perioder
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Refusjonsperiode
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektYrkesaktivitetType
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetKategorisering
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.YrkesaktivitetsperiodeId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.random.Random
 
 fun enNaturligIdent() = NaturligIdent(Random.nextLong(100000_00000L, 1000000_00000L).toString())
+
+fun enAktørId() = Random.nextLong(100000_00000_00L, 1000000_00000_00L).toString()
 
 fun etOrganisasjonsnummer() = Random.nextLong(800_000_000, 1000_000_000).toString()
 

@@ -43,6 +43,7 @@ object AARegMock {
     fun aaregMockHttpClient(
         configuration: AAregModule.Configuration = defaultConfiguration,
         fnrTilArbeidsforhold: Map<String, List<Arbeidsforhold>> = emptyMap(),
+        forbiddenFødselsnumre: List<String> = emptyList(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
         if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
@@ -56,20 +57,20 @@ object AARegMock {
 
             val fnr = request.headers["Nav-Personident"]!!
 
-            if (fnr.endsWith("403")) {
-                respond(
+            if (fnr in forbiddenFødselsnumre) {
+                return@mockHttpClient respond(
                     status = HttpStatusCode.Forbidden,
                     content = "403",
                 )
-            } else {
-                val arbeidsforhold = fnrTilArbeidsforhold[fnr] ?: emptyList()
-                val svar = objectMapper.writeValueAsString(arbeidsforhold)
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = svar,
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
             }
+
+            val arbeidsforhold = fnrTilArbeidsforhold[fnr] ?: emptyList()
+            val svar = objectMapper.writeValueAsString(arbeidsforhold)
+            respond(
+                status = HttpStatusCode.OK,
+                content = svar,
+                headers = headersOf("Content-Type" to listOf("application/json")),
+            )
         }
     }
 
@@ -77,10 +78,11 @@ object AARegMock {
         configuration: AAregModule.Configuration = defaultConfiguration,
         tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
         fnrTilArbeidsforhold: Map<String, List<Arbeidsforhold>> = emptyMap(),
+        forbiddenFødselsnumre: List<String> = emptyList(),
     ) = AARegClient(
         configuration = configuration,
         tokenUtvekslingProvider = tokenUtvekslingProvider,
-        httpClient = aaregMockHttpClient(configuration, fnrTilArbeidsforhold),
+        httpClient = aaregMockHttpClient(configuration, fnrTilArbeidsforhold, forbiddenFødselsnumre),
     )
 }
 

@@ -53,6 +53,7 @@ object AInntektMock {
     fun ainntektMockHttpClient(
         configuration: AInntektModule.Configuration = defaultConfiguration,
         fnrTilAInntektResponse: Map<String, AInntektResponse>,
+        forbiddenFødselsnumre: List<String> = emptyList(),
     ) = mockHttpClient { request ->
         val auth = request.headers[HttpHeaders.Authorization]!!
         if (auth != "Bearer ${configuration.scope.oboTokenFor()}") {
@@ -70,20 +71,19 @@ object AInntektMock {
             val maanedFom = YearMonth.parse(payload["maanedFom"].asText())
             val maanedTom = YearMonth.parse(payload["maanedTom"].asText())
 
-            if (fnr.endsWith("403")) {
-                respond(
+            if (fnr in forbiddenFødselsnumre) {
+                return@mockHttpClient respond(
                     status = HttpStatusCode.Forbidden,
                     content = "403",
                 )
-            } else {
-                val AInntektResponse = (fnrTilAInntektResponse[fnr] ?: AInntektResponse(data = emptyList())).filtrerMaaneder(maanedFom, maanedTom)
-
-                respond(
-                    status = HttpStatusCode.OK,
-                    content = AInntektResponse.serialisertTilString(),
-                    headers = headersOf("Content-Type" to listOf("application/json")),
-                )
             }
+            val AInntektResponse = (fnrTilAInntektResponse[fnr] ?: AInntektResponse(data = emptyList())).filtrerMaaneder(maanedFom, maanedTom)
+
+            respond(
+                status = HttpStatusCode.OK,
+                content = AInntektResponse.serialisertTilString(),
+                headers = headersOf("Content-Type" to listOf("application/json")),
+            )
         }
     }
 
@@ -91,11 +91,12 @@ object AInntektMock {
         configuration: AInntektModule.Configuration = defaultConfiguration,
         tokenUtvekslingProvider: TokenUtvekslingProvider = createDefaultOboClient(),
         fnrTilAInntektResponse: Map<String, AInntektResponse>,
+        forbiddenFødselsnumre: List<String> = emptyList(),
         mockClient: HttpClient? = null,
     ) = AInntektClient(
         configuration = configuration,
         tokenUtvekslingProvider = tokenUtvekslingProvider,
-        httpClient = mockClient ?: ainntektMockHttpClient(configuration, fnrTilAInntektResponse),
+        httpClient = mockClient ?: ainntektMockHttpClient(configuration, fnrTilAInntektResponse, forbiddenFødselsnumre),
     )
 }
 

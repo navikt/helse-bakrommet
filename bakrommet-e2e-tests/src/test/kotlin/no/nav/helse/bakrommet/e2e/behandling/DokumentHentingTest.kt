@@ -1,9 +1,5 @@
 package no.nav.helse.bakrommet.e2e.behandling
 
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
 import no.nav.helse.bakrommet.aareg.AARegMock
 import no.nav.helse.bakrommet.aareg.arbeidsforhold
 import no.nav.helse.bakrommet.aareg.fastAnsettelse
@@ -11,65 +7,45 @@ import no.nav.helse.bakrommet.ainntekt.AInntektMock
 import no.nav.helse.bakrommet.ainntekt.etInntektSvar
 import no.nav.helse.bakrommet.api.dto.dokumenter.DokumentDto
 import no.nav.helse.bakrommet.asJsonNode
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.e2e.TestOppsett
+import no.nav.helse.bakrommet.domain.enAktørId
+import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.runApplicationTest
-import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.e2e.testutils.ApiResult
+import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.*
 import no.nav.helse.bakrommet.objectMapper
 import no.nav.helse.bakrommet.sigrun.client2010to2050
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.util.UUID
+import kotlin.test.assertIs
 
 class DokumentHentingTest {
-    private companion object {
-        const val FNR = "01019012349"
-        const val PERSON_ID = "65hth"
-        val PERSON_PSEUDO_ID = UUID.nameUUIDFromBytes(PERSON_ID.toByteArray())
-    }
+    private val naturligIdent = enNaturligIdent()
 
     @Test
     fun `henter ainntekt dokument`() {
         val fakeInntektForFnrRespons = etInntektSvar()
 
         runApplicationTest(
-            aInntektClient = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = mapOf(FNR to fakeInntektForFnrRespons)),
-        ) { daoer ->
-            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
+            aInntektClient = AInntektMock.aInntektClientMock(fnrTilAInntektResponse = mapOf(naturligIdent.value to fakeInntektForFnrRespons)),
+        ) {
+            val personPseudoId = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode via action
-            val periode =
+            val behandling =
                 opprettBehandling(
-                    PERSON_PSEUDO_ID,
+                    personPseudoId,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent ainntekt dokument
-            client
-                .post("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/dokumenter/ainntekt/hent-8-28") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody("""{ "fom" : "2022-08", "tom" : "2022-11" }""")
-                }.let { postResponse ->
-                    val location = postResponse.headers["Location"]!!
-                    val jsonPostResponse = postResponse.body<DokumentDto>()
-                    assertEquals("ainntekt828", jsonPostResponse.dokumentType)
 
-                    assertEquals(201, postResponse.status.value)
-                    // Mocken filtrerer og konverterer til A-Inntekt API format, så vi sjekker at innholdet er en gyldig JsonNode
-
-                    // Verifiser at dokumentet kan hentes via location-header
-                    client
-                        .get(location) {
-                            bearerAuth(TestOppsett.userToken)
-                        }.let { getResponse ->
-                            assertEquals(200, getResponse.status.value)
-                            val jsonGetResponse = getResponse.body<DokumentDto>()
-                            assertEquals(jsonPostResponse, jsonGetResponse)
-                        }
-                }
+            val postResponse = hentAInntektDokument(personPseudoId, behandling.id)
+            assertIs<ApiResult.Success<DokumentDto>>(postResponse)
+            val getResponse = hentDokument(personPseudoId, behandling.id, postResponse.response.id)
+            assertEquals(postResponse.response, getResponse)
         }
     }
 
@@ -77,35 +53,24 @@ class DokumentHentingTest {
     fun `403 fra Inntektskomponenten gir 403 videre med feilbeskrivelse`() =
         runApplicationTest(
             aInntektClient =
-                AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap()),
+                AInntektMock.aInntektClientMock(fnrTilAInntektResponse = emptyMap(), forbiddenFødselsnumre = listOf(naturligIdent.value)),
         ) {
-            val personIdForbidden = "ab403"
-            val personPseudoIdForbidden = UUID.nameUUIDFromBytes(personIdForbidden.toByteArray())
-            it.personPseudoIdDao.opprettPseudoId(personPseudoIdForbidden, NaturligIdent("01019000" + "403"))
+            val personPseudoId = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode via action
-            val periode =
+            val behandling =
                 opprettBehandling(
-                    personPseudoIdForbidden.toString(),
+                    personPseudoId,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent ainntekt dokument
-            client
-                .post("/v1/$personPseudoIdForbidden/behandlinger/${periode.id}/dokumenter/ainntekt/hent-8-28") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                    setBody("""{ "fom" : "2024-05", "tom" : "2025-06" }""")
-                }.apply {
-                    assertEquals(403, status.value)
-                    assertEquals(
-                        """
-                    {"type":"about:blank","title":"Ingen tilgang","status":403,"detail":"Ikke tilstrekkelig tilgang i A-Inntekt","instance":null}
-                """.asJsonNode(),
-                        bodyAsText().asJsonNode(),
-                    )
-                }
+            val result = hentAInntektDokument(personPseudoId, behandling.id)
+            assertIs<ApiResult.Error>(result)
+            assertEquals("Ingen tilgang", result.problemDetails.title)
+            assertEquals("Ikke tilstrekkelig tilgang i A-Inntekt", result.problemDetails.detail)
+            assertEquals(403, result.problemDetails.status)
         }
 
     @Test
@@ -113,15 +78,15 @@ class DokumentHentingTest {
         val fakeAARegForFnrRespons =
             listOf(
                 arbeidsforhold(
-                    fnr = FNR,
-                    orgnummer = "999444333",
+                    fnr = naturligIdent.value,
+                    orgnummer = etOrganisasjonsnummer(),
                     startdato = LocalDate.parse("2014-01-01"),
                     stillingsprosent = 100.0,
                     ansettelsesform = fastAnsettelse(),
                     navArbeidsforholdId = 12345,
                 ) {
-                    aktorId("1111122222333")
-                    opplysningspliktig("888777666")
+                    aktorId(enAktørId())
+                    opplysningspliktig(etOrganisasjonsnummer())
                     yrke("1231119", "KONTORLEDER")
                     arbeidstidsordning("ikkeSkift", "Ikke skift")
                     rapporteringsmaaneder("2019-11", null)
@@ -131,54 +96,36 @@ class DokumentHentingTest {
         val forventetJsonNode = objectMapper.writeValueAsString(fakeAARegForFnrRespons).asJsonNode()
 
         runApplicationTest(
-            aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = mapOf(FNR to fakeAARegForFnrRespons)),
-        ) { daoer ->
-            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
+            aaRegClient = AARegMock.aaRegClientMock(fnrTilArbeidsforhold = mapOf(naturligIdent.value to fakeAARegForFnrRespons)),
+        ) {
+            val personPseudoId = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode via action
-            val periode =
+            val behandling =
                 opprettBehandling(
-                    PERSON_PSEUDO_ID,
+                    personPseudoId,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent arbeidsforhold dokument
-            client
-                .post("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/dokumenter/arbeidsforhold/hent") {
-                    bearerAuth(TestOppsett.userToken)
-                }.let { postResponse ->
-                    val location = postResponse.headers["Location"]!!
-                    val jsonPostResponse = postResponse.body<DokumentDto>()
-                    assertEquals("arbeidsforhold", jsonPostResponse.dokumentType)
-
-                    assertEquals(201, postResponse.status.value)
-                    assertEquals(forventetJsonNode, jsonPostResponse.innhold)
-
-                    // Verifiser at dokumentet kan hentes via location-header
-                    client
-                        .get(location) {
-                            bearerAuth(TestOppsett.userToken)
-                        }.let { getResponse ->
-                            assertEquals(200, getResponse.status.value)
-                            val jsonGetResponse = getResponse.body<DokumentDto>()
-                            assertEquals(jsonPostResponse, jsonGetResponse)
-                        }
-                }
+            val postResponse = hentArbeidsforholdDokument(personPseudoId, behandling.id)
+            assertIs<ApiResult.Success<DokumentDto>>(postResponse)
+            assertEquals(forventetJsonNode, postResponse.response.innhold)
+            val getResponse = hentDokument(personPseudoId, behandling.id, postResponse.response.id)
+            assertEquals(postResponse.response, getResponse)
         }
     }
 
     @Test
     fun `403 fra AA-reg gir 403 videre med feilbeskrivelse`() =
         runApplicationTest(
-            aaRegClient = AARegMock.aaRegClientMock(),
+            aaRegClient = AARegMock.aaRegClientMock(forbiddenFødselsnumre = listOf(naturligIdent.value)),
         ) {
-            val personIdForbidden = "ab403"
-            val personPseudoIdForbidden = UUID.nameUUIDFromBytes(personIdForbidden.toByteArray())
-            it.personPseudoIdDao.opprettPseudoId(personPseudoIdForbidden, NaturligIdent("01019000" + "403"))
+            val personPseudoIdForbidden = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode via action
-            val periode =
+            val behandling =
                 opprettBehandling(
                     personPseudoIdForbidden.toString(),
                     LocalDate.parse("2023-01-01"),
@@ -186,60 +133,39 @@ class DokumentHentingTest {
                 )
 
             // Hent arbeidsforhold dokument
-            client
-                .post("/v1/$personPseudoIdForbidden/behandlinger/${periode.id}/dokumenter/arbeidsforhold/hent") {
-                    bearerAuth(TestOppsett.userToken)
-                }.apply {
-                    assertEquals(403, status.value)
-                    assertEquals(
-                        """
-                    {"type":"about:blank","title":"Ingen tilgang","status":403,"detail":"Ikke tilstrekkelig tilgang i AA-REG","instance":null}
-                """.asJsonNode(),
-                        bodyAsText().asJsonNode(),
-                    )
-                }
+            val response = hentArbeidsforholdDokument(personPseudoIdForbidden, behandling.id)
+            assertIs<ApiResult.Error>(response)
+            assertEquals("Ingen tilgang", response.problemDetails.title)
+            assertEquals("Ikke tilstrekkelig tilgang i AA-REG", response.problemDetails.detail)
+            assertEquals(403, response.problemDetails.status)
         }
 
     @Test
     fun `henter pensjonsgivende inntekt dokument`() {
         runApplicationTest(
-            pensjonsgivendeInntektProvider = client2010to2050(FNR),
-        ) { daoer ->
-            daoer.personPseudoIdDao.opprettPseudoId(PERSON_PSEUDO_ID, NaturligIdent(FNR))
+            pensjonsgivendeInntektProvider = client2010to2050(naturligIdent.value),
+        ) {
+            val personPseudoId = personsøk(naturligIdent)
 
             // Opprett saksbehandlingsperiode via action
-            val periode =
+            val behandling =
                 opprettBehandling(
-                    PERSON_PSEUDO_ID,
+                    personPseudoId,
                     LocalDate.parse("2023-01-01"),
                     LocalDate.parse("2023-01-31"),
                 )
 
             // Hent pensjonsgivendeinntekt dokument
-            client
-                .post("/v1/${PERSON_PSEUDO_ID}/behandlinger/${periode.id}/dokumenter/pensjonsgivendeinntekt/hent") {
-                    bearerAuth(TestOppsett.userToken)
-                    contentType(ContentType.Application.Json)
-                }.let { postResponse ->
-                    val location = postResponse.headers["Location"]!!
-                    val jsonPostResponse = postResponse.body<DokumentDto>()
-                    assertEquals("pensjonsgivendeinntekt", jsonPostResponse.dokumentType)
-
-                    assertEquals(201, postResponse.status.value)
-
-                    val data = jsonPostResponse.innhold
-                    assertEquals(setOf(2022, 2021, 2020), data.map { it["inntektsaar"].asInt() }.toSet())
-
-                    // Verifiser at dokumentet kan hentes via location-header
-                    client
-                        .get(location) {
-                            bearerAuth(TestOppsett.userToken)
-                        }.let { getResponse ->
-                            assertEquals(200, getResponse.status.value)
-                            val jsonGetResponse = getResponse.body<DokumentDto>()
-                            assertEquals(jsonPostResponse, jsonGetResponse)
-                        }
-                }
+            val postResponse = hentPersonsgivendeInntektDokument(personPseudoId, behandling.id)
+            assertIs<ApiResult.Success<DokumentDto>>(postResponse)
+            assertEquals(
+                setOf(2022, 2021, 2020),
+                postResponse.response.innhold
+                    .map { it["inntektsaar"].asInt() }
+                    .toSet(),
+            )
+            val getResponse = hentDokument(personPseudoId, behandling.id, postResponse.response.id)
+            assertEquals(postResponse.response, getResponse)
         }
     }
 }
