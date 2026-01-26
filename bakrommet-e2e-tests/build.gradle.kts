@@ -35,6 +35,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":bakrommet-db")))
     testImplementation(testFixtures(project(":bakrommet-services")))
+    testImplementation(testFixtures(project(":bakrommet-domain")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-inntektsmelding")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-ainntekt")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-aareg")))

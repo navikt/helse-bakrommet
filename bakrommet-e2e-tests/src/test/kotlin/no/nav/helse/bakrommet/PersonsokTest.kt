@@ -55,7 +55,7 @@ class PersonsokTest {
                     contentType(ContentType.Application.Json)
                     setBody(
                         """
-                        { "ident": "99999999999" }
+                        { "ident": "40440499999" }
                         """.trimIndent(),
                     )
                     bearerAuth(TestOppsett.userToken)

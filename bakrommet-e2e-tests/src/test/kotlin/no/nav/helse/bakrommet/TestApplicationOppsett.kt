@@ -29,6 +29,7 @@ import no.nav.helse.bakrommet.kafka.OutboxDao
 import no.nav.helse.bakrommet.obo.OboModule
 import no.nav.helse.bakrommet.obo.OboTestSetup
 import no.nav.helse.bakrommet.pdl.PdlMock
+import no.nav.helse.bakrommet.pdl.pdlReplyGenerator
 import no.nav.helse.bakrommet.person.PersonPseudoIdDao
 import no.nav.helse.bakrommet.sigrun.SigrunClientModule
 import no.nav.helse.bakrommet.sigrun.SigrunMock
@@ -114,7 +115,7 @@ class Daoer(
 fun runApplicationTest(
     config: Configuration = TestOppsett.configuration,
     dataSource: DataSource = instansierDatabase(config.db),
-    pdlClient: PersoninfoProvider = PdlMock.pdlClient(),
+    pdlClient: PersoninfoProvider = PdlMock.pdlClient(pdlReplyGenerator = pdlReplyGenerator),
     resetDatabase: Boolean = true,
     sykepengesøknadProvider: SykepengesøknadProvider = SykepengesoknadMock.sykepengersoknadBackendClientMock(tokenUtvekslingProvider = TestOppsett.oboClient),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),

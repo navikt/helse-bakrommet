@@ -8,4 +8,6 @@ dependencies {
 
     testFixturesImplementation(project(":bakrommet-clients:bakrommet-client-common"))
     testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-common")))
+    testFixturesImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-common")))
+    testFixturesImplementation("io.github.serpro69:kotlin-faker:1.16.0")
 }

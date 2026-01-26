@@ -8,6 +8,7 @@ import no.nav.helse.bakrommet.infrastruktur.provider.AInntektResponse
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock
 import no.nav.helse.bakrommet.inntektsmelding.InntektsmeldingApiMock.inntektsmeldingMockHttpClient
 import no.nav.helse.bakrommet.pdl.PdlMock
+import no.nav.helse.bakrommet.pdl.pdlReplyGenerator
 import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadBackendMock.sykepengesoknadMock
 import no.nav.helse.bakrommet.testdata.Testperson

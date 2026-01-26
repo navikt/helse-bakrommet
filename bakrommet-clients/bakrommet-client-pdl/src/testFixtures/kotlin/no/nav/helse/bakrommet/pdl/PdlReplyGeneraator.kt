@@ -1,15 +1,14 @@
-package no.nav.helse.bakrommet.mockproviders
+package no.nav.helse.bakrommet.pdl
 
 import io.github.serpro69.kfaker.Faker
 import io.github.serpro69.kfaker.fakerConfig
-import no.nav.helse.bakrommet.pdl.PdlMock
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Random
 
 val pdlReplyGenerator: (String) -> String? = { ident ->
-    // Hvis fnr starter med 1, 2 eller 3, generer data med faker
-    if (ident.firstOrNull()?.toString() in listOf("1", "2", "3")) {
+    // Hvis fnr ikke starter med 404404
+    if (!ident.startsWith("404404")) {
         // Seed faker fra fnr for konsistent generering
         val seed = ident.hashCode().toLong()
         val config =

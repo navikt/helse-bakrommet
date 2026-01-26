@@ -1,94 +1,66 @@
 package no.nav.helse.bakrommet.behandling
 
-import io.ktor.client.call.body
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import no.nav.helse.bakrommet.*
-import no.nav.helse.bakrommet.api.dto.behandling.BehandlingDto
-import no.nav.helse.bakrommet.domain.person.NaturligIdent
-import no.nav.helse.bakrommet.somListe
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.hentAllePerioder
-import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.opprettBehandling
+import no.nav.helse.bakrommet.domain.enNaturligIdent
+import no.nav.helse.bakrommet.runApplicationTest
+import no.nav.helse.bakrommet.testutils.saksbehandlerhandlinger.*
 import no.nav.helse.bakrommet.testutils.`should equal`
 import no.nav.helse.bakrommet.testutils.tidsstuttet
+import no.nav.helse.januar
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.util.UUID
 
 class BehandlingTest {
-    private companion object {
-        val fnr = "01019012349"
-        val personId = "65hth"
-        val personPseudoId = UUID.nameUUIDFromBytes(personId.toByteArray())
-    }
-
     @Test
-    fun `oppretter saksbehandlingsperiode`() =
+    fun `oppretter behandling`() =
         runApplicationTest {
-            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+            val naturligIdent = enNaturligIdent()
+            val personPseudoId = personsøk(naturligIdent)
 
-            // Opprett saksbehandlingsperiode via action
-            val saksbehandlingsperiode =
+            val behandling =
                 opprettBehandling(
-                    personPseudoId.toString(),
-                    LocalDate.parse("2023-01-01"),
-                    LocalDate.parse("2023-01-31"),
+                    personPseudoId,
+                    1.januar(2023),
+                    31.januar(2023),
                 )
-            saksbehandlingsperiode.fom.toString() `should equal` "2023-01-01"
-            saksbehandlingsperiode.tom.toString() `should equal` "2023-01-31"
-            saksbehandlingsperiode.naturligIdent `should equal` fnr
-            saksbehandlingsperiode.opprettetAvNavIdent `should equal` "tullebruker"
-            saksbehandlingsperiode.opprettetAvNavn `should equal` "Tulla Bruker"
+            behandling.fom.toString() `should equal` "2023-01-01"
+            behandling.tom.toString() `should equal` "2023-01-31"
+            behandling.naturligIdent `should equal` naturligIdent.value
+            behandling.opprettetAvNavIdent `should equal` "tullebruker"
+            behandling.opprettetAvNavn `should equal` "Tulla Bruker"
 
             // Hent alle perioder via action
             val perioder = hentAllePerioder(personPseudoId)
             perioder.size `should equal` 1
-            perioder `should equal` listOf(saksbehandlingsperiode)
+            perioder `should equal` listOf(behandling)
             println(perioder)
         }
 
     @Test
-    fun `henter alle perioder uten filter eller paginering`() {
+    fun `henter alle behandlinger uten filter eller paginering`() {
         runApplicationTest {
-            val fnr2 = "02029200000"
-            val personId2 = "2ndnd"
-            val personPseudoId2 = UUID.nameUUIDFromBytes(personId2.toByteArray())
-            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
-            it.personPseudoIdDao.opprettPseudoId(personPseudoId2, NaturligIdent(fnr2))
+            val naturligIdent = enNaturligIdent()
+            val personPseudoId = personsøk(naturligIdent)
 
-            suspend fun lagPeriodePåPerson(personPseudoId: UUID) =
-                client
-                    .post("/v1/$personPseudoId/behandlinger") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            """
-                            { "fom": "2023-01-01", "tom": "2023-01-31" }
-                            """.trimIndent(),
-                        )
-                    }.body<BehandlingDto>()
-            val periode1 =
-                lagPeriodePåPerson(personPseudoId).also {
-                    assertEquals(fnr, it.naturligIdent)
-                }
-            val periode2 =
-                lagPeriodePåPerson(personPseudoId2).also {
-                    assertEquals(fnr2, it.naturligIdent)
-                }
+            val naturligIdent2 = enNaturligIdent()
+            val personPseudoId2 = personsøk(naturligIdent2)
 
-            val absoluttAllePerioder: List<BehandlingDto> =
-                client
-                    .get("/v1/behandlinger") {
-                        bearerAuth(TestOppsett.userToken)
-                    }.let { resp ->
-                        assertEquals(200, resp.status.value)
-                        resp.bodyAsText().somListe()
-                    }
+            val behandling1 =
+                opprettBehandling(
+                    personPseudoId,
+                    1.januar(2023),
+                    31.januar(2023),
+                )
+            val behandling2 =
+                opprettBehandling(
+                    personPseudoId2,
+                    1.januar(2023),
+                    31.januar(2023),
+                )
+
+            val alleBehandlinger = hentAlleBehandlinger()
             assertEquals(
-                listOf(periode1, periode2).tidsstuttet().toSet(),
-                absoluttAllePerioder.tidsstuttet().toSet(),
+                listOf(behandling1, behandling2).tidsstuttet().toSet(),
+                alleBehandlinger.tidsstuttet().toSet(),
             )
         }
     }
@@ -96,33 +68,18 @@ class BehandlingTest {
     @Test
     fun `kan oppdatere skjæringstidspunkt`() =
         runApplicationTest {
-            it.personPseudoIdDao.opprettPseudoId(personPseudoId, NaturligIdent(fnr))
+            val naturligIdent = enNaturligIdent()
+            val personPseudoId = personsøk(naturligIdent)
             val opprettetPeriode =
-                client
-                    .post("/v1/$personPseudoId/behandlinger") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            """
-                            { "fom": "2023-01-01", "tom": "2023-01-31" }
-                            """.trimIndent(),
-                        )
-                    }.body<BehandlingDto>()
+                opprettBehandling(
+                    personPseudoId,
+                    1.januar(2023),
+                    31.januar(2023),
+                )
 
-            // Oppdater skjæringstidspunkt
-            val nyttSkjæringstidspunkt = "2023-01-15"
-            val oppdatertPeriode =
-                client
-                    .put("/v1/$personPseudoId/behandlinger/${opprettetPeriode.id}/skjaeringstidspunkt") {
-                        bearerAuth(TestOppsett.userToken)
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            """
-                            { "skjaeringstidspunkt": "$nyttSkjæringstidspunkt" }
-                            """.trimIndent(),
-                        )
-                    }.body<BehandlingDto>()
+            val nyttSkjæringstidspunkt = 15.januar(2023)
+            val oppdatertPeriode = settSkjaeringstidspunkt(personPseudoId.toString(), opprettetPeriode.id, nyttSkjæringstidspunkt)
 
-            assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt.toString())
+            assertEquals(nyttSkjæringstidspunkt, oppdatertPeriode.skjæringstidspunkt)
         }
 }
