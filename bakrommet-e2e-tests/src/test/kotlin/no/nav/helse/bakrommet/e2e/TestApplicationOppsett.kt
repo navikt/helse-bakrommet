@@ -1,6 +1,5 @@
 package no.nav.helse.bakrommet.e2e
 
-import com.zaxxer.hikari.HikariConfig
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.serialization.jackson.JacksonConverter
@@ -18,6 +17,7 @@ import no.nav.helse.bakrommet.auth.OAuthScope
 import no.nav.helse.bakrommet.client.common.ApplicationConfig
 import no.nav.helse.bakrommet.createServices
 import no.nav.helse.bakrommet.db.DBModule
+import no.nav.helse.bakrommet.db.ModuleIsolatedDbTestFixture
 import no.nav.helse.bakrommet.db.skapDbDaoer
 import no.nav.helse.bakrommet.e2e.auth.OAuthMock
 import no.nav.helse.bakrommet.ereg.EregMock
@@ -33,15 +33,15 @@ import no.nav.helse.bakrommet.sigrun.SigrunMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesoknadMock
 import no.nav.helse.bakrommet.sykepengesoknad.SykepengesøknadBackendClientModule
 import javax.sql.DataSource
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
+
+object E2EDbTestFixture : ModuleIsolatedDbTestFixture("e2e")
 
 object TestOppsett {
     val oAuthMock = OAuthMock()
 
     val configuration =
         Configuration(
-            db = DBModule.Configuration(jdbcUrl = TestDataSource.dbModule.jdbcUrl),
+            db = DBModule.Configuration(jdbcUrl = E2EDbTestFixture.module.jdbcUrl),
             obo = OboModule.Configuration(url = "OBO-url"),
             pdl = PdlMock.defaultConfiguration,
             api =
@@ -92,9 +92,8 @@ object TestOppsett {
 
 fun runApplicationTest(
     config: Configuration = TestOppsett.configuration,
-    dataSource: DataSource = instansierDatabase(config.db),
+    dataSource: DataSource = E2EDbTestFixture.module.dataSource,
     pdlClient: PersoninfoProvider = PdlMock.pdlClient(pdlReplyGenerator = pdlReplyGenerator),
-    resetDatabase: Boolean = true,
     sykepengesøknadProvider: SykepengesøknadProvider = SykepengesoknadMock.sykepengersoknadBackendClientMock(tokenUtvekslingProvider = TestOppsett.oboClient),
     aaRegClient: AARegClient = AARegMock.aaRegClientMock(),
     aInntektClient: AInntektClient =
@@ -105,9 +104,6 @@ fun runApplicationTest(
     testBlock: suspend ApplicationTestBuilder.() -> Unit,
 ): Unit =
     testApplication {
-        if (resetDatabase) {
-            TestDataSource.resetDatasource()
-        }
         val db = skapDbDaoer(dataSource)
 
         application {
@@ -137,19 +133,4 @@ fun runApplicationTest(
             }
 
         testBlock()
-    }
-
-// Manglende funksjoner fra App.kt
-internal fun instansierDatabase(configuration: DBModule.Configuration) = DBModule(configuration = configuration, ::testHikariConfigurator).also { it.migrate() }.dataSource
-
-private fun testHikariConfigurator(configuration: DBModule.Configuration) =
-    HikariConfig().apply {
-        jdbcUrl = configuration.jdbcUrl
-        maximumPoolSize = 2
-        minimumIdle = 1
-        idleTimeout = 10.seconds.inWholeMilliseconds
-        maxLifetime = idleTimeout * 5
-        initializationFailTimeout = 1.minutes.inWholeMilliseconds
-        connectionTimeout = 5.seconds.inWholeMilliseconds
-        leakDetectionThreshold = 30.seconds.inWholeMilliseconds
     }

@@ -41,5 +41,3 @@ open class ModuleIsolatedDbTestFixture(
         }
     }
 }
-
-object DBTestFixture : ModuleIsolatedDbTestFixture("default")

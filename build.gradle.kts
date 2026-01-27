@@ -58,12 +58,12 @@ subprojects {
                     showStackTraces = true
                     exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
                 }
-                maxParallelForks =
-                    if (System.getenv("CI") == "true") {
-                        (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
-                    } else {
-                        1
-                    }
+//                maxParallelForks =
+//                    if (true) {
+//                        (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+//                    } else {
+//                        1
+//                    }
             }
         }
     }

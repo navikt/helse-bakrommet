@@ -57,7 +57,9 @@ class BehandlingTest {
                     31.januar(2023),
                 )
 
-            val alleBehandlinger = hentAlleBehandlinger()
+            val alleBehandlinger =
+                hentAlleBehandlinger()
+                    .filter { it.naturligIdent in listOf(naturligIdent.value, naturligIdent2.value) }
             assertEquals(
                 listOf(behandling1, behandling2).tidsstuttet().toSet(),
                 alleBehandlinger.tidsstuttet().toSet(),

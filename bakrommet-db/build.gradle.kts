@@ -36,10 +36,10 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
     testImplementation(testFixtures(project(":bakrommet-domain")))
 
-    testFixturesImplementation("org.testcontainers:postgresql")
-    testFixturesImplementation("com.zaxxer:HikariCP")
-    testFixturesImplementation("org.postgresql:postgresql")
-    testFixturesImplementation("org.flywaydb:flyway-core")
-    testFixturesImplementation("org.flywaydb:flyway-database-postgresql")
-    testFixturesImplementation("com.github.seratch:kotliquery")
+    testFixturesApi("org.testcontainers:postgresql")
+    testFixturesApi("com.zaxxer:HikariCP")
+    testFixturesApi("org.postgresql:postgresql")
+    testFixturesApi("org.flywaydb:flyway-core")
+    testFixturesApi("org.flywaydb:flyway-database-postgresql")
+    testFixturesApi("com.github.seratch:kotliquery")
 }

@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.tidslinje.TidslinjeBehandlingStatus
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.*
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.*
 import org.junit.jupiter.api.Test
@@ -11,7 +12,7 @@ class RevurderingTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { scenarioData ->
             val forsteOppdrag = scenarioData.utbetalingsberegning!!.beregningData.spilleromOppdrag
@@ -53,7 +54,7 @@ class RevurderingTest {
 
             opprinneligUtbetaling.spilleromUtbetalingId `should equal` revurderendeUtbetaling.spilleromUtbetalingId
 
-            hentAlleBehandlinger(personId).also {
+            hentAlleBehandlinger(personId).sortedByDescending { it.opprettet }.also {
                 it.size `should equal` 2
                 it.last().status `should equal` TidslinjeBehandlingStatus.REVURDERT
                 it.last().revurdertAvBehandlingId `should equal` it.first().id
