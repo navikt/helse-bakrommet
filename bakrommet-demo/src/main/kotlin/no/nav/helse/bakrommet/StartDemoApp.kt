@@ -26,6 +26,8 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VilkårsvurderingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.VurdertVilkår
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Sykefraværstilfelle
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntekt
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.TilkommenInntektId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Yrkesaktivitetsperiode
@@ -35,6 +37,7 @@ import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.infrastruktur.db.DbDaoer
 import no.nav.helse.bakrommet.mockproviders.skapProviders
 import no.nav.helse.bakrommet.repository.BehandlingRepository
+import no.nav.helse.bakrommet.repository.SykefraværstilfelleRepository
 import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
 import no.nav.helse.bakrommet.repository.YrkesaktivitetsperiodeRepository
@@ -118,6 +121,16 @@ class FakeDaoer : AlleDaoer {
             }
 
             override fun finnFor(behandlingId: BehandlingId): List<TilkommenInntekt> = tilkomneInntekter.filter { it.behandlingId == behandlingId }
+        }
+    override val sykefraværstilfelleRepository =
+        object : SykefraværstilfelleRepository {
+            private val sykefraværstilfeller = ConcurrentHashMap<SykefraværstilfelleId, Sykefraværstilfelle>()
+
+            override fun lagre(sykefraværstilfelle: Sykefraværstilfelle) {
+                sykefraværstilfeller[sykefraværstilfelle.id] = sykefraværstilfelle
+            }
+
+            override fun finn(sykefraværstilfelleId: SykefraværstilfelleId): Sykefraværstilfelle? = sykefraværstilfeller[sykefraværstilfelleId]
         }
 
     override val behandlingEndringerDao = BehandlingEndringerDaoFake()
