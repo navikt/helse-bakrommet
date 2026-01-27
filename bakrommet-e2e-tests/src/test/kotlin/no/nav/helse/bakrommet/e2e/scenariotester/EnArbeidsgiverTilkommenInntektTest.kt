@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.e2e.scenariotester
 import io.ktor.http.HttpStatusCode
 import no.nav.helse.bakrommet.api.dto.tidslinje.TilkommenInntektYrkesaktivitetTypeDto
 import no.nav.helse.bakrommet.api.dto.tilkommen.OpprettTilkommenInntektRequestDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
 import no.nav.helse.bakrommet.e2e.testutils.SkjønnsfastsattManglendeRapportering
@@ -23,7 +24,7 @@ class EnArbeidsgiverTilkommenInntektTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        etOrganisasjonsnummer(),
                         inntekt = SkjønnsfastsattManglendeRapportering(260000.0),
                         dagoversikt = SykAlleDager(),
                     ),
@@ -36,13 +37,14 @@ class EnArbeidsgiverTilkommenInntektTest {
 
             val personId = førsteBehandling.scenario.pseudoId
             val behandlingId = førsteBehandling.behandling.id
+            val tilkommenInntektOrganisasjonsnummer = etOrganisasjonsnummer()
             val tilkommen =
                 leggTilTilkommenInntekt(
                     behandlingId = behandlingId,
                     personId = personId,
                     tilkommenInntekt =
                         OpprettTilkommenInntektRequestDto(
-                            ident = "999444555",
+                            ident = tilkommenInntektOrganisasjonsnummer,
                             fom = 4.januar(2021),
                             tom = 10.januar(2021),
                             yrkesaktivitetType = TilkommenInntektYrkesaktivitetTypeDto.VIRKSOMHET,
@@ -66,7 +68,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                     behandlingMedTilkommen.tilkommenInntekt.size `should equal` 1
                     val tilkommenInntektDto = behandlingMedTilkommen.tilkommenInntekt.first()
                     tilkommenInntektDto.id `should equal` tilkommen.id
-                    tilkommenInntektDto.ident `should equal` "999444555"
+                    tilkommenInntektDto.ident `should equal` tilkommenInntektOrganisasjonsnummer
                     tilkommenInntektDto.fom `should equal` 4.januar(2021)
                     tilkommenInntektDto.tom `should equal` 10.januar(2021)
                     tilkommenInntektDto.yrkesaktivitetType `should equal` TilkommenInntektYrkesaktivitetTypeDto.VIRKSOMHET
@@ -81,7 +83,7 @@ class EnArbeidsgiverTilkommenInntektTest {
                 personId = personId,
                 tilkommenInntekt =
                     OpprettTilkommenInntektRequestDto(
-                        ident = "999444555",
+                        ident = tilkommenInntektOrganisasjonsnummer,
                         fom = 4.januar(1028),
                         tom = 10.januar(4000),
                         yrkesaktivitetType = TilkommenInntektYrkesaktivitetTypeDto.VIRKSOMHET,

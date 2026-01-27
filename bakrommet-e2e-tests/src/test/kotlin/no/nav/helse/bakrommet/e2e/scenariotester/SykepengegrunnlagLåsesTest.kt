@@ -1,5 +1,6 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
@@ -14,7 +15,7 @@ class SykepengegrunnlagLåsesTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder {
             val spg = hentSykepengegrunnlag(it.scenario.pseudoId, it.behandling.id)

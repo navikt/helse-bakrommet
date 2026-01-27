@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.e2e.scenariotester
 import no.nav.helse.bakrommet.api.dto.validering.ValideringDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VilkaarsvurderingDto
 import no.nav.helse.bakrommet.api.dto.vilkaar.VurderingDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
@@ -17,7 +18,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder { scenarioData ->
@@ -34,7 +35,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
             vilkår =
                 listOf(
@@ -69,7 +70,7 @@ class OpptjeningIkkeOkMenIkkeVurdert847 {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
             vilkår =
                 listOf(

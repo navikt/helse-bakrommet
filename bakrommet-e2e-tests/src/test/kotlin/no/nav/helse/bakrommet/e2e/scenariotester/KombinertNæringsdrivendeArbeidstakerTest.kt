@@ -2,12 +2,14 @@ package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.BeregningskoderSykepengegrunnlag.SELVSTENDIG_SYKEPENGEGRUNNLAG_HOVEDREGEL
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.SelvstendigForsikringDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.*
 import kotlin.test.Test
 
 class KombinertNæringsdrivendeArbeidstakerTest {
     @Test
     fun `kombinert selvstendig næringsdrivende og arbeidstaker`() {
+        val organisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             listOf(
                 Selvstendig(
@@ -15,7 +17,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
                     inntekt = SigrunInntekt(700000, 900000, 1000000),
                     dagoversikt = SykAlleDager(),
                 ),
-                Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                Arbeidstaker(organisasjonsnummer, inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
@@ -34,7 +36,7 @@ class KombinertNæringsdrivendeArbeidstakerTest {
                     inntekt = SigrunInntekt(700000, 900000, 1000000),
                     dagoversikt = SykAlleDager(),
                 ),
-                Arbeidstaker("988888888", inntekt = AInntekt(70000, 70000, 70000), dagoversikt = SykAlleDager()),
+                Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(70000, 70000, 70000), dagoversikt = SykAlleDager()),
             ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)

@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.OpprettSykepengegrunnlagRequest
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
 import no.nav.helse.bakrommet.e2e.testutils.SykAlleDager
@@ -19,7 +20,7 @@ class FrihåndSykepengrunnlagArbeidsgiverTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        etOrganisasjonsnummer(),
                         inntekt = null,
                         dagoversikt = SykAlleDager(),
                     ),

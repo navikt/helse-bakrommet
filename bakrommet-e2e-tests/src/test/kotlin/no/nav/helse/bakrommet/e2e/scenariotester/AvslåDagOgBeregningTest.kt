@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.e2e.scenariotester
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.KildeDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.GradertSyk
 import no.nav.helse.bakrommet.e2e.testutils.Inntektsmelding
@@ -25,7 +26,7 @@ class AvslåDagOgBeregningTest {
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        etOrganisasjonsnummer(),
                         inntekt = Inntektsmelding(520000.0 / 12),
                         dagoversikt = GradertSyk(50),
                     ),

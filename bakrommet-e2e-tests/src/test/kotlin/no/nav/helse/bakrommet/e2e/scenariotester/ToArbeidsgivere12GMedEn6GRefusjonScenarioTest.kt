@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.Grunnbeløp
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Inntektsmelding
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
@@ -14,11 +15,13 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
     fun `to arbeidsgivere med 6g hvor den ene refunderer 6g`() {
         val seksG = Grunnbeløp.`6G`.beløp(ScenarioDefaults.fom)
 
+        val organisasjonsnummer = etOrganisasjonsnummer()
+        val etAnnetOrganisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        organisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 beregnetInntekt = seksG.månedlig,
@@ -31,12 +34,12 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
-                    Arbeidstaker("999999999", inntekt = Inntektsmelding(seksG.månedlig), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etAnnetOrganisasjonsnummer, inntekt = Inntektsmelding(seksG.månedlig), dagoversikt = SykAlleDager()),
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(28620, orgnummer = "988888888")
-            `skal ha refusjon`(0, orgnummer = "999999999")
+            `skal ha refusjon`(28620, orgnummer = organisasjonsnummer)
+            `skal ha refusjon`(0, orgnummer = etAnnetOrganisasjonsnummer)
             `skal ha direkteutbetaling`(0)
         }
     }
@@ -45,11 +48,13 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
     fun `to arbeidsgivere med 6g hvor den ene refunderer 9g`() {
         val seksG = Grunnbeløp.`6G`.beløp(ScenarioDefaults.fom)
 
+        val organisasjonsnummer = etOrganisasjonsnummer()
+        val etAnnetOrganisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        organisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -62,12 +67,12 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                             ),
                         dagoversikt = SykAlleDager(),
                     ),
-                    Arbeidstaker("999999999", inntekt = Inntektsmelding(seksG.månedlig), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etAnnetOrganisasjonsnummer, inntekt = Inntektsmelding(seksG.månedlig), dagoversikt = SykAlleDager()),
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(28620, orgnummer = "988888888")
-            `skal ha refusjon`(0, orgnummer = "999999999")
+            `skal ha refusjon`(28620, orgnummer = organisasjonsnummer)
+            `skal ha refusjon`(0, orgnummer = etAnnetOrganisasjonsnummer)
             `skal ha direkteutbetaling`(0)
         }
     }
@@ -76,11 +81,13 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
     fun `to arbeidsgivere med 6g hvor den ene refunderer 6g den andre 3g`() {
         val seksG = Grunnbeløp.`6G`.beløp(ScenarioDefaults.fom)
 
+        val organisasjonsnummer = etOrganisasjonsnummer()
+        val etAnnetOrganisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        organisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -90,7 +97,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         dagoversikt = SykAlleDager(),
                     ),
                     Arbeidstaker(
-                        "999999999",
+                        etAnnetOrganisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -102,8 +109,8 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(19080, orgnummer = "988888888")
-            `skal ha refusjon`(9540, orgnummer = "999999999")
+            `skal ha refusjon`(19080, orgnummer = organisasjonsnummer)
+            `skal ha refusjon`(9540, orgnummer = etAnnetOrganisasjonsnummer)
             `skal ha direkteutbetaling`(0)
         }
     }
@@ -112,11 +119,13 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
     fun `to arbeidsgivere med 6g hvor den ene refunderer 9g og den andre 3g`() {
         val seksG = Grunnbeløp.`6G`.beløp(ScenarioDefaults.fom)
 
+        val organisasjonsnummer = etOrganisasjonsnummer()
+        val etAnnetOrganisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        organisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -130,7 +139,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         dagoversikt = SykAlleDager(),
                     ),
                     Arbeidstaker(
-                        "999999999",
+                        etAnnetOrganisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -142,8 +151,8 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(19080, orgnummer = "988888888")
-            `skal ha refusjon`(9540, orgnummer = "999999999")
+            `skal ha refusjon`(19080, orgnummer = organisasjonsnummer)
+            `skal ha refusjon`(9540, orgnummer = etAnnetOrganisasjonsnummer)
             `skal ha direkteutbetaling`(0)
         }
     }
@@ -152,11 +161,13 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
     fun `to arbeidsgivere med 1 9g og en 6g hvor den ene refunderer 9g og den andre 3g`() {
         val seksG = Grunnbeløp.`6G`.beløp(ScenarioDefaults.fom)
 
+        val organisasjonsnummer = etOrganisasjonsnummer()
+        val etAnnetOrganisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        organisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig.times(1.5),
@@ -170,7 +181,7 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                         dagoversikt = SykAlleDager(),
                     ),
                     Arbeidstaker(
-                        "999999999",
+                        etAnnetOrganisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 seksG.månedlig,
@@ -182,8 +193,8 @@ class ToArbeidsgivere12GMedEn6GRefusjonScenarioTest {
                 ),
         ).run {
             `skal ha sykepengegrunnlag`(744168.0)
-            `skal ha refusjon`(21470, orgnummer = "988888888")
-            `skal ha refusjon`(7160, orgnummer = "999999999")
+            `skal ha refusjon`(21470, orgnummer = organisasjonsnummer)
+            `skal ha refusjon`(7160, orgnummer = etAnnetOrganisasjonsnummer)
             `skal ha direkteutbetaling`(0)
         }
     }

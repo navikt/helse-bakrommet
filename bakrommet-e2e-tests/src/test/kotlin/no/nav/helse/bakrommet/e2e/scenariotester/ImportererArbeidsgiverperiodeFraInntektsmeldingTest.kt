@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.PeriodetypeDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Inntektsmelding
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
@@ -13,12 +14,13 @@ import org.junit.jupiter.api.Test
 class ImportererArbeidsgiverperiodeFraInntektsmeldingTest {
     @Test
     fun `ny periode kant i kant arver sykepengegrunnlag`() {
+        val organisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             tom = ScenarioDefaults.fom.plusDays(28),
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        organisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 20000.0,
@@ -36,7 +38,7 @@ class ImportererArbeidsgiverperiodeFraInntektsmeldingTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
             førsteBehandling.`skal ha direkteutbetaling`(9230)
-            førsteBehandling.`skal ha refusjon`(0, "988888888")
+            førsteBehandling.`skal ha refusjon`(0, organisasjonsnummer)
             førsteBehandling.yrkesaktiviteter.first().perioder!!.also {
                 it.type `should equal` PeriodetypeDto.ARBEIDSGIVERPERIODE
                 it.perioder.size `should equal` 1

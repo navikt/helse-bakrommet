@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.ArbeidstakerInntektRequestDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.InntektRequestDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
 import no.nav.helse.bakrommet.e2e.testutils.ApiResult
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
@@ -23,7 +24,7 @@ class ArbeidsgiverForlengelseTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.behandling
@@ -41,7 +42,7 @@ class ArbeidsgiverForlengelseTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.behandling
@@ -70,7 +71,7 @@ class ArbeidsgiverForlengelseTest {
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etOrganisasjonsnummer(), inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
                 ),
         ).runWithApplicationTestBuilder { førsteBehandling ->
             val forrigePeriode = førsteBehandling.behandling

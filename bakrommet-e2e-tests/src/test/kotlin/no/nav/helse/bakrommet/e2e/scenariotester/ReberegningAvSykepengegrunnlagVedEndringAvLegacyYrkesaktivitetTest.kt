@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
@@ -16,11 +17,13 @@ import kotlin.test.Test
 class ReberegningAvSykepengegrunnlagVedEndringAvLegacyYrkesaktivitetTest {
     @Test
     fun `sykepengegrunnlag reberegnes når vi er i første behandling`() {
+        val organisasjonsnummer = etOrganisasjonsnummer()
+        val etAnnetOrganisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    Arbeidstaker("977777777", inntekt = AInntekt(10000, 10000, 50000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(organisasjonsnummer, inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etAnnetOrganisasjonsnummer, inntekt = AInntekt(10000, 10000, 50000), dagoversikt = SykAlleDager()),
                 ),
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder {
@@ -36,15 +39,15 @@ class ReberegningAvSykepengegrunnlagVedEndringAvLegacyYrkesaktivitetTest {
                 when (val k = it.kategorisering) {
                     is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
                         when (val type = k.typeArbeidstaker) {
-                            is TypeArbeidstakerDto.Ordinær -> type.orgnummer == "977777777"
-                            is TypeArbeidstakerDto.Maritim -> type.orgnummer == "977777777"
-                            is TypeArbeidstakerDto.Fisker -> type.orgnummer == "977777777"
+                            is TypeArbeidstakerDto.Ordinær -> type.orgnummer == etAnnetOrganisasjonsnummer
+                            is TypeArbeidstakerDto.Maritim -> type.orgnummer == etAnnetOrganisasjonsnummer
+                            is TypeArbeidstakerDto.Fisker -> type.orgnummer == etAnnetOrganisasjonsnummer
                             else -> false
                         }
                     }
 
                     is YrkesaktivitetKategoriseringDto.Frilanser -> {
-                        k.orgnummer == "977777777"
+                        k.orgnummer == etAnnetOrganisasjonsnummer
                     }
 
                     else -> {
@@ -68,11 +71,13 @@ class ReberegningAvSykepengegrunnlagVedEndringAvLegacyYrkesaktivitetTest {
 
     @Test
     fun `sykepengegrunnlag reberegnes ikke når vi er i forlengende behandling`() {
+        val organisasjonsnummer = etOrganisasjonsnummer()
+        val etAnnetOrganisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             yrkesaktiviteter =
                 listOf(
-                    Arbeidstaker("988888888", inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
-                    Arbeidstaker("977777777", inntekt = AInntekt(10000, 10000, 50000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(organisasjonsnummer, inntekt = AInntekt(10000, 10000, 10000), dagoversikt = SykAlleDager()),
+                    Arbeidstaker(etAnnetOrganisasjonsnummer, inntekt = AInntekt(10000, 10000, 50000), dagoversikt = SykAlleDager()),
                 ),
             besluttOgGodkjenn = false,
         ).runWithApplicationTestBuilder {
@@ -96,15 +101,15 @@ class ReberegningAvSykepengegrunnlagVedEndringAvLegacyYrkesaktivitetTest {
                 when (val k = it.kategorisering) {
                     is YrkesaktivitetKategoriseringDto.Arbeidstaker -> {
                         when (val type = k.typeArbeidstaker) {
-                            is TypeArbeidstakerDto.Ordinær -> type.orgnummer == "977777777"
-                            is TypeArbeidstakerDto.Maritim -> type.orgnummer == "977777777"
-                            is TypeArbeidstakerDto.Fisker -> type.orgnummer == "977777777"
+                            is TypeArbeidstakerDto.Ordinær -> type.orgnummer == etAnnetOrganisasjonsnummer
+                            is TypeArbeidstakerDto.Maritim -> type.orgnummer == etAnnetOrganisasjonsnummer
+                            is TypeArbeidstakerDto.Fisker -> type.orgnummer == etAnnetOrganisasjonsnummer
                             else -> false
                         }
                     }
 
                     is YrkesaktivitetKategoriseringDto.Frilanser -> {
-                        k.orgnummer == "977777777"
+                        k.orgnummer == etAnnetOrganisasjonsnummer
                     }
 
                     else -> {

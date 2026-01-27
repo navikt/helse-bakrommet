@@ -1,6 +1,7 @@
 package no.nav.helse.bakrommet.e2e.scenariotester
 
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.DagtypeDto
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.e2e.testutils.AInntekt
 import no.nav.helse.bakrommet.e2e.testutils.Arbeidstaker
 import no.nav.helse.bakrommet.e2e.testutils.Scenario
@@ -25,7 +26,7 @@ class BehandlingsdagTest {
             soknader =
                 listOf(
                     soknad(
-                        fnr = "2323232322",
+                        fnr = enNaturligIdent().value,
                         fom = 17.mai(2024),
                         tom = 17.juli(2024),
                     ) {

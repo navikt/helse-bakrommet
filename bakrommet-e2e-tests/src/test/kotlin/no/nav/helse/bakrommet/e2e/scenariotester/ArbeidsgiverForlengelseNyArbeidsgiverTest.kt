@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.e2e.scenariotester
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.RefusjonsperiodeDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.TypeArbeidstakerDto
 import no.nav.helse.bakrommet.api.dto.yrkesaktivitet.YrkesaktivitetKategoriseringDto
+import no.nav.helse.bakrommet.domain.etOrganisasjonsnummer
 import no.nav.helse.bakrommet.e2e.testutils.*
 import no.nav.helse.bakrommet.e2e.testutils.saksbehandlerhandlinger.*
 import org.junit.jupiter.api.Test
@@ -10,11 +11,12 @@ import org.junit.jupiter.api.Test
 class ArbeidsgiverForlengelseNyArbeidsgiverTest {
     @Test
     fun `ny periode kant i kant arver sykepengegrunnlag`() {
+        val organisasjonsnummer = etOrganisasjonsnummer()
         Scenario(
             yrkesaktiviteter =
                 listOf(
                     Arbeidstaker(
-                        "988888888",
+                        organisasjonsnummer,
                         inntekt =
                             Inntektsmelding(
                                 beregnetInntekt = 20000.0,
@@ -31,7 +33,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
         ).runWithApplicationTestBuilder { førsteBehandling ->
 
             førsteBehandling.`skal ha direkteutbetaling`(2310)
-            førsteBehandling.`skal ha refusjon`(6920, "988888888")
+            førsteBehandling.`skal ha refusjon`(6920, organisasjonsnummer)
 
             førsteBehandling.sykepengegrunnlag!!.sykepengegrunnlag `should equal` 240000.0
             val forrigePeriode = førsteBehandling.behandling
@@ -51,7 +53,7 @@ class ArbeidsgiverForlengelseNyArbeidsgiverTest {
                     nestePeriode.id,
                     YrkesaktivitetKategoriseringDto.Arbeidstaker(
                         sykmeldt = true,
-                        typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = "966666666"),
+                        typeArbeidstaker = TypeArbeidstakerDto.Ordinær(orgnummer = etOrganisasjonsnummer()),
                     ),
                 )
 
