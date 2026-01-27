@@ -1,6 +1,6 @@
 package no.nav.helse.bakrommet.auth
 
 @JvmInline
-value class AccessToken(
+value class OboToken(
     val value: String,
 )

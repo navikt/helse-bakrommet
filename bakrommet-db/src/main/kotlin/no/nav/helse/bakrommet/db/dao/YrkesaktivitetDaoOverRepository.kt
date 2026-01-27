@@ -52,8 +52,6 @@ class YrkesaktivitetDaoOverRepository(
         return yrkesaktivitetsperiode.tilDbRecord()
     }
 
-    override fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord? = yrkesaktivitetsperiodeRepository.finn(YrkesaktivitetsperiodeId(id))?.tilDbRecord()
-
     override fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet> =
         yrkesaktivitetsperiodeRepository
             .finn(BehandlingId(periode.id))

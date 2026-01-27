@@ -46,8 +46,6 @@ interface YrkesaktivitetDao {
         refusjonsdata: List<Refusjonsperiode>?,
     ): YrkesaktivitetDbRecord
 
-    fun hentYrkesaktivitetDbRecord(id: UUID): YrkesaktivitetDbRecord?
-
     fun hentYrkesaktiviteter(periode: BehandlingDbRecord): List<LegacyYrkesaktivitet>
 
     fun hentYrkesaktiviteterDbRecord(periode: BehandlingDbRecord): List<YrkesaktivitetDbRecord>
