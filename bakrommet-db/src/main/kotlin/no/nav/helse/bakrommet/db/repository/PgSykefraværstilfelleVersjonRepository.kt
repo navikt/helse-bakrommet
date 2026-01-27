@@ -10,19 +10,17 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.BeregningskoderKombinasjonerSykepengegrunnlag
 import no.nav.helse.bakrommet.domain.sykepenger.BeregningskoderSykepengegrunnlag
 import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.*
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Sykefraværstilfelle
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleVersjon
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleVersjonId
 import no.nav.helse.bakrommet.objectMapper
-import no.nav.helse.bakrommet.repository.SykefraværstilfelleRepository
-import java.util.*
+import no.nav.helse.bakrommet.repository.SykefraværstilfelleVersjonRepository
 
-class PgSykefraværstilfelleRepository private constructor(
+class PgSykefraværstilfelleVersjonRepository private constructor(
     private val queryRunner: QueryRunner,
-) : SykefraværstilfelleRepository {
+) : SykefraværstilfelleVersjonRepository {
     constructor(session: Session) : this(MedSession(session))
 
-    override fun lagre(sykefraværstilfelle: Sykefraværstilfelle) {
-        val id = sykefraværstilfelle.id.tilUUID()
+    override fun lagre(sykefraværstilfelleVersjon: SykefraværstilfelleVersjon) {
         queryRunner.update(
             """
             INSERT INTO sykepengegrunnlag (id, sykepengegrunnlag, sammenlikningsgrunnlag, opprettet_av_nav_ident, opprettet, oppdatert, opprettet_for_behandling, laast)
@@ -33,25 +31,24 @@ class PgSykefraværstilfelleRepository private constructor(
                 oppdatert = excluded.oppdatert,
                 laast = excluded.laast
             """.trimIndent(),
-            "id" to id,
-            "sykepengegrunnlag" to sykefraværstilfelle.sykepengegrunnlag.tilDbRecord().tilPgJson(),
-            "sammenlikningsgrunnlag" to sykefraværstilfelle.sammenlikningsgrunnlag.tilDbRecord().tilPgJson(),
-            "opprettet_av_nav_ident" to sykefraværstilfelle.opprettetAv,
-            "opprettet" to sykefraværstilfelle.opprettet,
-            "oppdatert" to sykefraværstilfelle.oppdatert,
-            "opprettet_for_behandling" to sykefraværstilfelle.opprettetForBehandling.value,
-            "laast" to sykefraværstilfelle.låst,
+            "id" to sykefraværstilfelleVersjon.id.value,
+            "sykepengegrunnlag" to sykefraværstilfelleVersjon.sykepengegrunnlag.tilDbRecord().tilPgJson(),
+            "sammenlikningsgrunnlag" to sykefraværstilfelleVersjon.sammenlikningsgrunnlag.tilDbRecord().tilPgJson(),
+            "opprettet_av_nav_ident" to sykefraværstilfelleVersjon.opprettetAv,
+            "opprettet" to sykefraværstilfelleVersjon.opprettet,
+            "oppdatert" to sykefraværstilfelleVersjon.oppdatert,
+            "opprettet_for_behandling" to sykefraværstilfelleVersjon.opprettetForBehandling.value,
+            "laast" to sykefraværstilfelleVersjon.låst,
         )
     }
 
-    override fun finn(sykefraværstilfelleId: SykefraværstilfelleId): Sykefraværstilfelle? {
-        val id = sykefraværstilfelleId.tilUUID()
-        return queryRunner.single(
+    override fun finn(sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId): SykefraværstilfelleVersjon? =
+        queryRunner.single(
             """SELECT * FROM sykepengegrunnlag WHERE id = :id""",
-            "id" to id,
+            "id" to sykefraværstilfelleVersjonId.value,
         ) {
-            Sykefraværstilfelle.fraLagring(
-                id = sykefraværstilfelleId,
+            SykefraværstilfelleVersjon.fraLagring(
+                id = sykefraværstilfelleVersjonId,
                 sykepengegrunnlag = objectMapper.readValue<DbSykepengegrunnlagBase>(it.string("sykepengegrunnlag")).tilDomene(),
                 sammenlikningsgrunnlag = objectMapper.readValue<DbSammenlikningsgrunnlag>(it.string("sammenlikningsgrunnlag")).tilDomene(),
                 opprettetAv = it.string("opprettet_av_nav_ident"),
@@ -61,7 +58,6 @@ class PgSykefraværstilfelleRepository private constructor(
                 låst = it.boolean("laast"),
             )
         }
-    }
 
     private fun Sammenlikningsgrunnlag.tilDbRecord(): DbSammenlikningsgrunnlag =
         DbSammenlikningsgrunnlag(
@@ -214,6 +210,4 @@ class PgSykefraværstilfelleRepository private constructor(
             DbBeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_ARBEIDSTAKER_FRILANSER_SELVSTENDIG_SYKEPENGEGRUNNLAG -> BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_ARBEIDSTAKER_FRILANSER_SELVSTENDIG_SYKEPENGEGRUNNLAG
             DbBeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_SELVSTENDIG_FRILANSER_SYKEPENGEGRUNNLAG -> BeregningskoderKombinasjonerSykepengegrunnlag.KOMBINERT_SELVSTENDIG_FRILANSER_SYKEPENGEGRUNNLAG
         }
-
-    private fun SykefraværstilfelleId.tilUUID() = UUID.nameUUIDFromBytes((naturligIdent.value + skjæringstidspunkt.toString()).toByteArray())
 }
