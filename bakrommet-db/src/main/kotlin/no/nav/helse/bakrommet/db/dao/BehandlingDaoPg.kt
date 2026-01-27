@@ -2,7 +2,6 @@ package no.nav.helse.bakrommet.db.dao
 
 import kotliquery.Row
 import kotliquery.Session
-import no.nav.helse.bakrommet.appLogger
 import no.nav.helse.bakrommet.behandling.BehandlingDao
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.BehandlingStatus
@@ -30,25 +29,6 @@ class BehandlingDaoPg private constructor(
 ) : BehandlingDao {
     constructor(dataSource: DataSource) : this(MedDataSource(dataSource))
     constructor(session: Session) : this(MedSession(session))
-
-    override fun hentAlleBehandlinger(): List<BehandlingDbRecord> {
-        val limitEnnSåLenge = 100
-        return db
-            .list(
-                """
-                select *
-                  from behandling
-                 
-                  LIMIT $limitEnnSåLenge 
-                """.trimIndent(),
-            ) { rowTilPeriode(it) }
-            .also { perioderIRetur ->
-                if (perioderIRetur.size >= limitEnnSåLenge) {
-                    // TODO: Det må inn noe WHERE-kriterer og paginering her ...
-                    appLogger.error("hentSaksbehandlingsperioder out of limit")
-                }
-            }
-    }
 
     override fun finnBehandling(id: UUID): BehandlingDbRecord? =
         db.single(

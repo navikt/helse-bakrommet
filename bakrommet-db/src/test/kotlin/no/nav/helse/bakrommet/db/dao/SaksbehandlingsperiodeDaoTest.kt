@@ -1,13 +1,16 @@
 package no.nav.helse.bakrommet.db.dao
 
+import kotliquery.sessionOf
 import no.nav.helse.bakrommet.behandling.BehandlingDbRecord
 import no.nav.helse.bakrommet.behandling.sykepengegrunnlag.Sykepengegrunnlag
 import no.nav.helse.bakrommet.db.DBTestFixture
+import no.nav.helse.bakrommet.db.repository.PgBehandlingRepository
 import no.nav.helse.bakrommet.domain.Bruker
 import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.enNavIdent
 import no.nav.helse.bakrommet.testutils.truncateTidspunkt
 import no.nav.helse.dto.InntektbeløpDto
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import java.time.LocalDate
@@ -22,12 +25,19 @@ internal class SaksbehandlingsperiodeDaoTest {
 
     private val dao = BehandlingDaoPg(dataSource)
     private val personPseudoIdDao = PersonPseudoIdDaoPg(dataSource)
+    private val session = sessionOf(dataSource)
+    private val behandlingRepository = PgBehandlingRepository(session)
 
     private val naturligIdent = enNaturligIdent()
     private val pseudoId = UUID.nameUUIDFromBytes(naturligIdent.value.toByteArray())
 
     init {
         personPseudoIdDao.opprettPseudoId(pseudoId, naturligIdent)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        session.close()
     }
 
     @Test
@@ -62,8 +72,8 @@ internal class SaksbehandlingsperiodeDaoTest {
         assertEquals(periode, hentet)
 
         // Sjekk at perioden finnes i listen over alle perioder for personen
-        val perioder = dao.finnBehandlingerForNaturligIdent(naturligIdent)
-        assertTrue(perioder.any { it.id == id })
+        val perioder = behandlingRepository.finnFor(naturligIdent)
+        assertTrue(perioder.any { it.id.value == id })
     }
 
     @Test

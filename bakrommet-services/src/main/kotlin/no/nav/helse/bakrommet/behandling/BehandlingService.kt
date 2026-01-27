@@ -53,8 +53,6 @@ class BehandlingService(
     private val db: DbDaoer<BehandlingServiceDaoer>,
     private val dokumentHenter: DokumentHenter,
 ) {
-    suspend fun hentAlleSaksbehandlingsperioder() = db.nonTransactional { behandlingDao.hentAlleBehandlinger() }
-
     suspend fun opprettNyBehandling(
         naturligIdent: NaturligIdent,
         fom: LocalDate,
@@ -172,8 +170,6 @@ class BehandlingService(
 
         return nyPeriode
     }
-
-    suspend fun finnPerioderForPerson(naturligIdent: NaturligIdent): List<BehandlingDbRecord> = db.nonTransactional { behandlingDao.finnBehandlingerForNaturligIdent(naturligIdent) }
 
     suspend fun sendTilBeslutning(
         periodeRef: BehandlingReferanse,

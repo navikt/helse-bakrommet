@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.db.repository
 
 import kotliquery.Row
 import kotliquery.Session
+import no.nav.helse.bakrommet.appLogger
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType
 import no.nav.helse.bakrommet.behandling.SaksbehandlingsperiodeEndringType.*
 import no.nav.helse.bakrommet.db.MedSession
@@ -28,7 +29,23 @@ class PgBehandlingRepository private constructor(
         ) { rowTilBehandling(it) }
 
     override fun finnAlle(): List<Behandling> {
-        TODO("Ikke implementert i PgBehandlingRepository")
+        val kunstigLimitEnnSåLenge = 100
+
+        return queryRunner
+            .list(
+                """
+                select *
+                  from behandling
+                  LIMIT :limit
+                """.trimIndent(),
+                "limit" to kunstigLimitEnnSåLenge,
+            ) { rowTilBehandling(it) }
+            .also { behandlinger ->
+                if (behandlinger.size >= kunstigLimitEnnSåLenge) {
+                    // TODO: Det må inn noe WHERE-kriterer og paginering her ...
+                    appLogger.error("hentSaksbehandlingsperioder out of limit")
+                }
+            }
     }
 
     override fun finnFor(naturligIdent: NaturligIdent): List<Behandling> =

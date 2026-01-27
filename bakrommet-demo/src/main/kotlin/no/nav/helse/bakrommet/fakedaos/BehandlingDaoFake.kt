@@ -16,8 +16,6 @@ import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus 
 class BehandlingDaoFake(
     private val behandlingRepository: BehandlingRepository,
 ) : BehandlingDao {
-    override fun hentAlleBehandlinger(): List<BehandlingDbRecord> = behandlingRepository.finnAlle().map { it.tilDbRecord() }
-
     override fun finnBehandling(id: UUID): BehandlingDbRecord? = behandlingRepository.finn(BehandlingId(id))?.tilDbRecord()
 
     override fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<BehandlingDbRecord> = behandlingRepository.finnFor(naturligIdent).map { it.tilDbRecord() }

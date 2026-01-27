@@ -50,8 +50,6 @@ enum class BehandlingStatus {
 }
 
 interface BehandlingDao {
-    fun hentAlleBehandlinger(): List<BehandlingDbRecord>
-
     fun finnBehandling(id: UUID): BehandlingDbRecord?
 
     fun finnBehandlingerForNaturligIdent(naturligIdent: NaturligIdent): List<BehandlingDbRecord>

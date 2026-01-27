@@ -29,8 +29,11 @@ fun Route.behandlingRoute(
 ) {
     route("/v1/behandlinger") {
         get {
-            val perioder = service.hentAlleSaksbehandlingsperioder()
-            call.respondJson(perioder.map { it.tilBehandlingDto() })
+            val behandlinger =
+                db.transactional {
+                    behandlingRepository.finnAlle()
+                }
+            call.respondJson(behandlinger.map { it.tilBehandlingDto() })
         }
     }
 
@@ -50,9 +53,11 @@ fun Route.behandlingRoute(
         }
 
         get {
-            service.finnPerioderForPerson(call.naturligIdent(personService)).let { perioder ->
-                call.respondJson(perioder.map { it.tilBehandlingDto() })
-            }
+            val behandlinger =
+                db.transactional {
+                    behandlingRepository.finnFor(naturligIdent(call))
+                }
+            call.respondJson(behandlinger.map { it.tilBehandlingDto() })
         }
     }
 
