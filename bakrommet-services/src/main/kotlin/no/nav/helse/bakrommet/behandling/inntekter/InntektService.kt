@@ -34,7 +34,7 @@ class InntektService(
         db.apply {
             val sykepengegrunnlagId = behandling.sykepengegrunnlagId
             if (sykepengegrunnlagId != null) {
-                val spg = sykepengegrunnlagDao.finnSykepengegrunnlag(sykepengegrunnlagId)!!
+                val spg = sykepengegrunnlagDao.finnSykepengegrunnlag(sykepengegrunnlagId.value)!!
                 if (spg.opprettetForBehandling != behandling.id.value) {
                     throw InputValideringException("Gjeldende sykepengegrunnlag er fastsatt på en tidligere saksbehandlingsperiode")
                 }

@@ -42,7 +42,7 @@ class UtbetalingsBeregningHjelper(
 
         // Hent sykepengegrunnlag
         val sykepengegrunnlag =
-            sykepengegrunnlagDao.finnSykepengegrunnlag(behandling.sykepengegrunnlagId ?: return)?.sykepengegrunnlag
+            sykepengegrunnlagDao.finnSykepengegrunnlag(behandling.sykepengegrunnlagId?.value ?: return)?.sykepengegrunnlag
                 ?: return
 
         // Hent yrkesaktivitet

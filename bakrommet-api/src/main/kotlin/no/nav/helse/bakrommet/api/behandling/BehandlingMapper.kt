@@ -43,7 +43,7 @@ fun Behandling.tilBehandlingDto(): BehandlingDto =
         beslutterNavIdent = beslutterNavIdent,
         skjæringstidspunkt = skjæringstidspunkt,
         individuellBegrunnelse = individuellBegrunnelse,
-        sykepengegrunnlagId = sykepengegrunnlagId,
+        sykepengegrunnlagId = sykepengegrunnlagId?.value,
         revurdererSaksbehandlingsperiodeId = revurdererBehandlingId?.value,
         revurdertAvBehandlingId = revurdertAvBehandlingId?.value,
     )

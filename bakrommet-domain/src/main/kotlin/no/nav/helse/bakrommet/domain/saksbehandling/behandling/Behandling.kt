@@ -2,7 +2,7 @@ package no.nav.helse.bakrommet.domain.saksbehandling.behandling
 
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.sykepenger.Periode
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleId
+import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.SykepengegrunnlagId
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -24,7 +24,7 @@ class Behandling private constructor(
     beslutterNavIdent: String? = null,
     skjæringstidspunkt: LocalDate,
     individuellBegrunnelse: String? = null,
-    sykepengegrunnlagId: UUID? = null,
+    sykepengegrunnlagId: SykepengegrunnlagId? = null,
     revurdererBehandlingId: BehandlingId? = null,
     revurdertAvBehandlingId: BehandlingId? = null,
     endringer: List<Endring>,
@@ -41,7 +41,7 @@ class Behandling private constructor(
         private set
     var individuellBegrunnelse: String? = individuellBegrunnelse
         private set
-    var sykepengegrunnlagId: UUID? = sykepengegrunnlagId
+    var sykepengegrunnlagId: SykepengegrunnlagId? = sykepengegrunnlagId
         private set
     var revurdererBehandlingId: BehandlingId? = revurdererBehandlingId
         private set
@@ -56,8 +56,6 @@ class Behandling private constructor(
     fun erÅpenForEndringer() = status == BehandlingStatus.UNDER_BEHANDLING
 
     fun erGodkjent() = status == BehandlingStatus.GODKJENT
-
-    val sykefraværstilfelleId get() = SykefraværstilfelleId(naturligIdent, skjæringstidspunkt)
 
     fun revurderAv(
         navIdent: String,
@@ -117,7 +115,7 @@ class Behandling private constructor(
             beslutterNavIdent: String?,
             skjæringstidspunkt: LocalDate,
             individuellBegrunnelse: String?,
-            sykepengegrunnlagId: UUID?,
+            sykepengegrunnlagId: SykepengegrunnlagId?,
             revurdererBehandlingId: BehandlingId?,
             revurdertAvBehandlingId: BehandlingId?,
             endringer: List<Endring>,

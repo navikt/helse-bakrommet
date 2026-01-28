@@ -177,10 +177,10 @@ fun Route.yrkesaktivitetRoute(
                     // hvis sykepengegrunnlaget eies av denne perioden, slett det
                     behandling.let { behandling ->
                         behandling.sykepengegrunnlagId?.let { sykepengegrunnlagId ->
-                            val spgRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId)
+                            val spgRecord = sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId.value)
                             if (spgRecord.opprettetForBehandling == behandling.id.value) {
                                 behandlingDao.oppdaterSykepengegrunnlagId(behandling.id.value, null)
-                                sykepengegrunnlagDao.slettSykepengegrunnlag(sykepengegrunnlagId)
+                                sykepengegrunnlagDao.slettSykepengegrunnlag(sykepengegrunnlagId.value)
                             }
                         }
                     }

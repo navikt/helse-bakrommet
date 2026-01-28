@@ -11,6 +11,7 @@ import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingStatus
+import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.SykepengegrunnlagId
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 
 class PgBehandlingRepository private constructor(
@@ -87,7 +88,7 @@ class PgBehandlingRepository private constructor(
             "beslutter_nav_ident" to behandling.beslutterNavIdent,
             "skjaeringstidspunkt" to behandling.skjæringstidspunkt,
             "individuell_begrunnelse" to behandling.individuellBegrunnelse,
-            "sykepengegrunnlag_id" to behandling.sykepengegrunnlagId,
+            "sykepengegrunnlag_id" to behandling.sykepengegrunnlagId?.value,
             "revurderer_behandling_id" to behandling.revurdererBehandlingId?.value,
             "revurdert_av_behandling_id" to behandling.revurdertAvBehandlingId?.value,
         )
@@ -192,7 +193,7 @@ class PgBehandlingRepository private constructor(
             beslutterNavIdent = row.stringOrNull("beslutter_nav_ident"),
             skjæringstidspunkt = row.localDate("skjaeringstidspunkt"),
             individuellBegrunnelse = row.stringOrNull("individuell_begrunnelse"),
-            sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id"),
+            sykepengegrunnlagId = row.uuidOrNull("sykepengegrunnlag_id")?.let { SykepengegrunnlagId(it) },
             revurdererBehandlingId = row.uuidOrNull("revurderer_behandling_id")?.let { BehandlingId(it) },
             revurdertAvBehandlingId = row.uuidOrNull("revurdert_av_behandling_id")?.let { BehandlingId(it) },
             endringer = behandlingId.finnEndringer(),

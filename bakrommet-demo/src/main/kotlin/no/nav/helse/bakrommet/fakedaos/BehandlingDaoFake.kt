@@ -6,6 +6,7 @@ import no.nav.helse.bakrommet.behandling.BehandlingStatus
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
+import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.SykepengegrunnlagId
 import no.nav.helse.bakrommet.repository.BehandlingRepository
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -108,7 +109,7 @@ class BehandlingDaoFake(
             beslutterNavIdent = beslutterNavIdent,
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
-            sykepengegrunnlagId = sykepengegrunnlagId,
+            sykepengegrunnlagId = sykepengegrunnlagId?.let { SykepengegrunnlagId(it) },
             revurdererBehandlingId = revurdererSaksbehandlingsperiodeId?.let { BehandlingId(it) },
             revurdertAvBehandlingId = revurdertAvBehandlingId?.let { BehandlingId(it) },
             endringer = emptyList(),
@@ -127,7 +128,7 @@ class BehandlingDaoFake(
             beslutterNavIdent = beslutterNavIdent,
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
-            sykepengegrunnlagId = sykepengegrunnlagId,
+            sykepengegrunnlagId = sykepengegrunnlagId?.value,
             revurdererSaksbehandlingsperiodeId = revurdererBehandlingId?.value,
             revurdertAvBehandlingId = revurdertAvBehandlingId?.value,
         )
@@ -225,7 +226,7 @@ class BehandlingDaoFake(
             beslutterNavIdent = beslutterNavIdent,
             skjæringstidspunkt = skjæringstidspunkt,
             individuellBegrunnelse = individuellBegrunnelse,
-            sykepengegrunnlagId = nySykepengegrunnlagId,
+            sykepengegrunnlagId = nySykepengegrunnlagId?.let { SykepengegrunnlagId(it) },
             revurdererBehandlingId = revurdererBehandlingId,
             revurdertAvBehandlingId = revurdertAvBehandlingId,
             endringer = emptyList(),

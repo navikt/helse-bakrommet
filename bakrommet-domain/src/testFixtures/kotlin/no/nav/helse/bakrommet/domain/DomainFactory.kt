@@ -3,6 +3,7 @@ package no.nav.helse.bakrommet.domain
 import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.*
 import no.nav.helse.bakrommet.domain.sykepenger.Dagoversikt
+import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.SykepengegrunnlagId
 import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.*
 import java.math.BigDecimal
 import java.time.Instant
@@ -49,7 +50,7 @@ fun enBehandling(
     beslutterNavIdent: String? = null,
     skjæringstidspunkt: LocalDate = LocalDate.now().minusMonths(1),
     individuellBegrunnelse: String? = null,
-    sykepengegrunnlagId: UUID? = null,
+    sykepengegrunnlagId: SykepengegrunnlagId? = null,
     revurdererSaksbehandlingsperiodeId: BehandlingId? = null,
     revurdertAvBehandlingId: BehandlingId? = null,
     endringer: List<Behandling.Endring> =

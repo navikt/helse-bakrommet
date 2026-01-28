@@ -234,7 +234,7 @@ class BehandlingService(
 
             val sykepengegrunnlagId = forrigeBehandling.sykepengegrunnlagId
             if (sykepengegrunnlagId != null) {
-                sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId).let { spg ->
+                sykepengegrunnlagDao.hentSykepengegrunnlag(sykepengegrunnlagId.value).let { spg ->
                     if (spg.opprettetForBehandling == forrigeBehandling.id.value) {
                         val nyttSpg =
                             sykepengegrunnlagDao.lagreSykepengegrunnlag(
