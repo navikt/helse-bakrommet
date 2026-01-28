@@ -2,6 +2,7 @@ package no.nav.helse.bakrommet.db.repository
 
 import no.nav.helse.bakrommet.assertInstantEquals
 import no.nav.helse.bakrommet.domain.enBehandling
+import no.nav.helse.bakrommet.domain.enNaturligIdent
 import no.nav.helse.bakrommet.domain.enNavIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.Behandling
 import no.nav.helse.bakrommet.domain.sykepenger.BeregningskoderKombinasjonerSykepengegrunnlag
@@ -10,8 +11,8 @@ import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.FrihåndSykepe
 import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.Næringsdel
 import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.Sykepengegrunnlag
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleVersjon
-import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleVersjonId
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.Sykefraværstilfelle
+import no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet.SykefraværstilfelleId
 import no.nav.helse.økonomi.Inntekt.Companion.månedlig
 import no.nav.helse.økonomi.Inntekt.Companion.årlig
 import java.time.Instant
@@ -20,16 +21,20 @@ import java.util.*
 import kotlin.test.*
 
 class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
-    private val repository = PgSykefraværstilfelleVersjonRepository(session)
+    private val repository = PgSykefraværstilfelleRepository(session)
     private val behandlingRepository = PgBehandlingRepository(session)
 
     @Test
     fun `lagre og hente sykefraværstilfelle med vanlig sykepengegrunnlag uten næringsdel`() {
         // given
+        val naturligIdent = enNaturligIdent()
+        val skjæringstidspunkt = LocalDate.of(2024, 1, 15)
         val behandling = enBehandling().ogLagre()
         val opprettetAvNavIdent = enNavIdent()
-        val sykefraværstilfelleVersjon =
-            SykefraværstilfelleVersjon.nytt(
+        val sykefraværstilfelle =
+            Sykefraværstilfelle.nytt(
+                naturligIdent = naturligIdent,
+                skjæringstidspunkt = skjæringstidspunkt,
                 sykepengegrunnlag =
                     Sykepengegrunnlag(
                         grunnbeløp = 118620.årlig,
@@ -53,16 +58,18 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
             )
 
         // when
-        repository.lagre(sykefraværstilfelleVersjon)
+        repository.lagre(sykefraværstilfelle)
 
         // then
-        val funnet = repository.finn(sykefraværstilfelleVersjon.id)
+        val funnet = repository.finn(sykefraværstilfelle.id)
         assertNotNull(funnet)
+        assertEquals(naturligIdent, funnet.id.naturligIdent)
+        assertEquals(skjæringstidspunkt, funnet.id.skjæringstidspunkt)
         assertEquals(opprettetAvNavIdent, funnet.opprettetAv)
         assertEquals(behandling.id, funnet.opprettetForBehandling)
         assertFalse(funnet.låst)
-        assertInstantEquals(sykefraværstilfelleVersjon.opprettet, funnet.opprettet)
-        assertInstantEquals(sykefraværstilfelleVersjon.oppdatert, funnet.oppdatert)
+        assertInstantEquals(sykefraværstilfelle.opprettet, funnet.opprettet)
+        assertInstantEquals(sykefraværstilfelle.oppdatert, funnet.oppdatert)
 
         // Sjekk sykepengegrunnlag
         assertTrue(funnet.sykepengegrunnlag is Sykepengegrunnlag)
@@ -80,15 +87,19 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
         assertEquals(480000.årlig, funnet.sammenlikningsgrunnlag.totaltSammenlikningsgrunnlag)
         assertEquals(4.17, funnet.sammenlikningsgrunnlag.avvikProsent)
         assertEquals(20000.årlig, funnet.sammenlikningsgrunnlag.avvikMotInntektsgrunnlag)
-        assertEquals(sykefraværstilfelleVersjon.sammenlikningsgrunnlag.basertPåDokumentId, funnet.sammenlikningsgrunnlag.basertPåDokumentId)
+        assertEquals(sykefraværstilfelle.sammenlikningsgrunnlag.basertPåDokumentId, funnet.sammenlikningsgrunnlag.basertPåDokumentId)
     }
 
     @Test
     fun `lagre og hente sykefraværstilfelle med næringsdel`() {
         // given
+        val naturligIdent = enNaturligIdent()
         val behandling = enBehandling().ogLagre()
-        val sykefraværstilfelleVersjon =
-            SykefraværstilfelleVersjon.nytt(
+        val skjæringstidspunkt = LocalDate.of(2024, 2, 1)
+        val sykefraværstilfelle =
+            Sykefraværstilfelle.nytt(
+                naturligIdent = naturligIdent,
+                skjæringstidspunkt = skjæringstidspunkt,
                 sykepengegrunnlag =
                     Sykepengegrunnlag(
                         grunnbeløp = 118620.årlig,
@@ -119,10 +130,10 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
             )
 
         // when
-        repository.lagre(sykefraværstilfelleVersjon)
+        repository.lagre(sykefraværstilfelle)
 
         // then
-        val funnet = repository.finn(sykefraværstilfelleVersjon.id)
+        val funnet = repository.finn(sykefraværstilfelle.id)
         assertNotNull(funnet)
 
         assertTrue(funnet.sykepengegrunnlag is Sykepengegrunnlag)
@@ -143,9 +154,13 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
     @Test
     fun `lagre og hente frihånd sykepengegrunnlag med beregningskoder`() {
         // given
+        val naturligIdent = enNaturligIdent()
         val behandling = enBehandling().ogLagre()
-        val sykefraværstilfelleVersjon =
-            SykefraværstilfelleVersjon.nytt(
+        val skjæringstidspunkt = LocalDate.of(2024, 3, 1)
+        val sykefraværstilfelle =
+            Sykefraværstilfelle.nytt(
+                naturligIdent = naturligIdent,
+                skjæringstidspunkt = skjæringstidspunkt,
                 sykepengegrunnlag =
                     FrihåndSykepengegrunnlag(
                         grunnbeløp = 118620.årlig,
@@ -172,10 +187,10 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
             )
 
         // when
-        repository.lagre(sykefraværstilfelleVersjon)
+        repository.lagre(sykefraværstilfelle)
 
         // then
-        val funnet = repository.finn(sykefraværstilfelleVersjon.id)
+        val funnet = repository.finn(sykefraværstilfelle.id)
         assertNotNull(funnet)
 
         // Sjekk at det er frihånd sykepengegrunnlag
@@ -190,9 +205,13 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
     @Test
     fun `lagre og hente frihånd sykepengegrunnlag med flere beregningskoder`() {
         // given
+        val naturligIdent = enNaturligIdent()
         val behandling = enBehandling().ogLagre()
-        val sykefraværstilfelleVersjon =
-            SykefraværstilfelleVersjon.nytt(
+        val skjæringstidspunkt = LocalDate.of(2024, 4, 1)
+        val sykefraværstilfelle =
+            Sykefraværstilfelle.nytt(
+                naturligIdent = naturligIdent,
+                skjæringstidspunkt = skjæringstidspunkt,
                 sykepengegrunnlag =
                     FrihåndSykepengegrunnlag(
                         grunnbeløp = 118620.årlig,
@@ -220,10 +239,10 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
             )
 
         // when
-        repository.lagre(sykefraværstilfelleVersjon)
+        repository.lagre(sykefraværstilfelle)
 
         // then
-        val funnet = repository.finn(sykefraværstilfelleVersjon.id)
+        val funnet = repository.finn(sykefraværstilfelle.id)
         assertNotNull(funnet)
 
         assertTrue(funnet.sykepengegrunnlag is FrihåndSykepengegrunnlag)
@@ -236,14 +255,15 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
     @Test
     fun `oppdatere eksisterende sykefraværstilfelle`() {
         // given
+        val naturligIdent = enNaturligIdent()
+        val skjæringstidspunkt = LocalDate.of(2024, 5, 1)
         val behandling = enBehandling().ogLagre()
         val opprettetTidspunkt = Instant.now().minusSeconds(3600)
         val oppdatertTidspunkt = Instant.now()
 
-        val id = SykefraværstilfelleVersjonId(UUID.randomUUID())
         val opprinnelig =
-            SykefraværstilfelleVersjon.fraLagring(
-                id = id,
+            Sykefraværstilfelle.fraLagring(
+                id = SykefraværstilfelleId(naturligIdent, skjæringstidspunkt),
                 sykepengegrunnlag =
                     Sykepengegrunnlag(
                         grunnbeløp = 118620.årlig,
@@ -271,8 +291,8 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
         repository.lagre(opprinnelig)
 
         val oppdatertGrunnlag =
-            SykefraværstilfelleVersjon.fraLagring(
-                id = id,
+            Sykefraværstilfelle.fraLagring(
+                id = SykefraværstilfelleId(naturligIdent, skjæringstidspunkt),
                 sykepengegrunnlag =
                     Sykepengegrunnlag(
                         grunnbeløp = 118620.årlig,
@@ -313,7 +333,7 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
     @Test
     fun `finn returnerer null når sykefraværstilfelle ikke finnes`() {
         // given
-        val ikkeFinnbarId = SykefraværstilfelleVersjonId(UUID.randomUUID())
+        val ikkeFinnbarId = SykefraværstilfelleId(enNaturligIdent(), LocalDate.of(2024, 7, 1))
 
         // when
         val funnet = repository.finn(ikkeFinnbarId)
@@ -325,9 +345,13 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
     @Test
     fun `lagre sykefraværstilfelle med månedlig inntekt konverteres riktig`() {
         // given
+        val naturligIdent = enNaturligIdent()
+        val skjæringstidspunkt = LocalDate.of(2024, 8, 1)
         val behandling = enBehandling().ogLagre()
-        val sykefraværstilfelleVersjon =
-            SykefraværstilfelleVersjon.nytt(
+        val sykefraværstilfelle =
+            Sykefraværstilfelle.nytt(
+                naturligIdent = naturligIdent,
+                skjæringstidspunkt = skjæringstidspunkt,
                 sykepengegrunnlag =
                     Sykepengegrunnlag(
                         grunnbeløp = 9885.månedlig,
@@ -351,10 +375,10 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
             )
 
         // when
-        repository.lagre(sykefraværstilfelleVersjon)
+        repository.lagre(sykefraværstilfelle)
 
         // then
-        val funnet = repository.finn(sykefraværstilfelleVersjon.id)
+        val funnet = repository.finn(sykefraværstilfelle.id)
         assertNotNull(funnet)
         // Sjekk at inntektene ble konvertert korrekt (månedlig * 12 = årlig)
         assertEquals(500004.årlig, funnet.sykepengegrunnlag.sykepengegrunnlag)
@@ -364,9 +388,13 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
     @Test
     fun `lagre sykefraværstilfelle med alle beregningskoder for frilanser`() {
         // given
+        val naturligIdent = enNaturligIdent()
+        val skjæringstidspunkt = LocalDate.of(2024, 9, 1)
         val behandling = enBehandling().ogLagre()
-        val sykefraværstilfelleVersjon =
-            SykefraværstilfelleVersjon.nytt(
+        val sykefraværstilfelle =
+            Sykefraværstilfelle.nytt(
+                naturligIdent = naturligIdent,
+                skjæringstidspunkt = skjæringstidspunkt,
                 sykepengegrunnlag =
                     FrihåndSykepengegrunnlag(
                         grunnbeløp = 118620.årlig,
@@ -394,10 +422,10 @@ class PgSykefraværstilfelleRepositoryTest : RepositoryTest() {
             )
 
         // when
-        repository.lagre(sykefraværstilfelleVersjon)
+        repository.lagre(sykefraværstilfelle)
 
         // then
-        val funnet = repository.finn(sykefraværstilfelleVersjon.id)
+        val funnet = repository.finn(sykefraværstilfelle.id)
         assertNotNull(funnet)
         assertTrue(funnet.sykepengegrunnlag is FrihåndSykepengegrunnlag)
         val grunnlag = funnet.sykepengegrunnlag as FrihåndSykepengegrunnlag

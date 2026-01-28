@@ -10,41 +10,41 @@ value class YrkesaktivitetId(
 
 sealed interface Yrkesaktivitet {
     val id: YrkesaktivitetId
-    val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId
+    val sykefraværstilfelleId: SykefraværstilfelleId
 
     sealed interface Arbeidstaker : Yrkesaktivitet {
         val arbeidsgiverperioder: Arbeidsgiverperioder
 
         class Ordinær(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             val organisasjonsnummer: String,
             override val arbeidsgiverperioder: Arbeidsgiverperioder,
         ) : Arbeidstaker
 
         class Maritim(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             val organisasjonsnummer: String,
             override val arbeidsgiverperioder: Arbeidsgiverperioder,
         ) : Arbeidstaker
 
         class Fisker(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             val organisasjonsnummer: String,
             override val arbeidsgiverperioder: Arbeidsgiverperioder,
         ) : Arbeidstaker
 
         class DimmitertVernepliktig(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             override val arbeidsgiverperioder: Arbeidsgiverperioder,
         ) : Arbeidstaker
 
         class PrivatArbeidsgiver(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             val arbeidsgiversFødselsnummer: String,
             override val arbeidsgiverperioder: Arbeidsgiverperioder,
         ) : Arbeidstaker
@@ -56,14 +56,14 @@ sealed interface Yrkesaktivitet {
 
         class Ordinær(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             override val forsikring: SelvstendigForsikring,
             override val perioder: Ventetidsperioder,
         ) : SelvstendigNæringsdrivende
 
         class BarnepasserEgetHjem(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             override val forsikring: SelvstendigForsikring,
             override val perioder: Ventetidsperioder,
         ) : SelvstendigNæringsdrivende
@@ -71,7 +71,7 @@ sealed interface Yrkesaktivitet {
         // Fisker har alltid 100% fra første sykedag implisitt
         class Fisker(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             override val perioder: Ventetidsperioder,
         ) : SelvstendigNæringsdrivende {
             override val forsikring: SelvstendigForsikring = SelvstendigForsikring.FORSIKRING_100_PROSENT_FRA_FØRSTE_SYKEDAG
@@ -79,14 +79,14 @@ sealed interface Yrkesaktivitet {
 
         class Jordbruker(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             override val forsikring: SelvstendigForsikring,
             override val perioder: Ventetidsperioder,
         ) : SelvstendigNæringsdrivende
 
         class Reindrift(
             override val id: YrkesaktivitetId,
-            override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            override val sykefraværstilfelleId: SykefraværstilfelleId,
             override val forsikring: SelvstendigForsikring,
             override val perioder: Ventetidsperioder,
         ) : SelvstendigNæringsdrivende
@@ -94,7 +94,7 @@ sealed interface Yrkesaktivitet {
 
     class Frilanser(
         override val id: YrkesaktivitetId,
-        override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+        override val sykefraværstilfelleId: SykefraværstilfelleId,
         val organisasjonsnummer: String,
         val forsikring: FrilanserForsikring,
         val ventetidsperioder: Ventetidsperioder,
@@ -102,134 +102,134 @@ sealed interface Yrkesaktivitet {
 
     class Arbeidsledig(
         override val id: YrkesaktivitetId,
-        override val sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+        override val sykefraværstilfelleId: SykefraværstilfelleId,
     ) : Yrkesaktivitet
 
     companion object {
         fun ordinærArbeidstaker(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             organisasjonsnummer: String,
             arbeidsgiverperioder: Arbeidsgiverperioder,
         ) = Arbeidstaker.Ordinær(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             organisasjonsnummer = organisasjonsnummer,
             arbeidsgiverperioder = arbeidsgiverperioder,
         )
 
         fun maritimArbeidstaker(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             organisasjonsnummer: String,
             arbeidsgiverperioder: Arbeidsgiverperioder,
         ) = Arbeidstaker.Maritim(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             organisasjonsnummer = organisasjonsnummer,
             arbeidsgiverperioder = arbeidsgiverperioder,
         )
 
         fun fisker(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             organisasjonsnummer: String,
             arbeidsgiverperioder: Arbeidsgiverperioder,
         ) = Arbeidstaker.Fisker(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             organisasjonsnummer = organisasjonsnummer,
             arbeidsgiverperioder = arbeidsgiverperioder,
         )
 
         fun dimmitertVernepliktig(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             arbeidsgiverperioder: Arbeidsgiverperioder,
         ) = Arbeidstaker.DimmitertVernepliktig(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             arbeidsgiverperioder = arbeidsgiverperioder,
         )
 
         fun medPrivatArbeidsgiver(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             arbeidsgiversFødselsnummer: String,
             arbeidsgiverperioder: Arbeidsgiverperioder,
         ) = Arbeidstaker.PrivatArbeidsgiver(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             arbeidsgiversFødselsnummer = arbeidsgiversFødselsnummer,
             arbeidsgiverperioder = arbeidsgiverperioder,
         )
 
         fun ordinærSelvstendigNæringsdrivende(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             forsikring: SelvstendigForsikring,
             perioder: Ventetidsperioder,
         ) = SelvstendigNæringsdrivende.Ordinær(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             forsikring = forsikring,
             perioder = perioder,
         )
 
         fun barnepasser(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             forsikring: SelvstendigForsikring,
             perioder: Ventetidsperioder,
         ) = SelvstendigNæringsdrivende.BarnepasserEgetHjem(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             forsikring = forsikring,
             perioder = perioder,
         )
 
         fun selvstendigFisker(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             perioder: Ventetidsperioder,
         ) = SelvstendigNæringsdrivende.Fisker(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             perioder = perioder,
         )
 
         fun jordbruker(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             perioder: Ventetidsperioder,
             forsikring: SelvstendigForsikring,
         ) = SelvstendigNæringsdrivende.Jordbruker(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             perioder = perioder,
             forsikring = forsikring,
         )
 
         fun reindrift(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             perioder: Ventetidsperioder,
             forsikring: SelvstendigForsikring,
         ) = SelvstendigNæringsdrivende.Reindrift(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             perioder = perioder,
             forsikring = forsikring,
         )
 
         fun frilanser(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
             organisasjonsnummer: String,
             forsikring: FrilanserForsikring,
             ventetidsperioder: Ventetidsperioder,
         ) = Frilanser(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
             organisasjonsnummer = organisasjonsnummer,
             forsikring = forsikring,
             ventetidsperioder = ventetidsperioder,
         )
 
         fun arbeidsledig(
-            sykefraværstilfelleVersjonId: SykefraværstilfelleVersjonId,
+            sykefraværstilfelleId: SykefraværstilfelleId,
         ) = Arbeidsledig(
             id = YrkesaktivitetId(UUID.randomUUID()),
-            sykefraværstilfelleVersjonId = sykefraværstilfelleVersjonId,
+            sykefraværstilfelleId = sykefraværstilfelleId,
         )
     }
 }

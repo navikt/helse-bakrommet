@@ -3,13 +3,13 @@ package no.nav.helse.bakrommet.db
 import kotliquery.Session
 import no.nav.helse.bakrommet.db.dao.*
 import no.nav.helse.bakrommet.db.repository.PgBehandlingRepository
-import no.nav.helse.bakrommet.db.repository.PgSykefraværstilfelleVersjonRepository
+import no.nav.helse.bakrommet.db.repository.PgSykefraværstilfelleRepository
 import no.nav.helse.bakrommet.db.repository.PgTilkommenInntektRepository
 import no.nav.helse.bakrommet.db.repository.PgVilkårsvurderingRepository
 import no.nav.helse.bakrommet.db.repository.PgYrkesaktivitetsperiodeRepository
 import no.nav.helse.bakrommet.infrastruktur.db.AlleDaoer
 import no.nav.helse.bakrommet.repository.BehandlingRepository
-import no.nav.helse.bakrommet.repository.SykefraværstilfelleVersjonRepository
+import no.nav.helse.bakrommet.repository.SykefraværstilfelleRepository
 import no.nav.helse.bakrommet.repository.TilkommenInntektRepository
 import no.nav.helse.bakrommet.repository.VilkårsvurderingRepository
 import javax.sql.DataSource
@@ -21,7 +21,7 @@ class DaoerFelles(
     override val behandlingRepository: BehandlingRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
     override val vilkårsvurderingRepository: VilkårsvurderingRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
     override val tilkommenInntektRepository: TilkommenInntektRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
-    override val sykefraværstilfelleVersjonRepository: SykefraværstilfelleVersjonRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
+    override val sykefraværstilfelleRepository: SykefraværstilfelleRepository get() = error("Ikke tilgjengelig utenfor transaksjon")
     override val yrkesaktivitetsperiodeRepository = PgYrkesaktivitetsperiodeRepository(dataSource)
     override val behandlingEndringerDao = BehandlingEndringerDaoPg(dataSource)
     override val personPseudoIdDao = PersonPseudoIdDaoPg(dataSource)
@@ -47,6 +47,6 @@ class SessionDaoerFelles(
     override val behandlingRepository = PgBehandlingRepository(session)
     override val tilkommenInntektRepository = PgTilkommenInntektRepository(session)
     override val vilkårsvurderingRepository = PgVilkårsvurderingRepository(session)
-    override val sykefraværstilfelleVersjonRepository = PgSykefraværstilfelleVersjonRepository(session)
+    override val sykefraværstilfelleRepository = PgSykefraværstilfelleRepository(session)
     override val yrkesaktivitetDao = YrkesaktivitetDaoOverRepository(yrkesaktivitetsperiodeRepository)
 }

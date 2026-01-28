@@ -1,18 +1,19 @@
 package no.nav.helse.bakrommet.domain.sykepenger.yrkesaktivitet
 
+import no.nav.helse.bakrommet.domain.person.NaturligIdent
 import no.nav.helse.bakrommet.domain.saksbehandling.behandling.BehandlingId
 import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.Sammenlikningsgrunnlag
 import no.nav.helse.bakrommet.domain.sykepenger.sykepengegrunnlag.SykepengegrunnlagBase
 import java.time.Instant
-import java.util.UUID
+import java.time.LocalDate
 
-@JvmInline
-value class SykefraværstilfelleVersjonId(
-    val value: UUID,
+data class SykefraværstilfelleId(
+    val naturligIdent: NaturligIdent,
+    val skjæringstidspunkt: LocalDate,
 )
 
-class SykefraværstilfelleVersjon private constructor(
-    val id: SykefraværstilfelleVersjonId,
+class Sykefraværstilfelle private constructor(
+    val id: SykefraværstilfelleId,
     val sykepengegrunnlag: SykepengegrunnlagBase,
     val sammenlikningsgrunnlag: Sammenlikningsgrunnlag,
     val opprettet: Instant,
@@ -23,7 +24,7 @@ class SykefraværstilfelleVersjon private constructor(
 ) {
     companion object {
         fun fraLagring(
-            id: SykefraværstilfelleVersjonId,
+            id: SykefraværstilfelleId,
             sykepengegrunnlag: SykepengegrunnlagBase,
             sammenlikningsgrunnlag: Sammenlikningsgrunnlag,
             opprettet: Instant,
@@ -31,7 +32,7 @@ class SykefraværstilfelleVersjon private constructor(
             oppdatert: Instant,
             opprettetForBehandling: BehandlingId,
             låst: Boolean = false,
-        ) = SykefraværstilfelleVersjon(
+        ) = Sykefraværstilfelle(
             id = id,
             sykepengegrunnlag = sykepengegrunnlag,
             sammenlikningsgrunnlag = sammenlikningsgrunnlag,
@@ -43,14 +44,16 @@ class SykefraværstilfelleVersjon private constructor(
         )
 
         fun nytt(
+            naturligIdent: NaturligIdent,
+            skjæringstidspunkt: LocalDate,
             sykepengegrunnlag: SykepengegrunnlagBase,
             sammenlikningsgrunnlag: Sammenlikningsgrunnlag,
             opprettetAv: String,
             opprettetForBehandling: BehandlingId,
-        ): SykefraværstilfelleVersjon {
+        ): Sykefraværstilfelle {
             val opprettet = Instant.now()
-            return SykefraværstilfelleVersjon(
-                id = SykefraværstilfelleVersjonId(UUID.randomUUID()),
+            return Sykefraværstilfelle(
+                id = SykefraværstilfelleId(naturligIdent, skjæringstidspunkt),
                 sykepengegrunnlag = sykepengegrunnlag,
                 sammenlikningsgrunnlag = sammenlikningsgrunnlag,
                 opprettet = opprettet,
