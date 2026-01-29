@@ -1,0 +1,33 @@
+@startuml
+
+interface Vilkår
+
+class Inngangsvilkår
+class LøpendeVilkår as "Løpende vilkår"
+
+class Vilkårsprøving
+class Utfall {
+    Oppfylt
+    Ikke oppfylt
+}
+
+class ReferanseTilLovverk as "Referanse til lovverk"
+
+class BegrunnelseForOppfylt as "Begrunnelse for ikke oppfylt"
+class BegrunnelseForIkkeOppfylt as "Begrunnelse for oppfylt"
+
+Inngangsvilkår --> Vilkår: er et
+LøpendeVilkår --> Vilkår: er et
+Vilkår --> ReferanseTilLovverk: har en
+Vilkår --> BegrunnelseForOppfylt: har en eller flere
+Vilkår --> BegrunnelseForIkkeOppfylt: har en eller flere
+Vilkårsprøving --> Vilkår: gjelder et
+Vilkårsprøving --> Utfall: har ett
+BegrunnelseForOppfylt --> Utfall: er årsak til
+BegrunnelseForIkkeOppfylt --> Utfall: er årsak til
+
+
+hide empty members
+hide circle
+
+@enduml
