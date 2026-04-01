@@ -26,7 +26,7 @@ dependencies {
     testImplementation(kotlin("test"))
 
     testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
     testImplementation("no.nav.security:mock-oauth2-server")
     testImplementation(testFixtures(project(":bakrommet-services")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-pdl")))
@@ -36,7 +36,7 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
     testImplementation(testFixtures(project(":bakrommet-domain")))
 
-    testFixturesApi("org.testcontainers:postgresql")
+    testFixturesApi("org.testcontainers:testcontainers-postgresql")
     testFixturesApi("com.zaxxer:HikariCP")
     testFixturesApi("org.postgresql:postgresql")
     testFixturesApi("org.flywaydb:flyway-core")

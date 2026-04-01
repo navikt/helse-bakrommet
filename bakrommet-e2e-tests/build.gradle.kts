@@ -27,7 +27,7 @@ dependencies {
     testImplementation("io.ktor:ktor-client-apache-jvm")
     testImplementation("io.ktor:ktor-server-auth-jwt")
 
-    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
     testImplementation("no.nav.security:mock-oauth2-server")
     testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     testImplementation("no.nav.helse.flex:sykepengesoknad-kafka")
