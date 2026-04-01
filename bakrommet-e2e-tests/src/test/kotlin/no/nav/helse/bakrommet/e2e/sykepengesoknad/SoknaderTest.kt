@@ -79,10 +79,10 @@ class SoknaderTest {
                 } else {
                     // Multiple søknader request
                     val fnr = request.bodyToJson()["fnr"].asText()
-                    val fom = request.bodyToJson()["fom"]?.asText()
+                    val fom = request.bodyToJson()["fom"].asText()!!
 
                     val reply =
-                        if ((fom != null && LocalDate.parse(fom) > LocalDate.parse("2025-03-30")) || fnr != naturligIdent.value) {
+                        if (LocalDate.parse(fom) > LocalDate.now().minusMonths(11) || fnr != naturligIdent.value) {
                             "[]"
                         } else {
                             "[${enSøknad(naturligIdent.value)}]"
@@ -159,7 +159,7 @@ class SoknaderTest {
             val personPseudoId = personsøk(naturligIdent)
 
             client
-                .get("/v1/$personPseudoId/soknader?fom=2025-04-01") {
+                .get("/v1/$personPseudoId/soknader?fom=${LocalDate.now().minusMonths(10)}") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)
@@ -167,7 +167,7 @@ class SoknaderTest {
                 }
 
             client
-                .get("/v1/$personPseudoId/soknader?fom=2025-01-01") {
+                .get("/v1/$personPseudoId/soknader?fom=${LocalDate.now().minusMonths(12)}") {
                     bearerAuth(TestOppsett.userToken)
                 }.apply {
                     assertEquals(200, status.value)
