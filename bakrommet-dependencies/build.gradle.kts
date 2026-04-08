@@ -46,7 +46,7 @@ dependencies {
         api("org.apache.kafka:kafka-clients:4.1.1")
 
         // Monitoring
-        api("io.micrometer:micrometer-registry-prometheus:1.15.4")
+        api("io.micrometer:micrometer-registry-prometheus:1.16.1")
 
         // Testing
         api("org.testcontainers:testcontainers-postgresql:2.0.4")
