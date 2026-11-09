@@ -77,7 +77,7 @@ jobs:
       - name: Sjekk ut kode
         uses: actions/checkout@v6
       - name: Deploy til NAIS
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: deploy/dev.yml
@@ -121,7 +121,7 @@ jobs:
       - name: Sjekk ut kode
         uses: actions/checkout@v6
       - name: Deploy til NAIS
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: deploy/demo.yml
