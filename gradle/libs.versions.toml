@@ -1,0 +1,65 @@
+[versions]
+flyway = "13.12.1"
+shedlock = "7.11.0"
+sykepengerGradlePlugins = "20261029.1945"
+
+[libraries]
+commons-codec = "commons-codec:commons-codec:1.23.0"
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+hikaricp = "com.zaxxer:HikariCP:7.1.0"
+inntektsmelding-kontrakt = "no.nav.sykepenger.kontrakter:inntektsmelding-kontrakt:2026.09.23-11-26-a8db8"
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+jsonassert = "org.skyscreamer:jsonassert:1.5.3"
+kafka-clients = { module = "org.apache.kafka:kafka-clients" }
+kotlin-faker = "io.github.serpro69:kotlin-faker:1.16.2"
+kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0"
+kotliquery = "com.github.seratch:kotliquery:1.9.1"
+ktor-client-apache-jvm = { module = "io.ktor:ktor-client-apache-jvm" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
+ktor-client-core = { module = "io.ktor:ktor-client-core" }
+ktor-client-mock-jvm = { module = "io.ktor:ktor-client-mock-jvm" }
+ktor-serialization-jackson = { module = "io.ktor:ktor-serialization-jackson" }
+ktor-server-auth = { module = "io.ktor:ktor-server-auth" }
+ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt" }
+ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging" }
+ktor-server-cio = { module = "io.ktor:ktor-server-cio" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation" }
+ktor-server-core = { module = "io.ktor:ktor-server-core" }
+ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer" }
+ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host" }
+logback-classic = { module = "ch.qos.logback:logback-classic" }
+logstash-logback-encoder = "net.logstash.logback:logstash-logback-encoder:9.0"
+micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+mock-oauth2-server = "no.nav.security:mock-oauth2-server:6.1.5"
+postgresql = "org.postgresql:postgresql:42.7.14"
+shedlock-core = { module = "net.javacrumbs.shedlock:shedlock-core", version.ref = "shedlock" }
+shedlock-provider-jdbc = { module = "net.javacrumbs.shedlock:shedlock-provider-jdbc", version.ref = "shedlock" }
+slf4j-api = "org.slf4j:slf4j-api:2.0.20"
+spill-av-im-matching = "com.github.navikt.spill_av_im:matching:2026.10.09-09.43-e915f757"
+sykepenger-okonomi = "com.github.navikt.spleis:sykepenger-okonomi:2025.09.05-14.51-15db36a7"
+sykepengesoknad-kafka = "no.nav.helse.flex:sykepengesoknad-kafka:2025.09.23-17.33-5e6b02b6"
+testcontainers-postgresql = "org.testcontainers:testcontainers-postgresql:2.0.5"
+
+[bundles]
+ktor-server = [
+    "ktor-server-auth",
+    "ktor-server-auth-jwt",
+    "ktor-server-call-logging",
+    "ktor-server-cio",
+    "ktor-server-content-negotiation",
+    "ktor-server-core",
+    "ktor-serialization-jackson",
+    "ktor-server-metrics-micrometer",
+    "ktor-server-status-pages",
+]
+
+[plugins]
+sykepenger-deployable = { id = "no.nav.sykepenger.deployable", version.ref = "sykepengerGradlePlugins" }
+sykepenger-kotlin = { id = "no.nav.sykepenger.kotlin", version.ref = "sykepengerGradlePlugins" }
+sykepenger-root = { id = "no.nav.sykepenger.root", version.ref = "sykepengerGradlePlugins" }

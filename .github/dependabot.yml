@@ -1,31 +1,26 @@
 version: 2
+multi-ecosystem-groups:
+  dependencies:
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "⬆️ "
 updates:
-  # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
+    multi-ecosystem-group: "dependencies"
+    patterns: ["*"]
     cooldown:
-      default-days: 7 # Delay all updates by 7 days by default
-    commit-message:
-      prefix: "⬆ "
-    schedule:
-      interval: "daily"
+      default-days: 7
+      exclude:
+        - "navikt/sykepenger-github-workflows*"
 
-  # Maintain dependencies for docker
-  - package-ecosystem: "docker"
-    directory: "/"
-    cooldown:
-      default-days: 7 # Delay all updates by 7 days by default
-    commit-message:
-      prefix: "⬆ "
-    schedule:
-      interval: "daily"
-
-  # Maintain dependencies for gradle
   - package-ecosystem: "gradle"
     directory: "/"
+    multi-ecosystem-group: "dependencies"
+    patterns: ["*"]
     cooldown:
-      default-days: 7 # Delay all updates by 7 days by default
-    commit-message:
-      prefix: "⬆ "
-    schedule:
-      interval: "daily"
+      default-days: 7
+      exclude:
+        - "no.nav.sykepenger.*"
+        - "com.github.navikt.tbd-libs:*"

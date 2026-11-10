@@ -1,12 +1,11 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
+  name: sp-bakrommet
+  namespace: tbd
   labels:
-    team: speilvendt
-  name: bakrommet-demo
-  namespace: speilvendt
+    team: tbd
 spec:
-  image: {{image}}
   port: 8080
   ingresses:
     - https://bakrommet-demo.ekstern.dev.nav.no

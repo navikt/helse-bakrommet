@@ -1,12 +1,20 @@
-dependencies {
-    api(platform(project(":bakrommet-dependencies")))
+plugins {
+    id("no.nav.sykepenger.kotlin")
+}
 
+dependencies {
     // bruker "api" sånn at avhengigheten blir kopiert ut til konsumenter av denne modulen
     api(project(":sykepenger-primitiver-dto"))
 
-    implementation("com.fasterxml.jackson.core:jackson-core")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
+}
+
+// Modulen var unntatt ktlint før standardiseringen, og skal ikke reformateres automatisk
+ktlint {
+    filter {
+        exclude { true }
+    }
 }

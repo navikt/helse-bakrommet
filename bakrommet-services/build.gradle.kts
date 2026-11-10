@@ -1,38 +1,32 @@
 plugins {
+    id("no.nav.sykepenger.kotlin")
     `java-test-fixtures`
 }
 
-val shedlockVersion = "7.2.2"
-
 dependencies {
-    api(platform(project(":bakrommet-dependencies")))
-
     api(project(":bakrommet-domain"))
     api(project(":bakrommet-kafka-dto"))
     api(project(":sykepenger-model"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    api(libs.kotlinx.coroutines.core)
     // TODO flytte ut til client igjen når vi har en egen domene-representasjon av IM
-    api("no.nav.sykepenger.kontrakter:inntektsmelding-kontrakt:2025.04.04-01-56-365d3")
+    api(libs.inntektsmelding.kontrakt)
 
     // TODO flytte ut til client igjen når vi har en egen domene-representasjon av søknad
-    api("no.nav.helse.flex:sykepengesoknad-kafka")
+    api(libs.sykepengesoknad.kafka)
 
-    implementation("com.github.navikt.spleis:sykepenger-okonomi")
+    implementation(libs.sykepenger.okonomi)
+    implementation(libs.logstash.logback.encoder)
+    api(libs.logback.classic)
+    api(libs.slf4j.api)
 
-    implementation("com.github.navikt.spleis:sykepenger-okonomi")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-    implementation("net.logstash.logback:logstash-logback-encoder")
-    api("ch.qos.logback:logback-classic")
-    api("org.slf4j:slf4j-api")
-
-    api("com.fasterxml.jackson.core:jackson-core")
-    api("com.fasterxml.jackson.core:jackson-databind")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin")
-    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    api(libs.jackson.core)
+    api(libs.jackson.databind)
+    api(libs.jackson.module.kotlin)
+    api(libs.jackson.datatype.jsr310)
 
     testImplementation(testFixtures(project(":bakrommet-services")))
 
     testFixturesImplementation(kotlin("test"))
     testFixturesImplementation(project(":sykepenger-model"))
-    testFixturesImplementation("com.github.navikt.spleis:sykepenger-okonomi")
+    testFixturesImplementation(libs.sykepenger.okonomi)
 }

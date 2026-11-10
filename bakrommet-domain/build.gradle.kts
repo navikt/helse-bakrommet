@@ -1,7 +1,10 @@
-dependencies {
-    api(platform(project(":bakrommet-dependencies")))
+plugins {
+    id("no.nav.sykepenger.kotlin")
+    `java-test-fixtures`
+}
 
-    implementation("com.github.navikt.spleis:sykepenger-okonomi")
+dependencies {
+    implementation(libs.sykepenger.okonomi)
 
     testFixturesApi(kotlin("test"))
 }

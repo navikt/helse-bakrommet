@@ -1,5 +1,8 @@
+plugins {
+    id("no.nav.sykepenger.kotlin")
+}
+
 dependencies {
-    api(platform(project(":bakrommet-dependencies")))
-    api("com.fasterxml.jackson.core:jackson-annotations")
-    api("com.fasterxml.jackson.core:jackson-databind")
+    api(libs.jackson.annotations)
+    api(libs.jackson.databind)
 }

@@ -1,33 +1,30 @@
 plugins {
+    id("no.nav.sykepenger.kotlin")
     `java-test-fixtures`
 }
-
-val shedlockVersion = "7.2.2"
 
 dependencies {
     api(project(":bakrommet-services"))
     implementation(project(":bakrommet-db-dto"))
 
-    api("org.postgresql:postgresql")
-    api("com.zaxxer:HikariCP")
-    api("org.flywaydb:flyway-core")
-    api("org.flywaydb:flyway-database-postgresql")
-    api("com.github.seratch:kotliquery")
+    api(libs.postgresql)
+    api(libs.hikaricp)
+    api(libs.flyway.core)
+    api(libs.flyway.database.postgresql)
+    api(libs.kotliquery)
 
-    implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
+    implementation(libs.shedlock.core)
+    implementation(libs.shedlock.provider.jdbc)
 
-    implementation("ch.qos.logback:logback-classic")
-    implementation("net.logstash.logback:logstash-logback-encoder")
-    implementation("org.slf4j:slf4j-api")
+    implementation(libs.logback.classic)
+    implementation(libs.logstash.logback.encoder)
+    implementation(libs.slf4j.api)
 
-    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation(libs.micrometer.registry.prometheus)
 
-    testImplementation(kotlin("test"))
-
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.testcontainers:testcontainers-postgresql")
-    testImplementation("no.nav.security:mock-oauth2-server")
+    testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.mock.oauth2.server)
     testImplementation(testFixtures(project(":bakrommet-services")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-pdl")))
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sykepengesoknad")))
@@ -36,10 +33,10 @@ dependencies {
     testImplementation(testFixtures(project(":bakrommet-clients:bakrommet-client-sigrun")))
     testImplementation(testFixtures(project(":bakrommet-domain")))
 
-    testFixturesApi("org.testcontainers:testcontainers-postgresql")
-    testFixturesApi("com.zaxxer:HikariCP")
-    testFixturesApi("org.postgresql:postgresql")
-    testFixturesApi("org.flywaydb:flyway-core")
-    testFixturesApi("org.flywaydb:flyway-database-postgresql")
-    testFixturesApi("com.github.seratch:kotliquery")
+    testFixturesApi(libs.testcontainers.postgresql)
+    testFixturesApi(libs.hikaricp)
+    testFixturesApi(libs.postgresql)
+    testFixturesApi(libs.flyway.core)
+    testFixturesApi(libs.flyway.database.postgresql)
+    testFixturesApi(libs.kotliquery)
 }

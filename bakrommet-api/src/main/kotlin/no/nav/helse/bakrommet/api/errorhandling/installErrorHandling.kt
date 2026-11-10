@@ -6,6 +6,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.CannotTransformContentToTypeException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.uri
 import no.nav.helse.bakrommet.errorhandling.ApplicationException
@@ -46,6 +47,20 @@ fun Application.installErrorHandling(includeStackTrace: Boolean = false) {
                     title = "Ugyldig JSON-format",
                     detail = cause.message,
                     typePath = "validation/json",
+                    instance = call.request.uri,
+                )
+
+            call.respondProblem(status, problem)
+        }
+        exception<CannotTransformContentToTypeException> { call, cause ->
+            val status = HttpStatusCode.UnsupportedMediaType
+
+            val problem =
+                buildProblem(
+                    status = status,
+                    title = "Ustøttet innholdstype",
+                    detail = cause.message,
+                    typePath = "validation/content-type",
                     instance = call.request.uri,
                 )
 

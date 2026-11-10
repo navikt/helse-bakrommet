@@ -1,7 +1,9 @@
-dependencies {
-    api(platform(project(":bakrommet-dependencies")))
+plugins {
+    id("no.nav.sykepenger.kotlin")
+}
 
-    implementation("com.zaxxer:HikariCP")
+dependencies {
+    implementation(libs.hikaricp)
 
     testImplementation(project(":bakrommet-bootstrap"))
     testImplementation(project(":bakrommet-services"))
@@ -16,22 +18,22 @@ dependencies {
     testImplementation(project(":bakrommet-clients:bakrommet-client-sykepengesoknad"))
     testImplementation(project(":sykepenger-model"))
 
-    testImplementation("com.github.seratch:kotliquery")
+    testImplementation(libs.kotliquery)
 
-    testImplementation("io.ktor:ktor-server-core")
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("io.ktor:ktor-client-core")
-    testImplementation("io.ktor:ktor-client-content-negotiation")
-    testImplementation("io.ktor:ktor-client-mock-jvm")
-    testImplementation("io.ktor:ktor-serialization-jackson")
-    testImplementation("io.ktor:ktor-client-apache-jvm")
-    testImplementation("io.ktor:ktor-server-auth-jwt")
+    testImplementation(libs.ktor.server.core)
+    testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.client.core)
+    testImplementation(libs.ktor.client.content.negotiation)
+    testImplementation(libs.ktor.client.mock.jvm)
+    testImplementation(libs.ktor.serialization.jackson)
+    testImplementation(libs.ktor.client.apache.jvm)
+    testImplementation(libs.ktor.server.auth.jwt)
 
-    testImplementation("org.testcontainers:testcontainers-postgresql")
-    testImplementation("no.nav.security:mock-oauth2-server")
-    testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    testImplementation("no.nav.helse.flex:sykepengesoknad-kafka")
-    testImplementation("com.github.navikt.spleis:sykepenger-okonomi")
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.mock.oauth2.server)
+    testImplementation(libs.jackson.datatype.jsr310)
+    testImplementation(libs.sykepengesoknad.kafka)
+    testImplementation(libs.sykepenger.okonomi)
 
     testImplementation(testFixtures(project(":bakrommet-db")))
     testImplementation(testFixtures(project(":bakrommet-services")))

@@ -1,9 +1,8 @@
 plugins {
+    id("no.nav.sykepenger.kotlin")
     `java-test-fixtures`
 }
 
 dependencies {
-    api(platform(project(":bakrommet-dependencies")))
-
-    api("com.fasterxml.jackson.core:jackson-databind")
+    api(libs.jackson.databind)
 }

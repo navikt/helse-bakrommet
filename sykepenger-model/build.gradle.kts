@@ -1,5 +1,6 @@
-val jsonassertVersion = "1.5.0"
-val tbdSpillAvImMatchingVersion = "2025.09.22-10.55-f3d9310c"
+plugins {
+    id("no.nav.sykepenger.kotlin")
+}
 
 dependencies {
     // bruker "api" sånn at avhengigheten blir kopiert ut til konsumenter av denne modulen
@@ -9,11 +10,11 @@ dependencies {
     api(project(":sykepenger-utbetaling"))
     testImplementation(kotlin("reflect"))
     testImplementation(testFixtures(project(":sykepenger-utbetaling")))
-    testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
-    testImplementation("com.github.navikt.spill_av_im:matching:$tbdSpillAvImMatchingVersion")
+    testImplementation(libs.jsonassert)
+    testImplementation(libs.spill.av.im.matching)
 
     // for å kunne lage json av spannerpersoner
-    testImplementation("com.fasterxml.jackson.core:jackson-core")
+    testImplementation(libs.jackson.core)
 }
 
 tasks {
@@ -22,5 +23,12 @@ tasks {
         systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
         systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
         systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "8")
+    }
+}
+
+// Modulen var unntatt ktlint før standardiseringen, og skal ikke reformateres automatisk
+ktlint {
+    filter {
+        exclude { true }
     }
 }

@@ -1,22 +1,22 @@
 plugins {
+    id("no.nav.sykepenger.kotlin")
     `java-test-fixtures`
 }
 
 dependencies {
-    api(platform(project(":bakrommet-dependencies")))
     api(project(":bakrommet-services"))
 
-    api("io.ktor:ktor-client-core")
-    api("io.ktor:ktor-client-content-negotiation")
-    api("io.ktor:ktor-serialization-jackson")
-    api("io.ktor:ktor-client-apache-jvm")
-    api("io.ktor:ktor-server-auth-jwt")
-    api("io.ktor:ktor-server-status-pages")
-    api("io.ktor:ktor-server-core")
+    api(libs.ktor.client.core)
+    api(libs.ktor.client.content.negotiation)
+    api(libs.ktor.serialization.jackson)
+    api(libs.ktor.client.apache.jvm)
+    api(libs.ktor.server.auth.jwt)
+    api(libs.ktor.server.status.pages)
+    api(libs.ktor.server.core)
 
-    testFixturesApi("io.ktor:ktor-client-mock-jvm")
-    testFixturesApi("io.ktor:ktor-client-core")
-    testFixturesApi("io.ktor:ktor-client-content-negotiation")
-    testFixturesApi("io.ktor:ktor-serialization-jackson")
-    testFixturesApi("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    testFixturesApi(libs.ktor.client.mock.jvm)
+    testFixturesApi(libs.ktor.client.core)
+    testFixturesApi(libs.ktor.client.content.negotiation)
+    testFixturesApi(libs.ktor.serialization.jackson)
+    testFixturesApi(libs.jackson.datatype.jsr310)
 }

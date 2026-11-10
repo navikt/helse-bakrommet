@@ -5,23 +5,17 @@
 **Purpose**: Backend service ("Bakrommet") for the Spillerom frontend. Stores case processing data, daily overviews, sick pay basis, and other facts entered by case handlers.
 
 **Tech Stack**: Kotlin + Gradle multi-module project (24 modules, ~515 Kotlin files, ~199MB)
-- **Language**: Kotlin 2.2.20
+- **Language**: Kotlin (version from the sykepenger Gradle plugins)
 - **Build Tool**: Gradle 9.1.0 with Kotlin DSL
-- **Runtime**: Java 21 (JVM toolchain)
-- **Web Framework**: Ktor 3.3.2
+- **Runtime**: Java 25 (JVM toolchain from `no.nav.sykepenger.kotlin`)
+- **Web Framework**: Ktor (BOM from `no.nav.sykepenger.kotlin`)
 - **Database**: PostgreSQL with Flyway migrations
 - **Testing**: JUnit 5, Testcontainers
-- **Linting**: ktlint (plugin version 14.0.1)
+- **Linting**: ktlint via the sykepenger Gradle plugins (`check` runs `ktlintFormat`)
 
 ## Essential Build Commands
 
-**CRITICAL**: Always use Java 21 for this project. The build will fail with other Java versions.
-
-### Setup Java 21
-```bash
-export JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64
-export PATH=$JAVA_HOME/bin:$PATH
-```
+**CRITICAL**: Always use Java 25 for this project.
 
 ### Build Commands
 ```bash
@@ -45,11 +39,10 @@ export PATH=$JAVA_HOME/bin:$PATH
 ```
 
 ### Important Build Notes
-- **GitHub Token Required**: Build needs `ORG_GRADLE_PROJECT_githubPassword` environment variable for private NAV dependencies from GitHub Packages. In CI, this is set to `${{ secrets.GITHUB_TOKEN }}`. Locally, builds will work without it for most tasks but may fail when resolving certain dependencies.
+- **Repositories**: Set up in `settings.gradle.kts`. Locally and for agents, NAV packages come from the GitHub Package Registry mirror without a token.
 - **Build Time**: Full clean build takes ~1m 30s. Incremental builds are much faster (~3-10s).
 - **ktlint Warnings**: Build shows ktlint warnings but doesn't fail (ignoreFailures = true). These are informational.
-- **Parallel Test Execution**: Tests run with max 4 parallel forks in CI, 1 fork locally.
-- **Excluded from ktlint**: The `sykepenger-utbetaling`, `sykepenger-primitiver`, and `sykepenger-model` modules are excluded from ktlint checks.
+- **Excluded from ktlint**: The `sykepenger-*` modules are excluded from ktlint in their own `build.gradle.kts`.
 
 ## Project Structure
 
@@ -67,8 +60,7 @@ helse-bakrommet/
 │   ├── bakrommet-client-pdl/
 │   ├── bakrommet-client-sigrun/
 │   └── bakrommet-client-sykepengesoknad/
-├── bakrommet-demo/             # Demo application (separate entry point)
-├── bakrommet-dependencies/     # Platform dependency management (BOM)
+├── bakrommet-demo/             # Demo application with in-memory storage (the only deployed image)
 ├── bakrommet-e2e-tests/        # End-to-end integration tests
 ├── bakrommet-kafka-dto/        # Kafka message DTOs
 ├── bakrommet-services/         # Business logic and database layer
@@ -83,31 +75,24 @@ helse-bakrommet/
 ### Key Files
 - **Main Entry Point**: `bakrommet-bootstrap/src/main/kotlin/no/nav/helse/bakrommet/App.kt`
 - **Demo Entry Point**: `bakrommet-demo/src/main/kotlin/no/nav/helse/bakrommet/StartDemoApp.kt`
-- **Root Build**: `build.gradle.kts` (project-wide Kotlin/ktlint/test config)
-- **Dependencies**: `bakrommet-dependencies/build.gradle.kts` (version constraints)
+- **Root Build**: `build.gradle.kts` (applies `no.nav.sykepenger.root`; shared Kotlin/ktlint/test config comes from the sykepenger Gradle plugins)
+- **Dependencies**: `gradle/libs.versions.toml` (version catalog)
 - **Database Migrations**: `bakrommet-services/src/main/resources/db/migration/`
-- **Dockerfiles**: `Dockerfile` (main), `Dockerfile.demo` (demo app)
+- **Image**: `bakrommet-demo` is built with jib (`no.nav.sykepenger.deployable`) as `sp-bakrommet`
+- **Nais manifest**: `.nais/sp-bakrommet.yaml` (dev-gcp only)
 
 ## Common Issues & Workarounds
 
 ### Issue: Build Fails with Wrong Java Version
 **Symptom**: Build errors about Java version mismatch
-**Solution**: Ensure Java 21 is active (see "Setup Java 21" above)
+**Solution**: Ensure Java 25 is active
 
 ### Issue: ktlint Formatting Errors
 **Symptom**: Code fails ktlint checks
 **Solution**: Run `./gradlew ktlintFormat` to auto-format code. Note: Build won't fail on ktlint errors (ignoreFailures = true), but CI shows warnings.
 
-### Issue: Missing Pre-commit Hook Warning
-**Symptom**: Warning after local build about missing pre-commit hook
-**Solution**: Run `./gradlew addKtlintFormatGitPreCommitHook` to install the hook (optional)
-
-### Issue: GitHub Package Resolution Fails
-**Symptom**: Build fails resolving NAV dependencies
-**Solution**: Set `ORG_GRADLE_PROJECT_githubPassword` environment variable with a GitHub token that has package read access
-
-### Issue: Demo Build in CI
-**Note**: The demo logback.xml file is intentionally deleted in CI before building. This is a known workflow step to prevent local logging config from affecting the deployed demo application.
+### Local Logging in the Demo App
+**Note**: The demo app uses the JSON logging in `bakrommet-services/src/main/resources/logback.xml`. The `Start demo app` run configuration sets `-Dlogback.configurationFile=logback-lokal.xml` for readable local logs.
 
 ## Code Style
 
@@ -118,21 +103,20 @@ helse-bakrommet/
 
 ## Testing
 
-- **Framework**: JUnit 5 (configured via junit-bom 5.10.0)
+- **Framework**: JUnit (BOM from `no.nav.sykepenger.kotlin`)
 - **Database Tests**: Use Testcontainers with PostgreSQL
 - **Auth Mocking**: mock-oauth2-server (3.0.0)
 - **HTTP Testing**: Ktor server test host
 - **Test Fixtures**: Multiple modules provide test fixtures via `java-test-fixtures` plugin
-- **Test Execution**: Configured for parallel execution in CI (max 4 forks), serial locally
 - **Run Tests**: `./gradlew test` (takes ~30s with cached build)
 
 ## Important Conventions
 
-1. **Always build with Java 21** - The project uses `kotlin.jvmToolchain(21)`
+1. **Always build with Java 25** - The toolchain comes from `no.nav.sykepenger.kotlin`
 2. **Use Gradle wrapper** - Always use `./gradlew`, never system Gradle
 3. **Run ktlintFormat before committing** - Keeps code style consistent
-4. **Check build.gradle.kts hierarchy** - Root defines common config, subprojects override as needed
-5. **bakrommet-dependencies module** - Defines version constraints for all dependencies (BOM pattern)
+4. **Sykepenger Gradle plugins** - Each module applies `no.nav.sykepenger.kotlin` (or `.deployable` for `bakrommet-demo`)
+5. **Version catalog** - Add dependencies to `gradle/libs.versions.toml`
 6. **Test fixtures pattern** - Many modules expose test utilities via testFixtures source set
 7. **Multi-module dependencies** - Check `settings.gradle.kts` for module structure before adding cross-module dependencies
 

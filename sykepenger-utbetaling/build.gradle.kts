@@ -1,15 +1,24 @@
-val commonsCodecVersion = "1.15"
+plugins {
+    id("no.nav.sykepenger.kotlin")
+    `java-test-fixtures`
+}
 
 dependencies {
-    api(platform(project(":bakrommet-dependencies")))
-    api("commons-codec:commons-codec:$commonsCodecVersion")
+    api(libs.commons.codec)
 
     // bruker "api" sånn at avhengigheten blir kopiert ut til konsumenter av denne modulen
     api(project(":sykepenger-utbetaling-dto"))
 
     implementation(project(":sykepenger-primitiver"))
-    implementation("com.github.navikt.spleis:sykepenger-okonomi")
-    testFixturesImplementation("com.github.navikt.spleis:sykepenger-okonomi")
+    implementation(libs.sykepenger.okonomi)
+    testFixturesImplementation(libs.sykepenger.okonomi)
     testFixturesImplementation(project(":sykepenger-primitiver"))
-    implementation("org.slf4j:slf4j-api")
+    implementation(libs.slf4j.api)
+}
+
+// Modulen var unntatt ktlint før standardiseringen, og skal ikke reformateres automatisk
+ktlint {
+    filter {
+        exclude { true }
+    }
 }
