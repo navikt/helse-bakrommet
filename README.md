@@ -2,7 +2,7 @@
 [![Bygg og deploy bakrommet-demo](https://github.com/navikt/sp-bakrommet/actions/workflows/main-bakrommet-demo.yml/badge.svg)](https://github.com/navikt/sp-bakrommet/actions/workflows/main-bakrommet-demo.yml)
 
 ## Beskrivelse
-Backend for frontenden Spillerom. Holder behandlinger, dagoversikt, sykepengegrunnlag og annen fakta puttet inn av saksbehandler i spillerom.
+Backend for frontenden Spillerom. Appen er ikke lengre tenkt å gå ut i produksjon, men lever da vi bruker spillerom  i produktutviklingsarbeidet da tilsvarende støtte skal bygges inn i speil ++.
 
 ## Henvendelser
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.
