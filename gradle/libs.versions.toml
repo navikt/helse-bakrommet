@@ -43,7 +43,7 @@ shedlock-provider-jdbc = { module = "net.javacrumbs.shedlock:shedlock-provider-j
 slf4j-api = "org.slf4j:slf4j-api:2.0.20"
 spill-av-im-matching = "com.github.navikt.spill_av_im:matching:2026.10.09-09.43-e915f757"
 sykepenger-okonomi = "com.github.navikt.spleis:sykepenger-okonomi:2025.09.05-14.51-15db36a7"
-sykepengesoknad-kafka = "no.nav.helse.flex:sykepengesoknad-kafka:2025.09.23-17.33-5e6b02b6"
+sykepengesoknad-kafka = "no.nav.helse.flex:sykepengesoknad-kafka:2026.10.28-17.30-e59ff951"
 testcontainers-postgresql = "org.testcontainers:testcontainers-postgresql:2.0.5"
 
 [bundles]
